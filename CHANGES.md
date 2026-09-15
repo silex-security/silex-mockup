@@ -76,3 +76,24 @@
 - **导航分组**：采用会上提出的 pre-deployment / post-deployment / environment 三块，没有按技术纵线分 tab。
 - **唯一的合并**：Validation Horizon 里 medium term 和 long term 合并成每月回测，依据是会上的结论。
 - **数字都是示意**，包括新增的回测历史和日期；背后没有真实引擎。
+
+## 待办
+
+### 待决定
+- [ ] 送 shadow 之前，是否每个 control 都必须先通过 Agentic Control Validation（Incident 详情页上标为待定）。
+- [ ] 模块最终怎么分：pre-deployment / post-deployment / environment 三块，还是再单独拆出一块；Validation Horizon 最终放在哪。
+- [ ] Enterprise domain suites 是否留在 Overview：Overview 主要面向 CISO，还是也要按部门（vertical）看。
+- [ ] Horizontal agent（文件读取、数据分析等所有部门都会用的 agent）在按部门划分的结构里放在哪。
+- [ ] 「Blueprint」是否是行业通用说法；如果不是，是否换一个更通俗的名字。
+
+### 待补内容
+- [ ] 核实 Definitions 弹窗里的指标定义（residual risk、residual reachability、sim-to-real calibration、coverage confidence、critical evidence、world model coverage、defense confidence），目前是草稿。
+- [ ] 明确 Blueprint Check 具体检查哪些项，以及检查结果怎么对应 ontology L1–L4。
+- [ ] 和 ontology 研究负责人对齐 Security Landscape 里 ontology 和 Security World Model 的展示方式。
+- [ ] 把示意数字换成真实跑出来的结果（回测历史、run queue、control validation 对比等）。
+
+### 后续再做
+- [ ] Policy Review 的 Overall approval · CISO 视图（页面上已有占位，主流程之后再完善）。
+- [ ] Runtime Knowledge Graph、Cross-Domain Risk、Integrations 这几个标为 `Later` 的页面。
+- [ ] Proving Ground 里多个 workflow 并行运行、状态实时更新的真实交互（目前是静态示意）。
+- [ ] 真实接入 agent：demo 阶段全部是模拟 agent，有资源后再做。
