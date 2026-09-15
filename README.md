@@ -1,9 +1,9 @@
 # silex-mockup
 
-Clickable product mockup of the Silex agentic control validation console, revised after the 2026-09-14 web demo review.
+Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (Web UX / Investor Demo) on 2026-09-15.
 
-- **Page:** [`index.html`](index.html) — a single self-contained HTML file; open it in a browser.
-- **Base:** the framework, style and sub-features of the earlier GPT-built demo site.
-- **What changed on 9/14:** click **◆ 9/14 changes** in the top bar. It lists every change, jumps to it, and outlines the changed elements on the page. The same list, page by page, plus the open to-dos, is in [`CHANGES.md`](CHANGES.md).
-- **Next revision:** [`PRD_ALIGNMENT_PLAN.md`](PRD_ALIGNMENT_PLAN.md) compares this page and `CHANGES.md` with the V1 PRD and lays out a P0/P1/P2 plan to align them.
+- **Page:** [`index.html`](index.html), a single self-contained HTML file. Live at [silex-mockup.vercel.app](https://silex-mockup.vercel.app/).
+- **Demo story:** Agentic Blueprint Studio → Confirm → Validate → Optimize → Decide → Register → Workflow Library → Mark as deployed → Short-Term Validation → Long-Term Validation. Incidents enter the same flow from the Incident Queue.
+- **What changed:** click **◆ 9/15 changes** in the top bar to list, jump to and outline every change. The same list, the defaults chosen for open questions, and the remaining to-dos are in [`CHANGES.md`](CHANGES.md).
+- **Plan:** [`PRD_ALIGNMENT_PLAN.md`](PRD_ALIGNMENT_PLAN.md) compares the 9/14 page with the PRD and lays out the P0/P1/P2 work this revision implements.
 - **Figures are illustrative.** All agents are simulated; no engine runs behind the page.

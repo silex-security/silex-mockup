@@ -1,99 +1,159 @@
-# 9/14 改动说明
+# Changes
 
-`index.html` 是在早先一版 GPT 生成的 Silex 控制台 demo 基础上，按 2026-09-14 产品 demo 评审会的结论改出来的。原站的布局、配色、交互和子功能都保留，只做定点改动：会上没有决定删除的子功能一个都没删，「放后面」的页面只标了 `Later`。
+`index.html` is a clickable demo of the SILEX agentic security platform. Figures are illustrative and every agent is simulated.
 
-页面上共标记了 48 处改动。打开 `index.html`，点右上角 **◆ 9/14 changes**：可以看到改动清单，逐条跳过去，改过的地方会用虚线框标出。
+Open the page and click **◆ 9/15 changes** in the top bar to list the latest changes, jump to each one, and outline the changed elements.
 
-## 整体结构
+- **9/15** (this revision): realigned with the V1 PRD (*Web UX / Investor Demo*), following [`PRD_ALIGNMENT_PLAN.md`](PRD_ALIGNMENT_PLAN.md).
+- **9/14** (previous): revision after the product demo review; summarized at the end of this file.
 
-- **左侧导航按客户使用阶段重新分组**
-  - Pre-deployment：Blueprint Studio
-  - Post-deployment：Incident Queue、Agentic Control Validation、Policy Review
-  - Environment：Validation Horizon、Sim-to-Real、Workflow Library、Security Landscape、Integrations
-- **新增 Validation Horizon 页面**，放在 Environment 第一个。
-- **Integrations 标为 `Later`**（原站这一页是空的）。
-- **顶栏新增**
-  - 「Simulated agents · demo」标签：页面上的 agent 都是模拟的。
-  - 「Definitions」弹窗：residual risk、sim-to-real calibration、critical evidence 等指标的定义，注明是草稿、需要核实。
-  - 「◆ 9/14 changes」改动清单。
+---
 
-## 各页面
+## 9/15 — aligned with the V1 PRD
 
-### Overview
-- Coverage confidence 往上移。
-- World model coverage 放进顶部指标。
-- 按部门的 domain suites 试放在这一页。
-- Latest runtime evidence、Workflow Attack Path Validation、Evidence timeline、Sim-to-real 四张卡片默认折叠；点「Run validation」会自动展开进度卡。
-- residual risk 等指标旁边加「definition」链接。
+### Structure and wording
 
-### Incident Queue
-- 筛选栏从页面上方挪到卡片列表旁边。
-- 新增 Use case、Agent type 两个筛选。
+- **Navigation** follows PRD §5:
+  - **Overview**
+  - **Workflow Security**: Agentic Blueprint Studio, Incident Queue, Workflow Library, Policy Review
+  - **Environment**: Short-Term Validation, Long-Term Validation, Security Model
+- **Removed as pages:**
+  - *Agentic Control Validation* / *Proving Ground*: validation is now a step inside both flows (§13, §39).
+  - *Sim-to-Real*: its definition is TBD (§48); recalibration now appears as a Long-Term Validation activity.
+  - *Validation Horizon* as a separate page: its three horizons now head both environment pages.
+- **Hidden:** *Integrations* (V2, §42).
+- **Terminology** (§39): *Agentic Blueprint Studio*, *Validation*, *Validated Policy Recommendation*, *Residual Reachability* (replaces "residual risk"), *Registered / Deployed*. "Proving Ground" and "Blueprint Check" no longer appear in the UI.
+- **Demo honesty** (§43): "Production connected", "Live telemetry" and "Last calibrated" replaced with *Demo environment* and *Simulated agents · illustrative data*.
+- **Definitions panel** uses PRD §39 wording; Defense Confidence, Coverage Confidence and Residual Reachability show *Formula TBD* (§48).
 
-### Incident 详情页
-- 顶部新增 6 步流程条：Incident Evidence → Causal Workflow → Alternative Paths → Control & Policy Review → Agentic Control Validation → Approve for Shadow，一次只高亮当前一步。
-- 「Control Intervention」改名为 **Control & Policy Review**，里面新增：
-  - 左边是仍然可达的替代路径，右边是 control 建议，并排显示，由人勾选；
-  - 「Send to Agentic Control Validation →」下一步按钮；
-  - 待定问题：送 shadow 之前是否必须先通过验证。
+### Overview (§36)
+- **Enterprise Security Posture:** Critical Open Risks, Defense Confidence, Workflows at Risk, Workflows Needing Revalidation.
+- **World Model Coverage** with its largest gap and a link to Coverage Gaps.
+- **Domain Suites** (Finance, Customer Service, IT, Procurement, Operations & HR), each linking to Security Model.
+- **New:**
+  - Workflow Coverage: registered vs known workflows, and deployed.
+  - Policy Decisions: validated recommendations awaiting approval.
+- Secondary modules (recent material activity, coverage-confidence detail) are collapsed.
 
-### Blueprint Studio
-- 流程从 4 步改为 5 步：Blueprint Builder → Blueprint Check → Proving Ground → Control & Policy Review → Decision → Workflow Library，并注明第 3 步起与部署后流程相同。
-- Control point 改用虚线边框、◆ 标记和琥珀色，和 agent 区分开，工具栏加图例。
-- Blueprint Check 新增「What the check asks」卡片：假想这个 agent 部署后会发生什么，提前给出 policy 更新建议；检查结果怎么对应 ontology L1–L4 还待确认。
-- 已完成的步骤不再看起来像当前步骤。
+### Agentic Blueprint Studio (§7–§22, §49)
+- **Lifecycle stepper:** Build → Confirm → Validate → Optimize → Decide → Register, with one active step and a lifecycle status chip (Draft, Confirmed, Validating, Risk identified, Recommendation ready, Ready for approval, Approved, Rejected, Registered).
+- **Build:** the natural-language workflow generator and graph editor from 9/14; agents and control points look different.
+- **Confirm:**
+  - Shows the confirmation statement ("this graph accurately represents the workflow the enterprise intends to deploy"), a checklist and an explicit acknowledgement.
+  - Confirming locks v1.0; *Edit as v1.1 draft* creates a revision.
+- **Validate:**
+  - Visible run steps.
+  - Security findings in PRD §14 categories, with taxonomy and ontology basis marked TBD.
+  - Reachability per unsafe outcome.
+  - Alternative paths A (blocked) / B / C / D (open).
+- **Optimize:**
+  - Candidates A/B/C, each marked *Validated · 2,400 scenarios*.
+  - Residual paths side by side with the recommended control (§19).
+  - The §18 recommendation card: current state → intervention → validated state → business impact.
+- **Decide:** **Approve / Modify / Reject** (§20).
+  - Modify changes the approval threshold and re-runs validation, updating the validated state.
+  - Reject returns to the candidates.
+  - Approve records the human decision in a confirmation dialog.
+- **Register:** preconditions checklist and *Register Workflow*. The workflow lands in the library as **Registered · not deployed** (§22–24).
 
-### Agentic Control Validation（Proving Ground）
-- 显示本次 run 的来源（部署后的 incident，或部署前的 blueprint）。
-- 新增 Run queue：一个 workflow 一次 run，能看到状态和哪些在并行跑。
-- 新增 Control validation 步骤：对比当前控制和候选控制下的可达路径、正常完成率和防御置信度。
-- 新增 Decision 卡片：approve 后把 workflow 登记进 Workflow Library，或者送 Policy Review 给高权限审批。
+### Incident Queue and Incident Detail (§28–§29)
+- **Queue:**
+  - Summary metrics: Open Incidents, Critical Incidents, Affected Workflows, Residual Failures.
+  - Filters: Domain, Workflow, Agent, Severity, Status, Type, Time.
+  - Search sits next to the list.
+- **Detail** follows *Evidence → Alternative Paths → Candidates & Recommendation → Decision*:
+  - evidence, existing controls, mechanism and the known failure path;
+  - open alternative paths;
+  - three validated candidates, path ↔ control side by side, and the recommendation card;
+  - Approve / Modify / Reject.
+- **Link:** *Affected workflow →* opens Workflow Detail.
+- **Removed:** "Send to Agentic Control Validation" and "Approve for shadow". Recommendations are already validated (§3.3, §18); shadow deployment is V2 (§42).
+- **Kept:** the causal workflow graph, as a collapsed *Technical detail* section for security engineers.
 
-### Policy Review
-- 分成两类用户：
-  - **In-incident review**：给操作人员，挂在具体 incident 上审核。
-  - **Overall approval · CISO**：给高权限审批人，按领域汇总待批 policy，点 Review 跳到对应 incident；注明可以在主流程之后再做。
+### Workflow Library and Workflow Detail (§23–§27)
+- **Library:**
+  - Inventory table with the §25.2 columns: domain, business and security owner, agents, tools, resources, controls, policies, lifecycle, validation, last validation, deployment, risk, coverage confidence. A card view is still available.
+  - Metrics for Registered, Deployed, Registered · not deployed, and Needs Revalidation.
+  - Domain and deployment-state filters, plus the lifecycle legend (§23).
+- **New Workflow Detail page:** header, high-level graph, security posture, activity, and expandable Evidence / Alternative Paths / Control History / Policy History / Validation Runs.
+  - *Mark as deployed* appears only for registered, not-yet-deployed workflows.
 
-### Validation Horizon（新页面）
-回答「拦住一次攻击之后，这个修复能管用多久」：
-- 三个阶段：Immediate（攻击已被拦截）、Short-term（加了新 policy 的 workflow 持续观察）、每月回测（medium 和 long term 合并）。
-- 回测历史表：随着 agent 和 workflow 增加，每月重跑同一组场景。
-- 「Diagnosis → treatment」服务卡片：每月重新校准环境并出回测报告是诊断；针对发现的问题出 policy 更新包、做定向 red teaming 是治疗。
+### Policy Review (§30)
+- **Workflow / incident review:** each recommendation keeps its context and opens it for the decision.
+- **Executive queue:** the PRD table (Workflow · Recommendation · Impact · Confidence · Status), labelled **V1.5 preview**.
+- **Status sync:** decisions made in a blueprint or incident update the matching status here and on Overview.
 
-### Sim-to-Real
-- 新增定义说明：模拟环境和生产行为的吻合程度，会随新增 agent 和 workflow 漂移，每月由 Validation Horizon 重新校准。
-- 原来的 Validation horizons 表移到 Validation Horizon 页面，这里留一个跳转。
+### Environment (§31–§35)
+- **Short-Term Validation:**
+  - Change feed (new tool, permission change, agent role change) and the three affected workflows.
+  - **Revalidate Affected Workflows** runs visible steps and sets each workflow to *Revalidated* or *Needs Revision*.
+  - `?` help text and the *Manual (V1) → Suggested (V2) → Automatic (V3)* ladder.
+- **Long-Term Validation:**
+  - **Run Environment Validation** with the six PRD steps: recalibrate, update dependencies, generate adversarial scenarios, run attack mutations, test policy resilience, update residual risk.
+  - Backtest history, `?` help text and the automation ladder.
+- **Security Model** (§38):
+  - Tabs: Domain Suites, World Model Coverage, **Coverage Gaps** (new), Security Ontology, Ontology Layers.
+  - Ontology and Security World Model presentation marked TBD.
+  - Runtime Knowledge Graph, Cross-Domain Risk, Business Harness and Model Health hidden as V2.
+- **Removed from the product UI:** the *Diagnosis → treatment* service-plan card (commercial framing).
 
-### Workflow Library
-- 新增一张从 Blueprint 审批后入库的 workflow 卡片，标为 Simulated。
+### Open questions answered with defaults in this revision
 
-### Security Landscape
-- Ontology Architecture 加注：检查结果和四层 ontology 的展示方式待与 ontology 研究负责人对齐。
-- Runtime Knowledge Graph、Cross-Domain Risk 标为 `Later`，没有删除。
+| Question from the plan | Default used | Change it by |
+| --- | --- | --- |
+| Q1: Validation Horizon as one page or two nav items | Two nav items (Short-Term, Long-Term), each headed by the three horizons | Merge the two sections into one page |
+| Q2: Diagnosis → treatment card | Removed from the product UI | Restore as a labelled service-plan preview |
+| Q3: Executive policy review | Shown as a labelled V1.5 preview | Hide the *Executive queue* switch |
+| Q4: Causal graph and `do(control)` notation | Kept as collapsed technical detail in Incident Detail | Remove the *Technical detail* section |
 
-## 做了的取舍
+---
 
-- **导航分组**：采用会上提出的 pre-deployment / post-deployment / environment 三块，没有按技术纵线分 tab。
-- **唯一的合并**：Validation Horizon 里 medium term 和 long term 合并成每月回测，依据是会上的结论。
-- **数字都是示意**，包括新增的回测历史和日期；背后没有真实引擎。
+## Remaining to-dos
 
-## 待办
+### From the plan, not done yet (P1)
+- [ ] **Node types** (§8.2): add human approver, resource, data and action nodes to the Blueprint graph.
+- [ ] **Graph editing** (§8.4): inline rename, connect / disconnect edges, *＋ Approval step*, reorder steps.
+- [ ] **Configuration panel** (§9–10): type-specific forms for Agent, Control, Business Constraint and Tool / Resource; agent role selector with presets and custom role.
+- [ ] **Drafts** (§11): a drafts list to save and reopen blueprints; a visible "Draft — not an enterprise workflow" badge in Build.
 
-### 待决定
-- [ ] 送 shadow 之前，是否每个 control 都必须先通过 Agentic Control Validation（Incident 详情页上标为待定）。
-- [ ] 模块最终怎么分：pre-deployment / post-deployment / environment 三块，还是再单独拆出一块；Validation Horizon 最终放在哪。
-- [ ] Enterprise domain suites 是否留在 Overview：Overview 主要面向 CISO，还是也要按部门（vertical）看。
-- [ ] Horizontal agent（文件读取、数据分析等所有部门都会用的 agent）在按部门划分的结构里放在哪。
-- [ ] 「Blueprint」是否是行业通用说法；如果不是，是否换一个更通俗的名字。
+### Partly done (P0 follow-ups)
+- [ ] **Incident filters** are visual only; search works, the Domain / Workflow / Agent / Severity / Status / Type / Time filters do not filter yet.
+- [ ] **Workflow Coverage:** list the 7 known-but-unregistered workflows (currently a count only).
+- [ ] **Workflow Detail graph** is static; link it to the editable graph in Agentic Blueprint Studio.
+- [ ] **Short-Term Validation** uses a fixed change feed; derive affected workflows from actual changes, such as a workflow just marked as deployed.
+- [ ] **Policy Review workflow cards** open context for the decision; consider inline Approve / Reject for operators.
+- [ ] **Blueprint Deploy step:** deployment happens from Workflow Detail (*Mark as deployed*); decide whether Blueprint Studio should also offer it after registration.
 
-### 待补内容
-- [ ] 核实 Definitions 弹窗里的指标定义（residual risk、residual reachability、sim-to-real calibration、coverage confidence、critical evidence、world model coverage、defense confidence），目前是草稿。
-- [ ] 明确 Blueprint Check 具体检查哪些项，以及检查结果怎么对应 ontology L1–L4。
-- [ ] 和 ontology 研究负责人对齐 Security Landscape 里 ontology 和 Security World Model 的展示方式。
-- [ ] 把示意数字换成真实跑出来的结果（回测历史、run queue、control validation 对比等）。
+### PRD TBDs, to stay labelled TBD in the UI (§48)
+- [ ] Blueprint Check / validation risk taxonomy
+- [ ] Ontology mapping of findings
+- [ ] Security World Model architecture and visualization
+- [ ] Defense Confidence, Coverage Confidence and Residual Reachability formulas
+- [ ] Sim-to-Real Calibration definition
+- [ ] When approved policies move to shadow / canary / production
 
-### 后续再做
-- [ ] Policy Review 的 Overall approval · CISO 视图（页面上已有占位，主流程之后再完善）。
-- [ ] Runtime Knowledge Graph、Cross-Domain Risk、Integrations 这几个标为 `Later` 的页面。
-- [ ] Proving Ground 里多个 workflow 并行运行、状态实时更新的真实交互（目前是静态示意）。
-- [ ] 真实接入 agent：demo 阶段全部是模拟 agent，有资源后再做。
+### V1.5 / V2, kept out of this demo (§42)
+- [ ] Executive policy approval as a full workflow (currently a preview)
+- [ ] Multi-workflow parallel validation
+- [ ] Shadow and canary deployment
+- [ ] Automatic revalidation and environment-change detection
+- [ ] Production telemetry mapping
+- [ ] Rich ontology exploration, Runtime Knowledge Graph, Cross-Domain Risk
+- [ ] Integration management
+
+### Confirm with the team
+- [ ] Keep or change the Q1–Q4 defaults above.
+
+---
+
+## 9/14 — previous revision (summary)
+
+- Navigation regrouped into pre-deployment / post-deployment / environment.
+- New Validation Horizon page (immediate, short-term, monthly backtest).
+- Blueprint joined the incident flow after the check.
+- Paths and control suggestions side by side.
+- Run queue with a decision step.
+- Two audiences for policy review.
+- Overview simplified with collapsed secondary cards.
+
+The PRD alignment above supersedes the navigation grouping, the Proving Ground step, the short-term horizon definition and the "residual risk" wording from that revision. The full 9/14 list is in the git history of this file.
