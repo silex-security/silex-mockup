@@ -243,6 +243,7 @@
     .filter-row{flex-wrap:wrap}
     .btn:disabled{opacity:.45;cursor:not-allowed}
     #incidentSearch{flex:1 1 260px;min-width:240px}
+    .domain-label{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:8px;background:var(--lav);color:var(--blue2);font-size:11px;font-weight:700;white-space:nowrap}
   </style>
 </head>
 <body>
@@ -845,21 +846,21 @@
 <div class="landscape-note" style="margin:0 0 14px">Used by security operators. Each recommendation stays connected to its incident or blueprint, workflow, failure path, control and validation result. Decisions are made in that context.</div>
 <div class="workflow-grid chg" data-chg="PRD §30.1 context kept">
 <article class="card workflow-card">
-<div class="workflow-head"><div class="workflow-icon">FI</div><span class="status review" data-rec-status="I-1042">Ready for approval</span></div>
+<div class="workflow-head"><div class="domain-label">Finance</div><span class="status review" data-rec-status="I-1042">Ready for approval</span></div>
 <h3>Bind approval to vendor + intent + mutation</h3>
 <p>Finance · Vendor Master Update · incident I-1042 · closes 3 alternative paths</p>
 <div class="workflow-meta"><div><strong>62→93%</strong><span>DEFENSE</span></div><div><strong>21→2%</strong><span>REACHABILITY</span></div><div><strong>+420ms</strong><span>LATENCY</span></div></div>
 <button class="btn secondary" data-review-inc="I-1042">Review in context →</button>
 </article>
 <article class="card workflow-card">
-<div class="workflow-head"><div class="workflow-icon">CS</div><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></div>
+<div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></div>
 <h3>Manager approval for refunds above $500</h3>
 <p>Customer Refund · Agentic Blueprint v1.0 · pre-deployment · closes paths B, C, D</p>
 <div class="workflow-meta"><div><strong>64→91%</strong><span>DEFENSE</span></div><div><strong>18→3%</strong><span>REACHABILITY</span></div><div><strong>+12%</strong><span>APPROVALS</span></div></div>
 <button class="btn secondary" data-review-bp="1">Review in context →</button>
 </article>
 <article class="card workflow-card">
-<div class="workflow-head"><div class="workflow-icon">CS</div><span class="status review" data-rec-status="I-1038">Ready for approval</span></div>
+<div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status review" data-rec-status="I-1038">Ready for approval</span></div>
 <h3>Bind control to cumulative outcome</h3>
 <p>Customer Support · Refund Resolution · incident I-1038 · aggregate value capped</p>
 <div class="workflow-meta"><div><strong>58→90%</strong><span>DEFENSE</span></div><div><strong>26→4%</strong><span>REACHABILITY</span></div><div><strong>+310ms</strong><span>LATENCY</span></div></div>
