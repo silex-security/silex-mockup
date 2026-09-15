@@ -235,7 +235,7 @@ Per §48, the UI should label these as open rather than show made-up precision:
 
 ## 8. How to implement
 
-1. **Build a 9/15 revision** with the `meeting-to-mockup` skill (`silex_project/Skills/meeting-to-mockup/`):
+1. **Build a 9/15 revision** with the `meeting-to-mockup` skill:
    - start from the current `index.html` as the reference page;
    - write `build_0915.py` with asserted edits;
    - keep `class="chg"` markers so the in-page change panel lists 9/15 changes separately from 9/14.
