@@ -233,6 +233,16 @@
     .status{white-space:nowrap}
     body.show-changes .section-title.chg{padding-top:16px}
     body.show-changes .section-title.chg::before{top:-2px}
+    /* ---- UX path fixes ---- */
+    .pick:not(:has(input)){cursor:default}
+    .hz.static{cursor:default}
+    .bp-stage.reachable,#incFlow .bp-stage{cursor:pointer}
+    .bp-stage.reachable:hover,#incFlow .bp-stage:hover{border-color:#aebaff}
+    .next-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .filter-row select.search{flex:0 0 auto;min-width:118px;padding-right:6px}
+    .filter-row{flex-wrap:wrap}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    #incidentSearch{flex:1 1 260px;min-width:240px}
   </style>
 </head>
 <body>
@@ -279,13 +289,13 @@
 <h1>Enterprise Agentic Security</h1>
 <p>Which unsafe outcomes are still reachable across your agentic workflows, and what needs a decision.</p>
 </div>
-<button class="btn primary" data-jump="blueprint">＋ New Agentic Blueprint</button>
+<button class="btn primary" data-new-blueprint="1">＋ New Agentic Blueprint</button>
 </div>
 <div class="section-title chg" data-chg="PRD §36: enterprise security posture"><strong>Enterprise Security Posture</strong><span>Illustrative values</span></div>
 <div class="metric-grid">
 <div class="card metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
 <div class="card metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
-<div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value">4</div><div class="metric-foot">of 24 registered · <button class="def-link" data-jump="library">view library</button></div></div>
+<div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 6 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
 <div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="short-term">revalidate</button></div></div>
 </div>
 <div class="two-col">
@@ -307,9 +317,9 @@
 <div class="suite-list">
 <button class="capability-row" data-suite-jump="finance"><strong>Finance</strong><span>12 agents · 38 workflows</span><b><span class="status review">4 risks</span></b></button>
 <button class="capability-row" data-suite-jump="support"><strong>Customer Service</strong><span>18 agents · 64 workflows</span><b><span class="status blocked">7 risks</span></b></button>
-<button class="capability-row" data-suite-jump="identity"><strong>IT</strong><span>9 agents · 27 workflows</span><b><span class="status review">2 risks</span></b></button>
+<button class="capability-row" data-suite-jump="identity"><strong>Identity &amp; IT</strong><span>9 agents · 27 workflows</span><b><span class="status review">2 risks</span></b></button>
 <button class="capability-row" data-suite-jump="procurement"><strong>Procurement</strong><span>8 agents · 31 workflows</span><b><span class="status review">3 risks</span></b></button>
-<button class="capability-row" data-suite-jump="hr"><strong>Operations &amp; HR</strong><span>6 agents · 19 workflows</span><b><span class="status running">1 risk</span></b></button>
+<button class="capability-row" data-suite-jump="hr"><strong>Human Resources</strong><span>6 agents · 19 workflows</span><b><span class="status running">1 risk</span></b></button>
 </div>
 </div>
 </div>
@@ -319,19 +329,19 @@
 <div class="body" style="padding:0 20px 18px">
 <div style="display:flex;gap:28px;align-items:end">
 <div><div class="metric-value" id="ovRegistered">24</div><div class="metric-foot">registered</div></div>
-<div><div class="metric-value" style="color:var(--muted)">31</div><div class="metric-foot">known in the environment</div></div>
+<div><div class="metric-value" style="color:var(--muted)" id="ovKnown">9</div><div class="metric-foot">known in the environment</div></div>
 <div><div class="metric-value" id="ovDeployed">18</div><div class="metric-foot">deployed</div></div>
 </div>
 <div class="bar"><i id="ovCoverageBar" style="width:77%"></i></div>
-<div class="metric-foot"><span id="ovCoveragePct">77%</span> workflow coverage · 7 known workflows not yet registered</div>
+<div class="metric-foot"><span id="ovCoveragePct">67%</span> workflow coverage · <button class="def-link" data-lib-unregistered="1" id="ovCoverageNote">3 known workflows not yet registered</button></div>
 </div>
 </div>
 <div class="card chg" data-chg="PRD §36: policy decisions">
-<div class="card-head"><div><h2>Policy Decisions</h2><p>Validated recommendations waiting for a human decision</p></div><span class="status review" id="ovPendingCount">3 pending</span></div>
+<div class="card-head"><div><h2>Policy Decisions</h2><p>Validated recommendations waiting for a human decision</p></div><span class="status review" id="ovPendingCount">2 pending</span></div>
 <div class="pending-list">
-<button class="pending-row" data-open-incident="I-1042"><span><strong>Bind approval to vendor + intent + mutation</strong><small>Finance · Vendor Master Update · from incident I-1042</small></span><span class="validated">✓ Validated</span><span class="status review">Review</span></button>
-<button class="pending-row" data-jump="blueprint"><span><strong>Manager approval for refunds above $500</strong><small>Customer Refund blueprint · pre-deployment</small></span><span class="validated">✓ Validated</span><span class="status review">Review</span></button>
-<button class="pending-row" data-open-incident="I-1038"><span><strong>Bind control to cumulative outcome</strong><small>Customer Support · Refund Resolution · from incident I-1038</small></span><span class="validated">✓ Validated</span><span class="status review">Review</span></button>
+<button class="pending-row" data-open-incident="I-1042"><span><strong>Bind approval to vendor + intent + mutation</strong><small>Finance · Vendor Master Update · from incident I-1042</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1042">Review</span></button>
+<button class="pending-row" data-review-bp="1"><span><strong>Manager approval for refunds above $500</strong><small>Customer Refund blueprint · pre-deployment</small></span><span class="validated" style="background:var(--soft);color:var(--muted)">Blueprint</span><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></button>
+<button class="pending-row" data-open-incident="I-1038"><span><strong>Bind control to cumulative outcome</strong><small>Customer Support · Refund Resolution · from incident I-1038</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1038">Review</span></button>
 </div>
 </div>
 </div>
@@ -380,6 +390,7 @@
 </div>
 
 <div class="stage-panel active" id="bp-build">
+<div class="next-bar" id="bpLockedNote" style="display:none;margin:0 0 12px"><p><strong>Confirmed v1.0 is locked.</strong> Edits here are not saved to v1.0; create a revision to change the workflow.</p><div><button class="btn secondary" id="reviseFromBuildBtn">Edit as v1.1 draft</button></div></div>
 <div class="bp-builder" id="blueprintBuilder">
           <div class="card bp-prompt"><div class="bp-prompt-top"><strong>Describe or modify the workflow</strong><span>Natural language compiles into a typed, editable blueprint</span></div><div class="bp-prompt-row"><textarea id="blueprintPrompt">Build a customer refund workflow. Check eligibility, require approval above $500, execute the refund, and notify the customer. Prevent duplicate compensation and unauthorized access to payment credentials.</textarea><button class="btn blue" id="generateBlueprint">Generate / Update</button></div></div>
           <div class="builder-shell">
@@ -587,13 +598,14 @@
 </div>
 <div class="filter-row chg" data-chg="PRD §28 filters">
 <input class="search" id="incidentSearch" aria-label="Search incidents" placeholder="Search incident, workflow, agent or control…">
-<button class="btn secondary">Domain: all</button>
-<button class="btn secondary">Workflow: all</button>
-<button class="btn secondary">Agent: all</button>
-<button class="btn secondary">Severity: all</button>
-<button class="btn secondary">Status: open</button>
-<button class="btn secondary">Type: all</button>
-<button class="btn secondary">Last 30 days</button>
+<select class="search inc-filter" data-f="domain" aria-label="Domain"><option value="">All domains</option><option>Finance</option><option>Customer Service</option><option>Procurement</option><option>IT</option><option>Identity</option><option>Sales</option></select>
+<select class="search inc-filter" data-f="workflow" aria-label="Workflow"><option value="">All workflows</option><option value="WF-021">Vendor Master Update</option><option value="WF-014">Refund Resolution</option><option value="WF-008">PO Approval</option><option value="WF-033">Account Remediation</option><option value="WF-005">Access Provisioning</option><option value="WF-026">Quote-to-Contract</option></select>
+<select class="search inc-filter" data-f="agent" aria-label="Agent"><option value="">All agents</option><option>Finance Agent</option><option>Refund Agent Network</option><option>Procurement Agent</option><option>Remediation Agent</option><option>Provisioning Agent</option><option>Pricing Agent</option></select>
+<select class="search inc-filter" data-f="severity" aria-label="Severity"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Closed</option></select>
+<select class="search inc-filter" data-f="status" aria-label="Status"><option value="Open">Open</option><option value="">All statuses</option><option>Closed</option></select>
+<select class="search inc-filter" data-f="type" aria-label="Incident type"><option value="">All types</option><option>Tool mutation</option><option>Aggregate outcome</option><option>Stale approval</option><option>Ordering failure</option><option>Entitlement</option><option>Policy conflict</option></select>
+<select class="search inc-filter" data-f="time" aria-label="Time"><option value="720">Last 30 days</option><option value="168">Last 7 days</option><option value="24">Last 24 hours</option><option value="">All time</option></select>
+<span class="pill" id="incShown">5 shown</span>
 </div>
 <div class="incident-grid" id="incidentCards">
           <article class="card incident-card" data-incident="I-1042" data-search="vendor bank mutation finance pay-042 intent approval binding"><div class="incident-card-top"><span class="incident-id">I-1042 · 18m ago</span><span class="status blocked">Critical</span></div><h3>Vendor bank mutation attempted</h3><p>Prompt injection reached the Vendor Update Tool and was blocked by PAY-042.</p><div class="incident-card-meta"><span>Finance · Vendor Master</span><span>Validating</span></div></article>
@@ -603,7 +615,7 @@
           <article class="card incident-card" data-incident="I-1007" data-search="identity access provisioning dormant entitlement iam"><div class="incident-card-top"><span class="incident-id">I-1007 · 3d ago</span><span class="status running">Medium</span></div><h3>Dormant entitlement restored</h3><p>A mover workflow inherited an obsolete entitlement from historical role state.</p><div class="incident-card-meta"><span>Identity · Access Provisioning</span><span>Monitoring</span></div></article>
           <article class="card incident-card" data-incident="I-0994" data-search="sales discount quote contract policy approval"><div class="incident-card-top"><span class="incident-id">I-0994 · 5d ago</span><span class="status" style="background:var(--green-bg);color:var(--green)">Closed</span></div><h3>Discount policy conflict</h3><p>Regional and strategic-account policies produced contradictory approval decisions.</p><div class="incident-card-meta"><span>Sales · Quote-to-Contract</span><span>Re-validated</span></div></article>
         </div>
-        <div class="card section-card queue-scroll" id="incidentList" style="display:none"><table class="queue-table"><thead><tr><th>Incident</th><th>Workflow</th><th>Evidence</th><th>Failure hypothesis</th><th>Priority</th><th>Stage</th><th>Owner</th></tr></thead><tbody><tr data-incident="I-1042"><td class="incident-name">I-1042<small>18m ago</small></td><td>Finance · Vendor Master</td><td>Tool mutation blocked</td><td>Intent–approval binding</td><td><span class="status blocked">Critical</span></td><td>Validating</td><td>M. Chen</td></tr><tr data-incident="I-1038"><td class="incident-name">I-1038<small>2h ago</small></td><td>Support · Refund Resolution</td><td>Aggregate outcome observed</td><td>Cross-agent value composition</td><td><span class="status review">High</span></td><td>Investigating</td><td>A. Patel</td></tr><tr data-incident="I-1031"><td class="incident-name">I-1031<small>6h ago</small></td><td>Procurement · PO Approval</td><td>Stale approval reused</td><td>Authority lifecycle mismatch</td><td><span class="status review">High</span></td><td>Queued</td><td>J. Kim</td></tr><tr data-incident="I-1019"><td class="incident-name">I-1019<small>1d ago</small></td><td>IT · Account Remediation</td><td>Dependency check skipped</td><td>Action-ordering failure</td><td><span class="status running">Medium</span></td><td>Inferred</td><td>SRE Security</td></tr><tr data-incident="I-1007"><td class="incident-name">I-1007<small>3d ago</small></td><td>Identity · Access Provisioning</td><td>Entitlement restored</td><td>Historical state leakage</td><td><span class="status running">Medium</span></td><td>Monitoring</td><td>IAM Team</td></tr></tbody></table></div>
+        <div class="card section-card queue-scroll" id="incidentList" style="display:none"><table class="queue-table"><thead><tr><th>Incident</th><th>Workflow</th><th>Evidence</th><th>Failure hypothesis</th><th>Priority</th><th>Stage</th><th>Owner</th></tr></thead><tbody><tr data-incident="I-1042"><td class="incident-name">I-1042<small>18m ago</small></td><td>Finance · Vendor Master</td><td>Tool mutation blocked</td><td>Intent–approval binding</td><td><span class="status blocked">Critical</span></td><td>Validating</td><td>M. Chen</td></tr><tr data-incident="I-1038"><td class="incident-name">I-1038<small>2h ago</small></td><td>Support · Refund Resolution</td><td>Aggregate outcome observed</td><td>Cross-agent value composition</td><td><span class="status review">High</span></td><td>Investigating</td><td>A. Patel</td></tr><tr data-incident="I-1031"><td class="incident-name">I-1031<small>6h ago</small></td><td>Procurement · PO Approval</td><td>Stale approval reused</td><td>Authority lifecycle mismatch</td><td><span class="status review">High</span></td><td>Queued</td><td>J. Kim</td></tr><tr data-incident="I-1019"><td class="incident-name">I-1019<small>1d ago</small></td><td>IT · Account Remediation</td><td>Dependency check skipped</td><td>Action-ordering failure</td><td><span class="status running">Medium</span></td><td>Inferred</td><td>SRE Security</td></tr><tr data-incident="I-1007"><td class="incident-name">I-1007<small>3d ago</small></td><td>Identity · Access Provisioning</td><td>Entitlement restored</td><td>Historical state leakage</td><td><span class="status running">Medium</span></td><td>Monitoring</td><td>IAM Team</td></tr><tr data-incident="I-0994"><td class="incident-name">I-0994<small>5d ago</small></td><td>Sales · Quote-to-Contract</td><td>Policy conflict observed</td><td>Policy precedence ambiguity</td><td><span class="status" style="background:var(--green-bg);color:var(--green)">Closed</span></td><td>Re-validated</td><td>Revenue Operations</td></tr></tbody></table></div>
       
 </section>
 
@@ -729,7 +741,7 @@
 </div>
 <div style="display:flex;gap:10px;align-items:center">
 <div class="view-switch chg" data-chg="PRD §25.2 inventory table"><button class="active" data-lib-view="table">Table</button><button data-lib-view="cards">Cards</button></div>
-<button class="btn primary" data-jump="blueprint">＋ New Blueprint</button>
+<button class="btn primary" data-new-blueprint="1">＋ New Blueprint</button>
 </div>
 </div>
 <div class="metric-grid chg" data-chg="PRD §24 Registered vs Deployed">
@@ -741,7 +753,8 @@
 <div class="filter-row">
 <input class="search" id="workflowSearch" aria-label="Search workflows" placeholder="Search workflow, agent, tool, owner or domain…">
 <select class="search" id="domainFilter" style="flex:0 0 180px"><option value="">All domains</option><option>Finance</option><option>Customer Service</option><option>IT</option><option>Procurement</option><option>Identity</option><option>Sales</option></select>
-<select class="search" id="deployFilter" style="flex:0 0 200px"><option value="">All deployment states</option><option value="Deployed">Deployed</option><option value="Registered · not deployed">Registered · not deployed</option></select>
+<select class="search" id="deployFilter" style="flex:0 0 200px"><option value="">All deployment states</option><option value="Deployed">Deployed</option><option value="Registered · not deployed">Registered · not deployed</option><option value="Not registered">Known · not registered</option></select>
+<select class="search" id="riskFilter" style="flex:0 0 160px"><option value="">All risk levels</option><option value="atrisk">At risk</option></select>
 </div>
 <div class="lifecycle" style="margin:0 2px 12px">Lifecycle: <span class="lc-step">Draft</span>→<span class="lc-step">Confirmed</span>→<span class="lc-step">Validating</span>→<span class="lc-step">Ready for Approval</span>→<span class="lc-step">Approved</span>→<span class="lc-step">Registered</span>→<span class="lc-step">Deployed</span>→<span class="lc-step">Needs Revalidation</span></div>
 <div class="card section-card lib-table-wrap" id="libTableWrap">
@@ -767,7 +780,7 @@
 <div style="display:flex;gap:8px;align-items:center">
 <span class="lc" id="wfLifecycle">Deployed</span>
 <button class="btn secondary" id="wfIncidentBtn">Latest incident →</button>
-<button class="btn secondary" data-jump="short-term">Revalidate</button>
+<button class="btn secondary" id="wfRevalidateBtn">↻ Revalidate</button>
 <button class="btn blue chg" data-chg="PRD §24: deploy is separate" id="wfDeployBtn">Mark as deployed</button>
 </div>
 </div>
@@ -778,6 +791,14 @@
 <div class="wf-fact"><small>Security owner</small><strong id="wfSecOwner">M. Chen</strong></div>
 <div class="wf-fact"><small>Last validation</small><strong id="wfLastVal">Today 11:12</strong></div>
 <div class="wf-fact"><small>Defense confidence</small><strong id="wfDefense">78%</strong></div>
+</div>
+<div class="card section-card" id="wfRevalRun" style="display:none">
+<div class="card-head"><div><h2>Revalidation · <span id="wfRevalName">workflow</span></h2><p>Replays validation for this workflow with the latest environment changes</p></div></div>
+<div class="body"><div class="run-steps" id="wfRevalSteps">
+<div class="run-step"><i></i><div>Apply recent environment and policy changes</div><span>simulated</span></div>
+<div class="run-step"><i></i><div>Replay validation and explore alternative paths</div><span>this workflow</span></div>
+<div class="run-step"><i></i><div>Update validation status</div><span>Revalidated / Needs revision</span></div>
+</div><div class="decision-state" id="wfRevalResult" style="margin:12px 0 0"></div></div>
 </div>
 <div class="card section-card">
 <div class="card-head"><div><h2>Workflow graph</h2><p>High-level view; open Agentic Blueprint Studio for the editable graph</p></div></div>
@@ -831,7 +852,7 @@
 <button class="btn secondary" data-review-inc="I-1042">Review in context →</button>
 </article>
 <article class="card workflow-card">
-<div class="workflow-head"><div class="workflow-icon">CS</div><span class="status review" data-rec-status="BP-REFUND">Ready for approval</span></div>
+<div class="workflow-head"><div class="workflow-icon">CS</div><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></div>
 <h3>Manager approval for refunds above $500</h3>
 <p>Customer Refund · Agentic Blueprint v1.0 · pre-deployment · closes paths B, C, D</p>
 <div class="workflow-meta"><div><strong>64→91%</strong><span>DEFENSE</span></div><div><strong>18→3%</strong><span>REACHABILITY</span></div><div><strong>+12%</strong><span>APPROVALS</span></div></div>
@@ -853,7 +874,7 @@
 <table class="queue-table">
 <thead><tr><th>Workflow</th><th>Policy recommendation</th><th>Impact</th><th>Confidence</th><th>Status</th></tr></thead>
 <tbody>
-<tr data-review-bp="1"><td class="incident-name">Refund Processing</td><td>Approval &gt; $500</td><td>High</td><td>94%</td><td><span class="status review" data-rec-status="BP-REFUND">Review</span></td></tr>
+<tr data-review-bp="1"><td class="incident-name">Refund Processing</td><td>Approval &gt; $500</td><td>High</td><td>94%</td><td><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></td></tr>
 <tr data-review-inc="I-1031"><td class="incident-name">Procurement</td><td>Vendor restriction</td><td>Medium</td><td>91%</td><td><span class="status review" data-rec-status="I-1031">Review</span></td></tr>
 <tr data-review-inc="I-1007"><td class="incident-name">IT Access</td><td>Reduce agent scope</td><td>High</td><td>96%</td><td><span class="status review" data-rec-status="I-1007">Review</span></td></tr>
 <tr data-review-inc="I-1042"><td class="incident-name">Vendor Master Update</td><td>Bind approval to vendor + intent + mutation</td><td>High</td><td>93%</td><td><span class="status review" data-rec-status="I-1042">Review</span></td></tr>
@@ -872,30 +893,22 @@
 <button class="btn primary" id="revalidateBtn">↻ Revalidate Affected Workflows</button>
 </div>
 <div class="horizon-strip">
-<button class="hz" data-jump="overview"><strong>Immediate Validation</strong>Does the workflow appear safe now?</button>
-<button class="hz on"><strong>Short-Term Validation</strong>Still safe after enterprise changes?</button>
-<button class="hz" data-jump="long-term"><strong>Long-Term Validation</strong>Is the broader environment still safe?</button>
+<div class="hz static"><strong>Immediate Validation</strong>Does the workflow appear safe now? Shown in each Blueprint validation and incident.</div>
+<div class="hz on static"><strong>Short-Term Validation</strong>Still safe after enterprise changes? · this page</div>
+<button class="hz" data-jump="long-term"><strong>Long-Term Validation →</strong>Is the broader environment still safe?</button>
 </div>
 <div class="auto-ladder" style="margin:0 2px 14px">Automation: <b class="on">Manual trigger · V1</b>→<b>Suggested revalidation · V2</b>→<b>Automatic revalidation · V3</b></div>
 <div class="two-col">
 <div class="card">
-<div class="card-head"><div><h2>Environment change detected</h2><p><b>3 workflows may be affected.</b> Security validity decays as the enterprise changes.</p></div><span class="status review">3 changes</span></div>
-<div class="change-feed">
-<div class="change"><div class="ci">T</div><div><strong>New tool connected</strong><small>Vendor Merge Tool available to Procurement Agent</small></div><span class="status running">New tool</span></div>
-<div class="change"><div class="ci">P</div><div><strong>Permission change</strong><small>Procurement Agent gained vendor_master.write</small></div><span class="status review">Permission</span></div>
-<div class="change"><div class="ci">A</div><div><strong>Agent role change</strong><small>Remediation Agent can now restart production workloads</small></div><span class="status running">Agent role</span></div>
-</div>
+<div class="card-head"><div><h2>Environment change detected</h2><p><b id="stAffectedText">3 workflows may be affected.</b> Security validity decays as the enterprise changes.</p></div><span class="status review" id="stChangeCount">3 changes</span></div>
+<div class="change-feed" id="changeFeed"></div>
 </div>
 <div class="card">
 <div class="card-head"><div><h2>Affected workflows</h2><p>Revalidation replays validation with the change applied</p></div></div>
 <div class="body" style="padding:0 20px 18px">
 <table class="matrix">
 <thead><tr><th>Workflow</th><th>Trigger</th><th>Last validation</th><th>Status</th></tr></thead>
-<tbody>
-<tr data-open-workflow="WF-021" style="cursor:pointer"><td class="bold">Vendor Master Update</td><td>New tool</td><td>12 days ago</td><td><span class="lc warn" id="st-WF-021">Needs Revalidation</span></td></tr>
-<tr data-open-workflow="WF-008" style="cursor:pointer"><td class="bold">Purchase Order Approval</td><td>Permission</td><td>9 days ago</td><td><span class="lc warn" id="st-WF-008">Needs Revalidation</span></td></tr>
-<tr data-open-workflow="WF-033" style="cursor:pointer"><td class="bold">Service Account Remediation</td><td>Agent role</td><td>21 days ago</td><td><span class="lc warn" id="st-WF-033">Needs Revalidation</span></td></tr>
-</tbody>
+<tbody id="stRows"></tbody>
 </table>
 </div>
 </div>
@@ -908,7 +921,7 @@
 <div class="run-step"><i></i><div>Explore newly reachable alternative paths</div><span>agents · tools · permissions</span></div>
 <div class="run-step"><i></i><div>Update workflow validation status</div><span>Revalidated / Needs revision</span></div>
 </div>
-<div class="decision-state approved" id="stResult" style="margin:12px 0 0">2 workflows revalidated. Service Account Remediation needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review →</button></div>
+<div class="decision-state" id="stResult" style="margin:12px 0 0"></div>
 </div>
 </div>
 </section>
@@ -922,9 +935,9 @@
 <div style="display:flex;gap:10px;align-items:center"><span class="pill">Monthly</span><button class="btn primary" id="runEnvBtn">⟳ Run Environment Validation</button></div>
 </div>
 <div class="horizon-strip">
-<button class="hz" data-jump="overview"><strong>Immediate Validation</strong>Does the workflow appear safe now?</button>
-<button class="hz" data-jump="short-term"><strong>Short-Term Validation</strong>Still safe after enterprise changes?</button>
-<button class="hz on"><strong>Long-Term Validation</strong>Is the broader environment still safe?</button>
+<div class="hz static"><strong>Immediate Validation</strong>Does the workflow appear safe now? Shown in each Blueprint validation and incident.</div>
+<button class="hz" data-jump="short-term"><strong>Short-Term Validation →</strong>Still safe after enterprise changes?</button>
+<div class="hz on static"><strong>Long-Term Validation</strong>Is the broader environment still safe? · this page</div>
 </div>
 <div class="metric-grid">
 <div class="card metric"><div class="kicker">Last environment validation</div><div class="metric-value">Aug 31</div><div class="metric-foot">Monthly cadence</div></div>
@@ -994,7 +1007,7 @@
 <div class="gap-list">
 <div class="gap"><div><strong>HR workflows only partly represented</strong><small>6 agents known, 2 workflows registered · coverage 68%</small></div><button class="btn secondary" data-gap="HR workflows">Register workflows</button></div>
 <div class="gap"><div><strong>Procurement vendor data not connected</strong><small>Vendor master changes are inferred, not observed</small></div><button class="btn secondary" data-gap="Procurement vendor data">Connect data</button></div>
-<div class="gap"><div><strong>7 known workflows not yet registered</strong><small>Found in the environment but missing from the Workflow Library</small></div><button class="btn secondary" data-jump="library">Review</button></div>
+<div class="gap"><div><strong>3 known workflows not yet registered</strong><small>Found in the environment but missing from the Workflow Library</small></div><button class="btn secondary" data-lib-unregistered="1">Review</button></div>
 <div class="gap"><div><strong>Horizontal agents unassigned to a domain</strong><small>File-reading and analytics agents used by every domain · taxonomy for later versions</small></div><span class="tbd">Later</span></div>
 </div>
 </div>
@@ -1111,132 +1124,224 @@ const incidentData={
   };
   
 
-  /* ---- 9/15: navigation, helpers, library, workflow detail, blueprint lifecycle ---- */
+  /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
   const viewNames={overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'Policy Review','short-term':'Short-Term Validation','long-term':'Long-Term Validation','security-model':'Security Model'};
   function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;if(id==='blueprint')requestAnimationFrame(drawBlueprintEdges);window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
-  const toast=document.getElementById('toast');let toastTimer=null;
+  const $id=x=>document.getElementById(x);
+  const setText=(x,v)=>{const e=$id(x);if(e)e.textContent=v};
+  const toast=$id('toast');let toastTimer=null;
   function notify(t){toast.textContent=t;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
   function runSteps(container,opts){const o=opts||{},ms=o.ms||420,steps=[...container.querySelectorAll('.run-step')];steps.forEach(s=>s.classList.remove('running','done'));let i=0;const next=()=>{if(i>0){steps[i-1].classList.remove('running');steps[i-1].classList.add('done')}if(i>=steps.length){if(o.onDone)o.onDone();return}steps[i].classList.add('running');i++;setTimeout(next,ms)};next()}
   function setMsg(el,text,cls){el.textContent=text;el.className='decision-state show '+(cls||'')}
-  let decisionCb=null;const decisionModal=document.getElementById('decisionModal');
-  function openDecision(o){document.getElementById('decisionModalTitle').textContent=o.title;document.getElementById('decisionModalText').textContent=o.text;document.getElementById('decisionModalBox').innerHTML=o.box;document.getElementById('decisionModalConfirm').textContent=o.confirm||'Approve';decisionCb=o.onConfirm;decisionModal.classList.add('open')}
-  document.getElementById('decisionModalConfirm').addEventListener('click',()=>{decisionModal.classList.remove('open');if(decisionCb)decisionCb();decisionCb=null});
+  function setMsgHtml(el,html,cls){el.innerHTML=html;el.className='decision-state show '+(cls||'')}
+  let decisionCb=null;const decisionModal=$id('decisionModal');
+  function openDecision(o){setText('decisionModalTitle',o.title);setText('decisionModalText',o.text);$id('decisionModalBox').innerHTML=o.box;setText('decisionModalConfirm',o.confirm||'Approve');decisionCb=o.onConfirm;decisionModal.classList.add('open')}
+  $id('decisionModalConfirm').addEventListener('click',()=>{decisionModal.classList.remove('open');if(decisionCb)decisionCb();decisionCb=null});
   function setRecStatus(key,text,cls){document.querySelectorAll('[data-rec-status="'+key+'"]').forEach(el=>{el.textContent=text;el.className='status '+(cls||'')})}
-  function decPending(){const el=document.getElementById('ovPendingCount');const n=Math.max(0,parseInt(el.textContent)-1);el.textContent=n+' pending'}
+  // Pending decisions are counted once per item (fix 5-C).
+  const pending=new Set(['I-1042','I-1038']);
+  function refreshPending(){setText('ovPendingCount',pending.size+' pending')}
+  function addPending(k){pending.add(k);refreshPending()}
+  function resolvePending(k){pending.delete(k);refreshPending()}
 
   const workflowData={
     'WF-021':{name:'Finance · Vendor Master Update',domain:'Finance',desc:'Vendor onboarding and bank-detail maintenance across Finance, Procurement and approval services.',owner:'Finance Operations',sec:'M. Chen',agents:4,tools:7,resources:5,controls:3,policies:4,lifecycle:'Needs Revalidation',validation:'Recommendation ready',last:'12 days ago',deploy:'Deployed',risk:'Critical',coverage:'86%',defense:'62%',reach:'21%',open:3,incident:'I-1042',graph:[['External email','Input'],['Finance Agent','Agent'],['Finance Approver','Human approver'],['Vendor Update Tool','Tool'],['Vendor bank record','Resource'],['Bank change','Outcome']]},
     'WF-014':{name:'Customer Support · Refund Resolution',domain:'Customer Service',desc:'Multi-agent refund, compensation, loyalty credit and escalation workflow.',owner:'CX Automation',sec:'A. Patel',agents:5,tools:9,resources:4,controls:4,policies:6,lifecycle:'Deployed',validation:'Recommendation ready',last:'2 days ago',deploy:'Deployed',risk:'High',coverage:'79%',defense:'58%',reach:'26%',open:2,incident:'I-1038',graph:[['Customer request','Input'],['Refund Agent','Agent'],['Loyalty Agent','Agent'],['Payment & Credit API','Tool'],['Customer economic record','Data'],['Refund issued','Outcome']]},
     'WF-008':{name:'Procurement · Purchase Order Approval',domain:'Procurement',desc:'Purchase requests, budget checks, supplier selection and delegated approvals.',owner:'Procurement Operations',sec:'J. Kim',agents:3,tools:6,resources:3,controls:3,policies:3,lifecycle:'Needs Revalidation',validation:'Validated',last:'9 days ago',deploy:'Deployed',risk:'High',coverage:'74%',defense:'66%',reach:'17%',open:1,incident:'I-1031',graph:[['PO change request','Input'],['Procurement Agent','Agent'],['Category Approver','Human approver'],['PO System','Tool'],['Purchase order','Resource'],['PO released','Outcome']]},
     'WF-005':{name:'Identity · Access Provisioning',domain:'Identity',desc:'Joiner, mover and leaver orchestration across HRIS, IAM and application owners.',owner:'IAM Team',sec:'IAM Team',agents:4,tools:11,resources:6,controls:5,policies:5,lifecycle:'Deployed',validation:'Validated',last:'3 days ago',deploy:'Deployed',risk:'Medium',coverage:'91%',defense:'72%',reach:'12%',open:1,incident:'I-1007',graph:[['Role change','Input'],['Provisioning Agent','Agent'],['Role Owner','Human approver'],['IAM API','Tool'],['Entitlement','Resource'],['Access granted','Outcome']]},
-    'WF-026':{name:'Sales · Quote-to-Contract',domain:'Sales',desc:'Pricing, discount approvals, contract generation and CRM state transitions.',owner:'Revenue Operations',sec:'RevOps Security',agents:3,tools:8,resources:4,controls:4,policies:4,lifecycle:'Deployed',validation:'Revalidated',last:'5 days ago',deploy:'Deployed',risk:'Low',coverage:'88%',defense:'81%',reach:'6%',open:0,incident:'I-0994',graph:[['Quote request','Input'],['Pricing Agent','Agent'],['Regional Sales VP','Human approver'],['CRM','Tool'],['Enterprise quote','Data'],['Contract issued','Outcome']]},
+    'WF-026':{name:'Sales · Quote-to-Contract',domain:'Sales',desc:'Pricing, discount approvals, contract generation and CRM state transitions.',owner:'Revenue Operations',sec:'RevOps Security',agents:3,tools:8,resources:4,controls:4,policies:4,lifecycle:'Revalidated',validation:'Revalidated',last:'5 days ago',deploy:'Deployed',risk:'Low',coverage:'88%',defense:'81%',reach:'6%',open:0,incident:'I-0994',graph:[['Quote request','Input'],['Pricing Agent','Agent'],['Regional Sales VP','Human approver'],['CRM','Tool'],['Enterprise quote','Data'],['Contract issued','Outcome']]},
     'WF-033':{name:'IT · Service Account Remediation',domain:'IT',desc:'Credential rotation, dependency discovery, workload restart and rollback.',owner:'SRE Security',sec:'SRE Security',agents:6,tools:14,resources:7,controls:3,policies:3,lifecycle:'Needs Revalidation',validation:'Validated',last:'21 days ago',deploy:'Deployed',risk:'Medium',coverage:'83%',defense:'70%',reach:'14%',open:1,incident:'I-1019',graph:[['Credential risk signal','Input'],['Remediation Agent','Agent'],['SRE On-call','Human approver'],['Secrets Manager','Tool'],['Service account secret','Resource'],['Credential rotated','Outcome']]}
   };
+  // Known in the environment but not registered (fix 5-I, 5-M).
+  const UNREGISTERED=[['HR · Onboarding Assistant','Human Resources','People Operations'],['Finance · Expense Reimbursement','Finance','Finance Operations'],['IT · Software Deployment','IT','Platform Engineering']];
   const lcClass=v=>({'Needs Revalidation':'warn','Deployed':'ok','Revalidated':'ok','Needs Revision':'bad','Approved':'ok'}[v]||'');
   const riskClass=v=>({Critical:'blocked',High:'review',Medium:'running'}[v]||'');
-  function riskChip(v){return v==='Low'?'<span class="status" style="background:var(--green-bg);color:var(--green)">Low</span>':'<span class="status '+riskClass(v)+'">'+v+'</span>'}
-  function deployChip(v){return '<span class="deploy '+(v==='Deployed'?'deployed':'pre')+'">'+v+'</span>'}
-  function renderLibrary(){const q=document.getElementById('workflowSearch').value.toLowerCase().trim(),dom=document.getElementById('domainFilter').value,dep=document.getElementById('deployFilter').value;const rows=Object.entries(workflowData).filter(([id,w])=>(!q||(id+' '+w.name+' '+w.domain+' '+w.owner+' '+w.desc).toLowerCase().includes(q))&&(!dom||w.domain===dom)&&(!dep||w.deploy===dep));
-    document.getElementById('libRows').innerHTML=rows.map(([id,w])=>`<tr data-open-workflow="${id}"><td class="incident-name">${w.name}<small>${id}</small></td><td>${w.domain}</td><td>${w.owner}</td><td>${w.sec}</td><td>${w.agents}</td><td>${w.tools}</td><td>${w.resources}</td><td>${w.controls}</td><td>${w.policies}</td><td><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></td><td>${w.validation}</td><td>${w.last}</td><td>${deployChip(w.deploy)}</td><td>${riskChip(w.risk)}</td><td>${w.coverage}</td></tr>`).join('');
-    document.getElementById('libCards').innerHTML=rows.map(([id,w])=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${w.domain.slice(0,2).toUpperCase()}</div><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></div><h3>${w.name}</h3><p>${w.desc}</p><div class="workflow-meta"><div><strong>${w.agents}</strong><span>AGENTS</span></div><div><strong>${w.tools}</strong><span>TOOLS</span></div><div><strong>${w.coverage}</strong><span>COVERAGE</span></div></div>${deployChip(w.deploy)}<button class="btn secondary" style="margin-top:12px" data-open-workflow="${id}">Open workflow →</button></article>`).join('');
-    const all=Object.values(workflowData);document.getElementById('libRegistered').textContent=all.length;document.getElementById('libDeployed').textContent=all.filter(w=>w.deploy==='Deployed').length;document.getElementById('libPre').textContent=all.filter(w=>w.deploy!=='Deployed').length;document.getElementById('libReval').textContent=all.filter(w=>w.lifecycle==='Needs Revalidation').length}
-  ['workflowSearch','domainFilter','deployFilter'].forEach(id=>document.getElementById(id).addEventListener('input',renderLibrary));
-  document.querySelectorAll('[data-lib-view]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-lib-view]').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('libTableWrap').style.display=b.dataset.libView==='table'?'block':'none';document.getElementById('libCards').style.display=b.dataset.libView==='cards'?'grid':'none'}));
+  const riskChip=v=>v==='Low'?'<span class="status" style="background:var(--green-bg);color:var(--green)">Low</span>':'<span class="status '+riskClass(v)+'">'+v+'</span>';
+  const deployChip=v=>'<span class="deploy '+(v==='Deployed'?'deployed':'pre')+'">'+v+'</span>';
+  const atRisk=w=>w.risk!=='Low'&&Number(w.open)>0;
+  function updateCounts(){const all=Object.values(workflowData),reg=all.length,dep=all.filter(w=>w.deploy==='Deployed').length,reval=all.filter(w=>w.lifecycle==='Needs Revalidation').length,risk=all.filter(atRisk).length,known=reg+UNREGISTERED.length,pct=Math.round(reg/known*100);
+    setText('libRegistered',reg);setText('libDeployed',dep);setText('libPre',reg-dep);setText('libReval',reval);
+    setText('ovRegistered',reg);setText('ovKnown',known);setText('ovDeployed',dep);$id('ovCoverageBar').style.width=pct+'%';setText('ovCoveragePct',pct+'%');setText('ovCoverageNote',UNREGISTERED.length+' known workflows not yet registered');setText('ovAtRisk',risk);setText('ovAtRiskFoot','of '+reg+' registered');setText('ovRevalidate',reval)}
+  function renderLibrary(){const q=$id('workflowSearch').value.toLowerCase().trim(),dom=$id('domainFilter').value,dep=$id('deployFilter').value,risk=$id('riskFilter').value;
+    if(dep==='Not registered'){const rows=UNREGISTERED.filter(u=>(!q||u.join(' ').toLowerCase().includes(q))&&(!dom||u[1]===dom));
+      $id('libRows').innerHTML=rows.map(u=>`<tr data-new-blueprint="1"><td class="incident-name">${u[0]}<small>Discovered</small></td><td>${u[1]}</td><td>${u[2]}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="lc warn">Discovered · not registered</span></td><td>Not validated</td><td>—</td><td><span class="deploy pre">Not registered</span></td><td>—</td><td>—</td></tr>`).join('');
+      $id('libCards').innerHTML=rows.map(u=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${u[1].slice(0,2).toUpperCase()}</div><span class="lc warn">Not registered</span></div><h3>${u[0]}</h3><p>Seen in the environment but not in the inventory. Describe it in Agentic Blueprint Studio to register it.</p><button class="btn secondary" style="margin-top:12px" data-new-blueprint="1">Start Agentic Blueprint →</button></article>`).join('');
+    }else{const rows=Object.entries(workflowData).filter(([id,w])=>(!q||(id+' '+w.name+' '+w.domain+' '+w.owner+' '+w.desc).toLowerCase().includes(q))&&(!dom||w.domain===dom)&&(!dep||w.deploy===dep)&&(!risk||atRisk(w)));
+      $id('libRows').innerHTML=rows.map(([id,w])=>`<tr data-open-workflow="${id}"><td class="incident-name">${w.name}<small>${id}</small></td><td>${w.domain}</td><td>${w.owner}</td><td>${w.sec}</td><td>${w.agents}</td><td>${w.tools}</td><td>${w.resources}</td><td>${w.controls}</td><td>${w.policies}</td><td><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></td><td>${w.validation}</td><td>${w.last}</td><td>${deployChip(w.deploy)}</td><td>${riskChip(w.risk)}</td><td>${w.coverage}</td></tr>`).join('');
+      $id('libCards').innerHTML=rows.map(([id,w])=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${w.domain.slice(0,2).toUpperCase()}</div><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></div><h3>${w.name}</h3><p>${w.desc}</p><div class="workflow-meta"><div><strong>${w.agents}</strong><span>AGENTS</span></div><div><strong>${w.tools}</strong><span>TOOLS</span></div><div><strong>${w.coverage}</strong><span>COVERAGE</span></div></div>${deployChip(w.deploy)}<button class="btn secondary" style="margin-top:12px" data-open-workflow="${id}">Open workflow →</button></article>`).join('')}
+    updateCounts()}
+  ['workflowSearch','domainFilter','deployFilter','riskFilter'].forEach(id=>$id(id).addEventListener('input',renderLibrary));
+  document.querySelectorAll('[data-lib-view]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-lib-view]').forEach(x=>x.classList.toggle('active',x===b));$id('libTableWrap').style.display=b.dataset.libView==='table'?'block':'none';$id('libCards').style.display=b.dataset.libView==='cards'?'grid':'none'}));
+
   let currentWorkflow='WF-021';
-  function openWorkflow(id){const w=workflowData[id];if(!w)return;currentWorkflow=id;const set=(x,v)=>{document.getElementById(x).textContent=v};set('wfId',id);set('wfName',w.name);set('wfDesc',w.desc);set('wfDomain',w.domain);set('wfStatus',w.deploy);set('wfOwner',w.owner);set('wfSecOwner',w.sec);set('wfLastVal',w.last);set('wfDefense',w.defense);set('wfOpenRisks',w.open);set('wfReach',w.reach);set('wfCoverage',w.coverage);set('wfPolicies',w.policies);
-    const lc=document.getElementById('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);
-    document.getElementById('wfDeployBtn').style.display=w.deploy==='Deployed'?'none':'inline-flex';document.getElementById('wfIncidentBtn').style.display=w.incident?'inline-flex':'none';
-    document.getElementById('wfGraph').innerHTML=w.graph.map((n,i)=>`${i?'<div class="arrow">→</div>':''}<div class="node${n[1]==='Outcome'?' danger':''}"><strong>${n[0]}</strong><span>${n[1]}</span></div>`).join('');
+  function openWorkflow(id){const w=workflowData[id];if(!w)return;if(id!==currentWorkflow)$id('wfRevalRun').style.display='none';currentWorkflow=id;
+    setText('wfId',id);setText('wfName',w.name);setText('wfDesc',w.desc);setText('wfDomain',w.domain);setText('wfStatus',w.deploy);setText('wfOwner',w.owner);setText('wfSecOwner',w.sec);setText('wfLastVal',w.last);setText('wfDefense',w.defense);setText('wfOpenRisks',w.open);setText('wfReach',w.reach);setText('wfCoverage',w.coverage);setText('wfPolicies',w.policies);
+    const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);
+    $id('wfDeployBtn').style.display=w.deploy==='Deployed'?'none':'inline-flex';$id('wfIncidentBtn').style.display=w.incident?'inline-flex':'none';
+    $id('wfGraph').innerHTML=w.graph.map((n,i)=>`${i?'<div class="arrow">→</div>':''}<div class="node${n[1]==='Outcome'?' danger':''}"><strong>${n[0]}</strong><span>${n[1]}</span></div>`).join('');
     const inc=w.incident&&incidentData[w.incident];
     const activity=w.activity||[['Latest incident',inc?w.incident+' · '+inc.title:'None','View'],['Latest policy change',inc?inc.candidate+' · recommended':'—',''],['Latest revalidation',w.last+' · '+w.validation,''],['Latest deployment change',w.deploy,'']];
-    document.getElementById('wfActivity').innerHTML=activity.map(a=>`<div class="activity-row"><small>${a[0]}</small><span>${a[1]}</span>${a[2]&&inc?`<button class="def-link" data-open-incident="${w.incident}">${a[2]} →</button>`:'<span></span>'}</div>`).join('');
-    const detail=w.detail||[['Evidence',inc?inc.summary:'No production evidence yet.'],['Alternative paths',inc?inc.paths.join(' · '):'From blueprint validation: paths B, C and D closed by the approved control.'],['Control history',inc?inc.control+' in place; candidate: '+inc.candidate:'Manager approval above $500 added at registration.'],['Policy history',w.policies+' approved policies'],['Validation runs','Last run '+w.last+' · '+w.validation]];
-    document.getElementById('wfDetail').innerHTML=detail.map(d=>`<details><summary>${d[0]}</summary><div class="detail-body">${d[1]}</div></details>`).join('');
+    $id('wfActivity').innerHTML=activity.map(a=>`<div class="activity-row"><small>${a[0]}</small><span>${a[1]}</span>${a[2]&&inc?`<button class="def-link" data-open-incident="${w.incident}">${a[2]} →</button>`:'<span></span>'}</div>`).join('');
+    const detail=w.detail||[['Evidence',inc?inc.summary:'No production evidence yet.'],['Alternative paths',inc?inc.paths.join(' · '):'From blueprint validation: paths B, C and D closed by the approved control.'],['Control history',inc?inc.control+' in place; candidate: '+inc.candidate:'Manager approval control added at registration.'],['Policy history',w.policies+' approved policies'],['Validation runs','Last run '+w.last+' · '+w.validation]];
+    $id('wfDetail').innerHTML=detail.map(d=>`<details><summary>${d[0]}</summary><div class="detail-body">${d[1]}</div></details>`).join('');
     showView('workflow')}
-  document.getElementById('wfIncidentBtn').addEventListener('click',()=>{const w=workflowData[currentWorkflow];if(w.incident)renderIncident(w.incident)});
-  document.getElementById('wfDeployBtn').addEventListener('click',()=>{const w=workflowData[currentWorkflow];w.deploy='Deployed';w.lifecycle='Deployed';if(w.activity)w.activity.unshift(['Latest deployment change','Deployed to production · telemetry can now be linked','']);renderLibrary();openWorkflow(currentWorkflow);document.getElementById('ovDeployed').textContent=parseInt(document.getElementById('ovDeployed').textContent)+1;notify('Marked as deployed · changes now trigger short-term revalidation')});
+  $id('wfIncidentBtn').addEventListener('click',()=>{const w=workflowData[currentWorkflow];if(w.incident)renderIncident(w.incident)});
+  // Revalidate the current workflow in place (fix 5-G).
+  function revalidateWorkflow(id){openWorkflow(id);const w=workflowData[id],res=$id('wfRevalResult');$id('wfRevalRun').style.display='block';setText('wfRevalName',w.name);res.className='decision-state';
+    runSteps($id('wfRevalSteps'),{onDone:()=>{const bad=id==='WF-033';w.lifecycle=bad?'Needs Revision':'Revalidated';w.validation=bad?'Needs revision':'Revalidated';w.last='Just now';if(w.activity)w.activity.unshift(['Latest revalidation','Just now · '+w.lifecycle,'']);
+      renderShortTerm();renderLibrary();const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);setText('wfLastVal','Just now');
+      if(bad)setMsgHtml(res,'Needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review incident →</button>','rejected');else setMsg(res,'Revalidated. No new reachable paths after the latest changes.','approved');notify(w.name+' · '+w.lifecycle)}})}
+  $id('wfRevalidateBtn').addEventListener('click',()=>revalidateWorkflow(currentWorkflow));
+  // A deployment is an environment change: queue the workflow for short-term revalidation (fix 5-H).
+  $id('wfDeployBtn').addEventListener('click',()=>{const id=currentWorkflow,w=workflowData[id];w.deploy='Deployed';w.lifecycle='Needs Revalidation';w.validation='Revalidation pending';if(w.activity)w.activity.unshift(['Deployed','Just now · first production revalidation pending','']);
+    ST_CHANGES.unshift({icon:'D',title:'New deployment',sub:w.name+' moved to production',tag:'Deployment',cls:'running'});if(!ST_AFFECTED.some(a=>a.id===id))ST_AFFECTED.push({id,trigger:'Deployment'});
+    renderShortTerm();renderLibrary();openWorkflow(id);notify('Marked as deployed · queued for Short-Term Validation')});
 
+  // Blueprint lifecycle with guards (fixes 5-A, 5-B, 5-C, 5-N).
   const BP_ORDER=['build','confirm','validate','optimize','decide','register'];
-  function setBpStage(name){const idx=BP_ORDER.indexOf(name);document.querySelectorAll('#bpStages .bp-stage').forEach((s,k)=>{s.classList.toggle('done',k<idx);s.classList.toggle('active',k===idx)});document.querySelectorAll('#blueprint .stage-panel').forEach(p=>p.classList.toggle('active',p.id==='bp-'+name));if(name==='build')requestAnimationFrame(drawBlueprintEdges);window.scrollTo({top:0,behavior:'smooth'})}
-  function setBpState(text,cls){const el=document.getElementById('bpState');el.textContent=text;el.className='lc'+(cls?' '+cls:'')}
-  const $id=x=>document.getElementById(x);
-  $id('confirmBlueprintBtn').addEventListener('click',()=>setBpStage('confirm'));
+  let bpReached=0,bpConfirmed=false,bpValidated=false,bpDecision=null,bpRegistered=false;
+  const reach=name=>{bpReached=Math.max(bpReached,BP_ORDER.indexOf(name))};
+  function setBpStage(name){const idx=BP_ORDER.indexOf(name);document.querySelectorAll('#bpStages .bp-stage').forEach((s,k)=>{s.classList.toggle('done',k<idx||(bpRegistered&&k<=bpReached));s.classList.toggle('active',k===idx&&!bpRegistered);s.classList.toggle('reachable',k<=bpReached&&k!==idx)});
+    document.querySelectorAll('#blueprint .stage-panel').forEach(p=>p.classList.toggle('active',p.id==='bp-'+name));$id('bpLockedNote').style.display=name==='build'&&bpConfirmed?'flex':'none';$id('registerBtn').disabled=bpDecision!=='approved'||bpRegistered;if(name==='decide')renderBpDecision();if(name==='build')requestAnimationFrame(drawBlueprintEdges);window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('#bpStages .bp-stage').forEach(s=>s.addEventListener('click',()=>{if(BP_ORDER.indexOf(s.dataset.bpStage)<=bpReached)setBpStage(s.dataset.bpStage)}));
+  function setBpState(text,cls){const el=$id('bpState');el.textContent=text;el.className='lc'+(cls?' '+cls:'')}
+  $id('confirmBlueprintBtn').addEventListener('click',()=>{reach('confirm');setBpStage('confirm')});
   $id('backToBuildBtn').addEventListener('click',()=>setBpStage('build'));
   $id('confirmAck').addEventListener('change',e=>{$id('confirmBtn').disabled=!e.target.checked});
-  $id('confirmBtn').addEventListener('click',()=>{setBpState('Confirmed','ok');$id('confirmActions').style.display='none';$id('confirmDone').style.display='flex';document.querySelector('.builder-toolbar strong').textContent='Customer Refund · Confirmed v1.0';notify('Blueprint v1.0 confirmed')});
-  $id('reviseBtn').addEventListener('click',()=>{setBpState('Draft');$id('confirmDone').style.display='none';$id('confirmActions').style.display='flex';$id('confirmAck').checked=false;$id('confirmBtn').disabled=true;document.querySelector('.builder-toolbar strong').textContent='Customer Refund · Draft v1.1';$id('groundingBadge').textContent='New revision · v1.0 stays confirmed';setBpStage('build');notify('Created draft v1.1; v1.0 is unchanged')});
-  $id('startValidateBtn').addEventListener('click',()=>{setBpStage('validate');setBpState('Validating');$id('valResults').style.display='none';const st=$id('valStatus');st.textContent='Validation running';st.className='status running';runSteps($id('valSteps'),{onDone:()=>{$id('valResults').style.display='block';st.textContent='Risk identified';st.className='status blocked';setBpState('Risk identified','bad')}})});
-  $id('toOptimizeBtn').addEventListener('click',()=>{setBpStage('optimize');setBpState('Recommendation ready')});
-  $id('toDecideBtn').addEventListener('click',()=>{setBpStage('decide');setBpState('Ready for approval','warn')});
+  $id('confirmBtn').addEventListener('click',()=>{bpConfirmed=true;reach('validate');setBpState('Confirmed','ok');$id('confirmActions').style.display='none';$id('confirmDone').style.display='flex';document.querySelector('.builder-toolbar strong').textContent='Customer Refund · Confirmed v1.0';setBpStage('confirm');notify('Blueprint v1.0 confirmed')});
+  function reviseBlueprint(label){bpConfirmed=false;bpValidated=false;bpDecision=null;bpReached=0;setBpState('Draft');$id('confirmDone').style.display='none';$id('confirmActions').style.display='flex';$id('confirmAck').checked=false;$id('confirmBtn').disabled=true;$id('valResults').style.display='none';document.querySelector('.builder-toolbar strong').textContent=label;setRecStatus('BP-REFUND','Awaiting validation','running');resolvePending('BP-REFUND');renderBpDecision();setBpStage('build')}
+  $id('reviseBtn').addEventListener('click',()=>{reviseBlueprint('Customer Refund · Draft v1.1');$id('groundingBadge').textContent='New revision · v1.0 stays confirmed';notify('Created draft v1.1; v1.0 is unchanged')});
+  $id('reviseFromBuildBtn').addEventListener('click',()=>$id('reviseBtn').click());
+  $id('startValidateBtn').addEventListener('click',()=>{setBpStage('validate');setBpState('Validating');$id('valResults').style.display='none';const st=$id('valStatus');st.textContent='Validation running';st.className='status running';
+    runSteps($id('valSteps'),{onDone:()=>{bpValidated=true;reach('optimize');$id('valResults').style.display='block';st.textContent='Risk identified';st.className='status blocked';setBpState('Risk identified','bad');setBpStage('validate');setRecStatus('BP-REFUND','Ready for approval','review');if(bpDecision!=='approved')addPending('BP-REFUND')}})});
+  $id('toOptimizeBtn').addEventListener('click',()=>{reach('optimize');setBpStage('optimize');if(!bpDecision)setBpState('Recommendation ready')});
+  $id('toDecideBtn').addEventListener('click',()=>{reach('decide');if(bpDecision==='rejected')bpDecision=null;setBpStage('decide');if(!bpDecision)setBpState('Ready for approval','warn')});
+  function renderBpDecision(){const locked=bpDecision==='approved';['bpApproveBtn','bpModifyBtn','bpRejectBtn','bpRerunBtn'].forEach(x=>$id(x).disabled=locked);const chip=$id('bpDecisionChip');
+    if(locked){chip.textContent=bpRegistered?'Approved · registered':'Approved';chip.className='lc ok';$id('bpModifyForm').classList.remove('open');setMsgHtml($id('bpDecisionMsg'),bpRegistered?'Decision recorded: approved, and the workflow is registered.':'Decision recorded: approved. <button class="def-link" data-bp-go="register">Continue to Register →</button>','approved')}
+    else{chip.textContent='Ready for approval';chip.className='lc warn';if(bpDecision!=='rejected')$id('bpDecisionMsg').className='decision-state'}}
   const BP_VARIANTS={500:{dc:91,rr:3,paths:1,app:12,lat:18},750:{dc:86,rr:6,paths:2,app:8,lat:12},1000:{dc:79,rr:9,paths:3,app:6,lat:9}};
   $id('bpModifyBtn').addEventListener('click',()=>$id('bpModifyForm').classList.toggle('open'));
-  $id('bpRerunBtn').addEventListener('click',()=>{const t=$id('bpThreshold').value,v=BP_VARIANTS[t],amt=Number(t).toLocaleString();setMsg($id('bpDecisionMsg'),'Re-running validation with approval above $'+amt+'…','');setBpState('Candidate testing');setTimeout(()=>{$id('bpValDC').textContent=v.dc+'%';$id('bpValRR').textContent=v.rr+'%';$id('bpValPaths').textContent=v.paths;$id('bpImpact1').textContent='+'+v.app+'%';$id('bpImpact2').textContent='+'+v.lat+' sec';const txt='Require manager approval for refunds greater than $'+amt;$id('bpRecText').textContent=txt+'.';$id('bpDecisionText').textContent=txt;$id('bpDecisionState').textContent='Defense '+v.dc+'% · Reachability '+v.rr+'% · '+v.paths+' critical path'+(v.paths===1?'':'s');$id('bpDecisionImpact').textContent='+'+v.app+'% approvals · +'+v.lat+' sec median latency';$id('bpRegThreshold').textContent=amt;setMsg($id('bpDecisionMsg'),'Validation re-run for approval above $'+amt+'. Updated validated state shown.','approved');setBpState('Ready for approval','warn');$id('bpModifyForm').classList.remove('open')},900)});
-  $id('bpRejectBtn').addEventListener('click',()=>{setMsg($id('bpDecisionMsg'),'Rejected. Returning to the other candidates.','rejected');setBpState('Rejected','bad');setRecStatus('BP-REFUND','Rejected','blocked');setTimeout(()=>setBpStage('optimize'),900)});
-  $id('bpApproveBtn').addEventListener('click',()=>openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for Customer Refund Blueprint v1.0.',box:'<strong>'+$id('bpDecisionText').textContent+'</strong><br>'+$id('bpDecisionState').textContent+'<br><br>Next: register the workflow. Approval does not deploy anything.',onConfirm:()=>{setBpState('Approved','ok');$id('bpDecisionChip').textContent='Approved';$id('bpDecisionChip').className='lc ok';setMsg($id('bpDecisionMsg'),'Approved by a human. Next: register the workflow.','approved');setRecStatus('BP-REFUND','Approved','');decPending();setTimeout(()=>setBpStage('register'),600)}}));
-  $id('registerBtn').addEventListener('click',()=>{workflowData['WF-041']={name:'Customer Service · Customer Refund',domain:'Customer Service',desc:'Refund requests with triage, eligibility, manager approval above $'+$id('bpRegThreshold').textContent+' and payment execution. Registered from Agentic Blueprint v1.0.',owner:'Customer Support Operations',sec:'CX Security',agents:4,tools:2,resources:2,controls:3,policies:1,lifecycle:'Registered',validation:'Approved',last:'Today',deploy:'Registered · not deployed',risk:'Low',coverage:'91%',defense:$id('bpValDC').textContent,reach:$id('bpValRR').textContent,open:$id('bpValPaths').textContent,incident:null,graph:[['Customer request','Input'],['Request Triage','Agent'],['Refund Eligibility','Agent'],['Manager approval > $'+$id('bpRegThreshold').textContent,'Control'],['Payment API','Tool'],['Refund resolved','Outcome']],activity:[['Registered','Today · from Agentic Blueprint v1.0',''],['Recommendation approved','Manager approval above $'+$id('bpRegThreshold').textContent,''],['Validation completed','Baseline + 3 candidates · 2,400 scenarios each',''],['Deployment','Not deployed yet','']]};renderLibrary();$id('registerActions').style.display='none';$id('registerDone').style.display='flex';setBpState('Registered','ok');document.querySelectorAll('#bpStages .bp-stage').forEach(s=>{s.classList.remove('active');s.classList.add('done')});$id('ovRegistered').textContent=parseInt($id('ovRegistered').textContent)+1;notify('Registered · Customer Refund added to the Workflow Library (not deployed)')});
+  $id('bpRerunBtn').addEventListener('click',()=>{if(bpDecision==='approved')return;const t=$id('bpThreshold').value,v=BP_VARIANTS[t],amt=Number(t).toLocaleString();setMsg($id('bpDecisionMsg'),'Re-running validation with approval above $'+amt+'…','');setBpState('Candidate testing');
+    setTimeout(()=>{setText('bpValDC',v.dc+'%');setText('bpValRR',v.rr+'%');setText('bpValPaths',v.paths);setText('bpImpact1','+'+v.app+'%');setText('bpImpact2','+'+v.lat+' sec');const txt='Require manager approval for refunds greater than $'+amt;setText('bpRecText',txt+'.');setText('bpDecisionText',txt);setText('bpDecisionState','Defense '+v.dc+'% · Reachability '+v.rr+'% · '+v.paths+' critical path'+(v.paths===1?'':'s'));setText('bpDecisionImpact','+'+v.app+'% approvals · +'+v.lat+' sec median latency');setText('bpRegThreshold',amt);setMsg($id('bpDecisionMsg'),'Validation re-run for approval above $'+amt+'. Updated validated state shown.','approved');setBpState('Ready for approval','warn');$id('bpModifyForm').classList.remove('open')},900)});
+  $id('bpRejectBtn').addEventListener('click',()=>{if(bpDecision==='approved')return;bpDecision='rejected';resolvePending('BP-REFUND');setMsg($id('bpDecisionMsg'),'Rejected. Returning to the other candidates.','rejected');setBpState('Rejected','bad');setRecStatus('BP-REFUND','Rejected','blocked');setTimeout(()=>setBpStage('optimize'),900)});
+  $id('bpApproveBtn').addEventListener('click',()=>{if(bpDecision==='approved')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for Customer Refund Blueprint v1.0.',box:'<strong>'+$id('bpDecisionText').textContent+'</strong><br>'+$id('bpDecisionState').textContent+'<br><br>Next: register the workflow. Approval does not deploy anything.',onConfirm:()=>{bpDecision='approved';reach('register');resolvePending('BP-REFUND');setBpState('Approved','ok');setRecStatus('BP-REFUND','Approved','');renderBpDecision();setTimeout(()=>{if(!bpRegistered)setBpStage('register')},600)}})});
+  $id('registerBtn').addEventListener('click',()=>{if(bpRegistered||bpDecision!=='approved')return;const thr=$id('bpRegThreshold').textContent;
+    workflowData['WF-041']={name:'Customer Service · Customer Refund',domain:'Customer Service',desc:'Refund requests with triage, eligibility, manager approval above $'+thr+' and payment execution. Registered from Agentic Blueprint v1.0.',owner:'Customer Support Operations',sec:'CX Security',agents:4,tools:2,resources:2,controls:3,policies:1,lifecycle:'Registered',validation:'Approved',last:'Today',deploy:'Registered · not deployed',risk:'Low',coverage:'91%',defense:$id('bpValDC').textContent,reach:$id('bpValRR').textContent,open:$id('bpValPaths').textContent,incident:null,graph:[['Customer request','Input'],['Request Triage','Agent'],['Refund Eligibility','Agent'],['Manager approval > $'+thr,'Control'],['Payment API','Tool'],['Refund resolved','Outcome']],activity:[['Registered','Today · from Agentic Blueprint v1.0',''],['Recommendation approved','Manager approval above $'+thr,''],['Validation completed','Baseline + 3 candidates · 2,400 scenarios each',''],['Deployment','Not deployed yet','']]};
+    bpRegistered=true;renderLibrary();$id('registerActions').style.display='none';$id('registerDone').style.display='flex';setBpState('Registered','ok');setBpStage('register');notify('Registered · Customer Refund added to the Workflow Library (not deployed)')});
+  function resetBlueprint(){reviseBlueprint('New workflow · Draft v1.0');bpRegistered=false;$id('registerActions').style.display='flex';$id('registerDone').style.display='none';$id('groundingBadge').textContent='New draft';setBpStage('build')}
+  function newBlueprint(){showView('blueprint');if(bpRegistered){resetBlueprint();notify('Started a new Agentic Blueprint draft; Customer Refund stays in the Workflow Library')}else if(bpReached>0){setBpStage(BP_ORDER[bpReached]);notify('Continuing the blueprint in progress')}else setBpStage('build')}
+  function openBlueprintForReview(){showView('blueprint');if(bpRegistered){setBpStage('register');notify('Already approved and registered');return}
+    if(bpValidated){setBpStage(bpDecision==='approved'?'register':bpReached>=4?'decide':'optimize');return}
+    setBpStage(BP_ORDER[Math.min(bpReached,2)]);notify('Confirm and validate this blueprint before reviewing its recommendation')}
+
+  // Inspector fields update the selected node (fixes 4-4, 4-5).
+  const inspectorField=label=>[...document.querySelectorAll('.node-inspector .field')].find(f=>f.querySelector('label')&&f.querySelector('label').textContent.trim()===label);
+  const scopeSel=inspectorField('Permission scope').querySelector('select'),credSel=inspectorField('Credential').querySelector('select');
+  const baseSelectBPNode=selectBPNode;
+  selectBPNode=function(node){baseSelectBPNode(node);if(!node)return;$id('inspectorRole').value=node.dataset.role||node.dataset.nodeName||'';if(node.dataset.scope)scopeSel.value=node.dataset.scope;if(node.dataset.cred)credSel.value=node.dataset.cred};
+  const markChanged=()=>{$id('groundingBadge').textContent='Draft changed · re-grounding'};
+  $id('inspectorRole').addEventListener('input',e=>{const n=selectedBPNode;if(!n)return;n.dataset.role=e.target.value;n.dataset.nodeName=e.target.value;const s=n.querySelector('strong');if(s)s.textContent=e.target.value;setText('inspectorName',e.target.value);markChanged()});
+  [scopeSel,credSel].forEach(sel=>sel.addEventListener('change',()=>{const n=selectedBPNode;if(!n)return;n.dataset.scope=scopeSel.value;n.dataset.cred=credSel.value;const m=n.querySelector('.node-meta');if(m)m.textContent=scopeSel.value+' · '+credSel.value;markChanged()}));
 
 
   /* ---- 9/15: incidents, policy review, environment, security model, modals, init ---- */
   const INC_WF={'I-1042':'WF-021','I-1038':'WF-014','I-1031':'WF-008','I-1019':'WF-033','I-1007':'WF-005','I-0994':'WF-026'};
   const INC_REC={'I-1042':[62,21,3,93,2,0,'97%','+420 ms','2 steps'],'I-1038':[58,26,4,90,4,1,'96%','+310 ms','1 step'],'I-1031':[66,17,3,92,3,0,'98%','+180 ms','1 step'],'I-1019':[70,14,2,91,4,0,'99%','+2 min','1 gate'],'I-1007':[72,12,2,94,2,0,'97%','+90 ms','1 review'],'I-0994':[81,6,1,95,1,0,'99%','+60 ms','1 rule']};
+  const INC_META={'I-1042':{domain:'Finance',workflow:'WF-021',agent:'Finance Agent',sev:'Critical',status:'Open',type:'Tool mutation',hours:0.3},'I-1038':{domain:'Customer Service',workflow:'WF-014',agent:'Refund Agent Network',sev:'High',status:'Open',type:'Aggregate outcome',hours:2},'I-1031':{domain:'Procurement',workflow:'WF-008',agent:'Procurement Agent',sev:'High',status:'Open',type:'Stale approval',hours:6},'I-1019':{domain:'IT',workflow:'WF-033',agent:'Remediation Agent',sev:'Medium',status:'Open',type:'Ordering failure',hours:24},'I-1007':{domain:'Identity',workflow:'WF-005',agent:'Provisioning Agent',sev:'Medium',status:'Open',type:'Entitlement',hours:72},'I-0994':{domain:'Sales',workflow:'WF-026',agent:'Pricing Agent',sev:'Closed',status:'Closed',type:'Policy conflict',hours:120}};
+  const incDecision={'I-0994':'closed'};
   let currentIncident='I-1042';
+  const GREEN='style="background:var(--green-bg);color:var(--green)"';
   function setIncTab(i){document.querySelectorAll('#incident .workspace-tab').forEach((t,k)=>t.classList.toggle('active',k===i));document.querySelectorAll('#incident .inc-panel').forEach((p,k)=>p.classList.toggle('active',k===i));document.querySelectorAll('#incFlow .bp-stage').forEach((s,k)=>{s.classList.toggle('done',k<i);s.classList.toggle('active',k===i)})}
   document.querySelectorAll('#incident .workspace-tab').forEach((t,i)=>t.addEventListener('click',()=>setIncTab(i)));
-  function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;const r=INC_REC[id]||INC_REC['I-1042'];const set=(x,v)=>{const e=document.getElementById(x);if(e)e.textContent=v};
-    set('incId',id);set('incTitle',d.title);set('incMeta',d.workflow+' · '+(INC_WF[id]||'')+' · Production');set('incEvidence',d.evidence);set('incSummary',d.summary);set('incControl',d.control);set('incMechanism',d.mechanism);set('incMechanismDesc',d.mechanismDesc);
-    set('obsInput',d.input);set('obsAgent',d.agent);set('obsAction',d.action);set('obsOutcome',d.outcome);set('obsControl','Blocked or observed by '+d.control);set('incOutcomeTarget',d.outcome);
-    const sev=document.getElementById('incSeverity');sev.textContent=d.severity.replace(' evidence','');sev.className='status '+d.severityClass;
-    ['kgInput','kgAgent','kgMechanism','kgAction','kgOutcome','kgControl','kgAuthority','kgAuthorityMeta','kgResource','kgResourceMeta','kgCandidate','graphMechanismInsight'].forEach((k,i)=>set(k,[d.input,d.agent,d.mechanism,d.action,d.outcome,d.control,d.authority,d.authorityMeta,d.resource,d.resourceMeta,d.candidate,d.mechanismDesc][i]));
-    const known=d.paths[d.paths.length-1],open=d.paths.slice(0,-1);
-    document.getElementById('incPaths').innerHTML=`<div class="path-row blocked"><strong>Path A</strong><span>${known} · observed</span><span class="status" style="background:var(--green-bg);color:var(--green)">Blocked</span></div>`+open.map((p,i)=>`<div class="path-row open"><strong>Path ${'BCD'[i]}</strong><span>${p}</span><span class="status blocked">Open</span></div>`).join('');
-    document.getElementById('incSbsPaths').innerHTML=open.map((p,i)=>`<div class="path-row open"><strong>Path ${'BCD'[i]}</strong><span>${p}</span><span class="status blocked">Open</span></div>`).join('');
-    set('incOpenCount',open.length);set('incSbsControl',d.candidate);
-    const cands=[[d.candidate,'Closes every open path while legitimate work continues.',r[3],r[4],r[6],true],['Remove agent write access','Closes the paths but stops the business action.',r[3]-2,r[4]+1,'71%',false],['Human review for every '+d.action.toLowerCase(),'Safe, but adds manual work to every execution.',r[3]-5,r[4]+2,'+45% reviews',false]];
-    document.getElementById('incCands').innerHTML=cands.map((c,i)=>`<div class="cand${c[5]?' best':''}">${c[5]?'<span class="rec">RECOMMENDED</span>':''}<span class="validated">✓ Validated in simulation</span><h3>${'ABC'[i]} · ${c[0]}</h3><p>${c[1]}</p><div class="cand-metrics"><div><strong>${c[2]}%</strong><span>Defense</span></div><div><strong>${c[3]}%</strong><span>Reachability</span></div><div><strong>${c[4]}</strong><span>Impact</span></div></div></div>`).join('');
-    set('incCurDC',r[0]+'%');set('incCurRR',r[1]+'%');set('incCurPaths',r[2]);set('incRecText',d.candidate);set('incRecNote','Validated against '+d.count);set('incValDC',r[3]+'%');set('incValRR',r[4]+'%');set('incValPaths',r[5]);set('incImpact1',r[6]);set('incImpact2',r[7]);set('incImpact3',r[8]);
-    set('incDecisionText',d.candidate);set('incDecisionStateText','Defense '+r[3]+'% · Reachability '+r[4]+'% · '+r[5]+' critical paths');
-    document.getElementById('incDecisionMsg').className='decision-state';document.getElementById('incModifyForm').classList.remove('open');
-    setIncTab(0);if(show!==false)showView('incident')}
+  document.querySelectorAll('#incFlow .bp-stage').forEach((s,i)=>s.addEventListener('click',()=>setIncTab(i)));
+  const pathRow=(label,text,open)=>`<div class="path-row ${open?'open':'blocked'}"><strong>${label}</strong><span>${text}</span>${open?'<span class="status blocked">Open</span>':'<span class="status" '+GREEN+'>'+(open===false?'Blocked':'Closed')+'</span>'}</div>`;
+  function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
+    setText('incId',id);setText('incTitle',d.title);setText('incMeta',d.workflow+' · '+(INC_WF[id]||'')+' · '+(closed?'Closed':'Production'));setText('incEvidence',d.evidence);setText('incSummary',d.summary);setText('incControl',d.control);setText('incMechanism',d.mechanism);setText('incMechanismDesc',d.mechanismDesc);
+    setText('obsInput',d.input);setText('obsAgent',d.agent);setText('obsAction',d.action);setText('obsOutcome',d.outcome);setText('obsControl','Blocked or observed by '+d.control);setText('incOutcomeTarget',d.outcome);
+    const sev=$id('incSeverity');sev.textContent=closed?'Closed':d.severity.replace(' evidence','');sev.className='status '+(closed?'':d.severityClass);sev.style.cssText=closed?'background:var(--green-bg);color:var(--green)':'';
+    ['kgInput','kgAgent','kgMechanism','kgAction','kgOutcome','kgControl','kgAuthority','kgAuthorityMeta','kgResource','kgResourceMeta','kgCandidate','graphMechanismInsight'].forEach((k,i)=>setText(k,[d.input,d.agent,d.mechanism,d.action,d.outcome,d.control,d.authority,d.authorityMeta,d.resource,d.resourceMeta,d.candidate,d.mechanismDesc][i]));
+    const known=d.paths[d.paths.length-1],others=d.paths.slice(0,-1);
+    // Closed incidents are read-only: every path closed, only the applied control shown (fix 5-F).
+    $id('incPaths').innerHTML=pathRow('Path A',known+' · observed',false)+others.map((p,i)=>pathRow('Path '+'BCD'[i],p,closed?null:true)).join('');
+    $id('incSbsPaths').innerHTML=closed?'<div class="path-row blocked"><strong>—</strong><span>No open paths. The approved control closed them.</span><span class="status" '+GREEN+'>Closed</span></div>':others.map((p,i)=>pathRow('Path '+'BCD'[i],p,true)).join('');
+    setText('incOpenCount',closed?0:others.length);setText('incSbsControl',d.candidate);
+    const cands=closed?[[d.candidate,'Approved earlier and re-validated after the change.',r[3],r[4],r[6],true]]:[[d.candidate,'Closes every open path while legitimate work continues.',r[3],r[4],r[6],true],['Remove agent write access','Closes the paths but stops the business action.',r[3]-2,r[4]+1,'71%',false],['Human review for every '+d.action.toLowerCase(),'Safe, but adds manual work to every execution.',r[3]-5,r[4]+2,'+45% reviews',false]];
+    $id('incCands').innerHTML=cands.map((c,i)=>`<div class="cand${c[5]?' best':''}">${c[5]?'<span class="rec">'+(closed?'APPLIED':'RECOMMENDED')+'</span>':''}<span class="validated">✓ ${closed?'Approved · re-validated':'Validated in simulation'}</span><h3>${closed?'':'ABC'[i]+' · '}${c[0]}</h3><p>${c[1]}</p><div class="cand-metrics"><div><strong>${c[2]}%</strong><span>Defense</span></div><div><strong>${c[3]}%</strong><span>Reachability</span></div><div><strong>${c[4]}</strong><span>Impact</span></div></div></div>`).join('');
+    setText('incCurDC',r[0]+'%');setText('incCurRR',r[1]+'%');setText('incCurPaths',r[2]);setText('incRecText',d.candidate);setText('incRecNote',(closed?'Applied · ':'Validated against ')+d.count);setText('incValDC',r[3]+'%');setText('incValRR',r[4]+'%');setText('incValPaths',r[5]);setText('incImpact1',r[6]);setText('incImpact2',r[7]);setText('incImpact3',r[8]);
+    setText('incDecisionText',d.candidate);setText('incDecisionStateText','Defense '+r[3]+'% · Reachability '+r[4]+'% · '+r[5]+' critical paths');
+    applyIncDecision(id);setIncTab(0);if(show!==false)showView('incident')}
+  const nextActions=id=>{const wf=INC_WF[id];return '<div class="next-actions"><button class="btn secondary" data-open-workflow="'+wf+'">Open affected workflow →</button><button class="btn blue" data-revalidate-wf="'+wf+'">Revalidate workflow</button><button class="btn secondary" data-jump="incidents">Back to queue</button></div>'};
+  // Decisions are recorded per incident and lock after approval; approval always offers a next step (fixes 5-C, 5-D).
+  function applyIncDecision(id){const st=incDecision[id],msg=$id('incDecisionMsg'),lock=st==='approved'||st==='closed';['incApproveBtn','incModifyBtn','incRejectBtn','incRerunBtn'].forEach(x=>$id(x).disabled=lock);$id('incModifyForm').classList.remove('open');
+    if(st==='approved')setMsgHtml(msg,'Decision recorded: approved. The policy now applies to '+workflowData[INC_WF[id]].name+', which needs revalidation.'+nextActions(id),'approved');
+    else if(st==='closed')setMsgHtml(msg,'Closed. “'+incidentData[id].candidate+'” was approved earlier and the workflow was re-validated. <button class="def-link" data-open-workflow="'+INC_WF[id]+'">Open workflow →</button>','approved');
+    else if(st==='rejected')setMsg(msg,'Rejected earlier. Review the other candidates, or decide again.','rejected');
+    else msg.className='decision-state'}
   document.querySelectorAll('[data-inc-go]').forEach(b=>b.addEventListener('click',()=>setIncTab(Number(b.dataset.incGo))));
-  document.getElementById('incOpenWorkflow').addEventListener('click',()=>openWorkflow(INC_WF[currentIncident]));
-  document.getElementById('incModifyBtn').addEventListener('click',()=>document.getElementById('incModifyForm').classList.toggle('open'));
-  document.getElementById('incRerunBtn').addEventListener('click',()=>{const scope=document.getElementById('incScope').value,msg=document.getElementById('incDecisionMsg'),r=INC_REC[currentIncident];setMsg(msg,'Re-running validation for “'+scope+'”…','');setTimeout(()=>{const dc=scope.startsWith('All')?r[3]:r[3]-4,rr=scope.startsWith('All')?r[4]:r[4]+3;document.getElementById('incValDC').textContent=dc+'%';document.getElementById('incValRR').textContent=rr+'%';document.getElementById('incDecisionStateText').textContent='Defense '+dc+'% · Reachability '+rr+'% · scope: '+scope;setMsg(msg,'Validation re-run with the modified scope. Updated validated state shown.','approved');document.getElementById('incModifyForm').classList.remove('open')},900)});
-  document.getElementById('incRejectBtn').addEventListener('click',()=>{setMsg(document.getElementById('incDecisionMsg'),'Rejected. Returning to the other candidates.','rejected');setRecStatus(currentIncident,'Rejected','blocked');setTimeout(()=>setIncTab(2),900)});
-  document.getElementById('incApproveBtn').addEventListener('click',()=>openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+currentIncident+'.',box:'<strong>'+document.getElementById('incDecisionText').textContent+'</strong><br>'+document.getElementById('incDecisionStateText').textContent+'<br><br>Next: the policy is approved and the workflow is updated. Shadow or canary deployment is planned for V2.',onConfirm:()=>{setMsg(document.getElementById('incDecisionMsg'),'Approved by a human. Policy state: Approved. The affected workflow will be revalidated after the change.','approved');setRecStatus(currentIncident,'Approved','');decPending();notify('Recommendation approved for '+currentIncident)}}));
+  $id('incOpenWorkflow').addEventListener('click',()=>openWorkflow(INC_WF[currentIncident]));
+  $id('incModifyBtn').addEventListener('click',()=>$id('incModifyForm').classList.toggle('open'));
+  $id('incRerunBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;const scope=$id('incScope').value,msg=$id('incDecisionMsg'),r=INC_REC[id];setMsg(msg,'Re-running validation for “'+scope+'”…','');setTimeout(()=>{const all=scope.startsWith('All'),dc=all?r[3]:r[3]-4,rr=all?r[4]:r[4]+3;setText('incValDC',dc+'%');setText('incValRR',rr+'%');setText('incDecisionStateText','Defense '+dc+'% · Reachability '+rr+'% · scope: '+scope);setMsg(msg,'Validation re-run with the modified scope. Updated validated state shown.','approved');$id('incModifyForm').classList.remove('open')},900)});
+  $id('incRejectBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;incDecision[id]='rejected';resolvePending(id);setRecStatus(id,'Rejected','blocked');applyIncDecision(id);setTimeout(()=>setIncTab(2),900)});
+  $id('incApproveBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+id+'.',box:'<strong>'+$id('incDecisionText').textContent+'</strong><br>'+$id('incDecisionStateText').textContent+'<br><br>Next: the policy is applied and the affected workflow is queued for revalidation. Shadow or canary deployment is planned for V2.',onConfirm:()=>{
+    incDecision[id]='approved';resolvePending(id);setRecStatus(id,'Approved','');const wfId=INC_WF[id],w=workflowData[wfId];
+    if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;if(!ST_AFFECTED.some(a=>a.id===wfId))ST_AFFECTED.push({id:wfId,trigger:'Policy change'});ST_CHANGES.unshift({icon:'P',title:'Policy approved',sub:incidentData[id].candidate+' · '+w.name,tag:'Policy change',cls:'review'})}
+    renderShortTerm();renderLibrary();applyIncDecision(id);notify('Recommendation approved for '+id)}})});
 
-  const incidentSearch=document.getElementById('incidentSearch');incidentSearch.addEventListener('input',()=>{const q=incidentSearch.value.toLowerCase().trim();document.querySelectorAll('.incident-card').forEach(c=>c.style.display=c.dataset.search.includes(q)||c.textContent.toLowerCase().includes(q)?'block':'none');document.querySelectorAll('#incidentList tbody tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?'table-row':'none')});
-  document.querySelectorAll('[data-queue-view]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-queue-view]').forEach(b=>b.classList.toggle('active',b===btn));document.getElementById('incidentCards').style.display=btn.dataset.queueView==='cards'?'grid':'none';document.getElementById('incidentList').style.display=btn.dataset.queueView==='list'?'block':'none'}));
+  // Incident filters work together with search (fixes 4-1, 5-L).
+  function applyIncFilters(){const q=$id('incidentSearch').value.toLowerCase().trim(),f={};document.querySelectorAll('.inc-filter').forEach(s=>{f[s.dataset.f]=s.value});
+    const match=id=>{const m=INC_META[id];if(!m)return true;return(!f.domain||m.domain===f.domain)&&(!f.workflow||m.workflow===f.workflow)&&(!f.agent||m.agent===f.agent)&&(!f.severity||m.sev===f.severity)&&(!f.status||m.status===f.status)&&(!f.type||m.type===f.type)&&(!f.time||m.hours<=Number(f.time))};
+    let shown=0;document.querySelectorAll('#incidentCards .incident-card').forEach(c=>{const ok=match(c.dataset.incident)&&(!q||c.textContent.toLowerCase().includes(q)||(c.dataset.search||'').includes(q));c.style.display=ok?'block':'none';if(ok)shown++});
+    document.querySelectorAll('#incidentList tbody tr').forEach(r=>{const ok=match(r.dataset.incident)&&(!q||r.textContent.toLowerCase().includes(q));r.style.display=ok?'table-row':'none'});setText('incShown',shown+' shown')}
+  $id('incidentSearch').addEventListener('input',applyIncFilters);document.querySelectorAll('.inc-filter').forEach(s=>s.addEventListener('change',applyIncFilters));
+  document.querySelectorAll('[data-queue-view]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-queue-view]').forEach(b=>b.classList.toggle('active',b===btn));$id('incidentCards').style.display=btn.dataset.queueView==='cards'?'grid':'none';$id('incidentList').style.display=btn.dataset.queueView==='list'?'block':'none'}));
 
-  document.querySelectorAll('[data-pr]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-pr]').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('prWorkflow').style.display=b.dataset.pr==='workflow'?'block':'none';document.getElementById('prExec').style.display=b.dataset.pr==='exec'?'block':'none'}));
+  document.querySelectorAll('[data-pr]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-pr]').forEach(x=>x.classList.toggle('active',x===b));$id('prWorkflow').style.display=b.dataset.pr==='workflow'?'block':'none';$id('prExec').style.display=b.dataset.pr==='exec'?'block':'none'}));
 
-  document.getElementById('revalidateBtn').addEventListener('click',()=>{const run=document.getElementById('stRun'),res=document.getElementById('stResult'),st=document.getElementById('stStatus');run.style.display='block';res.className='decision-state approved';st.textContent='Running';st.className='status running';runSteps(document.getElementById('stSteps'),{onDone:()=>{[['WF-021','Revalidated','ok'],['WF-008','Revalidated','ok'],['WF-033','Needs Revision','bad']].forEach(([id,t,c])=>{const el=document.getElementById('st-'+id);el.textContent=t;el.className='lc '+c;workflowData[id].lifecycle=t;workflowData[id].last='Just now'});renderLibrary();res.className='decision-state approved show';st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';document.getElementById('ovRevalidate').textContent='1';notify('Revalidation complete · 2 revalidated, 1 needs revision')}})});
-  document.getElementById('runEnvBtn').addEventListener('click',()=>{const st=document.getElementById('ltStatus'),res=document.getElementById('ltResult');res.className='decision-state approved';st.textContent='Running';st.className='status running';st.style.cssText='';runSteps(document.getElementById('ltSteps'),{ms:480,onDone:()=>{st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';res.className='decision-state approved show';const h=document.getElementById('ltHistory');if(!h.querySelector('[data-sep]'))h.insertAdjacentHTML('beforeend','<tr data-sep><td class="bold">Sep</td><td>24 workflows · 53 agents</td><td>2,700</td><td style="color:var(--amber)">3</td><td>1</td></tr>');notify('Environment validation complete')}})});
+  // Short-Term Validation is generated from state: deployments and approved policies add entries (fixes 5-G, 5-H).
+  const ST_CHANGES=[{icon:'T',title:'New tool connected',sub:'Vendor Merge Tool available to Procurement Agent',tag:'New tool',cls:'running'},{icon:'P',title:'Permission change',sub:'Procurement Agent gained vendor_master.write',tag:'Permission',cls:'review'},{icon:'A',title:'Agent role change',sub:'Remediation Agent can now restart production workloads',tag:'Agent role',cls:'running'}];
+  const ST_AFFECTED=[{id:'WF-021',trigger:'New tool'},{id:'WF-008',trigger:'Permission'},{id:'WF-033',trigger:'Agent role'}];
+  function renderShortTerm(){$id('changeFeed').innerHTML=ST_CHANGES.map(c=>`<div class="change"><div class="ci">${c.icon}</div><div><strong>${c.title}</strong><small>${c.sub}</small></div><span class="status ${c.cls}">${c.tag}</span></div>`).join('');
+    const need=ST_AFFECTED.filter(a=>workflowData[a.id]&&workflowData[a.id].lifecycle==='Needs Revalidation').length;
+    setText('stAffectedText',need?need+' workflow'+(need===1?'':'s')+' may be affected.':'No affected workflow is waiting for revalidation.');setText('stChangeCount',ST_CHANGES.length+' changes');
+    $id('stRows').innerHTML=ST_AFFECTED.map(a=>{const w=workflowData[a.id];return `<tr data-open-workflow="${a.id}" style="cursor:pointer"><td class="bold">${w.name.split(' · ').slice(-1)[0]}</td><td>${a.trigger}</td><td>${w.last}</td><td><span class="lc ${lcClass(w.lifecycle)}" id="st-${a.id}">${w.lifecycle}</span></td></tr>`}).join('');
+    $id('revalidateBtn').disabled=!need}
+  $id('revalidateBtn').addEventListener('click',()=>{const targets=ST_AFFECTED.filter(a=>workflowData[a.id].lifecycle==='Needs Revalidation');if(!targets.length){notify('Nothing to revalidate');return}
+    const run=$id('stRun'),res=$id('stResult'),st=$id('stStatus');run.style.display='block';res.className='decision-state';st.textContent='Running';st.className='status running';st.style.cssText='';
+    runSteps($id('stSteps'),{onDone:()=>{targets.forEach(a=>{const w=workflowData[a.id],bad=a.id==='WF-033';w.lifecycle=bad?'Needs Revision':'Revalidated';w.validation=bad?'Needs revision':'Revalidated';w.last='Just now'});renderShortTerm();renderLibrary();
+      const bad=targets.some(a=>a.id==='WF-033'),good=targets.length-(bad?1:0);
+      setMsgHtml(res,good+' workflow'+(good===1?'':'s')+' revalidated'+(bad?'. Service Account Remediation needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review →</button>':'.'),bad?'rejected':'approved');
+      st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';notify('Revalidation complete')}})});
+  $id('runEnvBtn').addEventListener('click',()=>{const st=$id('ltStatus'),res=$id('ltResult');res.className='decision-state approved';st.textContent='Running';st.className='status running';st.style.cssText='';runSteps($id('ltSteps'),{ms:480,onDone:()=>{st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';res.className='decision-state approved show';const h=$id('ltHistory');if(!h.querySelector('[data-sep]'))h.insertAdjacentHTML('beforeend','<tr data-sep><td class="bold">Sep</td><td>24 workflows · 53 agents</td><td>2,700</td><td style="color:var(--amber)">3</td><td>1</td></tr>');notify('Environment validation complete')}})});
 
   document.querySelectorAll('.wm-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.wm-tab').forEach(t=>t.classList.toggle('active',t===tab));document.querySelectorAll('.wm-panel').forEach(p=>p.classList.toggle('active',p.id===tab.dataset.wmPanel))}));
 
-  const defsModal=document.getElementById('defsModal'),changesModal=document.getElementById('changesModal'),toggleHighlights=document.getElementById('toggleHighlights');
+  const defsModal=$id('defsModal'),changesModal=$id('changesModal'),toggleHighlights=$id('toggleHighlights');
   function setHighlights(on){document.body.classList.toggle('show-changes',on);toggleHighlights.textContent=on?'Hide highlights':'Show highlights'}
-  document.getElementById('defsBtn').addEventListener('click',()=>defsModal.classList.add('open'));
-  document.getElementById('changesBtn').addEventListener('click',()=>{setHighlights(true);changesModal.classList.add('open')});
+  $id('defsBtn').addEventListener('click',()=>defsModal.classList.add('open'));
+  $id('changesBtn').addEventListener('click',()=>{setHighlights(true);changesModal.classList.add('open')});
   toggleHighlights.addEventListener('click',()=>setHighlights(!document.body.classList.contains('show-changes')));
   [decisionModal,defsModal,changesModal].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
 
-  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-review-bp],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap]');if(!t)return;const ds=t.dataset;
-    if(ds.close){document.getElementById(ds.close).classList.remove('open');return}
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-review-bp],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf],[data-bp-go]');if(!t||t.disabled)return;const ds=t.dataset;
+    if(ds.close){$id(ds.close).classList.remove('open');return}
     if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else showView(ds.go);return}
-    if(ds.def){defsModal.classList.add('open');const d=document.getElementById('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#e9edff'},{background:'#fff'}],{duration:1600})}return}
+    if(ds.def){defsModal.classList.add('open');const d=$id('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#e9edff'},{background:'#fff'}],{duration:1600})}return}
+    if(ds.newBlueprint){newBlueprint();return}
+    if(ds.revalidateWf){revalidateWorkflow(ds.revalidateWf);return}
+    if(ds.bpGo){setBpStage(ds.bpGo);return}
+    if(ds.libRisk||ds.libUnregistered){showView('library');$id('deployFilter').value=ds.libUnregistered?'Not registered':'';$id('riskFilter').value=ds.libRisk?'atrisk':'';$id('workflowSearch').value='';$id('domainFilter').value='';renderLibrary();return}
     if(ds.openWorkflow){openWorkflow(ds.openWorkflow);return}
     if(ds.openIncident){renderIncident(ds.openIncident);return}
     if(ds.reviewInc){renderIncident(ds.reviewInc);setIncTab(2);return}
-    if(ds.reviewBp){showView('blueprint');setBpStage('optimize');return}
+    if(ds.reviewBp){openBlueprintForReview();return}
     if(ds.incident){renderIncident(ds.incident);return}
     if(ds.suiteJump){showView('security-model');document.querySelector('[data-wm-panel="wm-landscape"]').click();const c=document.querySelector('[data-suite="'+ds.suiteJump+'"]');if(c)c.click();return}
     if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next environment validation');return}
     if(ds.jump){showView(ds.jump)}});
 
-  renderLibrary();renderIncident('I-1042',false);showView('overview');
+  setRecStatus('BP-REFUND','Awaiting validation','running');refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
 
 </script>
 </body>
