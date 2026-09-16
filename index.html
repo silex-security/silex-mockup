@@ -205,10 +205,12 @@
     .change .ci{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--lav);color:var(--blue2);font-weight:800}
     .change small{display:block;color:var(--muted);margin-top:2px}
     .v2-note{font-size:11px;color:var(--muted);border:1px dashed #cfd4db;border-radius:10px;padding:10px 12px;background:#fbfcfd;margin-top:14px}
+    .two-col.wide-right{grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr)}
     .pending-list{display:grid;gap:8px;padding:0 20px 18px}
     .pending-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;font-size:11px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;cursor:pointer;text-align:left;font-family:inherit}
     .pending-row:hover{border-color:#bfc8f7}
-    .pending-row small{display:block;color:var(--muted);margin-top:2px}
+    .pending-row small{display:block;color:var(--muted);margin-top:3px}
+    .pending-row .dom{display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--blue2);background:var(--lav);border-radius:5px;padding:2px 6px;margin-right:7px;vertical-align:1px}
     .bar{height:8px;background:#eceef2;border-radius:99px;overflow:hidden;margin:10px 0 6px}
     .bar i{display:block;height:100%;background:var(--blue);border-radius:99px}
     .bar i.green{background:var(--green)}
@@ -220,7 +222,7 @@
     .tech-detail{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
     .tech-detail>summary{cursor:pointer;padding:12px 14px;font-size:12px;font-weight:650}
     .tech-detail .tab-panel{display:block;padding:0 14px 14px}
-    @media(max-width:1100px){.confirm-card,.cand-grid,.rec-card,.impact-row{grid-template-columns:1fr}.rec-arrow{height:20px}.wf-header{grid-template-columns:repeat(2,minmax(0,1fr))}.modify-form.open{grid-template-columns:1fr}}
+    @media(max-width:1100px){.confirm-card,.cand-grid,.rec-card,.impact-row,.two-col.wide-right{grid-template-columns:1fr}.rec-arrow{height:20px}.wf-header{grid-template-columns:repeat(2,minmax(0,1fr))}.modify-form.open{grid-template-columns:1fr}}
     .lifecycle{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:10px;color:var(--muted)}
     .lc-step{padding:3px 8px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:10px;color:var(--muted)}
     .status{white-space:nowrap}
@@ -303,7 +305,7 @@
 </div>
 </div>
 </div>
-<div class="two-col">
+<div class="two-col wide-right">
 <div class="card chg" data-chg="PRD §36: workflow coverage">
 <div class="card-head"><div><h2>Workflow Coverage</h2><p>Registered workflows vs known workflows · <button class="def-link" data-def="workflowcov">definition</button></p></div><button class="btn secondary" data-jump="library">Workflow Library →</button></div>
 <div class="body" style="padding:0 20px 18px">
@@ -319,9 +321,9 @@
 <div class="card chg" data-chg="PRD §36: policy decisions">
 <div class="card-head"><div><h2>Policy Decisions</h2><p>Validated recommendations waiting for a human decision</p></div><span class="status review" id="ovPendingCount">2 pending</span></div>
 <div class="pending-list">
-<button class="pending-row" data-open-incident="I-1042"><span><strong>Bind approval to vendor + intent + mutation</strong><small>Finance · Vendor Master Update · from incident I-1042</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1042">Review</span></button>
-<button class="pending-row" data-review-bp="1"><span><strong>Manager approval for refunds above $500</strong><small>Customer Refund blueprint · pre-deployment</small></span><span class="validated" style="background:var(--soft);color:var(--muted)">Blueprint</span><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></button>
-<button class="pending-row" data-open-incident="I-1038"><span><strong>Bind control to cumulative outcome</strong><small>Customer Support · Refund Resolution · from incident I-1038</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1038">Review</span></button>
+<button class="pending-row" data-open-incident="I-1042"><span><strong>Bind approval to vendor + intent + mutation</strong><small><span class="dom">Finance</span>Vendor Master Update · from incident I-1042</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1042">Review</span></button>
+<button class="pending-row" data-review-bp="1"><span><strong>Manager approval for refunds above $500</strong><small><span class="dom">Customer Service</span>Customer Refund blueprint · pre-deployment</small></span><span class="validated" style="background:var(--soft);color:var(--muted)">Blueprint</span><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></button>
+<button class="pending-row" data-open-incident="I-1038"><span><strong>Bind control to cumulative outcome</strong><small><span class="dom">Customer Support</span>Refund Resolution · from incident I-1038</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1038">Review</span></button>
 </div>
 </div>
 </div>
