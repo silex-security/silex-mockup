@@ -4,12 +4,63 @@
 
 Open the page and click **◆ 9/15 changes** in the top bar to list the latest changes, jump to each one, and outline the changed elements.
 
-- **9/15** (this revision): realigned with the V1 PRD (*Web UX / Investor Demo*), following [`PRD_ALIGNMENT_PLAN.md`](PRD_ALIGNMENT_PLAN.md).
+- **9/15, second pass** (this revision): the decisions from the page-by-page demo review — navigation regrouped, the two validation pages renamed, World Model Coverage moved off Overview. Plan: [`REWRITE_PLAN_0916.md`](REWRITE_PLAN_0916.md).
+- **9/15, first pass**: realigned with the V1 PRD (*Web UX / Investor Demo*), following [`PRD_ALIGNMENT_PLAN.md`](PRD_ALIGNMENT_PLAN.md).
 - **9/14** (previous): revision after the product demo review; summarized at the end of this file.
 
 ---
 
-## 9/15 — aligned with the V1 PRD
+## 9/15, second pass — from the demo review
+
+### Navigation regrouped
+
+| Group | Items |
+| --- | --- |
+| **Workspace** | Overview · Agentic Blueprint Studio · Workflow Library |
+| **Security** | Incident Queue · Policy Review |
+| **Environment** | Security World Model · Workflow Validation · System Validation |
+
+Blueprint Studio and the Workflow Library moved to Workspace: the operational sequence is pre-deploy → deployment → incident → policy review, and neither sits on that line — the library is a horizontal resource, and the studio is a place you go to build. `Security` then narrows to the two reactive screens. Sidebar items: 8 → 7.
+
+### Validation pages renamed
+
+The immediate / short-term / long-term framing was replaced with a distinction that says what each page is for: **long-term is system-wise, short-term is workflow-wise.**
+
+| Before | After | What it is |
+| --- | --- | --- |
+| Short-Term Validation | **Workflow Validation** | Change-triggered. A workflow changes, it is revalidated. |
+| Long-Term Validation | **System Validation** | Periodic. The whole environment and world model. |
+
+- Both keep their own nav item and page.
+- **Immediate Validation** loses its card: it has no page of its own and is answered inside each blueprint validation and each incident.
+- **The horizon strip is gone** from both pages — it existed only to explain the retired three-tier framing.
+- **The automation ladder is gone** (*Manual trigger → Suggested → Automatic*). It described our roadmap, not the flow the user is in. Its wording also came out of the `?` help text.
+- **Cadence is enterprise-defined:** a selector (2 weeks / monthly / quarterly, default monthly) replaces the hardcoded *Monthly* pill. The button reads **Run System Validation**.
+- **Backtest history stays**, under System Validation.
+
+### Security World Model
+
+- `Security Model` → **Security World Model**, and it is now the first item under Environment.
+- **Coverage Gaps** is restated as its own reading — how much of the failure and attack surface the policies in place cover — rather than as the action arising from World Model Coverage. The two compound: if the environment is only partly understood, even full policy coverage leaves an uncovered remainder.
+
+### Overview
+
+- **World Model Coverage is removed**, because it is not actionable: the number does not tell the user what to do, and it now lives on the Security World Model page. Domain Suites takes the full row.
+
+### Not changed, deliberately
+
+- **Ontology layers** stay additive (*Four Tiers Over One Runtime Graph*). Whether the tiers are additive or a product of two dimensions is an open modelling question owned by the co-founder; the page should not move in either direction before that is settled.
+
+### Still open
+
+- Whether a radar chart belongs on Overview. It was wanted there early in the review, and the metric it visualises was cut from Overview later in the same review; the later decision is applied here.
+- Who this revision is primarily for. Features were trimmed by asking what a CISO would care about, while two framings were described as being for investors.
+
+---
+
+## 9/15, first pass — aligned with the V1 PRD
+
+> Navigation and the validation page names below were changed again by the second pass above. The rest still describes the page.
 
 ### Structure and wording
 
@@ -101,7 +152,7 @@ Open the page and click **◆ 9/15 changes** in the top bar to list the latest c
 
 | Question from the plan | Default used | Change it by |
 | --- | --- | --- |
-| Q1: Validation Horizon as one page or two nav items | Two nav items (Short-Term, Long-Term), each headed by the three horizons | Merge the two sections into one page |
+| Q1: Validation Horizon as one page or two nav items | **Settled in the second pass:** two nav items, renamed Workflow Validation and System Validation; the three-horizon strip removed | — |
 | Q2: Diagnosis → treatment card | Removed from the product UI | Restore as a labelled service-plan preview |
 | Q3: Executive policy review | Shown as a labelled V1.5 preview | Hide the *Executive queue* switch |
 | Q4: Causal graph and `do(control)` notation | Kept as collapsed technical detail in Incident Detail | Remove the *Technical detail* section |

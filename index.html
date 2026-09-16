@@ -200,17 +200,10 @@
     .detail-list details{border:1px solid var(--line);border-radius:10px;background:#fff}
     .detail-list summary{cursor:pointer;padding:10px 12px;font-size:12px;font-weight:650}
     .detail-list .detail-body{padding:0 12px 12px;font-size:11px;color:var(--muted)}
-    .horizon-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
-    .hz{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;font-size:11px;color:var(--muted);text-align:left;font:inherit;font-size:11px;cursor:pointer}
-    .hz strong{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}
-    .hz.on{border-color:#879aff;background:#fafbff;box-shadow:inset 0 0 0 1px #879aff;cursor:default}
     .change-feed{display:grid;gap:8px;padding:0 20px 18px}
     .change{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;background:#fff}
     .change .ci{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--lav);color:var(--blue2);font-weight:800}
     .change small{display:block;color:var(--muted);margin-top:2px}
-    .auto-ladder{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);flex-wrap:wrap}
-    .auto-ladder b{padding:3px 8px;border-radius:99px;border:1px solid var(--line);font-weight:600;background:#fff}
-    .auto-ladder b.on{border-color:#aebaff;color:var(--blue2);background:#f8f9ff}
     .v2-note{font-size:11px;color:var(--muted);border:1px dashed #cfd4db;border-radius:10px;padding:10px 12px;background:#fbfcfd;margin-top:14px}
     .pending-list{display:grid;gap:8px;padding:0 20px 18px}
     .pending-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;font-size:11px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;cursor:pointer;text-align:left;font-family:inherit}
@@ -227,7 +220,7 @@
     .tech-detail{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
     .tech-detail>summary{cursor:pointer;padding:12px 14px;font-size:12px;font-weight:650}
     .tech-detail .tab-panel{display:block;padding:0 14px 14px}
-    @media(max-width:1100px){.confirm-card,.cand-grid,.rec-card,.impact-row,.horizon-strip{grid-template-columns:1fr}.rec-arrow{height:20px}.wf-header{grid-template-columns:repeat(2,minmax(0,1fr))}.modify-form.open{grid-template-columns:1fr}}
+    @media(max-width:1100px){.confirm-card,.cand-grid,.rec-card,.impact-row{grid-template-columns:1fr}.rec-arrow{height:20px}.wf-header{grid-template-columns:repeat(2,minmax(0,1fr))}.modify-form.open{grid-template-columns:1fr}}
     .lifecycle{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:10px;color:var(--muted)}
     .lc-step{padding:3px 8px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:10px;color:var(--muted)}
     .status{white-space:nowrap}
@@ -235,7 +228,6 @@
     body.show-changes .section-title.chg::before{top:-2px}
     /* ---- UX path fixes ---- */
     .pick:not(:has(input)){cursor:default}
-    .hz.static{cursor:default}
     .bp-stage.reachable,#incFlow .bp-stage{cursor:pointer}
     .bp-stage.reachable:hover,#incFlow .bp-stage:hover{border-color:#aebaff}
     .next-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -250,22 +242,22 @@
 <div class="app">
 <aside class="sidebar">
 <div class="brand">SILE<span>X</span></div>
-<div class="section-label">Workspace</div>
+<div class="section-label chg" data-chg="9/15 review: Blueprint Studio and Workflow Library moved here">Workspace</div>
 <nav class="nav">
 <button class="active" data-view="overview"><span class="ico">◫</span>Overview</button>
-</nav>
-<div class="section-label chg" data-chg="PRD §5: Workflow Security">Workflow Security</div>
-<nav class="nav">
-<button class="chg" data-chg="renamed" data-view="blueprint"><span class="ico">⌘</span>Agentic Blueprint Studio</button>
-<button data-view="incidents"><span class="ico">!</span>Incident Queue</button>
+<button class="chg" data-chg="moved here" data-view="blueprint"><span class="ico">⌘</span>Agentic Blueprint Studio</button>
 <button class="chg" data-chg="moved here" data-view="library"><span class="ico">▦</span>Workflow Library</button>
+</nav>
+<div class="section-label chg" data-chg="9/15 review: narrowed to the reactive screens">Security</div>
+<nav class="nav">
+<button data-view="incidents"><span class="ico">!</span>Incident Queue</button>
 <button data-view="policies"><span class="ico">✓</span>Policy Review</button>
 </nav>
 <div class="section-label chg" data-chg="PRD §5: Environment">Environment</div>
 <nav class="nav">
-<button class="chg" data-chg="new" data-view="short-term"><span class="ico">↻</span>Short-Term Validation</button>
-<button class="chg" data-chg="new" data-view="long-term"><span class="ico">⟳</span>Long-Term Validation</button>
-<button class="chg" data-chg="renamed" data-view="security-model"><span class="ico">◎</span>Security Model</button>
+<button class="chg" data-chg="renamed · now first" data-view="security-model"><span class="ico">◎</span>Security World Model</button>
+<button class="chg" data-chg="renamed from Short-Term Validation" data-view="short-term"><span class="ico">↻</span>Workflow Validation</button>
+<button class="chg" data-chg="renamed from Long-Term Validation" data-view="long-term"><span class="ico">⟳</span>System Validation</button>
 </nav>
 <div class="spacer"></div>
 <div class="system chg" data-chg="demo, not production">
@@ -299,21 +291,8 @@
 <div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 6 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
 <div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="short-term">revalidate</button></div></div>
 </div>
-<div class="two-col">
-<div class="card chg" data-chg="PRD §36: world model coverage">
-<div class="card-head"><div><h2>World Model Coverage</h2><p>How much of the relevant enterprise environment SILEX understands</p></div><button class="btn secondary" data-jump="security-model">Security Model →</button></div>
-<div class="body" style="padding:0 20px 18px">
-<div class="metric-value">84%</div>
-<div class="bar"><i style="width:84%"></i></div>
-<div class="e-list" style="margin-top:12px">
-<div class="e-item"><span>Agents &amp; tools</span><strong>86%</strong><div class="mini-track"><i style="width:86%"></i></div></div>
-<div class="e-item"><span>Workflows</span><strong>77%</strong><div class="mini-track"><i style="width:77%"></i></div></div>
-<div class="e-item"><span>Policies &amp; controls</span><strong>85%</strong><div class="mini-track"><i style="width:85%"></i></div></div>
-</div>
-<div class="v2-note">Largest gap: HR workflows are only partly represented. Connecting their agents and data would improve validation. <button class="def-link" data-jump="security-model">See coverage gaps</button></div>
-</div>
-</div>
-<div class="card chg" data-chg="PRD §36-37: domain suites">
+<div class="two-col" style="grid-template-columns:1fr">
+<div class="card chg" data-chg="9/15 review: World Model Coverage moved to Security World Model">
 <div class="card-head"><div><h2>Domain Suites</h2><p>Enterprise → domain → agents, workflows, controls</p></div></div>
 <div class="suite-list">
 <button class="capability-row" data-suite-jump="finance"><strong>Finance</strong><span>12 agents · 38 workflows</span><b><span class="status review">4 risks</span></b></button>
@@ -886,19 +865,13 @@
 </section>
 
 <section class="view" id="short-term">
-<div class="title-row chg" data-chg="PRD §33: Short-Term Validation">
+<div class="title-row chg" data-chg="9/15 review: renamed from Short-Term Validation">
 <div>
-<h1>Short-Term Validation <span class="help" data-help="Revalidate workflows as agents, permissions, policies, and enterprise dependencies change. Initially user-triggered; designed to become increasingly automated over time.">?</span></h1>
-<p>Is the workflow still safe after the enterprise changes?</p>
+<h1>Workflow Validation <span class="help" data-help="Revalidate a workflow when the agents, permissions, policies or enterprise dependencies it relies on change.">?</span></h1>
+<p>Workflow-wise. Is the workflow still safe after the enterprise changes?</p>
 </div>
 <button class="btn primary" id="revalidateBtn">↻ Revalidate Affected Workflows</button>
 </div>
-<div class="horizon-strip">
-<div class="hz static"><strong>Immediate Validation</strong>Does the workflow appear safe now? Shown in each Blueprint validation and incident.</div>
-<div class="hz on static"><strong>Short-Term Validation</strong>Still safe after enterprise changes? · this page</div>
-<button class="hz" data-jump="long-term"><strong>Long-Term Validation →</strong>Is the broader environment still safe?</button>
-</div>
-<div class="auto-ladder" style="margin:0 2px 14px">Automation: <b class="on">Manual trigger · V1</b>→<b>Suggested revalidation · V2</b>→<b>Automatic revalidation · V3</b></div>
 <div class="two-col">
 <div class="card">
 <div class="card-head"><div><h2>Environment change detected</h2><p><b id="stAffectedText">3 workflows may be affected.</b> Security validity decays as the enterprise changes.</p></div><span class="status review" id="stChangeCount">3 changes</span></div>
@@ -928,26 +901,21 @@
 </section>
 
 <section class="view" id="long-term">
-<div class="title-row chg" data-chg="PRD §34: Long-Term Validation">
+<div class="title-row chg" data-chg="9/15 review: renamed from Long-Term Validation">
 <div>
-<h1>Long-Term Validation <span class="help" data-help="Periodically reassess the broader enterprise environment as workflows, agents, dependencies, and attack patterns evolve.">?</span></h1>
-<p>Is the broader enterprise environment still safe as data, agents, workflows and threats evolve?</p>
+<h1>System Validation <span class="help" data-help="Periodically reassess the whole enterprise environment as workflows, agents, dependencies and attack patterns evolve.">?</span></h1>
+<p>System-wise. Is the broader enterprise environment still safe as data, agents, workflows and threats evolve?</p>
 </div>
-<div style="display:flex;gap:10px;align-items:center"><span class="pill">Monthly</span><button class="btn primary" id="runEnvBtn">⟳ Run Environment Validation</button></div>
-</div>
-<div class="horizon-strip">
-<div class="hz static"><strong>Immediate Validation</strong>Does the workflow appear safe now? Shown in each Blueprint validation and incident.</div>
-<button class="hz" data-jump="short-term"><strong>Short-Term Validation →</strong>Still safe after enterprise changes?</button>
-<div class="hz on static"><strong>Long-Term Validation</strong>Is the broader environment still safe? · this page</div>
+<div style="display:flex;gap:10px;align-items:center"><select class="search" id="ltCadence" title="Validation cadence" style="min-width:134px"><option>Every 2 weeks</option><option selected>Monthly</option><option>Quarterly</option></select><button class="btn primary" id="runEnvBtn">⟳ Run System Validation</button></div>
 </div>
 <div class="metric-grid">
-<div class="card metric"><div class="kicker">Last environment validation</div><div class="metric-value">Aug 31</div><div class="metric-foot">Monthly cadence</div></div>
+<div class="card metric"><div class="kicker">Last system validation</div><div class="metric-value">Aug 31</div><div class="metric-foot chg" data-chg="9/15 review: cadence is enterprise-defined" id="ltCadenceFoot">Monthly cadence</div></div>
 <div class="card metric"><div class="kicker">Workflows in scope</div><div class="metric-value">24</div><div class="metric-foot">All registered workflows</div></div>
 <div class="card metric"><div class="kicker">Environment changes since</div><div class="metric-value">+3 / +5</div><div class="metric-foot">Workflows / agents</div></div>
 <div class="card metric"><div class="kicker">Revalidation status</div><div class="metric-value" id="ltValid">21 / 24</div><div class="metric-foot">Workflows still valid</div></div>
 </div>
 <div class="card section-card">
-<div class="card-head"><div><h2>What the environment validation does</h2><p>Visible and manually triggered in V1</p></div><span class="status running" id="ltStatus">Not started</span></div>
+<div class="card-head"><div><h2>What system validation does</h2><p>Visible and manually triggered in V1</p></div><span class="status running" id="ltStatus">Not started</span></div>
 <div class="body"><div class="run-steps" id="ltSteps">
 <div class="run-step"><i></i><div>1 · Recalibrating environment</div><span>Security World Model</span></div>
 <div class="run-step"><i></i><div>2 · Updating workflow dependencies</div><span>24 workflows</span></div>
@@ -956,26 +924,25 @@
 <div class="run-step"><i></i><div>5 · Testing policy resilience</div><span>approved policies</span></div>
 <div class="run-step"><i></i><div>6 · Updating residual risk</div><span>residual reachability</span></div>
 </div>
-<div class="decision-state approved" id="ltResult" style="margin:12px 0 0">Environment validation complete. 2,700 scenarios · 3 unsafe outcomes still reachable · 1 policy weakened by the new vendor tool.</div>
+<div class="decision-state approved" id="ltResult" style="margin:12px 0 0">System validation complete. 2,700 scenarios · 3 unsafe outcomes still reachable · 1 policy weakened by the new vendor tool.</div>
 </div>
 </div>
 <div class="card section-card">
 <div class="card-head"><div><h2>Backtest history</h2><p>Same scenario family, re-run as agents and workflows are added</p></div></div>
 <div class="body"><table class="matrix">
-<thead><tr><th>Month</th><th>Environment</th><th>Scenarios</th><th>Unsafe outcomes reachable</th><th>Policies weakened</th></tr></thead>
+<thead><tr><th>Period</th><th>Environment</th><th>Scenarios</th><th>Unsafe outcomes reachable</th><th>Policies weakened</th></tr></thead>
 <tbody id="ltHistory">
 <tr><td class="bold">Jul</td><td>18 workflows · 41 agents</td><td>2,140</td><td style="color:var(--red)">6</td><td>2</td></tr>
 <tr><td class="bold">Aug</td><td>21 workflows · 48 agents</td><td>2,420</td><td style="color:var(--amber)">4</td><td>1</td></tr>
 </tbody>
 </table></div>
 </div>
-<div class="auto-ladder" style="margin:0 2px">Automation: <b class="on">Manual run · V1</b>→<b>Suggested schedule · V2</b>→<b>Automatic monthly · V3</b></div>
 </section>
 
 <section class="view" id="security-model">
-<div class="title-row">
+<div class="title-row chg" data-chg="9/15 review: renamed from Security Model">
 <div>
-<h1>Security Model</h1>
+<h1>Security World Model</h1>
 <p>Supports the workflow experience: ontology, world model, coverage and gaps. Final ontology layers and World Model representation are TBD.</p>
 </div>
 <span class="tbd chg" data-chg="PRD §38, §48">Pending technical alignment</span>
@@ -1004,7 +971,7 @@
 <div class="wm-panel" id="wm-overview"><div class="v2-note" style="margin:0 0 14px">World Model Coverage: how much of the relevant enterprise environment SILEX currently understands. Formula TBD; values illustrative.</div><div class="world-overview"><div class="radar-card"><div class="card-head" style="padding:2px 4px 0"><div><h2>World Model Coverage</h2><p>Completeness of enterprise understanding by semantic dimension</p></div><span class="evidence-tag">84% weighted</span></div><svg viewBox="0 0 430 340" role="img" aria-label="Radar chart showing world model coverage across identity, agents, workflows, controls, resources, and business outcomes"><polygon class="grid" points="215,150 241,165 241,195 215,210 189,195 189,165"/><polygon class="grid" points="215,120 267,150 267,210 215,240 163,210 163,150"/><polygon class="grid" points="215,90 293,135 293,225 215,270 137,225 137,135"/><polygon class="grid" points="215,60 319,120 319,240 215,300 111,240 111,120"/><line class="axis" x1="215" y1="180" x2="215" y2="60"/><line class="axis" x1="215" y1="180" x2="319" y2="120"/><line class="axis" x1="215" y1="180" x2="319" y2="240"/><line class="axis" x1="215" y1="180" x2="215" y2="300"/><line class="axis" x1="215" y1="180" x2="111" y2="240"/><line class="axis" x1="215" y1="180" x2="111" y2="120"/><polygon class="data" points="215,72 304,129 295,226 215,280 132,228 128,130"/><circle cx="215" cy="72" r="4" fill="#718aff"/><circle cx="304" cy="129" r="4" fill="#718aff"/><circle cx="295" cy="226" r="4" fill="#718aff"/><circle cx="215" cy="280" r="4" fill="#718aff"/><circle cx="132" cy="228" r="4" fill="#718aff"/><circle cx="128" cy="130" r="4" fill="#718aff"/><text x="215" y="38" text-anchor="middle">Identity & Authority · 90%</text><text x="326" y="111">Agent & Tool · 86%</text><text x="326" y="257">Workflow · 77%</text><text x="215" y="326" text-anchor="middle">Policy & Control · 85%</text><text x="16" y="257">Resource & Data · 80%</text><text x="10" y="111">Business Outcome · 82%</text></svg></div><div class="model-layers"><div class="model-layer"><div class="layer-icon">O</div><div><strong>Federated Security Ontology</strong><span>General semantics plus domain and agent-system overlays</span></div><b>142 types</b></div><div class="model-layer"><div class="layer-icon">G</div><div><strong>Runtime Security Knowledge Graph</strong><span>Populated identities, agents, tools, resources, controls, incidents, and outcomes</span></div><b>84%</b></div><div class="model-layer"><div class="layer-icon">C</div><div><strong>Causal Foundation</strong><span>Mechanisms, evidence strength, counterfactuals, and interventions</span></div><b>79%</b></div><div class="model-layer"><div class="layer-icon">H</div><div><strong>Business Harness</strong><span>Objectives, legitimate completion, prohibited outcomes, cost, and constraints</span></div><b>82%</b></div><div class="model-layer"><div class="layer-icon">S</div><div><strong>Simulation & Calibration</strong><span>Behavior agreement, outcome agreement, drift, and reality validation</span></div><b>94%</b></div></div></div></div>
           
 <div class="wm-panel chg" data-chg="PRD §38: coverage gaps" id="wm-gaps">
-<div class="card-head" style="padding:0 0 14px"><div><h2>Coverage Gaps</h2><p>What additional data, workflows or resources would improve validation</p></div></div>
+<div class="card-head" style="padding:0 0 14px"><div><h2>Coverage Gaps</h2><p>How much of the failure and attack surface the policies in place cover. A separate reading from World Model Coverage, not a consequence of it.</p></div></div>
 <div class="gap-list">
 <div class="gap"><div><strong>HR workflows only partly represented</strong><small>6 agents known, 2 workflows registered · coverage 68%</small></div><button class="btn secondary" data-gap="HR workflows">Register workflows</button></div>
 <div class="gap"><div><strong>Procurement vendor data not connected</strong><small>Vendor master changes are inferred, not observed</small></div><button class="btn secondary" data-gap="Procurement vendor data">Connect data</button></div>
@@ -1060,8 +1027,8 @@
 <div class="def-item" id="def-registered"><strong>Registered vs Deployed Workflow</strong><p>Registered: formally accepted into the SILEX workflow inventory, possibly still pre-production. Deployed: active in production, so telemetry can be linked to it.</p></div>
 <div class="def-item" id="def-workflowcov"><strong>Workflow Coverage</strong><p>How much of the enterprise agentic workflow inventory is represented.</p></div>
 <div class="def-item" id="def-worldmodel"><strong>World Model Coverage</strong><p>How much of the relevant enterprise environment SILEX currently understands.</p></div>
-<div class="def-item" id="def-shortterm"><strong>Short-Term Validation</strong><p>Change-triggered revalidation of workflows after enterprise changes.</p></div>
-<div class="def-item" id="def-longterm"><strong>Long-Term Validation</strong><p>Periodic environment-wide recalibration, backtesting, red teaming and adversarial validation.</p></div>
+<div class="def-item" id="def-workflowval"><strong>Workflow Validation</strong><p>Workflow-wise and change-triggered: a workflow is revalidated when the agents, permissions, policies or dependencies it relies on change.</p></div>
+<div class="def-item" id="def-systemval"><strong>System Validation</strong><p>System-wise and periodic: environment-wide recalibration, backtesting, red teaming and adversarial validation, on a cadence the enterprise defines.</p></div>
 </div>
 <div class="modal-actions"><button class="btn secondary" data-close="defsModal">Close</button></div>
 </div>
@@ -1072,17 +1039,17 @@
 <h2>9/15 changes · aligned with the V1 PRD</h2>
 <p>Changed elements are outlined on the page. Click a row to jump there.</p>
 <div class="chg-list">
-<div class="chg-item"><strong>Navigation</strong><span>Overview · Workflow Security · Environment. Validation, Proving Ground and Sim-to-Real pages removed; Integrations hidden (V2).</span><button class="btn secondary" data-go="overview">Go</button></div>
-<div class="chg-item"><strong>Overview</strong><span>Enterprise security posture metrics, World Model Coverage, Domain Suites, Workflow Coverage, Policy Decisions; secondary modules collapsed.</span><button class="btn secondary" data-go="overview">Go</button></div>
+<div class="chg-item"><strong>Navigation</strong><span>Regrouped into Workspace (Overview, Blueprint Studio, Workflow Library) · Security (Incident Queue, Policy Review) · Environment. Proving Ground and Sim-to-Real pages removed; Integrations hidden (V2).</span><button class="btn secondary" data-go="overview">Go</button></div>
+<div class="chg-item"><strong>Overview</strong><span>Enterprise security posture metrics, Domain Suites, Workflow Coverage, Policy Decisions; secondary modules collapsed. World Model Coverage moved to the Security World Model page.</span><button class="btn secondary" data-go="overview">Go</button></div>
 <div class="chg-item"><strong>Agentic Blueprint Studio</strong><span>Build → Confirm → Validate → Optimize → Decide → Register, with findings, alternative paths, validated candidates, recommendation card and Approve / Modify / Reject.</span><button class="btn secondary" data-go="blueprint">Go</button></div>
 <div class="chg-item"><strong>Incident Queue</strong><span>PRD summary metrics and filters.</span><button class="btn secondary" data-go="incidents">Go</button></div>
 <div class="chg-item"><strong>Incident detail</strong><span>Evidence → paths → candidates → recommendation → decision; causal graph kept as technical detail.</span><button class="btn secondary" data-go="incident">Go</button></div>
 <div class="chg-item"><strong>Workflow Library</strong><span>Inventory table, lifecycle and deployment status, Registered vs Deployed.</span><button class="btn secondary" data-go="library">Go</button></div>
 <div class="chg-item"><strong>Workflow detail</strong><span>New page: header, graph, security posture, activity, expandable detail, Mark as deployed.</span><button class="btn secondary" data-go="workflow">Go</button></div>
 <div class="chg-item"><strong>Policy Review</strong><span>Workflow-level review with Approve / Modify / Reject; executive queue table as V1.5 preview.</span><button class="btn secondary" data-go="policies">Go</button></div>
-<div class="chg-item"><strong>Short-Term Validation</strong><span>New: change feed, affected workflows, manual Revalidate Affected Workflows.</span><button class="btn secondary" data-go="short-term">Go</button></div>
-<div class="chg-item"><strong>Long-Term Validation</strong><span>New: Run Environment Validation with six visible steps; backtest history.</span><button class="btn secondary" data-go="long-term">Go</button></div>
-<div class="chg-item"><strong>Security Model</strong><span>Domain Suites, World Model Coverage, Security Ontology, Coverage Gaps; ontology layers marked TBD; V2 tabs hidden.</span><button class="btn secondary" data-go="security-model">Go</button></div>
+<div class="chg-item"><strong>Workflow Validation</strong><span>Renamed from Short-Term Validation: change feed, affected workflows, manual Revalidate Affected Workflows. Horizon cards and the automation roadmap strip removed.</span><button class="btn secondary" data-go="short-term">Go</button></div>
+<div class="chg-item"><strong>System Validation</strong><span>Renamed from Long-Term Validation: Run System Validation with six visible steps; backtest history; cadence is enterprise-defined.</span><button class="btn secondary" data-go="long-term">Go</button></div>
+<div class="chg-item"><strong>Security World Model</strong><span>Renamed from Security Model and now first under Environment. Domain Suites, World Model Coverage, Security Ontology, Coverage Gaps; ontology layers marked TBD; V2 tabs hidden.</span><button class="btn secondary" data-go="security-model">Go</button></div>
 </div>
 <div class="modal-actions"><button class="btn secondary" id="toggleHighlights">Hide highlights</button><button class="btn secondary" data-close="changesModal">Close</button></div>
 </div>
@@ -1127,7 +1094,7 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'Policy Review','short-term':'Short-Term Validation','long-term':'Long-Term Validation','security-model':'Security Model'};
+  const viewNames={overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'Policy Review','short-term':'Workflow Validation','long-term':'System Validation','security-model':'Security World Model'};
   function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;if(id==='blueprint')requestAnimationFrame(drawBlueprintEdges);window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
   const $id=x=>document.getElementById(x);
@@ -1195,10 +1162,10 @@ const incidentData={
       renderShortTerm();renderLibrary();const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);setText('wfLastVal','Just now');
       if(bad)setMsgHtml(res,'Needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review incident →</button>','rejected');else setMsg(res,'Revalidated. No new reachable paths after the latest changes.','approved');notify(w.name+' · '+w.lifecycle)}})}
   $id('wfRevalidateBtn').addEventListener('click',()=>revalidateWorkflow(currentWorkflow));
-  // A deployment is an environment change: queue the workflow for short-term revalidation (fix 5-H).
+  // A deployment is an environment change: queue the workflow for Workflow Validation (fix 5-H).
   $id('wfDeployBtn').addEventListener('click',()=>{const id=currentWorkflow,w=workflowData[id];w.deploy='Deployed';w.lifecycle='Needs Revalidation';w.validation='Revalidation pending';if(w.activity)w.activity.unshift(['Deployed','Just now · first production revalidation pending','']);
     ST_CHANGES.unshift({icon:'D',title:'New deployment',sub:w.name+' moved to production',tag:'Deployment',cls:'running'});if(!ST_AFFECTED.some(a=>a.id===id))ST_AFFECTED.push({id,trigger:'Deployment'});
-    renderShortTerm();renderLibrary();openWorkflow(id);notify('Marked as deployed · queued for Short-Term Validation')});
+    renderShortTerm();renderLibrary();openWorkflow(id);notify('Marked as deployed · queued for Workflow Validation')});
 
   // Blueprint lifecycle with guards (fixes 5-A, 5-B, 5-C, 5-N).
   const BP_ORDER=['build','confirm','validate','optimize','decide','register'];
@@ -1300,7 +1267,7 @@ const incidentData={
 
   document.querySelectorAll('[data-pr]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-pr]').forEach(x=>x.classList.toggle('active',x===b));$id('prWorkflow').style.display=b.dataset.pr==='workflow'?'block':'none';$id('prExec').style.display=b.dataset.pr==='exec'?'block':'none'}));
 
-  // Short-Term Validation is generated from state: deployments and approved policies add entries (fixes 5-G, 5-H).
+  // Workflow Validation is generated from state: deployments and approved policies add entries (fixes 5-G, 5-H).
   const ST_CHANGES=[{icon:'T',title:'New tool connected',sub:'Vendor Merge Tool available to Procurement Agent',tag:'New tool',cls:'running'},{icon:'P',title:'Permission change',sub:'Procurement Agent gained vendor_master.write',tag:'Permission',cls:'review'},{icon:'A',title:'Agent role change',sub:'Remediation Agent can now restart production workloads',tag:'Agent role',cls:'running'}];
   const ST_AFFECTED=[{id:'WF-021',trigger:'New tool'},{id:'WF-008',trigger:'Permission'},{id:'WF-033',trigger:'Agent role'}];
   function renderShortTerm(){$id('changeFeed').innerHTML=ST_CHANGES.map(c=>`<div class="change"><div class="ci">${c.icon}</div><div><strong>${c.title}</strong><small>${c.sub}</small></div><span class="status ${c.cls}">${c.tag}</span></div>`).join('');
@@ -1314,7 +1281,9 @@ const incidentData={
       const bad=targets.some(a=>a.id==='WF-033'),good=targets.length-(bad?1:0);
       setMsgHtml(res,good+' workflow'+(good===1?'':'s')+' revalidated'+(bad?'. Service Account Remediation needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review →</button>':'.'),bad?'rejected':'approved');
       st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';notify('Revalidation complete')}})});
-  $id('runEnvBtn').addEventListener('click',()=>{const st=$id('ltStatus'),res=$id('ltResult');res.className='decision-state approved';st.textContent='Running';st.className='status running';st.style.cssText='';runSteps($id('ltSteps'),{ms:480,onDone:()=>{st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';res.className='decision-state approved show';const h=$id('ltHistory');if(!h.querySelector('[data-sep]'))h.insertAdjacentHTML('beforeend','<tr data-sep><td class="bold">Sep</td><td>24 workflows · 53 agents</td><td>2,700</td><td style="color:var(--amber)">3</td><td>1</td></tr>');notify('Environment validation complete')}})});
+  $id('runEnvBtn').addEventListener('click',()=>{const st=$id('ltStatus'),res=$id('ltResult');res.className='decision-state approved';st.textContent='Running';st.className='status running';st.style.cssText='';runSteps($id('ltSteps'),{ms:480,onDone:()=>{st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';res.className='decision-state approved show';const h=$id('ltHistory');if(!h.querySelector('[data-sep]'))h.insertAdjacentHTML('beforeend','<tr data-sep><td class="bold">Sep</td><td>24 workflows · 53 agents</td><td>2,700</td><td style="color:var(--amber)">3</td><td>1</td></tr>');notify('System validation complete')}})});
+  // Cadence is defined by the enterprise, not hardcoded to monthly (9/15 review).
+  $id('ltCadence').addEventListener('change',e=>{setText('ltCadenceFoot',e.target.value+' cadence');notify('System validation cadence: '+e.target.value.toLowerCase())});
 
   document.querySelectorAll('.wm-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.wm-tab').forEach(t=>t.classList.toggle('active',t===tab));document.querySelectorAll('.wm-panel').forEach(p=>p.classList.toggle('active',p.id===tab.dataset.wmPanel))}));
 
@@ -1339,7 +1308,7 @@ const incidentData={
     if(ds.reviewBp){openBlueprintForReview();return}
     if(ds.incident){renderIncident(ds.incident);return}
     if(ds.suiteJump){showView('security-model');document.querySelector('[data-wm-panel="wm-landscape"]').click();const c=document.querySelector('[data-suite="'+ds.suiteJump+'"]');if(c)c.click();return}
-    if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next environment validation');return}
+    if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next system validation');return}
     if(ds.jump){showView(ds.jump)}});
 
   setRecStatus('BP-REFUND','Awaiting validation','running');refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
