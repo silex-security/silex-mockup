@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .click_test_*.html
 .shot_*.html
+swm/.cache/

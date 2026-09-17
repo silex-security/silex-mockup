@@ -208,3 +208,24 @@ The immediate / short-term / long-term framing was replaced with a distinction t
 - Overview simplified with collapsed secondary cards.
 
 The PRD alignment above supersedes the navigation grouping, the Proving Ground step, the short-term horizon definition and the "residual risk" wording from that revision. The full 9/14 list is in the git history of this file.
+
+---
+
+## 2026-09-17 — Security World Model observatory (D3)
+
+- **World Model Coverage** is now a zoomable sunburst over Enterprise → Domain → Capability →
+  Workflow. The six-dimension radar beside it re-reads at whichever level is in focus, the KPI row
+  is generated from the coverage bundle, and the gap list cross-filters to the selected subtree
+  (gap actions still jump into the Workflow Library, a workflow or an incident).
+- **Security Ontology** is now a four-layer explorer with three renderings of the same data:
+  force graph (rings = distance from the group anchor), radial hierarchy, and a group × group
+  relation matrix. Search, group filters, and a *colour by* switch (abstraction layer /
+  coverage / status) sit in the rail; the inspector shows each node's definition, its real
+  public identifier, its coverage and its typed relations.
+- **Data**: 591 types and 769 typed relations, distilled at build time from MITRE D3FEND,
+  MITRE ATT&CK Enterprise, MITRE ATLAS, UCO and the OWASP LLM / Agentic AI lists. L2 domain
+  packs, L3 agentic components, the L4 runtime graph and every percentage remain Silex mock
+  content and say so in the inspector. See `swm/data/SOURCES.md`.
+- **Weight**: D3 and the ~300KB bundle load only when one of the two panels is first opened,
+  so the rest of the demo is unchanged. D3 is vendored, so the demo also runs offline.
+- Domain Suites, Coverage Gaps and Ontology Layers panels are untouched.
