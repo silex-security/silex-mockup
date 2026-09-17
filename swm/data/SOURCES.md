@@ -15,14 +15,22 @@ Raw downloads are cached in `swm/.cache/` (git-ignored); only the distilled bund
 
 - **D3FEND** — the `d3f:DigitalArtifact` subclass tree (breadth-first, documented classes first,
   capped) supplies the L1 inheritance backbone; `d3f:DefensiveTechnique` supplies policy/control semantics.
-- **ATLAS** — every tactic plus its techniques become L3 agentic threat semantics, attached to the
-  agentic component they target.
+- **ATLAS** — the tactics join L1 as general agentic threat semantics; each technique sits at L3,
+  attached to the agentic component it targets.
 - **ATT&CK Enterprise** — the 14 tactics plus agent-relevant techniques (identity, credential, data,
   API, execution, exfiltration keywords) become L1 threat semantics.
 - **UCO** — `core`, `action`, `identity`, `observable`, `tool` and `pattern` modules are parsed for
   `owl:Class` declarations with labels and definitions; they seed the L1 upper classes.
 - **OWASP** — the LLM Top 10 (2025) and the Agentic AI threat taxonomy (T1–T15) are carried as
   published lists and attached to the agentic components they target.
+
+## The layer chain
+
+Every node carries an explicit `parent`, and the build fails if a node's parent is not in the same
+layer or exactly one layer above it. The chain is **L1 general → L2 domain pack → L3 agentic system
+as deployed in that domain → L4 runtime instance**; `ontology.json` also ships a `chain` summary with
+per-layer counts and the typed relations crossing each hop, which is what the Ontology Layers panel
+draws.
 
 ## Honesty note
 

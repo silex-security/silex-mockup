@@ -110,6 +110,19 @@
       if (el) el.textContent = o.nodes.length + ' types';
     },
 
+    /* ---- shared abstraction level (L1..L4) -------------------------------
+       Every panel that speaks in layers reads and writes this one value, so the
+       Ontology Layers tab and the Ontology Explorer always agree. */
+    level: 1,
+    _levelSubs: [],
+    setLevel: function (n, origin) {
+      n = Math.max(1, Math.min(4, +n || 1));
+      if (n === SWM.level) return;
+      SWM.level = n;
+      SWM._levelSubs.forEach(function (fn) { try { fn(n, origin); } catch (e) { console.error('[SWM] level subscriber failed', e); } });
+    },
+    onLevel: function (fn) { SWM._levelSubs.push(fn); },
+
     /* ---- lazy panel registry -------------------------------------------- */
     _panels: {},
     _booted: {},

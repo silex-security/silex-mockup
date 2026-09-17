@@ -154,10 +154,22 @@ function assemble({ d3fend, atlas, attack, uco }){
   const add = n => { if (index.has(n.id)) return index.get(n.id); index.set(n.id, n); nodes.push(n); return n };
   const link = (s, t, pred, src='silex') => { if (index.has(s) && index.has(t) && s !== t) links.push({ s, t, pred, src }) };
 
+  /* The layer chain is explicit: L1 → L2 → L3 → L4, every node names one parent,
+     and that parent sits in the same layer or exactly one layer above. A second
+     call for the same child only adds a typed edge, never a second parent. */
+  const setParent = (child, parent, pred, src='silex') => {
+    const c = index.get(child), p = index.get(parent);
+    if (!c || !p || child === parent) return false;
+    link(child, parent, pred, src);
+    if (c.parent) return false;
+    c.parent = parent;
+    return true;
+  };
+
   /* --- L1 group anchors (Silex's eight semantic groups) ------------------- */
   for (const g of SEED.GROUPS)
     add({ id:`grp:${g.id}`, label:g.name, group:g.id, layer:1, kind:'group', def:g.blurb,
-          src:[{ sys:'silex', id:'SILEX-L1', label:'Silex L1 anchor' }], instances:0, coverage:null, anchor:true });
+          src:[{ sys:'silex', id:'SILEX-L1', label:'Silex L1 anchor' }], instances:0, coverage:null, anchor:true, parent:null });
 
   /* --- L1 from UCO -------------------------------------------------------- */
   for (const n of uco){
@@ -166,8 +178,11 @@ function assemble({ d3fend, atlas, attack, uco }){
           src:[{ sys:'uco', id:n.id, label:`UCO ${n.module}`, url:`https://ontology.unifiedcyberontology.org/uco/${n.module}/${n.id.split(':')[1]}` }],
           instances:Math.round(pick(n.id,0,900)), coverage:pick(n.id,.55,.97) });
   }
-  for (const n of uco) for (const p of n.parents) link(`uco:${n.id}`, `uco:${p}`, 'SUBCLASS_OF', 'uco');
-  for (const n of uco) if (!n.parents.some(p => index.has(`uco:${p}`))) link(`uco:${n.id}`, `grp:${index.get(`uco:${n.id}`).group}`, 'SPECIALIZES');
+  for (const n of uco){
+    const id = `uco:${n.id}`;
+    const parent = n.parents.map(p => `uco:${p}`).find(p => index.has(p));
+    setParent(id, parent || `grp:${index.get(id).group}`, parent ? 'SUBCLASS_OF' : 'SPECIALIZES', parent ? 'uco' : 'silex');
+  }
 
   /* --- L1 from D3FEND digital artifacts (the deep inheritance tree) ------- */
   for (const n of d3fend.artifacts){
@@ -177,8 +192,9 @@ function assemble({ d3fend, atlas, attack, uco }){
           instances:Math.round(pick(n.id,0,1400)), coverage:pick(n.id,.5,.96), depth:n.depth });
   }
   for (const n of d3fend.artifacts){
-    if (n.parent && index.has(`d3f:${n.parent}`)) link(`d3f:${n.id}`, `d3f:${n.parent}`, 'SUBCLASS_OF', 'd3fend');
-    else link(`d3f:${n.id}`, `grp:${index.get(`d3f:${n.id}`).group}`, 'SPECIALIZES');
+    const id = `d3f:${n.id}`;
+    const parent = n.parent && index.has(`d3f:${n.parent}`) ? `d3f:${n.parent}` : null;
+    setParent(id, parent || `grp:${index.get(id).group}`, parent ? 'SUBCLASS_OF' : 'SPECIALIZES', parent ? 'd3fend' : 'silex');
   }
 
   /* --- L1 defensive techniques (policy & control semantics) --------------- */
@@ -188,23 +204,32 @@ function assemble({ d3fend, atlas, attack, uco }){
           src:[{ sys:'d3fend', id:n.d3id || n.id.slice(4), label:'D3FEND technique', url:`https://d3fend.mitre.org/technique/${n.id.replace(':','/')}/` }],
           instances:Math.round(pick(n.id,0,140)), coverage:pick(n.id,.45,.95), depth:n.depth });
   }
-  for (const n of d3fend.techniques)
-    if (n.parent && index.has(`d3f:${n.parent}`)) link(`d3f:${n.id}`, `d3f:${n.parent}`, 'SUBCLASS_OF', 'd3fend');
-    else link(`d3f:${n.id}`, 'grp:policy', 'SPECIALIZES');
+  for (const n of d3fend.techniques){
+    const parent = n.parent && index.has(`d3f:${n.parent}`) ? `d3f:${n.parent}` : null;
+    setParent(`d3f:${n.id}`, parent || 'grp:policy', parent ? 'SUBCLASS_OF' : 'SPECIALIZES', parent ? 'd3fend' : 'silex');
+  }
 
-  /* --- L1 ATT&CK: enterprise threat semantics ----------------------------- */
-  for (const t of attack.tactics)
-    add({ id:`attack:${t.id}`, label:t.label, group:'threat', layer:1, kind:'tactic', def:t.def,
+  /* --- L1 threat semantics: ATT&CK enterprise + ATLAS AI tactics ---------- */
+  for (const t of attack.tactics){
+    /* Impact is about what the business loses, so it anchors the outcome group */
+    const group = /^impact$/i.test(t.label) ? 'outcome' : 'threat';
+    add({ id:`attack:${t.id}`, label:t.label, group, layer:1, kind:'tactic', def:t.def,
           src:[{ sys:'attack', id:t.id, label:'ATT&CK tactic', url:t.url }],
           instances:Math.round(pick(t.id,0,60)), coverage:pick(t.id,.6,.95) });
-  for (const t of attack.tactics) link(`attack:${t.id}`, 'grp:threat', 'SPECIALIZES');
+    setParent(`attack:${t.id}`, `grp:${group}`, 'SPECIALIZES');
+  }
   for (const t of attack.techniques){
     add({ id:`attack:${t.id}`, label:t.label, group:'threat', layer:1, kind:'technique', def:t.def,
           src:[{ sys:'attack', id:t.id, label:'ATT&CK technique', url:t.url }],
           instances:Math.round(pick(t.id,0,40)), coverage:pick(t.id,.4,.93) });
     const tac = attack.tactics.find(x => t.phases.includes(x.shortname));
-    if (tac) link(`attack:${t.id}`, `attack:${tac.id}`, 'ACHIEVES', 'attack');
-    else link(`attack:${t.id}`, 'grp:threat', 'SPECIALIZES');
+    setParent(`attack:${t.id}`, tac ? `attack:${tac.id}` : 'grp:threat', tac ? 'ACHIEVES' : 'SPECIALIZES', tac ? 'attack' : 'silex');
+  }
+  for (const t of atlas.tactics){
+    add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:1, kind:'tactic', def:t.def,
+          src:[{ sys:'atlas', id:t.id, label:'ATLAS tactic', url:t.url }],
+          instances:Math.round(pick(t.id,0,22)), coverage:pick(t.id,.5,.9) });
+    setParent(`atlas:${t.id}`, 'grp:threat', 'SPECIALIZES');
   }
 
   /* --- L2 domain packs ---------------------------------------------------- */
@@ -212,17 +237,17 @@ function assemble({ d3fend, atlas, attack, uco }){
     add({ id:`dom:${d.id}`, label:d.name, group:'workflow', layer:2, kind:'domain', def:`${d.pack} · ${d.owner}`,
           src:[{ sys:'silex', id:d.pack, label:'Silex domain pack' }],
           instances:d.workflows, coverage:d.coverage, dims:d.dims });
-    link(`dom:${d.id}`, 'grp:workflow', 'SPECIALIZES');
+    setParent(`dom:${d.id}`, 'grp:workflow', 'SPECIALIZES');
     for (const c of d.capabilities){
       add({ id:`cap:${c.id}`, label:c.name, group:'workflow', layer:2, kind:'capability',
             def:`${d.name} capability · ${c.entities.toLocaleString()} runtime entities`,
             src:[{ sys:'silex', id:c.id, label:'Silex capability' }], instances:c.entities, coverage:c.coverage, dims:c.dims });
-      link(`cap:${c.id}`, `dom:${d.id}`, 'PART_OF');
+      setParent(`cap:${c.id}`, `dom:${d.id}`, 'PART_OF');
       for (const w of c.workflows){
         add({ id:`wf:${w.id}`, label:`${w.id} ${w.name}`, group:'workflow', layer:2, kind:'workflow',
               def:`Registered workflow in ${d.name} · ${c.name}`,
               src:[{ sys:'silex', id:w.id, label:'Silex workflow' }], instances:w.entities, coverage:w.coverage });
-        link(`wf:${w.id}`, `cap:${c.id}`, 'PART_OF');
+        setParent(`wf:${w.id}`, `cap:${c.id}`, 'PART_OF');
       }
     }
     for (const e of d.entities){
@@ -231,44 +256,56 @@ function assemble({ d3fend, atlas, attack, uco }){
       add({ id, label:e, group, layer:2, kind:'entity', def:`${d.name} domain entity type.`,
             src:[{ sys:'silex', id:d.pack, label:'Silex domain pack' }],
             instances:Math.round(pick(id,120,4200)), coverage:pick(id, d.coverage-.18, Math.min(.99,d.coverage+.1)) });
-      link(id, `dom:${d.id}`, 'DEFINED_IN');
+      setParent(id, `dom:${d.id}`, 'DEFINED_IN');
       link(id, `grp:${group}`, 'SPECIALIZES');
     }
   }
+  /* components used by every domain need somewhere to live — the same bucket the
+     "horizontal agents unassigned to a domain" coverage gap talks about */
+  add({ id:'dom:horizontal', label:'Cross-domain & Horizontal', group:'workflow', layer:2, kind:'domain',
+        def:'Agentic capability used by every domain; the domain taxonomy for it is still open (see the coverage gaps).',
+        src:[{ sys:'silex', id:'SILEX-L2', label:'Silex domain pack' }], instances:0, coverage:.62 });
+  setParent('dom:horizontal', 'grp:workflow', 'SPECIALIZES');
 
-  /* --- L3 agentic-system ontology ---------------------------------------- */
+  /* --- L3 agentic-system ontology, specialised inside a domain pack ------- */
+  const deployment = new Map();
+  for (const n of SEED.RUNTIME.nodes){
+    if (!n.type || !n.domain) continue;
+    if (!deployment.has(n.type)) deployment.set(n.type, new Map());
+    const m = deployment.get(n.type);
+    m.set(n.domain, (m.get(n.domain) || 0) + 1);
+  }
   for (const c of SEED.AGENTIC_COMPONENTS){
     add({ id:`ag:${c.id}`, label:c.name, group:c.group, layer:3, kind:'component', def:c.blurb,
           src:[{ sys:'silex', id:'SILEX-L3', label:'Silex agentic ontology' }], instances:c.instances, coverage:c.coverage });
-    link(`ag:${c.id}`, `grp:${c.group}`, 'SPECIALIZES');
+    const seen = deployment.get(c.id);
+    const ranked = seen ? [...seen.entries()].sort((a,b) => b[1] - a[1]).map(x => x[0]) : [];
+    const primary = ranked.length ? `dom:${ranked[0]}` : 'dom:horizontal';
+    setParent(`ag:${c.id}`, primary, 'DEPLOYED_IN');
+    ranked.slice(1).forEach(d => link(`ag:${c.id}`, `dom:${d}`, 'DEPLOYED_IN'));
   }
 
-  /* --- L3 threats: ATLAS + OWASP ----------------------------------------- */
-  for (const t of atlas.tactics)
-    add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:3, kind:'tactic', def:t.def,
-          src:[{ sys:'atlas', id:t.id, label:'ATLAS tactic', url:t.url }],
-          instances:Math.round(pick(t.id,0,22)), coverage:pick(t.id,.5,.9) });
+  /* --- L3 threat overlay: ATLAS techniques + OWASP catalogues ------------- */
   for (const t of atlas.techniques){
     add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:3, kind:'technique', def:t.def,
           src:[{ sys:'atlas', id:t.id, label:'ATLAS technique', url:t.url }],
           instances:Math.round(pick(t.id,0,14)), coverage:pick(t.id,.35,.88) });
+    /* which agentic component this technique lands on — Silex-authored mapping */
+    setParent(`atlas:${t.id}`, `ag:${mapThreatToComponent(`${t.label} ${t.def}`)}`, 'THREATENS');
     const tac = atlas.tactics.find(x => t.phases.includes(x.shortname));
     if (tac) link(`atlas:${t.id}`, `atlas:${tac.id}`, 'ACHIEVES', 'atlas');
-    /* which agentic component this technique lands on — Silex-authored mapping */
-    const target = mapThreatToComponent(`${t.label} ${t.def}`);
-    if (target) link(`atlas:${t.id}`, `ag:${target}`, 'THREATENS');
   }
   for (const [id, label, target] of SEED.OWASP_LLM){
     add({ id:`owasp:${id}`, label, group:'threat', layer:3, kind:'risk', def:`OWASP Top 10 for LLM Applications 2025 · ${id}`,
           src:[{ sys:'owasp', id, label:'OWASP LLM Top 10 (2025)', url:'https://genai.owasp.org/llm-top-10/' }],
           instances:Math.round(pick(id,1,26)), coverage:pick(id,.45,.92) });
-    link(`owasp:${id}`, `ag:${target}`, 'THREATENS');
+    setParent(`owasp:${id}`, `ag:${target}`, 'THREATENS');
   }
   for (const [id, label, target] of SEED.OWASP_AGENTIC){
     add({ id:`owaspa:${id}`, label, group:'threat', layer:3, kind:'risk', def:`OWASP Agentic AI — Threats and Mitigations · ${id}`,
           src:[{ sys:'owasp', id:`Agentic ${id}`, label:'OWASP Agentic AI threats', url:'https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/' }],
           instances:Math.round(pick(id+label,1,19)), coverage:pick(id+label,.4,.9) });
-    link(`owaspa:${id}`, `ag:${target}`, 'THREATENS');
+    setParent(`owaspa:${id}`, `ag:${target}`, 'THREATENS');
   }
   /* countermeasure coverage: D3FEND technique ↔ threat, keyword-matched (Silex mapping) */
   const counters = d3fend.techniques.filter(t => t.d3id);
@@ -278,13 +315,16 @@ function assemble({ d3fend, atlas, attack, uco }){
     if (hit) link(`d3f:${hit.id}`, th.id, 'COUNTERS');
   }
 
-  /* --- L4 runtime graph --------------------------------------------------- */
+  /* --- L4 runtime graph, instantiating the agentic layer ------------------ */
   for (const n of SEED.RUNTIME.nodes){
-    add({ id:n.id, label:n.name, group:n.group, layer:4, kind:n.type, def:n.blurb, domain:n.domain, severity:n.severity,
+    add({ id:n.id, label:n.name, group:n.group, layer:4, kind:n.type, def:n.blurb, domain:n.domain,
+          severity:n.severity, outcome:n.outcome,
           src:[{ sys:'silex', id:'RUNTIME', label:'Silex runtime graph' }],
           instances:1, coverage:n.coverage });
-    if (index.has(`ag:${n.type}`)) link(n.id, `ag:${n.type}`, 'INSTANCE_OF');
-    else link(n.id, `grp:${n.group}`, 'SPECIALIZES');
+  }
+  for (const n of SEED.RUNTIME.nodes){
+    if (n.parent && index.has(n.parent)) setParent(n.id, n.parent, 'OCCURRED_IN');
+    else if (index.has(`ag:${n.type}`)) setParent(n.id, `ag:${n.type}`, 'INSTANCE_OF');
     if (n.domain && index.has(`dom:${n.domain}`)) link(n.id, `dom:${n.domain}`, 'BELONGS_TO');
     if (/^rt-wf-(\d+)$/.test(n.id)){
       const wf = `wf:WF-${n.id.slice(6)}`;
@@ -293,7 +333,49 @@ function assemble({ d3fend, atlas, attack, uco }){
   }
   for (const [s,t,pred] of SEED.RUNTIME.links) link(s, t, pred);
 
-  return { nodes, links };
+  /* --- chain validation --------------------------------------------------- */
+  const problems = [];
+  for (const n of nodes){
+    if (n.anchor) continue;
+    if (!n.parent) { problems.push(`${n.id} (L${n.layer}) has no parent`); continue; }
+    const p = index.get(n.parent);
+    if (p.layer !== n.layer && p.layer !== n.layer - 1)
+      problems.push(`${n.id} (L${n.layer}) → ${p.id} (L${p.layer}) skips a layer`);
+  }
+
+  return { nodes, links, problems };
+}
+
+/* per-hop summary the Ontology Layers panel draws: node counts, group mix and
+   every typed relation that crosses from one layer into the next */
+function summariseChain(graph){
+  const byId = new Map(graph.nodes.map(n => [n.id, n]));
+  const layers = SEED.LAYERS.map(l => {
+    const members = graph.nodes.filter(n => n.layer === l.id);
+    const groups = {};
+    members.forEach(n => { groups[n.group] = (groups[n.group] || 0) + 1; });
+    return { id:l.id, key:l.key, name:l.name, blurb:l.blurb, count:members.length, groups,
+             coverage:+(members.reduce((s,n) => s + (n.coverage || 0), 0) / (members.filter(n => n.coverage != null).length || 1)).toFixed(3) };
+  });
+  const hops = [1,2,3].map(from => {
+    const to = from + 1;
+    const preds = {}, examples = [];
+    let count = 0;
+    graph.links.forEach(l => {
+      const a = byId.get(l.s), b = byId.get(l.t);
+      if (!a || !b) return;
+      const crosses = (a.layer === to && b.layer === from) || (a.layer === from && b.layer === to);
+      if (!crosses) return;
+      count++;
+      preds[l.pred] = (preds[l.pred] || 0) + 1;
+      if (examples.length < 60) {
+        const lower = a.layer === from ? a : b, upper = a.layer === from ? b : a;
+        examples.push({ pred:l.pred, from:lower.id, fromLabel:lower.label, to:upper.id, toLabel:upper.label });
+      }
+    });
+    return { from, to, count, preds, examples };
+  });
+  return { layers, hops };
 }
 
 function mapThreatToComponent(text){
@@ -373,14 +455,22 @@ ${rows}
 
 - **D3FEND** — the \`d3f:DigitalArtifact\` subclass tree (breadth-first, documented classes first,
   capped) supplies the L1 inheritance backbone; \`d3f:DefensiveTechnique\` supplies policy/control semantics.
-- **ATLAS** — every tactic plus its techniques become L3 agentic threat semantics, attached to the
-  agentic component they target.
+- **ATLAS** — the tactics join L1 as general agentic threat semantics; each technique sits at L3,
+  attached to the agentic component it targets.
 - **ATT&CK Enterprise** — the 14 tactics plus agent-relevant techniques (identity, credential, data,
   API, execution, exfiltration keywords) become L1 threat semantics.
 - **UCO** — \`core\`, \`action\`, \`identity\`, \`observable\`, \`tool\` and \`pattern\` modules are parsed for
   \`owl:Class\` declarations with labels and definitions; they seed the L1 upper classes.
 - **OWASP** — the LLM Top 10 (2025) and the Agentic AI threat taxonomy (T1–T15) are carried as
   published lists and attached to the agentic components they target.
+
+## The layer chain
+
+Every node carries an explicit \`parent\`, and the build fails if a node's parent is not in the same
+layer or exactly one layer above it. The chain is **L1 general → L2 domain pack → L3 agentic system
+as deployed in that domain → L4 runtime instance**; \`ontology.json\` also ships a \`chain\` summary with
+per-layer counts and the typed relations crossing each hop, which is what the Ontology Layers panel
+draws.
 
 ## Honesty note
 
@@ -414,6 +504,7 @@ const attack = parseStix(attackRaw, { system:'attack', tacticSrc:'mitre-attack',
 const uco    = parseUco(ucoRaw, 72);
 
 const graph = assemble({ d3fend, atlas, attack, uco });
+const chain = summariseChain(graph);
 const coverage = buildCoverage(graph);
 
 const stats = {
@@ -427,7 +518,7 @@ const stats = {
 const ontology = {
   generated:new Date().toISOString(),
   version:'swm-1.0',
-  groups:SEED.GROUPS, layers:SEED.LAYERS, sources:SOURCES, stats,
+  groups:SEED.GROUPS, layers:SEED.LAYERS, sources:SOURCES, stats, chain,
   nodes:graph.nodes, links:graph.links
 };
 
@@ -439,4 +530,10 @@ const byLayer = [1,2,3,4].map(l => `L${l} ${graph.nodes.filter(n=>n.layer===l).l
 log(`\n  sources : ${Object.entries(stats).map(([k,v])=>`${k} ${v}`).join(' · ')}`);
 log(`  graph   : ${graph.nodes.length} nodes (${byLayer}) · ${graph.links.length} links`);
 log(`  bundles : ontology ${(a/1024).toFixed(0)}KB · coverage ${(b/1024).toFixed(0)}KB`);
+log(`  chain   : ${chain.hops.map(h => `L${h.from}→L${h.to} ${h.count}`).join(' · ')}`);
+if (graph.problems.length){
+  log(`\n  ⚠ ${graph.problems.length} chain violations:`);
+  graph.problems.slice(0, 12).forEach(p => log(`      ${p}`));
+  process.exitCode = 1;
+} else log('  chain   : L1 → L2 → L3 → L4 verified, no layer skipped');
 log(`  done in ${((Date.now()-t0)/1000).toFixed(1)}s\n`);

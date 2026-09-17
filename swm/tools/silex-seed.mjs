@@ -33,7 +33,7 @@ export const DOMAINS = [
   { id:'finance', name:'Finance', code:'FI', coverage:.86, agents:12, workflows:38, incidents:4,
     pack:'Finance Security Pack v2.6', owner:'CFO · Finance Operations',
     dims:{ identity:.9, agent:.88, workflow:.81, policy:.89, resource:.84, outcome:.86 },
-    entities:['Invoice','Vendor Master Record','Payment Run','Bank Account','Journal Entry','Approval Threshold','Payment Authorisation'],
+    entities:['Invoice','Vendor Master Record','Payment Run','Bank Account','Journal Entry','Approval Threshold','Payment Authorisation','Unrecoverable Payout (prohibited)'],
     capabilities:[
       { id:'fi-ap', name:'Accounts Payable', coverage:.83, entities:2140, incidents:3,
         dims:{ identity:.88, agent:.9, workflow:.76, policy:.87, resource:.8, outcome:.83 },
@@ -57,7 +57,7 @@ export const DOMAINS = [
   { id:'support', name:'Customer Service', code:'CX', coverage:.79, agents:18, workflows:64, incidents:7,
     pack:'Customer Service Pack v1.9', owner:'COO · Customer Operations',
     dims:{ identity:.82, agent:.84, workflow:.72, policy:.78, resource:.76, outcome:.81 },
-    entities:['Customer','Ticket','Refund','Order','Entitlement','Knowledge Article','Escalation'],
+    entities:['Customer','Ticket','Refund','Order','Entitlement','Knowledge Article','Escalation','PII Disclosure to Wrong Party (prohibited)'],
     capabilities:[
       { id:'cx-rf', name:'Refunds & Adjustments', coverage:.74, entities:2860, incidents:4,
         dims:{ identity:.8, agent:.83, workflow:.66, policy:.72, resource:.71, outcome:.78 },
@@ -80,7 +80,7 @@ export const DOMAINS = [
   { id:'identity-it', name:'Identity & IT', code:'IT', coverage:.91, agents:9, workflows:27, incidents:2,
     pack:'Identity & IT Pack v3.1', owner:'CIO · Platform Engineering',
     dims:{ identity:.96, agent:.9, workflow:.87, policy:.93, resource:.89, outcome:.88 },
-    entities:['User Account','Service Principal','Role','Entitlement','Access Request','Secret','Endpoint'],
+    entities:['User Account','Service Principal','Role','Entitlement','Access Request','Secret','Endpoint','Standing Privilege (prohibited)'],
     capabilities:[
       { id:'it-jm', name:'Joiner / Mover / Leaver', coverage:.94, entities:5320, incidents:0,
         dims:{ identity:.97, agent:.9, workflow:.92, policy:.95, resource:.9, outcome:.9 },
@@ -97,7 +97,7 @@ export const DOMAINS = [
   { id:'hr', name:'Human Resources', code:'HR', coverage:.68, agents:6, workflows:19, incidents:1,
     pack:'HR Pack v1.2 (draft)', owner:'CHRO · People Operations',
     dims:{ identity:.74, agent:.7, workflow:.58, policy:.69, resource:.66, outcome:.71 },
-    entities:['Employee','Candidate','Compensation Record','Leave Request','Performance Review'],
+    entities:['Employee','Candidate','Compensation Record','Leave Request','Performance Review','Unauthorised Pay Change (prohibited)'],
     capabilities:[
       { id:'hr-on', name:'Onboarding', coverage:.72, entities:1240, incidents:1,
         dims:{ identity:.78, agent:.73, workflow:.62, policy:.72, resource:.7, outcome:.74 },
@@ -113,7 +113,7 @@ export const DOMAINS = [
   { id:'procurement', name:'Procurement', code:'PO', coverage:.74, agents:8, workflows:31, incidents:3,
     pack:'Procurement Pack v1.7', owner:'CPO · Sourcing',
     dims:{ identity:.8, agent:.77, workflow:.69, policy:.75, resource:.66, outcome:.76 },
-    entities:['Purchase Order','Supplier','Contract','Sourcing Event','Goods Receipt','Spend Category'],
+    entities:['Purchase Order','Supplier','Contract','Sourcing Event','Goods Receipt','Spend Category','Unverified Bank Change (prohibited)'],
     capabilities:[
       { id:'po-src', name:'Sourcing & Contracts', coverage:.78, entities:1860, incidents:1,
         dims:{ identity:.83, agent:.8, workflow:.73, policy:.78, resource:.7, outcome:.8 },
@@ -141,7 +141,8 @@ export const AGENTIC_COMPONENTS = [
   { id:'exec-ctx',   name:'Execution Context',    group:'agent',    coverage:.77, instances:53, blurb:'Sandbox, runtime permissions and resource limits for a run.' },
   { id:'guardrail',  name:'Guardrail / Policy Engine', group:'policy', coverage:.87, instances:128, blurb:'Evaluates each proposed action against policy before it runs.' },
   { id:'hitl',       name:'Human Approval Gate',  group:'policy',   coverage:.83, instances:37, blurb:'Human decision point inserted into the agent loop.' },
-  { id:'trace',      name:'Trace & Telemetry',    group:'workflow', coverage:.92, instances:53, blurb:'Observed steps, tool calls and decisions — the evidence base.' }
+  { id:'trace',      name:'Trace & Telemetry',    group:'workflow', coverage:.92, instances:53, blurb:'Observed steps, tool calls and decisions — the evidence base.' },
+  { id:'harness',    name:'Business Outcome Harness', group:'outcome', coverage:.82, instances:24, blurb:'Legitimate completion, prohibited outcomes, cost and the business constraints an agent must respect.' }
 ];
 
 /* ---- L4: runtime instances ---------------------------------------------- */
@@ -166,11 +167,11 @@ export const RUNTIME = {
     { id:'rt-wf-021',     name:'WF-021 Customer Refund', group:'workflow', type:'trace', coverage:.68, blurb:'Registered workflow under validation.', domain:'support' },
     { id:'rt-wf-011',     name:'WF-011 Invoice Processing', group:'workflow', type:'trace', coverage:.88, blurb:'Registered workflow, deployed.', domain:'finance' },
     { id:'rt-wf-055',     name:'WF-055 Vendor Master Change', group:'workflow', type:'trace', coverage:.55, blurb:'Registered workflow with an open coverage gap.', domain:'procurement' },
-    { id:'rt-inc-1042',   name:'I-1042 Refund loop', group:'threat', type:'incident', coverage:1, severity:'critical', blurb:'Refund agent re-issued a refund after a partial failure.', domain:'support' },
-    { id:'rt-inc-0987',   name:'I-0987 Vendor bank change', group:'threat', type:'incident', coverage:1, severity:'serious', blurb:'Bank details changed from an unverified email instruction.', domain:'procurement' },
-    { id:'rt-out-loss',   name:'Unrecoverable payout', group:'outcome', type:'prohibited', coverage:1, blurb:'Prohibited outcome: money leaves without a recoverable path.', domain:'finance' },
-    { id:'rt-out-pii',    name:'PII disclosed to wrong party', group:'outcome', type:'prohibited', coverage:1, blurb:'Prohibited outcome: customer data reaches an unverified requester.', domain:'support' },
-    { id:'rt-out-served', name:'Customer made whole', group:'outcome', type:'legitimate', coverage:1, blurb:'Legitimate completion: refund issued once, correctly.', domain:'support' }
+    { id:'rt-inc-1042',   name:'I-1042 Refund loop', group:'threat', type:'incident', parent:'rt-wf-021', coverage:1, severity:'critical', blurb:'Refund agent re-issued a refund after a partial failure.', domain:'support' },
+    { id:'rt-inc-0987',   name:'I-0987 Vendor bank change', group:'threat', type:'incident', parent:'rt-wf-055', coverage:1, severity:'serious', blurb:'Bank details changed from an unverified email instruction.', domain:'procurement' },
+    { id:'rt-out-loss',   name:'Unrecoverable payout', group:'outcome', type:'harness', outcome:'prohibited', coverage:1, blurb:'Prohibited outcome: money leaves without a recoverable path.', domain:'finance' },
+    { id:'rt-out-pii',    name:'PII disclosed to wrong party', group:'outcome', type:'harness', outcome:'prohibited', coverage:1, blurb:'Prohibited outcome: customer data reaches an unverified requester.', domain:'support' },
+    { id:'rt-out-served', name:'Customer made whole', group:'outcome', type:'harness', outcome:'legitimate', coverage:1, blurb:'Legitimate completion: refund issued once, correctly.', domain:'support' }
   ],
   links:[
     ['rt-user-csr','rt-svc-identity','DELEGATES_AUTHORITY'],
@@ -250,5 +251,5 @@ export const GROUP_HINTS = [
   ['policy',   /policy|control|guardrail|approv|rule|filter|isolat|harden|restrict|validat|verif|authoriz.?polic|mitigat|defen/i],
   ['threat',   /attack|threat|exploit|malware|injection|poison|exfiltrat|evasion|compromis|abuse|vulnerab|impact|persistence|reconnaissance|discovery|collection|impair/i],
   ['workflow', /workflow|sequence|orchestrat|pipeline|chain|procedure|plan|schedul/i],
-  ['outcome',  /outcome|result|loss|damage|availability|integrity|confidential|business/i]
+  ['outcome',  /prohibited|legitimate completion|outcome|result|loss|damage|availability|integrity|confidential|business/i]
 ];

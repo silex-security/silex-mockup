@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-17T21:03:30.299Z",
+ "generated": "2026-09-17T23:20:50.477Z",
  "version": "swm-1.0",
  "groups": [
   {
@@ -117,6 +117,714 @@
   "uco": 72,
   "owasp": 25
  },
+ "chain": {
+  "layers": [
+   {
+    "id": 1,
+    "key": "general",
+    "name": "General Agent Security Ontology",
+    "blurb": "Reusable semantics shared by every domain and every agentic system",
+    "count": 370,
+    "groups": {
+     "identity": 49,
+     "agent": 21,
+     "tool": 64,
+     "resource": 95,
+     "workflow": 1,
+     "policy": 61,
+     "threat": 77,
+     "outcome": 2
+    },
+    "coverage": 0.74
+   },
+   {
+    "id": 2,
+    "key": "domain",
+    "name": "Domain Ontology Packs",
+    "blurb": "Business meaning per enterprise domain",
+    "count": 86,
+    "groups": {
+     "workflow": 49,
+     "resource": 27,
+     "identity": 4,
+     "policy": 2,
+     "outcome": 3,
+     "tool": 1
+    },
+    "coverage": 0.777
+   },
+   {
+    "id": 3,
+    "key": "agentic",
+    "name": "Agentic-System Ontology",
+    "blurb": "Planner, memory, tools, MCP and the threats that target them",
+    "count": 118,
+    "groups": {
+     "agent": 5,
+     "resource": 1,
+     "tool": 2,
+     "identity": 1,
+     "policy": 2,
+     "workflow": 1,
+     "outcome": 1,
+     "threat": 105
+    },
+    "coverage": 0.6
+   },
+   {
+    "id": 4,
+    "key": "runtime",
+    "name": "Runtime Knowledge Graph",
+    "blurb": "What is actually deployed, observed and decided right now",
+    "count": 24,
+    "groups": {
+     "agent": 4,
+     "resource": 3,
+     "tool": 4,
+     "identity": 2,
+     "policy": 3,
+     "workflow": 3,
+     "threat": 2,
+     "outcome": 3
+    },
+    "coverage": 0.811
+   }
+  ],
+  "hops": [
+   {
+    "from": 1,
+    "to": 2,
+    "count": 43,
+    "preds": {
+     "SPECIALIZES": 43
+    },
+    "examples": [
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:workflow",
+      "fromLabel": "Workflow",
+      "to": "dom:finance",
+      "toLabel": "Finance"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:finance:invoice",
+      "toLabel": "Invoice"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:finance:vendor-master-record",
+      "toLabel": "Vendor Master Record"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:finance:payment-run",
+      "toLabel": "Payment Run"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:identity",
+      "fromLabel": "Identity & Authority",
+      "to": "ent:finance:bank-account",
+      "toLabel": "Bank Account"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:finance:journal-entry",
+      "toLabel": "Journal Entry"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:policy",
+      "fromLabel": "Policy & Control",
+      "to": "ent:finance:approval-threshold",
+      "toLabel": "Approval Threshold"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:finance:payment-authorisation",
+      "toLabel": "Payment Authorisation"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:outcome",
+      "fromLabel": "Outcome",
+      "to": "ent:finance:unrecoverable-payout-prohibited-",
+      "toLabel": "Unrecoverable Payout (prohibited)"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:workflow",
+      "fromLabel": "Workflow",
+      "to": "dom:support",
+      "toLabel": "Customer Service"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:customer",
+      "toLabel": "Customer"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:ticket",
+      "toLabel": "Ticket"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:refund",
+      "toLabel": "Refund"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:order",
+      "toLabel": "Order"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:entitlement",
+      "toLabel": "Entitlement"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:knowledge-article",
+      "toLabel": "Knowledge Article"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:support:escalation",
+      "toLabel": "Escalation"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:outcome",
+      "fromLabel": "Outcome",
+      "to": "ent:support:pii-disclosure-to-wrong-party-prohibited-",
+      "toLabel": "PII Disclosure to Wrong Party (prohibited)"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:workflow",
+      "fromLabel": "Workflow",
+      "to": "dom:identity-it",
+      "toLabel": "Identity & IT"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:identity",
+      "fromLabel": "Identity & Authority",
+      "to": "ent:identity-it:user-account",
+      "toLabel": "User Account"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:tool",
+      "fromLabel": "Tool & Action",
+      "to": "ent:identity-it:service-principal",
+      "toLabel": "Service Principal"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:identity",
+      "fromLabel": "Identity & Authority",
+      "to": "ent:identity-it:role",
+      "toLabel": "Role"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:identity-it:entitlement",
+      "toLabel": "Entitlement"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:identity-it:access-request",
+      "toLabel": "Access Request"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:identity-it:secret",
+      "toLabel": "Secret"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:identity-it:endpoint",
+      "toLabel": "Endpoint"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:identity",
+      "fromLabel": "Identity & Authority",
+      "to": "ent:identity-it:standing-privilege-prohibited-",
+      "toLabel": "Standing Privilege (prohibited)"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:workflow",
+      "fromLabel": "Workflow",
+      "to": "dom:hr",
+      "toLabel": "Human Resources"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:hr:employee",
+      "toLabel": "Employee"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:hr:candidate",
+      "toLabel": "Candidate"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:hr:compensation-record",
+      "toLabel": "Compensation Record"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:hr:leave-request",
+      "toLabel": "Leave Request"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:hr:performance-review",
+      "toLabel": "Performance Review"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:outcome",
+      "fromLabel": "Outcome",
+      "to": "ent:hr:unauthorised-pay-change-prohibited-",
+      "toLabel": "Unauthorised Pay Change (prohibited)"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:workflow",
+      "fromLabel": "Workflow",
+      "to": "dom:procurement",
+      "toLabel": "Procurement"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:procurement:purchase-order",
+      "toLabel": "Purchase Order"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:procurement:supplier",
+      "toLabel": "Supplier"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:procurement:contract",
+      "toLabel": "Contract"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:procurement:sourcing-event",
+      "toLabel": "Sourcing Event"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:procurement:goods-receipt",
+      "toLabel": "Goods Receipt"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:resource",
+      "fromLabel": "Resource & Data",
+      "to": "ent:procurement:spend-category",
+      "toLabel": "Spend Category"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:policy",
+      "fromLabel": "Policy & Control",
+      "to": "ent:procurement:unverified-bank-change-prohibited-",
+      "toLabel": "Unverified Bank Change (prohibited)"
+     },
+     {
+      "pred": "SPECIALIZES",
+      "from": "grp:workflow",
+      "fromLabel": "Workflow",
+      "to": "dom:horizontal",
+      "toLabel": "Cross-domain & Horizontal"
+     }
+    ]
+   },
+   {
+    "from": 2,
+    "to": 3,
+    "count": 21,
+    "preds": {
+     "DEPLOYED_IN": 21
+    },
+    "examples": [
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:finance",
+      "fromLabel": "Finance",
+      "to": "ag:planner",
+      "toLabel": "Planner / Reasoner"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:planner",
+      "toLabel": "Planner / Reasoner"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:horizontal",
+      "fromLabel": "Cross-domain & Horizontal",
+      "to": "ag:memory-st",
+      "toLabel": "Short-term Memory"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:memory-lt",
+      "toLabel": "Long-term Memory"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:retriever",
+      "toLabel": "Retriever / RAG Index"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:procurement",
+      "fromLabel": "Procurement",
+      "to": "ag:tool-reg",
+      "toLabel": "Tool Registry"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:tool-reg",
+      "toLabel": "Tool Registry"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:finance",
+      "fromLabel": "Finance",
+      "to": "ag:tool-reg",
+      "toLabel": "Tool Registry"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:finance",
+      "fromLabel": "Finance",
+      "to": "ag:mcp",
+      "toLabel": "MCP / API Connector"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:mcp",
+      "toLabel": "MCP / API Connector"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:horizontal",
+      "fromLabel": "Cross-domain & Horizontal",
+      "to": "ag:subagent",
+      "toLabel": "Sub-agent Delegation"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:cred-store",
+      "toLabel": "Credential Broker"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:horizontal",
+      "fromLabel": "Cross-domain & Horizontal",
+      "to": "ag:exec-ctx",
+      "toLabel": "Execution Context"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:guardrail",
+      "toLabel": "Guardrail / Policy Engine"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:procurement",
+      "fromLabel": "Procurement",
+      "to": "ag:guardrail",
+      "toLabel": "Guardrail / Policy Engine"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:hitl",
+      "toLabel": "Human Approval Gate"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:trace",
+      "toLabel": "Trace & Telemetry"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:finance",
+      "fromLabel": "Finance",
+      "to": "ag:trace",
+      "toLabel": "Trace & Telemetry"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:procurement",
+      "fromLabel": "Procurement",
+      "to": "ag:trace",
+      "toLabel": "Trace & Telemetry"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:support",
+      "fromLabel": "Customer Service",
+      "to": "ag:harness",
+      "toLabel": "Business Outcome Harness"
+     },
+     {
+      "pred": "DEPLOYED_IN",
+      "from": "dom:finance",
+      "fromLabel": "Finance",
+      "to": "ag:harness",
+      "toLabel": "Business Outcome Harness"
+     }
+    ]
+   },
+   {
+    "from": 3,
+    "to": 4,
+    "count": 22,
+    "preds": {
+     "INSTANCE_OF": 22
+    },
+    "examples": [
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:planner",
+      "fromLabel": "Planner / Reasoner",
+      "to": "rt-refund-agent",
+      "toLabel": "Refund Agent"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:planner",
+      "fromLabel": "Planner / Reasoner",
+      "to": "rt-ap-agent",
+      "toLabel": "AP Invoice Agent"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:planner",
+      "fromLabel": "Planner / Reasoner",
+      "to": "rt-treasury-agent",
+      "toLabel": "Treasury Agent"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:memory-lt",
+      "fromLabel": "Long-term Memory",
+      "to": "rt-refund-mem",
+      "toLabel": "Refund Agent · long-term memory"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:retriever",
+      "fromLabel": "Retriever / RAG Index",
+      "to": "rt-kb-index",
+      "toLabel": "Support KB Index"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:mcp",
+      "fromLabel": "MCP / API Connector",
+      "to": "rt-mcp-pay",
+      "toLabel": "MCP · Payments"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:mcp",
+      "fromLabel": "MCP / API Connector",
+      "to": "rt-mcp-crm",
+      "toLabel": "MCP · CRM"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:tool-reg",
+      "fromLabel": "Tool Registry",
+      "to": "rt-tool-refund",
+      "toLabel": "issueRefund()"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:tool-reg",
+      "fromLabel": "Tool Registry",
+      "to": "rt-tool-vendor",
+      "toLabel": "updateVendorBank()"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:cred-store",
+      "fromLabel": "Credential Broker",
+      "to": "rt-svc-identity",
+      "toLabel": "svc-refund-agent"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:cred-store",
+      "fromLabel": "Credential Broker",
+      "to": "rt-user-csr",
+      "toLabel": "CSR · Tier-2 queue"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:tool-reg",
+      "fromLabel": "Tool Registry",
+      "to": "rt-db-vendor",
+      "toLabel": "Vendor Master DB"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:tool-reg",
+      "fromLabel": "Tool Registry",
+      "to": "rt-ledger",
+      "toLabel": "Payment Ledger"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:guardrail",
+      "fromLabel": "Guardrail / Policy Engine",
+      "to": "rt-policy-500",
+      "toLabel": "Refund ceiling · 500 USD"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:guardrail",
+      "fromLabel": "Guardrail / Policy Engine",
+      "to": "rt-policy-dual",
+      "toLabel": "Dual control · vendor bank change"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:hitl",
+      "fromLabel": "Human Approval Gate",
+      "to": "rt-hitl-t2",
+      "toLabel": "Tier-2 approval gate"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:trace",
+      "fromLabel": "Trace & Telemetry",
+      "to": "rt-wf-021",
+      "toLabel": "WF-021 Customer Refund"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:trace",
+      "fromLabel": "Trace & Telemetry",
+      "to": "rt-wf-011",
+      "toLabel": "WF-011 Invoice Processing"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:trace",
+      "fromLabel": "Trace & Telemetry",
+      "to": "rt-wf-055",
+      "toLabel": "WF-055 Vendor Master Change"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:harness",
+      "fromLabel": "Business Outcome Harness",
+      "to": "rt-out-loss",
+      "toLabel": "Unrecoverable payout"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:harness",
+      "fromLabel": "Business Outcome Harness",
+      "to": "rt-out-pii",
+      "toLabel": "PII disclosed to wrong party"
+     },
+     {
+      "pred": "INSTANCE_OF",
+      "from": "ag:harness",
+      "fromLabel": "Business Outcome Harness",
+      "to": "rt-out-served",
+      "toLabel": "Customer made whole"
+     }
+    ]
+   }
+  ]
+ },
  "nodes": [
   {
    "id": "grp:identity",
@@ -134,7 +842,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:agent",
@@ -152,7 +861,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:tool",
@@ -170,7 +880,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:resource",
@@ -188,7 +899,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:workflow",
@@ -206,7 +918,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:policy",
@@ -224,7 +937,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:threat",
@@ -242,7 +956,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "grp:outcome",
@@ -260,7 +975,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "anchor": true
+   "anchor": true,
+   "parent": null
   },
   {
    "id": "uco:core:Annotation",
@@ -278,7 +994,8 @@
     }
    ],
    "instances": 741,
-   "coverage": 0.896
+   "coverage": 0.896,
+   "parent": "uco:core:Assertion"
   },
   {
    "id": "uco:core:Assertion",
@@ -296,7 +1013,8 @@
     }
    ],
    "instances": 742,
-   "coverage": 0.896
+   "coverage": 0.896,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:AttributedName",
@@ -314,7 +1032,8 @@
     }
    ],
    "instances": 465,
-   "coverage": 0.767
+   "coverage": 0.767,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:Bundle",
@@ -332,7 +1051,8 @@
     }
    ],
    "instances": 696,
-   "coverage": 0.875
+   "coverage": 0.875,
+   "parent": "uco:core:EnclosingCompilation"
   },
   {
    "id": "uco:core:Compilation",
@@ -350,7 +1070,8 @@
     }
    ],
    "instances": 824,
-   "coverage": 0.934
+   "coverage": 0.934,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:ConfidenceFacet",
@@ -368,7 +1089,8 @@
     }
    ],
    "instances": 703,
-   "coverage": 0.878
+   "coverage": 0.878,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:core:ContextualCompilation",
@@ -386,7 +1108,8 @@
     }
    ],
    "instances": 813,
-   "coverage": 0.929
+   "coverage": 0.929,
+   "parent": "uco:core:Compilation"
   },
   {
    "id": "uco:core:ControlledVocabulary",
@@ -404,7 +1127,8 @@
     }
    ],
    "instances": 246,
-   "coverage": 0.665
+   "coverage": 0.665,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:EnclosingCompilation",
@@ -422,7 +1146,8 @@
     }
    ],
    "instances": 876,
-   "coverage": 0.959
+   "coverage": 0.959,
+   "parent": "uco:core:Compilation"
   },
   {
    "id": "uco:core:Event",
@@ -440,7 +1165,8 @@
     }
    ],
    "instances": 619,
-   "coverage": 0.839
+   "coverage": 0.839,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:ExternalReference",
@@ -458,7 +1184,8 @@
     }
    ],
    "instances": 758,
-   "coverage": 0.904
+   "coverage": 0.904,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:core:Facet",
@@ -476,7 +1203,8 @@
     }
    ],
    "instances": 723,
-   "coverage": 0.887
+   "coverage": 0.887,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:core:Grouping",
@@ -494,7 +1222,8 @@
     }
    ],
    "instances": 680,
-   "coverage": 0.867
+   "coverage": 0.867,
+   "parent": "uco:core:ContextualCompilation"
   },
   {
    "id": "uco:core:IdentityAbstraction",
@@ -512,7 +1241,8 @@
     }
    ],
    "instances": 613,
-   "coverage": 0.836
+   "coverage": 0.836,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:Item",
@@ -530,7 +1260,8 @@
     }
    ],
    "instances": 437,
-   "coverage": 0.754
+   "coverage": 0.754,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:MarkingDefinitionAbstraction",
@@ -548,7 +1279,8 @@
     }
    ],
    "instances": 698,
-   "coverage": 0.876
+   "coverage": 0.876,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:ModusOperandi",
@@ -566,7 +1298,8 @@
     }
    ],
    "instances": 853,
-   "coverage": 0.948
+   "coverage": 0.948,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:Relationship",
@@ -584,7 +1317,8 @@
     }
    ],
    "instances": 214,
-   "coverage": 0.65
+   "coverage": 0.65,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:core:UcoInherentCharacterizationThing",
@@ -602,7 +1336,8 @@
     }
    ],
    "instances": 455,
-   "coverage": 0.762
+   "coverage": 0.762,
+   "parent": "uco:core:UcoThing"
   },
   {
    "id": "uco:core:UcoObject",
@@ -620,7 +1355,8 @@
     }
    ],
    "instances": 124,
-   "coverage": 0.608
+   "coverage": 0.608,
+   "parent": "uco:core:UcoThing"
   },
   {
    "id": "uco:core:UcoThing",
@@ -638,7 +1374,8 @@
     }
    ],
    "instances": 678,
-   "coverage": 0.866
+   "coverage": 0.866,
+   "parent": "grp:resource"
   },
   {
    "id": "uco:core:UcoType",
@@ -656,7 +1393,8 @@
     }
    ],
    "instances": 846,
-   "coverage": 0.945
+   "coverage": 0.945,
+   "parent": "grp:resource"
   },
   {
    "id": "uco:action:Action",
@@ -674,7 +1412,8 @@
     }
    ],
    "instances": 791,
-   "coverage": 0.919
+   "coverage": 0.919,
+   "parent": "grp:resource"
   },
   {
    "id": "uco:types:Dictionary",
@@ -692,7 +1431,8 @@
     }
    ],
    "instances": 350,
-   "coverage": 0.713
+   "coverage": 0.713,
+   "parent": "grp:resource"
   },
   {
    "id": "uco:identity:AddressFacet",
@@ -710,7 +1450,8 @@
     }
    ],
    "instances": 639,
-   "coverage": 0.848
+   "coverage": 0.848,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:AffiliationFacet",
@@ -728,7 +1469,8 @@
     }
    ],
    "instances": 699,
-   "coverage": 0.876
+   "coverage": 0.876,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:BirthInformationFacet",
@@ -746,7 +1488,8 @@
     }
    ],
    "instances": 159,
-   "coverage": 0.624
+   "coverage": 0.624,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:CountryOfResidenceFacet",
@@ -764,7 +1507,8 @@
     }
    ],
    "instances": 339,
-   "coverage": 0.708
+   "coverage": 0.708,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:EventsFacet",
@@ -782,7 +1526,8 @@
     }
    ],
    "instances": 734,
-   "coverage": 0.893
+   "coverage": 0.893,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:IdentifierFacet",
@@ -800,7 +1545,8 @@
     }
    ],
    "instances": 710,
-   "coverage": 0.881
+   "coverage": 0.881,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:Identity",
@@ -818,7 +1564,8 @@
     }
    ],
    "instances": 511,
-   "coverage": 0.788
+   "coverage": 0.788,
+   "parent": "uco:core:IdentityAbstraction"
   },
   {
    "id": "uco:identity:IdentityFacet",
@@ -836,7 +1583,8 @@
     }
    ],
    "instances": 252,
-   "coverage": 0.668
+   "coverage": 0.668,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:identity:LanguagesFacet",
@@ -854,7 +1602,8 @@
     }
    ],
    "instances": 189,
-   "coverage": 0.638
+   "coverage": 0.638,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:NationalityFacet",
@@ -872,7 +1621,8 @@
     }
    ],
    "instances": 436,
-   "coverage": 0.753
+   "coverage": 0.753,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:OccupationFacet",
@@ -890,7 +1640,8 @@
     }
    ],
    "instances": 329,
-   "coverage": 0.704
+   "coverage": 0.704,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:Organization",
@@ -908,7 +1659,8 @@
     }
    ],
    "instances": 119,
-   "coverage": 0.606
+   "coverage": 0.606,
+   "parent": "uco:identity:Identity"
   },
   {
    "id": "uco:identity:OrganizationDetailsFacet",
@@ -926,7 +1678,8 @@
     }
    ],
    "instances": 0,
-   "coverage": 0.55
+   "coverage": 0.55,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:Person",
@@ -944,7 +1697,8 @@
     }
    ],
    "instances": 33,
-   "coverage": 0.566
+   "coverage": 0.566,
+   "parent": "uco:identity:Identity"
   },
   {
    "id": "uco:identity:PersonalDetailsFacet",
@@ -962,7 +1716,8 @@
     }
    ],
    "instances": 43,
-   "coverage": 0.57
+   "coverage": 0.57,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:PhysicalInfoFacet",
@@ -980,7 +1735,8 @@
     }
    ],
    "instances": 225,
-   "coverage": 0.655
+   "coverage": 0.655,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:QualificationFacet",
@@ -998,7 +1754,8 @@
     }
    ],
    "instances": 78,
-   "coverage": 0.587
+   "coverage": 0.587,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:RelatedIdentityFacet",
@@ -1016,7 +1773,8 @@
     }
    ],
    "instances": 302,
-   "coverage": 0.691
+   "coverage": 0.691,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:SimpleNameFacet",
@@ -1034,7 +1792,8 @@
     }
    ],
    "instances": 335,
-   "coverage": 0.706
+   "coverage": 0.706,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:identity:VisaFacet",
@@ -1052,7 +1811,8 @@
     }
    ],
    "instances": 538,
-   "coverage": 0.801
+   "coverage": 0.801,
+   "parent": "uco:identity:IdentityFacet"
   },
   {
    "id": "uco:action:ActionArgumentFacet",
@@ -1070,7 +1830,8 @@
     }
    ],
    "instances": 126,
-   "coverage": 0.609
+   "coverage": 0.609,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:action:ActionEstimationFacet",
@@ -1088,7 +1849,8 @@
     }
    ],
    "instances": 242,
-   "coverage": 0.663
+   "coverage": 0.663,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:action:ActionFrequencyFacet",
@@ -1106,7 +1868,8 @@
     }
    ],
    "instances": 817,
-   "coverage": 0.931
+   "coverage": 0.931,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:action:ActionLifecycle",
@@ -1124,7 +1887,8 @@
     }
    ],
    "instances": 656,
-   "coverage": 0.856
+   "coverage": 0.856,
+   "parent": "uco:action:Action"
   },
   {
    "id": "uco:action:ActionPattern",
@@ -1142,7 +1906,8 @@
     }
    ],
    "instances": 644,
-   "coverage": 0.85
+   "coverage": 0.85,
+   "parent": "uco:action:Action"
   },
   {
    "id": "uco:action:ArrayOfAction",
@@ -1160,7 +1925,8 @@
     }
    ],
    "instances": 833,
-   "coverage": 0.939
+   "coverage": 0.939,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:action:Technique",
@@ -1178,7 +1944,8 @@
     }
    ],
    "instances": 829,
-   "coverage": 0.937
+   "coverage": 0.937,
+   "parent": "uco:core:UcoType"
   },
   {
    "id": "uco:tool:AnalyticTool",
@@ -1196,7 +1963,8 @@
     }
    ],
    "instances": 69,
-   "coverage": 0.582
+   "coverage": 0.582,
+   "parent": "uco:tool:Tool"
   },
   {
    "id": "uco:tool:BuildFacet",
@@ -1214,7 +1982,8 @@
     }
    ],
    "instances": 75,
-   "coverage": 0.585
+   "coverage": 0.585,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:tool:BuildInformationType",
@@ -1232,7 +2001,8 @@
     }
    ],
    "instances": 814,
-   "coverage": 0.93
+   "coverage": 0.93,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:tool:BuildUtilityType",
@@ -1250,7 +2020,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.559
+   "coverage": 0.559,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:tool:CompilerType",
@@ -1268,7 +2039,8 @@
     }
    ],
    "instances": 882,
-   "coverage": 0.962
+   "coverage": 0.962,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:tool:ConfiguredTool",
@@ -1286,7 +2058,8 @@
     }
    ],
    "instances": 61,
-   "coverage": 0.578
+   "coverage": 0.578,
+   "parent": "uco:tool:Tool"
   },
   {
    "id": "uco:tool:DefensiveTool",
@@ -1304,7 +2077,8 @@
     }
    ],
    "instances": 235,
-   "coverage": 0.659
+   "coverage": 0.659,
+   "parent": "uco:tool:Tool"
   },
   {
    "id": "uco:tool:LibraryType",
@@ -1322,7 +2096,8 @@
     }
    ],
    "instances": 43,
-   "coverage": 0.57
+   "coverage": 0.57,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:tool:MaliciousTool",
@@ -1340,7 +2115,8 @@
     }
    ],
    "instances": 81,
-   "coverage": 0.588
+   "coverage": 0.588,
+   "parent": "uco:tool:Tool"
   },
   {
    "id": "uco:tool:Tool",
@@ -1358,7 +2134,8 @@
     }
    ],
    "instances": 342,
-   "coverage": 0.71
+   "coverage": 0.71,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:pattern:LogicalPattern",
@@ -1376,7 +2153,8 @@
     }
    ],
    "instances": 292,
-   "coverage": 0.686
+   "coverage": 0.686,
+   "parent": "uco:pattern:Pattern"
   },
   {
    "id": "uco:pattern:Pattern",
@@ -1394,7 +2172,8 @@
     }
    ],
    "instances": 194,
-   "coverage": 0.64
+   "coverage": 0.64,
+   "parent": "uco:core:UcoObject"
   },
   {
    "id": "uco:pattern:PatternExpression",
@@ -1412,7 +2191,8 @@
     }
    ],
    "instances": 409,
-   "coverage": 0.741
+   "coverage": 0.741,
+   "parent": "uco:core:UcoInherentCharacterizationThing"
   },
   {
    "id": "uco:observable:Account",
@@ -1430,7 +2210,8 @@
     }
    ],
    "instances": 183,
-   "coverage": 0.635
+   "coverage": 0.635,
+   "parent": "grp:identity"
   },
   {
    "id": "uco:observable:AccountAuthenticationFacet",
@@ -1448,7 +2229,8 @@
     }
    ],
    "instances": 864,
-   "coverage": 0.953
+   "coverage": 0.953,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:observable:AccountFacet",
@@ -1466,7 +2248,8 @@
     }
    ],
    "instances": 342,
-   "coverage": 0.709
+   "coverage": 0.709,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:observable:Adaptor",
@@ -1484,7 +2267,8 @@
     }
    ],
    "instances": 656,
-   "coverage": 0.856
+   "coverage": 0.856,
+   "parent": "grp:tool"
   },
   {
    "id": "uco:observable:Address",
@@ -1502,7 +2286,8 @@
     }
    ],
    "instances": 791,
-   "coverage": 0.919
+   "coverage": 0.919,
+   "parent": "grp:resource"
   },
   {
    "id": "uco:observable:AlternateDataStream",
@@ -1520,7 +2305,8 @@
     }
    ],
    "instances": 446,
-   "coverage": 0.758
+   "coverage": 0.758,
+   "parent": "grp:resource"
   },
   {
    "id": "uco:observable:AlternateDataStreamFacet",
@@ -1538,7 +2324,8 @@
     }
    ],
    "instances": 535,
-   "coverage": 0.8
+   "coverage": 0.8,
+   "parent": "uco:core:Facet"
   },
   {
    "id": "uco:observable:AndroidDevice",
@@ -1556,7 +2343,8 @@
     }
    ],
    "instances": 260,
-   "coverage": 0.671
+   "coverage": 0.671,
+   "parent": "grp:resource"
   },
   {
    "id": "d3f:d3f:DigitalArtifact",
@@ -1575,7 +2363,8 @@
    ],
    "instances": 1391,
    "coverage": 0.957,
-   "depth": 0
+   "depth": 0,
+   "parent": "grp:resource"
   },
   {
    "id": "d3f:d3f:DigitalInformationBearer",
@@ -1594,7 +2383,8 @@
    ],
    "instances": 1361,
    "coverage": 0.947,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DigitalArtifact"
   },
   {
    "id": "d3f:d3f:DigitalInformation",
@@ -1613,7 +2403,8 @@
    ],
    "instances": 753,
    "coverage": 0.748,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DigitalArtifact"
   },
   {
    "id": "d3f:d3f:SystemCall",
@@ -1632,7 +2423,8 @@
    ],
    "instances": 118,
    "coverage": 0.539,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformationBearer"
   },
   {
    "id": "d3f:d3f:HardwareDevice",
@@ -1651,7 +2443,8 @@
    ],
    "instances": 421,
    "coverage": 0.638,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformationBearer"
   },
   {
    "id": "d3f:d3f:NetworkTraffic",
@@ -1670,7 +2463,8 @@
    ],
    "instances": 175,
    "coverage": 0.558,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformationBearer"
   },
   {
    "id": "d3f:d3f:Credential",
@@ -1689,7 +2483,8 @@
    ],
    "instances": 85,
    "coverage": 0.528,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformationBearer"
   },
   {
    "id": "d3f:d3f:Record",
@@ -1708,7 +2503,8 @@
    ],
    "instances": 522,
    "coverage": 0.671,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformationBearer"
   },
   {
    "id": "d3f:d3f:RuntimeVariable",
@@ -1727,7 +2523,8 @@
    ],
    "instances": 631,
    "coverage": 0.707,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformationBearer"
   },
   {
    "id": "d3f:d3f:Software",
@@ -1746,7 +2543,8 @@
    ],
    "instances": 232,
    "coverage": 0.576,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformation"
   },
   {
    "id": "d3f:d3f:DigitalMedia",
@@ -1765,7 +2563,8 @@
    ],
    "instances": 914,
    "coverage": 0.8,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformation"
   },
   {
    "id": "d3f:d3f:Identifier",
@@ -1784,7 +2583,8 @@
    ],
    "instances": 594,
    "coverage": 0.695,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformation"
   },
   {
    "id": "d3f:d3f:Command",
@@ -1803,7 +2603,8 @@
    ],
    "instances": 733,
    "coverage": 0.741,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformation"
   },
   {
    "id": "d3f:d3f:MemoryExtent",
@@ -1822,7 +2623,8 @@
    ],
    "instances": 61,
    "coverage": 0.52,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformation"
   },
   {
    "id": "d3f:d3f:CryptographicKey",
@@ -1841,7 +2643,8 @@
    ],
    "instances": 39,
    "coverage": 0.513,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:DigitalInformation"
   },
   {
    "id": "d3f:d3f:ConnectSocket",
@@ -1860,7 +2663,8 @@
    ],
    "instances": 865,
    "coverage": 0.784,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:SystemCall"
   },
   {
    "id": "d3f:d3f:CreateFile",
@@ -1879,7 +2683,8 @@
    ],
    "instances": 1106,
    "coverage": 0.863,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:SystemCall"
   },
   {
    "id": "d3f:d3f:CreateProcess",
@@ -1898,7 +2703,8 @@
    ],
    "instances": 340,
    "coverage": 0.612,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:SystemCall"
   },
   {
    "id": "d3f:d3f:CreateSocket",
@@ -1917,7 +2723,8 @@
    ],
    "instances": 1084,
    "coverage": 0.856,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:SystemCall"
   },
   {
    "id": "d3f:d3f:CreateThread",
@@ -1936,7 +2743,8 @@
    ],
    "instances": 528,
    "coverage": 0.673,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:SystemCall"
   },
   {
    "id": "d3f:d3f:DeleteFile",
@@ -1955,7 +2763,8 @@
    ],
    "instances": 562,
    "coverage": 0.685,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:SystemCall"
   },
   {
    "id": "d3f:d3f:InputDevice",
@@ -1974,7 +2783,8 @@
    ],
    "instances": 897,
    "coverage": 0.795,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:HardwareDevice"
   },
   {
    "id": "d3f:d3f:PrimaryStorage",
@@ -1993,7 +2803,8 @@
    ],
    "instances": 420,
    "coverage": 0.638,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:HardwareDevice"
   },
   {
    "id": "d3f:d3f:SecondaryStorage",
@@ -2012,7 +2823,8 @@
    ],
    "instances": 1297,
    "coverage": 0.926,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:HardwareDevice"
   },
   {
    "id": "d3f:d3f:HardwareClock",
@@ -2031,7 +2843,8 @@
    ],
    "instances": 852,
    "coverage": 0.78,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:HardwareDevice"
   },
   {
    "id": "d3f:d3f:OutputDevice",
@@ -2050,7 +2863,8 @@
    ],
    "instances": 35,
    "coverage": 0.511,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:HardwareDevice"
   },
   {
    "id": "d3f:d3f:Processor",
@@ -2069,7 +2883,8 @@
    ],
    "instances": 433,
    "coverage": 0.642,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:HardwareDevice"
   },
   {
    "id": "d3f:d3f:IntranetNetworkTraffic",
@@ -2088,7 +2903,8 @@
    ],
    "instances": 253,
    "coverage": 0.583,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:NetworkTraffic"
   },
   {
    "id": "d3f:d3f:OutboundNetworkTraffic",
@@ -2107,7 +2923,8 @@
    ],
    "instances": 243,
    "coverage": 0.58,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:NetworkTraffic"
   },
   {
    "id": "d3f:d3f:FileTransferNetworkTraffic",
@@ -2126,7 +2943,8 @@
    ],
    "instances": 1176,
    "coverage": 0.886,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:NetworkTraffic"
   },
   {
    "id": "d3f:d3f:InternetNetworkTraffic",
@@ -2145,7 +2963,8 @@
    ],
    "instances": 770,
    "coverage": 0.753,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:NetworkTraffic"
   },
   {
    "id": "d3f:d3f:InboundNetworkTraffic",
@@ -2164,7 +2983,8 @@
    ],
    "instances": 1189,
    "coverage": 0.891,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:NetworkTraffic"
   },
   {
    "id": "d3f:d3f:RPCNetworkTraffic",
@@ -2183,7 +3003,8 @@
    ],
    "instances": 987,
    "coverage": 0.824,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:NetworkTraffic"
   },
   {
    "id": "d3f:d3f:AccessToken",
@@ -2202,7 +3023,8 @@
    ],
    "instances": 520,
    "coverage": 0.671,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Credential"
   },
   {
    "id": "d3f:d3f:EncryptedCredential",
@@ -2221,7 +3043,8 @@
    ],
    "instances": 1345,
    "coverage": 0.942,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Credential"
   },
   {
    "id": "d3f:d3f:Password",
@@ -2240,7 +3063,8 @@
    ],
    "instances": 406,
    "coverage": 0.633,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Credential"
   },
   {
    "id": "d3f:d3f:DigitalAccessBadge",
@@ -2259,7 +3083,8 @@
    ],
    "instances": 1137,
    "coverage": 0.874,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Credential"
   },
   {
    "id": "d3f:d3f:SessionCookie",
@@ -2278,7 +3103,8 @@
    ],
    "instances": 989,
    "coverage": 0.825,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Credential"
   },
   {
    "id": "d3f:d3f:WebIdentityToken",
@@ -2297,7 +3123,8 @@
    ],
    "instances": 1183,
    "coverage": 0.889,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Credential"
   },
   {
    "id": "d3f:d3f:BootRecord",
@@ -2316,7 +3143,8 @@
    ],
    "instances": 1064,
    "coverage": 0.849,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Record"
   },
   {
    "id": "d3f:d3f:DatabaseRecord",
@@ -2335,7 +3163,8 @@
    ],
    "instances": 393,
    "coverage": 0.629,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Record"
   },
   {
    "id": "d3f:d3f:TimeRecord",
@@ -2354,7 +3183,8 @@
    ],
    "instances": 168,
    "coverage": 0.555,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Record"
   },
   {
    "id": "d3f:d3f:DigitalEventRecord",
@@ -2373,7 +3203,8 @@
    ],
    "instances": 453,
    "coverage": 0.649,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Record"
   },
   {
    "id": "d3f:d3f:DNSRecord",
@@ -2392,7 +3223,8 @@
    ],
    "instances": 1268,
    "coverage": 0.917,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Record"
   },
   {
    "id": "d3f:d3f:SystemUtilizationRecord",
@@ -2411,7 +3243,8 @@
    ],
    "instances": 1190,
    "coverage": 0.891,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Record"
   },
   {
    "id": "d3f:d3f:SystemPlatformVariable",
@@ -2430,7 +3263,8 @@
    ],
    "instances": 354,
    "coverage": 0.616,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:RuntimeVariable"
   },
   {
    "id": "d3f:d3f:Timer",
@@ -2449,7 +3283,8 @@
    ],
    "instances": 1133,
    "coverage": 0.872,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:RuntimeVariable"
   },
   {
    "id": "d3f:d3f:OTLogicVariable",
@@ -2468,7 +3303,8 @@
    ],
    "instances": 590,
    "coverage": 0.694,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:RuntimeVariable"
   },
   {
    "id": "d3f:d3f:ApplicationRuntimeVariable",
@@ -2487,7 +3323,8 @@
    ],
    "instances": 1307,
    "coverage": 0.929,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:RuntimeVariable"
   },
   {
    "id": "d3f:d3f:SoftwareWatchdogTimer",
@@ -2506,7 +3343,8 @@
    ],
    "instances": 1202,
    "coverage": 0.895,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:RuntimeVariable"
   },
   {
    "id": "d3f:d3f:ApplicationFailureCountVariable",
@@ -2525,7 +3363,8 @@
    ],
    "instances": 395,
    "coverage": 0.63,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:RuntimeVariable"
   },
   {
    "id": "d3f:d3f:Subroutine",
@@ -2544,7 +3383,8 @@
    ],
    "instances": 832,
    "coverage": 0.773,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Software"
   },
   {
    "id": "d3f:d3f:Application",
@@ -2563,7 +3403,8 @@
    ],
    "instances": 60,
    "coverage": 0.52,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Software"
   },
   {
    "id": "d3f:d3f:Firmware",
@@ -2582,7 +3423,8 @@
    ],
    "instances": 260,
    "coverage": 0.585,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Software"
   },
   {
    "id": "d3f:d3f:BootLoader",
@@ -2601,7 +3443,8 @@
    ],
    "instances": 182,
    "coverage": 0.56,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Software"
   },
   {
    "id": "d3f:d3f:SystemSoftware",
@@ -2620,7 +3463,8 @@
    ],
    "instances": 209,
    "coverage": 0.569,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Software"
   },
   {
    "id": "d3f:d3f:NetworkAgent",
@@ -2639,7 +3483,8 @@
    ],
    "instances": 436,
    "coverage": 0.643,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Software"
   },
   {
    "id": "d3f:d3f:DigitalImage",
@@ -2658,7 +3503,8 @@
    ],
    "instances": 744,
    "coverage": 0.745,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:DigitalMedia"
   },
   {
    "id": "d3f:d3f:DigitalMultimedia",
@@ -2677,7 +3523,8 @@
    ],
    "instances": 442,
    "coverage": 0.645,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:DigitalMedia"
   },
   {
    "id": "d3f:d3f:DigitalAudio",
@@ -2696,7 +3543,8 @@
    ],
    "instances": 913,
    "coverage": 0.8,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:DigitalMedia"
   },
   {
    "id": "d3f:d3f:DigitalDocument",
@@ -2715,7 +3563,8 @@
    ],
    "instances": 1079,
    "coverage": 0.854,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:DigitalMedia"
   },
   {
    "id": "d3f:d3f:DigitalText",
@@ -2734,7 +3583,8 @@
    ],
    "instances": 318,
    "coverage": 0.604,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:DigitalMedia"
   },
   {
    "id": "d3f:d3f:DigitalVideo",
@@ -2753,7 +3603,8 @@
    ],
    "instances": 879,
    "coverage": 0.789,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:DigitalMedia"
   },
   {
    "id": "d3f:d3f:DigitalFingerprint",
@@ -2772,7 +3623,8 @@
    ],
    "instances": 1078,
    "coverage": 0.854,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Identifier"
   },
   {
    "id": "d3f:d3f:URL",
@@ -2791,7 +3643,8 @@
    ],
    "instances": 580,
    "coverage": 0.691,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Identifier"
   },
   {
    "id": "d3f:d3f:DomainName",
@@ -2810,7 +3663,8 @@
    ],
    "instances": 758,
    "coverage": 0.749,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Identifier"
   },
   {
    "id": "d3f:d3f:Hostname",
@@ -2829,7 +3683,8 @@
    ],
    "instances": 193,
    "coverage": 0.563,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Identifier"
   },
   {
    "id": "d3f:d3f:IPAddress",
@@ -2848,7 +3703,8 @@
    ],
    "instances": 427,
    "coverage": 0.64,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Identifier"
   },
   {
    "id": "d3f:d3f:MACAddress",
@@ -2867,7 +3723,8 @@
    ],
    "instances": 65,
    "coverage": 0.521,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Identifier"
   },
   {
    "id": "d3f:d3f:RemoteCommand",
@@ -2886,7 +3743,8 @@
    ],
    "instances": 1115,
    "coverage": 0.866,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Command"
   },
   {
    "id": "d3f:d3f:DatabaseQuery",
@@ -2905,7 +3763,8 @@
    ],
    "instances": 887,
    "coverage": 0.791,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Command"
   },
   {
    "id": "d3f:d3f:ShellCommand",
@@ -2924,7 +3783,8 @@
    ],
    "instances": 715,
    "coverage": 0.735,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:Command"
   },
   {
    "id": "d3f:d3f:MemoryBlock",
@@ -2943,7 +3803,8 @@
    ],
    "instances": 1384,
    "coverage": 0.955,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:MemoryExtent"
   },
   {
    "id": "d3f:d3f:MemoryPool",
@@ -2962,7 +3823,8 @@
    ],
    "instances": 1169,
    "coverage": 0.884,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:MemoryExtent"
   },
   {
    "id": "d3f:d3f:MemoryWord",
@@ -2981,7 +3843,8 @@
    ],
    "instances": 1301,
    "coverage": 0.928,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:MemoryExtent"
   },
   {
    "id": "d3f:d3f:AsymmetricKey",
@@ -3000,7 +3863,8 @@
    ],
    "instances": 6,
    "coverage": 0.502,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:CryptographicKey"
   },
   {
    "id": "d3f:d3f:SymmetricKey",
@@ -3019,7 +3883,8 @@
    ],
    "instances": 1036,
    "coverage": 0.84,
-   "depth": 3
+   "depth": 3,
+   "parent": "d3f:d3f:CryptographicKey"
   },
   {
    "id": "d3f:d3f:VideoInputDevice",
@@ -3038,7 +3903,8 @@
    ],
    "instances": 867,
    "coverage": 0.785,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:InputDevice"
   },
   {
    "id": "d3f:d3f:AudioInputDevice",
@@ -3057,7 +3923,8 @@
    ],
    "instances": 966,
    "coverage": 0.817,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:InputDevice"
   },
   {
    "id": "d3f:d3f:KeyboardInputDevice",
@@ -3076,7 +3943,8 @@
    ],
    "instances": 799,
    "coverage": 0.763,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:InputDevice"
   },
   {
    "id": "d3f:d3f:MouseInputDevice",
@@ -3095,7 +3963,8 @@
    ],
    "instances": 488,
    "coverage": 0.66,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:InputDevice"
   },
   {
    "id": "d3f:d3f:ROM",
@@ -3114,7 +3983,8 @@
    ],
    "instances": 6,
    "coverage": 0.502,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:PrimaryStorage"
   },
   {
    "id": "d3f:d3f:CacheMemory",
@@ -3133,7 +4003,8 @@
    ],
    "instances": 266,
    "coverage": 0.588,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:PrimaryStorage"
   },
   {
    "id": "d3f:d3f:ProcessorRegister",
@@ -3152,7 +4023,8 @@
    ],
    "instances": 865,
    "coverage": 0.784,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:PrimaryStorage"
   },
   {
    "id": "d3f:d3f:RAM",
@@ -3171,7 +4043,8 @@
    ],
    "instances": 1385,
    "coverage": 0.955,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:PrimaryStorage"
   },
   {
    "id": "d3f:d3f:CloudStorage",
@@ -3190,7 +4063,8 @@
    ],
    "instances": 1379,
    "coverage": 0.953,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SecondaryStorage"
   },
   {
    "id": "d3f:d3f:FlashMemory",
@@ -3209,7 +4083,8 @@
    ],
    "instances": 1166,
    "coverage": 0.883,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SecondaryStorage"
   },
   {
    "id": "d3f:d3f:TertiaryStorage",
@@ -3228,7 +4103,8 @@
    ],
    "instances": 1341,
    "coverage": 0.941,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SecondaryStorage"
   },
   {
    "id": "d3f:d3f:AtomicClock",
@@ -3247,7 +4123,8 @@
    ],
    "instances": 727,
    "coverage": 0.739,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:HardwareClock"
   },
   {
    "id": "d3f:d3f:Real-timeClock",
@@ -3266,7 +4143,8 @@
    ],
    "instances": 217,
    "coverage": 0.571,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:HardwareClock"
   },
   {
    "id": "d3f:d3f:Actuator",
@@ -3285,7 +4163,8 @@
    ],
    "instances": 106,
    "coverage": 0.535,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OutputDevice"
   },
   {
    "id": "d3f:d3f:DisplayAdapter",
@@ -3304,7 +4183,8 @@
    ],
    "instances": 168,
    "coverage": 0.555,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OutputDevice"
   },
   {
    "id": "d3f:d3f:CentralProcessingUnit",
@@ -3323,7 +4203,8 @@
    ],
    "instances": 322,
    "coverage": 0.606,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Processor"
   },
   {
    "id": "d3f:d3f:GraphicsProcessingUnit",
@@ -3342,7 +4223,8 @@
    ],
    "instances": 954,
    "coverage": 0.813,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Processor"
   },
   {
    "id": "d3f:d3f:IntranetAdministrativeNetworkTraffic",
@@ -3361,7 +4243,8 @@
    ],
    "instances": 300,
    "coverage": 0.598,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:IntranetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:IntranetFileTransferTraffic",
@@ -3380,7 +4263,8 @@
    ],
    "instances": 928,
    "coverage": 0.805,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:IntranetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:IntranetIPCNetworkTraffic",
@@ -3399,7 +4283,8 @@
    ],
    "instances": 349,
    "coverage": 0.615,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:IntranetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:IntranetMulticastNetworkTraffic",
@@ -3418,7 +4303,8 @@
    ],
    "instances": 210,
    "coverage": 0.569,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:IntranetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:IntranetRPCNetworkTraffic",
@@ -3437,7 +4323,8 @@
    ],
    "instances": 521,
    "coverage": 0.671,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:IntranetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:IntranetWebNetworkTraffic",
@@ -3456,7 +4343,8 @@
    ],
    "instances": 254,
    "coverage": 0.583,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:IntranetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:OutboundInternetNetworkTraffic",
@@ -3475,7 +4363,8 @@
    ],
    "instances": 330,
    "coverage": 0.608,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OutboundNetworkTraffic"
   },
   {
    "id": "d3f:d3f:OutboundInternetDNSLookupTraffic",
@@ -3494,7 +4383,8 @@
    ],
    "instances": 218,
    "coverage": 0.572,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OutboundNetworkTraffic"
   },
   {
    "id": "d3f:d3f:OutboundInternetFileTransferTraffic",
@@ -3513,7 +4403,8 @@
    ],
    "instances": 194,
    "coverage": 0.564,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OutboundNetworkTraffic"
   },
   {
    "id": "d3f:d3f:OutboundInternetRPCTraffic",
@@ -3532,7 +4423,8 @@
    ],
    "instances": 65,
    "coverage": 0.521,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OutboundNetworkTraffic"
   },
   {
    "id": "d3f:d3f:InternetFileTransferTraffic",
@@ -3551,7 +4443,8 @@
    ],
    "instances": 8,
    "coverage": 0.503,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:FileTransferNetworkTraffic"
   },
   {
    "id": "d3f:d3f:InboundInternetNetworkTraffic",
@@ -3570,7 +4463,8 @@
    ],
    "instances": 1208,
    "coverage": 0.897,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:InternetNetworkTraffic"
   },
   {
    "id": "d3f:d3f:InboundInternetMailTraffic",
@@ -3589,7 +4483,8 @@
    ],
    "instances": 442,
    "coverage": 0.645,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:InboundNetworkTraffic"
   },
   {
    "id": "d3f:d3f:KerberosTicket",
@@ -3608,7 +4503,8 @@
    ],
    "instances": 1040,
    "coverage": 0.842,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:AccessToken"
   },
   {
    "id": "d3f:d3f:SessionToken",
@@ -3627,7 +4523,8 @@
    ],
    "instances": 609,
    "coverage": 0.7,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:AccessToken"
   },
   {
    "id": "d3f:d3f:TicketGrantingTicket",
@@ -3646,7 +4543,8 @@
    ],
    "instances": 531,
    "coverage": 0.674,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:AccessToken"
   },
   {
    "id": "d3f:d3f:EncryptedPassword",
@@ -3665,7 +4563,8 @@
    ],
    "instances": 1370,
    "coverage": 0.95,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:EncryptedCredential"
   },
   {
    "id": "d3f:d3f:BootSector",
@@ -3684,7 +4583,8 @@
    ],
    "instances": 737,
    "coverage": 0.742,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:BootRecord"
   },
   {
    "id": "d3f:d3f:VolumeBootRecord",
@@ -3703,7 +4603,8 @@
    ],
    "instances": 484,
    "coverage": 0.659,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:BootRecord"
   },
   {
    "id": "d3f:d3f:ConfigurationDatabaseRecord",
@@ -3722,7 +4623,8 @@
    ],
    "instances": 1301,
    "coverage": 0.927,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:DatabaseRecord"
   },
   {
    "id": "d3f:d3f:GNSSTimeRecord",
@@ -3741,7 +4643,8 @@
    ],
    "instances": 280,
    "coverage": 0.592,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:TimeRecord"
   },
   {
    "id": "d3f:d3f:OperatingMode",
@@ -3760,7 +4663,8 @@
    ],
    "instances": 1224,
    "coverage": 0.902,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SystemPlatformVariable"
   },
   {
    "id": "d3f:d3f:PlatformUptime",
@@ -3779,7 +4683,8 @@
    ],
    "instances": 1250,
    "coverage": 0.911,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SystemPlatformVariable"
   },
   {
    "id": "d3f:d3f:SystemApplicationCycleCount",
@@ -3798,7 +4703,8 @@
    ],
    "instances": 125,
    "coverage": 0.541,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SystemPlatformVariable"
   },
   {
    "id": "d3f:d3f:SystemTime",
@@ -3817,7 +4723,8 @@
    ],
    "instances": 357,
    "coverage": 0.617,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SystemPlatformVariable"
   },
   {
    "id": "d3f:d3f:WatchdogTimer",
@@ -3836,7 +4743,8 @@
    ],
    "instances": 1311,
    "coverage": 0.931,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Timer"
   },
   {
    "id": "d3f:d3f:HardwareTimer",
@@ -3855,7 +4763,8 @@
    ],
    "instances": 451,
    "coverage": 0.648,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Timer"
   },
   {
    "id": "d3f:d3f:SoftwareTimer",
@@ -3874,7 +4783,8 @@
    ],
    "instances": 863,
    "coverage": 0.784,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Timer"
   },
   {
    "id": "d3f:d3f:OTProcessVariable",
@@ -3893,7 +4803,8 @@
    ],
    "instances": 1075,
    "coverage": 0.853,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OTLogicVariable"
   },
   {
    "id": "d3f:d3f:OTControlVariable",
@@ -3912,7 +4823,8 @@
    ],
    "instances": 790,
    "coverage": 0.76,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:OTLogicVariable"
   },
   {
    "id": "d3f:d3f:ApplicationScanTime",
@@ -3931,7 +4843,8 @@
    ],
    "instances": 80,
    "coverage": 0.526,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:ApplicationRuntimeVariable"
   },
   {
    "id": "d3f:d3f:OTWatchdogTimer",
@@ -3950,7 +4863,8 @@
    ],
    "instances": 855,
    "coverage": 0.781,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SoftwareWatchdogTimer"
   },
   {
    "id": "d3f:d3f:InputFunction",
@@ -3969,7 +4883,8 @@
    ],
    "instances": 1110,
    "coverage": 0.865,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Subroutine"
   },
   {
    "id": "d3f:d3f:AuthenticationFunction",
@@ -3988,7 +4903,8 @@
    ],
    "instances": 425,
    "coverage": 0.64,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Subroutine"
   },
   {
    "id": "d3f:d3f:ConsoleOutputFunction",
@@ -4007,7 +4923,8 @@
    ],
    "instances": 472,
    "coverage": 0.655,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Subroutine"
   },
   {
    "id": "d3f:d3f:CopyMemoryFunction",
@@ -4026,7 +4943,8 @@
    ],
    "instances": 20,
    "coverage": 0.507,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Subroutine"
   },
   {
    "id": "d3f:d3f:DeserializationFunction",
@@ -4045,7 +4963,8 @@
    ],
    "instances": 197,
    "coverage": 0.565,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Subroutine"
   },
   {
    "id": "d3f:d3f:EvalFunction",
@@ -4064,7 +4983,8 @@
    ],
    "instances": 192,
    "coverage": 0.563,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Subroutine"
   },
   {
    "id": "d3f:d3f:ServiceApplication",
@@ -4083,7 +5003,8 @@
    ],
    "instances": 674,
    "coverage": 0.721,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Application"
   },
   {
    "id": "d3f:d3f:UserApplication",
@@ -4102,7 +5023,8 @@
    ],
    "instances": 1057,
    "coverage": 0.847,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Application"
   },
   {
    "id": "d3f:d3f:DatabaseApplication",
@@ -4121,7 +5043,8 @@
    ],
    "instances": 120,
    "coverage": 0.539,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Application"
   },
   {
    "id": "d3f:d3f:DigitalSignalProcessingApplication",
@@ -4140,7 +5063,8 @@
    ],
    "instances": 1394,
    "coverage": 0.958,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Application"
   },
   {
    "id": "d3f:d3f:VehicleSoftware",
@@ -4159,7 +5083,8 @@
    ],
    "instances": 984,
    "coverage": 0.823,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Application"
   },
   {
    "id": "d3f:d3f:ClientApplication",
@@ -4178,7 +5103,8 @@
    ],
    "instances": 31,
    "coverage": 0.51,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Application"
   },
   {
    "id": "d3f:d3f:PeripheralFirmware",
@@ -4197,7 +5123,8 @@
    ],
    "instances": 1383,
    "coverage": 0.954,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Firmware"
   },
   {
    "id": "d3f:d3f:Microcode",
@@ -4216,7 +5143,8 @@
    ],
    "instances": 591,
    "coverage": 0.694,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Firmware"
   },
   {
    "id": "d3f:d3f:SystemFirmware",
@@ -4235,7 +5163,8 @@
    ],
    "instances": 153,
    "coverage": 0.55,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:Firmware"
   },
   {
    "id": "d3f:d3f:First-stageBootLoader",
@@ -4254,7 +5183,8 @@
    ],
    "instances": 801,
    "coverage": 0.763,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:BootLoader"
   },
   {
    "id": "d3f:d3f:Second-stageBootLoader",
@@ -4273,7 +5203,8 @@
    ],
    "instances": 516,
    "coverage": 0.67,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:BootLoader"
   },
   {
    "id": "d3f:d3f:Host-basedFirewall",
@@ -4292,7 +5223,8 @@
    ],
    "instances": 582,
    "coverage": 0.691,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SystemSoftware"
   },
   {
    "id": "d3f:d3f:Kernel",
@@ -4311,7 +5243,8 @@
    ],
    "instances": 608,
    "coverage": 0.7,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:SystemSoftware"
   },
   {
    "id": "d3f:d3f:AssetInventoryAgent",
@@ -4330,7 +5263,8 @@
    ],
    "instances": 186,
    "coverage": 0.561,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:NetworkAgent"
   },
   {
    "id": "d3f:d3f:BitmapImage",
@@ -4349,7 +5283,8 @@
    ],
    "instances": 929,
    "coverage": 0.805,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:DigitalImage"
   },
   {
    "id": "d3f:d3f:VectorImage",
@@ -4368,7 +5303,8 @@
    ],
    "instances": 662,
    "coverage": 0.717,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:DigitalImage"
   },
   {
    "id": "d3f:d3f:DigitalAudioVisualMedia",
@@ -4387,7 +5323,8 @@
    ],
    "instances": 387,
    "coverage": 0.627,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:DigitalMultimedia"
   },
   {
    "id": "d3f:d3f:FileHash",
@@ -4406,7 +5343,8 @@
    ],
    "instances": 93,
    "coverage": 0.531,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:DigitalFingerprint"
   },
   {
    "id": "d3f:d3f:PackageURL",
@@ -4425,7 +5363,8 @@
    ],
    "instances": 1268,
    "coverage": 0.917,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:URL"
   },
   {
    "id": "d3f:d3f:RemoteDatabaseQuery",
@@ -4444,7 +5383,8 @@
    ],
    "instances": 159,
    "coverage": 0.552,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:RemoteCommand"
   },
   {
    "id": "d3f:d3f:RemoteProcedureCall",
@@ -4463,7 +5403,8 @@
    ],
    "instances": 1304,
    "coverage": 0.929,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:RemoteCommand"
   },
   {
    "id": "d3f:d3f:RemoteShellCommand",
@@ -4482,7 +5423,8 @@
    ],
    "instances": 480,
    "coverage": 0.658,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:RemoteCommand"
   },
   {
    "id": "d3f:d3f:WirelessCommand",
@@ -4501,7 +5443,8 @@
    ],
    "instances": 1392,
    "coverage": 0.957,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:RemoteCommand"
   },
   {
    "id": "d3f:d3f:Page",
@@ -4520,7 +5463,8 @@
    ],
    "instances": 212,
    "coverage": 0.57,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:MemoryBlock"
   },
   {
    "id": "d3f:d3f:PageFrame",
@@ -4539,7 +5483,8 @@
    ],
    "instances": 843,
    "coverage": 0.777,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:MemoryBlock"
   },
   {
    "id": "d3f:d3f:PrivateKey",
@@ -4558,7 +5503,8 @@
    ],
    "instances": 1264,
    "coverage": 0.915,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:AsymmetricKey"
   },
   {
    "id": "d3f:d3f:PublicKey",
@@ -4577,7 +5523,8 @@
    ],
    "instances": 169,
    "coverage": 0.555,
-   "depth": 4
+   "depth": 4,
+   "parent": "d3f:d3f:AsymmetricKey"
   },
   {
    "id": "d3f:d3f:DefensiveTechnique",
@@ -4596,7 +5543,8 @@
    ],
    "instances": 13,
    "coverage": 0.497,
-   "depth": 0
+   "depth": 0,
+   "parent": "grp:policy"
   },
   {
    "id": "d3f:d3f:NetworkTrafficAnalysis",
@@ -4615,7 +5563,8 @@
    ],
    "instances": 2,
    "coverage": 0.456,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:UserBehaviorAnalysis",
@@ -4634,7 +5583,8 @@
    ],
    "instances": 75,
    "coverage": 0.717,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:PlatformHardening",
@@ -4653,7 +5603,8 @@
    ],
    "instances": 44,
    "coverage": 0.607,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:PlatformMonitoring",
@@ -4672,7 +5623,8 @@
    ],
    "instances": 122,
    "coverage": 0.886,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:ProcessAnalysis",
@@ -4691,7 +5643,8 @@
    ],
    "instances": 9,
    "coverage": 0.483,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:AccessMediation",
@@ -4710,7 +5663,8 @@
    ],
    "instances": 132,
    "coverage": 0.921,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:ApplicationHardening",
@@ -4729,7 +5683,8 @@
    ],
    "instances": 35,
    "coverage": 0.575,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:SourceCodeHardening",
@@ -4748,7 +5703,8 @@
    ],
    "instances": 14,
    "coverage": 0.499,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:AssetInventory",
@@ -4767,7 +5723,8 @@
    ],
    "instances": 79,
    "coverage": 0.731,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:DecoyObject",
@@ -4786,7 +5743,8 @@
    ],
    "instances": 131,
    "coverage": 0.918,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:NetworkIsolation",
@@ -4805,7 +5763,8 @@
    ],
    "instances": 26,
    "coverage": 0.544,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:AgentAuthentication",
@@ -4824,7 +5783,8 @@
    ],
    "instances": 101,
    "coverage": 0.812,
-   "depth": 1
+   "depth": 1,
+   "parent": "d3f:d3f:DefensiveTechnique"
   },
   {
    "id": "d3f:d3f:CertificateAnalysis",
@@ -4843,7 +5803,8 @@
    ],
    "instances": 41,
    "coverage": 0.598,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:NetworkTrafficAnalysis"
   },
   {
    "id": "d3f:d3f:ApplicationProtocolCommandAnalysis",
@@ -4862,7 +5823,8 @@
    ],
    "instances": 25,
    "coverage": 0.538,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:NetworkTrafficAnalysis"
   },
   {
    "id": "d3f:d3f:AdministrativeNetworkActivityAnalysis",
@@ -4881,7 +5843,8 @@
    ],
    "instances": 72,
    "coverage": 0.708,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:NetworkTrafficAnalysis"
   },
   {
    "id": "d3f:d3f:ByteSequenceEmulation",
@@ -4900,7 +5863,8 @@
    ],
    "instances": 84,
    "coverage": 0.75,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:NetworkTrafficAnalysis"
   },
   {
    "id": "d3f:d3f:Client-serverPayloadProfiling",
@@ -4919,7 +5883,8 @@
    ],
    "instances": 5,
    "coverage": 0.467,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:NetworkTrafficAnalysis"
   },
   {
    "id": "d3f:d3f:ConnectionAttemptAnalysis",
@@ -4938,7 +5903,8 @@
    ],
    "instances": 112,
    "coverage": 0.848,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:NetworkTrafficAnalysis"
   },
   {
    "id": "d3f:d3f:AuthenticationEventThresholding",
@@ -4957,7 +5923,8 @@
    ],
    "instances": 32,
    "coverage": 0.565,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:UserBehaviorAnalysis"
   },
   {
    "id": "d3f:d3f:AuthorizationEventThresholding",
@@ -4976,7 +5943,8 @@
    ],
    "instances": 44,
    "coverage": 0.606,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:UserBehaviorAnalysis"
   },
   {
    "id": "d3f:d3f:CredentialCompromiseScopeAnalysis",
@@ -4995,7 +5963,8 @@
    ],
    "instances": 131,
    "coverage": 0.918,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:UserBehaviorAnalysis"
   },
   {
    "id": "d3f:d3f:DomainAccountMonitoring",
@@ -5014,7 +5983,8 @@
    ],
    "instances": 62,
    "coverage": 0.671,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:UserBehaviorAnalysis"
   },
   {
    "id": "d3f:d3f:JobFunctionAccessPatternAnalysis",
@@ -5033,7 +6003,8 @@
    ],
    "instances": 129,
    "coverage": 0.911,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:UserBehaviorAnalysis"
   },
   {
    "id": "d3f:d3f:LocalAccountMonitoring",
@@ -5052,7 +6023,8 @@
    ],
    "instances": 109,
    "coverage": 0.839,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:UserBehaviorAnalysis"
   },
   {
    "id": "d3f:d3f:RadiationHardening",
@@ -5071,7 +6043,8 @@
    ],
    "instances": 134,
    "coverage": 0.929,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformHardening"
   },
   {
    "id": "d3f:d3f:BootloaderAuthentication",
@@ -5090,7 +6063,8 @@
    ],
    "instances": 42,
    "coverage": 0.601,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformHardening"
   },
   {
    "id": "d3f:d3f:DiskEncryption",
@@ -5109,7 +6083,8 @@
    ],
    "instances": 25,
    "coverage": 0.538,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformHardening"
   },
   {
    "id": "d3f:d3f:DriverLoadIntegrityChecking",
@@ -5128,7 +6103,8 @@
    ],
    "instances": 63,
    "coverage": 0.674,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformHardening"
   },
   {
    "id": "d3f:d3f:FileEncryption",
@@ -5147,7 +6123,8 @@
    ],
    "instances": 99,
    "coverage": 0.803,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformHardening"
   },
   {
    "id": "d3f:d3f:Hardware-basedWriteProtection",
@@ -5166,7 +6143,8 @@
    ],
    "instances": 41,
    "coverage": 0.595,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformHardening"
   },
   {
    "id": "d3f:d3f:OperatingSystemMonitoring",
@@ -5185,7 +6163,8 @@
    ],
    "instances": 118,
    "coverage": 0.873,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformMonitoring"
   },
   {
    "id": "d3f:d3f:FirmwareVerification",
@@ -5204,7 +6183,8 @@
    ],
    "instances": 58,
    "coverage": 0.656,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformMonitoring"
   },
   {
    "id": "d3f:d3f:ApplicationPerformanceMonitoring",
@@ -5223,7 +6203,8 @@
    ],
    "instances": 54,
    "coverage": 0.644,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformMonitoring"
   },
   {
    "id": "d3f:d3f:FileIntegrityMonitoring",
@@ -5242,7 +6223,8 @@
    ],
    "instances": 113,
    "coverage": 0.854,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformMonitoring"
   },
   {
    "id": "d3f:d3f:FirmwareBehaviorAnalysis",
@@ -5261,7 +6243,8 @@
    ],
    "instances": 140,
    "coverage": 0.949,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformMonitoring"
   },
   {
    "id": "d3f:d3f:FirmwareEmbeddedMonitoringCode",
@@ -5280,7 +6263,8 @@
    ],
    "instances": 65,
    "coverage": 0.681,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:PlatformMonitoring"
   },
   {
    "id": "d3f:d3f:ProcessSpawnAnalysis",
@@ -5299,7 +6283,8 @@
    ],
    "instances": 117,
    "coverage": 0.869,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ProcessAnalysis"
   },
   {
    "id": "d3f:d3f:SystemCallAnalysis",
@@ -5318,7 +6303,8 @@
    ],
    "instances": 75,
    "coverage": 0.716,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ProcessAnalysis"
   },
   {
    "id": "d3f:d3f:DatabaseQueryStringAnalysis",
@@ -5337,7 +6323,8 @@
    ],
    "instances": 23,
    "coverage": 0.532,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ProcessAnalysis"
   },
   {
    "id": "d3f:d3f:FileAccessPatternAnalysis",
@@ -5356,7 +6343,8 @@
    ],
    "instances": 108,
    "coverage": 0.836,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ProcessAnalysis"
   },
   {
    "id": "d3f:d3f:IndirectBranchCallAnalysis",
@@ -5375,7 +6363,8 @@
    ],
    "instances": 125,
    "coverage": 0.896,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ProcessAnalysis"
   },
   {
    "id": "d3f:d3f:ProcessCodeSegmentVerification",
@@ -5394,7 +6383,8 @@
    ],
    "instances": 3,
    "coverage": 0.46,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ProcessAnalysis"
   },
   {
    "id": "d3f:d3f:NetworkAccessMediation",
@@ -5413,7 +6403,8 @@
    ],
    "instances": 63,
    "coverage": 0.676,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:AccessMediation"
   },
   {
    "id": "d3f:d3f:NetworkResourceAccessMediation",
@@ -5432,7 +6423,8 @@
    ],
    "instances": 129,
    "coverage": 0.91,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:AccessMediation"
   },
   {
    "id": "d3f:d3f:PhysicalAccessMediation",
@@ -5451,7 +6443,8 @@
    ],
    "instances": 103,
    "coverage": 0.817,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:AccessMediation"
   },
   {
    "id": "d3f:d3f:SystemCallFiltering",
@@ -5470,7 +6463,8 @@
    ],
    "instances": 11,
    "coverage": 0.49,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:AccessMediation"
   },
   {
    "id": "d3f:d3f:CredentialTransmissionScoping",
@@ -5489,7 +6483,8 @@
    ],
    "instances": 15,
    "coverage": 0.504,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:AccessMediation"
   },
   {
    "id": "d3f:d3f:IOPortRestriction",
@@ -5508,7 +6503,8 @@
    ],
    "instances": 17,
    "coverage": 0.512,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:AccessMediation"
   },
   {
    "id": "d3f:d3f:ApplicationConfigurationHardening",
@@ -5527,7 +6523,8 @@
    ],
    "instances": 105,
    "coverage": 0.824,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ApplicationHardening"
   },
   {
    "id": "d3f:d3f:ControlFlowIntegrity",
@@ -5546,7 +6543,8 @@
    ],
    "instances": 113,
    "coverage": 0.853,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ApplicationHardening"
   },
   {
    "id": "d3f:d3f:DeadCodeElimination",
@@ -5565,7 +6563,8 @@
    ],
    "instances": 100,
    "coverage": 0.808,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ApplicationHardening"
   },
   {
    "id": "d3f:d3f:ExceptionHandlerPointerValidation",
@@ -5584,7 +6583,8 @@
    ],
    "instances": 63,
    "coverage": 0.675,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ApplicationHardening"
   },
   {
    "id": "d3f:d3f:PointerAuthentication",
@@ -5603,7 +6603,8 @@
    ],
    "instances": 126,
    "coverage": 0.9,
-   "depth": 2
+   "depth": 2,
+   "parent": "d3f:d3f:ApplicationHardening"
   },
   {
    "id": "attack:TA0006",
@@ -5621,7 +6622,8 @@
     }
    ],
    "instances": 48,
-   "coverage": 0.882
+   "coverage": 0.882,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0112",
@@ -5639,7 +6641,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.697
+   "coverage": 0.697,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0002",
@@ -5657,12 +6660,13 @@
     }
    ],
    "instances": 47,
-   "coverage": 0.877
+   "coverage": 0.877,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0040",
    "label": "Impact",
-   "group": "threat",
+   "group": "outcome",
    "layer": 1,
    "kind": "tactic",
    "def": "The adversary is trying to manipulate, interrupt, or destroy your systems and data. Impact consists of techniques that adversaries use to disrupt availability or compromise integrity by manipulating business…",
@@ -5675,7 +6679,8 @@
     }
    ],
    "instances": 20,
-   "coverage": 0.715
+   "coverage": 0.715,
+   "parent": "grp:outcome"
   },
   {
    "id": "attack:TA0003",
@@ -5693,7 +6698,8 @@
     }
    ],
    "instances": 48,
-   "coverage": 0.878
+   "coverage": 0.878,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0004",
@@ -5711,7 +6717,8 @@
     }
    ],
    "instances": 49,
-   "coverage": 0.885
+   "coverage": 0.885,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0008",
@@ -5729,7 +6736,8 @@
     }
    ],
    "instances": 50,
-   "coverage": 0.891
+   "coverage": 0.891,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0005",
@@ -5747,7 +6755,8 @@
     }
    ],
    "instances": 49,
-   "coverage": 0.886
+   "coverage": 0.886,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0010",
@@ -5765,7 +6774,8 @@
     }
    ],
    "instances": 49,
-   "coverage": 0.888
+   "coverage": 0.888,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0007",
@@ -5783,7 +6793,8 @@
     }
    ],
    "instances": 49,
-   "coverage": 0.884
+   "coverage": 0.884,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0009",
@@ -5801,7 +6812,8 @@
     }
    ],
    "instances": 50,
-   "coverage": 0.892
+   "coverage": 0.892,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0042",
@@ -5819,7 +6831,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.713
+   "coverage": 0.713,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0043",
@@ -5837,7 +6850,8 @@
     }
    ],
    "instances": 20,
-   "coverage": 0.714
+   "coverage": 0.714,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0011",
@@ -5855,7 +6869,8 @@
     }
    ],
    "instances": 49,
-   "coverage": 0.886
+   "coverage": 0.886,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:TA0001",
@@ -5873,7 +6888,8 @@
     }
    ],
    "instances": 48,
-   "coverage": 0.881
+   "coverage": 0.881,
+   "parent": "grp:threat"
   },
   {
    "id": "attack:T1001",
@@ -5891,7 +6907,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.643
+   "coverage": 0.643,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1003",
@@ -5909,7 +6926,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.639
+   "coverage": 0.639,
+   "parent": "attack:TA0006"
   },
   {
    "id": "attack:T1005",
@@ -5927,7 +6945,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.635
+   "coverage": 0.635,
+   "parent": "attack:TA0009"
   },
   {
    "id": "attack:T1006",
@@ -5945,7 +6964,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.629
+   "coverage": 0.629,
+   "parent": "attack:TA0005"
   },
   {
    "id": "attack:T1007",
@@ -5963,7 +6983,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.631
+   "coverage": 0.631,
+   "parent": "attack:TA0007"
   },
   {
    "id": "attack:T1008",
@@ -5981,7 +7002,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.658
+   "coverage": 0.658,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1011",
@@ -5999,7 +7021,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.652
+   "coverage": 0.652,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1014",
@@ -6017,7 +7040,8 @@
     }
    ],
    "instances": 20,
-   "coverage": 0.662
+   "coverage": 0.662,
+   "parent": "attack:TA0005"
   },
   {
    "id": "attack:T1020",
@@ -6035,7 +7059,8 @@
     }
    ],
    "instances": 16,
-   "coverage": 0.616
+   "coverage": 0.616,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1021",
@@ -6053,7 +7078,8 @@
     }
    ],
    "instances": 16,
-   "coverage": 0.618
+   "coverage": 0.618,
+   "parent": "attack:TA0008"
   },
   {
    "id": "attack:T1025",
@@ -6071,7 +7097,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.627
+   "coverage": 0.627,
+   "parent": "attack:TA0009"
   },
   {
    "id": "attack:T1027",
@@ -6089,7 +7116,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.631
+   "coverage": 0.631,
+   "parent": "attack:TA0005"
   },
   {
    "id": "attack:T1029",
@@ -6107,7 +7135,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.635
+   "coverage": 0.635,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1030",
@@ -6125,7 +7154,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.629
+   "coverage": 0.629,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1037",
@@ -6143,7 +7173,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.631
+   "coverage": 0.631,
+   "parent": "attack:TA0003"
   },
   {
    "id": "attack:T1039",
@@ -6161,7 +7192,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.643
+   "coverage": 0.643,
+   "parent": "attack:TA0009"
   },
   {
    "id": "attack:T1041",
@@ -6179,7 +7211,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.892
+   "coverage": 0.892,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1046",
@@ -6197,7 +7230,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.894
+   "coverage": 0.894,
+   "parent": "attack:TA0007"
   },
   {
    "id": "attack:T1047",
@@ -6215,7 +7249,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.896
+   "coverage": 0.896,
+   "parent": "attack:TA0002"
   },
   {
    "id": "attack:T1048",
@@ -6233,7 +7268,8 @@
     }
    ],
    "instances": 38,
-   "coverage": 0.906
+   "coverage": 0.906,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1052",
@@ -6251,7 +7287,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.641
+   "coverage": 0.641,
+   "parent": "attack:TA0010"
   },
   {
    "id": "attack:T1053",
@@ -6269,7 +7306,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.639
+   "coverage": 0.639,
+   "parent": "attack:TA0002"
   },
   {
    "id": "attack:T1056",
@@ -6287,7 +7325,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.633
+   "coverage": 0.633,
+   "parent": "attack:TA0006"
   },
   {
    "id": "attack:T1059",
@@ -6305,7 +7344,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.652
+   "coverage": 0.652,
+   "parent": "attack:TA0002"
   },
   {
    "id": "attack:T1069",
@@ -6323,7 +7363,8 @@
     }
    ],
    "instances": 39,
-   "coverage": 0.917
+   "coverage": 0.917,
+   "parent": "attack:TA0007"
   },
   {
    "id": "attack:T1071",
@@ -6341,7 +7382,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.411
+   "coverage": 0.411,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1072",
@@ -6359,7 +7401,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.409
+   "coverage": 0.409,
+   "parent": "attack:TA0002"
   },
   {
    "id": "attack:T1074",
@@ -6377,7 +7420,8 @@
     }
    ],
    "instances": 0,
-   "coverage": 0.405
+   "coverage": 0.405,
+   "parent": "attack:TA0009"
   },
   {
    "id": "attack:T1078",
@@ -6395,7 +7439,8 @@
     }
    ],
    "instances": 40,
-   "coverage": 0.927
+   "coverage": 0.927,
+   "parent": "attack:TA0003"
   },
   {
    "id": "attack:T1080",
@@ -6413,7 +7458,8 @@
     }
    ],
    "instances": 21,
-   "coverage": 0.674
+   "coverage": 0.674,
+   "parent": "attack:TA0008"
   },
   {
    "id": "attack:T1082",
@@ -6431,7 +7477,8 @@
     }
    ],
    "instances": 20,
-   "coverage": 0.67
+   "coverage": 0.67,
+   "parent": "attack:TA0007"
   },
   {
    "id": "attack:T1083",
@@ -6449,7 +7496,8 @@
     }
    ],
    "instances": 21,
-   "coverage": 0.672
+   "coverage": 0.672,
+   "parent": "attack:TA0007"
   },
   {
    "id": "attack:T1087",
@@ -6467,7 +7515,8 @@
     }
    ],
    "instances": 20,
-   "coverage": 0.664
+   "coverage": 0.664,
+   "parent": "attack:TA0007"
   },
   {
    "id": "attack:T1090",
@@ -6485,7 +7534,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.886
+   "coverage": 0.886,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1092",
@@ -6503,7 +7553,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.89
+   "coverage": 0.89,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1098",
@@ -6521,7 +7572,8 @@
     }
    ],
    "instances": 38,
-   "coverage": 0.902
+   "coverage": 0.902,
+   "parent": "attack:TA0003"
   },
   {
    "id": "attack:T1102",
@@ -6539,7 +7591,8 @@
     }
    ],
    "instances": 38,
-   "coverage": 0.902
+   "coverage": 0.902,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1104",
@@ -6557,7 +7610,8 @@
     }
    ],
    "instances": 38,
-   "coverage": 0.898
+   "coverage": 0.898,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1105",
@@ -6575,7 +7629,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.895
+   "coverage": 0.895,
+   "parent": "attack:TA0011"
   },
   {
    "id": "attack:T1106",
@@ -6593,7 +7648,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.893
+   "coverage": 0.893,
+   "parent": "attack:TA0002"
   },
   {
    "id": "attack:T1110",
@@ -6611,7 +7667,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.893
+   "coverage": 0.893,
+   "parent": "attack:TA0006"
   },
   {
    "id": "attack:T1111",
@@ -6629,7 +7686,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.895
+   "coverage": 0.895,
+   "parent": "attack:TA0006"
   },
   {
    "id": "attack:T1112",
@@ -6647,7 +7705,8 @@
     }
    ],
    "instances": 38,
-   "coverage": 0.898
+   "coverage": 0.898,
+   "parent": "attack:TA0112"
   },
   {
    "id": "attack:T1114",
@@ -6665,7 +7724,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.885
+   "coverage": 0.885,
+   "parent": "attack:TA0009"
   },
   {
    "id": "attack:T1115",
@@ -6683,7 +7743,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.887
+   "coverage": 0.887,
+   "parent": "attack:TA0009"
   },
   {
    "id": "attack:T1119",
@@ -6701,7 +7762,312 @@
     }
    ],
    "instances": 36,
-   "coverage": 0.879
+   "coverage": 0.879,
+   "parent": "attack:TA0009"
+  },
+  {
+   "id": "atlas:AML.TA0002",
+   "label": "Reconnaissance",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to gather information about the AI system they can use to plan future operations. Reconnaissance consists of techniques that involve adversaries actively or passively gathering…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0002",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0002"
+    }
+   ],
+   "instances": 20,
+   "coverage": 0.87,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0003",
+   "label": "Resource Development",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to establish resources they can use to support operations. Resource Development consists of techniques that involve adversaries creating, purchasing, or compromising/stealing resources…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0003",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0003"
+    }
+   ],
+   "instances": 20,
+   "coverage": 0.872,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0004",
+   "label": "Initial Access",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to gain access to the AI system. The target system could be a network, mobile device, or an edge device such as a sensor platform. The AI capabilities used by the system could be local…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0004",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0004"
+    }
+   ],
+   "instances": 20,
+   "coverage": 0.867,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0000",
+   "label": "AI Model Access",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is attempting to gain some level of access to an AI model. AI Model Access enables techniques that use various types of access to the AI model that can be used by the adversary to gain…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0000",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0000"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.873,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0005",
+   "label": "Execution",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to run malicious code embedded in AI artifacts or software. Execution consists of techniques that result in adversary-controlled code running on a local or remote system. Techniques…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0005",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0005"
+    }
+   ],
+   "instances": 20,
+   "coverage": 0.869,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0006",
+   "label": "Persistence",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to maintain their foothold via AI artifacts or software. Persistence consists of techniques that adversaries use to keep access to systems across restarts, changed credentials, and…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0006",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0006"
+    }
+   ],
+   "instances": 20,
+   "coverage": 0.864,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0012",
+   "label": "Privilege Escalation",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to gain higher-level permissions. Privilege Escalation consists of techniques that adversaries use to gain higher-level permissions on a system or network. Adversaries can often enter…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0012",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0012"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.886,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0007",
+   "label": "Defense Evasion",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to avoid being detected by AI-enabled security software. Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0007",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0007"
+    }
+   ],
+   "instances": 20,
+   "coverage": 0.866,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0013",
+   "label": "Credential Access",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to steal account names and passwords. Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0013",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0013"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.884,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0008",
+   "label": "Discovery",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to figure out your AI environment. Discovery consists of techniques an adversary may use to gain knowledge about the system and internal network. These techniques help adversaries…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0008",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0008"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.886,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0015",
+   "label": "Lateral Movement",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to move through your AI environment. Lateral Movement consists of techniques that adversaries may use to gain access to and control other systems or components in the environment…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0015",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0015"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.887,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0009",
+   "label": "Collection",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to gather AI artifacts and other related information relevant to their goal. Collection consists of techniques adversaries may use to gather information and the sources information is…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0009",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0009"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.887,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0001",
+   "label": "AI Attack Staging",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is leveraging their knowledge of and access to the target system to tailor the attack. AI Attack Staging consists of techniques adversaries use to prepare their attack on the target AI model…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0001",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0001"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.875,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0014",
+   "label": "Command and Control",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to communicate with compromised AI systems to control them. Command and Control consists of techniques that adversaries may use to communicate with systems under their control within a…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0014",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0014"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.889,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0010",
+   "label": "Exfiltration",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to steal AI artifacts or other information about the AI system. Exfiltration consists of techniques that adversaries may use to steal data from your network. Data may be stolen for its…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0010",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0010"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.883,
+   "parent": "grp:threat"
+  },
+  {
+   "id": "atlas:AML.TA0011",
+   "label": "Impact",
+   "group": "threat",
+   "layer": 1,
+   "kind": "tactic",
+   "def": "The adversary is trying to manipulate, interrupt, erode confidence in, or destroy your AI systems and data. Impact consists of techniques that adversaries use to disrupt availability or compromise integrity…",
+   "src": [
+    {
+     "sys": "atlas",
+     "id": "AML.TA0011",
+     "label": "ATLAS tactic",
+     "url": "https://atlas.mitre.org/tactics/AML.TA0011"
+    }
+   ],
+   "instances": 21,
+   "coverage": 0.881,
+   "parent": "grp:threat"
   },
   {
    "id": "dom:finance",
@@ -6726,7 +8092,8 @@
     "policy": 0.89,
     "resource": 0.84,
     "outcome": 0.86
-   }
+   },
+   "parent": "grp:workflow"
   },
   {
    "id": "cap:fi-ap",
@@ -6751,7 +8118,8 @@
     "policy": 0.87,
     "resource": 0.8,
     "outcome": 0.83
-   }
+   },
+   "parent": "dom:finance"
   },
   {
    "id": "wf:WF-011",
@@ -6768,7 +8136,8 @@
     }
    ],
    "instances": 920,
-   "coverage": 0.88
+   "coverage": 0.88,
+   "parent": "cap:fi-ap"
   },
   {
    "id": "wf:WF-012",
@@ -6785,7 +8154,8 @@
     }
    ],
    "instances": 610,
-   "coverage": 0.71
+   "coverage": 0.71,
+   "parent": "cap:fi-ap"
   },
   {
    "id": "wf:WF-013",
@@ -6802,7 +8172,8 @@
     }
    ],
    "instances": 610,
-   "coverage": 0.9
+   "coverage": 0.9,
+   "parent": "cap:fi-ap"
   },
   {
    "id": "cap:fi-tr",
@@ -6827,7 +8198,8 @@
     "policy": 0.92,
     "resource": 0.87,
     "outcome": 0.9
-   }
+   },
+   "parent": "dom:finance"
   },
   {
    "id": "wf:WF-014",
@@ -6844,7 +8216,8 @@
     }
    ],
    "instances": 640,
-   "coverage": 0.92
+   "coverage": 0.92,
+   "parent": "cap:fi-tr"
   },
   {
    "id": "wf:WF-015",
@@ -6861,7 +8234,8 @@
     }
    ],
    "instances": 430,
-   "coverage": 0.85
+   "coverage": 0.85,
+   "parent": "cap:fi-tr"
   },
   {
    "id": "wf:WF-016",
@@ -6878,7 +8252,8 @@
     }
    ],
    "instances": 410,
-   "coverage": 0.93
+   "coverage": 0.93,
+   "parent": "cap:fi-tr"
   },
   {
    "id": "cap:fi-ct",
@@ -6903,7 +8278,8 @@
     "policy": 0.9,
     "resource": 0.86,
     "outcome": 0.88
-   }
+   },
+   "parent": "dom:finance"
   },
   {
    "id": "wf:WF-017",
@@ -6920,7 +8296,8 @@
     }
    ],
    "instances": 1450,
-   "coverage": 0.89
+   "coverage": 0.89,
+   "parent": "cap:fi-ct"
   },
   {
    "id": "wf:WF-018",
@@ -6937,7 +8314,8 @@
     }
    ],
    "instances": 980,
-   "coverage": 0.84
+   "coverage": 0.84,
+   "parent": "cap:fi-ct"
   },
   {
    "id": "wf:WF-019",
@@ -6954,7 +8332,8 @@
     }
    ],
    "instances": 750,
-   "coverage": 0.88
+   "coverage": 0.88,
+   "parent": "cap:fi-ct"
   },
   {
    "id": "ent:finance:invoice",
@@ -6971,7 +8350,8 @@
     }
    ],
    "instances": 3671,
-   "coverage": 0.924
+   "coverage": 0.924,
+   "parent": "dom:finance"
   },
   {
    "id": "ent:finance:vendor-master-record",
@@ -6988,7 +8368,8 @@
     }
    ],
    "instances": 1057,
-   "coverage": 0.744
+   "coverage": 0.744,
+   "parent": "dom:finance"
   },
   {
    "id": "ent:finance:payment-run",
@@ -7005,7 +8386,8 @@
     }
    ],
    "instances": 1874,
-   "coverage": 0.8
+   "coverage": 0.8,
+   "parent": "dom:finance"
   },
   {
    "id": "ent:finance:bank-account",
@@ -7022,7 +8404,8 @@
     }
    ],
    "instances": 3818,
-   "coverage": 0.934
+   "coverage": 0.934,
+   "parent": "dom:finance"
   },
   {
    "id": "ent:finance:journal-entry",
@@ -7039,7 +8422,8 @@
     }
    ],
    "instances": 1681,
-   "coverage": 0.787
+   "coverage": 0.787,
+   "parent": "dom:finance"
   },
   {
    "id": "ent:finance:approval-threshold",
@@ -7056,7 +8440,8 @@
     }
    ],
    "instances": 2300,
-   "coverage": 0.83
+   "coverage": 0.83,
+   "parent": "dom:finance"
   },
   {
    "id": "ent:finance:payment-authorisation",
@@ -7073,7 +8458,26 @@
     }
    ],
    "instances": 3270,
-   "coverage": 0.896
+   "coverage": 0.896,
+   "parent": "dom:finance"
+  },
+  {
+   "id": "ent:finance:unrecoverable-payout-prohibited-",
+   "label": "Unrecoverable Payout (prohibited)",
+   "group": "outcome",
+   "layer": 2,
+   "kind": "entity",
+   "def": "Finance domain entity type.",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "Finance Security Pack v2.6",
+     "label": "Silex domain pack"
+    }
+   ],
+   "instances": 2509,
+   "coverage": 0.844,
+   "parent": "dom:finance"
   },
   {
    "id": "dom:support",
@@ -7098,7 +8502,8 @@
     "policy": 0.78,
     "resource": 0.76,
     "outcome": 0.81
-   }
+   },
+   "parent": "grp:workflow"
   },
   {
    "id": "cap:cx-rf",
@@ -7123,7 +8528,8 @@
     "policy": 0.72,
     "resource": 0.71,
     "outcome": 0.78
-   }
+   },
+   "parent": "dom:support"
   },
   {
    "id": "wf:WF-021",
@@ -7140,7 +8546,8 @@
     }
    ],
    "instances": 1320,
-   "coverage": 0.68
+   "coverage": 0.68,
+   "parent": "cap:cx-rf"
   },
   {
    "id": "wf:WF-022",
@@ -7157,7 +8564,8 @@
     }
    ],
    "instances": 840,
-   "coverage": 0.77
+   "coverage": 0.77,
+   "parent": "cap:cx-rf"
   },
   {
    "id": "wf:WF-023",
@@ -7174,7 +8582,8 @@
     }
    ],
    "instances": 700,
-   "coverage": 0.8
+   "coverage": 0.8,
+   "parent": "cap:cx-rf"
   },
   {
    "id": "cap:cx-tk",
@@ -7199,7 +8608,8 @@
     "policy": 0.84,
     "resource": 0.82,
     "outcome": 0.85
-   }
+   },
+   "parent": "dom:support"
   },
   {
    "id": "wf:WF-024",
@@ -7216,7 +8626,8 @@
     }
    ],
    "instances": 1900,
-   "coverage": 0.9
+   "coverage": 0.9,
+   "parent": "cap:cx-tk"
   },
   {
    "id": "wf:WF-025",
@@ -7233,7 +8644,8 @@
     }
    ],
    "instances": 1210,
-   "coverage": 0.82
+   "coverage": 0.82,
+   "parent": "cap:cx-tk"
   },
   {
    "id": "wf:WF-026",
@@ -7250,7 +8662,8 @@
     }
    ],
    "instances": 1100,
-   "coverage": 0.79
+   "coverage": 0.79,
+   "parent": "cap:cx-tk"
   },
   {
    "id": "cap:cx-id",
@@ -7275,7 +8688,8 @@
     "policy": 0.77,
     "resource": 0.74,
     "outcome": 0.76
-   }
+   },
+   "parent": "dom:support"
   },
   {
    "id": "wf:WF-027",
@@ -7292,7 +8706,8 @@
     }
    ],
    "instances": 880,
-   "coverage": 0.72
+   "coverage": 0.72,
+   "parent": "cap:cx-id"
   },
   {
    "id": "wf:WF-028",
@@ -7309,7 +8724,8 @@
     }
    ],
    "instances": 760,
-   "coverage": 0.8
+   "coverage": 0.8,
+   "parent": "cap:cx-id"
   },
   {
    "id": "ent:support:customer",
@@ -7326,7 +8742,8 @@
     }
    ],
    "instances": 2382,
-   "coverage": 0.765
+   "coverage": 0.765,
+   "parent": "dom:support"
   },
   {
    "id": "ent:support:ticket",
@@ -7343,7 +8760,8 @@
     }
    ],
    "instances": 1965,
-   "coverage": 0.737
+   "coverage": 0.737,
+   "parent": "dom:support"
   },
   {
    "id": "ent:support:refund",
@@ -7360,7 +8778,8 @@
     }
    ],
    "instances": 2244,
-   "coverage": 0.756
+   "coverage": 0.756,
+   "parent": "dom:support"
   },
   {
    "id": "ent:support:order",
@@ -7377,7 +8796,8 @@
     }
    ],
    "instances": 2356,
-   "coverage": 0.763
+   "coverage": 0.763,
+   "parent": "dom:support"
   },
   {
    "id": "ent:support:entitlement",
@@ -7394,7 +8814,8 @@
     }
    ],
    "instances": 3096,
-   "coverage": 0.814
+   "coverage": 0.814,
+   "parent": "dom:support"
   },
   {
    "id": "ent:support:knowledge-article",
@@ -7411,7 +8832,8 @@
     }
    ],
    "instances": 1343,
-   "coverage": 0.694
+   "coverage": 0.694,
+   "parent": "dom:support"
   },
   {
    "id": "ent:support:escalation",
@@ -7428,7 +8850,26 @@
     }
    ],
    "instances": 1514,
-   "coverage": 0.706
+   "coverage": 0.706,
+   "parent": "dom:support"
+  },
+  {
+   "id": "ent:support:pii-disclosure-to-wrong-party-prohibited-",
+   "label": "PII Disclosure to Wrong Party (prohibited)",
+   "group": "outcome",
+   "layer": 2,
+   "kind": "entity",
+   "def": "Customer Service domain entity type.",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "Customer Service Pack v1.9",
+     "label": "Silex domain pack"
+    }
+   ],
+   "instances": 3018,
+   "coverage": 0.809,
+   "parent": "dom:support"
   },
   {
    "id": "dom:identity-it",
@@ -7453,7 +8894,8 @@
     "policy": 0.93,
     "resource": 0.89,
     "outcome": 0.88
-   }
+   },
+   "parent": "grp:workflow"
   },
   {
    "id": "cap:it-jm",
@@ -7478,7 +8920,8 @@
     "policy": 0.95,
     "resource": 0.9,
     "outcome": 0.9
-   }
+   },
+   "parent": "dom:identity-it"
   },
   {
    "id": "wf:WF-031",
@@ -7495,7 +8938,8 @@
     }
    ],
    "instances": 2400,
-   "coverage": 0.96
+   "coverage": 0.96,
+   "parent": "cap:it-jm"
   },
   {
    "id": "wf:WF-032",
@@ -7512,7 +8956,8 @@
     }
    ],
    "instances": 1620,
-   "coverage": 0.91
+   "coverage": 0.91,
+   "parent": "cap:it-jm"
   },
   {
    "id": "wf:WF-033",
@@ -7529,7 +8974,8 @@
     }
    ],
    "instances": 1300,
-   "coverage": 0.94
+   "coverage": 0.94,
+   "parent": "cap:it-jm"
   },
   {
    "id": "cap:it-sec",
@@ -7554,7 +9000,8 @@
     "policy": 0.9,
     "resource": 0.86,
     "outcome": 0.85
-   }
+   },
+   "parent": "dom:identity-it"
   },
   {
    "id": "wf:WF-034",
@@ -7571,7 +9018,8 @@
     }
    ],
    "instances": 1150,
-   "coverage": 0.9
+   "coverage": 0.9,
+   "parent": "cap:it-sec"
   },
   {
    "id": "wf:WF-035",
@@ -7588,7 +9036,8 @@
     }
    ],
    "instances": 960,
-   "coverage": 0.85
+   "coverage": 0.85,
+   "parent": "cap:it-sec"
   },
   {
    "id": "ent:identity-it:user-account",
@@ -7605,7 +9054,8 @@
     }
    ],
    "instances": 2011,
-   "coverage": 0.851
+   "coverage": 0.851,
+   "parent": "dom:identity-it"
   },
   {
    "id": "ent:identity-it:service-principal",
@@ -7622,7 +9072,8 @@
     }
    ],
    "instances": 2801,
-   "coverage": 0.901
+   "coverage": 0.901,
+   "parent": "dom:identity-it"
   },
   {
    "id": "ent:identity-it:role",
@@ -7639,7 +9090,8 @@
     }
    ],
    "instances": 1415,
-   "coverage": 0.813
+   "coverage": 0.813,
+   "parent": "dom:identity-it"
   },
   {
    "id": "ent:identity-it:entitlement",
@@ -7656,7 +9108,8 @@
     }
    ],
    "instances": 2780,
-   "coverage": 0.9
+   "coverage": 0.9,
+   "parent": "dom:identity-it"
   },
   {
    "id": "ent:identity-it:access-request",
@@ -7673,7 +9126,8 @@
     }
    ],
    "instances": 2955,
-   "coverage": 0.911
+   "coverage": 0.911,
+   "parent": "dom:identity-it"
   },
   {
    "id": "ent:identity-it:secret",
@@ -7690,7 +9144,8 @@
     }
    ],
    "instances": 368,
-   "coverage": 0.746
+   "coverage": 0.746,
+   "parent": "dom:identity-it"
   },
   {
    "id": "ent:identity-it:endpoint",
@@ -7707,7 +9162,26 @@
     }
    ],
    "instances": 2639,
-   "coverage": 0.891
+   "coverage": 0.891,
+   "parent": "dom:identity-it"
+  },
+  {
+   "id": "ent:identity-it:standing-privilege-prohibited-",
+   "label": "Standing Privilege (prohibited)",
+   "group": "identity",
+   "layer": 2,
+   "kind": "entity",
+   "def": "Identity & IT domain entity type.",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "Identity & IT Pack v3.1",
+     "label": "Silex domain pack"
+    }
+   ],
+   "instances": 3827,
+   "coverage": 0.966,
+   "parent": "dom:identity-it"
   },
   {
    "id": "dom:hr",
@@ -7732,7 +9206,8 @@
     "policy": 0.69,
     "resource": 0.66,
     "outcome": 0.71
-   }
+   },
+   "parent": "grp:workflow"
   },
   {
    "id": "cap:hr-on",
@@ -7757,7 +9232,8 @@
     "policy": 0.72,
     "resource": 0.7,
     "outcome": 0.74
-   }
+   },
+   "parent": "dom:hr"
   },
   {
    "id": "wf:WF-041",
@@ -7774,7 +9250,8 @@
     }
    ],
    "instances": 640,
-   "coverage": 0.75
+   "coverage": 0.75,
+   "parent": "cap:hr-on"
   },
   {
    "id": "wf:WF-042",
@@ -7791,7 +9268,8 @@
     }
    ],
    "instances": 600,
-   "coverage": 0.69
+   "coverage": 0.69,
+   "parent": "cap:hr-on"
   },
   {
    "id": "cap:hr-pay",
@@ -7816,7 +9294,8 @@
     "policy": 0.65,
     "resource": 0.61,
     "outcome": 0.67
-   }
+   },
+   "parent": "dom:hr"
   },
   {
    "id": "wf:WF-043",
@@ -7833,7 +9312,8 @@
     }
    ],
    "instances": 520,
-   "coverage": 0.6
+   "coverage": 0.6,
+   "parent": "cap:hr-pay"
   },
   {
    "id": "wf:WF-044",
@@ -7850,7 +9330,8 @@
     }
    ],
    "instances": 460,
-   "coverage": 0.66
+   "coverage": 0.66,
+   "parent": "cap:hr-pay"
   },
   {
    "id": "ent:hr:employee",
@@ -7867,7 +9348,8 @@
     }
    ],
    "instances": 2435,
-   "coverage": 0.659
+   "coverage": 0.659,
+   "parent": "dom:hr"
   },
   {
    "id": "ent:hr:candidate",
@@ -7884,7 +9366,8 @@
     }
    ],
    "instances": 3453,
-   "coverage": 0.729
+   "coverage": 0.729,
+   "parent": "dom:hr"
   },
   {
    "id": "ent:hr:compensation-record",
@@ -7901,7 +9384,8 @@
     }
    ],
    "instances": 1780,
-   "coverage": 0.614
+   "coverage": 0.614,
+   "parent": "dom:hr"
   },
   {
    "id": "ent:hr:leave-request",
@@ -7918,7 +9402,8 @@
     }
    ],
    "instances": 1090,
-   "coverage": 0.567
+   "coverage": 0.567,
+   "parent": "dom:hr"
   },
   {
    "id": "ent:hr:performance-review",
@@ -7935,7 +9420,26 @@
     }
    ],
    "instances": 201,
-   "coverage": 0.506
+   "coverage": 0.506,
+   "parent": "dom:hr"
+  },
+  {
+   "id": "ent:hr:unauthorised-pay-change-prohibited-",
+   "label": "Unauthorised Pay Change (prohibited)",
+   "group": "outcome",
+   "layer": 2,
+   "kind": "entity",
+   "def": "Human Resources domain entity type.",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "HR Pack v1.2 (draft)",
+     "label": "Silex domain pack"
+    }
+   ],
+   "instances": 1262,
+   "coverage": 0.578,
+   "parent": "dom:hr"
   },
   {
    "id": "dom:procurement",
@@ -7960,7 +9464,8 @@
     "policy": 0.75,
     "resource": 0.66,
     "outcome": 0.76
-   }
+   },
+   "parent": "grp:workflow"
   },
   {
    "id": "cap:po-src",
@@ -7985,7 +9490,8 @@
     "policy": 0.78,
     "resource": 0.7,
     "outcome": 0.8
-   }
+   },
+   "parent": "dom:procurement"
   },
   {
    "id": "wf:WF-051",
@@ -8002,7 +9508,8 @@
     }
    ],
    "instances": 900,
-   "coverage": 0.7
+   "coverage": 0.7,
+   "parent": "cap:po-src"
   },
   {
    "id": "wf:WF-052",
@@ -8019,7 +9526,8 @@
     }
    ],
    "instances": 960,
-   "coverage": 0.84
+   "coverage": 0.84,
+   "parent": "cap:po-src"
   },
   {
    "id": "cap:po-p2p",
@@ -8044,7 +9552,8 @@
     "policy": 0.72,
     "resource": 0.62,
     "outcome": 0.72
-   }
+   },
+   "parent": "dom:procurement"
   },
   {
    "id": "wf:WF-053",
@@ -8061,7 +9570,8 @@
     }
    ],
    "instances": 1120,
-   "coverage": 0.76
+   "coverage": 0.76,
+   "parent": "cap:po-p2p"
   },
   {
    "id": "wf:WF-054",
@@ -8078,7 +9588,8 @@
     }
    ],
    "instances": 780,
-   "coverage": 0.68
+   "coverage": 0.68,
+   "parent": "cap:po-p2p"
   },
   {
    "id": "wf:WF-055",
@@ -8095,7 +9606,8 @@
     }
    ],
    "instances": 520,
-   "coverage": 0.55
+   "coverage": 0.55,
+   "parent": "cap:po-p2p"
   },
   {
    "id": "ent:procurement:purchase-order",
@@ -8112,7 +9624,8 @@
     }
    ],
    "instances": 1761,
-   "coverage": 0.673
+   "coverage": 0.673,
+   "parent": "dom:procurement"
   },
   {
    "id": "ent:procurement:supplier",
@@ -8129,7 +9642,8 @@
     }
    ],
    "instances": 1060,
-   "coverage": 0.625
+   "coverage": 0.625,
+   "parent": "dom:procurement"
   },
   {
    "id": "ent:procurement:contract",
@@ -8146,7 +9660,8 @@
     }
    ],
    "instances": 375,
-   "coverage": 0.578
+   "coverage": 0.578,
+   "parent": "dom:procurement"
   },
   {
    "id": "ent:procurement:sourcing-event",
@@ -8163,7 +9678,8 @@
     }
    ],
    "instances": 1159,
-   "coverage": 0.631
+   "coverage": 0.631,
+   "parent": "dom:procurement"
   },
   {
    "id": "ent:procurement:goods-receipt",
@@ -8180,7 +9696,8 @@
     }
    ],
    "instances": 1884,
-   "coverage": 0.681
+   "coverage": 0.681,
+   "parent": "dom:procurement"
   },
   {
    "id": "ent:procurement:spend-category",
@@ -8197,7 +9714,44 @@
     }
    ],
    "instances": 177,
-   "coverage": 0.564
+   "coverage": 0.564,
+   "parent": "dom:procurement"
+  },
+  {
+   "id": "ent:procurement:unverified-bank-change-prohibited-",
+   "label": "Unverified Bank Change (prohibited)",
+   "group": "policy",
+   "layer": 2,
+   "kind": "entity",
+   "def": "Procurement domain entity type.",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "Procurement Pack v1.7",
+     "label": "Silex domain pack"
+    }
+   ],
+   "instances": 158,
+   "coverage": 0.563,
+   "parent": "dom:procurement"
+  },
+  {
+   "id": "dom:horizontal",
+   "label": "Cross-domain & Horizontal",
+   "group": "workflow",
+   "layer": 2,
+   "kind": "domain",
+   "def": "Agentic capability used by every domain; the domain taxonomy for it is still open (see the coverage gaps).",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "SILEX-L2",
+     "label": "Silex domain pack"
+    }
+   ],
+   "instances": 0,
+   "coverage": 0.62,
+   "parent": "grp:workflow"
   },
   {
    "id": "ag:planner",
@@ -8214,7 +9768,8 @@
     }
    ],
    "instances": 53,
-   "coverage": 0.84
+   "coverage": 0.84,
+   "parent": "dom:finance"
   },
   {
    "id": "ag:memory-st",
@@ -8231,7 +9786,8 @@
     }
    ],
    "instances": 53,
-   "coverage": 0.79
+   "coverage": 0.79,
+   "parent": "dom:horizontal"
   },
   {
    "id": "ag:memory-lt",
@@ -8248,7 +9804,8 @@
     }
    ],
    "instances": 31,
-   "coverage": 0.66
+   "coverage": 0.66,
+   "parent": "dom:support"
   },
   {
    "id": "ag:retriever",
@@ -8265,7 +9822,8 @@
     }
    ],
    "instances": 24,
-   "coverage": 0.72
+   "coverage": 0.72,
+   "parent": "dom:support"
   },
   {
    "id": "ag:tool-reg",
@@ -8282,7 +9840,8 @@
     }
    ],
    "instances": 186,
-   "coverage": 0.88
+   "coverage": 0.88,
+   "parent": "dom:procurement"
   },
   {
    "id": "ag:mcp",
@@ -8299,7 +9858,8 @@
     }
    ],
    "instances": 64,
-   "coverage": 0.81
+   "coverage": 0.81,
+   "parent": "dom:finance"
   },
   {
    "id": "ag:subagent",
@@ -8316,7 +9876,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.61
+   "coverage": 0.61,
+   "parent": "dom:horizontal"
   },
   {
    "id": "ag:cred-store",
@@ -8333,7 +9894,8 @@
     }
    ],
    "instances": 42,
-   "coverage": 0.9
+   "coverage": 0.9,
+   "parent": "dom:support"
   },
   {
    "id": "ag:exec-ctx",
@@ -8350,7 +9912,8 @@
     }
    ],
    "instances": 53,
-   "coverage": 0.77
+   "coverage": 0.77,
+   "parent": "dom:horizontal"
   },
   {
    "id": "ag:guardrail",
@@ -8367,7 +9930,8 @@
     }
    ],
    "instances": 128,
-   "coverage": 0.87
+   "coverage": 0.87,
+   "parent": "dom:support"
   },
   {
    "id": "ag:hitl",
@@ -8384,7 +9948,8 @@
     }
    ],
    "instances": 37,
-   "coverage": 0.83
+   "coverage": 0.83,
+   "parent": "dom:support"
   },
   {
    "id": "ag:trace",
@@ -8401,295 +9966,26 @@
     }
    ],
    "instances": 53,
-   "coverage": 0.92
+   "coverage": 0.92,
+   "parent": "dom:support"
   },
   {
-   "id": "atlas:AML.TA0002",
-   "label": "Reconnaissance",
-   "group": "threat",
+   "id": "ag:harness",
+   "label": "Business Outcome Harness",
+   "group": "outcome",
    "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to gather information about the AI system they can use to plan future operations. Reconnaissance consists of techniques that involve adversaries actively or passively gathering…",
+   "kind": "component",
+   "def": "Legitimate completion, prohibited outcomes, cost and the business constraints an agent must respect.",
    "src": [
     {
-     "sys": "atlas",
-     "id": "AML.TA0002",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0002"
+     "sys": "silex",
+     "id": "SILEX-L3",
+     "label": "Silex agentic ontology"
     }
    ],
-   "instances": 20,
-   "coverage": 0.87
-  },
-  {
-   "id": "atlas:AML.TA0003",
-   "label": "Resource Development",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to establish resources they can use to support operations. Resource Development consists of techniques that involve adversaries creating, purchasing, or compromising/stealing resources…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0003",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0003"
-    }
-   ],
-   "instances": 20,
-   "coverage": 0.872
-  },
-  {
-   "id": "atlas:AML.TA0004",
-   "label": "Initial Access",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to gain access to the AI system. The target system could be a network, mobile device, or an edge device such as a sensor platform. The AI capabilities used by the system could be local…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0004",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0004"
-    }
-   ],
-   "instances": 20,
-   "coverage": 0.867
-  },
-  {
-   "id": "atlas:AML.TA0000",
-   "label": "AI Model Access",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is attempting to gain some level of access to an AI model. AI Model Access enables techniques that use various types of access to the AI model that can be used by the adversary to gain…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0000",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0000"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.873
-  },
-  {
-   "id": "atlas:AML.TA0005",
-   "label": "Execution",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to run malicious code embedded in AI artifacts or software. Execution consists of techniques that result in adversary-controlled code running on a local or remote system. Techniques…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0005",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0005"
-    }
-   ],
-   "instances": 20,
-   "coverage": 0.869
-  },
-  {
-   "id": "atlas:AML.TA0006",
-   "label": "Persistence",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to maintain their foothold via AI artifacts or software. Persistence consists of techniques that adversaries use to keep access to systems across restarts, changed credentials, and…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0006",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0006"
-    }
-   ],
-   "instances": 20,
-   "coverage": 0.864
-  },
-  {
-   "id": "atlas:AML.TA0012",
-   "label": "Privilege Escalation",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to gain higher-level permissions. Privilege Escalation consists of techniques that adversaries use to gain higher-level permissions on a system or network. Adversaries can often enter…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0012",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0012"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.886
-  },
-  {
-   "id": "atlas:AML.TA0007",
-   "label": "Defense Evasion",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to avoid being detected by AI-enabled security software. Defense Evasion consists of techniques that adversaries use to avoid detection throughout their compromise. Techniques used for…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0007",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0007"
-    }
-   ],
-   "instances": 20,
-   "coverage": 0.866
-  },
-  {
-   "id": "atlas:AML.TA0013",
-   "label": "Credential Access",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to steal account names and passwords. Credential Access consists of techniques for stealing credentials like account names and passwords. Techniques used to get credentials include…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0013",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0013"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.884
-  },
-  {
-   "id": "atlas:AML.TA0008",
-   "label": "Discovery",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to figure out your AI environment. Discovery consists of techniques an adversary may use to gain knowledge about the system and internal network. These techniques help adversaries…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0008",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0008"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.886
-  },
-  {
-   "id": "atlas:AML.TA0015",
-   "label": "Lateral Movement",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to move through your AI environment. Lateral Movement consists of techniques that adversaries may use to gain access to and control other systems or components in the environment…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0015",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0015"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.887
-  },
-  {
-   "id": "atlas:AML.TA0009",
-   "label": "Collection",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to gather AI artifacts and other related information relevant to their goal. Collection consists of techniques adversaries may use to gather information and the sources information is…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0009",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0009"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.887
-  },
-  {
-   "id": "atlas:AML.TA0001",
-   "label": "AI Attack Staging",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is leveraging their knowledge of and access to the target system to tailor the attack. AI Attack Staging consists of techniques adversaries use to prepare their attack on the target AI model…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0001",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0001"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.875
-  },
-  {
-   "id": "atlas:AML.TA0014",
-   "label": "Command and Control",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to communicate with compromised AI systems to control them. Command and Control consists of techniques that adversaries may use to communicate with systems under their control within a…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0014",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0014"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.889
-  },
-  {
-   "id": "atlas:AML.TA0010",
-   "label": "Exfiltration",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to steal AI artifacts or other information about the AI system. Exfiltration consists of techniques that adversaries may use to steal data from your network. Data may be stolen for its…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0010",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0010"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.883
-  },
-  {
-   "id": "atlas:AML.TA0011",
-   "label": "Impact",
-   "group": "threat",
-   "layer": 3,
-   "kind": "tactic",
-   "def": "The adversary is trying to manipulate, interrupt, erode confidence in, or destroy your AI systems and data. Impact consists of techniques that adversaries use to disrupt availability or compromise integrity…",
-   "src": [
-    {
-     "sys": "atlas",
-     "id": "AML.TA0011",
-     "label": "ATLAS tactic",
-     "url": "https://atlas.mitre.org/tactics/AML.TA0011"
-    }
-   ],
-   "instances": 21,
-   "coverage": 0.881
+   "instances": 24,
+   "coverage": 0.82,
+   "parent": "dom:support"
   },
   {
    "id": "atlas:AML.T0000",
@@ -8707,7 +10003,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.415
+   "coverage": 0.415,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0001",
@@ -8725,7 +10022,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.413
+   "coverage": 0.413,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0002",
@@ -8743,7 +10041,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.419
+   "coverage": 0.419,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0003",
@@ -8761,7 +10060,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.417
+   "coverage": 0.417,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0004",
@@ -8779,7 +10079,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.407
+   "coverage": 0.407,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0005",
@@ -8797,7 +10098,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.405
+   "coverage": 0.405,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0006",
@@ -8815,7 +10117,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.411
+   "coverage": 0.411,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0007",
@@ -8833,7 +10136,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.409
+   "coverage": 0.409,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0008",
@@ -8851,7 +10155,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.398
+   "coverage": 0.398,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0010",
@@ -8869,7 +10174,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.668
+   "coverage": 0.668,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0011",
@@ -8887,7 +10193,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.67
+   "coverage": 0.67,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0012",
@@ -8905,7 +10212,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.663
+   "coverage": 0.663,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0013",
@@ -8923,7 +10231,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.666
+   "coverage": 0.666,
+   "parent": "ag:trace"
   },
   {
    "id": "atlas:AML.T0014",
@@ -8941,7 +10250,8 @@
     }
    ],
    "instances": 9,
-   "coverage": 0.676
+   "coverage": 0.676,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0015",
@@ -8959,7 +10269,8 @@
     }
    ],
    "instances": 9,
-   "coverage": 0.678
+   "coverage": 0.678,
+   "parent": "ag:trace"
   },
   {
    "id": "atlas:AML.T0016",
@@ -8977,7 +10288,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.672
+   "coverage": 0.672,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0017",
@@ -8995,7 +10307,8 @@
     }
    ],
    "instances": 9,
-   "coverage": 0.674
+   "coverage": 0.674,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0018",
@@ -9013,7 +10326,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.651
+   "coverage": 0.651,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0019",
@@ -9031,7 +10345,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.653
+   "coverage": 0.653,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "atlas:AML.T0020",
@@ -9049,7 +10364,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.655
+   "coverage": 0.655,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "atlas:AML.T0021",
@@ -9067,7 +10383,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.653
+   "coverage": 0.653,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0024",
@@ -9085,7 +10402,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.647
+   "coverage": 0.647,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0025",
@@ -9103,7 +10421,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.645
+   "coverage": 0.645,
+   "parent": "ag:mcp"
   },
   {
    "id": "atlas:AML.T0029",
@@ -9121,7 +10440,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.67
+   "coverage": 0.67,
+   "parent": "ag:exec-ctx"
   },
   {
    "id": "atlas:AML.T0031",
@@ -9139,7 +10459,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.645
+   "coverage": 0.645,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0034",
@@ -9157,7 +10478,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.634
+   "coverage": 0.634,
+   "parent": "ag:exec-ctx"
   },
   {
    "id": "atlas:AML.T0035",
@@ -9175,7 +10497,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.636
+   "coverage": 0.636,
+   "parent": "ag:mcp"
   },
   {
    "id": "atlas:AML.T0036",
@@ -9193,7 +10516,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.639
+   "coverage": 0.639,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0037",
@@ -9211,7 +10535,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.641
+   "coverage": 0.641,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0040",
@@ -9229,7 +10554,8 @@
     }
    ],
    "instances": 7,
-   "coverage": 0.63
+   "coverage": 0.63,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0041",
@@ -9247,7 +10573,8 @@
     }
    ],
    "instances": 7,
-   "coverage": 0.628
+   "coverage": 0.628,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0042",
@@ -9265,7 +10592,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.634
+   "coverage": 0.634,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0043",
@@ -9283,7 +10611,8 @@
     }
    ],
    "instances": 7,
-   "coverage": 0.632
+   "coverage": 0.632,
+   "parent": "ag:trace"
   },
   {
    "id": "atlas:AML.T0044",
@@ -9301,7 +10630,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.639
+   "coverage": 0.639,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0046",
@@ -9319,7 +10649,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.643
+   "coverage": 0.643,
+   "parent": "ag:trace"
   },
   {
    "id": "atlas:AML.T0047",
@@ -9337,7 +10668,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.641
+   "coverage": 0.641,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0048",
@@ -9355,7 +10687,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.647
+   "coverage": 0.647,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0049",
@@ -9373,7 +10706,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.645
+   "coverage": 0.645,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0050",
@@ -9391,7 +10725,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.419
+   "coverage": 0.419,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0051",
@@ -9409,7 +10744,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.421
+   "coverage": 0.421,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0052",
@@ -9427,7 +10763,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.415
+   "coverage": 0.415,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0053",
@@ -9445,7 +10782,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.417
+   "coverage": 0.417,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0054",
@@ -9463,7 +10801,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.411
+   "coverage": 0.411,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0055",
@@ -9481,7 +10820,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.413
+   "coverage": 0.413,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0056",
@@ -9499,7 +10839,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.407
+   "coverage": 0.407,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0057",
@@ -9517,7 +10858,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.409
+   "coverage": 0.409,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0058",
@@ -9535,7 +10877,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.403
+   "coverage": 0.403,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0059",
@@ -9553,7 +10896,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.405
+   "coverage": 0.405,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "atlas:AML.T0060",
@@ -9571,7 +10915,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.407
+   "coverage": 0.407,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0061",
@@ -9589,7 +10934,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.405
+   "coverage": 0.405,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0062",
@@ -9607,7 +10953,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.402
+   "coverage": 0.402,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0063",
@@ -9625,7 +10972,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.4
+   "coverage": 0.4,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0064",
@@ -9643,7 +10991,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.415
+   "coverage": 0.415,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0065",
@@ -9661,7 +11010,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.413
+   "coverage": 0.413,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0066",
@@ -9679,7 +11029,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.411
+   "coverage": 0.411,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0067",
@@ -9697,7 +11048,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.409
+   "coverage": 0.409,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0068",
@@ -9715,7 +11067,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.39
+   "coverage": 0.39,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0069",
@@ -9733,7 +11086,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.388
+   "coverage": 0.388,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0070",
@@ -9751,7 +11105,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.394
+   "coverage": 0.394,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "atlas:AML.T0071",
@@ -9769,7 +11124,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.396
+   "coverage": 0.396,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0072",
@@ -9787,7 +11143,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.398
+   "coverage": 0.398,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0073",
@@ -9805,7 +11162,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.4
+   "coverage": 0.4,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0074",
@@ -9823,7 +11181,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.402
+   "coverage": 0.402,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0075",
@@ -9841,7 +11200,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.405
+   "coverage": 0.405,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0076",
@@ -9859,7 +11219,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.407
+   "coverage": 0.407,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0077",
@@ -9877,7 +11238,8 @@
     }
    ],
    "instances": 2,
-   "coverage": 0.409
+   "coverage": 0.409,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0078",
@@ -9895,7 +11257,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.378
+   "coverage": 0.378,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0079",
@@ -9913,7 +11276,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.38
+   "coverage": 0.38,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0080",
@@ -9931,7 +11295,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.647
+   "coverage": 0.647,
+   "parent": "ag:hitl"
   },
   {
    "id": "atlas:AML.T0081",
@@ -9949,7 +11314,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.645
+   "coverage": 0.645,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0082",
@@ -9967,7 +11333,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.651
+   "coverage": 0.651,
+   "parent": "ag:retriever"
   },
   {
    "id": "atlas:AML.T0083",
@@ -9985,7 +11352,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.649
+   "coverage": 0.649,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0084",
@@ -10003,7 +11371,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.638
+   "coverage": 0.638,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0085",
@@ -10021,7 +11390,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.636
+   "coverage": 0.636,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0086",
@@ -10039,7 +11409,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.643
+   "coverage": 0.643,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "atlas:AML.T0087",
@@ -10057,7 +11428,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.641
+   "coverage": 0.641,
+   "parent": "ag:cred-store"
   },
   {
    "id": "atlas:AML.T0088",
@@ -10075,7 +11447,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.663
+   "coverage": 0.663,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0089",
@@ -10093,7 +11466,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.661
+   "coverage": 0.661,
+   "parent": "ag:planner"
   },
   {
    "id": "atlas:AML.T0090",
@@ -10111,7 +11485,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.634
+   "coverage": 0.634,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "atlas:AML.T0091",
@@ -10129,7 +11504,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.636
+   "coverage": 0.636,
+   "parent": "ag:cred-store"
   },
   {
    "id": "owasp:LLM01",
@@ -10147,7 +11523,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.781
+   "coverage": 0.781,
+   "parent": "ag:planner"
   },
   {
    "id": "owasp:LLM02",
@@ -10165,7 +11542,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.783
+   "coverage": 0.783,
+   "parent": "ag:retriever"
   },
   {
    "id": "owasp:LLM03",
@@ -10183,7 +11561,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.784
+   "coverage": 0.784,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "owasp:LLM04",
@@ -10201,7 +11580,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.786
+   "coverage": 0.786,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "owasp:LLM05",
@@ -10219,7 +11599,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.788
+   "coverage": 0.788,
+   "parent": "ag:exec-ctx"
   },
   {
    "id": "owasp:LLM06",
@@ -10237,7 +11618,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.79
+   "coverage": 0.79,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "owasp:LLM07",
@@ -10255,7 +11637,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.792
+   "coverage": 0.792,
+   "parent": "ag:planner"
   },
   {
    "id": "owasp:LLM08",
@@ -10273,7 +11656,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.764
+   "coverage": 0.764,
+   "parent": "ag:retriever"
   },
   {
    "id": "owasp:LLM09",
@@ -10291,7 +11675,8 @@
     }
    ],
    "instances": 18,
-   "coverage": 0.766
+   "coverage": 0.766,
+   "parent": "ag:memory-st"
   },
   {
    "id": "owasp:LLM10",
@@ -10309,7 +11694,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.79
+   "coverage": 0.79,
+   "parent": "ag:exec-ctx"
   },
   {
    "id": "owaspa:T1",
@@ -10327,7 +11713,8 @@
     }
    ],
    "instances": 19,
-   "coverage": 0.888
+   "coverage": 0.888,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "owaspa:T2",
@@ -10345,7 +11732,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.845
+   "coverage": 0.845,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "owaspa:T3",
@@ -10363,7 +11751,8 @@
     }
    ],
    "instances": 16,
-   "coverage": 0.813
+   "coverage": 0.813,
+   "parent": "ag:cred-store"
   },
   {
    "id": "owaspa:T4",
@@ -10381,7 +11770,8 @@
     }
    ],
    "instances": 9,
-   "coverage": 0.625
+   "coverage": 0.625,
+   "parent": "ag:exec-ctx"
   },
   {
    "id": "owaspa:T5",
@@ -10399,7 +11789,8 @@
     }
    ],
    "instances": 7,
-   "coverage": 0.569
+   "coverage": 0.569,
+   "parent": "ag:memory-st"
   },
   {
    "id": "owaspa:T6",
@@ -10417,7 +11808,8 @@
     }
    ],
    "instances": 17,
-   "coverage": 0.838
+   "coverage": 0.838,
+   "parent": "ag:planner"
   },
   {
    "id": "owaspa:T7",
@@ -10435,7 +11827,8 @@
     }
    ],
    "instances": 9,
-   "coverage": 0.611
+   "coverage": 0.611,
+   "parent": "ag:planner"
   },
   {
    "id": "owaspa:T8",
@@ -10453,7 +11846,8 @@
     }
    ],
    "instances": 15,
-   "coverage": 0.785
+   "coverage": 0.785,
+   "parent": "ag:trace"
   },
   {
    "id": "owaspa:T9",
@@ -10471,7 +11865,8 @@
     }
    ],
    "instances": 8,
-   "coverage": 0.603
+   "coverage": 0.603,
+   "parent": "ag:cred-store"
   },
   {
    "id": "owaspa:T10",
@@ -10489,7 +11884,8 @@
     }
    ],
    "instances": 16,
-   "coverage": 0.814
+   "coverage": 0.814,
+   "parent": "ag:hitl"
   },
   {
    "id": "owaspa:T11",
@@ -10507,7 +11903,8 @@
     }
    ],
    "instances": 7,
-   "coverage": 0.56
+   "coverage": 0.56,
+   "parent": "ag:exec-ctx"
   },
   {
    "id": "owaspa:T12",
@@ -10525,7 +11922,8 @@
     }
    ],
    "instances": 3,
-   "coverage": 0.443
+   "coverage": 0.443,
+   "parent": "ag:subagent"
   },
   {
    "id": "owaspa:T13",
@@ -10543,7 +11941,8 @@
     }
    ],
    "instances": 7,
-   "coverage": 0.554
+   "coverage": 0.554,
+   "parent": "ag:subagent"
   },
   {
    "id": "owaspa:T14",
@@ -10561,7 +11960,8 @@
     }
    ],
    "instances": 10,
-   "coverage": 0.663
+   "coverage": 0.663,
+   "parent": "ag:subagent"
   },
   {
    "id": "owaspa:T15",
@@ -10579,7 +11979,8 @@
     }
    ],
    "instances": 4,
-   "coverage": 0.475
+   "coverage": 0.475,
+   "parent": "ag:hitl"
   },
   {
    "id": "rt-refund-agent",
@@ -10597,7 +11998,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.68
+   "coverage": 0.68,
+   "parent": "ag:planner"
   },
   {
    "id": "rt-ap-agent",
@@ -10615,7 +12017,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.88
+   "coverage": 0.88,
+   "parent": "ag:planner"
   },
   {
    "id": "rt-treasury-agent",
@@ -10633,7 +12036,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.92
+   "coverage": 0.92,
+   "parent": "ag:planner"
   },
   {
    "id": "rt-refund-mem",
@@ -10651,7 +12055,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.54
+   "coverage": 0.54,
+   "parent": "ag:memory-lt"
   },
   {
    "id": "rt-kb-index",
@@ -10669,7 +12074,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.7
+   "coverage": 0.7,
+   "parent": "ag:retriever"
   },
   {
    "id": "rt-mcp-pay",
@@ -10687,7 +12093,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.84
+   "coverage": 0.84,
+   "parent": "ag:mcp"
   },
   {
    "id": "rt-mcp-crm",
@@ -10705,7 +12112,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.78
+   "coverage": 0.78,
+   "parent": "ag:mcp"
   },
   {
    "id": "rt-tool-refund",
@@ -10723,7 +12131,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.72
+   "coverage": 0.72,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "rt-tool-vendor",
@@ -10741,7 +12150,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.55
+   "coverage": 0.55,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "rt-svc-identity",
@@ -10759,7 +12169,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.9
+   "coverage": 0.9,
+   "parent": "ag:cred-store"
   },
   {
    "id": "rt-user-csr",
@@ -10777,7 +12188,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.86
+   "coverage": 0.86,
+   "parent": "ag:cred-store"
   },
   {
    "id": "rt-db-vendor",
@@ -10795,7 +12207,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.58
+   "coverage": 0.58,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "rt-ledger",
@@ -10813,7 +12226,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.89
+   "coverage": 0.89,
+   "parent": "ag:tool-reg"
   },
   {
    "id": "rt-policy-500",
@@ -10831,7 +12245,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.93
+   "coverage": 0.93,
+   "parent": "ag:guardrail"
   },
   {
    "id": "rt-policy-dual",
@@ -10849,7 +12264,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.76
+   "coverage": 0.76,
+   "parent": "ag:guardrail"
   },
   {
    "id": "rt-hitl-t2",
@@ -10867,7 +12283,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.83
+   "coverage": 0.83,
+   "parent": "ag:hitl"
   },
   {
    "id": "rt-wf-021",
@@ -10885,7 +12302,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.68
+   "coverage": 0.68,
+   "parent": "ag:trace"
   },
   {
    "id": "rt-wf-011",
@@ -10903,7 +12321,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.88
+   "coverage": 0.88,
+   "parent": "ag:trace"
   },
   {
    "id": "rt-wf-055",
@@ -10921,7 +12340,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 0.55
+   "coverage": 0.55,
+   "parent": "ag:trace"
   },
   {
    "id": "rt-inc-1042",
@@ -10940,7 +12360,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 1
+   "coverage": 1,
+   "parent": "rt-wf-021"
   },
   {
    "id": "rt-inc-0987",
@@ -10959,16 +12380,18 @@
     }
    ],
    "instances": 1,
-   "coverage": 1
+   "coverage": 1,
+   "parent": "rt-wf-055"
   },
   {
    "id": "rt-out-loss",
    "label": "Unrecoverable payout",
    "group": "outcome",
    "layer": 4,
-   "kind": "prohibited",
+   "kind": "harness",
    "def": "Prohibited outcome: money leaves without a recoverable path.",
    "domain": "finance",
+   "outcome": "prohibited",
    "src": [
     {
      "sys": "silex",
@@ -10977,16 +12400,18 @@
     }
    ],
    "instances": 1,
-   "coverage": 1
+   "coverage": 1,
+   "parent": "ag:harness"
   },
   {
    "id": "rt-out-pii",
    "label": "PII disclosed to wrong party",
    "group": "outcome",
    "layer": 4,
-   "kind": "prohibited",
+   "kind": "harness",
    "def": "Prohibited outcome: customer data reaches an unverified requester.",
    "domain": "support",
+   "outcome": "prohibited",
    "src": [
     {
      "sys": "silex",
@@ -10995,16 +12420,18 @@
     }
    ],
    "instances": 1,
-   "coverage": 1
+   "coverage": 1,
+   "parent": "ag:harness"
   },
   {
    "id": "rt-out-served",
    "label": "Customer made whole",
    "group": "outcome",
    "layer": 4,
-   "kind": "legitimate",
+   "kind": "harness",
    "def": "Legitimate completion: refund issued once, correctly.",
    "domain": "support",
+   "outcome": "legitimate",
    "src": [
     {
      "sys": "silex",
@@ -11013,7 +12440,8 @@
     }
    ],
    "instances": 1,
-   "coverage": 1
+   "coverage": 1,
+   "parent": "ag:harness"
   }
  ],
  "links": [
@@ -11136,6 +12564,30 @@
    "t": "uco:core:UcoThing",
    "pred": "SUBCLASS_OF",
    "src": "uco"
+  },
+  {
+   "s": "uco:core:UcoThing",
+   "t": "grp:resource",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "uco:core:UcoType",
+   "t": "grp:resource",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "uco:action:Action",
+   "t": "grp:resource",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "uco:types:Dictionary",
+   "t": "grp:resource",
+   "pred": "SPECIALIZES",
+   "src": "silex"
   },
   {
    "s": "uco:identity:AddressFacet",
@@ -11378,6 +12830,12 @@
    "src": "uco"
   },
   {
+   "s": "uco:observable:Account",
+   "t": "grp:identity",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
    "s": "uco:observable:AccountAuthenticationFacet",
    "t": "uco:core:Facet",
    "pred": "SUBCLASS_OF",
@@ -11388,42 +12846,6 @@
    "t": "uco:core:Facet",
    "pred": "SUBCLASS_OF",
    "src": "uco"
-  },
-  {
-   "s": "uco:observable:AlternateDataStreamFacet",
-   "t": "uco:core:Facet",
-   "pred": "SUBCLASS_OF",
-   "src": "uco"
-  },
-  {
-   "s": "uco:core:UcoThing",
-   "t": "grp:resource",
-   "pred": "SPECIALIZES",
-   "src": "silex"
-  },
-  {
-   "s": "uco:core:UcoType",
-   "t": "grp:resource",
-   "pred": "SPECIALIZES",
-   "src": "silex"
-  },
-  {
-   "s": "uco:action:Action",
-   "t": "grp:resource",
-   "pred": "SPECIALIZES",
-   "src": "silex"
-  },
-  {
-   "s": "uco:types:Dictionary",
-   "t": "grp:resource",
-   "pred": "SPECIALIZES",
-   "src": "silex"
-  },
-  {
-   "s": "uco:observable:Account",
-   "t": "grp:identity",
-   "pred": "SPECIALIZES",
-   "src": "silex"
   },
   {
    "s": "uco:observable:Adaptor",
@@ -11442,6 +12864,12 @@
    "t": "grp:resource",
    "pred": "SPECIALIZES",
    "src": "silex"
+  },
+  {
+   "s": "uco:observable:AlternateDataStreamFacet",
+   "t": "uco:core:Facet",
+   "pred": "SUBCLASS_OF",
+   "src": "uco"
   },
   {
    "s": "uco:observable:AndroidDevice",
@@ -12747,7 +14175,7 @@
   },
   {
    "s": "attack:TA0040",
-   "t": "grp:threat",
+   "t": "grp:outcome",
    "pred": "SPECIALIZES",
    "src": "silex"
   },
@@ -13094,6 +14522,102 @@
    "src": "attack"
   },
   {
+   "s": "atlas:AML.TA0002",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0003",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0004",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0000",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0005",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0006",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0012",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0007",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0013",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0008",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0015",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0009",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0001",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0014",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0010",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.TA0011",
+   "t": "grp:threat",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
    "s": "dom:finance",
    "t": "grp:workflow",
    "pred": "SPECIALIZES",
@@ -13256,6 +14780,18 @@
    "src": "silex"
   },
   {
+   "s": "ent:finance:unrecoverable-payout-prohibited-",
+   "t": "dom:finance",
+   "pred": "DEFINED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ent:finance:unrecoverable-payout-prohibited-",
+   "t": "grp:outcome",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
    "s": "dom:support",
    "t": "grp:workflow",
    "pred": "SPECIALIZES",
@@ -13412,6 +14948,18 @@
    "src": "silex"
   },
   {
+   "s": "ent:support:pii-disclosure-to-wrong-party-prohibited-",
+   "t": "dom:support",
+   "pred": "DEFINED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ent:support:pii-disclosure-to-wrong-party-prohibited-",
+   "t": "grp:outcome",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
    "s": "dom:identity-it",
    "t": "grp:workflow",
    "pred": "SPECIALIZES",
@@ -13544,6 +15092,18 @@
    "src": "silex"
   },
   {
+   "s": "ent:identity-it:standing-privilege-prohibited-",
+   "t": "dom:identity-it",
+   "pred": "DEFINED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ent:identity-it:standing-privilege-prohibited-",
+   "t": "grp:identity",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
    "s": "dom:hr",
    "t": "grp:workflow",
    "pred": "SPECIALIZES",
@@ -13642,6 +15202,18 @@
   {
    "s": "ent:hr:performance-review",
    "t": "grp:resource",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "ent:hr:unauthorised-pay-change-prohibited-",
+   "t": "dom:hr",
+   "pred": "DEFINED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ent:hr:unauthorised-pay-change-prohibited-",
+   "t": "grp:outcome",
    "pred": "SPECIALIZES",
    "src": "silex"
   },
@@ -13766,75 +15338,153 @@
    "src": "silex"
   },
   {
-   "s": "ag:planner",
-   "t": "grp:agent",
+   "s": "ent:procurement:unverified-bank-change-prohibited-",
+   "t": "dom:procurement",
+   "pred": "DEFINED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ent:procurement:unverified-bank-change-prohibited-",
+   "t": "grp:policy",
    "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "dom:horizontal",
+   "t": "grp:workflow",
+   "pred": "SPECIALIZES",
+   "src": "silex"
+  },
+  {
+   "s": "ag:planner",
+   "t": "dom:finance",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:planner",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:memory-st",
-   "t": "grp:agent",
-   "pred": "SPECIALIZES",
+   "t": "dom:horizontal",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:memory-lt",
-   "t": "grp:agent",
-   "pred": "SPECIALIZES",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:retriever",
-   "t": "grp:resource",
-   "pred": "SPECIALIZES",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:tool-reg",
-   "t": "grp:tool",
-   "pred": "SPECIALIZES",
+   "t": "dom:procurement",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:tool-reg",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:tool-reg",
+   "t": "dom:finance",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:mcp",
-   "t": "grp:tool",
-   "pred": "SPECIALIZES",
+   "t": "dom:finance",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:mcp",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:subagent",
-   "t": "grp:agent",
-   "pred": "SPECIALIZES",
+   "t": "dom:horizontal",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:cred-store",
-   "t": "grp:identity",
-   "pred": "SPECIALIZES",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:exec-ctx",
-   "t": "grp:agent",
-   "pred": "SPECIALIZES",
+   "t": "dom:horizontal",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:guardrail",
-   "t": "grp:policy",
-   "pred": "SPECIALIZES",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:guardrail",
+   "t": "dom:procurement",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:hitl",
-   "t": "grp:policy",
-   "pred": "SPECIALIZES",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
    "src": "silex"
   },
   {
    "s": "ag:trace",
-   "t": "grp:workflow",
-   "pred": "SPECIALIZES",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:trace",
+   "t": "dom:finance",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:trace",
+   "t": "dom:procurement",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:harness",
+   "t": "dom:support",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "ag:harness",
+   "t": "dom:finance",
+   "pred": "DEPLOYED_IN",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0000",
+   "t": "ag:retriever",
+   "pred": "THREATENS",
    "src": "silex"
   },
   {
@@ -13844,7 +15494,7 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0000",
+   "s": "atlas:AML.T0001",
    "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
@@ -13856,7 +15506,7 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0001",
+   "s": "atlas:AML.T0002",
    "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
@@ -13868,7 +15518,7 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0002",
+   "s": "atlas:AML.T0003",
    "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
@@ -13880,7 +15530,7 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0003",
+   "s": "atlas:AML.T0004",
    "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
@@ -13892,8 +15542,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0004",
-   "t": "ag:retriever",
+   "s": "atlas:AML.T0005",
+   "t": "ag:cred-store",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -13904,8 +15554,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0005",
-   "t": "ag:cred-store",
+   "s": "atlas:AML.T0006",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -13916,8 +15566,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0006",
-   "t": "ag:planner",
+   "s": "atlas:AML.T0007",
+   "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -13928,26 +15578,14 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0007",
-   "t": "ag:retriever",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0008",
-   "t": "atlas:AML.TA0003",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0008",
    "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0010",
-   "t": "atlas:AML.TA0004",
+   "s": "atlas:AML.T0008",
+   "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -13958,13 +15596,25 @@
    "src": "silex"
   },
   {
+   "s": "atlas:AML.T0010",
+   "t": "atlas:AML.TA0004",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0011",
+   "t": "ag:tool-reg",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
    "s": "atlas:AML.T0011",
    "t": "atlas:AML.TA0005",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0011",
+   "s": "atlas:AML.T0012",
    "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
@@ -13976,25 +15626,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0012",
-   "t": "ag:tool-reg",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0013",
-   "t": "atlas:AML.TA0008",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0013",
    "t": "ag:trace",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0014",
+   "s": "atlas:AML.T0013",
    "t": "atlas:AML.TA0008",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14006,8 +15644,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0015",
-   "t": "atlas:AML.TA0004",
+   "s": "atlas:AML.T0014",
+   "t": "atlas:AML.TA0008",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14018,8 +15656,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0016",
-   "t": "atlas:AML.TA0003",
+   "s": "atlas:AML.T0015",
+   "t": "atlas:AML.TA0004",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14030,7 +15668,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0017",
+   "s": "atlas:AML.T0016",
    "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14038,6 +15676,18 @@
   {
    "s": "atlas:AML.T0017",
    "t": "ag:planner",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0017",
+   "t": "atlas:AML.TA0003",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0018",
+   "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14048,25 +15698,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0018",
-   "t": "ag:tool-reg",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0019",
-   "t": "atlas:AML.TA0003",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0019",
    "t": "ag:memory-lt",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0020",
+   "s": "atlas:AML.T0019",
    "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14078,7 +15716,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0021",
+   "s": "atlas:AML.T0020",
    "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14090,8 +15728,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0024",
-   "t": "atlas:AML.TA0010",
+   "s": "atlas:AML.T0021",
+   "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14102,7 +15740,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0025",
+   "s": "atlas:AML.T0024",
    "t": "atlas:AML.TA0010",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14114,8 +15752,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0029",
-   "t": "atlas:AML.TA0011",
+   "s": "atlas:AML.T0025",
+   "t": "atlas:AML.TA0010",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14126,7 +15764,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0031",
+   "s": "atlas:AML.T0029",
    "t": "atlas:AML.TA0011",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14138,7 +15776,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0034",
+   "s": "atlas:AML.T0031",
    "t": "atlas:AML.TA0011",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14150,8 +15788,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0035",
-   "t": "atlas:AML.TA0009",
+   "s": "atlas:AML.T0034",
+   "t": "atlas:AML.TA0011",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14162,7 +15800,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0036",
+   "s": "atlas:AML.T0035",
    "t": "atlas:AML.TA0009",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14174,7 +15812,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0037",
+   "s": "atlas:AML.T0036",
    "t": "atlas:AML.TA0009",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14186,8 +15824,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0040",
-   "t": "atlas:AML.TA0000",
+   "s": "atlas:AML.T0037",
+   "t": "atlas:AML.TA0009",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14198,7 +15836,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0041",
+   "s": "atlas:AML.T0040",
    "t": "atlas:AML.TA0000",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14210,8 +15848,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0042",
-   "t": "atlas:AML.TA0001",
+   "s": "atlas:AML.T0041",
+   "t": "atlas:AML.TA0000",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14222,7 +15860,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0043",
+   "s": "atlas:AML.T0042",
    "t": "atlas:AML.TA0001",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14234,8 +15872,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0044",
-   "t": "atlas:AML.TA0000",
+   "s": "atlas:AML.T0043",
+   "t": "atlas:AML.TA0001",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14246,8 +15884,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0046",
-   "t": "atlas:AML.TA0011",
+   "s": "atlas:AML.T0044",
+   "t": "atlas:AML.TA0000",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14258,13 +15896,25 @@
    "src": "silex"
   },
   {
+   "s": "atlas:AML.T0046",
+   "t": "atlas:AML.TA0011",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0047",
+   "t": "ag:cred-store",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
    "s": "atlas:AML.T0047",
    "t": "atlas:AML.TA0000",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0047",
+   "s": "atlas:AML.T0048",
    "t": "ag:cred-store",
    "pred": "THREATENS",
    "src": "silex"
@@ -14276,8 +15926,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0048",
-   "t": "ag:cred-store",
+   "s": "atlas:AML.T0049",
+   "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14288,25 +15938,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0049",
-   "t": "ag:tool-reg",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0050",
-   "t": "atlas:AML.TA0005",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0050",
    "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0051",
+   "s": "atlas:AML.T0050",
    "t": "atlas:AML.TA0005",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14318,8 +15956,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0052",
-   "t": "atlas:AML.TA0004",
+   "s": "atlas:AML.T0051",
+   "t": "atlas:AML.TA0005",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14330,14 +15968,26 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0053",
-   "t": "atlas:AML.TA0005",
+   "s": "atlas:AML.T0052",
+   "t": "atlas:AML.TA0004",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
   {
    "s": "atlas:AML.T0053",
    "t": "ag:tool-reg",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0053",
+   "t": "atlas:AML.TA0005",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0054",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14348,8 +15998,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0054",
-   "t": "ag:planner",
+   "s": "atlas:AML.T0055",
+   "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14360,8 +16010,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0055",
-   "t": "ag:retriever",
+   "s": "atlas:AML.T0056",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14372,7 +16022,7 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0056",
+   "s": "atlas:AML.T0057",
    "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
@@ -14384,8 +16034,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0057",
-   "t": "ag:planner",
+   "s": "atlas:AML.T0058",
+   "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14396,8 +16046,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0058",
-   "t": "ag:tool-reg",
+   "s": "atlas:AML.T0059",
+   "t": "ag:memory-lt",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14408,8 +16058,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0059",
-   "t": "ag:memory-lt",
+   "s": "atlas:AML.T0060",
+   "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14420,8 +16070,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0060",
-   "t": "ag:tool-reg",
+   "s": "atlas:AML.T0061",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14432,25 +16082,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0061",
-   "t": "ag:planner",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0062",
-   "t": "atlas:AML.TA0008",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0062",
    "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0063",
+   "s": "atlas:AML.T0062",
    "t": "atlas:AML.TA0008",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14458,6 +16096,18 @@
   {
    "s": "atlas:AML.T0063",
    "t": "ag:tool-reg",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0063",
+   "t": "atlas:AML.TA0008",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0064",
+   "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14468,25 +16118,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0064",
-   "t": "ag:retriever",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0065",
-   "t": "atlas:AML.TA0003",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0065",
    "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0066",
+   "s": "atlas:AML.T0065",
    "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14498,8 +16136,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0067",
-   "t": "atlas:AML.TA0007",
+   "s": "atlas:AML.T0066",
+   "t": "atlas:AML.TA0003",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14510,7 +16148,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0068",
+   "s": "atlas:AML.T0067",
    "t": "atlas:AML.TA0007",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14518,6 +16156,18 @@
   {
    "s": "atlas:AML.T0068",
    "t": "ag:retriever",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0068",
+   "t": "atlas:AML.TA0007",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0069",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14528,8 +16178,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0069",
-   "t": "ag:planner",
+   "s": "atlas:AML.T0070",
+   "t": "ag:memory-lt",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14540,8 +16190,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0070",
-   "t": "ag:memory-lt",
+   "s": "atlas:AML.T0071",
+   "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14552,8 +16202,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0071",
-   "t": "ag:retriever",
+   "s": "atlas:AML.T0072",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14564,25 +16214,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0072",
-   "t": "ag:planner",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0073",
-   "t": "atlas:AML.TA0007",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0073",
    "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0074",
+   "s": "atlas:AML.T0073",
    "t": "atlas:AML.TA0007",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14594,8 +16232,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0075",
-   "t": "atlas:AML.TA0008",
+   "s": "atlas:AML.T0074",
+   "t": "atlas:AML.TA0007",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14606,8 +16244,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0076",
-   "t": "atlas:AML.TA0007",
+   "s": "atlas:AML.T0075",
+   "t": "atlas:AML.TA0008",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14618,14 +16256,26 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0077",
-   "t": "atlas:AML.TA0010",
+   "s": "atlas:AML.T0076",
+   "t": "atlas:AML.TA0007",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
   {
    "s": "atlas:AML.T0077",
    "t": "ag:planner",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0077",
+   "t": "atlas:AML.TA0010",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0078",
+   "t": "ag:retriever",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14636,8 +16286,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0078",
-   "t": "ag:retriever",
+   "s": "atlas:AML.T0079",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14648,25 +16298,13 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0079",
-   "t": "ag:planner",
-   "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "atlas:AML.T0080",
-   "t": "atlas:AML.TA0006",
-   "pred": "ACHIEVES",
-   "src": "atlas"
-  },
-  {
    "s": "atlas:AML.T0080",
    "t": "ag:hitl",
    "pred": "THREATENS",
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0081",
+   "s": "atlas:AML.T0080",
    "t": "atlas:AML.TA0006",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14678,8 +16316,8 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0082",
-   "t": "atlas:AML.TA0013",
+   "s": "atlas:AML.T0081",
+   "t": "atlas:AML.TA0006",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
@@ -14690,7 +16328,7 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0083",
+   "s": "atlas:AML.T0082",
    "t": "atlas:AML.TA0013",
    "pred": "ACHIEVES",
    "src": "atlas"
@@ -14702,14 +16340,26 @@
    "src": "silex"
   },
   {
-   "s": "atlas:AML.T0084",
-   "t": "atlas:AML.TA0008",
+   "s": "atlas:AML.T0083",
+   "t": "atlas:AML.TA0013",
    "pred": "ACHIEVES",
    "src": "atlas"
   },
   {
    "s": "atlas:AML.T0084",
    "t": "ag:tool-reg",
+   "pred": "THREATENS",
+   "src": "silex"
+  },
+  {
+   "s": "atlas:AML.T0084",
+   "t": "atlas:AML.TA0008",
+   "pred": "ACHIEVES",
+   "src": "atlas"
+  },
+  {
+   "s": "atlas:AML.T0085",
+   "t": "ag:cred-store",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14720,8 +16370,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0085",
-   "t": "ag:cred-store",
+   "s": "atlas:AML.T0086",
+   "t": "ag:tool-reg",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14732,8 +16382,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0086",
-   "t": "ag:tool-reg",
+   "s": "atlas:AML.T0087",
+   "t": "ag:cred-store",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14744,8 +16394,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0087",
-   "t": "ag:cred-store",
+   "s": "atlas:AML.T0088",
+   "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14756,7 +16406,7 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0088",
+   "s": "atlas:AML.T0089",
    "t": "ag:planner",
    "pred": "THREATENS",
    "src": "silex"
@@ -14768,8 +16418,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0089",
-   "t": "ag:planner",
+   "s": "atlas:AML.T0090",
+   "t": "ag:memory-lt",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14780,8 +16430,8 @@
    "src": "atlas"
   },
   {
-   "s": "atlas:AML.T0090",
-   "t": "ag:memory-lt",
+   "s": "atlas:AML.T0091",
+   "t": "ag:cred-store",
    "pred": "THREATENS",
    "src": "silex"
   },
@@ -14790,12 +16440,6 @@
    "t": "atlas:AML.TA0015",
    "pred": "ACHIEVES",
    "src": "atlas"
-  },
-  {
-   "s": "atlas:AML.T0091",
-   "t": "ag:cred-store",
-   "pred": "THREATENS",
-   "src": "silex"
   },
   {
    "s": "owasp:LLM01",
@@ -14945,36 +16589,6 @@
    "s": "owaspa:T15",
    "t": "ag:hitl",
    "pred": "THREATENS",
-   "src": "silex"
-  },
-  {
-   "s": "d3f:d3f:NetworkResourceAccessMediation",
-   "t": "atlas:AML.TA0003",
-   "pred": "COUNTERS",
-   "src": "silex"
-  },
-  {
-   "s": "d3f:d3f:AccessMediation",
-   "t": "atlas:AML.TA0004",
-   "pred": "COUNTERS",
-   "src": "silex"
-  },
-  {
-   "s": "d3f:d3f:AccessMediation",
-   "t": "atlas:AML.TA0000",
-   "pred": "COUNTERS",
-   "src": "silex"
-  },
-  {
-   "s": "d3f:d3f:AccessMediation",
-   "t": "atlas:AML.TA0013",
-   "pred": "COUNTERS",
-   "src": "silex"
-  },
-  {
-   "s": "d3f:d3f:ApplicationProtocolCommandAnalysis",
-   "t": "atlas:AML.TA0014",
-   "pred": "COUNTERS",
    "src": "silex"
   },
   {
@@ -15417,8 +17031,8 @@
   },
   {
    "s": "rt-inc-1042",
-   "t": "grp:threat",
-   "pred": "SPECIALIZES",
+   "t": "rt-wf-021",
+   "pred": "OCCURRED_IN",
    "src": "silex"
   },
   {
@@ -15429,8 +17043,8 @@
   },
   {
    "s": "rt-inc-0987",
-   "t": "grp:threat",
-   "pred": "SPECIALIZES",
+   "t": "rt-wf-055",
+   "pred": "OCCURRED_IN",
    "src": "silex"
   },
   {
@@ -15441,8 +17055,8 @@
   },
   {
    "s": "rt-out-loss",
-   "t": "grp:outcome",
-   "pred": "SPECIALIZES",
+   "t": "ag:harness",
+   "pred": "INSTANCE_OF",
    "src": "silex"
   },
   {
@@ -15453,8 +17067,8 @@
   },
   {
    "s": "rt-out-pii",
-   "t": "grp:outcome",
-   "pred": "SPECIALIZES",
+   "t": "ag:harness",
+   "pred": "INSTANCE_OF",
    "src": "silex"
   },
   {
@@ -15465,8 +17079,8 @@
   },
   {
    "s": "rt-out-served",
-   "t": "grp:outcome",
-   "pred": "SPECIALIZES",
+   "t": "ag:harness",
+   "pred": "INSTANCE_OF",
    "src": "silex"
   },
   {

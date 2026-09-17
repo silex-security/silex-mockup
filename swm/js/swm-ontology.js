@@ -10,8 +10,13 @@
   'use strict';
   var d3 = global.d3, SWM = global.SWM;
 
-  /* predicates that make a node a child of another node */
-  var HIER = { SUBCLASS_OF:1, SPECIALIZES:1, PART_OF:1, DEFINED_IN:1, INSTANCE_OF:1, ACHIEVES:1, BELONGS_TO:1, REALISES:1 };
+  /* predicates that draw the L1 → L2 → L3 → L4 chain; every node carries its
+     own parent in the bundle, so these only control how the edge is styled */
+  var HIER = { SUBCLASS_OF:1, SPECIALIZES:1, PART_OF:1, DEFINED_IN:1, INSTANCE_OF:1,
+               ACHIEVES:1, DEPLOYED_IN:1, THREATENS:1, OCCURRED_IN:1 };
+  /* threat overlay hangs off an agentic component, but only once the viewer
+     asks for it — otherwise L4 would drown in 118 published techniques */
+  var OVERLAY = { technique:1, risk:1 };
   var MAX_VISIBLE = 240;
 
   function init() {
@@ -22,19 +27,21 @@
     /* ---- index ---------------------------------------------------------- */
     var byId = new Map(), children = new Map(), parentOf = new Map(), rel = new Map();
     data.nodes.forEach(function (n) { byId.set(n.id, n); children.set(n.id, []); rel.set(n.id, []); });
+    data.nodes.forEach(function (n) {
+      if (n.parent && children.has(n.parent)) { parentOf.set(n.id, n.parent); children.get(n.parent).push(n.id); }
+    });
     data.links.forEach(function (l) {
       if (!byId.has(l.s) || !byId.has(l.t)) return;
       rel.get(l.s).push({ pred: l.pred, other: l.t, dir: 'out', src: l.src });
       rel.get(l.t).push({ pred: l.pred, other: l.s, dir: 'in', src: l.src });
-      if (HIER[l.pred] && !parentOf.has(l.s)) { parentOf.set(l.s, l.t); children.get(l.t).push(l.s); }
     });
     var anchors = data.nodes.filter(function (n) { return n.anchor; });
     var groupName = {}; data.groups.forEach(function (g) { groupName[g.id] = g.name; });
 
     var state = {
-      layer: 1, view: 'graph', colorBy: 'layer', query: '',
+      layer: SWM.level || 1, view: 'graph', colorBy: 'layer', query: '',
       groups: new Set(data.groups.map(function (g) { return g.id; })),
-      expanded: new Set(), selected: null, trail: []
+      expanded: new Set(), opened: new Set(), selected: null, trail: []
     };
 
     /* ---- shell ---------------------------------------------------------- */
@@ -85,6 +92,7 @@
     /* ---- visibility ----------------------------------------------------- */
     function defaultExpansion() {
       state.expanded = new Set(anchors.map(function (a) { return a.id; }));
+      state.opened = new Set();
       if (state.layer >= 2) data.nodes.forEach(function (n) { if (n.layer < state.layer && n.layer > 1) state.expanded.add(n.id); });
       if (state.layer >= 4) data.nodes.forEach(function (n) { if (n.kind === 'component' || n.kind === 'domain') state.expanded.add(n.id); });
     }
@@ -97,7 +105,9 @@
         if (!state.expanded.has(n.id)) return;
         children.get(n.id).forEach(function (cid) {
           var c = byId.get(cid);
-          if (c && c.layer <= state.layer && state.groups.has(c.group)) walk(c);
+          if (!c || c.layer > state.layer || !state.groups.has(c.group)) return;
+          if (OVERLAY[c.kind] && !state.opened.has(n.id)) return;
+          walk(c);
         });
       }
       anchors.forEach(function (a) { if (state.groups.has(a.group)) walk(a); });
@@ -369,8 +379,8 @@
       if (!n) return;
       state.selected = id;
       if (drill) {
-        if (state.expanded.has(id) && (children.get(id) || []).length) state.expanded.delete(id);
-        else state.expanded.add(id);
+        if (state.expanded.has(id) && (children.get(id) || []).length) { state.expanded.delete(id); state.opened.delete(id); }
+        else { state.expanded.add(id); state.opened.add(id); }
         var path = [], cur = id;
         while (cur) { path.unshift(cur); cur = parentOf.get(cur); }
         state.trail = path;
@@ -456,13 +466,19 @@
     }
 
     /* ---- events --------------------------------------------------------- */
-    function setLayer(l, quiet) {
+    function applyLayer(l, quiet) {
       state.layer = l;
       document.querySelectorAll('#swmLevels .swm-level').forEach(function (b) {
         b.classList.toggle('active', +b.dataset.level === l);
       });
       if (!quiet) { defaultExpansion(); state.trail = []; render(); }
     }
+    function setLayer(l, quiet) {
+      if (quiet) { applyLayer(l, true); SWM.level = l; return; }
+      if (l === SWM.level) { applyLayer(l); return; }
+      SWM.setLevel(l, 'explorer');   /* the bus calls applyLayer back */
+    }
+    SWM.onLevel(function (l) { applyLayer(l); });
     document.getElementById('swmLevels').addEventListener('click', function (ev) {
       var b = ev.target.closest('.swm-level'); if (b) setLayer(+b.dataset.level);
     });
@@ -519,6 +535,7 @@
 
     /* ---- go ------------------------------------------------------------- */
     defaultExpansion();
+    applyLayer(state.layer, true);
     renderInspector(null);
     render();
     mount._swmRender = render;

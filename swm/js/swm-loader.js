@@ -12,9 +12,10 @@
     'swm/data/coverage.js',
     'swm/js/swm-core.js',
     'swm/js/swm-ontology.js',
-    'swm/js/swm-coverage.js'
+    'swm/js/swm-coverage.js',
+    'swm/js/swm-layers.js'
   ];
-  var PANELS = { 'wm-overview': 'swmCoverage', 'wm-ontology': 'swmOntology' };
+  var PANELS = { 'wm-overview': 'swmCoverage', 'wm-ontology': 'swmOntology', 'wm-architecture': 'swmLayers' };
   var state = 'idle', waiting = [];
 
   function fail(msg) {

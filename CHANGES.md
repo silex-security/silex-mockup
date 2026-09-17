@@ -229,3 +229,23 @@ The PRD alignment above supersedes the navigation grouping, the Proving Ground s
 - **Weight**: D3 and the ~300KB bundle load only when one of the two panels is first opened,
   so the rest of the demo is unchanged. D3 is vendored, so the demo also runs offline.
 - Domain Suites, Coverage Gaps and Ontology Layers panels are untouched.
+
+### 2026-09-17 (later) — the layers are one chain, L1 → L2 → L3 → L4
+
+- **Corrected relationship.** The Ontology Layers tab used to draw L2 and L3 as intersecting lenses
+  ("neither is instantiated by the other"). They are a chain: an agentic system is a specialisation
+  of the domain it runs in. The data now follows the same rule — each L3 component hangs under the
+  domain pack its runtime instances are actually deployed in, with the other domains kept as
+  `DEPLOYED_IN` edges, and components used everywhere land in a "Cross-domain & Horizontal" pack
+  (the same bucket the horizontal-agents coverage gap talks about).
+- **The chain is enforced.** Every node carries an explicit `parent` and the build script fails if a
+  parent sits more than one layer above its child. `L1→L2 43 · L2→L3 21 · L3→L4 22` relations cross
+  the hops today.
+- **Ontology Layers is now a D3 panel**: four bands sized and counted from the bundle, ribbons as
+  thick as the relations crossing each hop, group mix per layer, and a side card explaining each hop
+  with a real example.
+- **Shared abstraction level.** `SWM.setLevel` / `SWM.onLevel` join the Layers tab and the Ontology
+  Explorer: pick L3 on either side and the other is already there.
+- **Side effect worth noting:** ATLAS techniques and the OWASP catalogues previously had no
+  hierarchical parent, so they were unreachable by expanding the graph. They now hang off the
+  component they threaten and appear when that component is opened.

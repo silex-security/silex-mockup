@@ -1,8 +1,18 @@
 # Security World Model — Observatory
 
-D3-based replacement for the **World Model Coverage** and **Security Ontology** panels
-under *Security World Model* in [`../index.html`](../index.html). Two panels, one shared
-notion of abstraction: **L1 general → L2 domain → L3 agentic-system → L4 runtime**.
+D3-based replacement for the **World Model Coverage**, **Security Ontology** and
+**Ontology Layers** panels under *Security World Model* in [`../index.html`](../index.html).
+Three panels, one shared abstraction level (`SWM.level`, `SWM.setLevel`, `SWM.onLevel`):
+**L1 general → L2 domain → L3 agentic-system → L4 runtime**.
+
+## The chain is a hard rule, not a drawing
+
+Every node in the bundle names one `parent`, and `build-ontology.mjs` exits non-zero if any parent
+sits more than one layer above its child. So the layers are a real chain rather than a picture of
+one: an agentic component hangs under the domain pack it is actually deployed in (derived from the
+runtime instances), a published ATLAS or OWASP threat hangs under the component it targets, and a
+runtime node hangs under the component it instantiates. The Ontology Layers panel draws exactly that
+— band counts and ribbon widths come from `ontology.chain`.
 
 ```
 swm/
@@ -11,7 +21,8 @@ swm/
   js/swm-loader.js         lazy-loads d3 + bundles the first time a panel is opened
   js/swm-ontology.js       Ontology Explorer  (graph / hierarchy / relation matrix)
   js/swm-coverage.js       Coverage Observatory (zoomable sunburst + contextual radar)
-  data/ontology.json|.js   generated graph: 591 nodes, 769 typed relations
+  js/swm-layers.js         Ontology Layers     (the L1→L2→L3→L4 chain, bands + ribbons)
+  data/ontology.json|.js   generated graph: 598 nodes, 800 typed relations, plus a chain summary
   data/coverage.json|.js   generated coverage tree, gaps and KPIs
   data/SOURCES.md          where every public node came from, and its licence
   tools/build-ontology.mjs fetch + distil pipeline (node, no dependencies)
