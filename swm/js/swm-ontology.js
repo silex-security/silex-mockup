@@ -341,7 +341,7 @@
             .on('mouseleave', function () { SWM.tip.hide(); });
           if (cell.n) g.append('text').attr('class', 'lbl')
             .attr('fill', SWM.textOn(scale(cell.n)))
-            .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').attr('stroke-width', 2.2)
+            .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').attr('stroke-width', 1.6)
             .attr('stroke', SWM.haloOn(scale(cell.n)))
             .attr('font-weight', 640)
             .attr('x', pad.l + c * size + size / 2).attr('y', pad.t + r * size + size / 2 + 3)
@@ -353,8 +353,6 @@
           .attr('transform', 'translate(' + (pad.l + r * size + size / 2) + ',' + (pad.t - 10) + ') rotate(-42)')
           .attr('text-anchor', 'start').text(rowG.name);
       });
-      g.append('text').attr('class', 'lbl').attr('x', pad.l).attr('y', pad.t - 52)
-        .text('Rows act on columns · cell = typed relations visible at L1–L' + state.layer);
     }
 
     /* ---- filters, search, selection ------------------------------------- */
@@ -453,7 +451,9 @@
     function renderLegend() {
       var el = document.getElementById('swmLegend');
       if (state.view === 'matrix') {
-        el.innerHTML = '<h6>Relation density</h6><div class="swm-ramp"><span>few</span><span class="bar"></span><span>many</span></div>';
+        el.innerHTML = '<h6>Relation density · rows act on columns</h6>' +
+          '<div class="swm-ramp"><span>few</span><span class="bar"></span><span>many</span></div>' +
+          '<div class="swm-legend-items" style="margin-top:6px"><span class="swm-legend-item">cell = typed relations visible at L1–L' + state.layer + '</span></div>';
         return;
       }
       var scaleHtml = state.colorBy === 'layer'

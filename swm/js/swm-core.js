@@ -10,7 +10,7 @@
      Light theme: both ramps run light -> dark on the white canvas, so the
      deeper the layer and the higher the coverage, the darker the mark. */
   var LAYER_RAMP    = ['#104281', '#256abf', '#3987e5', '#86b6ef'];
-  var COVERAGE_RAMP = ['#5cc79e', '#31b08b', '#1d8c6c', '#166b52', '#0e4c3a'];
+  var COVERAGE_RAMP = ['#b8a3ee', '#9578e1', '#6f50c9', '#50339c', '#35206e'];
   /* reserved status palette — fixed, never themed, never carries meaning alone */
   var STATUS = {
     critical: { color:'#d03b3b', label:'Critical', icon:'▲' },
@@ -21,7 +21,7 @@
   /* text and surface tokens the SVG layers draw with — the CSS custom
      properties cannot reach attribute values, so they live here too */
   var INK = {
-    ink:'#17191d', ink2:'#4f5864', ink3:'#68707c', faint:'#9aa3b2',
+    ink:'#17191d', ink2:'#4f5864', ink3:'#68707c', faint:'#7b8494',
     surface:'#ffffff', soft:'#f5f6f8', line:'#e3e6ea',
     grid:'rgba(23,25,29,.10)', edge:'rgba(23,25,29,.20)',
     wash:'rgba(23,25,29,.05)', accent:'#256abf', accentSoft:'rgba(37,106,191,.12)'
@@ -77,15 +77,17 @@
       var l1 = SWM.luminance(a), l2 = SWM.luminance(b);
       return (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05);
     },
-    /* readable text colour on a filled mark: white only when it truly clears
-       3:1, otherwise ink — never a guess about "light or dark" */
+    /* readable text colour on a filled mark: whichever of white and ink has the
+       higher measured contrast against that exact fill — never a guess about
+       "light or dark", and never a barely-passing choice when the other option
+       is far better */
     textOn: function (fill) {
-      return SWM.contrast('#ffffff', fill) >= 3 ? '#ffffff' : INK.ink;
+      return SWM.contrast('#ffffff', fill) >= SWM.contrast(INK.ink, fill) ? '#ffffff' : INK.ink;
     },
     /* the opposite colour, used as a halo so a label survives landing on a
        boundary between two differently filled marks */
     haloOn: function (fill) {
-      return SWM.textOn(fill) === '#ffffff' ? 'rgba(12,20,16,.55)' : 'rgba(255,255,255,.85)';
+      return SWM.textOn(fill) === '#ffffff' ? 'rgba(14,10,28,.45)' : 'rgba(255,255,255,.92)';
     },
 
     coverageColor: function (v) {

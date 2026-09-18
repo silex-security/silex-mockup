@@ -120,9 +120,11 @@
 
       label = g.append('g').attr('pointer-events', 'none').attr('text-anchor', 'middle')
         .selectAll('text').data(root.descendants().slice(1)).join('text')
-        .attr('dy', '0.34em').attr('font-size', 10)
+        .attr('dy', '0.34em').attr('font-size', 10).attr('font-weight', 600)
         .attr('fill', function (n) { return SWM.textOn(fillOf(n)); })
-        .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').attr('stroke-width', 2.4)
+        /* a thin halo only: a heavy one closes up the counters of 10px glyphs
+           and white-on-dark labels start reading as grey */
+        .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').attr('stroke-width', 1.7)
         .attr('stroke', function (n) { return SWM.haloOn(fillOf(n)); })
         .attr('opacity', function (n) { return +labelVisible(n.current); })
         .attr('transform', function (n) { return labelTransform(n.current); })

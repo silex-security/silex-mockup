@@ -264,3 +264,17 @@ The PRD alignment above supersedes the navigation grouping, the Proving Ground s
 - Fixed a rendering bug the light theme exposed: collapsed sunburst arcs and their labels were
   hidden with `fill-opacity`, which leaves the stroke painted — they showed up as a white seam and
   a stack of outlined glyphs at twelve o'clock. Both now use `opacity`.
+
+### 2026-09-17 (final pass) — violet coverage ramp, and the bug that was greying every label
+
+- **The real cause of the unreadable labels:** `.swm-stage text { fill: … }` in the stylesheet was
+  overriding the `fill` attribute on every arc, band and matrix label, because a CSS declaration
+  beats an SVG presentation attribute. Whatever contrast the code picked, the label was repainted
+  muted grey. The fallback is now scoped to `text:not([fill])`.
+- **Coverage now uses a violet ramp** (`#b8a3ee → #35206e`) instead of the teal one. Teal's middle
+  steps sat where neither black nor white reads well; every violet step leaves at least 5:1 for the
+  chosen text colour.
+- `SWM.textOn()` picks the higher-contrast option rather than the first one that clears 3:1, and the
+  halo was thinned (1.7px) so it stops closing up the counters of 10px glyphs.
+- The relation-matrix caption moved into the legend, where it no longer collides with the rotated
+  column headers.

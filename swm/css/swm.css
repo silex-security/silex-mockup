@@ -4,7 +4,7 @@
    Colour encodings, re-validated with the dataviz palette validator against a
    white surface (#ffffff, 2026-09-17):
      - layer depth (L1..L4)  -> ordinal blue ramp,  ALL CHECKS PASS
-     - coverage percentage   -> ordinal teal ramp,  ALL CHECKS PASS
+     - coverage percentage   -> ordinal violet ramp, ALL CHECKS PASS
      - categorical (<=3)     -> #2a78d6 / #eb6834 / #1baf7a, all-pairs PASS
    Eight ontology groups are NOT colour-coded: eight simultaneous hues cannot
    clear the all-pairs CVD floor in a node-link view, so the group rides on
@@ -23,7 +23,7 @@
   --swm-l1:#104281; --swm-l2:#256abf; --swm-l3:#3987e5; --swm-l4:#86b6ef;
 
   /* coverage ramp (ordinal, one hue, low -> high) */
-  --swm-c1:#5cc79e; --swm-c2:#31b08b; --swm-c3:#1d8c6c; --swm-c4:#166b52; --swm-c5:#0e4c3a;
+  --swm-c1:#b8a3ee; --swm-c2:#9578e1; --swm-c3:#6f50c9; --swm-c4:#50339c; --swm-c5:#35206e;
 
   /* reserved status palette — always shipped with an icon + label */
   --swm-good:#0ca30c; --swm-warn:#fab219; --swm-serious:#ec835a; --swm-critical:#d03b3b;
@@ -76,7 +76,11 @@
   box-shadow:inset 0 0 0 1px var(--line),0 10px 26px rgba(22,28,45,.06);min-height:460px}
 .swm-stage svg{display:block;width:100%;position:relative;z-index:1}
 .swm-stage .grid-line{stroke:var(--swm-grid);stroke-width:1}
-.swm-stage text{fill:var(--swm-ink-2);font-size:10px}
+/* only a fallback: a text element that carries its own fill (the contrast-picked
+   arc, band and cell labels) must win — a CSS declaration beats an SVG
+   presentation attribute, which silently greyed every label before */
+.swm-stage text:not([fill]){fill:var(--swm-ink-2)}
+.swm-stage text{font-size:10px}
 
 .swm-stage-bar{position:absolute;inset:10px 12px auto 12px;z-index:3;display:flex;justify-content:space-between;
   align-items:flex-start;gap:12px;pointer-events:none}
@@ -116,7 +120,7 @@
 .swm-node .glyph{stroke:#fff;stroke-width:1.5;transition:filter .2s}
 .swm-node:hover .glyph,.swm-node.selected .glyph{filter:drop-shadow(0 1px 4px rgba(16,66,129,.45))}
 .swm-node.selected .glyph{stroke:var(--ink);stroke-width:2}
-.swm-node text{fill:var(--swm-ink);font-size:10px;paint-order:stroke;stroke:#fff;stroke-width:3.5;
+.swm-node text{fill:var(--swm-ink);font-size:10px;font-weight:560;paint-order:stroke;stroke:#fff;stroke-width:2.8;
   stroke-linejoin:round;pointer-events:none}
 .swm-node.dim{opacity:.18}
 .swm-link.dim{opacity:.08}
@@ -196,8 +200,9 @@
 
 /* ---------- matrix view -------------------------------------------------- */
 .swm-matrix rect.cell{stroke:#fff;stroke-width:2}
-.swm-matrix text.lbl{fill:var(--swm-ink-2);font-size:9px}
-.swm-matrix text.lbl.hot{fill:#fff;font-weight:660}
+.swm-matrix text.lbl:not([fill]){fill:var(--swm-ink-2)}
+.swm-matrix text.lbl{font-size:9px}
+.swm-matrix text.lbl.hot:not([fill]){fill:#fff}
 
 /* ---------- misc --------------------------------------------------------- */
 .swm-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:10px}
