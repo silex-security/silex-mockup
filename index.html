@@ -265,15 +265,71 @@
     .rationale b{color:var(--ink)}
     .deploy-note{font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
     .deploy-note b{color:var(--ink)}
+    /* ── register toggle (dual-register: Assurance / Operations) ── */
+    .reg-toggle{display:flex;gap:3px;padding:3px;background:var(--soft);border-radius:10px;border:1px solid var(--line)}
+    .reg-toggle .reg{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .reg-toggle .reg.on{background:var(--panel);color:var(--blue2);box-shadow:0 1px 3px rgba(22,28,45,.1)}
+    .reg-hint{font-size:11px;color:var(--muted);margin-left:2px}
+    /* ── Assurance view (investor / technical register) ── */
+    #assurance{max-width:1060px}
+    #assurance .as-eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue2)}
+    #assurance h1{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.02em;margin:.3em 0 .2em;max-width:20ch}
+    #assurance .as-lede{font-size:clamp(15px,1.7vw,17px);color:var(--muted);max-width:64ch;margin:0}
+    #assurance .as-sec{margin-top:34px}
+    #assurance .as-sechead{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+    #assurance .as-sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);font-weight:700}
+    #assurance .as-sub{color:var(--muted);font-size:13.5px;margin:2px 0 0}
+    #assurance .as-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}
+    #assurance .as-kpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 16px;box-shadow:var(--shadow)}
+    #assurance .as-kpi .v{font-weight:760;font-size:26px;letter-spacing:-.02em}
+    #assurance .as-kpi .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+    #assurance .as-kpi .d{font-size:11px;margin-top:6px;font-weight:600}
+    #assurance .as-kpi .d.up{color:var(--green)}#assurance .as-kpi .d.down{color:var(--amber)}#assurance .as-kpi .d.flat{color:var(--muted)}
+    #assurance .as-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+    #assurance .as-corr{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px}
+    #assurance .as-corr .n{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:14px;text-align:center}
+    #assurance .as-corr .n b{display:block;font-size:14px}#assurance .as-corr .n span{font-size:11px;color:var(--muted)}
+    #assurance .as-corr .lk{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--amber);min-width:88px}
+    #assurance .as-corr .lk .ar{font-size:17px}#assurance .as-corr .lk small{font-size:9px;text-transform:uppercase;letter-spacing:.04em;text-align:center;color:var(--amber)}
+    #assurance .as-quote{border-left:3px solid var(--blue);padding-left:13px;color:var(--muted);font-size:13px;font-style:italic;margin:14px 0 0}
+    #assurance .as-vv{display:grid;grid-template-columns:112px 1fr 1fr;gap:11px}
+    #assurance .as-vv .h{font-family:ui-monospace,monospace;font-size:11.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;letter-spacing:.03em}
+    #assurance .as-vv .rl{font-family:ui-monospace,monospace;font-size:11.5px;font-weight:700;color:var(--muted);display:flex;align-items:center}
+    #assurance .as-vvc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
+    #assurance .as-vvc.val{border-top-color:var(--green)}#assurance .as-vvc.clo{border-top-color:var(--amber);cursor:pointer}
+    #assurance .as-vvc.clo:hover{border-color:var(--amber)}
+    #assurance .as-vvc h4{margin:0 0 3px;font-size:13.5px}#assurance .as-vvc p{margin:0;font-size:12px;color:var(--muted)}
+    #assurance .as-vvc .r{font-family:ui-monospace,monospace;font-size:12px;font-weight:600;margin-top:8px}#assurance .as-vvc .r.w{color:var(--amber)}
+    #assurance .as-wm{display:grid;grid-template-columns:1.25fr 1fr;gap:15px}
+    #assurance .as-layer{display:grid;grid-template-columns:148px 1fr 78px;gap:11px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+    #assurance .as-layer:last-of-type{border-bottom:0}
+    #assurance .as-layer .ln{font-size:12.5px}#assurance .as-layer .ln b{font-family:ui-monospace,monospace}#assurance .as-layer .ln small{display:block;color:var(--muted);font-size:10px}
+    #assurance .as-b{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}#assurance .as-b i{display:block;height:100%;background:var(--blue);border-radius:4px}
+    #assurance .as-layer .pc{font-family:ui-monospace,monospace;font-size:12px;text-align:right;color:var(--muted)}#assurance .as-layer .pc b{color:var(--ink)}
+    #assurance .as-srcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}#assurance .as-src{font-family:ui-monospace,monospace;font-size:10.5px;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:4px 8px;color:var(--muted)}#assurance .as-src b{color:var(--ink)}
+    #assurance .as-gaps{display:flex;flex-direction:column;gap:7px}
+    #assurance .as-gap{display:flex;gap:9px;align-items:flex-start;font-size:12px}#assurance .as-gap b{color:var(--ink)}#assurance .as-gap span{color:var(--muted)}
+    #assurance .as-sev{font-family:ui-monospace,monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap;margin-top:1px}
+    #assurance .as-sev.critical{background:var(--red-bg);color:var(--red)}#assurance .as-sev.serious{background:var(--amber-bg);color:var(--amber)}#assurance .as-sev.warning{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+    #assurance .as-flow{display:flex;flex-wrap:wrap;align-items:center;gap:7px}#assurance .as-fstep{font-family:ui-monospace,monospace;font-size:11.5px;background:var(--lav);color:var(--blue2);border-radius:8px;padding:6px 11px;font-weight:600}#assurance .as-flow .a{color:var(--muted)}
+    #assurance .as-unlock{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:14px}#assurance .as-unlock .u{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:13px}#assurance .as-unlock .u small{font-family:ui-monospace,monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}#assurance .as-unlock .u div{font-size:13.5px;margin-top:3px}#assurance .as-unlock .mid{font-size:20px;color:var(--green);text-align:center}
+    #assurance .as-open{appearance:none;border:1px solid var(--blue);background:var(--lav);color:var(--blue2);font:inherit;font-weight:600;font-size:12.5px;padding:8px 14px;border-radius:9px;cursor:pointer;margin-top:14px;display:inline-flex;align-items:center;gap:7px}
+    #assurance .as-glegend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px;font-size:11px;color:var(--muted);align-items:center}
+    @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
+    @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
 <div class="brand">SILE<span>X</span></div>
+<div class="section-label">Assurance</div>
+<nav class="nav">
+<button class="active" data-view="assurance"><span class="ico">◆</span>Assurance</button>
+</nav>
 <div class="section-label chg" data-chg="9/15 review: Blueprint Studio and Workflow Library moved here">Workspace</div>
 <nav class="nav">
-<button class="active" data-view="overview"><span class="ico">◫</span>Overview</button>
+<button data-view="overview"><span class="ico">◫</span>Overview</button>
 <button class="chg" data-chg="moved here" data-view="blueprint"><span class="ico">⌘</span>Agentic Blueprint Studio</button>
 <button class="chg" data-chg="moved here" data-view="library"><span class="ico">▦</span>Workflow Library</button>
 </nav>
@@ -296,7 +352,11 @@
 </aside>
 <main class="main">
 <header class="topbar">
-<div class="crumb">SILEX / <strong id="crumb">Overview</strong></div>
+<div class="crumb">SILEX / <strong id="crumb">Assurance</strong></div>
+<div class="reg-toggle" role="tablist" title="Switch register: Assurance (investor / technical) vs Operations (security team)">
+<button class="reg on" id="regAssurance" role="tab">◆ Assurance</button>
+<button class="reg" id="regOps" role="tab">▨ Operations</button>
+</div>
 <div class="top-actions">
 <span class="pill chg" data-chg="PRD §43">Simulated agents · illustrative data</span>
 <button class="pill chg-btn" id="defsBtn">ⓘ Definitions</button>
@@ -305,7 +365,77 @@
 </div>
 </header>
 <div class="content">
-<section class="view active" id="overview">
+<section class="view active" id="assurance">
+<div class="title-row"><div>
+<div class="as-eyebrow">Continuous Production Assurance</div>
+<h1>Proof that your agents still do what they should — as everything keeps changing.</h1>
+<p class="as-lede">SILEX runs continuous <b>Agent Verification &amp; Validation</b> on a live Enterprise World Model: verifying that agents follow their intended trajectories, and validating that the resulting business state — and the controls around it — still hold under today's reality.</p>
+</div></div>
+<div class="as-kpis">
+<div class="as-kpi"><div class="v">82%</div><div class="l">Weighted coverage</div><div class="d up">▲ +4 pts vs last calibration</div></div>
+<div class="as-kpi"><div class="v">29.4K</div><div class="l">Entities understood</div><div class="d flat">598 ontology types, typed &amp; linked</div></div>
+<div class="as-kpi"><div class="v">94%</div><div class="l">World-model fit</div><div class="d up">simulation vs observed agreement</div></div>
+<div class="as-kpi"><div class="v">8</div><div class="l">Known blind spots</div><div class="d down">▼ 2 critical · named &amp; addressable</div></div>
+</div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">The Correspondence Problem</h2><p class="as-sub">Three objects that used to travel together come apart once an agent holds real authority.</p></div></div>
+<div class="as-card"><div class="as-corr">
+<div class="n"><b>Designed Intent</b><span>prompts · blueprints · policy · permissions</span></div>
+<div class="lk"><span class="ar">↔</span><small>execution drifts<br>from design</small></div>
+<div class="n"><b>Executed Behavior</b><span>model reasoning · memory · tool responses</span></div>
+<div class="lk"><span class="ar">↔</span><small>outcome drifts<br>from intent</small></div>
+<div class="n"><b>Enterprise Reality</b><span>permissions · other agents · business state</span></div>
+</div><p class="as-quote">Correspondence cannot be verified without a model of reality; a useful model of reality must carry both semantics and causal structure.</p></div></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">02</span><div><h2 style="margin:0">Agent Verification &amp; Validation</h2><p class="as-sub">Verification asks whether execution conforms to spec. Validation asks whether the spec is still correct under reality.</p></div></div>
+<div class="as-vv">
+<div></div><div class="h">Verification — conforms to spec?</div><div class="h">Validation — spec still correct?</div>
+<div class="rl">Outcome side</div>
+<div class="as-vvc" data-jump="short-term"><h4>Actual state = expected state</h4><p>Replay every production trajectory against its designed path.</p><div class="r">1,240 trajectories replayed · 3 deviations flagged</div></div>
+<div class="as-vvc val" data-jump="long-term"><h4>Expected state still correct?</h4><p>Has the environment moved the "good" state under the agent?</p><div class="r w">2 workflows' expected outcome invalidated by env change</div></div>
+<div class="rl">Control side</div>
+<div class="as-vvc"><h4>Policy enforced as specified</h4><p>Every control fires where the design says it should.</p><div class="r">61 control types checked · enforced as specified</div></div>
+<div class="as-vvc clo" data-open-incident="I-1042"><h4>Failure Closure →</h4><p>Does the control prevent the prohibited outcome, or only block one path?</p><div class="r w">5 prohibited outcomes · 4 latent paths still open to "Unverified Bank Change"</div></div>
+</div>
+<p class="as-quote">Blocking one path does not prove that the underlying failure has been closed.</p></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">03</span><div><h2 style="margin:0">Enterprise World Model — the evidence base</h2><p class="as-sub">A self-evolving L1–L4 ontology over a runtime knowledge graph. 598 types · 800 relations · grounded in open standards.</p></div></div>
+<div class="as-wm">
+<div class="as-card">
+<div class="as-layer"><div class="ln"><b>L1 · General</b><small>Reusable agent-security semantics</small></div><div class="as-b"><i style="width:74%"></i></div><div class="pc"><b>370</b> · 74%</div></div>
+<div class="as-layer"><div class="ln"><b>L2 · Domain packs</b><small>Business meaning per vertical</small></div><div class="as-b"><i style="width:78%"></i></div><div class="pc"><b>86</b> · 78%</div></div>
+<div class="as-layer"><div class="ln"><b>L3 · Agentic-system</b><small>Planner · memory · tools · MCP</small></div><div class="as-b"><i style="width:60%;background:var(--amber)"></i></div><div class="pc"><b>118</b> · 60%</div></div>
+<div class="as-layer"><div class="ln"><b>L4 · Runtime graph</b><small>Deployed &amp; observed now</small></div><div class="as-b"><i style="width:81%"></i></div><div class="pc"><b>24</b> · 81%</div></div>
+<div class="as-srcs"><span class="as-src">D3FEND <b>213</b></span><span class="as-src">ATLAS <b>96</b></span><span class="as-src">ATT&amp;CK <b>61</b></span><span class="as-src">UCO <b>72</b></span><span class="as-src">OWASP <b>25</b></span></div>
+<div class="as-glegend"><b style="color:var(--muted)">Path grades →</b><span><span class="grade g-obs">Observed</span> in the graph</span><span><span class="grade g-lat">Latent</span> possible by type</span><span><span class="grade g-dec">Declared</span> from config</span></div>
+<button class="as-open" data-jump="security-model">◎ Open the full World Model explorer — 598 nodes, all four layers →</button>
+</div>
+<div class="as-card">
+<div style="font-family:ui-monospace,monospace;font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:10px">KNOWN BLIND SPOTS · 8 OPEN</div>
+<div class="as-gaps">
+<div class="as-gap"><span class="as-sev critical">Critical</span><span><b>Procurement vendor data not connected</b> — bank changes inferred from tool calls, not observed at source.</span></div>
+<div class="as-gap"><span class="as-sev critical">Critical</span><span><b>Long-term memory unmodelled</b> — 31 agents persist memory across runs; contents not in the graph.</span></div>
+<div class="as-gap"><span class="as-sev serious">Serious</span><span><b>Refund path below target</b> — WF-021 at 68%; goodwill-credit branch untested.</span></div>
+<div class="as-gap"><span class="as-sev serious">Serious</span><span><b>HR workflows partly represented</b> — 2 of 19 workflows registered · 68%.</span></div>
+<div class="as-gap"><span class="as-sev warning">Warning</span><span><b>Sub-agent delegation partly observed</b> — inherited authority across hand-off is inferred.</span></div>
+</div>
+<p class="as-quote" style="margin-top:14px">Each blind spot names the class and constraint that generated it — a hypothesis with an address, not a mystery. That is what makes the model self-evolving.</p>
+</div>
+</div></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="as-sub">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
+<div class="as-card">
+<div class="as-flow"><span class="as-fstep">Assurance</span><span class="a">→</span><span class="as-fstep">Authority</span><span class="a">→</span><span class="as-fstep">Production actions</span><span class="a">→</span><span class="as-fstep">Runtime evidence</span><span class="a">→</span><span class="as-fstep">Better world model</span><span class="a">→</span><span class="as-fstep">Stronger validation</span><span class="a">↺</span></div>
+<div class="as-unlock">
+<div class="u"><small>Before — human-gated</small><div>Vendor bank change → <b>human approval on every request</b></div></div>
+<div class="mid">→</div>
+<div class="u"><small>After — failure closure validated</small><div>Agent handles changes <b>up to $2,000</b>; re-auth bound to identity + intent + amount</div></div>
+</div>
+<p class="as-quote" style="margin-top:16px">Certification is a snapshot; assurance has to be continuous. — SILEX raises the autonomy ceiling of enterprise AI.</p>
+</div></div>
+</section>
+
+<section class="view" id="overview">
 <div class="title-row">
 <div>
 <h1>Enterprise Agentic Security</h1>
@@ -1120,9 +1250,11 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'Policy Review','short-term':'Workflow Validation','long-term':'System Validation','security-model':'Security World Model'};
-  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;if(id==='blueprint')requestAnimationFrame(drawBlueprintEdges);if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
+  const viewNames={assurance:'Assurance',overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'Policy Review','short-term':'Workflow Validation','long-term':'System Validation','security-model':'Security World Model'};
+  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint')requestAnimationFrame(drawBlueprintEdges);if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+  document.getElementById('regAssurance').addEventListener('click',()=>showView('assurance'));
+  document.getElementById('regOps').addEventListener('click',()=>showView('overview'));
   const $id=x=>document.getElementById(x);
   const setText=(x,v)=>{const e=$id(x);if(e)e.textContent=v};
   const toast=$id('toast');let toastTimer=null;
