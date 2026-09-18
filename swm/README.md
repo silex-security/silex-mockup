@@ -27,6 +27,7 @@ swm/
   data/SOURCES.md          where every public node came from, and its licence
   tools/build-ontology.mjs fetch + distil pipeline (node, no dependencies)
   tools/silex-seed.mjs     Silex's own L2/L3/L4 mock content
+  skills/                  agent skills + scripts for rebuilding on another host
   vendor/d3.v7.min.js      pinned D3 7.9.0, so the demo also runs offline
 ```
 
@@ -39,6 +40,40 @@ node swm/tools/build-ontology.mjs --offline  # rebuild from swm/.cache only
 
 Raw downloads (~60MB, mostly ATT&CK) land in `swm/.cache/`, which is git-ignored.
 Only the distilled bundles are committed, so Vercel needs no build step.
+
+### On a host that has never run this
+
+The full procedure — prerequisites, what a healthy run looks like, and what to do when an upstream
+moves — is packaged as two agent skills under [`skills/`](skills/README.md), which also read as plain
+runbooks. Link them once per host (see that README) or just follow them.
+
+```bash
+./swm/skills/swm-data-rebuild/scripts/check-sources.sh         # 1. are the nine upstreams reachable?
+node swm/skills/swm-simulation-data/scripts/validate-seed.mjs  # 2. is the simulated seed consistent?
+node swm/tools/build-ontology.mjs                              # 3. build
+node swm/skills/swm-data-rebuild/scripts/verify-bundle.mjs     # 4. verify what the page will get
+node swm/skills/swm-data-rebuild/scripts/preview-panels.mjs    # 5. headless screenshots of all three panels
+```
+
+Requirements: node ≥ 18 (global `fetch`; node ≥ 22 only for the screenshot step), ~70MB of disk for
+the cache, outbound HTTPS to `d3fend.mitre.org` and `raw.githubusercontent.com`, and a Chrome or
+Chromium binary if you want step 5. No npm install, ever — there is no `package.json` by design.
+
+Each script exits non-zero on failure, so the five lines above work as a CI job. Never hand-edit a
+bundle: `verify-bundle.mjs` checks that `ontology.js` and `ontology.json` still agree.
+
+### Changing the simulated content
+
+The invented half of the bundle — domain packs, capabilities, workflows, agentic components, the
+whole runtime graph, every percentage and every gap — lives in `tools/silex-seed.mjs`. Adding a
+domain, wiring new runtime behaviour, retelling the coverage story or re-skinning the demo for another
+industry is covered by [`skills/swm-simulation-data`](skills/swm-simulation-data/SKILL.md), with a
+field-by-field schema in its `references/seed-schema.md` and a worked "add a Legal domain" example in
+`references/worked-example.md`. Validate before building:
+
+```bash
+node swm/skills/swm-simulation-data/scripts/validate-seed.mjs [path/to/candidate-seed.mjs]
+```
 
 ## What is real and what is mock
 

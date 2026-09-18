@@ -130,8 +130,19 @@ swm/data/coverage.json|.js     generated coverage tree, gaps, KPIs
 swm/data/SOURCES.md            provenance and licences
 swm/tools/build-ontology.mjs   fetch + distil + validate pipeline (node, no dependencies)
 swm/tools/silex-seed.mjs       Silex's own L2/L3/L4 content
+swm/skills/                    agent skills + scripts for rebuilding on another host
 swm/vendor/d3.v7.min.js        pinned D3 7.9.0 so the demo runs offline
 ```
+
+### Rebuilding somewhere else
+
+`swm/skills/` packages the procedure so another host — or another agent — can regenerate the data
+without reverse-engineering the pipeline. `swm-data-rebuild` covers prerequisites, the five-step
+run, what a healthy build prints and what to do when an upstream URL moves; `swm-simulation-data`
+covers the invented half of the bundle, with a field-by-field schema and a worked "add a domain"
+example. Four dependency-free scripts back them: `check-sources.sh`, `validate-seed.mjs`,
+`verify-bundle.mjs` and `preview-panels.mjs`, which renders all three panels in headless Chrome and
+fails on a console error. All four exit non-zero on failure, so the sequence doubles as a CI job.
 
 D3 and the ~350KB of bundles load only when one of the three panels is first opened, so the rest of
 the demo keeps its original weight.
