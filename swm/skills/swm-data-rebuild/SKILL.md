@@ -107,6 +107,18 @@ Commit `swm/data/*.json`, `swm/data/*.js` and `swm/data/SOURCES.md`. Never commi
 and `verify-bundle.mjs` checks that they do. Mention the new counts in the commit message; a rebuild
 that changes node counts is a content change, not a no-op.
 
+**The build is reproducible**: given the same upstream data and the same seed, a cold rebuild on a
+fresh clone produces byte-identical bundles apart from the `generated` timestamp. So if `git diff
+--stat swm/data/` shows five files with one changed line each, nothing actually changed — run
+`git checkout swm/data/` and skip the commit rather than push a 350KB diff of a new timestamp. To
+confirm before deciding:
+
+```bash
+node -e 'const a=require("./swm/data/ontology.json");const b=JSON.parse(require("child_process")
+  .execSync("git show HEAD:swm/data/ontology.json").toString());const s=o=>JSON.stringify({...o,generated:null});
+  console.log("unchanged:", s(a)===s(b))'
+```
+
 ## What this pipeline will not do
 
 - It will not invent public identifiers. Every node carries `src`; anything the demo made up is
