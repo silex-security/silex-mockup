@@ -239,6 +239,32 @@
     .btn:disabled{opacity:.45;cursor:not-allowed}
     #incidentSearch{flex:1 1 260px;min-width:240px}
     .domain-label{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:8px;background:var(--lav);color:var(--blue2);font-size:11px;font-weight:700;white-space:nowrap}
+    /* ── positioning alignment (evidence grades, promotion ladder, objectives) ── */
+    .grade{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;vertical-align:middle}
+    .g-obs{background:var(--green-bg);color:var(--green)}
+    .g-lat{background:var(--amber-bg);color:var(--amber)}
+    .g-dec{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+    .grade-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--muted);margin:2px 2px 12px;align-items:center}
+    .grade-legend .grade{margin-right:5px}
+    .promo{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;padding:11px 13px;background:var(--soft);border-radius:11px;font-size:11px}
+    .promo .plabel{color:var(--muted);font-weight:700;margin-right:4px;text-transform:uppercase;letter-spacing:.05em;font-size:10px}
+    .promo .stg{padding:3px 9px;border-radius:7px;background:#fff;border:1px solid var(--line);color:var(--muted);font-weight:600}
+    .promo .stg.on{background:var(--lav);border-color:var(--blue);color:var(--blue2)}
+    .promo .stg.done{background:var(--green-bg);border-color:transparent;color:var(--green)}
+    .promo .arr{color:var(--muted)}
+    .promo .pnote{flex-basis:100%;color:var(--muted);margin-top:2px;font-size:10.5px}
+    .six-obj{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 14px;margin-top:10px}
+    .six-obj div{display:flex;flex-direction:column;gap:2px}
+    .six-obj .ov{font-size:13px;font-weight:800;color:var(--ink)}
+    .six-obj .ok{color:var(--green)} .six-obj .bad{color:var(--amber)}
+    .six-obj .ol{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .cand.rejected{opacity:.72}
+    .rej-tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--red-bg);color:var(--red)}
+    .rej-why{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic}
+    .rationale{font-size:11.5px;color:var(--blue2);background:var(--lav);border-radius:8px;padding:9px 12px;margin-top:12px;line-height:1.4}
+    .rationale b{color:var(--ink)}
+    .deploy-note{font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+    .deploy-note b{color:var(--ink)}
   </style>
 </head>
 <body>
@@ -462,11 +488,12 @@
 <div class="card-head"><div><h2>Alternative paths to “Unauthorized refund”</h2><p>Blocking one path does not prove the failure is closed</p></div><span class="status blocked">3 paths open</span></div>
 <div class="body">
 <div class="outcome-target"><b>Unsafe outcome:</b> refund issued without the required approval</div>
+<div class="grade-legend"><span class="grade g-obs">Observed</span> exercised in your runtime graph · <span class="grade g-lat">Latent</span> asserted possible by type over your real agents, no trace yet · <span class="grade g-dec">Declared</span> from configuration, before deploy</div>
 <div class="path-stack">
-<div class="path-row blocked"><strong>Path A</strong><span>Customer request → Support Agent → Refund above $2,000 → Payment API</span><span class="status" style="background:var(--green-bg);color:var(--green)">Blocked</span></div>
-<div class="path-row open"><strong>Path B</strong><span>Customer request → Support Agent → $1,900 refund (below existing limit) → Payment API</span><span class="status blocked">Open</span></div>
-<div class="path-row open"><strong>Path C</strong><span>Two requests → Triage Agent splits → two $950 refunds → Payment API</span><span class="status blocked">Open</span></div>
-<div class="path-row open"><strong>Path D</strong><span>Reused approval token → Refund Execution Agent → new refund → Payment API</span><span class="status blocked">Open</span></div>
+<div class="path-row blocked"><strong>Path A</strong><span><span class="grade g-obs">Observed</span> Customer request → Support Agent → Refund above $2,000 → Payment API</span><span class="status" style="background:var(--green-bg);color:var(--green)">Blocked</span></div>
+<div class="path-row open"><strong>Path B</strong><span><span class="grade g-lat">Latent</span> Support Agent → $1,900 refund (below existing limit) → Payment API <em style="color:var(--muted)">· RefundLimit constraint permits amounts under threshold</em></span><span class="status blocked">Open</span></div>
+<div class="path-row open"><strong>Path C</strong><span><span class="grade g-lat">Latent</span> Triage Agent splits → two $950 refunds → Payment API <em style="color:var(--muted)">· aggregation not bound per customer</em></span><span class="status blocked">Open</span></div>
+<div class="path-row open"><strong>Path D</strong><span><span class="grade g-lat">Latent</span> Reused approval token → Refund Execution Agent → new refund <em style="color:var(--muted)">· ApprovalToken reusable across executions</em></span><span class="status blocked">Open</span></div>
 </div>
 </div>
 </div>
@@ -481,9 +508,9 @@
 <div class="card section-card chg" data-chg="PRD §16-17: validated candidates">
 <div class="card-head"><div><h2>Policy candidates · each tested in simulation</h2><p>Current: Support Agent may issue refunds up to $2,000 autonomously</p></div><span class="status" style="background:var(--green-bg);color:var(--green)">Recommendation ready</span></div>
 <div class="body"><div class="cand-grid">
-<div class="cand"><span class="validated">✓ Validated · 2,400 scenarios</span><h3>A · Require dual approval above $1,000</h3><p>Closes the largest refunds; leaves $500–$1,000 refunds autonomous.</p><div class="cand-metrics"><div><strong>79%</strong><span>Defense</span></div><div><strong>9%</strong><span>Reachability</span></div><div><strong>+6%</strong><span>Approvals</span></div></div></div>
-<div class="cand best"><span class="rec">RECOMMENDED</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>B · Require manager approval above $500</h3><p>Closes paths B, C and D; no effect on refunds below $500.</p><div class="cand-metrics"><div><strong>91%</strong><span>Defense</span></div><div><strong>3%</strong><span>Reachability</span></div><div><strong>+12%</strong><span>Approvals</span></div></div></div>
-<div class="cand"><span class="validated">✓ Validated · 2,400 scenarios</span><h3>C · Autonomous refunds only for verified merchants</h3><p>Strong security, but blocks most legitimate first-time customers.</p><div class="cand-metrics"><div><strong>88%</strong><span>Defense</span></div><div><strong>5%</strong><span>Reachability</span></div><div><strong>+31%</strong><span>Approvals</span></div></div></div>
+<div class="cand rejected"><span class="rej-tag">Rejected</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>A · Require dual approval above $1,000</h3><p>Closes the largest refunds; leaves $500–$1,000 refunds autonomous.</p><div class="six-obj"><div><span class="ov ok">−79%</span><span class="ol">risk reduction</span></div><div><span class="ov">3 / 4 paths</span><span class="ol">coverage</span></div><div><span class="ov">+6%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">low</span><span class="ol">cost</span></div><div><span class="ov">−18 ms</span><span class="ol">performance</span></div></div><div class="rej-why">Rejected — one latent path (below-limit refund) stays open; coverage incomplete.</div></div>
+<div class="cand best"><span class="rec">RECOMMENDED</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>B · Require manager approval above $500</h3><p>Closes paths B, C and D; no effect on refunds below $500.</p><div class="six-obj"><div><span class="ov ok">−91%</span><span class="ol">risk reduction</span></div><div><span class="ov ok">4 / 4 paths</span><span class="ol">coverage</span></div><div><span class="ov">+12%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">low</span><span class="ol">cost</span></div><div><span class="ov">−18 ms</span><span class="ol">performance</span></div></div></div>
+<div class="cand rejected"><span class="rej-tag">Rejected</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>C · Autonomous refunds only for verified merchants</h3><p>Strong security, but blocks most legitimate first-time customers.</p><div class="six-obj"><div><span class="ov ok">−88%</span><span class="ol">risk reduction</span></div><div><span class="ov ok">4 / 4 paths</span><span class="ol">coverage</span></div><div><span class="ov bad">+31%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">med</span><span class="ol">cost</span></div><div><span class="ov">−40 ms</span><span class="ol">performance</span></div></div><div class="rej-why">Rejected — closes every path but business friction (+31%) fails the Objectives bar.</div></div>
 </div></div>
 </div>
 <div class="side-by-side chg" data-chg="PRD §19: path ↔ control" style="margin-bottom:18px">
@@ -498,7 +525,7 @@
 </div>
 </div>
 <div class="card section-card chg" data-chg="PRD §18: recommendation card">
-<div class="card-head"><div><h2>Validated policy recommendation</h2><p>Already tested in simulation; no need to run it again</p></div><span class="validated">✓ Validated</span></div>
+<div class="card-head"><div><h2>Policy Change Proposal</h2><p>Ranked candidates, tested in simulation — promoted through shadow and canary before production</p></div><span class="validated">✓ Validated</span></div>
 <div class="rec-card">
 <div class="rec-box"><small>Current state</small><div class="rec-metric"><span>Defense confidence</span><b>64%</b></div><div class="rec-metric"><span>Residual reachability</span><b>18%</b></div><div class="rec-metric"><span>Critical paths open</span><b>6</b></div></div>
 <div class="rec-arrow">→</div>
@@ -511,6 +538,8 @@
 <div class="impact"><b id="bpImpact2">+18 sec</b>estimated median latency</div>
 <div class="impact"><b>No effect</b>on refunds below $500</div>
 </div>
+<div class="rationale"><b>Why, in type terms:</b> the open paths are <b>authorization-scope evasion</b> — the amount threshold and a reusable approval token let a delegated identity reach the same prohibited outcome below the covered limit. Binding approval to customer + transaction + amount closes the class, not just path A.</div>
+<div class="promo"><span class="plabel">Validation stage</span><span class="stg done">Simulation</span><span class="arr">→</span><span class="stg on">Shadow</span><span class="arr">→</span><span class="stg">Canary</span><span class="arr">→</span><span class="stg">Production</span><span class="pnote">No policy reaches production from simulation alone. Rollback is preserved at every stage.</span></div>
 </div>
 <div class="card check-actions">
 <p>Recommendation ready. The decision stays with a human.</p>
@@ -525,6 +554,7 @@
 <div class="rec-metric"><span>Recommendation</span><b id="bpDecisionText">Require manager approval for refunds greater than $500</b></div>
 <div class="rec-metric"><span>Validated state</span><b id="bpDecisionState">Defense 91% · Reachability 3% · 1 critical path</b></div>
 <div class="rec-metric"><span>Business impact</span><b id="bpDecisionImpact">+12% approvals · +18 sec median latency</b></div>
+<div class="deploy-note"><b>On approval</b>, SILEX opens a pull request against your policy-as-code — it never sits inline and never holds the enforcement decision; you deploy through the surface you already own. <b>Rollback</b> covers agent-side state (context, session, cached scope); business effects get a compensating-action recommendation executed through your systems.</div>
 </div>
 <div class="decision-state" id="bpDecisionMsg"></div>
 <div class="modify-form" id="bpModifyForm">
@@ -668,6 +698,7 @@
 
 <div class="tab-panel inc-panel" id="inc-paths">
 <div class="outcome-target"><b>Unsafe outcome:</b> <span id="incOutcomeTarget">Bank destination changed</span></div>
+<div class="grade-legend"><span class="grade g-obs">Observed</span> exercised in your runtime graph · <span class="grade g-lat">Latent</span> asserted possible by type over your real agents, no trace yet · <span class="grade g-dec">Declared</span> from configuration, before deploy</div>
 <div class="path-stack" id="incPaths"></div>
 <div class="next-bar"><p><strong>Residual reachability.</strong> The same outcome is still reachable through <span id="incOpenCount">3</span> paths.</p><div><button class="btn blue" data-inc-go="2">Review candidates →</button></div></div>
 </div>
@@ -681,7 +712,7 @@
 </div>
 </div>
 <div class="card section-card" style="margin-top:16px;box-shadow:none">
-<div class="card-head"><div><h2>Validated policy recommendation</h2><p>Already tested in simulation; no need to run it again</p></div><span class="validated">✓ Validated</span></div>
+<div class="card-head"><div><h2>Policy Change Proposal</h2><p>Ranked candidates, tested in simulation — promoted through shadow and canary before production</p></div><span class="validated">✓ Validated</span></div>
 <div class="rec-card">
 <div class="rec-box"><small>Current state</small><div class="rec-metric"><span>Defense confidence</span><b id="incCurDC">62%</b></div><div class="rec-metric"><span>Residual reachability</span><b id="incCurRR">21%</b></div><div class="rec-metric"><span>Critical paths open</span><b id="incCurPaths">3</b></div></div>
 <div class="rec-arrow">→</div>
@@ -694,6 +725,8 @@
 <div class="impact"><b id="incImpact2">+420 ms</b>added latency</div>
 <div class="impact"><b id="incImpact3">2 steps</b>require re-authentication</div>
 </div>
+<div class="rationale"><b>Why, in type terms:</b> the block covered one route, but the failure is <b>authorization reuse through lost intent provenance</b> — an approval state that stays valid across executions. The latent paths reach the same prohibited outcome via a different tool, a delegated agent, or a poisoned document. Binding approval to identity + intent + mutation closes the class.</div>
+<div class="promo"><span class="plabel">Validation stage</span><span class="stg done">Simulation</span><span class="arr">→</span><span class="stg on">Shadow</span><span class="arr">→</span><span class="stg">Canary</span><span class="arr">→</span><span class="stg">Production</span><span class="pnote">No policy reaches production from simulation alone. Rollback preserved at every stage.</span></div>
 </div>
 <div class="next-bar"><p><strong>Recommendation ready.</strong> A human decides.</p><div><button class="btn blue" data-inc-go="3">Decide →</button></div></div>
 </div>
@@ -701,6 +734,7 @@
 <div class="tab-panel inc-panel" id="inc-decision">
 <div class="rec-metric"><span>Recommendation</span><b id="incDecisionText">Bind approval to vendor + intent + mutation</b></div>
 <div class="rec-metric"><span>Validated state</span><b id="incDecisionStateText">Defense 93% · Reachability 2% · 0 critical paths</b></div>
+<div class="deploy-note"><b>On approval</b>, SILEX opens a pull request against your enforcement surface (IAM / gateway / policy-as-code) — never inline, never holding the block decision. <b>Rollback</b> covers agent-side state; business effects get a compensating-action recommendation run through your systems.</div>
 <div class="decision-state" id="incDecisionMsg" style="margin:12px 0 0"></div>
 <div class="modify-form" id="incModifyForm" style="margin-top:12px">
 <div class="field"><label>Scope</label><select id="incScope"><option>All vendor mutations</option><option>Bank-account changes only</option><option>Changes above $10,000 exposure</option></select></div>
@@ -1216,7 +1250,11 @@ const incidentData={
   function setIncTab(i){document.querySelectorAll('#incident .workspace-tab').forEach((t,k)=>t.classList.toggle('active',k===i));document.querySelectorAll('#incident .inc-panel').forEach((p,k)=>p.classList.toggle('active',k===i));document.querySelectorAll('#incFlow .bp-stage').forEach((s,k)=>{s.classList.toggle('done',k<i);s.classList.toggle('active',k===i)})}
   document.querySelectorAll('#incident .workspace-tab').forEach((t,i)=>t.addEventListener('click',()=>setIncTab(i)));
   document.querySelectorAll('#incFlow .bp-stage').forEach((s,i)=>s.addEventListener('click',()=>setIncTab(i)));
-  const pathRow=(label,text,open)=>`<div class="path-row ${open?'open':'blocked'}"><strong>${label}</strong><span>${text}</span>${open?'<span class="status blocked">Open</span>':'<span class="status" '+GREEN+'>'+(open===false?'Blocked':'Closed')+'</span>'}</div>`;
+  const GRADE={obs:['g-obs','Observed'],lat:['g-lat','Latent'],dec:['g-dec','Declared']};
+  const gradeBadge=g=>g&&GRADE[g]?`<span class="grade ${GRADE[g][0]}">${GRADE[g][1]}</span> `:'';
+  const pathRow=(label,text,open,grade)=>`<div class="path-row ${open?'open':'blocked'}"><strong>${label}</strong><span>${gradeBadge(grade)}${text}</span>${open?'<span class="status blocked">Open</span>':'<span class="status" '+GREEN+'>'+(open===false?'Blocked':'Closed')+'</span>'}</div>`;
+  // Six-objective scorecard (risk reduction · coverage · business friction · compliance · cost · performance)
+  const sixObj=(risk,best)=>`<div class="six-obj"><div><span class="ov ok">−${risk}%</span><span class="ol">risk reduction</span></div><div><span class="ov ${best?'ok':''}">all paths</span><span class="ol">coverage</span></div><div><span class="ov ${best?'':'bad'}">${best?'low':'high'}</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">${best?'low':'med'}</span><span class="ol">cost</span></div><div><span class="ov">${best?'−420 ms':'−600 ms'}</span><span class="ol">performance</span></div></div>`;
   function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
     setText('incId',id);setText('incTitle',d.title);setText('incMeta',d.workflow+' · '+(INC_WF[id]||'')+' · '+(closed?'Closed':'Production'));setText('incEvidence',d.evidence);setText('incSummary',d.summary);setText('incControl',d.control);setText('incMechanism',d.mechanism);setText('incMechanismDesc',d.mechanismDesc);
     setText('obsInput',d.input);setText('obsAgent',d.agent);setText('obsAction',d.action);setText('obsOutcome',d.outcome);setText('obsControl','Blocked or observed by '+d.control);setText('incOutcomeTarget',d.outcome);
@@ -1224,11 +1262,11 @@ const incidentData={
     ['kgInput','kgAgent','kgMechanism','kgAction','kgOutcome','kgControl','kgAuthority','kgAuthorityMeta','kgResource','kgResourceMeta','kgCandidate','graphMechanismInsight'].forEach((k,i)=>setText(k,[d.input,d.agent,d.mechanism,d.action,d.outcome,d.control,d.authority,d.authorityMeta,d.resource,d.resourceMeta,d.candidate,d.mechanismDesc][i]));
     const known=d.paths[d.paths.length-1],others=d.paths.slice(0,-1);
     // Closed incidents are read-only: every path closed, only the applied control shown (fix 5-F).
-    $id('incPaths').innerHTML=pathRow('Path A',known+' · observed',false)+others.map((p,i)=>pathRow('Path '+'BCD'[i],p,closed?null:true)).join('');
-    $id('incSbsPaths').innerHTML=closed?'<div class="path-row blocked"><strong>—</strong><span>No open paths. The approved control closed them.</span><span class="status" '+GREEN+'>Closed</span></div>':others.map((p,i)=>pathRow('Path '+'BCD'[i],p,true)).join('');
+    $id('incPaths').innerHTML=pathRow('Path A',known,false,'obs')+others.map((p,i)=>pathRow('Path '+'BCD'[i],p,closed?null:true,'lat')).join('');
+    $id('incSbsPaths').innerHTML=closed?'<div class="path-row blocked"><strong>—</strong><span>No open paths. The approved control closed them.</span><span class="status" '+GREEN+'>Closed</span></div>':others.map((p,i)=>pathRow('Path '+'BCD'[i],p,true,'lat')).join('');
     setText('incOpenCount',closed?0:others.length);setText('incSbsControl',d.candidate);
     const cands=closed?[[d.candidate,'Approved earlier and re-validated after the change.',r[3],r[4],r[6],true]]:[[d.candidate,'Closes every open path while legitimate work continues.',r[3],r[4],r[6],true],['Remove agent write access','Closes the paths but stops the business action.',r[3]-2,r[4]+1,'71%',false],['Human review for every '+d.action.toLowerCase(),'Safe, but adds manual work to every execution.',r[3]-5,r[4]+2,'+45% reviews',false]];
-    $id('incCands').innerHTML=cands.map((c,i)=>`<div class="cand${c[5]?' best':''}">${c[5]?'<span class="rec">'+(closed?'APPLIED':'RECOMMENDED')+'</span>':''}<span class="validated">✓ ${closed?'Approved · re-validated':'Validated in simulation'}</span><h3>${closed?'':'ABC'[i]+' · '}${c[0]}</h3><p>${c[1]}</p><div class="cand-metrics"><div><strong>${c[2]}%</strong><span>Defense</span></div><div><strong>${c[3]}%</strong><span>Reachability</span></div><div><strong>${c[4]}</strong><span>Impact</span></div></div></div>`).join('');
+    $id('incCands').innerHTML=cands.map((c,i)=>{const best=c[5];return `<div class="cand${best?' best':' rejected'}">${best?'<span class="rec">'+(closed?'APPLIED':'RECOMMENDED')+'</span>':'<span class="rej-tag">Rejected</span>'}<span class="validated">✓ ${closed?'Approved · re-validated':'Validated in simulation'}</span><h3>${closed?'':'ABC'[i]+' · '}${c[0]}</h3><p>${c[1]}</p>${sixObj(c[2],best)}${best?'':'<div class="rej-why">Rejected — works, but fails the business-friction objective.</div>'}</div>`}).join('');
     setText('incCurDC',r[0]+'%');setText('incCurRR',r[1]+'%');setText('incCurPaths',r[2]);setText('incRecText',d.candidate);setText('incRecNote',(closed?'Applied · ':'Validated against ')+d.count);setText('incValDC',r[3]+'%');setText('incValRR',r[4]+'%');setText('incValPaths',r[5]);setText('incImpact1',r[6]);setText('incImpact2',r[7]);setText('incImpact3',r[8]);
     setText('incDecisionText',d.candidate);setText('incDecisionStateText','Defense '+r[3]+'% · Reachability '+r[4]+'% · '+r[5]+' critical paths');
     applyIncDecision(id);setIncTab(0);if(show!==false)showView('incident')}
@@ -1244,7 +1282,7 @@ const incidentData={
   $id('incModifyBtn').addEventListener('click',()=>$id('incModifyForm').classList.toggle('open'));
   $id('incRerunBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;const scope=$id('incScope').value,msg=$id('incDecisionMsg'),r=INC_REC[id];setMsg(msg,'Re-running validation for “'+scope+'”…','');setTimeout(()=>{const all=scope.startsWith('All'),dc=all?r[3]:r[3]-4,rr=all?r[4]:r[4]+3;setText('incValDC',dc+'%');setText('incValRR',rr+'%');setText('incDecisionStateText','Defense '+dc+'% · Reachability '+rr+'% · scope: '+scope);setMsg(msg,'Validation re-run with the modified scope. Updated validated state shown.','approved');$id('incModifyForm').classList.remove('open')},900)});
   $id('incRejectBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;incDecision[id]='rejected';resolvePending(id);setRecStatus(id,'Rejected','blocked');applyIncDecision(id);setTimeout(()=>setIncTab(2),900)});
-  $id('incApproveBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+id+'.',box:'<strong>'+$id('incDecisionText').textContent+'</strong><br>'+$id('incDecisionStateText').textContent+'<br><br>Next: the policy is applied and the affected workflow is queued for revalidation. Shadow or canary deployment is planned for V2.',onConfirm:()=>{
+  $id('incApproveBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+id+'.',box:'<strong>'+$id('incDecisionText').textContent+'</strong><br>'+$id('incDecisionStateText').textContent+'<br><br>Next: the policy is promoted through shadow → canary before production, and the affected workflow is queued for revalidation. Rollback stays available at each stage.',onConfirm:()=>{
     incDecision[id]='approved';resolvePending(id);setRecStatus(id,'Approved','');const wfId=INC_WF[id],w=workflowData[wfId];
     if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;if(!ST_AFFECTED.some(a=>a.id===wfId))ST_AFFECTED.push({id:wfId,trigger:'Policy change'});ST_CHANGES.unshift({icon:'P',title:'Policy approved',sub:incidentData[id].candidate+' · '+w.name,tag:'Policy change',cls:'review'})}
     renderShortTerm();renderLibrary();applyIncDecision(id);notify('Recommendation approved for '+id)}})});
