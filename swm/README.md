@@ -53,11 +53,19 @@ public data; they are labelled as such. See [`data/SOURCES.md`](data/SOURCES.md)
 
 ## Encoding decisions
 
-Run through the dataviz palette validator against the canvas surface `#131a30`:
+The panels sit on a **white canvas**, and every ramp was re-validated with the dataviz palette
+validator against `#ffffff`:
 
 - **Abstraction layer** is ordinal, so it gets a single-hue blue ramp
-  (`#2f5c94 → #9cc6f7`) — passes monotone lightness, step gaps and surface contrast.
-- **Coverage** gets its own teal ramp (`#17705a → #aeecd5`), same checks.
+  (`#86b6ef → #104281`, light end 2.11:1 on white) — passes monotone lightness, step gaps and
+  surface contrast.
+- **Coverage** gets its own teal ramp (`#5cc79e → #0e4c3a`, light end 2.08:1), same checks.
+- **Text on a filled mark** is never guessed: `SWM.textOn()` picks white only when it clears 3:1
+  against that mark, otherwise ink, and `SWM.haloOn()` adds the opposite-colour halo so a label
+  survives landing on a boundary. Marks are drawn fully opaque so the measured colour is the
+  colour on screen.
+- **Status never tints body text.** `SWM.statusHtml()` renders a tinted icon beside a word on the
+  normal ink token, which is what the reserved palette's sub-3:1 steps require.
 - **Ontology group is carried by glyph shape, not colour.** Eight simultaneous hues cannot
   clear the all-pairs CVD floor in a node-link view, so the eight groups use eight D3
   symbols, listed with their shapes in the rail and in the legend.

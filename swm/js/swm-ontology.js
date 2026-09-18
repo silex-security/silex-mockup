@@ -119,7 +119,7 @@
     }
 
     function colorOf(n) {
-      if (n.anchor) return '#c9d8f5';
+      if (n.anchor) return SWM.ink.ink2;
       if (state.colorBy === 'coverage') return SWM.coverageColor(n.coverage);
       if (state.colorBy === 'status') return SWM.status[SWM.coverageStatus(n.coverage)].color;
       return SWM.layerColor(n.layer);
@@ -328,7 +328,7 @@
           g.append('rect').attr('class', 'cell')
             .attr('x', pad.l + c * size).attr('y', pad.t + r * size)
             .attr('width', size).attr('height', size).attr('rx', 3)
-            .attr('fill', cell.n ? scale(cell.n) : 'rgba(146,170,224,.07)')
+            .attr('fill', cell.n ? scale(cell.n) : SWM.ink.wash)
             .style('cursor', cell.n ? 'pointer' : 'default')
             .on('mouseenter', function (ev) {
               if (!cell.n) return;
@@ -339,7 +339,11 @@
             })
             .on('mousemove', function (ev) { SWM.tip.move(ev); })
             .on('mouseleave', function () { SWM.tip.hide(); });
-          if (cell.n) g.append('text').attr('class', 'lbl' + (cell.n > max * .5 ? ' hot' : ''))
+          if (cell.n) g.append('text').attr('class', 'lbl')
+            .attr('fill', SWM.textOn(scale(cell.n)))
+            .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').attr('stroke-width', 2.2)
+            .attr('stroke', SWM.haloOn(scale(cell.n)))
+            .attr('font-weight', 640)
             .attr('x', pad.l + c * size + size / 2).attr('y', pad.t + r * size + size / 2 + 3)
             .attr('text-anchor', 'middle').text(cell.n);
         });
@@ -371,7 +375,7 @@
         '<small>' + SWM.esc(groupName[n.group] || n.group) + ' · L' + n.layer + ' ' + SWM.esc(n.kind || '') + '</small>' +
         (n.def ? '<small style="margin-top:5px">' + SWM.esc(n.def.slice(0, 150)) + (n.def.length > 150 ? '…' : '') + '</small>' : '') +
         ((n.src || []).length ? '<span class="src">' + SWM.esc(SWM.srcLabel(n.src[0].sys)) + (n.src[0].id ? ' · ' + SWM.esc(n.src[0].id) : '') + '</span>' : '') +
-        (children.get(n.id) && children.get(n.id).length ? '<small style="margin-top:6px;color:#9cc6f7">click to expand ' + children.get(n.id).length + ' children</small>' : '');
+        (children.get(n.id) && children.get(n.id).length ? '<small class="more" style="margin-top:6px">click to expand ' + children.get(n.id).length + ' children</small>' : '');
     }
 
     function select(id, drill) {
@@ -413,7 +417,7 @@
         '<div class="swm-facts">' +
           '<div class="swm-fact"><small>Coverage</small><b>' + SWM.pct(n.coverage) + '</b>' +
             '<div class="swm-meter"><i style="width:' + Math.round((n.coverage || 0) * 100) + '%;background:' + SWM.coverageColor(n.coverage) + '"></i></div></div>' +
-          '<div class="swm-fact"><small>Status</small><b style="color:' + st.color + '">' + st.icon + ' ' + st.label + '</b></div>' +
+          '<div class="swm-fact"><small>Status</small><b>' + SWM.statusHtml(SWM.coverageStatus(n.coverage)) + '</b></div>' +
           '<div class="swm-fact"><small>Runtime instances</small><b>' + SWM.num(n.instances) + '</b></div>' +
           '<div class="swm-fact"><small>Children</small><b>' + kids.length + '</b></div>' +
         '</div>' +
@@ -459,8 +463,7 @@
         : state.colorBy === 'coverage'
         ? '<div class="swm-ramp"><span>0%</span><span class="bar"></span><span>100%</span></div>'
         : '<div class="swm-legend-items">' + Object.keys(SWM.status).map(function (k) {
-            var s = SWM.status[k];
-            return '<span class="swm-legend-item"><span style="color:' + s.color + '">' + s.icon + '</span>' + s.label + '</span>'; }).join('') + '</div>';
+            return '<span class="swm-legend-item">' + SWM.statusHtml(k) + '</span>'; }).join('') + '</div>';
       el.innerHTML = '<h6>Colour = ' + (state.colorBy === 'layer' ? 'abstraction layer' : state.colorBy === 'coverage' ? 'world-model coverage' : 'coverage status') +
         ' · shape = ontology group (see the rail)</h6>' + scaleHtml;
     }

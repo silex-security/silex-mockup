@@ -6,14 +6,25 @@
 (function (global) {
   'use strict';
 
-  /* ---- validated colour ramps (see swm/css/swm.css header) --------------- */
-  var LAYER_RAMP    = ['#2f5c94', '#3d79c4', '#5a9bea', '#9cc6f7'];
-  var COVERAGE_RAMP = ['#17705a', '#1f9070', '#37b791', '#6fd7b3', '#aeecd5'];
+  /* ---- validated colour ramps (see swm/css/swm.css header) ---------------
+     Light theme: both ramps run light -> dark on the white canvas, so the
+     deeper the layer and the higher the coverage, the darker the mark. */
+  var LAYER_RAMP    = ['#104281', '#256abf', '#3987e5', '#86b6ef'];
+  var COVERAGE_RAMP = ['#5cc79e', '#31b08b', '#1d8c6c', '#166b52', '#0e4c3a'];
+  /* reserved status palette — fixed, never themed, never carries meaning alone */
   var STATUS = {
-    critical: { color:'#e66767', label:'Critical', icon:'▲' },
-    serious:  { color:'#d95926', label:'Serious',  icon:'◆' },
-    warning:  { color:'#c98500', label:'Warning',  icon:'●' },
-    good:     { color:'#199e70', label:'Healthy',  icon:'✓' }
+    critical: { color:'#d03b3b', label:'Critical', icon:'▲' },
+    serious:  { color:'#ec835a', label:'Serious',  icon:'◆' },
+    warning:  { color:'#fab219', label:'Warning',  icon:'●' },
+    good:     { color:'#0ca30c', label:'Healthy',  icon:'✓' }
+  };
+  /* text and surface tokens the SVG layers draw with — the CSS custom
+     properties cannot reach attribute values, so they live here too */
+  var INK = {
+    ink:'#17191d', ink2:'#4f5864', ink3:'#68707c', faint:'#9aa3b2',
+    surface:'#ffffff', soft:'#f5f6f8', line:'#e3e6ea',
+    grid:'rgba(23,25,29,.10)', edge:'rgba(23,25,29,.20)',
+    wash:'rgba(23,25,29,.05)', accent:'#256abf', accentSoft:'rgba(37,106,191,.12)'
   };
 
   /* Ontology group -> d3 symbol. Eight simultaneous hues cannot clear the
@@ -32,6 +43,7 @@
   var SWM = {
     ramps: { layer: LAYER_RAMP, coverage: COVERAGE_RAMP },
     status: STATUS,
+    ink: INK,
     glyphs: GLYPHS,
 
     /* ---- data ----------------------------------------------------------- */
@@ -42,8 +54,42 @@
     /* ---- scales --------------------------------------------------------- */
     layerColor: function (layer) { return LAYER_RAMP[Math.max(1, Math.min(4, layer || 1)) - 1]; },
 
+    /* the same hue, stepped dark enough to be read as text on the white canvas */
+    layerInk: function (layer) {
+      var c = SWM.layerColor(layer);
+      for (var i = LAYER_RAMP.indexOf(c); i >= 0; i--)
+        if (SWM.contrast(LAYER_RAMP[i], '#ffffff') >= 3) return LAYER_RAMP[i];
+      return LAYER_RAMP[0];
+    },
+
+    /* WCAG relative luminance of a #rrggbb / rgb() colour */
+    luminance: function (color) {
+      var c = String(color).trim(), r, g, b, m;
+      if (c[0] === '#' && c.length === 7) {
+        r = parseInt(c.substr(1,2),16); g = parseInt(c.substr(3,2),16); b = parseInt(c.substr(5,2),16);
+      } else if ((m = c.match(/rgba?\(([^)]+)\)/))) {
+        var parts = m[1].split(',').map(parseFloat); r = parts[0]; g = parts[1]; b = parts[2];
+      } else return 1;
+      var f = function (x) { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); };
+      return .2126 * f(r) + .7152 * f(g) + .0722 * f(b);
+    },
+    contrast: function (a, b) {
+      var l1 = SWM.luminance(a), l2 = SWM.luminance(b);
+      return (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05);
+    },
+    /* readable text colour on a filled mark: white only when it truly clears
+       3:1, otherwise ink — never a guess about "light or dark" */
+    textOn: function (fill) {
+      return SWM.contrast('#ffffff', fill) >= 3 ? '#ffffff' : INK.ink;
+    },
+    /* the opposite colour, used as a halo so a label survives landing on a
+       boundary between two differently filled marks */
+    haloOn: function (fill) {
+      return SWM.textOn(fill) === '#ffffff' ? 'rgba(12,20,16,.55)' : 'rgba(255,255,255,.85)';
+    },
+
     coverageColor: function (v) {
-      if (v == null || isNaN(v)) return '#7c88a8';
+      if (v == null || isNaN(v)) return INK.faint;
       var i = v < .55 ? 0 : v < .7 ? 1 : v < .82 ? 2 : v < .92 ? 3 : 4;
       return COVERAGE_RAMP[i];
     },
@@ -71,6 +117,11 @@
       });
     },
     srcLabel: function (sys) { return SRC_LABEL[sys] || sys; },
+    /* status is never colour-alone: a tinted icon plus the word, on ink text */
+    statusHtml: function (key) {
+      var st = STATUS[key] || STATUS.warning;
+      return '<span class="swm-status"><i style="color:' + st.color + '">' + st.icon + '</i>' + st.label + '</span>';
+    },
     srcChip: function (s) {
       return '<span class="swm-src ' + SWM.esc(s.sys) + '">' + SWM.esc(SRC_LABEL[s.sys] || s.sys) +
              (s.id ? ' · ' + SWM.esc(s.id) : '') + '</span>';
@@ -148,7 +199,7 @@
     glyphLegend: function (groups, color) {
       return groups.map(function (g) {
         return '<span class="swm-legend-item"><svg width="13" height="13" viewBox="-7 -7 14 14">' +
-               '<path d="' + SWM.symbol(g.id, 58) + '" fill="' + (color || '#9cc6f7') + '"/></svg>' +
+               '<path d="' + SWM.symbol(g.id, 58) + '" fill="' + (color || INK.ink3) + '"/></svg>' +
                SWM.esc(g.name) + '</span>';
       }).join('');
     }

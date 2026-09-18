@@ -25,14 +25,14 @@
         '<div class="swm-shell coverage">' +
           '<div class="swm-stage" id="swmLayersStage">' +
             '<div class="swm-stage-bar">' +
-              '<div class="swm-crumbs"><button data-reset="1">Ontology chain</button><i>›</i><b id="swmChainFocus" style="color:#eef2fb;font-weight:600">L1 General</b></div>' +
+              '<div class="swm-crumbs"><button data-reset="1">Ontology chain</button><i>›</i><b id="swmChainFocus" style="color:#17191d;font-weight:640">L1 General</b></div>' +
               '<div class="swm-views" id="swmChainAction"><button data-open="1">Open this layer in the Explorer ↗</button></div>' +
             '</div>' +
             '<svg id="swmChainSvg"></svg>' +
             '<div class="swm-legend"><h6>One chain, four layers</h6>' +
               '<div class="swm-legend-items">' +
-                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:linear-gradient(90deg,#2f5c94,#9cc6f7);display:inline-block"></span>band colour = abstraction layer</span>' +
-                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:rgba(150,174,232,.45);display:inline-block"></span>ribbon width = typed relations crossing the hop</span>' +
+                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:linear-gradient(90deg,#104281,#86b6ef);display:inline-block"></span>band colour = abstraction layer</span>' +
+                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:rgba(37,106,191,.28);display:inline-block"></span>ribbon width = typed relations crossing the hop</span>' +
               '</div></div>' +
             '<div class="swm-hint">Click a band to set the abstraction level · hover a ribbon for its predicates</div>' +
           '</div>' +
@@ -77,22 +77,22 @@
                    'L' + (mid + wBot / 2) + ',' + yBot +
                    'C' + (mid + wBot / 2) + ',' + (yBot - gap * .5) + ' ' + (mid + wTop / 2) + ',' + (yTop + gap * .5) + ' ' + (mid + wTop / 2) + ',' + yTop + 'Z';
         var grad = g.append('linearGradient').attr('id', 'swmHop' + i).attr('x1', 0).attr('y1', yTop).attr('x2', 0).attr('y2', yBot).attr('gradientUnits', 'userSpaceOnUse');
-        grad.append('stop').attr('offset', '0%').attr('stop-color', SWM.layerColor(hop.from)).attr('stop-opacity', .55);
-        grad.append('stop').attr('offset', '100%').attr('stop-color', SWM.layerColor(hop.to)).attr('stop-opacity', .55);
+        grad.append('stop').attr('offset', '0%').attr('stop-color', SWM.layerColor(hop.from)).attr('stop-opacity', .42);
+        grad.append('stop').attr('offset', '100%').attr('stop-color', SWM.layerColor(hop.to)).attr('stop-opacity', .42);
         g.append('path').attr('d', path).attr('fill', 'url(#swmHop' + i + ')')
-          .attr('stroke', 'rgba(158,186,240,.35)').style('cursor', 'default')
+          .attr('stroke', 'rgba(37,106,191,.22)').style('cursor', 'default')
           .on('mouseenter', function (ev) { SWM.tip.show(hopTip(hop), ev); })
           .on('mousemove', function (ev) { SWM.tip.move(ev); })
           .on('mouseleave', function () { SWM.tip.hide(); });
 
         var top = Object.keys(hop.preds).sort(function (a, b) { return hop.preds[b] - hop.preds[a]; })[0];
         g.append('text').attr('x', mid + wTop / 2 + 14).attr('y', yTop + gap / 2 - 4)
-          .attr('fill', '#aab6d4').attr('font-size', 10).text(hop.count + ' typed relations');
+          .attr('fill', SWM.ink.ink2).attr('font-size', 10).text(hop.count + ' typed relations');
         g.append('text').attr('x', mid + wTop / 2 + 14).attr('y', yTop + gap / 2 + 10)
-          .attr('fill', '#7c88a8').attr('font-size', 9).style('font-family', 'ui-monospace,SFMono-Regular,Menlo,monospace')
+          .attr('fill', SWM.ink.ink3).attr('font-size', 9).style('font-family', 'ui-monospace,SFMono-Regular,Menlo,monospace')
           .text(top ? top + ' ×' + hop.preds[top] : '');
         g.append('text').attr('x', mid - wTop / 2 - 14).attr('y', yTop + gap / 2 + 3)
-          .attr('text-anchor', 'end').attr('fill', '#5f6b8c').attr('font-size', 18).text('↓');
+          .attr('text-anchor', 'end').attr('fill', SWM.ink.faint).attr('font-size', 18).text('↓');
       });
 
       /* bands */
@@ -104,27 +104,27 @@
           .on('mouseenter', function (ev) {
             SWM.tip.show('<b>L' + layer.id + ' · ' + SWM.esc(layer.name) + '</b><small>' + SWM.esc(layer.blurb) +
               '</small><small style="margin-top:5px">' + layer.count + ' types · average coverage ' + SWM.pct(layer.coverage) +
-              '</small><small style="margin-top:5px;color:#9cc6f7">click to set the abstraction level</small>', ev);
+              '</small><small class="more" style="margin-top:5px">click to set the abstraction level</small>', ev);
           })
           .on('mousemove', function (ev) { SWM.tip.move(ev); })
           .on('mouseleave', function () { SWM.tip.hide(); });
 
         band.append('rect').attr('x', x0).attr('y', y).attr('width', x1 - x0).attr('height', bandH).attr('rx', 13)
-          .attr('fill', sel ? 'rgba(90,155,234,.17)' : 'rgba(146,170,224,.07)')
-          .attr('stroke', sel ? SWM.layerColor(layer.id) : 'rgba(146,170,224,.22)')
+          .attr('fill', sel ? SWM.ink.accentSoft : SWM.ink.wash)
+          .attr('stroke', sel ? SWM.layerColor(layer.id) : SWM.ink.line)
           .attr('stroke-width', sel ? 2 : 1);
         band.append('rect').attr('x', x0).attr('y', y).attr('width', 6).attr('height', bandH)
           .attr('fill', SWM.layerColor(layer.id)).attr('rx', 3);
-        band.append('text').attr('x', x0 + 22).attr('y', y + 27).attr('fill', SWM.layerColor(layer.id))
+        band.append('text').attr('x', x0 + 22).attr('y', y + 27).attr('fill', SWM.layerInk(layer.id))
           .attr('font-size', 13).attr('font-weight', 700).text('L' + layer.id);
-        band.append('text').attr('x', x0 + 52).attr('y', y + 27).attr('fill', '#eef2fb').attr('font-size', 13)
+        band.append('text').attr('x', x0 + 52).attr('y', y + 27).attr('fill', SWM.ink.ink).attr('font-size', 13)
           .attr('font-weight', 650).text(layer.name);
-        band.append('text').attr('x', x0 + 52).attr('y', y + 45).attr('fill', '#8b97b8').attr('font-size', 10)
+        band.append('text').attr('x', x0 + 52).attr('y', y + 45).attr('fill', SWM.ink.ink3).attr('font-size', 10)
           .text(clip(layer.blurb, Math.max(24, Math.round((x1 - x0 - 260) / 5.4))));
         band.append('text').attr('x', x1 - 18).attr('y', y + 27).attr('text-anchor', 'end')
-          .attr('fill', '#eef2fb').attr('font-size', 17).attr('font-weight', 700).text(layer.count);
+          .attr('fill', SWM.ink.ink).attr('font-size', 17).attr('font-weight', 700).text(layer.count);
         band.append('text').attr('x', x1 - 18).attr('y', y + 42).attr('text-anchor', 'end')
-          .attr('fill', '#7c88a8').attr('font-size', 9).text('types · coverage ' + SWM.pct(layer.coverage));
+          .attr('fill', SWM.ink.ink3).attr('font-size', 9).text('types · coverage ' + SWM.pct(layer.coverage));
 
         /* group mix: shape carries the group, so the glyphs do the work */
         var mix = Object.keys(layer.groups).sort(function (a, b) { return layer.groups[b] - layer.groups[a]; }).slice(0, 5);
@@ -132,7 +132,7 @@
         mix.forEach(function (key, k) {
           var gg = band.append('g').attr('transform', 'translate(' + (gx - k * 42) + ',' + (y + bandH - 13) + ')');
           gg.append('path').attr('d', SWM.symbol(key, 52)).attr('fill', SWM.layerColor(layer.id)).attr('opacity', .9);
-          gg.append('text').attr('x', 9).attr('y', 4).attr('fill', '#7c88a8').attr('font-size', 9).text(layer.groups[key]);
+          gg.append('text').attr('x', 9).attr('y', 4).attr('fill', SWM.ink.ink3).attr('font-size', 9).text(layer.groups[key]);
         });
       });
     }

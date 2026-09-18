@@ -48,8 +48,7 @@
         '<span>' + SWM.esc(k.note) + '</span><br><span class="delta ' + SWM.esc(k.dir) + '">' + SWM.esc(k.delta) + '</span></div>';
     }).join('');
     document.getElementById('swmCovStatus').innerHTML = Object.keys(SWM.status).map(function (k) {
-      var s = SWM.status[k];
-      return '<span class="swm-legend-item"><span style="color:' + s.color + '">' + s.icon + '</span>' + s.label + '</span>';
+      return '<span class="swm-legend-item">' + SWM.statusHtml(k) + '</span>';
     }).join('');
 
     /* ---- hierarchy ------------------------------------------------------- */
@@ -65,7 +64,7 @@
     function fillOf(n) {
       if (mode === 'gaps') {
         var miss = 1 - (n.data.coverage || 0);
-        return d3.interpolateRgb('#2a3350', '#e66767')(Math.min(1, miss / .45));
+        return d3.interpolateRgb('#e8edf6', '#d03b3b')(Math.min(1, miss / .45));
       }
       return SWM.coverageColor(n.data.coverage);
     }
@@ -104,30 +103,33 @@
       g.selectAll('*').remove();
 
       path = g.append('g').selectAll('path').data(root.descendants().slice(1)).join('path')
-        .attr('fill', fillOf).attr('fill-opacity', function (n) { return visible(n) ? (n.children ? .92 : .74) : 0; })
+        .attr('fill', fillOf).attr('opacity', function (n) { return visible(n) ? 1 : 0; })
         .attr('pointer-events', function (n) { return visible(n) ? 'auto' : 'none'; })
-        .attr('stroke', '#131a30').attr('stroke-width', 2).attr('d', function (n) { return arc(n.current); })
+        .attr('stroke', '#ffffff').attr('stroke-width', 2).attr('d', function (n) { return arc(n.current); })
         .style('cursor', 'pointer')
         .on('click', function (ev, n) { ev.stopPropagation(); zoomTo(n); })
         .on('mouseenter', function (ev, n) {
           var st = SWM.status[SWM.coverageStatus(n.data.coverage)];
           SWM.tip.show('<b>' + SWM.esc(n.data.name) + '</b><small>' + SWM.esc(n.data.kind) + ' · ' +
             SWM.num(n.data.entities) + ' entities</small><small style="margin-top:4px">Coverage ' +
-            SWM.pct(n.data.coverage) + ' · <span style="color:' + st.color + '">' + st.icon + ' ' + st.label + '</span></small>' +
-            (n.children ? '<small style="margin-top:5px;color:#9cc6f7">click to drill into ' + n.children.length + ' children</small>' : ''), ev);
+            SWM.pct(n.data.coverage) + ' · ' + SWM.statusHtml(SWM.coverageStatus(n.data.coverage)) + '</small>' +
+            (n.children ? '<small class="more" style="margin-top:5px">click to drill into ' + n.children.length + ' children</small>' : ''), ev);
         })
         .on('mousemove', function (ev) { SWM.tip.move(ev); })
         .on('mouseleave', function () { SWM.tip.hide(); });
 
       label = g.append('g').attr('pointer-events', 'none').attr('text-anchor', 'middle')
         .selectAll('text').data(root.descendants().slice(1)).join('text')
-        .attr('dy', '0.34em').attr('fill', '#eef2fb').attr('font-size', 10)
-        .attr('fill-opacity', function (n) { return +labelVisible(n.current); })
+        .attr('dy', '0.34em').attr('font-size', 10)
+        .attr('fill', function (n) { return SWM.textOn(fillOf(n)); })
+        .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').attr('stroke-width', 2.4)
+        .attr('stroke', function (n) { return SWM.haloOn(fillOf(n)); })
+        .attr('opacity', function (n) { return +labelVisible(n.current); })
         .attr('transform', function (n) { return labelTransform(n.current); })
         .text(function (n) { return short(labelOf(n.data), n); });
 
-      centre = g.append('circle').attr('r', band()).attr('fill', '#0e1428')
-        .attr('stroke', 'rgba(146,170,224,.28)').style('cursor', 'pointer')
+      centre = g.append('circle').attr('r', band()).attr('fill', '#ffffff')
+        .attr('stroke', SWM.ink.line).style('cursor', 'pointer')
         .on('click', function (ev) { ev.stopPropagation(); zoomTo(focus.parent || root); });
       centreText = g.append('g').attr('pointer-events', 'none').attr('text-anchor', 'middle');
       paintCentre();
@@ -150,12 +152,13 @@
     function paintCentre() {
       var st = SWM.status[SWM.coverageStatus(focus.data.coverage)];
       centreText.selectAll('*').remove();
-      centreText.append('text').attr('y', -10).attr('fill', '#eef2fb').attr('font-size', 26).attr('font-weight', 700)
+      centreText.append('text').attr('y', -10).attr('fill', SWM.ink.ink).attr('font-size', 26).attr('font-weight', 700)
         .text(SWM.pct(focus.data.coverage));
-      centreText.append('text').attr('y', 9).attr('fill', '#aab6d4').attr('font-size', 10)
+      centreText.append('text').attr('y', 9).attr('fill', SWM.ink.ink2).attr('font-size', 10)
         .text(focus.data.name.length > 20 ? focus.data.name.slice(0, 19) + '…' : focus.data.name);
-      centreText.append('text').attr('y', 25).attr('fill', st.color).attr('font-size', 9)
-        .text(st.icon + ' ' + st.label + (focus.parent ? ' · back ↑' : ''));
+      var line = centreText.append('text').attr('y', 25).attr('fill', SWM.ink.ink3).attr('font-size', 9);
+      line.append('tspan').attr('fill', st.color).text(st.icon + ' ');
+      line.append('tspan').text(st.label + (focus.parent ? ' · back ↑' : ''));
     }
 
     function zoomTo(p) {
@@ -176,10 +179,10 @@
         .attrTween('d', function (n) { return function () { return arc(n.current); }; })
         /* opacity follows the TARGET frame: reading n.current here would freeze
            an arc at whatever it looked like before the transition started */
-        .attr('fill-opacity', function (n) { return visibleFrame(n.target) ? (n.children ? .92 : .74) : 0; })
+        .attr('opacity', function (n) { return visibleFrame(n.target) ? 1 : 0; })
         .attr('pointer-events', function (n) { return visibleFrame(n.target) ? 'auto' : 'none'; });
       label.transition(t)
-        .attr('fill-opacity', function (n) { return +labelVisible(n.target); })
+        .attr('opacity', function (n) { return +labelVisible(n.target); })
         .attrTween('transform', function (n) { return function () { return labelTransform(n.current); }; })
         .text(function (n) { return short(labelOf(n.data), n); });
       centre.transition().duration(680).attr('r', band());
@@ -256,7 +259,7 @@
       var d = focus.data, st = SWM.status[SWM.coverageStatus(d.coverage)];
       var facts = [
         ['Coverage', SWM.pct(d.coverage)],
-        ['Status', '<span style="color:' + st.color + '">' + st.icon + ' ' + st.label + '</span>'],
+        ['Status', SWM.statusHtml(SWM.coverageStatus(d.coverage))],
         ['Entities', SWM.num(d.entities)],
         [d.kind === 'workflow' ? 'Registered' : 'Open incidents',
          d.kind === 'workflow' ? 'Yes' : String(d.incidents != null ? d.incidents : sumIncidents(focus))]
@@ -301,6 +304,9 @@
       document.getElementById('swmRampLo').textContent = mode === 'gaps' ? 'none' : '40%';
       document.getElementById('swmRampHi').textContent = mode === 'gaps' ? '45%+ missing' : '100%';
       path.transition().duration(380).attr('fill', fillOf);
+      label.transition().duration(380)
+        .attr('fill', function (n) { return SWM.textOn(fillOf(n)); })
+        .attr('stroke', function (n) { return SWM.haloOn(fillOf(n)); });
     });
     svg.on('click', function () { zoomTo(focus.parent || root); });
     SWM.onResize(function () { if (mount.offsetParent) { draw(); zoomTo(focus); } });

@@ -249,3 +249,18 @@ The PRD alignment above supersedes the navigation grouping, the Proving Ground s
 - **Side effect worth noting:** ATLAS techniques and the OWASP catalogues previously had no
   hierarchical parent, so they were unreachable by expanding the graph. They now hang off the
   component they threaten and appear when that component is opened.
+
+### 2026-09-17 (later still) — light theme for the three observatory panels
+
+- The dark observatory canvas made several labels hard to read, so all three panels
+  (**World Model Coverage**, **Security Ontology**, **Ontology Layers**) now sit on a white canvas
+  that matches the rest of the app.
+- Both ordinal ramps were re-validated against `#ffffff` and re-stepped: abstraction layer
+  `#86b6ef → #104281`, coverage `#5cc79e → #0e4c3a`. The reserved status palette replaces the
+  previous ad-hoc status colours, and status is now a tinted icon beside ink text rather than
+  tinted text.
+- Text on filled marks (sunburst arcs, matrix cells) picks white or ink by measured contrast and
+  carries an opposite-colour halo, so no label sits below 3:1 on its own mark.
+- Fixed a rendering bug the light theme exposed: collapsed sunburst arcs and their labels were
+  hidden with `fill-opacity`, which leaves the stroke painted — they showed up as a white seam and
+  a stack of outlined glyphs at twelve o'clock. Both now use `opacity`.
