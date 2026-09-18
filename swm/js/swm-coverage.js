@@ -64,7 +64,7 @@
     function fillOf(n) {
       if (mode === 'gaps') {
         var miss = 1 - (n.data.coverage || 0);
-        return d3.interpolateRgb('#e8edf6', '#d03b3b')(Math.min(1, miss / .45));
+        return d3.interpolateRgb('#f0eef6', '#d03b3b')(Math.min(1, miss / .45));
       }
       return SWM.coverageColor(n.data.coverage);
     }

@@ -31,8 +31,8 @@
             '<svg id="swmChainSvg"></svg>' +
             '<div class="swm-legend"><h6>One chain, four layers</h6>' +
               '<div class="swm-legend-items">' +
-                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:linear-gradient(90deg,#104281,#86b6ef);display:inline-block"></span>band colour = abstraction layer</span>' +
-                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:rgba(37,106,191,.28);display:inline-block"></span>ribbon width = typed relations crossing the hop</span>' +
+                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:linear-gradient(90deg,#50339c,#b8a3ee);display:inline-block"></span>band colour = abstraction layer</span>' +
+                '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:rgba(111,80,201,.3);display:inline-block"></span>ribbon width = typed relations crossing the hop</span>' +
               '</div></div>' +
             '<div class="swm-hint">Click a band to set the abstraction level · hover a ribbon for its predicates</div>' +
           '</div>' +
@@ -80,7 +80,7 @@
         grad.append('stop').attr('offset', '0%').attr('stop-color', SWM.layerColor(hop.from)).attr('stop-opacity', .42);
         grad.append('stop').attr('offset', '100%').attr('stop-color', SWM.layerColor(hop.to)).attr('stop-opacity', .42);
         g.append('path').attr('d', path).attr('fill', 'url(#swmHop' + i + ')')
-          .attr('stroke', 'rgba(37,106,191,.22)').style('cursor', 'default')
+          .attr('stroke', 'rgba(111,80,201,.25)').style('cursor', 'default')
           .on('mouseenter', function (ev) { SWM.tip.show(hopTip(hop), ev); })
           .on('mousemove', function (ev) { SWM.tip.move(ev); })
           .on('mouseleave', function () { SWM.tip.hide(); });
@@ -115,11 +115,16 @@
           .attr('stroke-width', sel ? 2 : 1);
         band.append('rect').attr('x', x0).attr('y', y).attr('width', 6).attr('height', bandH)
           .attr('fill', SWM.layerColor(layer.id)).attr('rx', 3);
-        band.append('text').attr('x', x0 + 22).attr('y', y + 27).attr('fill', SWM.layerInk(layer.id))
-          .attr('font-size', 13).attr('font-weight', 700).text('L' + layer.id);
-        band.append('text').attr('x', x0 + 52).attr('y', y + 27).attr('fill', SWM.ink.ink).attr('font-size', 13)
+        /* the layer number rides on a filled pill in the true layer colour, so a
+           pale step never has to carry text on the white canvas */
+        band.append('rect').attr('x', x0 + 14).attr('y', y + 14).attr('width', 26).attr('height', 18).attr('rx', 6)
+          .attr('fill', SWM.layerColor(layer.id));
+        band.append('text').attr('x', x0 + 27).attr('y', y + 27).attr('text-anchor', 'middle')
+          .attr('fill', SWM.textOn(SWM.layerColor(layer.id)))
+          .attr('font-size', 11).attr('font-weight', 700).text('L' + layer.id);
+        band.append('text').attr('x', x0 + 50).attr('y', y + 27).attr('fill', SWM.ink.ink).attr('font-size', 13)
           .attr('font-weight', 650).text(layer.name);
-        band.append('text').attr('x', x0 + 52).attr('y', y + 45).attr('fill', SWM.ink.ink3).attr('font-size', 10)
+        band.append('text').attr('x', x0 + 50).attr('y', y + 45).attr('fill', SWM.ink.ink3).attr('font-size', 10)
           .text(clip(layer.blurb, Math.max(24, Math.round((x1 - x0 - 260) / 5.4))));
         band.append('text').attr('x', x1 - 18).attr('y', y + 27).attr('text-anchor', 'end')
           .attr('fill', SWM.ink.ink).attr('font-size', 17).attr('font-weight', 700).text(layer.count);

@@ -3,8 +3,10 @@
 
    Colour encodings, re-validated with the dataviz palette validator against a
    white surface (#ffffff, 2026-09-17):
-     - layer depth (L1..L4)  -> ordinal blue ramp,  ALL CHECKS PASS
-     - coverage percentage   -> ordinal violet ramp, ALL CHECKS PASS
+     - layer depth (L1..L4)  -> ordinal violet ramp, ALL CHECKS PASS
+     - coverage percentage   -> ordinal plum ramp,   ALL CHECKS PASS
+     Layer and coverage are two sequential encodings that share a panel switcher,
+     so they stay in the purple family but a hue apart (violet vs plum).
      - categorical (<=3)     -> #2a78d6 / #eb6834 / #1baf7a, all-pairs PASS
    Eight ontology groups are NOT colour-coded: eight simultaneous hues cannot
    clear the all-pairs CVD floor in a node-link view, so the group rides on
@@ -20,15 +22,15 @@
   --swm-ink:#17191d; --swm-ink-2:#4f5864; --swm-ink-3:#68707c;
 
   /* layer depth ramp (ordinal, one hue, light end clears the white surface) */
-  --swm-l1:#104281; --swm-l2:#256abf; --swm-l3:#3987e5; --swm-l4:#86b6ef;
+  --swm-l1:#50339c; --swm-l2:#6f50c9; --swm-l3:#9578e1; --swm-l4:#b8a3ee;
 
   /* coverage ramp (ordinal, one hue, low -> high) */
-  --swm-c1:#b8a3ee; --swm-c2:#9578e1; --swm-c3:#6f50c9; --swm-c4:#50339c; --swm-c5:#35206e;
+  --swm-c1:#dfa0d5; --swm-c2:#c579bb; --swm-c3:#a3559a; --swm-c4:#7a3a73; --swm-c5:#54254f;
 
   /* reserved status palette — always shipped with an icon + label */
   --swm-good:#0ca30c; --swm-warn:#fab219; --swm-serious:#ec835a; --swm-critical:#d03b3b;
 
-  --swm-accent:#256abf; --swm-radius:14px;
+  --swm-accent:#50339c; --swm-radius:14px;
   --swm-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
 }
 
@@ -51,13 +53,13 @@
 .swm-level:hover{border-color:#c8d0e4;transform:translateX(1px)}
 .swm-level .lv{font:700 10px/1 var(--swm-mono);color:#fff;background:var(--swm-l1);border-radius:6px;padding:6px 0;text-align:center}
 .swm-level[data-level="2"] .lv{background:var(--swm-l2)} .swm-level[data-level="3"] .lv{background:var(--swm-l3)}
-.swm-level[data-level="4"] .lv{background:var(--swm-l4);color:#0f2743}
+.swm-level[data-level="4"] .lv{background:var(--swm-l4);color:#17191d}
 .swm-level b{display:block;font-size:11px;font-weight:660;line-height:1.25;color:var(--ink)}
 .swm-level span{display:block;font-size:9px;color:var(--muted);line-height:1.3}
-.swm-level.active{border-color:var(--swm-accent);background:var(--lav);box-shadow:0 0 0 2px rgba(37,106,191,.14)}
+.swm-level.active{border-color:var(--swm-accent);background:#f2edfd;box-shadow:0 0 0 2px rgba(111,80,201,.16)}
 .swm-search{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font:inherit;font-size:11px;
   background:var(--soft);color:var(--ink)}
-.swm-search:focus{outline:2px solid rgba(37,106,191,.32);outline-offset:1px;background:#fff}
+.swm-search:focus{outline:2px solid rgba(111,80,201,.34);outline-offset:1px;background:#fff}
 .swm-chips{display:flex;flex-wrap:wrap;gap:5px}
 .swm-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 9px;font-size:10px;color:#4f5864;
   cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.14s}
@@ -89,7 +91,7 @@
 .swm-crumbs button{border:1px solid var(--line);background:#fff;color:var(--swm-ink-2);border-radius:7px;padding:4px 8px;
   font-size:10px;cursor:pointer;transition:.14s}
 .swm-crumbs button:hover{border-color:#c8d0e4;color:var(--ink)}
-.swm-crumbs button:last-child{background:var(--lav);border-color:rgba(37,106,191,.3);color:var(--blue2);font-weight:620}
+.swm-crumbs button:last-child{background:#f2edfd;border-color:rgba(111,80,201,.32);color:#4a2d92;font-weight:620}
 .swm-crumbs i{font-style:normal;color:var(--swm-ink-3)}
 .swm-views{display:flex;gap:3px;background:rgba(255,255,255,.92);border:1px solid var(--line);
   border-radius:9px;padding:3px;backdrop-filter:blur(7px)}
@@ -108,7 +110,7 @@
 .swm-ramp{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--swm-ink-2)}
 .swm-ramp .bar{width:112px;height:8px;border-radius:999px;
   background:linear-gradient(90deg,var(--swm-c1),var(--swm-c2),var(--swm-c3),var(--swm-c4),var(--swm-c5))}
-.swm-ramp.gaps .bar{background:linear-gradient(90deg,#e8edf6,#e3a08d,var(--swm-critical))}
+.swm-ramp.gaps .bar{background:linear-gradient(90deg,#f0eef6,#e3a08d,var(--swm-critical))}
 .swm-hint{position:absolute;right:12px;bottom:12px;z-index:3;font-size:10px;color:var(--swm-ink-3);
   background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:8px;padding:5px 9px}
 
@@ -118,13 +120,13 @@
 .swm-link.rel-enables{stroke-dasharray:2 4}
 .swm-node{cursor:pointer}
 .swm-node .glyph{stroke:#fff;stroke-width:1.5;transition:filter .2s}
-.swm-node:hover .glyph,.swm-node.selected .glyph{filter:drop-shadow(0 1px 4px rgba(16,66,129,.45))}
+.swm-node:hover .glyph,.swm-node.selected .glyph{filter:drop-shadow(0 1px 4px rgba(80,51,156,.45))}
 .swm-node.selected .glyph{stroke:var(--ink);stroke-width:2}
 .swm-node text{fill:var(--swm-ink);font-size:10px;font-weight:560;paint-order:stroke;stroke:#fff;stroke-width:2.8;
   stroke-linejoin:round;pointer-events:none}
 .swm-node.dim{opacity:.18}
 .swm-link.dim{opacity:.08}
-.swm-node.match text{fill:#0b1a2e;font-weight:680}
+.swm-node.match text{fill:#2a1a5c;font-weight:680}
 
 /* ---------- tooltip ------------------------------------------------------ */
 .swm-tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;
@@ -185,8 +187,8 @@
 .swm-radar-wrap{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:4px}
 .swm-radar{width:100%;max-width:330px;display:block;margin:0 auto}
 .swm-radar .axis{stroke:rgba(23,25,29,.14)} .swm-radar .ring{fill:none;stroke:rgba(23,25,29,.10)}
-.swm-radar .area{fill:rgba(57,135,229,.18);stroke:var(--swm-l2);stroke-width:2;transition:d .5s}
-.swm-radar .pt{fill:var(--swm-l1)}
+.swm-radar .area{fill:rgba(163,85,154,.18);stroke:var(--swm-c3);stroke-width:2;transition:d .5s}
+.swm-radar .pt{fill:var(--swm-c4)}
 .swm-radar text{fill:var(--swm-ink-2);font-size:9px}
 .swm-radar .val{fill:var(--swm-ink);font-weight:660}
 .swm-gaps{display:grid;gap:7px}

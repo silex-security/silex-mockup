@@ -56,12 +56,15 @@ public data; they are labelled as such. See [`data/SOURCES.md`](data/SOURCES.md)
 The panels sit on a **white canvas**, and every ramp was re-validated with the dataviz palette
 validator against `#ffffff`:
 
-- **Abstraction layer** is ordinal, so it gets a single-hue blue ramp
-  (`#86b6ef → #104281`, light end 2.11:1 on white) — passes monotone lightness, step gaps and
-  surface contrast.
-- **Coverage** gets its own violet ramp (`#b8a3ee → #35206e`, light end 2.21:1), same checks. Violet
-  was chosen over the earlier teal because every one of its steps leaves a text colour with at least
-  5:1 against it, where teal's mid steps sat in a band where neither black nor white read well.
+- **Abstraction layer** is ordinal, so it gets a single-hue violet ramp
+  (`#b8a3ee → #50339c`, light end 2.21:1 on white) — passes monotone lightness, step gaps and
+  surface contrast. Violet is the section's primary colour: the ontology graph, the hierarchy, the
+  layer bands and the ribbons are all drawn from it.
+- **Coverage** gets a plum ramp (`#dfa0d5 → #54254f`, light end 2.07:1), same checks. Layer and
+  coverage are two sequential encodings the Explorer switches between, so they stay in the purple
+  family but a hue apart — otherwise flipping "colour by" would repaint the graph in the same
+  colours. Every step of both ramps leaves a text colour with at least 4.8:1 against it, which the
+  earlier teal ramp's middle steps did not.
 - **Text on a filled mark** is never guessed: `SWM.textOn()` returns whichever of white and ink has
   the higher measured contrast against that exact fill, and `SWM.haloOn()` adds a thin
   opposite-colour halo so a label survives landing on a boundary. Marks are drawn fully opaque so

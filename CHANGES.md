@@ -278,3 +278,15 @@ The PRD alignment above supersedes the navigation grouping, the Proving Ground s
   halo was thinned (1.7px) so it stops closing up the counters of 10px glyphs.
 - The relation-matrix caption moved into the legend, where it no longer collides with the rotated
   column headers.
+
+### 2026-09-17 (final) — purple across the whole Security World Model
+
+- The **Security Ontology** graph, its hierarchy and relation views, and the **Ontology Layers**
+  bands and ribbons now use a violet ramp (`#b8a3ee → #50339c`) instead of blue, so the section
+  reads as one purple family.
+- **Coverage** moved to a plum ramp (`#dfa0d5 → #54254f`). Layer and coverage are two sequential
+  encodings behind the same "colour by" switch, so they are deliberately a hue apart; sharing the
+  violet steps would have made the two modes look identical.
+- The layer number on each band is now a filled pill in the true layer colour with contrast-picked
+  text, so the palest layer never has to carry small text on white.
+- Group anchors in the graph are a deeper violet rather than grey.

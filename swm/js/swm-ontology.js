@@ -119,7 +119,7 @@
     }
 
     function colorOf(n) {
-      if (n.anchor) return SWM.ink.ink2;
+      if (n.anchor) return '#2f1f63';  /* group roots: a deeper violet than L1, still structure */
       if (state.colorBy === 'coverage') return SWM.coverageColor(n.coverage);
       if (state.colorBy === 'status') return SWM.status[SWM.coverageStatus(n.coverage)].color;
       return SWM.layerColor(n.layer);

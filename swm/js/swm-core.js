@@ -9,8 +9,8 @@
   /* ---- validated colour ramps (see swm/css/swm.css header) ---------------
      Light theme: both ramps run light -> dark on the white canvas, so the
      deeper the layer and the higher the coverage, the darker the mark. */
-  var LAYER_RAMP    = ['#104281', '#256abf', '#3987e5', '#86b6ef'];
-  var COVERAGE_RAMP = ['#b8a3ee', '#9578e1', '#6f50c9', '#50339c', '#35206e'];
+  var LAYER_RAMP    = ['#50339c', '#6f50c9', '#9578e1', '#b8a3ee'];
+  var COVERAGE_RAMP = ['#dfa0d5', '#c579bb', '#a3559a', '#7a3a73', '#54254f'];
   /* reserved status palette — fixed, never themed, never carries meaning alone */
   var STATUS = {
     critical: { color:'#d03b3b', label:'Critical', icon:'▲' },
@@ -24,7 +24,7 @@
     ink:'#17191d', ink2:'#4f5864', ink3:'#68707c', faint:'#7b8494',
     surface:'#ffffff', soft:'#f5f6f8', line:'#e3e6ea',
     grid:'rgba(23,25,29,.10)', edge:'rgba(23,25,29,.20)',
-    wash:'rgba(23,25,29,.05)', accent:'#256abf', accentSoft:'rgba(37,106,191,.12)'
+    wash:'rgba(23,25,29,.05)', accent:'#50339c', accentSoft:'rgba(111,80,201,.13)'
   };
 
   /* Ontology group -> d3 symbol. Eight simultaneous hues cannot clear the
