@@ -5,6 +5,45 @@ D3-based replacement for the **World Model Coverage**, **Security Ontology** and
 Three panels, one shared abstraction level (`SWM.level`, `SWM.setLevel`, `SWM.onLevel`):
 **L1 general → L2 domain → L3 agentic-system → L4 runtime**.
 
+---
+
+## 通俗说明:这三张图用了哪些真实数据(中文)
+
+**一句话:** 图的**骨架和分类学(taxonomy)是从 5 个公开、真实的安全标准抓取蒸馏出来的**;而**具体到某家企业的业务实例和所有覆盖率百分比,是 Silex 自己编的示例(mock)**。真假在数据里是明确分开、可核对的。
+
+### 真实数据 —— 来自 5 个公开安全本体/标准
+
+| 来源 | 是什么 | 抓取节点 | 许可 | 在图里的作用 |
+|---|---|---|---|---|
+| **MITRE D3FEND** | 防御技术 / 数字工件(digital artifact)官方本体 | **213** | D3FEND Terms(免费,署名) | L1 **继承骨架** + policy/control 语义 |
+| **MITRE ATLAS** | 专门针对 AI/ML 系统的攻击战术技术 | **96** | Apache-2.0 / ATLAS Terms | agentic 威胁语义,挂到它攻击的组件上 |
+| **MITRE ATT&CK Enterprise** | 企业级攻击战术技术(14 tactics) | **61** | ATT&CK Terms(免费,署名) | L1 通用威胁语义 |
+| **UCO(Unified Cyber Ontology)** | 网络安全的统一上层本体 | **72** | Apache-2.0 | L1 **顶层类**(Agent / Identity / Tool / Action…) |
+| **OWASP GenAI** | LLM Top 10 (2025) + Agentic 威胁清单 T1–T15 | **25** | CC BY-SA 4.0 | 挂到对应的 agentic 组件上 |
+
+这 5 个来源约 **467 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。整张图共 **598 节点 + 800 条带类型的关系**(SUBCLASS_OF 274 · ACHIEVES 126 · THREATENS 105 · SPECIALIZES 85 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从上述 URL 实时抓取 + 蒸馏生成,画图用 D3.js(pinned 7.9.0,可离线)。
+
+### 怎么拼成一个四层世界模型(L1→L2→L3→L4)
+
+**L1 通用**(370)· **L2 行业包**(86)· **L3 agentic 系统**(118)· **L4 运行时实例**(24)。关键:每个节点都有一个明确的 `parent`,构建脚本会**强制校验** parent 必须同层、或恰好高一层,否则构建直接失败 —— 所以这四层是一条**真实的链,不是随手画的层次图**。
+
+### ⚠️ 哪些是真的、哪些是示例(与下面 "What is real and what is mock" 一致)
+
+- **真实**:上面 5 个公开标准的节点、官方 ID、以及类之间的继承结构。
+- **示例 mock(节点标 `src: silex`)**:L2 各行业 domain pack 的业务实体、L3 组件清单、**整个 L4 运行时图**、**所有 coverage 百分比**、以及 threat→component / countermeasure→threat 的映射。
+
+> **"某领域有哪些概念、怎么继承" 是真的公开标准;"某公司覆盖了 82%、还有 8 个盲点" 是编的示例占位。** 这正好对上 positioning 的 evidence-grade 原则:真的标 real,示例的标 illustrative,不混。
+
+### 每张图具体吃哪块数据
+
+- **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数 + 跨层 typed relations),**结构真实**。
+- **Security Ontology**(graph / hierarchy / relation matrix)→ `ontology.json` 的 **598 nodes + 800 links**,公开标准部分真实、Silex 叠加部分示例。
+- **World Model Coverage**(可缩放 sunburst + 雷达)→ `coverage.json`(coverage tree / gaps / KPIs)。其中 **weighted coverage 82% · 29.4K entities · 8 blind spots · sim-vs-observed 94%** 等数字**均为 illustrative,非实测**。
+
+完整来源与许可见 [`data/SOURCES.md`](data/SOURCES.md)。
+
+---
+
 ## The chain is a hard rule, not a drawing
 
 Every node in the bundle names one `parent`, and `build-ontology.mjs` exits non-zero if any parent
