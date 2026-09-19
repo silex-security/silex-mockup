@@ -57,6 +57,7 @@
       return { w: w, h: Math.max(520, Math.min(620, w * .68)) };
     }
 
+    var revealed = false;   // one-time L1→L4 build animation on first open (screen-recordable)
     function draw() {
       var d = dims(), pad = { x: 26, top: 46, bottom: 104 };
       svg.attr('viewBox', '0 0 ' + d.w + ' ' + d.h).attr('height', d.h);
@@ -139,7 +140,9 @@
           gg.append('path').attr('d', SWM.symbol(key, 52)).attr('fill', SWM.layerColor(layer.id)).attr('opacity', .9);
           gg.append('text').attr('x', 9).attr('y', 4).attr('fill', SWM.ink.ink3).attr('font-size', 9).text(layer.groups[key]);
         });
+        if (!revealed) band.style('opacity', 0).transition().duration(520).delay(260 + i * 240).style('opacity', 1);
       });
+      revealed = true;
     }
 
     function clip(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
