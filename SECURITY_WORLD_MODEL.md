@@ -5,8 +5,8 @@ Coverage*, *Security Ontology* and *Ontology Layers* tabs. Everything below is l
 [silex-mockup.vercel.app](https://silex-mockup.vercel.app/); the code lives in
 [`swm/`](swm/README.md), and the page keeps its single-file shell in `index.html`.
 
-Older planning and audit documents moved to [`docs/`](docs/) — the step plan for this work is
-[`docs/SWM_OBSERVATORY_PLAN.md`](docs/SWM_OBSERVATORY_PLAN.md).
+Planning and audit documents are archived in [`logs/`](logs/) — the step plan for this work is
+[`logs/2026-09-17_SWM_OBSERVATORY_PLAN.md`](logs/2026-09-17_SWM_OBSERVATORY_PLAN.md).
 
 ---
 
