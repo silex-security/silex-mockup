@@ -6,6 +6,16 @@ public ontology data is real (see [`../swm/data/SOURCES.md`](../swm/data/SOURCES
 
 ---
 
+## 2026-09-21 — Artifact upgrade: route map, measured fix, model change, route evaluation
+Plan and review record: [`2026-09-21_ARTIFACT_UPGRADE_PLAN.md`](2026-09-21_ARTIFACT_UPGRADE_PLAN.md) (plan approved by DeepSeek, Codex and Claude in two rounds; implementation approved in four review rounds).
+
+- **Incident → Alternative paths:** interactive route map of every route to the unsafe outcome. Line pattern = evidence grade, colour + text = Open / Blocked; the control (e.g. PAY-042) interrupts Path A; keyboard-selectable; Replay; animation stops when hidden and honours reduced motion. For I-1042, each route opens an **illustrative provenance example** (premises with sources, generating class + constraint) and a separate illustrative simulation check that never upgrades the grade. The text rows moved into a "Route list" disclosure.
+- **Incident → Candidates:** "most secure ≠ best" chart of residual reachability × business friction with a draggable **business veto**. The recommendation is computed from illustrative candidate records and is the single source for the badges, PCP text, validated state, Decision tab and Approve button. "No acceptable candidate" disables approval.
+- **Pre-release:** *Model change* card. Identical output checks for both models, while the graph diff shows the updated model exercising I-1042 Path C (deep link). Captioned illustrative; Path C stays latent.
+- **Assurance:** "Follow one blocked attack →" entry; §03 gains *How candidate routes are evaluated* (bounded modelled set → excluded by named laws → 187 simulated executions → 4 routes, 3 open); new §05 *Where this is today* with the Plan v1 job statuses verbatim.
+- **Consistency:** one candidate string, "Bind approval to vendor + intent + mutation".
+- **Untouched:** `swm/` and the Security World Model view (byte-identical; rendered comparison differs only by D3 layout noise that also appears between two renders of the original).
+
 ## 2026-09-19 — Demo refine (per the Sep18 investor-narrative meeting TODO)
 Commits `eb2fff6`, `c7f2afe`.
 
@@ -67,3 +77,4 @@ after a 201-element crawl. See `2026-09-15_CHANGES.md`, `2026-09-15_SITEMAP.md`,
 | [`2026-09-17_POSITIONING_ALIGNMENT_PLAN.md`](2026-09-17_POSITIONING_ALIGNMENT_PLAN.md) | Aligning the demo with the Sept-2026 positioning |
 | [`2026-09-17_docs-README.md`](2026-09-17_docs-README.md) | The old `docs/` index (for reference) |
 | [`2026-09-18_ASSURANCE_RESTRUCTURE_PLAN.md`](2026-09-18_ASSURANCE_RESTRUCTURE_PLAN.md) | Assurance-first restructure plan (v7 investor register) |
+| [`2026-09-21_ARTIFACT_UPGRADE_PLAN.md`](2026-09-21_ARTIFACT_UPGRADE_PLAN.md) | Artifact upgrade: route map, measured fix, model change, route evaluation (3-judge review) |

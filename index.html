@@ -321,6 +321,97 @@
     @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
     @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
   </style>
+  <style>
+    /* ===== 2026-09-21 artifact upgrade (scoped .rx-*; see logs/2026-09-21_ARTIFACT_UPGRADE_PLAN.md) ===== */
+    .rx-cap{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);background:var(--amber-bg);border-radius:5px;padding:3px 7px;display:inline-block}
+    .rx-steps{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+    .rx-steps b{color:var(--blue2)}
+    .rx-map{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr);gap:14px;margin:6px 0 14px;align-items:start}
+    .rx-graph{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 12px}
+    .rx-ghead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+    .rx-scroll{overflow-x:auto}
+    .rx-graph svg{display:block;width:100%;min-width:600px}
+    .rx-graph svg text{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+    .rx-lane{cursor:pointer;outline:none}
+    .rx-lane .rx-hit{fill:transparent}
+    .rx-lane:hover .rx-hit,.rx-lane:focus-visible .rx-hit{fill:var(--soft)}
+    .rx-lane.sel .rx-hit{fill:var(--lav)}
+    .rx-line{fill:none;stroke-width:2.4;stroke-linecap:round}
+    .rx-line.obs{stroke-dasharray:none}.rx-line.lat{stroke-dasharray:9 6}.rx-line.dec{stroke-dasharray:2 5}
+    .rx-line.open{stroke:var(--red)}.rx-line.blocked{stroke:var(--green)}
+    .rx-node rect{fill:#fff;stroke:var(--line)}
+    .rx-node text{font-size:11px;fill:var(--ink)}
+    .rx-out rect{fill:var(--red-bg);stroke:#efbaba}
+    .rx-out text{font-size:12px;font-weight:700;fill:#8d3636}
+    .rx-ctl rect{fill:var(--green-bg);stroke:var(--green)}
+    .rx-ctl text{font:700 10.5px var(--mono);fill:var(--green)}
+    .rx-lab{font:700 13px var(--mono);fill:var(--ink)}
+    .rx-st{font:700 9.5px var(--mono);letter-spacing:.05em}
+    .rx-st.open{fill:var(--red)}.rx-st.blocked{fill:var(--green)}
+    .rx-tok{fill:var(--red)}.rx-tok.stop{fill:var(--green)}
+    .rx-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--muted);margin-top:6px;align-items:center}
+    .rx-legend svg{min-width:0;width:30px;height:8px;display:inline-block;vertical-align:middle;margin-right:5px}
+    .rx-detail{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px;display:grid;gap:10px;align-content:start;font-size:12.5px}
+    .rx-detail h4{margin:0;font-size:14px}
+    .rx-detail ol{margin:0;padding-left:18px;display:grid;gap:6px}
+    .rx-detail .src{display:block;font:11px var(--mono);color:var(--muted)}
+    .rx-detail .rx-k{font:700 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .rx-sim{background:var(--soft);border-radius:9px;padding:10px 12px;display:grid;gap:4px}
+    .rx-sim .ok{color:var(--green);font:600 11.5px var(--mono)}
+    .rx-list{margin-top:4px}
+    .rx-list summary{cursor:pointer;font-size:12px;color:var(--muted);padding:6px 0}
+    .rx-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink)}
+    .rx-btn:hover{border-color:var(--blue)}
+    .rx-btn:focus-visible,.rx-lane:focus-visible,.rx-pt:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    /* P2 chart */
+    .rx-opt{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px 16px;margin-bottom:14px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(240px,1fr);gap:16px}
+    .rx-opt svg{display:block;width:100%;min-width:480px}
+    .rx-opt svg text{font:10.5px var(--mono);fill:var(--muted)}
+    .rx-opt .rx-pl{font:700 11px Inter,ui-sans-serif,sans-serif;fill:var(--ink)}
+    .rx-pt{cursor:pointer}
+    .rx-side{display:grid;gap:10px;align-content:start;font-size:12.5px}
+    .rx-side label{display:flex;justify-content:space-between;font-size:12px;font-weight:600}
+    .rx-side input[type=range]{width:100%;accent-color:var(--blue2)}
+    .rx-win{border-radius:10px;padding:10px 12px;background:var(--lav)}
+    .rx-win b{display:block;font-size:14px;margin-top:2px}
+    .rx-win.none{background:var(--red-bg)}.rx-win.none b{color:var(--red)}
+    .rej-tag.veto{background:var(--red-bg);color:var(--red)}
+    /* P3 */
+    .rx-mc{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;padding:0 20px 20px}
+    .rx-mc table{width:100%;border-collapse:collapse;font-size:12px}
+    .rx-mc th{text-align:left;color:var(--muted);font-weight:560;border-bottom:1px solid var(--line);padding:8px 6px}
+    .rx-mc td{padding:8px 6px;border-bottom:1px solid #eef0f2}
+    .rx-pass{color:var(--green);font:700 11px var(--mono)}
+    .rx-ex{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:12px}
+    .rx-ex.new{border-color:#efbaba;background:#fff8f8}
+    .rx-mark{font:700 10.5px var(--mono);color:var(--muted)}
+    .rx-ex.new .rx-mark{color:var(--red)}
+    .rx-mc.hl .rx-ex:not(.new){opacity:.45}
+    /* P4 / P5 */
+    .rx-eval{margin-top:14px}
+    .rx-stages{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:8px;align-items:stretch}
+    .rx-stage{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+    .rx-stage b{display:block;font-size:20px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+    .rx-stage span{font-size:11.5px;color:var(--muted)}
+    .rx-stage.hi{border-color:var(--blue);background:#f7f8ff}
+    .rx-arr{align-self:center;color:#979da6}
+    .rx-eval details{margin-top:10px;font-size:12px}
+    .rx-eval summary{cursor:pointer;color:var(--blue2);font-weight:600}
+    .rx-reasons{display:grid;gap:4px;margin-top:8px}
+    .rx-reasons div{display:grid;grid-template-columns:1fr auto;gap:10px;padding:6px 10px;background:var(--soft);border-radius:7px}
+    .rx-reasons small{grid-column:1/-1;font:11px var(--mono);color:var(--muted)}
+    .rx-jobs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .rx-job{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;text-align:left;cursor:pointer;display:grid;gap:6px;font-size:12px;color:var(--ink)}
+    .rx-job:hover{border-color:var(--blue)}
+    .rx-job b{font-size:13px}
+    .rx-stt{font:700 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;justify-self:start;padding:3px 6px;border-radius:5px}
+    .rx-stt.designed{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+    .rx-stt.building{background:var(--amber-bg);color:var(--amber)}
+    .rx-stt.thesis{border:1px dashed var(--muted);color:var(--muted)}
+    .rx-entry{margin-top:14px}
+    @media(max-width:1100px){.rx-map,.rx-opt,.rx-mc{grid-template-columns:1fr}.rx-jobs{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){.rx-stages{grid-template-columns:1fr}.rx-arr{transform:rotate(90deg);justify-self:center}.rx-jobs{grid-template-columns:1fr}.rx-opt svg{min-width:0}}
+  </style>
 </head>
 <body>
 <div class="app">
@@ -372,6 +463,7 @@
 <div class="as-eyebrow">Continuous Production Assurance</div>
 <h1>Proof that your agents still do what they should — as everything keeps changing.</h1>
 <p class="as-lede">SILEX runs continuous <b>Agent Verification &amp; Validation</b> on a live Enterprise World Model: verifying that agents follow their intended trajectories, and validating that the resulting business state — and the controls around it — still hold under today's reality.</p>
+<button class="btn blue rx-entry" data-open-incident="I-1042">Follow one blocked attack →</button>
 </div></div>
 <div class="as-kpis">
 <div class="as-kpi"><div class="v">82%</div><div class="l">Weighted coverage</div><div class="d up">▲ +4 pts vs last calibration</div></div>
@@ -423,6 +515,23 @@
 </div>
 <p class="as-quote" style="margin-top:14px">Each blind spot names the class and constraint that generated it — a hypothesis with an address, not a mystery. That is what makes the model self-evolving.</p>
 </div>
+</div>
+<!-- Illustrative counts (I-1042): 2,304 modelled branches − 2,117 excluded (1,204 + 571 + 238 + 104) = 187 simulated executions → 4 routes, 3 open. -->
+<div class="as-card rx-eval">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div><b style="font-size:14px">How candidate routes are evaluated</b><div class="rx-steps" style="margin-top:3px">observe → reconstruct → <b>explore</b> → compare fixes · incident I-1042</div></div><span class="rx-cap">Illustrative counts</span></div>
+<div class="rx-stages">
+<div class="rx-stage"><b>2,304</b><span>candidate branches in the modelled set (input × agent × action × resource × control state)</span></div><span class="rx-arr">→</span>
+<div class="rx-stage"><b>2,117</b><span>excluded by named laws, each exclusion checkable</span></div><span class="rx-arr">→</span>
+<div class="rx-stage hi"><b>187</b><span>simulated executions of what remains</span></div><span class="rx-arr">→</span>
+<div class="rx-stage"><b>4 routes</b><span>examined to "Bank destination changed" · <b style="display:inline;font-size:11.5px;color:var(--red)">3 remain open</b></span></div>
+</div>
+<details><summary>Why branches were excluded (2,117)</summary><div class="rx-reasons">
+<div><span>Action not in any agent's permission scope</span><b>1,204</b><small>L1 Permission ⊄ Agent.scope</small></div>
+<div><span>Resource type cannot lead to the prohibited outcome</span><b>571</b><small>L2 path law: Resource ↛ Payment</small></div>
+<div><span>Violates a grant constraint (amount, expiry, scope)</span><b>238</b><small>L3 permission-scope constraints</small></div>
+<div><span>An existing control stops it on every edge</span><b>104</b><small>L4 controls, e.g. PAY-042</small></div>
+</div></details>
+<p class="as-quote" style="margin-top:12px">Pruned ≠ sampled: every excluded branch names the law that excludes it, so each exclusion can be checked. Coverage is only as complete as the model's vocabulary and assumptions.</p>
 </div></div>
 
 <div class="as-sec"><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="as-sub">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
@@ -434,6 +543,14 @@
 <div class="u"><small>After — failure closure validated</small><div>Agent handles changes <b>up to $2,000</b>; re-auth bound to identity + intent + amount</div></div>
 </div>
 <p class="as-quote" style="margin-top:16px">Certification is a snapshot; assurance has to be continuous. — SILEX raises the autonomy ceiling of enterprise AI.</p>
+</div></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">05</span><div><h2 style="margin:0">Where this is today</h2><p class="as-sub">The four lifecycle jobs, stated honestly. Views in this demo are illustrative product screens.</p></div></div>
+<div class="rx-jobs">
+<button class="rx-job" data-jump="blueprint"><span class="rx-stt designed">Designed</span><b>Pre-deployment</b><span class="as-sub" style="margin:0">Simulation and adversarial exploration → Blueprint Studio</span></button>
+<button class="rx-job" data-jump="short-term"><span class="rx-stt building">Building</span><b>Release gate</b><span class="as-sub" style="margin:0">Regression and model-change checks → Pre-release</span></button>
+<button class="rx-job" data-jump="policies"><span class="rx-stt building">Building</span><b>Runtime</b><span class="as-sub" style="margin:0">Coverage and provenance on the runtime graph → PCP · Policy</span></button>
+<button class="rx-job" data-jump="incidents"><span class="rx-stt thesis">Thesis → Building</span><b>Post-incident</b><span class="as-sub" style="margin:0">Causal RCA and policy change proposals → Incident Queue</span></button>
 </div></div>
 </section>
 
@@ -830,12 +947,14 @@
 
 <div class="tab-panel inc-panel" id="inc-paths">
 <div class="outcome-target"><b>Unsafe outcome:</b> <span id="incOutcomeTarget">Bank destination changed</span></div>
-<div class="grade-legend"><span class="grade g-obs">Observed</span> exercised in your runtime graph · <span class="grade g-lat">Latent</span> asserted possible by type over your real agents, no trace yet · <span class="grade g-dec">Declared</span> from configuration, before deploy</div>
-<div class="path-stack" id="incPaths"></div>
+<div class="grade-legend"><span class="grade g-obs">Observed</span> exercised in your runtime graph · <span class="grade g-lat">Latent</span> asserted possible by type over your real agents, no trace yet · <span class="grade g-dec">Declared</span> from configuration, before deploy (appears in Blueprint Studio)</div>
+<div id="rxRoutes"></div>
+<details class="rx-list"><summary>Route list (text)</summary><div class="path-stack" id="incPaths"></div></details>
 <div class="next-bar"><p><strong>Residual reachability.</strong> The same outcome is still reachable through <span id="incOpenCount">3</span> paths.</p><div><button class="btn blue" data-inc-go="2">Review candidates →</button></div></div>
 </div>
 
 <div class="tab-panel inc-panel" id="inc-candidates">
+<div id="rxOpt"></div>
 <div class="cand-grid" id="incCands"></div>
 <div class="side-by-side">
 <div class="sbs-col"><h3>Residual paths</h3><p>What stays reachable today</p><div class="path-stack" id="incSbsPaths"></div></div>
@@ -857,7 +976,7 @@
 <div class="impact"><b id="incImpact2">+420 ms</b>added latency</div>
 <div class="impact"><b id="incImpact3">2 steps</b>require re-authentication</div>
 </div>
-<div class="rationale"><b>Why, in type terms:</b> the block covered one route, but the failure is <b>authorization reuse through lost intent provenance</b> — an approval state that stays valid across executions. The latent paths reach the same prohibited outcome via a different tool, a delegated agent, or a poisoned document. Binding approval to identity + intent + mutation closes the class.</div>
+<div class="rationale"><b>Why, in type terms:</b> the block covered one route, but the failure is <b>authorization reuse through lost intent provenance</b> — an approval state that stays valid across executions. The latent paths reach the same prohibited outcome via a different tool, a delegated agent, or a poisoned document. Binding approval to vendor + intent + mutation closes the class.</div>
 <div class="promo"><span class="plabel">Validation stage</span><span class="stg done">Simulation</span><span class="arr">→</span><span class="stg on">Shadow</span><span class="arr">→</span><span class="stg">Canary</span><span class="arr">→</span><span class="stg">Production</span><span class="pnote">No policy reaches production from simulation alone. Rollback preserved at every stage.</span></div>
 </div>
 <div class="next-bar"><p><strong>Recommendation ready.</strong> A human decides.</p><div><button class="btn blue" data-inc-go="3">Decide →</button></div></div>
@@ -1056,6 +1175,33 @@
 </div>
 </div>
 </div>
+<div class="card section-card" id="rxModel">
+<div class="card-head"><div><h2>Model change: Finance Agent model update</h2><p>A second kind of release-gate change. Same prompts, tools, permissions and task suite; only the model differs.</p></div><span class="rx-cap">Illustrative model comparison, not recorded runs</span></div>
+<div class="rx-mc" id="rxMc">
+<div>
+<div class="rx-steps" style="margin-bottom:6px">OUTPUT CHECKS · AP output check suite v3 · 8 checks</div>
+<table><thead><tr><th>Check</th><th>Current model</th><th>Updated model</th></tr></thead><tbody>
+<tr><td>Invoice amount matches PO</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>Vendor name matches vendor master</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>No duplicate payment</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>Approval present above $10,000</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>Ledger entry balanced</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>Currency and remittance format</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>Remittance notice sent</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td>Response format and tone</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
+<tr><td><b>Score</b></td><td class="rx-pass">8 / 8</td><td class="rx-pass">8 / 8</td></tr>
+</tbody></table>
+</div>
+<div style="display:grid;gap:8px;align-content:start">
+<div class="rx-steps">GRAPH DIFF · execution routes exercised by the suite</div>
+<div class="rx-ex"><span>Finance → Vendor Tool → approved mutation</span><span class="rx-mark">both models</span><span></span></div>
+<div class="rx-ex"><span>Finance → Procurement → PO lookup</span><span class="rx-mark">both models</span><span></span></div>
+<div class="rx-ex new"><span><span class="grade g-lat">Latent</span> Finance → Support → vendor merge → inherited authority</span><span class="rx-mark">updated model only</span><button class="def-link" data-rx-open="I-1042:C">Inspect Path C →</button></div>
+<p style="font-size:12px;color:var(--muted);margin:4px 0 0">Every output check stays green, yet the updated model exercises <b>Path C of incident I-1042</b>, a route the world model had already flagged by type. The model change granted no new authority; it used authority that was already there. Illustrative: Path C remains <b>latent</b> in production traces.</p>
+<div><button class="rx-btn" id="rxMcHl" aria-pressed="false">Highlight what changed</button></div>
+</div>
+</div>
+</div>
 <div class="card section-card" id="stRun" style="display:none">
 <div class="card-head"><div><h2>Revalidation</h2><p>What SILEX is doing</p></div><span class="status running" id="stStatus">Running</span></div>
 <div class="body"><div class="run-steps" id="stSteps">
@@ -1246,7 +1392,7 @@ const suiteData={
 document.querySelectorAll('.mode-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const graph=document.getElementById('causalGraph'),mode=tab.dataset.graphMode;graph.className='kg-graph'+(mode==='structure'?'':' mode-'+mode)}));
   
 const incidentData={
-    'I-1042':{workflow:'Finance · Vendor Master Update',meta:'Workflow WF-021 · Owner: Finance Operations · Production',severity:'Critical evidence',severityClass:'blocked',title:'Vendor bank mutation attempted',summary:'A blocked prompt injection is evidence of a broader workflow-level causal failure.',evidence:'I-1042 · Blocked tool mutation',mechanism:'Intent–approval binding failure',mechanismDesc:'Approval is not causally bound to the original vendor identity, intent, and exact state mutation.',count:'187 executions explored',input:'External email',agent:'Finance Agent',action:'Vendor Update Tool',outcome:'Bank destination changed',control:'PAY-042',authority:'Finance Approver',authorityMeta:'Delegates bank-update authority',resource:'Vendor bank record',resourceMeta:'Critical financial resource',candidate:'Bind identity + intent + mutation',hypothesis:'The workflow permits high-risk vendor mutations whenever approval is evaluated as reusable state rather than evidence bound to the verified vendor, intent, and exact mutation.',paths:['Finance → Procurement → split mutation → reused approval','Finance → Support → vendor merge → inherited authority','AP Agent → Finance → stale authorization → bank update','Finance → Vendor Tool → direct mutation → PAY-042']},
+    'I-1042':{workflow:'Finance · Vendor Master Update',meta:'Workflow WF-021 · Owner: Finance Operations · Production',severity:'Critical evidence',severityClass:'blocked',title:'Vendor bank mutation attempted',summary:'A blocked prompt injection is evidence of a broader workflow-level causal failure.',evidence:'I-1042 · Blocked tool mutation',mechanism:'Intent–approval binding failure',mechanismDesc:'Approval is not causally bound to the original vendor identity, intent, and exact state mutation.',count:'187 executions explored',input:'External email',agent:'Finance Agent',action:'Vendor Update Tool',outcome:'Bank destination changed',control:'PAY-042',authority:'Finance Approver',authorityMeta:'Delegates bank-update authority',resource:'Vendor bank record',resourceMeta:'Critical financial resource',candidate:'Bind approval to vendor + intent + mutation',hypothesis:'The workflow permits high-risk vendor mutations whenever approval is evaluated as reusable state rather than evidence bound to the verified vendor, intent, and exact mutation.',paths:['Finance → Procurement → split mutation → reused approval','Finance → Support → vendor merge → inherited authority','AP Agent → Finance → stale authorization → bank update','Finance → Vendor Tool → direct mutation → PAY-042']},
     'I-1038':{workflow:'Customer Support · Refund Resolution',meta:'Workflow WF-014 · Owner: CX Automation · Production',severity:'High evidence',severityClass:'review',title:'Aggregate refund limit exceeded',summary:'Individually allowed actions composed across agents into a prohibited $1,200 economic outcome.',evidence:'I-1038 · Aggregate outcome observed',mechanism:'Cross-agent value composition',mechanismDesc:'Per-action controls do not evaluate cumulative economic value across the shared customer state.',count:'243 executions explored',input:'Multi-turn customer requests',agent:'Refund Agent Network',action:'Compensation composition',outcome:'$1,200 aggregate value',control:'FIN-118',authority:'Customer Support Lead',authorityMeta:'Delegates compensation authority',resource:'Customer economic state',resourceMeta:'Refund + credit + loyalty value',candidate:'Bind control to cumulative outcome',hypothesis:'The workflow evaluates refund, travel credit, and loyalty compensation independently, allowing legitimate local actions to compose into an unauthorized aggregate outcome.',paths:['Rebook → compensate → loyalty credit → cancel → refund','Refund → escalation credit → loyalty adjustment','Rebook → voucher → cancellation → unused fare refund','Single-agent refund → FIN-118 aggregate check']},
     'I-1031':{workflow:'Procurement · Purchase Order Approval',meta:'Workflow WF-008 · Owner: Procurement Operations · Production',severity:'High evidence',severityClass:'review',title:'Delegated approval reused',summary:'A stale approval state authorized a purchase-order change after the approver scope changed.',evidence:'I-1031 · Stale approval reused',mechanism:'Authority lifecycle mismatch',mechanismDesc:'Delegated authority persists longer than the business state and approver scope it was issued for.',count:'126 executions explored',input:'PO change request',agent:'Procurement Agent',action:'Purchase order mutation',outcome:'Unauthorized PO approved',control:'PROC-031',authority:'Category Approver',authorityMeta:'Authority scope changed',resource:'Purchase Order 4821',resourceMeta:'Supplier and payment terms',candidate:'Bind authority to state version',hypothesis:'Approval validity is checked as a static attribute instead of being bound to the current purchase-order version, supplier, and approver scope.',paths:['PO edit → stale approval → submit','Supplier swap → inherited approval → release','Split PO → threshold bypass → approval reuse','Version-bound approval → PROC-031']},
     'I-1019':{workflow:'IT · Service Account Remediation',meta:'Workflow WF-033 · Owner: SRE Security · Production',severity:'Medium evidence',severityClass:'running',title:'Rotation bypassed dependency check',summary:'A remediation agent rotated credentials before discovering a downstream production dependency.',evidence:'I-1019 · Dependency check skipped',mechanism:'Action-ordering failure',mechanismDesc:'The workflow permits irreversible remediation before dependency discovery reaches sufficient confidence.',count:'98 executions explored',input:'Credential risk signal',agent:'Remediation Agent',action:'Credential rotation',outcome:'Production dependency broken',control:'IT-204',authority:'SRE On-call',authorityMeta:'Delegates emergency rotation',resource:'Service account secret',resourceMeta:'Used by 4 workloads',candidate:'Require dependency closure before rotate',hypothesis:'The workflow treats discovery and rotation as independently valid actions without enforcing the causal prerequisite that all critical dependencies are known.',paths:['Alert → rotate → discover dependency','Partial inventory → rotate → workload failure','Delegated agent → parallel restart → outage','Dependency gate → rotate → verify']},
@@ -1408,10 +1554,104 @@ const incidentData={
     $id('incCands').innerHTML=cands.map((c,i)=>{const best=c[5];return `<div class="cand${best?' best':' rejected'}">${best?'<span class="rec">'+(closed?'APPLIED':'RECOMMENDED')+'</span>':'<span class="rej-tag">Rejected</span>'}<span class="validated">✓ ${closed?'Approved · re-validated':'Validated in simulation'}</span><h3>${closed?'':'ABC'[i]+' · '}${c[0]}</h3><p>${c[1]}</p>${sixObj(c[2],best)}${best?'':'<div class="rej-why">Rejected — works, but fails the business-friction objective.</div>'}</div>`}).join('');
     setText('incCurDC',r[0]+'%');setText('incCurRR',r[1]+'%');setText('incCurPaths',r[2]);setText('incRecText',d.candidate);setText('incRecNote',(closed?'Applied · ':'Validated against ')+d.count);setText('incValDC',r[3]+'%');setText('incValRR',r[4]+'%');setText('incValPaths',r[5]);setText('incImpact1',r[6]);setText('incImpact2',r[7]);setText('incImpact3',r[8]);
     setText('incDecisionText',d.candidate);setText('incDecisionStateText','Defense '+r[3]+'% · Reachability '+r[4]+'% · '+r[5]+' critical paths');
-    applyIncDecision(id);setIncTab(0);if(show!==false)showView('incident')}
+    applyIncDecision(id);setIncTab(0);rxRender(id);if(show!==false)showView('incident')}
+  /* ===== 2026-09-21 artifact upgrade: route map (P1), candidate chart (P2), model-change deep link (P3) ===== */
+  const RX_NS='http://www.w3.org/2000/svg';
+  const rxEl=(t,a,p)=>{const e=document.createElementNS(RX_NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+  const rxEsc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const rxReduce=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Illustrative provenance example (I-1042 only). Not execution evidence.
+  const RX_PROV={'I-1042':{
+    A:{kind:'obs',text:'Observed in incident evidence I-1042. The Finance Agent attempted a direct vendor bank mutation and the pattern-based tool guard PAY-042 blocked it.',src:'incident I-1042 · trace evidence'},
+    B:{prem:[['Finance Agent may hand vendor work to the Procurement Agent','WF-021 blueprint · delegation edge'],['Procurement Agent can update vendor records below the approval threshold','permission scope · Procurement Agent · vendor.write'],['Approval is evaluated as reusable state, not bound to intent','incident I-1042 · failure mechanism']],cls:'Delegation',con:'approval state reusable across split mutations',check:'removing Procurement\'s inherited vendor authority'},
+    C:{prem:[['Support Agent can merge duplicate vendor records','permission scope · Support Agent · vendor.merge'],['A merge carries the source record\'s bank details without re-approval','L3 system pack · ERP vendor merge semantics'],['Authority inherited through the merge is not re-checked','incident I-1042 · failure mechanism']],cls:'Inherited authority',con:'merged record keeps source authority',check:'requiring re-approval on merged bank details'},
+    D:{prem:[['AP Agent receives an authorization for a prior bank update','trace · earlier approved change'],['That authorization has no expiry bound to a specific mutation','permission scope · Finance Approver delegation'],['Finance Agent accepts a forwarded authorization as current','incident I-1042 · failure mechanism']],cls:'Authorization',con:'authorization not bound to one mutation',check:'binding authorization to the exact mutation'}}};
+  let rxSel='B',rxAnim=null,rxVeto=10,rxWinner=null,rxCands=[];const RX_STATE={};let rxEffC=[];
+  function rxRoutes(id){const d=incidentData[id],closed=incDecision[id]==='closed',known=d.paths[d.paths.length-1],others=d.paths.slice(0,-1);
+    const ctlId=(d.control||'').split(' ')[0];let aSteps=known.split(' → ');if(ctlId&&aSteps.length>1&&aSteps[aSteps.length-1].indexOf(ctlId)===0)aSteps=aSteps.slice(0,-1);
+    return [{k:'A',grade:'obs',steps:aSteps,text:known,blocked:true}].concat(others.map((p,i)=>({k:'BCD'[i],grade:'lat',steps:p.split(' → '),text:p,blocked:closed})))}
+  function rxDrawMap(id){const box=$id('rxRoutes');if(!box)return;const d=incidentData[id],routes=rxRoutes(id);if(!routes.some(r=>r.k===rxSel))rxSel=routes[1]?routes[1].k:'A';
+    box.innerHTML='<div class="rx-map"><div class="rx-graph"><div class="rx-ghead"><span class="rx-steps">observe → reconstruct → <b>explore</b> · every route to the same outcome</span><span style="display:flex;gap:8px;align-items:center"><span class="rx-cap">Illustrative</span><button class="rx-btn" id="rxReplay" type="button">▶ Replay</button></span></div><div class="rx-scroll"><svg id="rxSvg" role="group" aria-label="Routes to the unsafe outcome"></svg></div><div class="rx-legend" id="rxLegend"></div></div><div class="rx-detail" id="rxDetail" aria-live="polite"></div></div>';
+    const svg=$id('rxSvg'),laneH=62,top=26,H=top+routes.length*laneH+8,W=800,ox=645,oy=top+routes.length*laneH/2;svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    const lines=rxEl('g',{},svg),nodes=rxEl('g',{},svg),ctls=rxEl('g',{},svg),toks=rxEl('g',{},svg);
+    const og=rxEl('g',{class:'rx-out',transform:'translate('+ox+','+oy+')'},svg);rxEl('rect',{x:-4,y:-24,width:150,height:48,rx:9},og);
+    const ot=rxEl('text',{x:71,y:-3,'text-anchor':'middle'},og);ot.textContent='Unsafe outcome';const ot2=rxEl('text',{x:71,y:13,'text-anchor':'middle',style:'font-weight:500;font-size:11px'},og);ot2.textContent=(d.outcome.length>26?d.outcome.slice(0,25)+'…':d.outcome);
+    const x0=58,x1=590;routes.forEach((r,li)=>{const y=top+li*laneH+laneH/2,n=r.steps.length,slot=(x1-x0)/n,cx=r.steps.map((_,i)=>x0+slot*(i+.5));
+      const g=rxEl('g',{class:'rx-lane'+(r.k===rxSel?' sel':''),tabindex:'0',role:'button','aria-label':'Path '+r.k+', '+(r.grade==='obs'?'observed':'latent')+', '+(r.blocked?'blocked':'open')+': '+r.text},nodes);
+      rxEl('rect',{class:'rx-hit',x:0,y:y-laneH/2+3,width:ox-12,height:laneH-6,rx:9},g);
+      const lab=rxEl('text',{class:'rx-lab',x:10,y:y-2},g);lab.textContent=r.k;const st=rxEl('text',{class:'rx-st '+(r.blocked?'blocked':'open'),x:10,y:y+12},g);st.textContent=r.blocked?'BLOCKED':'OPEN';
+      const dpath='M'+cx[0]+','+y+' L'+cx[n-1]+','+y+' C'+(cx[n-1]+70)+','+y+' '+(ox-70)+','+oy+' '+(ox-4)+','+oy;
+      const line=rxEl('path',{d:dpath,class:'rx-line '+r.grade+' '+(r.blocked?'blocked':'open')},lines);
+      r.steps.forEach((t,i)=>{const w=Math.min(slot-10,t.length*5.7+14),ng=rxEl('g',{class:'rx-node',transform:'translate('+cx[i]+','+y+')'},g);rxEl('rect',{x:-w/2,y:-13,width:w,height:26,rx:7},ng);const tx=rxEl('text',{'text-anchor':'middle',y:4},ng);const max=Math.floor((w-10)/5.7);tx.textContent=t.length>max?t.slice(0,max-1)+'…':t;const tt=rxEl('title',{},ng);tt.textContent=t});
+      const tail=rxEl('path',{d:'M'+cx[n-1]+','+y+' C'+(cx[n-1]+70)+','+y+' '+(ox-70)+','+oy+' '+(ox-4)+','+oy},null);svg.appendChild(tail);const tl=tail.getTotalLength(),tp=tail.getPointAtLength(tl*.2);tail.remove();
+      if(r.k==='A'&&d.control){const cg=rxEl('g',{class:'rx-ctl',transform:'translate('+tp.x+','+tp.y+')'},ctls);const cw=d.control.length*7+14;rxEl('rect',{x:-cw/2,y:-11,width:cw,height:22,rx:6},cg);const ct=rxEl('text',{'text-anchor':'middle',y:4},cg);ct.textContent=d.control}
+      const total=line.getTotalLength(),stopAt=r.blocked?(total-tl*.8-16):total-6;r._line=line;r._stop=stopAt;r._tok=rxEl('circle',{r:5.5,class:'rx-tok'+(r.blocked?' stop':'')},toks);
+      const pt=line.getPointAtLength(stopAt);r._tok.setAttribute('cx',pt.x);r._tok.setAttribute('cy',pt.y);
+      const pick=()=>{rxSel=r.k;svg.querySelectorAll('.rx-lane').forEach(x=>x.classList.remove('sel'));g.classList.add('sel');rxDetail(id,routes)};
+      g.addEventListener('click',pick);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}})});
+    $id('rxLegend').innerHTML=[['obs','none','Observed'],['lat','9 6','Latent'],['dec','2 5','Declared']].map(([g,da,l])=>'<span><svg viewBox="0 0 30 8"><line x1="1" y1="4" x2="29" y2="4" stroke="#68707c" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="'+da+'"/></svg><span class="grade '+GRADE[g][0]+'">'+l+'</span></span>').join('')+'<span>(declared routes appear before deployment, in Blueprint Studio)</span><span style="color:var(--red);font-weight:700">● Open</span><span style="color:var(--green);font-weight:700">● Blocked</span>';
+    box._routes=routes;$id('rxReplay').addEventListener('click',()=>rxPlay());rxDetail(id,routes)}
+  function rxDetail(id,routes){const el=$id('rxDetail');if(!el)return;const r=routes.find(x=>x.k===rxSel)||routes[0],P=(RX_PROV[id]||{})[r.k],st=r.blocked?'<span class="status" '+GREEN+'>Blocked</span>':'<span class="status blocked">Open</span>';
+    let h='<div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h4>Path '+r.k+' '+gradeBadge(r.grade)+'</h4>'+st+'</div><div>'+rxEsc(r.text)+'</div>';
+    if(P&&P.kind==='obs')h+='<div class="rx-k">Evidence</div><div>'+rxEsc(P.text)+'<span class="src">'+rxEsc(P.src)+'</span></div>';
+    else if(P){h+='<span class="rx-cap" style="justify-self:start">Illustrative provenance example</span><div class="rx-k">Originally inferred (latent) from</div><ol>'+P.prem.map(p=>'<li>'+rxEsc(p[0])+'<span class="src">'+rxEsc(p[1])+'</span></li>').join('')+'</ol><div class="rx-k">Generated by</div><div><b>'+rxEsc(P.cls)+'</b> class + constraint “'+rxEsc(P.con)+'”</div><div class="rx-sim"><div class="rx-k">Illustrative simulation check</div><span class="ok">✓ reachable in the simulated environment</span><span class="ok">✓ unreachable after '+rxEsc(P.check)+'</span><span style="font-size:11.5px;color:var(--muted)">A simulation check does not upgrade the grade. Path '+r.k+' stays latent until it is observed.</span></div>'}
+    else h+='<div style="color:var(--muted)">'+(r.grade==='obs'?'Observed in this incident\'s evidence.':'Asserted possible by type over your real agents; no trace yet.')+' A worked provenance example is shown for incident I-1042.</div>';
+    el.innerHTML=h}
+  function rxPlay(){const box=$id('rxRoutes');if(!box||!box._routes)return;const routes=box._routes;if(rxAnim)cancelAnimationFrame(rxAnim);
+    if(rxReduce()){routes.forEach(r=>{const p=r._line.getPointAtLength(r._stop);r._tok.setAttribute('cx',p.x);r._tok.setAttribute('cy',p.y)});return}
+    const t0=performance.now(),dur=2600;const step=t=>{const panel=$id('inc-paths'),view=$id('incident');if(!panel||!panel.classList.contains('active')||!view.classList.contains('active')){rxAnim=null;return}
+      const f=Math.min(1,(t-t0)/dur);routes.forEach(r=>{const L=Math.min(r._stop,f*r._line.getTotalLength()),p=r._line.getPointAtLength(L);r._tok.setAttribute('cx',p.x);r._tok.setAttribute('cy',p.y)});rxAnim=f<1?requestAnimationFrame(step):null};rxAnim=requestAnimationFrame(step)}
+  // P2 · illustrative candidate records; recommendation = lowest residual reachability at or under the veto (tie → lower friction)
+  function rxCandidates(id){const d=incidentData[id],r=INC_REC[id]||INC_REC['I-1042'];
+    return [{name:d.candidate,why:'Closes every open path while legitimate work continues.',reach:r[4],fric:100-parseInt(r[6]),def:r[3],paths:r[5],legit:r[6],lat:r[7],steps:r[8],cost:'low',perf:r[7],rat:null},
+      {name:'Remove agent write access',why:'Closes the paths but stops the business action.',reach:0,fric:29,def:Math.min(99,r[3]+4),paths:0,legit:'71%',lat:'—',steps:'manual workaround',cost:'high',perf:'action stopped',rat:'Removing agent write access closes every route by stopping the business action itself. It is recommended only because the current business veto tolerates this much friction.'},
+      {name:'Human review for every '+d.action.toLowerCase(),why:'Safe, but adds manual work to every execution.',reach:1,fric:100,def:Math.min(99,r[3]+2),paths:0,legit:'100% after review',lat:'+ manual review',steps:'every execution',cost:'high',perf:'+ manual review',rat:'Human review on every mutation closes the routes by holding every execution for a person. It is recommended only because the current business veto tolerates this much friction.'}]}
+  function rxPick(c,v){const ok=c.map((x,i)=>({x,i})).filter(o=>o.x.fric<=v);if(!ok.length)return null;ok.sort((a,b)=>(a.x.reach-b.x.reach)||(a.x.fric-b.x.fric));return ok[0].i}
+  function rxResetPanel(){const pnl=$id('inc-candidates');if(!pnl)return;const pick=pnl.querySelector('.pick.on'),rat=pnl.querySelector('.rationale'),nb=pnl.querySelector('.next-bar p'),vb=pnl.querySelector('.card-head .validated');
+    if(pick)pick.style.display='';if(vb)vb.style.display='';const dg=pnl.querySelector('.next-bar [data-inc-go]');if(dg)dg.disabled=false;if(rat){rat.style.display='';if(rat.dataset.orig!=null)rat.innerHTML=rat.dataset.orig}if(nb&&nb.dataset.orig!=null)nb.innerHTML=nb.dataset.orig}
+  function rxDrawOpt(id){const box=$id('rxOpt');if(!box)return;const closed=incDecision[id]==='closed';if(closed){box.innerHTML='';rxResetPanel();return}
+    rxCands=rxCandidates(id);const r=INC_REC[id]||INC_REC['I-1042'],lock=incDecision[id]==='approved';
+    box.innerHTML='<div class="rx-opt"><div><div class="rx-ghead"><span class="rx-steps">explore → <b>compare fixes</b> · most secure ≠ best</span><span class="rx-cap">Illustrative candidate records</span></div><div class="rx-scroll"><svg id="rxChart" viewBox="0 0 560 250" role="img" aria-label="Residual reachability against business friction for each candidate"></svg></div></div><div class="rx-side"><label for="rxVeto"><span>Business veto: friction above</span><b id="rxVetoVal"></b></label><input type="range" id="rxVeto" min="0" max="100" step="1" value="'+rxVeto+'"'+(lock?' disabled':'')+'><div class="rx-win" id="rxWin"></div><div style="color:var(--muted);font-size:11.5px">Recommendation = the candidate with the lowest residual reachability whose friction is at or under the veto (ties go to lower friction). This chart shows two of the six objectives; the full scorecards are below.</div><div style="color:var(--muted);font-size:11.5px"><b>Friction</b> = share of legitimate executions blocked or held for manual review. Latency is reported separately.</div></div></div>';
+    const vIn=$id('rxVeto');vIn.addEventListener('input',()=>{rxVeto=+vIn.value;(RX_STATE[id]=RX_STATE[id]||{}).veto=rxVeto;rxApply(id)});rxApply(id,r)}
+  function rxChart(id){const svg=$id('rxChart');if(!svg)return;svg.innerHTML='';const r=INC_REC[id]||INC_REC['I-1042'],X0=52,X1=540,Y0=205,Y1=16,ymax=Math.max(25,Math.ceil(r[1]/5)*5+5);
+    const xs=f=>X0+f/100*(X1-X0),ys=v=>Y0-v/ymax*(Y0-Y1);
+    rxEl('rect',{x:xs(rxVeto),y:Y1,width:X1-xs(rxVeto),height:Y0-Y1,fill:'var(--red-bg)',opacity:.6},svg);
+    for(let i=0;i<=4;i++){const f=i*25;rxEl('line',{x1:xs(f),x2:xs(f),y1:Y0,y2:Y0+4,stroke:'#c9ced6'},svg);const t=rxEl('text',{x:xs(f),y:Y0+16,'text-anchor':'middle'},svg);t.textContent=f+'%'}
+    for(let i=0;i<=ymax;i+=5){if(i%(ymax>25?10:5))continue;rxEl('line',{x1:X0,x2:X1,y1:ys(i),y2:ys(i),stroke:'#eef0f2'},svg);const t=rxEl('text',{x:X0-8,y:ys(i)+4,'text-anchor':'end'},svg);t.textContent=i+'%'}
+    rxEl('line',{x1:X0,x2:X1,y1:Y0,y2:Y0,stroke:'#c9ced6'},svg);
+    const vl=xs(rxVeto);rxEl('line',{x1:vl,x2:vl,y1:Y1,y2:Y0,stroke:'var(--red)','stroke-dasharray':'4 4'},svg);const vt=rxEl('text',{x:Math.min(vl+5,X1-40),y:Y1+11},svg);vt.textContent='veto →';vt.style.fill='var(--red)';
+    const ax=rxEl('text',{x:(X0+X1)/2,y:Y0+36,'text-anchor':'middle'},svg);ax.textContent='business friction';const ay=rxEl('text',{x:12,y:(Y0+Y1)/2,'text-anchor':'middle',transform:'rotate(-90 12 '+(Y0+Y1)/2+')'},svg);ay.textContent='residual reachability';
+    const tg=rxEl('g',{transform:'translate('+xs(0)+','+ys(r[1])+')'},svg);rxEl('circle',{r:5,fill:'#9aa1ab'},tg);const tt=rxEl('text',{x:9,y:4},tg);tt.textContent='today '+r[1]+'%';
+    rxEffC.forEach((c,i)=>{const win=i===rxWinner,vet=c.fric>rxVeto,g=rxEl('g',{class:'rx-pt',transform:'translate('+xs(c.fric)+','+ys(c.reach)+')',tabindex:'0',role:'button','aria-label':'Candidate '+'ABC'[i]+': '+c.name+', reachability '+c.reach+'%, friction '+c.fric+'%'},svg);
+      rxEl('circle',{r:win?8:6,fill:win?'var(--blue2)':vet?'var(--red)':'#68707c',opacity:vet&&!win?.6:1},g);if(win)rxEl('circle',{r:13,fill:'none',stroke:'var(--blue2)','stroke-width':1.5},g);
+      const right=xs(c.fric)>X1-150,lb=rxEl('text',{class:'rx-pl',x:right?-12:12,y:-10,'text-anchor':right?'end':'start'},g);lb.textContent='ABC'[i]+(win?' · recommended':vet?' · vetoed':'');
+      const go=()=>{const card=document.querySelectorAll('#incCands .cand')[i];if(card){card.scrollIntoView({block:'nearest',behavior:rxReduce()?'auto':'smooth'});card.animate&&card.animate([{boxShadow:'0 0 0 3px var(--blue)'},{boxShadow:'0 0 0 0 transparent'}],{duration:1200})}};
+      g.addEventListener('click',go);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})}
+  function rxSix(c,id){const r=INC_REC[id]||INC_REC['I-1042'],rr=r[1]-c.reach;return `<div class="six-obj"><div><span class="ov ok">−${rr} pts</span><span class="ol">reachability reduced</span></div><div><span class="ov ok">all paths</span><span class="ol">coverage</span></div><div><span class="ov ${c.fric>20?'bad':''}">${c.fric}%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">${c.cost}</span><span class="ol">cost</span></div><div><span class="ov">${rxEsc(c.perf)}</span><span class="ol">performance</span></div></div>`}
+  function rxApply(id){const d=incidentData[id],lock=incDecision[id]==='approved'||incDecision[id]==='closed',st=RX_STATE[id]||{};const eff=rxCands.map((c,i)=>st.mod&&st.mod.idx===i?Object.assign({},c,{reach:st.mod.rr,def:st.mod.dc,modScope:st.mod.scope}):c);rxEffC=eff;rxWinner=(incDecision[id]==='approved'&&st.approved!=null)?st.approved:rxPick(eff,rxVeto);const w=rxWinner===null?null:eff[rxWinner];
+    setText('rxVetoVal',rxVeto+'%');
+    $id('rxWin').className='rx-win'+(w?'':' none');$id('rxWin').innerHTML=w?'<span class="rx-steps">COMPUTED RECOMMENDATION</span><b>'+'ABC'[rxWinner]+' · '+rxEsc(w.name)+'</b><span style="font-size:11.5px;color:var(--muted)">Reachability '+w.reach+'% · friction '+w.fric+'%</span>':'<span class="rx-steps">COMPUTED RECOMMENDATION</span><b>No acceptable candidate</b><span style="font-size:11.5px;color:var(--muted)">No candidate stays under a '+rxVeto+'% friction veto. Approval is disabled.</span>';
+    $id('incCands').innerHTML=rxEffC.map((c,i)=>{const best=i===rxWinner,vet=c.fric>rxVeto;return `<div class="cand${best?' best':' rejected'}">${best?'<span class="rec">RECOMMENDED</span>':'<span class="rej-tag'+(vet?' veto':'')+'">'+(vet?'Vetoed':'Not selected')+'</span>'}<span class="validated">✓ Validated in simulation</span><h3>${'ABC'[i]} · ${rxEsc(c.name)}${c.modScope?' <span class="rx-cap">scope: '+rxEsc(c.modScope)+'</span>':''}</h3><p>${c.why}</p>${rxSix(c,id)}${best?'':'<div class="rej-why">'+(vet?'Vetoed: friction '+c.fric+'% is above the '+rxVeto+'% business limit.':'Not selected: higher residual reachability than the recommendation.')+'</div>'}</div>`}).join('');
+    const name=w?w.name:'No acceptable candidate';setText('incSbsControl',name);setText('incRecText',name);setText('incDecisionText',name);
+    setText('incValDC',w?w.def+'%':'—');setText('incValRR',w?w.reach+'%':'—');setText('incValPaths',w?w.paths:'—');setText('incImpact1',w?w.legit:'—');setText('incImpact2',w?w.lat:'—');setText('incImpact3',w?w.steps:'—');
+    setText('incRecNote',w?'Validated against '+d.count:'Nothing qualifies under the current business veto');
+    setText('incDecisionStateText',w?'Defense '+w.def+'% · Reachability '+w.reach+'% · '+w.paths+' critical paths':'—');
+    $id('incApproveBtn').disabled=lock||!w;['incModifyBtn','incRerunBtn'].forEach(x=>$id(x).disabled=lock||!w);
+    const pnl=$id('inc-candidates'),pick=pnl.querySelector('.pick.on'),rat=pnl.querySelector('.rationale'),nb=pnl.querySelector('.next-bar p'),vb=pnl.querySelector('.card-head .validated');
+    if(rat&&rat.dataset.orig==null)rat.dataset.orig=rat.innerHTML;if(nb&&nb.dataset.orig==null)nb.dataset.orig=nb.innerHTML;
+    if(pick){pick.style.display=w?'':'none'}if(vb)vb.style.display=w?'':'none';
+    if(rat){rat.style.display=w?'':'none';if(w)rat.innerHTML=w.rat?'<b>Why this one, under this veto:</b> '+w.rat:rat.dataset.orig}
+    const dg=pnl.querySelector('.next-bar [data-inc-go]');if(dg)dg.disabled=!w;if(nb)nb.innerHTML=w?nb.dataset.orig:'<strong>No acceptable candidate.</strong> Raise the business veto or revise the candidates; nothing can be approved.';
+    const mod=st.mod;if(w&&mod&&mod.idx===rxWinner){setText('incValDC',mod.dc+'%');setText('incValRR',mod.rr+'%');setText('incDecisionStateText','Defense '+mod.dc+'% · Reachability '+mod.rr+'% · scope: '+mod.scope);$id('rxWin').insertAdjacentHTML('beforeend','<span style="font-size:11.5px;color:var(--amber);display:block">Scope modified to “'+rxEsc(mod.scope)+'”; ranked and plotted with its re-validated reachability ('+mod.rr+'%).</span>')}
+    else if(w&&mod&&mod.idx!=null&&mod.idx!==rxWinner&&incDecision[id]!=='approved')$id('rxWin').insertAdjacentHTML('beforeend','<span style="font-size:11.5px;color:var(--amber);display:block">'+'ABC'[mod.idx]+' was re-validated at scope “'+rxEsc(mod.scope)+'” ('+mod.rr+'%) and is no longer the lowest-reachability candidate.</span>')
+    rxChart(id)}
+  function rxRender(id){rxSel=id==='I-1042'&&window.__rxSel?window.__rxSel:'B';window.__rxSel=null;rxVeto=(RX_STATE[id]&&RX_STATE[id].veto!=null)?RX_STATE[id].veto:10;rxDrawMap(id);rxDrawOpt(id)}
+  (function(){const pnl=$id('inc-paths');if(pnl&&window.MutationObserver)new MutationObserver(()=>{if(pnl.classList.contains('active'))rxPlay()}).observe(pnl,{attributes:true,attributeFilter:['class']});
+    document.addEventListener('click',e=>{const t=e.target.closest('[data-rx-open]');if(!t)return;const [inc,path]=t.dataset.rxOpen.split(':');window.__rxSel=path;renderIncident(inc);setIncTab(1)});
+    const hl=$id('rxMcHl');if(hl)hl.addEventListener('click',()=>{const on=hl.getAttribute('aria-pressed')!=='true';hl.setAttribute('aria-pressed',on);$id('rxMc').classList.toggle('hl',on);hl.textContent=on?'Show all routes':'Highlight what changed'})})();
   const nextActions=id=>{const wf=INC_WF[id];return '<div class="next-actions"><button class="btn secondary" data-open-workflow="'+wf+'">Open affected workflow →</button><button class="btn blue" data-revalidate-wf="'+wf+'">Revalidate workflow</button><button class="btn secondary" data-jump="incidents">Back to queue</button></div>'};
   // Decisions are recorded per incident and lock after approval; approval always offers a next step (fixes 5-C, 5-D).
-  function applyIncDecision(id){const st=incDecision[id],msg=$id('incDecisionMsg'),lock=st==='approved'||st==='closed';['incApproveBtn','incModifyBtn','incRejectBtn','incRerunBtn'].forEach(x=>$id(x).disabled=lock);$id('incModifyForm').classList.remove('open');
+  function applyIncDecision(id){const st=incDecision[id],msg=$id('incDecisionMsg'),lock=st==='approved'||st==='closed';['incApproveBtn','incModifyBtn','incRejectBtn','incRerunBtn'].forEach(x=>$id(x).disabled=lock);if(!lock&&rxWinner===null&&$id('rxOpt')&&$id('rxOpt').innerHTML)$id('incApproveBtn').disabled=true;if($id('rxVeto'))$id('rxVeto').disabled=lock;$id('incModifyForm').classList.remove('open');
     if(st==='approved')setMsgHtml(msg,'Decision recorded: approved. The policy now applies to '+workflowData[INC_WF[id]].name+', which needs revalidation.'+nextActions(id),'approved');
     else if(st==='closed')setMsgHtml(msg,'Closed. “'+incidentData[id].candidate+'” was approved earlier and the workflow was re-validated. <button class="def-link" data-open-workflow="'+INC_WF[id]+'">Open workflow →</button>','approved');
     else if(st==='rejected')setMsg(msg,'Rejected earlier. Review the other candidates, or decide again.','rejected');
@@ -1419,11 +1659,11 @@ const incidentData={
   document.querySelectorAll('[data-inc-go]').forEach(b=>b.addEventListener('click',()=>setIncTab(Number(b.dataset.incGo))));
   $id('incOpenWorkflow').addEventListener('click',()=>openWorkflow(INC_WF[currentIncident]));
   $id('incModifyBtn').addEventListener('click',()=>$id('incModifyForm').classList.toggle('open'));
-  $id('incRerunBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;const scope=$id('incScope').value,msg=$id('incDecisionMsg'),r=INC_REC[id];setMsg(msg,'Re-running validation for “'+scope+'”…','');setTimeout(()=>{const all=scope.startsWith('All'),dc=all?r[3]:r[3]-4,rr=all?r[4]:r[4]+3;setText('incValDC',dc+'%');setText('incValRR',rr+'%');setText('incDecisionStateText','Defense '+dc+'% · Reachability '+rr+'% · scope: '+scope);setMsg(msg,'Validation re-run with the modified scope. Updated validated state shown.','approved');$id('incModifyForm').classList.remove('open')},900)});
+  $id('incRerunBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;const scope=$id('incScope').value,msg=$id('incDecisionMsg'),r=INC_REC[id];setMsg(msg,'Re-running validation for “'+scope+'”…','');setTimeout(()=>{const all=scope.startsWith('All'),_w=(rxWinner!=null&&rxCands[rxWinner])||{def:r[3],reach:r[4]},dc=all?_w.def:_w.def-4,rr=all?_w.reach:_w.reach+3;setText('incValDC',dc+'%');setText('incValRR',rr+'%');setText('incDecisionStateText','Defense '+dc+'% · Reachability '+rr+'% · scope: '+scope);(RX_STATE[id]=RX_STATE[id]||{}).mod=all?null:{idx:rxWinner,scope:scope,dc:dc,rr:rr};if(typeof rxApply==='function'&&$id('rxOpt').innerHTML)rxApply(id);setMsg(msg,'Validation re-run with the modified scope. Updated validated state shown.','approved');$id('incModifyForm').classList.remove('open')},900)});
   $id('incRejectBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;incDecision[id]='rejected';resolvePending(id);setRecStatus(id,'Rejected','blocked');applyIncDecision(id);setTimeout(()=>setIncTab(2),900)});
   $id('incApproveBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+id+'.',box:'<strong>'+$id('incDecisionText').textContent+'</strong><br>'+$id('incDecisionStateText').textContent+'<br><br>Next: the policy is promoted through shadow → canary before production, and the affected workflow is queued for revalidation. Rollback stays available at each stage.',onConfirm:()=>{
-    incDecision[id]='approved';resolvePending(id);setRecStatus(id,'Approved','');const wfId=INC_WF[id],w=workflowData[wfId];
-    if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;if(!ST_AFFECTED.some(a=>a.id===wfId))ST_AFFECTED.push({id:wfId,trigger:'Policy change'});ST_CHANGES.unshift({icon:'P',title:'Policy approved',sub:incidentData[id].candidate+' · '+w.name,tag:'Policy change',cls:'review'})}
+    incDecision[id]='approved';(RX_STATE[id]=RX_STATE[id]||{}).approved=rxWinner;RX_STATE[id].veto=rxVeto;const _apName=$id('incDecisionText').textContent;document.querySelectorAll('.pending-row[data-open-incident="'+id+'"] strong').forEach(e=>e.textContent=_apName);document.querySelectorAll('#policies button[data-review-inc="'+id+'"]').forEach(b=>{const art=b.closest('article'),h=art&&art.querySelector('h3');if(h)h.textContent=_apName});document.querySelectorAll('#policies tr[data-review-inc="'+id+'"] td:nth-child(2)').forEach(td=>td.textContent=_apName);resolvePending(id);setRecStatus(id,'Approved','');const wfId=INC_WF[id],w=workflowData[wfId];
+    if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;if(!ST_AFFECTED.some(a=>a.id===wfId))ST_AFFECTED.push({id:wfId,trigger:'Policy change'});ST_CHANGES.unshift({icon:'P',title:'Policy approved',sub:_apName+' · '+w.name,tag:'Policy change',cls:'review'})}
     renderShortTerm();renderLibrary();applyIncDecision(id);notify('Recommendation approved for '+id)}})});
 
   // Incident filters work together with search (fixes 4-1, 5-L).
