@@ -276,7 +276,7 @@
       chrome();
     }
     function renderNetwork(d, f) {
-      SWM.vowlUI.show(true);
+      SWM.vowlUI.show(!!f.nodes.length);
       if (!f.nodes.length) { vw.destroy(); return showEmpty('Nothing in scope', 'The group or minimum-degree filters hide every node. Open “Filters & colour” to relax them.'); }
       current = { nodes: f.nodes, links: f.links, network: true };
       vw.render({ svg: svg, layer: gVowl, zoom: zoom, dims: d, nodes: f.nodes, links: f.links, deg: f.deg, tier: state.layer,

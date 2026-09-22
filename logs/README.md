@@ -101,3 +101,5 @@ after a 201-element crawl. See `2026-09-15_CHANGES.md`, `2026-09-15_SITEMAP.md`,
 | [`2026-09-17_docs-README.md`](2026-09-17_docs-README.md) | The old `docs/` index (for reference) |
 | [`2026-09-18_ASSURANCE_RESTRUCTURE_PLAN.md`](2026-09-18_ASSURANCE_RESTRUCTURE_PLAN.md) | Assurance-first restructure plan (v7 investor register) |
 | [`2026-09-21_ARTIFACT_UPGRADE_PLAN.md`](2026-09-21_ARTIFACT_UPGRADE_PLAN.md) | Artifact upgrade: route map, measured fix, model change, route evaluation (3-judge review) |
+
+- **2026-09-21 · SWM Network view (WebVOWL-style animation)**: plan `2026-09-21_SWM_VOWL_NETWORK_PLAN.md` (v0.2, unanimous in round 2); implementation `2026-09-21_SWM_VOWL_IMPLEMENTATION.md` (unanimous IMPL-APPROVED in round 2 on `e978d6a`); contract, spike and frames in `swm-vowl-2026-09-21/`. Private branch `swm-vowl-network`.

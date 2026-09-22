@@ -92,3 +92,10 @@ Anchor circles keep the ring `#b7a3ff`.
 ## Force constants (T1), plan §4
 
 charge node −420 / label −120, distanceMax 420, theta .9 · link: 55 px per label half + radius (full), 90 px (compact), strength .9 · forceX .025, forceY .035 · collide r+3 / w/2 · alphaReveal .12, alphaMin .001, default alphaDecay · seeds: positions 1729, simulation 7.
+
+## Changes recorded during integration (2026-09-21, before IMPL review R1)
+
+1. **UI placement:** `mount()` inserts `.vw-ui` right **after `#swmCanvas`**, in normal flow. `.vw-row`, which holds `.vw-bar` and `.vw-pop`, is static, so the bar can never cover the legend or foot. Found at 1600 and 768, where the absolute bar overlapped the legend and the "Scroll sideways" hint. `.vw-progress` and `.vw-zoom` stay absolute overlays in the stage.
+2. **Render while hidden:** a `render(ctx)` arriving while the panel is not shown (for example a tier change from Layers) draws but does not lay out. Its phase is `hidden`, and `show()` computes it to rest synchronously (plan §4 hide/return rule).
+3. **Label threshold:** in-circle labels show when the on-screen radius is `r·k ≥ 12` (was 18 in plan v0.2 §3.3; the plan text is updated). At 18, L4 circles showed no labels at the fit zoom.
+4. **Engine probe hooks:** `SWM.vowl._ticks` counts live simulation ticks (manual pre-layout ticks are not counted).

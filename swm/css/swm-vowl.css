@@ -1,1 +1,27 @@
-/* T2 stub (CONTRACT.md): Network view styles. */
+.vw-ui [hidden]{display:none!important}
+.vw-live{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.vw-btn{font-weight:600;font-size:11px;border:1px solid var(--swm-line-d);background:rgba(16,22,43,.6);color:var(--swm-ink-2);padding:5px 10px;cursor:pointer}
+.vw-btn[aria-pressed="true"]{background:rgba(183,163,255,.22);color:#fff;border-color:rgba(183,163,255,.55)}
+.vw-btn:focus-visible{outline:2px solid #eef0fb;outline-offset:2px}
+.vw-progress,.vw-bar,.vw-pop,.vw-zoom{position:absolute;background:rgba(16,22,43,.9);border:1px solid var(--swm-line-d)}
+.vw-progress{top:82px;left:50%;transform:translateX(-50%);z-index:6;width:min(380px,68%);padding:9px 12px;transition:opacity .4s}
+.vw-row{position:relative;margin:8px 12px 0}.vw-bar{position:static;display:inline-flex;flex-wrap:wrap;gap:5px;padding:4px}
+.vw-pop{bottom:calc(100% + 4px);left:0;display:flex;flex-direction:column;gap:4px;padding:6px;z-index:6}
+.vw-zoom{right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px}
+.vw-zoom input[type=range]{writing-mode:vertical-lr;direction:rtl;height:150px;width:20px;accent-color:var(--swm-accent)}
+.swm-vowl{transition:opacity .4s}.swm-vowl.vw-hidden{opacity:0;pointer-events:none}
+.vw-link{fill:none;stroke:var(--swm-accent);stroke-opacity:.55;stroke-width:1.3}
+.vw-link.sub{stroke-dasharray:4 3}.vw-link.hl{stroke-opacity:.95;stroke-width:1.8}.vw-link.dim{stroke-opacity:.08}.vw-link.sel{stroke:#e2d8ff;stroke-opacity:.95;stroke-width:2}
+.vw-prop{cursor:pointer;outline:none}.vw-prop rect{fill:#fff;stroke:#7f6fd6}.vw-prop text{fill:#17191d;pointer-events:none}
+.vw-prop.hl rect,.vw-prop.sel rect{stroke:#e2d8ff}.vw-prop.sel rect{stroke-width:2}.vw-prop:focus-visible rect{stroke:#fff;stroke-width:2}.vw-prop.dim{opacity:.25}
+.vw-node{cursor:pointer;outline:none}.vw-node .vw-body{stroke:var(--swm-stage-0);stroke-width:1.5}.vw-node .vw-lab{pointer-events:none}
+.vw-node.anchor .vw-body,.vw-node.pinned .vw-body{stroke:var(--swm-accent);stroke-width:2}
+.vw-node.hl .vw-body{stroke:var(--swm-accent);stroke-width:1.8}.vw-node.dim{opacity:.22}
+.vw-node.sel .vw-body,.vw-node:focus-visible .vw-body{stroke:#fff;stroke-width:2.4}
+.vw-pin{cursor:pointer}.vw-pin circle{fill:#eef0fb;stroke:#26305a}.vw-pin path{stroke:#26305a;stroke-width:1.4}
+.vw-halo{fill:none;stroke:var(--swm-accent);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:vw-pulse .8s ease-out 3}
+@keyframes vw-pulse{0%{transform:scale(.5);opacity:1}100%{transform:scale(2.2);opacity:0}}
+.vw-stats{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+.vw-stats-preds{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+@media (max-width:768px){.vw-zoom{right:8px}}
+@media (prefers-reduced-motion:reduce){.vw-ui *,.swm-vowl,.vw-halo{transition:none!important;animation:none!important}}
