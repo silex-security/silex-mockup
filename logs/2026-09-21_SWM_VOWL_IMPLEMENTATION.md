@@ -59,3 +59,17 @@ Branch: `swm-vowl-network`, BASE `8ec7346`. Private; not pushed or merged.
 - Final frames: `logs/swm-vowl-2026-09-21/final-*.png`.
 
 **Status:** committed on the private branch `swm-vowl-network`. **Not merged, not pushed, not deployed** — that needs the user's go-ahead (the earlier SWM visual-upgrade deploy question is also still open).
+
+## Deploy (2026-09-22)
+
+The user authorized it ("合并两个分支到 main 并 push 部署").
+- `main` was fast-forwarded `16409f1 → cb3e9b8`; this includes the `swm-visual-upgrade` commits `413436a` and `8ec7346`. Pushed.
+- Vercel status: success. The live `swm/js/swm-vowl.js` is byte-identical to the repo.
+- Live headless smoke test at 1366:
+  - L1 370/362 and L4 24/28;
+  - rest, with 0 ticks after rest;
+  - selecting a node preserves the layout;
+  - locate goes to L3 with the halo;
+  - Graph view still works;
+  - no console errors.
+- Ready took 1,153 ms after the click on the live site. This includes the first fetch of the lazy D3 and ontology bundle over the network (the 1,200 ms gate was measured locally).
