@@ -60,3 +60,14 @@ After unanimous approval, as the user authorized ("review 执行"):
 - the two explorer artifacts were republished to their existing URLs.
 
 The live read-back results are recorded below.
+
+### Deploy record (2026-09-22)
+
+- **silex-mockup:** `main` fast-forwarded to `f7638be` and pushed. The live `index.html` is byte-identical to the approved r4 tree.
+- **silex-explorer:** `main` fast-forwarded to `6ed075e` and pushed.
+- **Artifacts republished to their existing URLs** (both now at version 2):
+  - explainer `43vbwZuA9WVUY9mXXzaiFc`, shared by link;
+  - preview `JAFtk6YySCkbCBRXzrf9sx`, private.
+
+  Each read-back equals its repo file (minus the platform wrapper).
+- **R6 copy scan:** the old term has 0 hits in both artifacts and on the live site, and 0 forbidden phrases. The only remaining hits in the repos are the change-log entries that describe this change.
