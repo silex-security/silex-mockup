@@ -6,6 +6,21 @@ public ontology data is real (see [`../swm/data/SOURCES.md`](../swm/data/SOURCES
 
 ---
 
+## 2026-09-21 — Security World Model visual upgrade (implementation)
+
+[Implementation addendum and run log](2026-09-21_SWM_IMPLEMENTATION.md) · [Approved visual plan](2026-09-21_SWM_VISUAL_UPGRADE_PLAN.md).
+
+- Implements the midnight-indigo chart stages, contextual inspectors, bounded ontology exploration and illustrative Refund relation example.
+- User amendment: Security Ontology is first and the initial default; Ontology Layers follows, then World Model Coverage, Domain Suites and Coverage Gaps.
+- Data, vendor bundle and other application views are preservation targets; validation and all-seat implementation verdicts are recorded in the run log. Implementation review pending; this entry does not imply deployment.
+
+## 2026-09-21 — Security World Model visual upgrade (implemented, awaiting deployment)
+[Implementation log](2026-09-21_SWM_IMPLEMENTATION.md) · [Plan v0.2](2026-09-21_SWM_VISUAL_UPGRADE_PLAN.md) · [Design frames](swm-visual-2026-09-21/index.html).
+
+- Security Ontology is now first and default (L1 overview, 240 of 370 nodes; search across all 598; illustrative Refund example 9/24 with 8 stored relations), followed by Ontology Layers, World Model Coverage, Domain Suites and Coverage Gaps.
+- Dark SWM stage with white inspectors; the data, vendor files, loader and tools are unchanged; other views are pixel-identical.
+- Three-seat implementation review: R1 rejected (2 Layers blockers), R2 approved with a nit, and **R3 `27f07eb` unanimously approved**. Not yet published.
+
 ## 2026-09-21 — Security World Model visual upgrade (planning only)
 
 [Plan](2026-09-21_SWM_VISUAL_UPGRADE_PLAN.md) · [Four design frames](swm-visual-2026-09-21/index.html) · [Review record](swm-visual-2026-09-21/REVIEW.md).
