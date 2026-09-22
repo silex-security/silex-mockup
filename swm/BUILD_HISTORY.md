@@ -42,11 +42,34 @@ What consumed those hours:
    - Headless Chrome probes at three widths (1600 / 1366 / 768) and under reduced motion.
    - The Network view added 34 of its own checks.
    - A 16-mode regression suite confirms the other pages didn't change.
-3. **Byte budget.** The visual upgrade ran about 13 KB over its growth cap and was trimmed with no feature removed. The Network view needed an approved reallocation of its 38 KB budget.
+3. **Byte budget.** The visual upgrade ran about 13 KB over its growth cap and was trimmed with no feature removed. The Network view needed an approved reallocation of its 38 KB budget. See [§2a](#2a-the-byte-budget-why-trim-instead-of-split) for why splitting files would not have helped.
 4. **Coordination overhead.**
    - Each agent turn takes several minutes.
    - Codex handed the visual-upgrade implementation to Claude midway.
    - Permission dialogs pause an agent until someone approves them.
+
+## 2a. The byte budget: why trim instead of split
+
+**What the rule was.** The visual-upgrade plan ([`../logs/2026-09-21_SWM_VISUAL_UPGRADE_PLAN.md`](../logs/2026-09-21_SWM_VISUAL_UPGRADE_PLAN.md), performance item 5) says:
+
+> New JS+CSS combined growth ≤50 KB uncompressed … If bound fails, reduce effects/visible geometry before adding dependencies.
+
+It measures the **total bytes added across all JS and CSS files**, compared with the starting commit. It is not a per-file limit.
+
+**Why splitting would not have helped.** Moving code into more files leaves the total the same. Each extra file also adds a little wrapper code and one more network request. The only way under the cap was to make the code smaller. The final growth was 49,744 bytes.
+
+**Why the rule existed.** Codex wrote it into the plan and all three seats approved it:
+- **Page weight:** the SWM scripts load lazily on first opening the Security World Model tab, and the cap kept that first load from growing unnoticed.
+- **Reviewable size:** a bounded diff is easier for three seats to review line by line.
+- **Discipline:** if it went over, cut effects rather than add a library.
+
+**Was it too strict? Somewhat.** It is a self-imposed plan rule, not a technical limit:
+- 13 KB uncompressed is roughly 4 KB gzipped, small next to the 343 KB data bundle that loads with it.
+- The trimming was mostly harmless: shorter comments, a merged glyph helper, dead code removed, shorter function syntax. No visible feature was lost.
+- It did cost review time, and the trimmed comments make the code slightly harder to read.
+- The real performance evidence is the timing gates (cold load median 452 ms against a 3 s limit), and those already passed with margin.
+
+**Suggestion (a team decision, not yet adopted):** replace fixed byte caps with the real performance gates (load time, interaction response), and keep only a loose size warning that prompts a look rather than blocking the change.
 
 ## 3. Was it worth it?
 
