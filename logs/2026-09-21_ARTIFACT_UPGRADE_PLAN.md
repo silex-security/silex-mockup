@@ -62,3 +62,19 @@ One owner (Claude) edits `index.html` sequentially, because parallel agents on o
 
 ## 7. Outcome (2026-09-21)
 Plan approved in round 2 (DeepSeek, Codex, Claude). Implementation review took four rounds: Codex found approval-state persistence, Modify re-run metrics, winner-dependent scorecards, success claims under "no acceptable candidate", closed-incident state carry-over, and modified-scope ranking; DeepSeek found the leftover "identity" wording, the Decide button, and the PCP queue name. All fixed and covered by headless probes; both returned IMPL-APPROVED.
+
+## 8. Review steps (herdr-agent-fleet, three seats, unanimous)
+
+**Roster:** Claude (Opus 5) · DeepSeek (`deepseek-reasoner` via OpenCode) · Codex (codex-cli 0.153.4).
+
+| # | Gate | DeepSeek | Codex | Claude | Result |
+|---|---|---|---|---|---|
+| 1 | Plan v0.1 | REJECTED (P3 fabricated narrative) | REJECTED (3: illustrative-as-evidence, completeness, chart not wired to the decision) | author | Advice under AESTHETICS / STRUCTURE / DATA PRESENTATION → v0.2 |
+| 2 | Plan v0.2 | PLAN-APPROVED | PLAN-APPROVED | CLAUDE: PLAN-APPROVED | The P3 split resolved in writing (§6) |
+| 3 | Code round 1 | APPROVED | REJECTED (4) | fixed | Approval persistence, Modify metrics, stable scorecards, "none" hides success claims |
+| 4 | Code round 2 | APPROVED (+ nits) | REJECTED (2) | fixed | Modified scope persisted; closed-incident reset; "vendor" wording; Decide disabled; PCP names |
+| 5 | Code round 3 | — | REJECTED (1) | fixed | Rank on effective (modified) candidate values |
+| 6 | Code round 4 | IMPL-APPROVED | IMPL-APPROVED | CLAUDE: IMPL-APPROVED | Committed `74b97f2`; live on Vercel confirmed |
+
+Each code round was re-verified with headless probes rebuilt from the current file. The SWM check used a double-render control.
+Process: [`silex_project/Skills/herdr-agent-fleet/SKILL.md`](https://github.com/silex-security/silex_project/blob/main/Skills/herdr-agent-fleet/SKILL.md), Steps 4, 7 and 8.
