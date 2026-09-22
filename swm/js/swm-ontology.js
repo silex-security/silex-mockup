@@ -46,7 +46,8 @@
     });
 
     var state = {
-      layer: SWM.level || 1, view: 'graph', colorBy: 'layer', query: '',
+      layer: SWM.level || 1, view: 'network', colorBy: 'source', query: '',
+      net: { minDegree: 0, subclass: true, compact: { 1: true, 2: false, 3: false, 4: false }, pickPin: true, pins: new Set() },
       groups: new Set(groupOrder), pinned: new Set(),
       selected: null, edge: null, example: false, saved: null, animate: false, stale: false
     };
@@ -68,7 +69,9 @@
             '<div><p class="swm-rail-title">Colour by</p><div class="swm-seg" id="swmColorBy">' +
               '<button data-c="layer" aria-pressed="true">Abstraction tier</button>' +
               '<button data-c="coverage" aria-pressed="false">Authored coverage</button>' +
-              '<button data-c="status" aria-pressed="false">Coverage status</button></div></div>' +
+              '<button data-c="status" aria-pressed="false">Coverage status</button><button data-c="source" aria-pressed="false">Source</button></div></div>' +
+            '<div id="swmNetF"><p class="swm-rail-title">Network</p><label class="swm-note">Minimum degree <output id="swmMinDegV">0</output> ' +
+              '<input type="range" id="swmMinDeg" min="0" max="10" value="0"></label> <button class="swm-chip" id="swmSubcl" aria-pressed="true">Subclass relations</button></div>' +
           '</div></details>' +
           '<button class="swm-btn" id="swmBackBtn" type="button" hidden>← Back to previous view</button>' +
           '<button class="swm-btn accent" id="swmExampleBtn" type="button">Example: Refund workflow →</button>' +
@@ -83,7 +86,7 @@
                   '<div class="swm-views" id="swmZoom" role="group" aria-label="Zoom">' +
                     '<button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Reset zoom">Fit</button></div>' +
                   '<div class="swm-views" id="swmViews" role="group" aria-label="Rendering">' +
-                    '<button data-v="graph" aria-pressed="true">Graph</button>' +
+                    '<button data-v="network" aria-pressed="true">Network</button><button data-v="graph" aria-pressed="false">Graph</button>' +
                     '<button data-v="tree" aria-pressed="false">Hierarchy</button>' +
                     '<button data-v="matrix" aria-pressed="false">Relations</button></div>' +
                 '</div>' +
@@ -109,7 +112,24 @@
         .append('path').attr('d', 'M0,-4.5L10,0L0,4.5Z').attr('fill', m[1]);
     });
     var gRoot = svg.append('g'), gRings = gRoot.append('g'), gLinks = gRoot.append('g'), gLabels = gRoot.append('g'), gNodes = gRoot.append('g');
-    var zoom = d3.zoom().scaleExtent([.4, 4]).on('zoom', function (ev) { gRoot.attr('transform', ev.transform); });
+    var gVowl = gRoot.append('g').attr('class', 'swm-vowl'), vw = null;
+    var zoom = d3.zoom().scaleExtent([.4, 4]).on('zoom', function (ev) { gRoot.attr('transform', ev.transform); if (vw && netOn()) vw.zoomed(ev.transform.k); });
+    /* Network engine + UI load as factories (CONTRACT.md); created on first use */
+    function engine() {
+      if (!vw && global.SWM_VOWL && global.SWM_VOWL_UI) {
+        vw = SWM.vowl = global.SWM_VOWL(SWM, d3); SWM.vowlUI = global.SWM_VOWL_UI(SWM, d3);
+        SWM.vowlUI.mount(stage, { engine: vw, getNet: () => state.net, openFilters: () => { $('swmFilters').open = true; },
+          setNet: function (k, v) { if (k === 'compact') state.net.compact[state.layer] = v; else state.net[k] = v; render(); } });
+      }
+      return vw;
+    }
+    function netOn() { return state.view === 'network' && !state.example; }
+    function netScope() {
+      var f = vw.filter(scopeNodes(), links, state.net);
+      f.key = [state.layer, Array.from(state.groups).sort(), state.net.minDegree, state.net.subclass, state.net.compact[state.layer]].join('|');
+      return f;
+    }
+    var SRC_FILL = ['#5563d6', '#d9ccff'];
 
     $('swmLevels').innerHTML = data.layers.map(function (l) {
       return '<button data-level="' + l.id + '" aria-pressed="false" title="' + SWM.esc(l.name) + ' · ' + tierCount[l.id] + ' nodes">L' + l.id + ' ' +
@@ -150,11 +170,13 @@
     function bySort(a, b) { return groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group) || (a.anchor ? -1 : b.anchor ? 1 : 0) || (a.id < b.id ? -1 : 1); }
 
     function colorOf(n) {
+      if (state.colorBy === 'source') return SRC_FILL[isSilex(n) ? 1 : 0];
       if (state.colorBy === 'coverage') return SWM.coverageColor(n.coverage);
       if (state.colorBy === 'status') return SWM.status[SWM.coverageStatus(n.coverage)].color;
       return SWM.layerColor(n.layer);
     }
     function paperColorOf(n) {
+      if (state.colorBy === 'source') return isSilex(n) ? '#6f50c9' : '#3f48a8';
       if (state.colorBy === 'coverage') return SWM.coverageColor(n.coverage, 'paper');
       if (state.colorBy === 'status') return SWM.status[SWM.coverageStatus(n.coverage)].color;
       return SWM.layerColor(n.layer, 'paper');
@@ -222,23 +244,45 @@
       return ctr;
     }
 
+    function size(d) { lastDims = d.w + 'x' + d.h; svg.attr('viewBox', '0 0 ' + d.w + ' ' + d.h).attr('height', d.h).style('width', d.w + 'px').style('min-width', '100%'); }
+    function chrome() { renderChrome(); renderInspector(); renderList(); }
     function render() {
-      var d = dims(); lastDims = d.w + 'x' + d.h;
-      svg.attr('viewBox', '0 0 ' + d.w + ' ' + d.h).attr('height', d.h).style('width', d.w + 'px').style('min-width', '100%');
+      var d = dims(), net = netOn() && engine(), f = null;
+      if (!net && vw) { vw.destroy(); SWM.vowlUI.show(false); }
+      if (net) {
+        f = netScope(); current = { nodes: f.nodes, links: f.links, network: true };
+        /* same scope: restyle only, never restart the layout or reset zoom (plan §3.4) */
+        if (vw.key() === f.key) {
+          if (lastDims !== d.w + 'x' + d.h) { size(d); vw.resize(d); }
+          vw.update({ selected: state.selected, edge: state.edge, colorBy: state.colorBy, query: state.query, matches: new Set(matches()) });
+          return chrome();
+        }
+      }
+      size(d);
       svg.interrupt().selectAll('*').interrupt(); clearTimeout(finalTimer);
       gRoot.attr('transform', null); gRings.selectAll('*').remove(); gLinks.selectAll('*').remove();
       gLabels.selectAll('*').remove(); gNodes.selectAll('*').remove(); gNodes.attr('transform', null).attr('class', null); gLinks.attr('transform', null);
       $('swmEmpty').hidden = true;
       press('#swmLevels button', (b) => +b.dataset.level === state.layer);
-      $('swmZoom').style.display = state.view === 'matrix' ? 'none' : '';
+      $('swmZoom').style.display = state.view === 'matrix' || net ? 'none' : '';
+      zoom.scaleExtent(net ? [.2, 4] : [.4, 4]);
       if (state.view === 'matrix') svg.on('.zoom', null); else { svg.call(zoom).on('dblclick.zoom', null); svg.call(zoom.transform, d3.zoomIdentity); }
       if (state.example) renderExample(d);
+      else if (net) renderNetwork(d, f);
+      else if (netOn()) showEmpty('Network view unavailable', 'The Network scripts did not load. Graph, Hierarchy and Relations still work.');
       else if (state.view === 'matrix') renderMatrix(d);
       else if (state.view === 'tree') renderTree(d);
       else renderGraph(d);
-      renderChrome();
-      renderInspector();
-      renderList();
+      chrome();
+    }
+    function renderNetwork(d, f) {
+      SWM.vowlUI.show(true);
+      if (!f.nodes.length) { vw.destroy(); return showEmpty('Nothing in scope', 'The group or minimum-degree filters hide every node. Open “Filters & colour” to relax them.'); }
+      current = { nodes: f.nodes, links: f.links, network: true };
+      vw.render({ svg: svg, layer: gVowl, zoom: zoom, dims: d, nodes: f.nodes, links: f.links, deg: f.deg, tier: state.layer,
+        tierNodes: tierCount[state.layer], byId: byId, scopeKey: f.key, colorOf: colorOf, tipHtml: tipHtml, aria: nodeAria, net: state.net,
+        selected: state.selected, edge: state.edge, colorBy: state.colorBy, query: state.query, matches: new Set(matches()),
+        onSelectNode: select, onSelectEdge: selectEdge, onPinsChanged: renderInspector });
     }
 
     var current = { nodes: [], links: [] };
@@ -560,13 +604,16 @@
     function renderChrome() {
       var vis = current.nodes || [], M = scopeNodes().length;
       var kick = state.example ? 'Example focus / L4 runtime' : 'L' + state.layer + ' ' + (layerName[state.layer] || '') +
-        (state.view === 'graph' ? ' / grouped by ontology group' : state.view === 'tree' ? ' / hierarchy' : ' / relations between groups');
+        (state.view === 'network' ? ' / network · ' + (state.layer === 4 ? 'illustrative World State instances' : 'Schema') : state.view === 'graph' ? ' / grouped by ontology group' : state.view === 'tree' ? ' / hierarchy' : ' / relations between groups');
       $('swmKicker').textContent = kick;
       var scope;
       if (state.example) scope = '9 of ' + (current.total || 24) + ' runtime nodes focused · 8 focus relations · other ' + (current.ctx != null ? current.ctx : 15) + ' dimmed';
       else if (state.view === 'matrix') scope = (current.total || 0) + ' typed relations among the ' + M + ' L' + state.layer + ' nodes in scope · ' + data.nodes.length + ' across all tiers';
       else scope = vis.length + ' shown of ' + M + ' L' + state.layer + ' nodes' + (M < tierCount[state.layer] ? ' (' + tierCount[state.layer] + ' before filters)' : '') +
-        ' · ' + data.nodes.length + ' across all tiers' + (vis.length < M ? ' · search or open a group to see the rest' : '');
+        (current.network ? ' · ' + current.links.length + ' relations' : '') + ' · ' + data.nodes.length + ' across all tiers' +
+        (vis.length < M ? current.network ? ' · minimum-degree filter active' : ' · search or open a group to see the rest' : '');
+      $('swmNetF').hidden = !current.network;
+      if (current.network) $('swmMinDeg').max = d3.max(vw.filter(scopeNodes(), links, { subclass: state.net.subclass, minDegree: 0 }).deg.values()) || 1;
       $('swmOntScope').textContent = scope;
       $('swmExampleBtn').textContent = state.example ? 'Example active: Refund workflow' : 'Example: Refund workflow →';
       $('swmExampleBtn').disabled = state.example;
@@ -578,18 +625,22 @@
         if (!state.example) lg.innerHTML = '<h6>Cell = typed relations · rows act on columns</h6><div class="swm-ramp"><span>few</span><span class="bar" style="background:linear-gradient(90deg,#3b4486,#e2d8ff)"></span><span>many</span></div>';
       } else {
         lg.hidden = false;
-        var scale = state.colorBy === 'layer'
+        var scale = state.colorBy === 'source'
+          ? SRC_FILL.map((c, i) => '<span class="swm-legend-item"><span style="width:11px;height:11px;border-radius:50%;background:' + c + ';display:inline-block"></span>' + (i ? 'Silex-authored · illustrative' : 'Public source') + '</span>').join('')
+          : state.colorBy === 'layer'
           ? '<span class="swm-legend-item"><span style="width:11px;height:11px;border-radius:3px;background:' + SWM.layerColor(state.layer) + ';display:inline-block"></span>L' + state.layer + ' ' + SWM.esc((layerName[state.layer] || '').split(' ')[0]) + '</span>'
           : state.colorBy === 'coverage'
           ? '<span class="swm-ramp"><span>≤40%</span><span class="bar"></span><span>100%</span></span><span class="swm-legend-item">authored coverage · ends are clamped bounds</span>'
           : Object.keys(SWM.status).map((k) => '<span class="swm-legend-item">' + SWM.statusHtml(k) + '</span>').join('');
-        lg.innerHTML = '<h6>Colour = ' + (state.colorBy === 'layer' ? 'tier' : state.colorBy === 'coverage' ? 'authored coverage' : 'coverage status') + ' · shape = ontology group</h6>' +
+        lg.innerHTML = '<h6>Colour = ' + ({ source: 'source', layer: 'tier', coverage: 'authored coverage' }[state.colorBy] || 'coverage status') + ' · shape = ontology group' +
+          (current.network ? ' · box = relation · dashed ▷ = subclass / specializes' : '') + '</h6>' +
           '<div class="swm-legend-items">' + scale + '</div>';
       }
       var foot = state.example
         ? '<span><b style="color:#eef0fb">Illustrative neighbourhood · not an execution trace.</b> Arrow = stored relation direction · glow = selection, never evidence confidence</span>'
         : state.view === 'matrix'
         ? '<span>Counts of stored relations in the bundle. Public identifiers retained; Silex-authored mappings are illustrative.</span>'
+        : current.network ? '<span>Every circle is an existing node; position comes from a force layout, not a risk or distance score.</span><span>Drag to pin · click a pin to release · scroll to zoom · search all ' + data.nodes.length + ' nodes</span>'
         : '<span>Every glyph is an existing node. Groups are spatially arranged; position is not a risk or distance score.</span>' +
           '<span>Click a group to open it · search all ' + data.nodes.length + ' nodes · scroll or +/− to zoom</span>';
       if ($('swmCanvas').classList.contains('scroll-x')) foot += '<span><b style="color:#eef0fb">Scroll sideways</b> to see the whole chart · the accessible list below has every item</span>';
@@ -642,6 +693,7 @@
       if (n.layer !== state.layer) { entering = true; state.layer = n.layer; SWM.setLevel(n.layer, 'explorer'); entering = false; }
       if (state.view === 'matrix') setView('graph');
       render();
+      if (vw && netOn()) vw.locate(id);
     }
 
     function select(id) {
@@ -670,10 +722,18 @@
     function renderInspector() {
       var box = $('swmInspector'), n = state.selected ? byId.get(state.selected) : null, html = '';
       if (state.example && !n) n = byId.get('rt-refund-agent');
-      if (!n) {
+      var edgeHtml = function () {
+        var a = byId.get(state.edge.s), b = byId.get(state.edge.t);
+        return '<p class="swm-insp-kicker">Selected relation</p><p class="big" style="color:#50339c;font-family:var(--swm-mono);font-size:13px">' + SWM.esc(state.edge.pred) + '</p>' +
+          row(SWM.esc(SWM.fixtureText(a.label)) + ' → ' + SWM.esc(SWM.fixtureText(b.label))) +
+          row('Provenance', SWM.esc(srcProv(state.edge.src))) +
+          '<p class="note">No event timestamp or execution evidence is supplied by this relationship.</p>';
+      };
+      if (!n && state.edge) html = edgeHtml() + '<div class="actions"><button class="swm-btn" data-act="clear">Clear selection</button></div>';
+      else if (!n) {
         var srcRows = Object.keys(srcCounts).sort((a, b) => srcCounts[b] - srcCounts[a]).map(function (k) {
           return row(SWM.esc(SWM.srcLabel(k)), srcCounts[k]); }).join('');
-        html = '<p class="swm-insp-kicker">Model inventory</p><h3>Public semantics. Enterprise context.</h3>' +
+        html = (current.network && vw ? SWM.vowlUI.statsHtml(vw.stats()) : '') + '<p class="swm-insp-kicker">Model inventory</p><h3>Public semantics. Enterprise context.</h3>' +
           '<p class="big">' + publicCount + ' public-source nodes</p><p class="big">' + silexCount + ' Silex-authored nodes</p>' +
           '<p class="note" style="margin-top:2px">Counts across all four tiers. They are an inventory, not evidence or confidence scores.</p>' +
           '<h4>Nodes carrying each public identifier</h4>' + srcRows +
@@ -693,13 +753,8 @@
           (p ? row('Parent', SWM.esc(SWM.fixtureText(p.label))) : '') +
           row('Authored model coverage', SWM.pct(n.coverage)) +
           '<div class="swm-meter"><i style="width:' + Math.round((n.coverage || 0) * 100) + '%;background:' + SWM.coverageColor(n.coverage, 'paper') + '"></i></div>';
-        if (state.edge) {
-          var a = byId.get(state.edge.s), b = byId.get(state.edge.t);
-          html += '<hr><p class="swm-insp-kicker">Selected relation</p><p class="big" style="color:#50339c;font-family:var(--swm-mono);font-size:13px">' + SWM.esc(state.edge.pred) + '</p>' +
-            row(SWM.esc(SWM.fixtureText(a.label)) + ' → ' + SWM.esc(SWM.fixtureText(b.label))) +
-            row('Provenance', SWM.esc(srcProv(state.edge.src))) +
-            '<p class="note">No event timestamp or execution evidence is supplied by this relationship.</p>';
-        } else if (state.example) {
+        if (state.edge) html += '<hr>' + edgeHtml();
+        else if (state.example) {
           html += '<p class="note">Select a relation to inspect its direction and provenance.</p>';
         }
         if (rels.length && !state.example) {
@@ -732,7 +787,10 @@
       var html = vis.map(function (n) {
         return '<button data-id="' + SWM.esc(n.id) + '"><span>' + SWM.esc(SWM.fixtureText(n.label)) + '</span><small>' + SWM.esc(groupName[n.group] || n.group) + ' · L' + n.layer + '</small></button>';
       }).join('');
-      if (state.example) html += (current.links || []).map(function (l, i) {
+      var inc = current.network && state.selected ? current.links.filter((l) => l.s === state.selected || l.t === state.selected) : [];
+      if (inc.length) html += '<p class="swm-rail-title">Relations of ' + SWM.esc(SWM.fixtureText(byId.get(state.selected).label)) + '</p>';
+      if (state.example || inc.length) html += (current.links || []).map(function (l, i) {
+        if (!state.example && inc.indexOf(l) < 0) return '';
         return '<button data-edge="' + i + '"><span>' + SWM.esc(byId.get(l.s).label) + ' → ' + SWM.esc(byId.get(l.t).label) + '</span><small>' + SWM.esc(l.pred) + '</small></button>';
       }).join('');
       body.innerHTML = html || '<p class="swm-note">Nothing in scope.</p>';
@@ -741,7 +799,8 @@
     }
 
     function snapshot() { return { layer: state.layer, view: state.view, colorBy: state.colorBy, query: state.query,
-      groups: new Set(state.groups), pinned: new Set(state.pinned), selected: state.selected, edge: state.edge }; }
+      groups: new Set(state.groups), pinned: new Set(state.pinned), selected: state.selected, edge: state.edge,
+      net: Object.assign({}, state.net, { compact: Object.assign({}, state.net.compact), pins: new Set(state.net.pins) }) }; }
     function enterExample() {
       if (!exampleData()) { state.example = false; render(); showEmpty(EX_MISSING[0], EX_MISSING[1]); return; }
       if (!state.example && !state.saved) state.saved = snapshot();
@@ -758,7 +817,7 @@
       var s = state.saved; state.example = false;
       if (!s) { render(); return; }
       state.view = s.view; state.colorBy = s.colorBy; state.query = s.query; $('swmQuery').value = s.query;
-      state.groups = s.groups; state.pinned = s.pinned; state.selected = s.selected; state.edge = s.edge;
+      state.groups = s.groups; state.pinned = s.pinned; state.selected = s.selected; state.edge = s.edge; state.net = s.net;
       syncGroupChips(); syncViewButtons(); syncColorButtons();
       if (s.layer !== state.layer) { entering = true; state.layer = s.layer; SWM.setLevel(s.layer, 'back'); entering = false; }
       state.saved = null;
@@ -804,6 +863,14 @@
       if (state.groups.has(g) && state.groups.size > 1) state.groups.delete(g); else state.groups.add(g);
       syncGroupChips(); exitExample(true); state.selected = null; state.edge = null; render();
     });
+    var dt;
+    $('swmMinDeg').addEventListener('input', function () {
+      var v = +this.value; $('swmMinDegV').textContent = v; clearTimeout(dt);
+      dt = setTimeout(function () { state.net.minDegree = v; state.selected = null; state.edge = null; render(); }, 160);
+    });
+    $('swmSubcl').addEventListener('click', function () {
+      state.net.subclass = !state.net.subclass; this.setAttribute('aria-pressed', state.net.subclass); state.edge = null; render();
+    });
     $('swmExampleBtn').addEventListener('click', enterExample);
     $('swmBackBtn').addEventListener('click', backFromExample);
     var qt;
@@ -833,9 +900,11 @@
     /* hidden: stop transitions; on return re-render if stale or resized */
     SWM.onPanel(function (id) {
       if (id !== 'wm-ontology') {
+        if (vw) vw.hide();
         if (!svg.selectAll('*').filter(function () { return d3.active(this); }).empty()) state.stale = true;
         svg.interrupt().selectAll('*').interrupt(); state.animate = false; SWM.tip.hide(); return;
       }
+      if (vw && netOn()) vw.show();
       var d = dims(); if (state.stale || lastDims !== d.w + 'x' + d.h) { state.stale = false; render(); }
     });
     SWM.onResize(function () { if (SWM.isShown(stage)) render(); });
