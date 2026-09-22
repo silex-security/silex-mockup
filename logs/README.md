@@ -6,6 +6,14 @@ public ontology data is real (see [`../swm/data/SOURCES.md`](../swm/data/SOURCES
 
 ---
 
+## 2026-09-21 — Security World Model visual upgrade (planning only)
+
+[Plan](2026-09-21_SWM_VISUAL_UPGRADE_PLAN.md) · [Four design frames](swm-visual-2026-09-21/index.html) · [Review record](swm-visual-2026-09-21/REVIEW.md).
+
+- Proposed a scoped midnight-indigo stage, larger coverage overview, inspectable relation focus, and four ontology planes, preserving the existing data and surrounding views.
+- Native SVG design frames and Chrome PNG exports are review materials; no application code or dataset has changed, and nothing has been published.
+- Roster: Claude + DeepSeek + Codex. Plan v0.2 and all four design frames passed two review rounds; all three seats returned PLAN-APPROVED. Codex authored/self-reviewed; Claude and DeepSeek reviewed independently. Literal verdicts and limitations are in the linked record.
+
 ## 2026-09-21 — Artifact upgrade: route map, measured fix, model change, route evaluation
 Plan and review record: [`2026-09-21_ARTIFACT_UPGRADE_PLAN.md`](2026-09-21_ARTIFACT_UPGRADE_PLAN.md) (plan approved by DeepSeek, Codex and Claude in two rounds; implementation approved in four review rounds).
 
