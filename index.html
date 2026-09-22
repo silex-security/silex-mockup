@@ -413,6 +413,18 @@
     @media(max-width:1100px){.rx-map,.rx-opt,.rx-mc{grid-template-columns:1fr}.rx-jobs{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:760px){.rx-stages{grid-template-columns:1fr}.rx-arr{transform:rotate(90deg);justify-self:center}.rx-jobs{grid-template-columns:1fr}.rx-opt svg{min-width:0}}
   </style>
+  <style id="sparse-observability-style">
+    .recon-card{margin-top:16px;padding:18px 20px 20px;border-top:3px solid var(--blue);background:#fff}
+    .recon-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.recon-head h3{margin:3px 0 4px;font-size:15px}.recon-kicker{font:700 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue2)}
+    .recon-caption,.recon-claim{font-size:11.5px;color:var(--muted);margin:8px 0 12px}.recon-claim{padding:10px 12px;border-left:3px solid var(--blue);background:var(--soft);color:var(--ink)}.recon-pill{font:700 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 8px;background:var(--soft)}
+    .recon-sources{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:12px 0}.recon-source{border:1px solid var(--line);border-radius:8px;padding:7px 8px;background:#fbfcfd;font-size:10px}.recon-source b{display:block;font:700 9px var(--mono);color:var(--blue2)}.recon-source small{display:block;color:var(--muted);margin-top:3px}
+    .recon-tiers{display:flex;gap:5px;background:var(--soft);padding:4px;border-radius:9px;margin:12px 0;flex-wrap:wrap}.recon-tier{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:7px;font-size:11px;cursor:pointer}.recon-tier[aria-checked="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08);font-weight:700}.recon-tier:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .recon-counts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.recon-count{border:1px solid var(--line);border-radius:9px;padding:9px;background:#fff}.recon-count h4{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 7px}.recon-counts .grade{margin-right:3px}.recon-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.recon-group{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fbfcfd}.recon-group h4{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px}.recon-row{display:flex;justify-content:space-between;gap:8px;align-items:center;border-top:1px solid #eef0f2;padding:5px 0;font-size:10.5px}.recon-row:first-of-type{border-top:0}.recon-row span:first-child{min-width:0}.recon-unmodeled{margin-top:10px;border:1px dashed #d7a59e;background:#fff9f8;border-radius:9px;padding:10px;font-size:10.5px;color:#74433d}.recon-unmodeled b{display:block;color:var(--red);font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}.recon-note{font-size:10px;color:var(--muted);margin-top:8px}.g-abs{background:#fff;color:var(--muted);border:1px dashed var(--line-strong)}
+    #causalGraph .kg-lines path[data-grade="obs"]{stroke:var(--green);stroke-width:3;stroke-dasharray:none;opacity:1}#causalGraph .kg-lines path[data-grade="lat"]{stroke:var(--amber);stroke-width:2.5;stroke-dasharray:9 6;opacity:1}#causalGraph .kg-lines path[data-grade="dec"]{stroke:var(--muted);stroke-width:2;stroke-dasharray:2 5;opacity:1}#causalGraph .kg-lines path[data-grade="absent"]{stroke:var(--line-strong);stroke-width:1.5;stroke-dasharray:2 5;opacity:.28}
+    .recon-unmodeled p{margin:5px 0}.recon-actions{display:flex;align-items:center;gap:6px;margin-top:7px}.recon-actions button{font:700 10px var(--mono);padding:4px 7px;border:1px solid #d7c4c0;border-radius:5px;background:#fff;color:#8b7773}.recon-actions small{color:#947b76}
+    .recon-count span{display:block;margin-top:4px}.recon-list-title{grid-column:1/-1;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:4px 0 -5px}
+    @media(max-width:760px){.recon-sources{grid-template-columns:repeat(2,minmax(0,1fr))}.recon-counts,.recon-list{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
 <div class="app">
@@ -505,6 +517,7 @@
 <div class="as-glegend"><b style="color:var(--muted)">Path grades →</b><span><span class="grade g-obs">Observed</span> in the graph</span><span><span class="grade g-lat">Latent</span> possible by type</span><span><span class="grade g-dec">Declared</span> from config</span></div>
 <button class="as-open" data-jump="security-model" data-wm-target="wm-ontology">◎ Open the full World Model explorer — 598 nodes, all four layers →</button>
 </div>
+<p class="as-quote recon-assurance-link"><a href="#" data-open-incident="I-1042">See how the I-1042 picture was reconstructed →</a></p>
 <div class="as-card">
 <div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:10px">KNOWN BLIND SPOTS · 8 OPEN</div>
 <div class="as-gaps">
@@ -928,7 +941,7 @@
 <div class="tab-panel" id="causal-workflow">
             <div class="graph-toolbar"><div><strong style="font-size:12px">Layered workflow graph</strong><div style="font-size:10px;color:var(--muted);margin-top:2px">Incident evidence is an overlay on enterprise structure—not the first cause in the chain.</div></div><div class="mode-tabs"><button class="mode-tab active" data-graph-mode="structure">Enterprise Structure</button><button class="mode-tab" data-graph-mode="observed">Observed Execution</button><button class="mode-tab" data-graph-mode="causal">Causal Mechanism</button><button class="mode-tab" data-graph-mode="counterfactual">Counterfactual</button><button class="mode-tab" data-graph-mode="intervention">Intervention Diff</button></div></div>
             <div class="kg-wrap"><div class="kg-graph" id="causalGraph">
-              <svg class="kg-lines" viewBox="0 0 980 430" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#718aff"/></marker><marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#a9afb8"/></marker></defs><path class="kg-item structural observed" d="M176 105 L235 105" marker-end="url(#arrowBlue)"/><text x="183" y="95">INGESTS</text><path class="kg-item structural causal observed" d="M381 105 C410 105 420 170 440 195"/><text x="385" y="130">ADOPTS_INTENT</text><path class="kg-item structural causal observed" d="M381 302 C420 302 420 235 440 220"/><text x="383" y="285">AUTHORIZED_BY</text><path class="kg-item structural causal observed" d="M614 205 C635 190 640 115 660 105"/><text x="615" y="158">ENABLES</text><path class="kg-item structural observed" d="M806 105 C825 120 825 242 806 270"/><text x="820" y="188">MUTATES</text><path class="kg-item structural causal observed counterfactual" d="M806 286 C845 286 850 220 850 210"/><text x="813" y="270">LEADS_TO</text><path class="kg-item structural observed" d="M514 82 C570 40 625 55 660 80"/><text x="570" y="52">GOVERNS</text><path class="kg-item structural counterfactual" d="M176 305 C310 365 510 350 660 305"/><text x="380" y="360">ALTERNATIVE_ROUTE</text><path class="kg-item intervention" d="M527 380 L527 247"/><text x="540" y="345">INTERVENES_ON</text></svg>
+              <svg class="kg-lines" viewBox="0 0 980 430" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#718aff"/></marker><marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#a9afb8"/></marker></defs><path class="kg-item structural observed" data-edge="INGESTS" d="M176 105 L235 105" marker-end="url(#arrowBlue)"/><text x="183" y="95">INGESTS</text><path class="kg-item structural causal observed" data-edge="ADOPTS_INTENT" d="M381 105 C410 105 420 170 440 195"/><text x="385" y="130">ADOPTS_INTENT</text><path class="kg-item structural causal observed" data-edge="AUTHORIZED_BY" d="M381 302 C420 302 420 235 440 220"/><text x="383" y="285">AUTHORIZED_BY</text><path class="kg-item structural causal observed" data-edge="ENABLES" d="M614 205 C635 190 640 115 660 105"/><text x="615" y="158">ENABLES</text><path class="kg-item structural observed" data-edge="MUTATES" d="M806 105 C825 120 825 242 806 270"/><text x="820" y="188">MUTATES</text><path class="kg-item structural causal observed counterfactual" data-edge="LEADS_TO" d="M806 286 C845 286 850 220 850 210"/><text x="813" y="270">LEADS_TO</text><path class="kg-item structural observed" data-edge="GOVERNS" d="M514 82 C570 40 625 55 660 80"/><text x="570" y="52">GOVERNS</text><path class="kg-item structural counterfactual" data-edge="ALTERNATIVE_ROUTE" d="M176 305 C310 365 510 350 660 305"/><text x="380" y="360">ALTERNATIVE_ROUTE</text><path class="kg-item intervention" d="M527 380 L527 247"/><text x="540" y="345">INTERVENES_ON</text></svg>
               <div class="kg-node kg-item observed observed-node" style="left:30px;top:68px"><small>External artifact</small><strong id="kgInput">External email</strong><span>Untrusted instruction source</span><em class="ev-badge">Observed · I-1042</em></div>
               <div class="kg-node agent kg-item observed causal observed-node" style="left:235px;top:68px"><small>Agent</small><strong id="kgAgent">Finance Agent</strong><span>Identity: svc-finance-agent</span><em class="ev-badge">Observed</em></div>
               <div class="kg-node identity kg-item observed causal" style="left:235px;top:250px"><small>Identity / authority</small><strong id="kgAuthority">Finance Approver</strong><span id="kgAuthorityMeta">Delegates bank-update authority</span></div>
@@ -936,14 +949,28 @@
               <div class="kg-node control kg-item observed structural" style="left:440px;top:18px"><small>Current control</small><strong id="kgControl">PAY-042</strong><span>Pattern-based tool guard</span></div>
               <div class="kg-node tool kg-item observed causal counterfactual" style="left:660px;top:68px"><small>Tool</small><strong id="kgAction">Vendor Update Tool</strong><span>WRITE vendor.bank_account</span><em class="ev-badge">Observed</em></div>
               <div class="kg-node resource kg-item observed causal counterfactual" style="left:660px;top:250px"><small>Resource / state</small><strong id="kgResource">Vendor bank record</strong><span id="kgResourceMeta">Critical financial resource</span></div>
-              <div class="kg-node agent kg-item counterfactual" style="left:30px;top:268px"><small>Alternative agent</small><strong>Procurement Agent</strong><span>Inherited vendor authority</span></div>
+              <div class="kg-node agent kg-item counterfactual" style="left:30px;top:268px"><small>Alternative agent</small><strong id="kgProcurement">Procurement Agent</strong><span>Inherited vendor authority</span></div>
               <div class="kg-node outcome kg-item observed causal counterfactual" style="left:830px;top:170px;width:135px"><small>Business outcome</small><strong id="kgOutcome">Bank destination changed</strong><span>Prohibited · $2.4M exposure</span></div>
               <div class="kg-node control kg-item intervention" style="left:440px;top:350px"><small>Candidate control</small><strong id="kgCandidate">Bind identity + intent + mutation</strong><span>do(candidate control)</span></div>
             </div></div>
-            <div class="graph-insight"><div><small>Observed evidence</small><strong>6 nodes · 5 transitions confirmed</strong></div><div><small>Inferred mechanism</small><strong id="graphMechanismInsight">Approval loses binding to verified intent</strong></div><div><small>Counterfactual result</small><strong>3 of 187 executions remain reachable</strong></div></div>
+            <div class="graph-insight"><div><small>Observed evidence</small><strong id="reconInsightObserved">6 nodes · 5 transitions confirmed</strong></div><div><small>Inferred mechanism</small><strong id="graphMechanismInsight">Approval loses binding to verified intent</strong></div><div><small>Counterfactual result</small><strong>3 of 187 executions remain reachable</strong></div></div>
           </div>
           
 </details>
+<div class="recon-card" id="reconCard" hidden>
+  <div class="recon-head"><div><div class="recon-kicker">observe → reconstruct</div><h3>How this picture was built · sparse observability</h3></div><span class="recon-pill">Evidence view</span></div>
+  <p id="reconCaption" class="recon-caption">Declared and observed inputs are separated from inferred structure.</p>
+  <div class="recon-sources" aria-label="Evidence sources">
+    <div class="recon-source" data-recon-source="S1"><b>S1 · Finance Agent run trace (I-1042)</b><span></span></div><div class="recon-source" data-recon-source="S2"><b>S2 · IAM grants &amp; delegations</b><span>present · declared</span></div><div class="recon-source" data-recon-source="S3"><b>S3 · Tool manifest</b><span>WRITE vendor.bank_account · declared</span></div><div class="recon-source" data-recon-source="S4"><b>S4 · Policy config (PAY-042) + block log</b><span></span></div><div class="recon-source" data-recon-source="S5"><b>S5 · Vendor master (ERP)</b><span>not connected</span></div>
+  </div>
+  <div class="recon-tiers" id="reconTiers" role="radiogroup" aria-label="Evidence tier">
+    <button class="recon-tier" type="button" role="radio" aria-label="T1 config only" data-recon-tier="1" tabindex="-1">T1 <span>config only</span></button><button class="recon-tier" type="button" role="radio" aria-label="T2 config + partial trace" data-recon-tier="2" tabindex="0">T2 <span>config + partial trace</span></button><button class="recon-tier" type="button" role="radio" aria-label="T3 config + full trace" data-recon-tier="3" tabindex="-1">T3 <span>config + full trace</span></button>
+  </div>
+  <p id="reconClaim" class="recon-claim" aria-live="polite"></p>
+  <div class="recon-counts" id="reconCounts"></div><div class="recon-list" id="reconLists"></div><div class="recon-list" id="reconRelations"></div>
+  <div class="recon-unmodeled" id="reconUnmodeled"><b>Unmodeled · listed, never hidden</b><p>U1 · Finance Agent long-term memory contents at instruction time — no ontology class yet.</p><p>U2 · Approver's out-of-band bank-change callback (phone) — it is in no system, so it cannot be inferred.</p><div class="recon-actions"><button type="button" disabled>Declare</button><button type="button" disabled>Verify</button><small>Inert in this illustrative demo.</small></div><p><b>Not connected:</b> Vendor master S5 is not observable at source; the record state stays declared until the ERP is connected or the change is verified.</p></div>
+  <p class="recon-note" id="reconNote"><b>Reading the grades.</b> Absent means the tier has no input; latent is inferred structure, never an unobserved state. Unmodeled means the graph cannot represent it. <span>LEADS_TO: a declared policy or law reflects a customer-declared constraint; this view does not model Laws.</span></p>
+</div>
 </div>
 
 <div class="tab-panel inc-panel" id="inc-paths">
@@ -1541,6 +1568,66 @@ const incidentData={
   const GRADE={obs:['g-obs','Observed'],lat:['g-lat','Latent'],dec:['g-dec','Declared']};
   const gradeBadge=g=>g&&GRADE[g]?`<span class="grade ${GRADE[g][0]}">${GRADE[g][1]}</span> `:'';
   const pathRow=(label,text,open,grade)=>`<div class="path-row ${open?'open':'blocked'}"><strong>${label}</strong><span>${gradeBadge(grade)}${text}</span>${open?'<span class="status blocked">Open</span>':'<span class="status" '+GREEN+'>'+(open===false?'Blocked':'Closed')+'</span>'}</div>`;
+  /* Sparse Observability reconstruction: the fixture below is the only source for
+     the Evidence card, graph grades, counts and copy. It is deliberately scoped to I-1042. */
+  const RECON_I1042={
+    nodes:[
+      {id:'kgInput',name:'External email',grades:{1:'absent',2:'obs',3:'obs'},note:'blocked prompt injection input'},
+      {id:'kgAgent',name:'Finance Agent',grades:{1:'dec',2:'obs',3:'obs'},note:'runtime identity'},
+      {id:'kgAuthority',name:'Finance Approver',grades:{1:'dec',2:'obs',3:'obs'},note:'delegated authority'},
+      {id:'kgMechanism',name:'Intent provenance lost',grades:{1:'absent',2:'lat',3:'lat'},note:'inferred mechanism'},
+      {id:'kgControl',name:'PAY-042',grades:{1:'dec',2:'obs',3:'obs'},note:'pattern-based guard'},
+      {id:'kgAction',name:'Vendor Update Tool',grades:{1:'dec',2:'obs',3:'obs'},note:'write action'},
+      {id:'kgResource',name:'Vendor bank record',grades:{1:'dec',2:'obs',3:'obs'},note:'read response observed; source state remains declared'},
+      {id:'kgProcurement',name:'Procurement Agent',grades:{1:'dec',2:'dec',3:'dec'},note:'no trace of its own'},
+      {id:'kgOutcome',name:'Bank destination changed',grades:{1:'dec',2:'dec',3:'dec'},note:'declared-possible outcome'}
+    ],
+    edges:[
+      {label:'INGESTS',grades:{1:'absent',2:'obs',3:'obs'},note:'email enters agent context'},
+      {label:'ADOPTS_INTENT',grades:{1:'absent',2:'lat',3:'lat'},note:'intent reuse is inferred'},
+      {label:'AUTHORIZED_BY',grades:{1:'dec',2:'lat',3:'lat'},note:'authority binding is inferred'},
+      {label:'ENABLES',grades:{1:'absent',2:'lat',3:'lat'},note:'control relationship is inferred'},
+      {label:'MUTATES',grades:{1:'dec',2:'obs',3:'obs'},note:'observed mutation attempt was blocked; record did not change'},
+      {label:'LEADS_TO',grades:{1:'dec',2:'dec',3:'dec'},note:'declared constraint, not a model of Laws'},
+      {label:'GOVERNS',grades:{1:'dec',2:'obs',3:'obs'},note:'control governs action'},
+      {label:'ALTERNATIVE_ROUTE',grades:{1:'dec',2:'dec',3:'lat'},note:'expanded alternate reconstruction'}
+    ],
+    claims:{1:'The route is declared-possible. Nothing has happened; this is what Blueprint Studio shows before deploy.',2:"The known path is observed. How the email's instruction reused the approval is inferred (latent). The outcome never happened; it stays declared-possible until verified.",3:'More trace turns the Procurement route from declared into latent. It does not turn the vendor record\'s state into an observation while the ERP is not connected.'}
+  };
+  window.__RECON_I1042=RECON_I1042;
+  const RECON_EDGE_LABELS=RECON_I1042.edges.map(e=>e.label), RECON_NODE_IDS=RECON_I1042.nodes.map(n=>n.id);
+  let reconTier=2, reconBase=null;
+  const reconGraph=()=>document.querySelector('#causalGraph .kg-lines');
+  const reconPath=label=>reconGraph()?.querySelector(`path[data-edge="${label}"]`); /* by label, never by position */
+  function reconCaptureBase(){
+    if(reconBase)return;
+    const nodes=new Map(RECON_NODE_IDS.map(id=>{const el=$id(id)?.closest('.kg-node');return [id,{badge:el?.querySelector('.ev-badge')?.outerHTML||''}]}));
+    const edges=new Map(RECON_EDGE_LABELS.map(label=>{const p=reconPath(label);return [label,{className:p?.getAttribute('class')||'',grade:p?.getAttribute('data-grade')}]}));
+    reconBase={nodes,edges,insight:$id('reconInsightObserved')?.textContent||'',mechanismBadge:$id('kgMechanism')?.parentElement?.querySelector('.ev-badge')?.outerHTML||''};
+  }
+  const reconGradeHTML=(g)=>g==='absent'?'<em class="grade g-abs recon-grade">Absent</em>':`<em class="grade ${GRADE[g][0]} recon-grade">${GRADE[g][1]}</em>`;
+  function reconSetNode(id,g){const title=$id(id),el=title?.closest('.kg-node');if(!el)return;el.querySelectorAll('.recon-grade,.ev-badge').forEach(x=>x.remove());el.insertAdjacentHTML('beforeend',id==='kgMechanism'&&g==='lat'?'<em class="grade g-lat recon-grade">Latent · inferred</em>':reconGradeHTML(g));}
+  function reconRestore(){
+    if(!reconBase)return;
+    reconBase.nodes.forEach((b,id)=>{const title=$id(id),el=title?.closest('.kg-node');if(!el)return;el.querySelectorAll('.recon-grade,.ev-badge').forEach(x=>x.remove());if(b.badge)el.insertAdjacentHTML('beforeend',b.badge)});
+    reconBase.edges.forEach((b,label)=>{const p=reconPath(label);if(!p)return;p.setAttribute('class',b.className);if(b.grade==null)p.removeAttribute('data-grade');else p.setAttribute('data-grade',b.grade)});
+    if($id('reconInsightObserved'))$id('reconInsightObserved').textContent=reconBase.insight;
+    const mechParent=$id('kgMechanism')?.parentElement;mechParent?.querySelectorAll('.ev-badge,.recon-grade').forEach(x=>x.remove());if(reconBase.mechanismBadge)mechParent.insertAdjacentHTML('beforeend',reconBase.mechanismBadge);
+  }
+  function reconCompute(t){const count=(items,g)=>items.filter(x=>x.grades[t]===g).length;return {nodes:{obs:count(RECON_I1042.nodes,'obs'),lat:count(RECON_I1042.nodes,'lat'),dec:count(RECON_I1042.nodes,'dec'),absent:count(RECON_I1042.nodes,'absent')},edges:{obs:count(RECON_I1042.edges,'obs'),lat:count(RECON_I1042.edges,'lat'),dec:count(RECON_I1042.edges,'dec'),absent:count(RECON_I1042.edges,'absent')}}}
+  function reconApply(t){
+    reconTier=t;const c=reconCompute(t);RECON_I1042.nodes.forEach(n=>reconSetNode(n.id,n.grades[t]));
+    RECON_I1042.edges.forEach(e=>{const p=reconPath(e.label);if(p)p.setAttribute('data-grade',e.grades[t])});
+    $id('reconInsightObserved').textContent=`${c.nodes.obs} nodes · ${c.edges.obs} relations observed`;
+    $id('reconClaim').textContent=RECON_I1042.claims[t];$id('reconCounts').innerHTML=`<div class="recon-count"><b>${c.nodes.obs} · ${c.nodes.dec} · ${c.nodes.lat} · ${c.nodes.absent}</b><span>nodes · observed · declared · latent · absent</span></div><div class="recon-count"><b>${c.edges.obs} · ${c.edges.dec} · ${c.edges.lat} · ${c.edges.absent}</b><span>relations · observed · declared · latent · absent</span></div>`;
+    $id('reconLists').innerHTML='<h4 class="recon-list-title">Nodes</h4>'+RECON_I1042.nodes.map(n=>`<div class="recon-row"><span>${n.name}</span>${reconGradeHTML(n.grades[t])}<small>${n.note}</small></div>`).join('');
+    $id('reconRelations').innerHTML='<h4 class="recon-list-title">Relations</h4>'+RECON_I1042.edges.map(e=>`<div class="recon-row"><span>${e.label}</span>${reconGradeHTML(e.grades[t])}<small>${e.note}</small></div>`).join('');
+    const sourceStates={1:{S1:'not present',S4:'config · declared'},2:{S1:'partial trace · observed',S4:'config + block event · observed'},3:{S1:'full trace · observed',S4:'config + block event · observed'}}[t];document.querySelector('[data-recon-source="S1"] span').textContent=sourceStates.S1;document.querySelector('[data-recon-source="S4"] span').textContent=sourceStates.S4;
+    document.querySelectorAll('[data-recon-tier]').forEach(b=>{const on=+b.dataset.reconTier===t;b.setAttribute('aria-checked',on?'true':'false');b.tabIndex=on?0:-1});
+    $id('reconCaption').innerHTML='Illustrative reconstruction of one incident. Every entity and relation is labelled by how we know it; what we cannot represent is listed, not hidden.'+(document.getElementById('regAssurance')?.classList.contains('on')?'<br><b>We don\'t ask for more telemetry…</b>':'');
+  }
+  function reconRender(id){reconCaptureBase();if(id!=='I-1042'){reconRestore();$id('reconCard').hidden=true;return}$id('reconCard').hidden=false;reconApply(reconTier)}
+  document.querySelectorAll('[data-recon-tier]').forEach(b=>{b.addEventListener('click',()=>reconApply(+b.dataset.reconTier));b.addEventListener('keydown',e=>{const bs=[...document.querySelectorAll('[data-recon-tier]')],i=bs.indexOf(b);let j=i;if(e.key==='ArrowRight'||e.key==='ArrowDown')j=(i+1)%bs.length;else if(e.key==='ArrowLeft'||e.key==='ArrowUp')j=(i+bs.length-1)%bs.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=bs.length-1;else return;e.preventDefault();bs[j].focus();reconApply(+bs[j].dataset.reconTier)})});
   // Six-objective scorecard (risk reduction · coverage · business friction · compliance · cost · performance)
   const sixObj=(risk,best)=>`<div class="six-obj"><div><span class="ov ok">−${risk}%</span><span class="ol">risk reduction</span></div><div><span class="ov ${best?'ok':''}">all paths</span><span class="ol">coverage</span></div><div><span class="ov ${best?'':'bad'}">${best?'low':'high'}</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">${best?'low':'med'}</span><span class="ol">cost</span></div><div><span class="ov">${best?'−420 ms':'−600 ms'}</span><span class="ol">performance</span></div></div>`;
   function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
@@ -1557,7 +1644,7 @@ const incidentData={
     $id('incCands').innerHTML=cands.map((c,i)=>{const best=c[5];return `<div class="cand${best?' best':' rejected'}">${best?'<span class="rec">'+(closed?'APPLIED':'RECOMMENDED')+'</span>':'<span class="rej-tag">Rejected</span>'}<span class="validated">✓ ${closed?'Approved · re-validated':'Validated in simulation'}</span><h3>${closed?'':'ABC'[i]+' · '}${c[0]}</h3><p>${c[1]}</p>${sixObj(c[2],best)}${best?'':'<div class="rej-why">Rejected — works, but fails the business-friction objective.</div>'}</div>`}).join('');
     setText('incCurDC',r[0]+'%');setText('incCurRR',r[1]+'%');setText('incCurPaths',r[2]);setText('incRecText',d.candidate);setText('incRecNote',(closed?'Applied · ':'Validated against ')+d.count);setText('incValDC',r[3]+'%');setText('incValRR',r[4]+'%');setText('incValPaths',r[5]);setText('incImpact1',r[6]);setText('incImpact2',r[7]);setText('incImpact3',r[8]);
     setText('incDecisionText',d.candidate);setText('incDecisionStateText','Defense '+r[3]+'% · Reachability '+r[4]+'% · '+r[5]+' critical paths');
-    applyIncDecision(id);setIncTab(0);rxRender(id);if(show!==false)showView('incident')}
+    applyIncDecision(id);setIncTab(0);rxRender(id);if(show!==false)showView('incident');reconRender(id)}
   /* ===== 2026-09-21 artifact upgrade: route map (P1), candidate chart (P2), model-change deep link (P3) ===== */
   const RX_NS='http://www.w3.org/2000/svg';
   const rxEl=(t,a,p)=>{const e=document.createElementNS(RX_NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};

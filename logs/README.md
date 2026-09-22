@@ -22,3 +22,5 @@ Figures on the site are illustrative; public ontology data is real (see [`../swm
 | [`2026-09-21_SWM_IMPLEMENTATION.md`](2026-09-21_SWM_IMPLEMENTATION.md) | SWM visual upgrade implementation and three-seat review rounds (R3 `27f07eb`) |
 | [`2026-09-21_SWM_VOWL_NETWORK_PLAN.md`](2026-09-21_SWM_VOWL_NETWORK_PLAN.md) | Network view (WebVOWL-style) plan v0.2; contract, spike and frames in [`swm-vowl-2026-09-21/`](swm-vowl-2026-09-21/) |
 | [`2026-09-21_SWM_VOWL_IMPLEMENTATION.md`](2026-09-21_SWM_VOWL_IMPLEMENTATION.md) | Network view implementation, review rounds (R2 `e978d6a`) and deploy record |
+| [`2026-09-22_SPARSE_OBSERVABILITY_PLAN.md`](2026-09-22_SPARSE_OBSERVABILITY_PLAN.md) | Sparse Observability plan v0.3: the terminology finding, the I-1042 reconstruction fixture, and three review rounds |
+| [`2026-09-22_SPARSE_OBSERVABILITY_IMPLEMENTATION.md`](2026-09-22_SPARSE_OBSERVABILITY_IMPLEMENTATION.md) | Implementation rounds r1–r4, the evidence and the deploy record |

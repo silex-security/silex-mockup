@@ -18,6 +18,21 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
 
 Newest first. The dated plans, review records and audits behind each change are archived in [`logs/`](logs/README.md).
 
+### 2026-09-22 — Sparse Observability: how the I-1042 picture was reconstructed
+
+[Plan v0.3](logs/2026-09-22_SPARSE_OBSERVABILITY_PLAN.md) · [Implementation log](logs/2026-09-22_SPARSE_OBSERVABILITY_IMPLEMENTATION.md).
+
+- **Incident I-1042 → Evidence** gains the card "How this picture was built · sparse observability":
+  - each source (trace, IAM, tool manifest, policy, vendor master — not connected) is shown with its state;
+  - a tier switch: config only / config + partial trace / config + full trace;
+  - every node and relation carries one grade (observed / declared / latent);
+  - an **unmodeled** list and the tier's one-line claim.
+- The Evidence graph re-tags live from the same single-source fixture.
+- An unobserved state is never labelled latent: the blocked outcome stays declared-possible until verified.
+- It applies to I-1042 only; other incidents and `swm/` are unchanged.
+- The term "Sparse Simulation" never appeared on this site. The investor pages in `silex-explorer` used it for law-based pruning, which is now "Law-pruned simulation". Those pages gained a Sparse Observability section.
+- Three-seat review: the plan was approved in round 3; the implementation was approved in round 3 and again, after two non-blocking fixes, in round 4 (`a4289ad`).
+
 ### 2026-09-22 — Security World Model: visual upgrade + Network view (deployed)
 
 Deployed to production on 2026-09-22 (`main` fast-forwarded to `cb3e9b8`). Both changes below went live together.
