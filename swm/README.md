@@ -5,6 +5,8 @@ D3-based replacement for the **World Model Coverage**, **Security Ontology** and
 Three panels, one shared abstraction level (`SWM.level`, `SWM.setLevel`, `SWM.onLevel`):
 **L1 general → L2 domain → L3 agentic-system → L4 runtime**.
 
+Build history of the 2026-09-21 visual upgrade and Network view, and why it took the time it did (not the data): [`BUILD_HISTORY.md`](BUILD_HISTORY.md).
+
 ---
 
 ## 通俗说明:这三张图用了哪些真实数据(中文)
