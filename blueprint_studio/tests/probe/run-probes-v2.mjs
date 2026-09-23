@@ -539,14 +539,14 @@ await probe('C3', 'Checklist → Discard restores the field display; an invalid 
 await probe('C4', 'rule-based parsing is faithful: "above $1,000" → amount > 1000; dual approval; 500.75 kept; unsupported clause unmatched', async () => {
   await load();
   const out = [];
-  for (const q of ['add a human approval above $1,000 after Refund Eligibility', 'add a dual approval after Refund Eligibility', 'add a human approval above $500.75 after Refund Eligibility', '在 Refund Eligibility 后面加一个人工审批，金额超过 1,000', 'add a human approval unless the customer is VIP after Refund Eligibility', 'add a human approval after Refund Eligibility unless the customer is VIP', 'add a human approval after Refund Eligibility above $1,000 and only for international orders']) {
+  for (const q of ['add a human approval above $1,000 after Refund Eligibility', 'add a dual approval after Refund Eligibility', 'add a human approval above $500.75 after Refund Eligibility', '在 Refund Eligibility 后面加一个人工审批，金额超过 1,000', 'add a human approval unless the customer is VIP after Refund Eligibility', 'add a human approval after Refund Eligibility unless the customer is VIP', 'add a human approval after Refund Eligibility above $1,000 and only for international orders', 'require approval above $1,000', 'require approval above $500 unless the customer is VIP', 'do not prevent duplicate refunds']) {
     await load({ clear: true });
     await ask(q); await sleep(200);
     const has = await applyState();
     if (has === 'enabled') { await clickSel('#assistApply'); await sleep(200); }
-    out.push(await ev(`${S} const c=G().nodes.find(n=>n.type==='control'&&n.id!=='approval'); return c ? c.config.kind+'|'+c.config.appliesWhen : 'none'`));
+    out.push(await ev(`${S} const c=G().nodes.find(n=>n.type==='control'&&n.id!=='approval'); if (c) return c.config.kind+'|'+c.config.appliesWhen; const q=${JSON.stringify(q)}; if (/prevent duplicate/.test(q)) return 'idem:'+G().nodes.find(n=>n.id==='payment').config.idempotencyKey; if (/require approval/.test(q)) return 'gate:'+G().nodes.find(n=>n.id==='gate').config.condition; return 'none'`));
   }
-  return { pass: out[0] === 'human_approval|amount > 1000' && out[1].startsWith('dual_approval|') && out[2] === 'human_approval|amount > 500.75' && out[3] === 'human_approval|amount > 1000' && out[4] === 'none' && out[5] === 'none' && out[6] === 'none', detail: JSON.stringify(out) };
+  return { pass: out[0] === 'human_approval|amount > 1000' && out[1].startsWith('dual_approval|') && out[2] === 'human_approval|amount > 500.75' && out[3] === 'human_approval|amount > 1000' && out[4] === 'none' && out[5] === 'none' && out[6] === 'none' && out[7] === 'gate:amount > 1000' && out[8] === 'gate:amount > 2000' && out[9] === 'idem:false', detail: JSON.stringify(out) };
 });
 
 /* ------------------------------------------------------ i18n, T3, T4, V1 */

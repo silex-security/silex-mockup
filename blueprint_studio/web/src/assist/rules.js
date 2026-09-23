@@ -11,7 +11,6 @@
    `unmatched` and produces no op — never a weaker or silently-different policy.
    Pure: no DOM, no store. */
 import { nodeById, flowOut, portsOf, ok } from '../../../js/model.js';
-import { compileText } from '../../../js/nlcompile.js';
 import { CATALOG, MONITORS } from '../builder/catalog.js';
 import zh from '../i18n/zh.js';
 
@@ -264,44 +263,111 @@ function parseApprovalAbove(text, graph) {
 }
 
 /* ------------------------------------------------------------ nlcompile fallback */
-function mapNlOps(ops) {
-  const out = [];
-  for (const o of ops) {
-    if (o.op === 'setConfig') out.push({ op: 'setConfig', node: o.id, key: o.key, value: o.value });
-    else if (o.op === 'setLabel') out.push({ op: 'setLabel', node: o.id, label: o.label });
-    else if (o.op === 'removeNode') out.push({ op: 'removeNode', node: o.id });
-    else if (o.op === 'removeEdge') out.push({ op: 'removeEdge', id: o.id });
-    else if (o.op === 'addEdge') out.push({ op: 'connect', from: { node: o.edge.from.node, port: o.edge.from.port }, to: { node: o.edge.to.node, port: o.edge.to.port } });
-    else if (o.op === 'moveNode') continue;
-    else return null;
-  }
-  return out.length ? out : null;
+/* The legacy policy phrases (js/nlcompile.js PHRASES) are reimplemented here as
+   anchored whole-sentence rules — never the unanchored compiler, which would
+   drop a trailing clause and read "1,000" as "1". Each resolves the gating
+   decision / approval control / write tool the same way nlcompile does. */
+function writeTool(graph) { return graph.nodes.filter(n => n.type === 'tool' && n.config.sideEffect === 'write').sort((a, b) => a.id < b.id ? -1 : 1)[0] || null; }
+function pathsToNode(graph, targetId) {
+  const adj = {}; for (const e of graph.edges) if (e.kind === 'flow') (adj[e.from.node] = adj[e.from.node] || []).push(e.to.node);
+  const paths = [];
+  const walk = (n, path) => { if (n === targetId) { paths.push(path.slice()); return; } if (path.length > 40) return; for (const x of adj[n] || []) if (!path.includes(x)) walk(x, path.concat(x)); };
+  for (const t of graph.nodes.filter(n => n.type === 'trigger')) walk(t.id, [t.id]);
+  return paths;
 }
-function tryNl(sentence, graph) {
-  const r = compileText(sentence, graph);
-  if (!r.ok) return null;
-  const { ops, matched, unmatched } = r.value;
-  if (!matched.length || unmatched.length) return null;
-  const mapped = mapNlOps(ops);
-  return mapped ? { summary: matched.join('; '), ops: mapped } : null;
+function gatingDecision(graph, toolId) {
+  let best = null, bestIdx = -1;
+  for (const p of pathsToNode(graph, toolId)) for (let i = 0; i < p.length; i++) { const n = nodeById(graph, p[i]); if (n && n.type === 'decision' && i > bestIdx) { best = n.id; bestIdx = i; } }
+  return best;
+}
+function approvalControlOnPath(graph, toolId) {
+  for (const p of pathsToNode(graph, toolId)) for (const id of p) { const n = nodeById(graph, id); if (n && n.type === 'control' && n.config.kind !== 'policy_gate') return n.id; }
+  return null;
+}
+
+function parseRequireApproval(text, graph) {
+  let m = text.match(/^require\s+(?:(?:manager|human)\s+)?approval\s+(?:threshold\s+)?above\s+[\$￥¥]?\s*([\d][\d,]*(?:\.\d+)?)$/i);
+  if (!m) m = text.match(/^超过\s*[\$￥¥]?\s*([\d][\d,]*(?:\.\d+)?)(?:元)?需要审批$/);
+  if (m) {
+    const x = parseNumber(m[1]); if (x == null) return null;
+    const tool = writeTool(graph); if (!tool) return null;
+    const gate = gatingDecision(graph, tool.id); if (!gate) return null;
+    return { summary: `require approval above ${x}`, ops: [{ op: 'setConfig', node: gate, key: 'condition', value: `amount > ${x}` }] };
+  }
+  return null;
+}
+function parseAggregate(text, graph) {
+  if (!/^aggregate\s+(?:(?:per\s+customer|by\s+customer)\s+)?(?:per\s+day|daily)$/i.test(text) && !/^(?:按客户)?每日汇总$/.test(text)) return null;
+  const tool = writeTool(graph); if (!tool) return null;
+  const gate = gatingDecision(graph, tool.id); if (!gate) return null;
+  const cur = nodeById(graph, gate).config.condition || '';
+  const xm = /amount\s*>\s*([\d][\d,]*(?:\.\d+)?)/.exec(cur);
+  const x = xm ? parseNumber(xm[1]) ?? 0 : 0;
+  return { summary: `aggregate per day`, ops: [{ op: 'setConfig', node: gate, key: 'condition', value: `dayTotal > ${x}` }] };
+}
+function parseBind(text, graph) {
+  let m = text.match(/^bind\s+(?:the\s+)?approval\s+to\s+(?:the\s+)?(customer|order|amount)(?:(?:\s*,\s*|\s+and\s+|\s+)(customer|order|amount))*$/i);
+  let fields = m ? text.toLowerCase().match(/\b(customer|order|amount)\b/g) : null;
+  if (!m) { m = text.match(/^把审批绑定到(客户|订单|金额)(?:[、,和]?(?:客户|订单|金额))*$/); fields = m ? text.match(/客户|订单|金额/g) : null; }
+  if (m) {
+    const tool = writeTool(graph); if (!tool) return null;
+    const ctl = approvalControlOnPath(graph, tool.id); if (!ctl) return null;
+    const map = { customer: 'customer', order: 'order', amount: 'amount', '客户': 'customer', '订单': 'order', '金额': 'amount' };
+    const binding = [...new Set(fields.map(f => map[f.toLowerCase()] || f))];
+    return { summary: `bind approval to ${binding.join(', ')}`, ops: [{ op: 'setConfig', node: ctl, key: 'binding', value: binding }] };
+  }
+  return null;
+}
+function parseSingleUse(text, graph) {
+  if (!/^single-?use\s+approvals?$/i.test(text) && !/^(?:一次性|单次使用)审批$/.test(text)) return null;
+  const tool = writeTool(graph); if (!tool) return null;
+  const ctl = approvalControlOnPath(graph, tool.id); if (!ctl) return null;
+  return { summary: `single-use approval`, ops: [{ op: 'setConfig', node: ctl, key: 'singleUse', value: true }] };
+}
+function parsePreventDuplicate(text, graph) {
+  if (!/^prevent\s+duplicate(?:\s+(?:refunds?|compensation|payments?|writes?|changes?|submissions?))?$/i.test(text) && !/^防止重复(?:退款|补偿|支付|写入|更改|提交)?$/.test(text)) return null;
+  const tools = graph.nodes.filter(n => n.type === 'tool' && n.config.sideEffect === 'write');
+  if (!tools.length) return null;
+  return { summary: `prevent duplicate`, ops: tools.map(t => ({ op: 'setConfig', node: t.id, key: 'idempotencyKey', value: true })) };
+}
+function parseRedact(text, graph) {
+  if (!/^never\s+(?:send|expose|leak)\s+(?:credentials?|secrets?|data)$/i.test(text) && !/^redact\s+secrets?$/i.test(text) && !/^不要(?:泄露|发送|暴露)机密$/.test(text) && !/^脱敏机密$/.test(text)) return null;
+  const outcomes = graph.nodes.filter(n => n.type === 'outcome' && n.config.success && n.config.external).sort((a, b) => a.id < b.id ? -1 : 1);
+  const ops = [];
+  for (const o of outcomes) {
+    const inEdge = graph.edges.find(e => e.kind === 'flow' && e.to.node === o.id);
+    if (!inEdge) continue;
+    ops.push({ op: 'insertStep', from: inEdge.from.node, to: o.id, type: 'control', config: { kind: 'policy_gate', action: 'redact', redactAbove: 'internal' } });
+  }
+  return { summary: `redact secrets`, ops };
+}
+function parseNotify(text, graph) {
+  if (!/^notify\s+the\s+customer$/i.test(text) && !/^通知客户$/.test(text)) return null;
+  if (graph.nodes.some(n => n.type === 'outcome' && n.config.success && n.config.external)) return { summary: `notify the customer`, ops: [] };
+  return null;
+}
+
+/* A leading negation that reverses a supported phrase (do not / don't / 不要 …)
+   is never a weaker change: the whole sentence is unmatched. "never expose/send"
+   and "不要泄露/发送/暴露" are the redact phrase itself, not a negation. */
+function isNegated(s) {
+  if (/^never\s+(?:send|expose|leak)/i.test(s) || /^不要(?:泄露|发送|暴露)/.test(s)) return false;
+  return /^(?:do\s+not|don'?t|not|no|never)\s+/i.test(s) || /^(?:不要|别|勿|禁止)/.test(s);
 }
 
 /* ------------------------------------------------------------- the API */
 export function proposeByRules(text, graph) {
   const sentences = splitSentences(text);
   const ops = [], unmatched = [], matched = [];
-  const RULES = [parseDelete, parseRename, parseProtect, parseData, parseAddLike, parseAddZh, parseSet, parseApprovalAbove];
+  const RULES = [parseDelete, parseRename, parseProtect, parseData, parseAddLike, parseAddZh, parseSet, parseApprovalAbove, parseRequireApproval, parseAggregate, parseBind, parseSingleUse, parsePreventDuplicate, parseRedact, parseNotify];
   for (const sentence of sentences) {
     const s = normalize(sentence);
     if (!s) continue;
+    if (isNegated(s)) { unmatched.push(sentence); continue; }
     let hit = null;
     for (const rule of RULES) { hit = rule(s, graph); if (hit) break; }
     if (hit) { ops.push(...hit.ops); matched.push(hit.summary); }
-    else {
-      const nl = tryNl(s, graph);
-      if (nl) { ops.push(...nl.ops); matched.push(nl.summary); }
-      else unmatched.push(sentence);
-    }
+    else unmatched.push(sentence);
   }
   return ok({ summary: matched.join('; '), ops, unmatched });
 }

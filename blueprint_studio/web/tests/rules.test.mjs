@@ -211,3 +211,53 @@ test('rules: a non-threshold clause after the Chinese comma stays unmatched', ()
     '在 Refund Eligibility 后面加一个人工审批，超过 1000 才需要，并且只限国际订单'
   ]) expectUnmatched(s);
 });
+
+/* ---- Codex round-3 defect: legacy phrases anchored, faithful numbers, negations ---- */
+test('rules: require approval above $1,000 parses the number faithfully', () => {
+  const r = apply('require approval above $1,000');
+  assert.equal(r.proposal.ops[0].op, 'setConfig');
+  assert.equal(r.proposal.ops[0].value, 'amount > 1000');
+  assert.equal(r.proposal.ops[0].node, 'gate');
+});
+
+test('rules: the two Codex trailing-clause / negation sentences are unmatched', () => {
+  expectUnmatched('require approval above $500 unless the customer is VIP');
+  expectUnmatched('do not prevent duplicate refunds');
+});
+
+test('rules: legacy phrases positive in both languages', () => {
+  assert.equal(apply('aggregate per customer per day').proposal.ops[0].value, 'dayTotal > 2000');
+  assert.equal(apply('按客户每日汇总').proposal.ops[0].value, 'dayTotal > 2000');
+
+  const bind = apply('bind the approval to customer, order and amount');
+  assert.equal(bind.proposal.ops[0].key, 'binding');
+  assert.deepEqual(bind.proposal.ops[0].value, ['customer', 'order', 'amount']);
+  assert.deepEqual(apply('把审批绑定到客户、订单、金额').proposal.ops[0].value, ['customer', 'order', 'amount']);
+
+  assert.equal(apply('single-use approval').proposal.ops[0].value, true);
+  assert.equal(apply('一次性审批').proposal.ops[0].value, true);
+
+  assert.equal(apply('prevent duplicate refunds').proposal.ops[0].key, 'idempotencyKey');
+  assert.equal(apply('防止重复').proposal.ops[0].key, 'idempotencyKey');
+
+  assert.equal(apply('never expose credentials').proposal.ops[0].op, 'insertStep');
+  assert.equal(apply('不要泄露机密').proposal.ops[0].op, 'insertStep');
+
+  // notify the customer: already satisfied on the refund template (external success outcome)
+  for (const s of ['notify the customer', '通知客户']) {
+    const p = proposeByRules(s, graph);
+    assert.ok(p.ok);
+    assert.equal(p.value.unmatched.length, 0, s);
+    assert.equal(p.value.ops.length, 0, s);
+  }
+});
+
+test('rules: a leading negation reverses the phrase -> whole sentence unmatched', () => {
+  for (const s of [
+    "don't require approval above $500",
+    'never prevent duplicate refunds',
+    '不要防止重复',
+    '别删除 Payment API',
+    'not require approval above $500'
+  ]) expectUnmatched(s);
+});
