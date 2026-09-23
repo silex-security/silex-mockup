@@ -10,8 +10,8 @@
         "id": "profile",
         "type": "data",
         "label": "Customer Profile",
-        "x": 240,
-        "y": 0,
+        "x": 248,
+        "y": 4,
         "config": {
           "sensitivity": "internal"
         }
@@ -20,8 +20,8 @@
         "id": "request",
         "type": "trigger",
         "label": "Customer Request",
-        "x": 20,
-        "y": 150,
+        "x": 0,
+        "y": 140,
         "config": {
           "channel": "support_chat",
           "trust": "untrusted"
@@ -31,8 +31,8 @@
         "id": "triage",
         "type": "agent",
         "label": "Request Triage",
-        "x": 240,
-        "y": 150,
+        "x": 248,
+        "y": 140,
         "config": {
           "candidate": "Internal Triage Agent v4",
           "capabilities": [],
@@ -45,8 +45,8 @@
         "id": "eligibility",
         "type": "agent",
         "label": "Refund Eligibility",
-        "x": 460,
-        "y": 150,
+        "x": 496,
+        "y": 140,
         "config": {
           "candidate": "Internal Refund Agent v3",
           "capabilities": [],
@@ -59,8 +59,8 @@
         "id": "gate",
         "type": "decision",
         "label": "Refund > $2,000?",
-        "x": 680,
-        "y": 150,
+        "x": 744,
+        "y": 140,
         "config": {
           "condition": "amount > 2000",
           "join": "first"
@@ -70,8 +70,8 @@
         "id": "approval",
         "type": "control",
         "label": "Approval",
-        "x": 680,
-        "y": 330,
+        "x": 992,
+        "y": 140,
         "config": {
           "kind": "human_approval",
           "appliesWhen": "",
@@ -90,8 +90,8 @@
         "id": "declined",
         "type": "outcome",
         "label": "Refund Declined",
-        "x": 900,
-        "y": 330,
+        "x": 1240,
+        "y": 276,
         "config": {
           "success": false,
           "external": true,
@@ -102,8 +102,8 @@
         "id": "execution",
         "type": "agent",
         "label": "Refund Execution",
-        "x": 460,
-        "y": 330,
+        "x": 1240,
+        "y": 140,
         "config": {
           "candidate": "Internal Payments Agent",
           "capabilities": [
@@ -121,8 +121,8 @@
         "id": "payment",
         "type": "tool",
         "label": "Payment API",
-        "x": 240,
-        "y": 330,
+        "x": 1488,
+        "y": 140,
         "config": {
           "cap": "refund.issue",
           "sideEffect": "write",
@@ -134,8 +134,8 @@
         "id": "resolved",
         "type": "outcome",
         "label": "Refund Resolved",
-        "x": 20,
-        "y": 330,
+        "x": 1736,
+        "y": 140,
         "config": {
           "success": true,
           "external": true,
@@ -146,8 +146,8 @@
         "id": "unauth",
         "type": "prohibited",
         "label": "Unauthorized Refund",
-        "x": 20,
-        "y": 510,
+        "x": 1240,
+        "y": 452,
         "config": {
           "monitor": "unauthorized_write",
           "cap": "refund.issue",
@@ -168,8 +168,8 @@
         "id": "dup",
         "type": "prohibited",
         "label": "Duplicate Compensation",
-        "x": 240,
-        "y": 510,
+        "x": 1488,
+        "y": 452,
         "config": {
           "monitor": "duplicate_effect",
           "cap": "refund.issue",
@@ -183,8 +183,8 @@
         "id": "credentials",
         "type": "data",
         "label": "Payment Credentials",
-        "x": 460,
-        "y": 510,
+        "x": 1240,
+        "y": 4,
         "config": {
           "sensitivity": "secret"
         }
@@ -193,8 +193,8 @@
         "id": "exposure",
         "type": "prohibited",
         "label": "Payment Credential Exposure",
-        "x": 680,
-        "y": 510,
+        "x": 1736,
+        "y": 452,
         "config": {
           "monitor": "secret_exposure",
           "severity": "high",

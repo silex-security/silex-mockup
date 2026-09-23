@@ -160,7 +160,8 @@ Lint codes (errors unless noted): `no_trigger`, `no_success_outcome` (no success
 
 ```js
 generateCandidates(graph, validation) → Candidate[]
-Candidate = { id, label, kind: 'single'|'composite', classes: string[], params: object, paramsVersion: 1, patch: PatchOp[] }
+Candidate = { id, label, kind: 'single'|'composite', classes: string[], params: object, paramOptions: { [paramKey]: value[] }, paramsVersion: 1, patch: PatchOp[] }
+// paramOptions lists the allowed values of each parameter (drives the Modify UI); params[k] ∈ paramOptions[k]. Parameter-free candidates have paramOptions {}.
 reparam(graph, validation, candidate, params) → Candidate      // same id, paramsVersion + 1, regenerated patch
 runCandidate(graph, candidate, scenarioSet) → Result<{ patchedGraph, patchedHash, lint, runs, findings, metrics }>
 score(baseline /* validate() output */, candResult) → { eligible: boolean, reasons: string[], scorecard }
