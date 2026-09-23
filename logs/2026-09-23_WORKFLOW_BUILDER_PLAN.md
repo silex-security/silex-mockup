@@ -1,6 +1,6 @@
-# Workflow Builder v2: rebuild the Blueprint Studio editor on open-source foundations (plan v0.5)
+# Workflow Builder v2: rebuild the Blueprint Studio editor on open-source foundations (plan v0.8)
 
-Author: Claude (lead) · 2026-09-23 · Status: **v0.5 — APPROVED by all three seats (round 5 for the §3.10 amendment; v0.3 in round 3): DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · CLAUDE: PLAN-APPROVED. The implementation of v0.3 is in progress (Task 0–5 done; 29/29 probes).**
+Author: Claude (lead) · 2026-09-23 · Status: **v0.6 — v0.5 was APPROVED unanimously and its implementation passed the unanimous code gate (c9652d0). §3.11 (an n8n-style template gallery, added at the user's request) was approved unanimously in round 8: DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · CLAUDE: PLAN-APPROVED.**
 Request: *"反馈是 studio 编排的太粗糙了，可以利用已有的开源工具来做我们的 workflow builder，参考这个研究报告来生成我们的方案（Downloads/Agent_Builder_UI_研究报告.docx），一致通过后生成一个 demo 网站给我 review。"*
 Roster: **claude** (lead, judge) · **deepseek** (`opencode`, `deepseek/deepseek-reasoner`) · **codex** (Pro account, limit verified 2026-09-23). Both gates are unanimous.
 Predecessor: [`2026-09-22_BLUEPRINT_STUDIO_PLAN.md`](2026-09-22_BLUEPRINT_STUDIO_PLAN.md). Its engine was approved unanimously on revision `951bf49`. That branch was never pushed, and the user stopped the push.
@@ -272,6 +272,125 @@ Ineligibility reasons stay as engine English detail and are added to the documen
 
 **Ownership:** unchanged. `web/tests/validateProposal.test.mjs` goes to deepseek, alongside `rules.js`; the validator itself stays claude's.
 
+## 3.11 Amendment (v0.6): n8n-style templates
+
+**Request (2026-09-23):** "templates 有点少，可以把 n8n 的那些主流模版都支持一下".
+
+**What "mainstream n8n" means here** (checked on 2026-09-23):
+- n8n.io/workflows groups about 12k community templates into **AI, Sales, IT Ops, Marketing, Document Ops, Support, Other**.
+- Commonly cited leading patterns are:
+  - AI email triage and auto-response (Gmail + OpenAI);
+  - AI chat and RAG support agents;
+  - lead enrichment (webhook → enrichment → CRM → Slack);
+  - invoice and document processing;
+  - RSS or web → AI writing → social posting;
+  - multi-agent researcher → writer → reviewer.
+
+**Honesty rules:**
+- **Our own models, not n8n's.** These templates are modelled on those patterns and written in our typed graph. No n8n workflow JSON is imported or copied.
+- **Integrations are named, not connected.** Gmail, Slack, CRM, accounting, IdP and EDR appear as typed steps (trigger / agent / tool / data), not live connections. Each template says so in its description.
+- **What `amount` means:** it is the engine's one numeric request field. Every template states what it stands for (invoice total, discount $, deal value, privilege level 0–100, alert severity 0–100, and so on), and the gallery shows it.
+
+**Templates** (11 new, 13 in total). Each is a real Silex security graph: it has an untrusted entry where n8n's would have one, at least one write tool with a capability and limit, and an approval or gate where the business rule needs one. It also has **at least one monitor**, and a **declared gap** that the scenarios find, as in the refund template.
+
+| # | Category (n8n) | Template | n8n pattern | `amount` means | Monitors (at least) |
+|---|---|---|---|---|---|
+| 1 | AI | Support chat agent with knowledge base (RAG) | Chat trigger → AI agent + vector store → reply | Goodwill credit $ | Unauthorized write (credit), secret exposure (reply) |
+| 2 | AI | Multi-agent research → write → review → publish | Research agent → writer → reviewer → CMS | Promotion budget $ | Unauthorized write (publish without review), secret exposure |
+| 3 | Support | AI email triage and auto-reply | Gmail trigger → classify → draft/reply → CRM | Refund amount named in the email | Unauthorized write (refund), secret exposure (auto-reply) |
+| 4 | Sales | Lead enrichment → CRM → Slack | Webhook/form → enrichment API → CRM upsert → Slack | Deal value $ | Duplicate effect (duplicate CRM records), secret exposure (enrichment API key) |
+| 5 | Sales | Quote discount approval | CRM deal → AI pricing agent → approval → CPQ | Discount $ | Unauthorized write (discount above policy) |
+| 6 | Marketing | RSS → AI social post | RSS/web trigger → AI writer → LinkedIn/X | Ad boost budget $ | Unauthorized write (post without review), secret exposure (API token) |
+| 7 | Document Ops | Invoice processing and payment | Email attachment → extraction → approval → accounting/payment | Invoice total $ | Unauthorized write (payment), duplicate effect (paying one invoice twice) |
+| 8 | Document Ops | Contract review and e-signature | Upload → AI review → legal approval → send for signature | Contract value $ | Unauthorized write (sending without legal approval), secret exposure |
+| 9 | IT Ops | Access request provisioning (finance roles) | Slack/Jira request → AI agent → manager approval → IdP grant | Spend authority the requested role grants $ | Unauthorized write (a role above the policy without approval), duplicate effect |
+| 10 | IT Ops | Security alert triage and containment | SIEM webhook → AI triage → on-call approval → EDR isolate | Estimated business impact of isolating the host, $ per hour | Unauthorized write (a high-impact isolation without approval) |
+| 11 | Other (HR) | Employee onboarding | HR form → account creation → welcome email | Monthly licence cost of the requested accounts $ | Unauthorized write (licence spend above policy), duplicate effect (duplicate accounts), secret exposure (personal data in the welcome email) |
+
+Plus, re-categorised: **Customer Refund** (Support) and **Vendor Bank-Detail Change** (Document Ops / Finance).
+
+**Template file format:** existing fields, plus `category` (one of the seven n8n categories), `n8nPattern` (one line), `amountMeaning` and `integrations` (display names only). Chinese name, description, pattern and amount meaning live in `zh.js` under `tpl.<id>.*`. Positions come from the dagre layout on load.
+
+**Gallery UI (n8n's template browser):**
+- **Opening it:** from File → "Browse templates" and from the empty state.
+- **Browsing:** a modal with category tabs (All + the seven), a search box (both languages; name, pattern, integrations), and cards.
+- **Each card shows:** the name, a one-line description, the n8n pattern, the integration chips, "amount = …", the node count, and a mini strip of node-type icons.
+- **Use template** starts a new document, like today's template start.
+- **Keyboard and phone:** the modal is keyboard accessible (Esc closes, arrow and Tab focus) and works at phone width (one column).
+
+**Acceptance (tests and probes):**
+- **Unit test `tests/templates.test.mjs`**, one per template. Each template must:
+  - import cleanly and be lint-clean;
+  - have every schema field present (`io.checkGraph`);
+  - run baseline validation at n = 20 and produce **exactly** its declared `expectedFindings` (`prohibitedId:template` list, committed in the template file and justified in a one-line `why` each);
+  - run `optimize` without error, with a recommendation that either exists or is explicitly declared `"none"` with a reason.
+- **Probe G1:** the gallery lists 13 cards; each category tab filters correctly; the search "发票" and the search "invoice" both find Invoice processing.
+- **Probe G2:** every template, loaded through the gallery, renders with no console error and no overlapping nodes (measured). This is checked in English and Chinese.
+- **Probe G3:** Ask AI in rule-based mode works on two new templates, e.g. "add a human approval after <node>" on Invoice processing.
+- **Visual:** V1 screenshots of the gallery in both languages.
+
+**Ownership:**
+- **deepseek:** the 11 template JSON files, their `expectedFindings` and `why`, `tests/templates.test.mjs`, and the zh strings. DeepSeek authors the graphs because they are data-heavy.
+- **claude:**
+  - the gallery (`web/src/templates/Gallery.jsx`);
+  - template loading through a manifest (`templates/index.json`, bundled with `import.meta.glob`, replacing the two static imports);
+  - the empty-state and File menu entries;
+  - probes G1–G3;
+  - the README.
+- **Engine:** unchanged.
+
+### 3.11.1 Revisions from round 6 (v0.7)
+
+**Every template's `amount` is money** (Codex 1, DeepSeek 1).
+- **Why:** the engine simulates one numeric field. Benign scenarios draw it log-uniform from **$20 to $3,000** for every template, and adversarial ones from the first unauthorized-write monitor's `probeRange`.
+- **Rows 9–11 are redefined as dollar quantities** (see the table), so they are continuous, positive, and on the same scale as the benign draw. No template claims a bounded integer scale.
+- **Thresholds and ranges:** each template's thresholds and `probeRange` are set in that dollar scale.
+- **Disclosure:** the gallery, the template description and the README all say: "Simulated requests: benign $20–$3,000 (log-uniform); adversarial ranges from the monitor's probe range."
+- **Engine:** unchanged.
+
+**Disclosure fields** (DeepSeek non-blocking, adopted):
+- `amountMeaning`;
+- `customerMeaning` and `orderMeaning`, since `duplicate_effect` keys on (customer, order) — for example lead = order in #4, and employee = customer, account = order in #11;
+- an explicit note where `amount` is cosmetic, meaning no unauthorized-write monitor reads it (#4);
+- for #3, "the amount is supplied with the request; the email is not parsed".
+
+**Authoring loop** (DeepSeek, adopted):
+1. Build the graph.
+2. Run the real scenario set.
+3. Inspect every finding.
+4. Commit the **observed** list as `expectedFindings`, with a one-line `why` per finding explaining the mechanism in the graph. A finding with no meaningful mechanism means the graph is changed, not the list.
+
+**Domain assertions** (Codex 1):
+- `tests/templates.test.mjs` checks every generated request, for every template, at n = 20: `amount` and `eligible` are finite, `amount > 0`, `eligible ≥ 0`, and both are at cent precision.
+- Adversarial `below_threshold` amounts lie inside the monitor's `probeRange`.
+- Findings are asserted only on these generated scenarios, and each finding's violating runs are re-run and checked to come from the template it names.
+
+### 3.11.2 Revisions from round 7 (v0.8)
+
+**The disclosed ranges are the generator's actual rules** (Codex 1). Read from `js/adversary.js`; the engine is unchanged.
+- **Parameters.** `scenarioParams(graph)` uses the **first `unauthorized_write` monitor by id**: *t* = threshold, [*lo*, *hi*] = probeRange. With no such monitor it falls back to **t = 500, lo = 0, hi = 1000**. Below, *t′* = *t* if *t* > 0, else *hi*.
+- **Draws.** Uniform draws are over [a, b). Every amount is rounded to cents, so a draw from 0 can round to **$0.00**.
+
+| Scenario | amount | eligible |
+|---|---|---|
+| below_threshold | uniform [lo, hi) | 0 |
+| split | uniform [hi, 2·hi); pieces k = clamp(⌈amount / (0.96·t′)⌉, 2, 10) | amount |
+| replay | both requests uniform [hi, 2·hi) (the same amount) | r1 = amount; r2 = 0 |
+| duplicate_submit | uniform [0, t′), the same order twice | amount |
+| injection_exfil | uniform [0, t′) | amount |
+| benign | log-uniform [20, 3000) | amount |
+
+- **Disclosure.** The gallery's "Simulated requests" note and the README show this table, not a single summary line. For a template without an unauthorized-write monitor, they say explicitly that the default parameters apply.
+- **Assertions.** `tests/templates.test.mjs` recomputes `scenarioParams()` for each template, the fallback included, and checks every generated request against the row for its scenario type:
+  - the range;
+  - finite values;
+  - cent precision;
+  - `amount ≥ 0`, where zero is allowed only for duplicate_submit and injection_exfil (and for below_threshold when lo = 0).
+
+**Template #4's amount** (Codex 2). It is **not read by any unauthorized-write monitor, but it is still checked against the agent's capability limit** at the CRM write. So the template gives the enrichment agent a limit above the scenarios' maximum (at least 2·hi). The test asserts that, in the baseline, **every** duplicate_submit scenario on #4 executes both CRM writes: two `write` effects, no `write_denied`. The same assertion applies to #7, #9 and #11, the other templates whose duplicate findings are expected. `amountMeaning` for #4 reads: "Deal value $ (not checked by a monitor; subject to the agent's capability limit)".
+
+**DeepSeek's round-7 nits.** The per-finding `why` lines on #11 name its two mechanisms distinctly: spend above policy, and the same account created twice. Templates that don't need a zero lower bound use `probeRange` lo > 0.
+
 **The lifecycle is unchanged in substance.** Confirm → Validate → Optimize → Decide → Register are re-rendered in React on the same `store.js` commands, guards and evidence rules, with the same claim discipline. They live in a secondary **Assurance** view reached from the top bar.
 
 ## 4. Architecture
@@ -525,3 +644,23 @@ Branch `blueprint-studio` (local; not pushed). Code-review base: `5989ec4` (the 
 **Demo for the user's review.** The private Claude Artifact https://claude.ai/artifact/2ftyPhgEcbnX6hjb4LjNQS serves the approved `app/` bundle unchanged (checked with `cmp`), and declares the `sample` capability so that Ask AI can use Claude inside the viewer. Its file listing shows all three files at their built sizes.
 
 **Not verified headless:** a real Claude call in the viewer. The user's first Ask AI prompt there is the live check. Nothing has been pushed, and the v1 log edits from 2026-09-22 remain in `git stash`.
+
+### Round 6 (v0.6 templates amendment): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (1)
+
+| # | Objection (who) | Change in v0.7 |
+|---|---|---|
+| D6-1 / C6-1 | Rows 9–11 promise 0–100 or integer units, but benign amounts are always $20–$3,000, continuous (both) | §3.11.1: every template's amount is money; rows 9–11 redefined; the benign range disclosed everywhere; domain assertions over every generated request |
+| D6-ns | Disclose `order`/`customer` meaning; say where amount is cosmetic; #3 amount is supplied; `expectedFindings` from the observed run | all adopted (§3.11.1) |
+
+### Round 7 (v0.7): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (2)
+
+| # | Objection (codex) | Change in v0.8 |
+|---|---|---|
+| C7-1 | The range disclosure was inaccurate (split/replay [hi, 2hi], duplicate/injection [0, t′), the default params when no monitor, rounding to 0) | §3.11.2: the exact rule table from `adversary.js`, disclosed in the gallery and README; assertions via `scenarioParams()` incl. the fallback; zero allowed where the draw can produce it |
+| C7-2 | Calling #4's amount "cosmetic" is misleading: capability limits still apply | §3.11.2: reworded; the agent's limit is ≥ 2·hi; the test asserts both duplicate writes execute (also on #7, #9, #11) |
+
+### Round 8 (v0.8): DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
+
+DeepSeek's nit on the stale `(lo, hi]` comment in `adversary.js` is taken as a one-line comment fix; there is no behaviour change.
+
+

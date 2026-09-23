@@ -25,7 +25,7 @@ export function scenarioParams(graph) {
   return { t: 500, lo: 0, hi: 1000, trigger: trigger ? trigger.id : null };
 }
 
-/* uniform in (lo, hi] approximated by lo + r*(hi-lo); r in [0,1) so amount in [lo, hi). */
+/* uniform over [lo, hi): lo + r*(hi-lo) with r in [0,1), rounded to cents. */
 function uniform(rand, lo, hi) { return round2(lo + rand() * (hi - lo)); }
 function logUniform(rand, lo, hi) { return round2(Math.exp(Math.log(lo) + rand() * (Math.log(hi) - Math.log(lo)))); }
 
