@@ -472,3 +472,56 @@ DeepSeek's non-blocking notes are applied in the implementation, and the plan te
 - a macro's overrides are applied in dependency order (`kind` / `action` / `monitor` first);
 - `web/package.json` gains `"test": "node --test tests/"`.
 
+
+## 9. Implementation record and outcome
+
+Branch `blueprint-studio` (local; not pushed). Code-review base: `5989ec4` (the approved v0.3 plan commit).
+- **Task 0 (claude), `131aede`:** the Vite/React Flow app, store adapter, controller, builder foundation, the Validate pattern, and the `canConnect` change with 3 tests.
+- **Tasks 1, 2 and 5 (claude):**
+  - builder: canvas, nodes, "+" insertion, node search with our own bilingual ranking, config panel, checklist;
+  - test-run panel, About panel;
+  - probes; the v1 DOM UI removed.
+- **Tasks 3 and 4 (deepseek):** Confirm / Optimize / Decide / Register; the Chinese dictionary (380 keys).
+- **§3.10 Ask AI:**
+  - claude: `AssistantPanel`, the Claude proposer and prompt budget, `validateProposal`, and exporting `io.checkGraph`;
+  - deepseek: `rules.js`, the rule-based proposer, plus its tests and the proposal-validator tests.
+
+**Found by Claude's own probes before review:**
+- Clicks landed before fit-view settled (a probe-harness bug).
+- cmdk's fuzzy subsequence matching made "outcome" select Tool. It was replaced by our own ranking: label prefix, then label, then synonym, then description, substring-only, in both languages.
+- A blank flow zoomed to 1.8× and new steps landed off-screen. Fit is now capped at 1×, and new steps are kept visible.
+- The stub dropped `__proto__` in a JSON round-trip (a probe bug; the stub now delivers raw JSON).
+
+### Code review (plan v0.5)
+
+| Round | DeepSeek | Codex | Codex defects → fixes |
+|---|---|---|---|
+| 1 (`8906b8d`) | APPROVED | REJECTED (4) | (1) The AI preview hid applied settings → the preview lists the exact expanded changes, and Apply dispatches that frozen patch. (2) Capability and range inputs ignored Undo → controlled inputs. (3) Checklist Discard didn't restore the field, and an invalid range was ignored → drafts follow the pending registry, and invalid ranges and limits register as pending. (4) Rules changed meaning ("above $1,000", dual, 500.75) → faithful qualifiers and numbers. New probes C1–C4 |
+| 2 (`2d18a66`) | APPROVED | REJECTED (2) | (1) Connection lines had no ports → `A [port] → B [port]`, with C1 made strict. (2) Unsupported clauses were silently dropped → a whole-sentence anchored grammar |
+| 3 (`f2d9127`) | APPROVED | REJECTED (1) | The legacy `nlcompile` fallback was unanchored → removed; the legacy phrases are reimplemented in the anchored grammar, and negations are unmatched |
+| 4 (`44b8134`) | APPROVED | REJECTED (1) | Redaction covered only the first incoming edge → `insertStep {edge}` added to the proposal language; from/to is ambiguous-safe; a gate on every incoming edge; probe C5 |
+| 5 (`c9652d0`, full `9e56643`) | **IMPL-APPROVED** | **IMPL-APPROVED** | — |
+
+**Final verdicts on revision `c9652d0`** (`git diff 5989ec4`, excluding the built `app/` and the lockfile; full diff `9e56643`):
+- DEEPSEEK: IMPL-APPROVED
+- CODEX: IMPL-APPROVED
+- CLAUDE: IMPL-APPROVED
+
+**Evidence at approval:**
+- 37/37 headless probes, covering T0, B1–B10, R1–R3, L1–L9, I1, T1–T4, PERF, A1, A2, A2b and C1–C5. T1 builds a working flow from empty in 11 real input events.
+- 37 web unit tests and 94 engine unit tests.
+- `npm run check`: the committed `app/` equals a fresh build.
+- `npm run i18n`: 380 keys.
+- The bundle is 237 kB gzip.
+- `index.html`, `assurance.html` and `swm/` are unchanged.
+
+**What each seat caught:**
+- **Codex:** every implementation defect (4+2+1+1). At plan stage: the proposal binding, per-op validation and the full `sample` error map, and the `canConnect` duplicate-edge conflict.
+- **DeepSeek:** at plan stage, the branching-insert dangling port and the missing monitor authoring (with Codex). In implementation: the scanner's handling of dynamic i18n keys. It built the four Assurance pages, the dictionary, the rule grammar and the proposal tests.
+- **Claude:** the plan and its revisions, the builder, Ask AI's safety design, the probes, and the pre-review fixes listed above.
+
+**Roster:** Claude + DeepSeek + Codex, unanimous at every gate. DeepSeek's balance and Codex's Pro limit were both verified before use.
+
+**Demo for the user's review.** The private Claude Artifact https://claude.ai/artifact/2ftyPhgEcbnX6hjb4LjNQS serves the approved `app/` bundle unchanged (checked with `cmp`), and declares the `sample` capability so that Ask AI can use Claude inside the viewer. Its file listing shows all three files at their built sizes.
+
+**Not verified headless:** a real Claude call in the viewer. The user's first Ask AI prompt there is the live check. Nothing has been pushed, and the v1 log edits from 2026-09-22 remain in `git stash`.
