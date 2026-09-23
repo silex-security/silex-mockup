@@ -31,13 +31,14 @@ If the request is unclear, impossible or unsafe, reply {"summary": "<why, and wh
 
 Allowed changes (no others; never invent ids — use ids from the graph, or {"ref":"name"} for a step you create earlier in the same list):
 - {"op":"insertStep","from":ID,"to":ID,"type":"agent|tool|decision|control","ref"?:NAME,"label"?:TEXT,"config"?:{...}}  insert a step on the existing connection from→to
+  (or "edge":EDGE_ID instead of from/to, required when two connections join the same two steps, e.g. both branches of a decision)
 - {"op":"addNext","node":ID,"port":PORT,"type":"agent|tool|decision|control|outcome","ref"?,"label"?,"config"?}  add a step after an UNCONNECTED output port
 - {"op":"addMonitor","node":ID,"kind":"unauthorized_write|duplicate_effect|secret_exposure","ref"?}  unauthorized_write/duplicate_effect watch a tool; secret_exposure watches an outcome
 - {"op":"addData","node":ID,"label":TEXT,"sensitivity":"public|internal|secret","ref"?}  a data resource read by an agent or tool
 - {"op":"connect","from":{"node":ID,"port":PORT},"to":{"node":ID,"port":"in"}}
 - {"op":"setLabel","node":ID,"label":TEXT}
 - {"op":"setConfig","node":ID,"key":SETTING,"value":VALUE}
-- {"op":"removeNode","node":ID}   {"op":"removeEdge","from":ID,"to":ID}
+- {"op":"removeNode","node":ID}   {"op":"removeEdge","from":ID,"to":ID} (or {"op":"removeEdge","id":EDGE_ID})
 Where ID is a node id string or {"ref":"name"}.
 
 Node types and their settings:
@@ -54,7 +55,7 @@ const bytes = s => enc.encode(s).length;
 function compactGraph(graph, focus) {
   const keep = n => !focus || focus.has(n.id);
   const nodes = graph.nodes.filter(keep).map(n => ({ id: n.id, type: n.type, label: n.label, config: n.config }));
-  const edges = graph.edges.map(e => ({ from: `${e.from.node}.${e.from.port}`, to: `${e.to.node}.${e.to.port}`, kind: e.kind }));
+  const edges = graph.edges.map(e => ({ id: e.id, from: `${e.from.node}.${e.from.port}`, to: `${e.to.node}.${e.to.port}`, kind: e.kind }));
   const other = graph.nodes.filter(n => !keep(n)).reduce((m, n) => ({ ...m, [n.type]: (m[n.type] || 0) + 1 }), {});
   return JSON.stringify(focus ? { nodes, edges, summarisedNodes: other, note: 'nodes not named in the request are only counted by type; their ids still appear in edges' } : { nodes, edges });
 }

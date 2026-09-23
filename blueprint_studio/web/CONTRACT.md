@@ -87,7 +87,7 @@ Both proposers — Claude (`src/assist/propose.js`) and rule-based (`src/assist/
 
 | ProposalOp | Meaning |
 |---|---|
-| `{op:'insertStep', from:NodeRef, to:NodeRef, type, ref?, label?, config?}` | Insert a new `type` (agent / tool / decision / control) on the flow edge from→to. A control's denied port goes to the decline outcome, as in `insert.js` |
+| `{op:'insertStep', from:NodeRef, to:NodeRef \| edge:EdgeId, type, ref?, label?, config?}` | Insert a new `type` (agent / tool / decision / control) on the flow edge from→to, or on the named edge. `edge` is required when several edges join the same two nodes (both branches of a decision). A control's denied port goes to the decline outcome, as in `insert.js` |
 | `{op:'addNext', node:NodeRef, port, type, ref?, label?, config?}` | Add a new step after an open out port (any flow type, outcome included) |
 | `{op:'addMonitor', node:NodeRef, kind, ref?}` | Add a monitor watching a tool or outcome (`unauthorized_write`, `duplicate_effect`, `secret_exposure`) |
 | `{op:'addData', node:NodeRef, label, sensitivity, ref?}` | Add a data resource read by an agent or tool |

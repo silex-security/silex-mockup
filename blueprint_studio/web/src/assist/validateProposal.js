@@ -12,7 +12,7 @@ import { insertOnEdge, addAfter, addMonitor, addData, EDGE_INSERTABLE, PORT_ADDA
 const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 const MAX_OPS = 30, MAX_STR = 200, MAX_ARR = 20, MAX_NUM = 1e9;
 const OPS = {
-  insertStep: ['op', 'from', 'to', 'type', 'ref', 'label', 'config'],
+  insertStep: ['op', 'from', 'to', 'edge', 'type', 'ref', 'label', 'config'],
   addNext: ['op', 'node', 'port', 'type', 'ref', 'label', 'config'],
   addMonitor: ['op', 'node', 'kind', 'ref'],
   addData: ['op', 'node', 'label', 'sensitivity', 'ref'],
@@ -130,9 +130,18 @@ function run(graph, proposal) {
     switch (op.op) {
       case 'insertStep': {
         if (!EDGE_INSERTABLE.includes(op.type)) return fail(i, `a ${op.type} cannot be inserted between steps`);
-        const a = resolve(i, op.from); if (!a.ok) return a; const b = resolve(i, op.to); if (!b.ok) return b;
-        const e = g.edges.find(x => x.kind === 'flow' && x.from.node === a.value && x.to.node === b.value);
-        if (!e) return fail(i, 'those two steps are not directly connected');
+        let e;
+        if (op.edge != null) {                           // a specific connection (e.g. one branch of two that share both ends)
+          if (typeof op.edge !== 'string' || op.from != null || op.to != null) return fail(i, 'give either edge, or from and to');
+          e = g.edges.find(x => x.kind === 'flow' && x.id === op.edge);
+          if (!e) return fail(i, `no connection with id "${op.edge}"`);
+        } else {
+          const a = resolve(i, op.from); if (!a.ok) return a; const b = resolve(i, op.to); if (!b.ok) return b;
+          const es = g.edges.filter(x => x.kind === 'flow' && x.from.node === a.value && x.to.node === b.value);
+          if (!es.length) return fail(i, 'those two steps are not directly connected');
+          if (es.length > 1) return fail(i, 'those two steps are connected more than once; name the connection with edge');
+          e = es[0];
+        }
         const r = structural(insertOnEdge(g, e.id, op.type), op.type); if (!r.ok) return r;
         const s = setOps(i, r.value, op.label, op.config); if (!s.ok) return s;
         const c = commit(i, s.value); if (!c.ok) return c; break;

@@ -549,6 +549,23 @@ await probe('C4', 'rule-based parsing is faithful: "above $1,000" → amount > 1
   return { pass: out[0] === 'human_approval|amount > 1000' && out[1].startsWith('dual_approval|') && out[2] === 'human_approval|amount > 500.75' && out[3] === 'human_approval|amount > 1000' && out[4] === 'none' && out[5] === 'none' && out[6] === 'none' && out[7] === 'gate:amount > 1000' && out[8] === 'gate:amount > 2000' && out[9] === 'idem:false', detail: JSON.stringify(out) };
 });
 
+
+await probe('C5', 'redact secrets with a decision whose two branches reach Refund Resolved: both branches gated; injected runs on each branch emit no secret', async () => {
+  await load();
+  const pr = await edgeId('payment', 'resolved');
+  await clickSel(`[data-plus="${pr}"]`); await type('condition'); await enter(); await sleep(300);
+  await ask('Redact secrets.'); await sleep(200);
+  const state = await applyState();
+  if (state === 'enabled') { await clickSel('#assistApply'); await sleep(300); }
+  const r = await ev(`${S} const g=G(); const into=g.edges.filter(e=>e.kind==='flow'&&e.to.node==='resolved').map(e=>g.nodes.find(n=>n.id===e.from.node)); return {gates: into.map(n=>n.type+':'+(n.config.action||'')), lint: b.validator.lint(g).map(i=>i.code)}`);
+  const leaks = [];
+  for (const amount of [300, 900]) {
+    await ev(`${S} Object.assign(ctl.run.form,{amount:${amount},eligible:${amount},split:1,injected:true,replay:false,dup:false,interactive:false}); ctl.startRun(false); return 1`);
+    leaks.push(await ev(`${S} return ctl.run.view.trace.flatMap(s=>s.effects).filter(e=>e.type==='emit'&&e.external&&e.labels.some(l=>l.sensitivity==='secret')).length`));
+  }
+  return { pass: state === 'enabled' && r.gates.length >= 2 && r.gates.every(g => g === 'control:redact') && !r.lint.length && leaks.every(n => n === 0), detail: JSON.stringify({ state, ...r, leaks }) };
+});
+
 /* ------------------------------------------------------ i18n, T3, T4, V1 */
 await probe('I1', '中文 changes UI strings, checklist sentences and node explanations; search matches Chinese', async () => {
   await load({ lang: 'en' });

@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 import { proposeByRules } from '../src/assist/rules.js';
 import { validateProposal } from '../src/assist/validateProposal.js';
 import { lint } from '../../js/validate.js';
+import { applyPatch } from '../../js/model.js';
+import { runScenario } from '../../js/engine.js';
 
 const graph = JSON.parse(readFileSync(new URL('../../templates/customer-refund.json', import.meta.url))).graph;
 
@@ -260,4 +262,35 @@ test('rules: a leading negation reverses the phrase -> whole sentence unmatched'
     '别删除 Payment API',
     'not require approval above $500'
   ]) expectUnmatched(s);
+});
+
+/* ---- Codex round-4 defect: redact protects every incoming branch ---- */
+test('rules: redact protects every incoming edge of an external outcome', () => {
+  // decision before Refund Resolved, both branches -> resolved
+  const g = applyPatch(graph, [
+    { op: 'removeEdge', id: 'e9' },
+    { op: 'addNode', node: { id: 'd0', type: 'decision', label: 'Branch', x: 0, y: 0, config: { condition: 'amount > 100', join: 'first' } } },
+    { op: 'addEdge', edge: { id: 'e9a', kind: 'flow', from: { node: 'payment', port: 'out' }, to: { node: 'd0', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'e9b', kind: 'flow', from: { node: 'd0', port: 'true' }, to: { node: 'resolved', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'e9c', kind: 'flow', from: { node: 'd0', port: 'false' }, to: { node: 'resolved', port: 'in' } } }
+  ]).value;
+
+  const p = proposeByRules('redact secrets', g);
+  assert.ok(p.ok);
+  assert.equal(p.value.unmatched.length, 0);
+  assert.equal(p.value.ops.length, 2, 'one redact gate per branch edge');
+  assert.ok(p.value.ops.every(o => o.op === 'insertStep' && o.edge), 'redact ops name the specific edge');
+
+  const v = validateProposal(g, { summary: p.value.summary, ops: p.value.ops });
+  assert.ok(v.ok, JSON.stringify(v.error));
+  assert.equal(v.value.graph.nodes.filter(n => n.type === 'control' && n.config.kind === 'policy_gate').length, 2);
+
+  // run an injected request down each branch; no external emit may carry a secret label
+  for (const amount of [50, 200]) {          // 50 -> false branch, 200 -> true branch
+    const scenario = { id: 'x', template: 'fixture', requests: [{ id: 'r1', customer: 'c1', order: 'o1', amount, eligible: amount, channel: 'support_chat', injected: true }] };
+    const res = runScenario(v.value.graph, scenario);
+    for (const e of res.effects) {
+      if (e.type === 'emit' && e.external) assert.ok(!(e.labels || []).some(l => l.sensitivity === 'secret'), `amount ${amount}: secret leaked on an external emit`);
+    }
+  }
 });

@@ -335,9 +335,11 @@ function parseRedact(text, graph) {
   const outcomes = graph.nodes.filter(n => n.type === 'outcome' && n.config.success && n.config.external).sort((a, b) => a.id < b.id ? -1 : 1);
   const ops = [];
   for (const o of outcomes) {
-    const inEdge = graph.edges.find(e => e.kind === 'flow' && e.to.node === o.id);
-    if (!inEdge) continue;
-    ops.push({ op: 'insertStep', from: inEdge.from.node, to: o.id, type: 'control', config: { kind: 'policy_gate', action: 'redact', redactAbove: 'internal' } });
+    for (const e of graph.edges) {
+      if (e.kind !== 'flow' || e.to.node !== o.id) continue;
+      // name the specific edge, so two branches sharing both endpoints are each protected
+      ops.push({ op: 'insertStep', edge: e.id, type: 'control', config: { kind: 'policy_gate', action: 'redact', redactAbove: 'internal' } });
+    }
   }
   return { summary: `redact secrets`, ops };
 }
