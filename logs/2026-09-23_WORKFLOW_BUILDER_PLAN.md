@@ -664,3 +664,13 @@ Branch `blueprint-studio` (local; not pushed). Code-review base: `5989ec4` (the 
 DeepSeek's nit on the stale `(lo, hi]` comment in `adversary.js` is taken as a one-line comment fix; there is no behaviour change.
 
 
+
+### Templates implementation and code review (plan v0.8 §3.11–§3.11.2)
+
+- **Built:** 11 new templates by DeepSeek, giving 13 in total across 7 n8n-style categories. Claude added metadata to the 2 original templates, leaving their graphs unchanged. Claude also built the gallery (category tabs, bilingual search, cards, range disclosure), wired it to File → Browse templates and the empty state, and added probes G1–G3.
+- **Round 1:** DeepSeek IMPL-APPROVED. Codex IMPL-REJECTED with 2 defects:
+  1. The RAG template had no knowledge base. Fixed: it now has a `Knowledge Base (vector store)` data node, and a test asserts that it is read.
+  2. The multi-agent template had no writer stage and treated the reviewer agent as an approval. Fixed: a Writer Agent was added, and the monitor became "Publish Without Editor Approval". A test asserts the researcher → writer → reviewer → CMS order.
+- **Round 2:** DeepSeek IMPL-APPROVED, Codex IMPL-APPROVED, Claude IMPL-APPROVED.
+- **Evidence:** engine tests 139/139, web tests 37/37, i18n 392 keys, `npm run check` green, probes 40/40.
+- **Delivery:** the demo artifact was republished to the same URL (version 2). Nothing was pushed.
