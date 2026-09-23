@@ -218,3 +218,10 @@ export function validate(graph, scenarioSet) {
   const { findings, metrics } = summarize(graph, runs);
   return { scenarioSetId: scenarioSet.id, lint: lints, potential, runs, findings, metrics };
 }
+
+/* The stored form of a validation or candidate result (full traces are
+   recomputed on demand; the engine is deterministic). */
+export function compactResult(res) {
+  return { findings: res.findings, metrics: res.metrics, lint: res.lint || [], potential: res.potential || [], patchedHash: res.patchedHash,
+    runs: (res.runs || []).map(r => ({ scenarioId: r.scenarioId, template: r.template, violating: r.monitors.some(m => m.violations.length > 0) })) };
+}

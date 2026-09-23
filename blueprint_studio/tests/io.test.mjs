@@ -74,3 +74,50 @@ test('review r2: import rejects missing applicable config, prototype node types,
   const bareAccept = JSON.parse(JSON.stringify(conf)); bareAccept.revisions[0].decision = { action: 'accept' };
   assert.equal(importDocument(JSON.stringify(bareAccept)).error.code, 'bad_evidence');
 });
+
+/* ---- review r3: a genuinely approved document, then targeted tampering ---- */
+async function approvedDoc() {
+  const { createStore, newDocument, memoryStorage } = await import('../js/store.js');
+  const { generateScenarioSet } = await import('../js/adversary.js');
+  const V = await import('../js/validate.js');
+  const O = await import('../js/optimize.js');
+  const st = createStore({ storage: memoryStorage(), lint: V.lint });
+  st.load(newDocument(tpl('customer-refund'))); st.dispatch({ type: 'confirm' });
+  const r = st.active(), set = generateScenarioSet(r.graph, { n: 20, baseHash: r.hash });
+  const vres = V.compactResult(V.validate(r.graph, set));
+  st.dispatch({ type: 'setValidation', rev: 0, jobId: st.startJob('validate:0'), revHash: r.hash, scenarioSetId: set.id, n: 20, result: vres });
+  let k = 0;
+  const cands = O.generateCandidates(r.graph, { ...vres, scenarioSetId: set.id }).map(c => {
+    const run = O.runCandidate(r.graph, c, set, st.meta());
+    return { candidate: c, runId: 'run-' + (++k), result: V.compactResult(run.value), verdict: O.score(vres, run.value) };
+  });
+  st.dispatch({ type: 'setOptimization', rev: 0, jobId: st.startJob('optimize:0'), revHash: r.hash, scenarioSetId: set.id, candidates: cands });
+  const rec = O.recommend(st.revision(0).optimization.candidates.map(c => ({ candidate: c.candidate, result: c.result, verdict: c.verdict })), new Set());
+  assert.ok(st.dispatch({ type: 'approve', rev: 0, candidateId: rec }).ok);
+  return { st, text: exportDocument(st.doc), rec };
+}
+
+test('review r3: a genuine approved document imports and registers; each tampering is rejected by import and by register', async () => {
+  const { createStore, memoryStorage } = await import('../js/store.js');
+  const { lint } = await import('../js/validate.js');
+  const { text, rec } = await approvedDoc();
+  assert.ok(importDocument(text).ok, JSON.stringify(importDocument(text).error));
+  const tamper = [
+    d => { d.revisions[0].optimization.candidates.find(c => c.candidate.id === rec).state = 'rejected'; },
+    d => { d.revisions[0].optimization.candidates.find(c => c.candidate.id === rec).verdict.eligible = false; },
+    d => { d.revisions[0].decision.runId = 'run-nope'; },
+    d => { d.revisions[0].decision.evidence.metrics.friction = { num: 999, den: 1 }; },
+    d => { d.revisions[0].validation.result.metrics = {}; },
+    d => { d.revisions[1].validation.result.metrics.friction = { num: 0, den: 1 }; },
+    d => { d.revisions[0].optimization.candidates[0].result.metrics.friction = { num: 1, den: 1 }; }
+  ];
+  for (const [i, t] of tamper.entries()) {
+    const d = JSON.parse(text); t(d);
+    const r = importDocument(JSON.stringify(d));
+    assert.equal(r.ok, false, 'import accepted tampering #' + i);
+    if (i <= 5) {                                              // register re-checks without import's re-run
+      const st = createStore({ storage: memoryStorage(), lint }); st.load(d);
+      assert.equal(st.dispatch({ type: 'register', rev: 1 }).ok, false, 'register accepted tampering #' + i);
+    }
+  }
+});

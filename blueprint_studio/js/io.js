@@ -1,6 +1,10 @@
 /* Import/export, schema validation, graph diff, policy-as-code text (contract §9). */
 
 import { SCHEMA, NODE_TYPES, isNodeType, canConnect, hashGraph, applyPatch, canonical, ok, fail, clone } from './model.js';
+import { generateScenarioSet } from './adversary.js';
+import { validate, compactResult } from './validate.js';
+import { generateCandidates, reparam, runCandidate, score } from './optimize.js';
+import { decisionProblem } from './store.js';
 
 export function exportDocument(doc) {
   return JSON.stringify(doc, null, 2);
@@ -120,7 +124,43 @@ export function importDocument(text) {
     } else if (r.hash != null || r.validation || r.optimization || r.decision) return fail('schema', `${label}: a draft carries no hash or evidence`);
     const ev = checkEvidence(r, byRev, meta, label); if (!ev.ok) return ev;
   }
+  const re = recompute(doc, byRev, meta); if (!re.ok) return re;
   return ok(doc);
+}
+
+/* Imported evidence is never trusted: every stored validation, candidate result
+   and verdict is recomputed with the same deterministic engine on the same
+   scenario set and must match exactly; every decision must be consistent with
+   the records it cites (the same check Register applies). */
+function recompute(doc, byRev, meta) {
+  const same = (a, b) => canonical(a) === canonical(b);
+  for (const r of doc.revisions) {
+    const label = 'v1.' + r.rev, v = r.validation;
+    if (!v || r.origin === 'approve') continue;                   // an approved child's evidence is its parent's candidate run, checked below
+    const set = generateScenarioSet(r.graph, { n: v.n, baseHash: r.hash });
+    if (set.id !== v.scenarioSetId) return fail('evidence_mismatch', `${label}: scenario set id differs from its hash and size`);
+    if (!same(compactResult(validate(r.graph, set)), v.result)) return fail('evidence_mismatch', `${label}: validation results differ from a re-run`);
+    if (r.optimization) {
+      const vres = { ...v.result, scenarioSetId: v.scenarioSetId };
+      const generated = generateCandidates(r.graph, vres);
+      for (const c of r.optimization.candidates) {
+        const g0 = generated.find(x => x.id === c.candidate.id);
+        if (!g0) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} is not one the optimizer generates`);
+        const expect = same(c.candidate.params, g0.params) ? g0 : reparam(r.graph, vres, g0, c.candidate.params);
+        if (!same(expect.patch, c.candidate.patch) || !same(expect.classes, c.candidate.classes)) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} patch differs from its parameters`);
+        if (c.result == null) { if (c.state === 'tested') return fail('bad_evidence', `${label}: tested candidate without a result`); continue; }
+        const run = runCandidate(r.graph, c.candidate, set, meta);
+        if (!run.ok) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} no longer applies`);
+        if (!same(compactResult(run.value), c.result) || !same(score(v.result, run.value), c.verdict)) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} results differ from a re-run`);
+      }
+    }
+    if (r.decision) {
+      const child = r.decision.action === 'approve' ? byRev.get(r.decision.childRev) : null;
+      const problem = decisionProblem(r, child);
+      if (problem) return fail('evidence_mismatch', `${label}: ${problem}`);
+    }
+  }
+  return ok();
 }
 
 export function diffGraphs(a, b) {

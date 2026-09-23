@@ -258,10 +258,7 @@ function scenarioSetFor(rev, n) {
   if (!setCache.has(key)) setCache.set(key, adversary.generateScenarioSet(base.graph, { n, baseHash: base.hash }));
   return setCache.get(key);
 }
-function compact(res) {
-  return { findings: res.findings, metrics: res.metrics, lint: res.lint || [], potential: res.potential || [], patchedHash: res.patchedHash,
-    runs: (res.runs || []).map(r => ({ scenarioId: r.scenarioId, template: r.template, violating: r.monitors.some(m => m.violations.length > 0) })) };
-}
+const compact = res => validator.compactResult(res);
 function progress(label, done, total) { ui.progress = { label, done, total }; const bar = document.querySelector('#jobProgress i'); if (bar) bar.style.width = (100 * done / total) + '%'; const t = $('jobLabel'); if (t) t.textContent = `${label} · ${done} / ${total}`; }
 
 async function runValidation(n = 40) {

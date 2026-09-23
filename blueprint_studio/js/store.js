@@ -2,7 +2,7 @@
    the draft lock, undo/redo, autosave and change events.
    Lifecycle rules: plan §4.8. No DOM access. */
 
-import { SCHEMA, applyPatch, hashGraph, clone, ok, fail } from './model.js';
+import { SCHEMA, applyPatch, hashGraph, canonical, clone, ok, fail } from './model.js';
 
 /* A revision is decided once a human approved a candidate from it, accepted it
    as is, or it was itself created by an approval. Its evidence is then frozen. */
@@ -22,6 +22,44 @@ export function newDocument(template) {
 }
 
 export const revLabel = n => 'v1.' + n;
+
+/* Decision evidence is always derived from the candidate record and the
+   parent's validation by these two functions — when approving, and again
+   when checking an imported or registered decision. */
+export function approvalEvidence(c, validationResult) {
+  return clone({ findings: c.result.findings, metrics: c.result.metrics, lint: c.result.lint, runs: c.result.runs, scorecard: c.verdict.scorecard,
+    baseline: { findings: validationResult.findings, metrics: validationResult.metrics } });
+}
+export function childValidationResult(c) {
+  return clone({ findings: c.result.findings, metrics: c.result.metrics, lint: c.result.lint, potential: c.result.potential || [], runs: c.result.runs });
+}
+const same = (a, b) => canonical(a) === canonical(b);
+
+/* null if the revision's decision is consistent with the records it cites,
+   else a reason. `child` is the approve-origin revision for an approval. */
+export function decisionProblem(parent, child) {
+  const d = parent && parent.decision, v = parent && parent.validation;
+  if (!d || !v || !v.result) return 'no decision or validation';
+  if (d.action === 'accept') {
+    if (v.result.findings.length) return 'accepted with findings';
+    if (d.scenarioSetId !== v.scenarioSetId || d.runId !== v.jobId) return 'accept does not cite this validation';
+    if (!same(d.evidence, { findings: [], metrics: v.result.metrics })) return 'accept evidence differs from the validation';
+    return null;
+  }
+  if (d.action !== 'approve') return 'unknown decision';
+  const o = parent.optimization;
+  const c = o && o.candidates.find(x => x.candidate.id === d.candidateId);
+  if (!c) return 'approved candidate not found';
+  if (c.state !== 'tested' || !c.verdict || c.verdict.eligible !== true) return 'approved candidate is not tested and eligible';
+  if (c.testedParamsVersion !== c.candidate.paramsVersion || d.paramsVersion !== c.candidate.paramsVersion) return 'parameter versions differ';
+  if (c.runId !== d.runId) return 'run id differs from the candidate run';
+  if (d.scenarioSetId !== o.scenarioSetId || o.scenarioSetId !== v.scenarioSetId) return 'scenario sets differ';
+  if (!same(d.patch, c.candidate.patch) || c.result.patchedHash !== d.childHash) return 'patch or tested hash differs';
+  if (!same(d.evidence, approvalEvidence(c, v.result))) return 'decision evidence differs from the candidate run';
+  if (!child || child.rev !== d.childRev || child.hash !== d.childHash || child.parent !== parent.rev) return 'approved revision does not match';
+  if (!child.validation || child.validation.revHash !== child.hash || child.validation.scenarioSetId !== d.scenarioSetId || !same(child.validation.result, childValidationResult(c))) return "approved revision's evidence differs from the candidate run";
+  return null;
+}
 
 /* storage: anything with getItem/setItem (localStorage, or a Map-backed stub
    in tests). lint(graph) -> issues[]; confirm is refused while any issue has
@@ -205,11 +243,11 @@ export function createStore({ storage = null, lint = () => [] } = {}) {
       const childHash = hashGraph(patched.value, api.meta());
       if (childHash !== c.result.patchedHash) return fail('hash_mismatch', 'The patched graph differs from the one that was tested');
       const rev = Math.max(...s.doc.revisions.map(x => x.rev)) + 1;
-      const evidence = clone({ findings: c.result.findings, metrics: c.result.metrics, lint: c.result.lint, runs: c.result.runs, scorecard: c.verdict.scorecard, baseline: { findings: r.validation.result.findings, metrics: r.validation.result.metrics } });
+      const evidence = approvalEvidence(c, r.validation.result);
       r.decision = { action: 'approve', candidateId: c.candidate.id, label: c.candidate.label, patch: clone(c.candidate.patch), paramsVersion: c.candidate.paramsVersion,
         scenarioSetId: o.scenarioSetId, runId: c.runId, childRev: rev, childHash, evidence, decidedAt: cmd.at || null };
       s.doc.revisions.push({ rev, parent: r.rev, status: 'confirmed', origin: 'approve', graph: patched.value, hash: childHash,
-        validation: { jobId: null, revHash: childHash, scenarioSetId: o.scenarioSetId, n: r.validation.n, result: clone({ findings: c.result.findings, metrics: c.result.metrics, lint: c.result.lint, potential: c.result.potential || [], runs: c.result.runs }) },
+        validation: { jobId: null, revHash: childHash, scenarioSetId: o.scenarioSetId, n: r.validation.n, result: childValidationResult(c) },
         optimization: null, decision: null });
       s.doc.activeRev = rev; s.jobs = {};
       return ok(rev);
@@ -228,11 +266,9 @@ export function createStore({ storage = null, lint = () => [] } = {}) {
       if (!(r.origin === 'approve' || accepted)) return fail('not_registrable', 'Register an approved revision (or one accepted as is)');
       const parent = r.origin === 'approve' ? api.revision(r.parent) : r;
       /* Register re-checks the evidence it pins, independently of how it got here (e.g. an import). */
-      const d = parent?.decision, ev = d?.evidence;
-      const evidenceOk = r.status === 'confirmed' && r.hash === api.hashOf(r) && ev && Array.isArray(ev.findings) && ev.metrics && typeof d.scenarioSetId === 'string' && (
-        accepted ? (!!r.validation && r.validation.result?.findings?.length === 0 && d.scenarioSetId === r.validation.scenarioSetId)
-                 : (d.action === 'approve' && d.childRev === r.rev && d.childHash === r.hash && typeof d.runId === 'string'));
-      if (!evidenceOk) return fail('bad_evidence', 'The decision evidence for this revision is missing or inconsistent');
+      const problem = r.status !== 'confirmed' || r.hash !== api.hashOf(r) ? 'hash differs' : decisionProblem(parent, accepted ? null : r);
+      const evidenceOk = !problem;
+      if (!evidenceOk) return fail('bad_evidence', 'The decision evidence for this revision is missing or inconsistent: ' + problem);
       const key = `${s.doc.id}|${r.rev}|${r.hash}`;
       const existing = s.inventory.find(x => x.key === key);
       if (existing) return ok(existing);
