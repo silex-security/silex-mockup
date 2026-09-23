@@ -30,7 +30,7 @@ export function setPanel(panel) { route.panel = panel; bump(); }           // nu
 export function setDecideId(id) { route.decideId = id; bump(); }
 /* Builder selection ({kind:'node'|'edge', id} | null) and focus requests
    (the checklist asks the canvas to centre a node, or to fit the whole flow). */
-export function setSelected(sel) { route.selected = sel; if (sel && route.panel === 'run') route.panel = null; bump(); }
+export function setSelected(sel) { route.selected = sel; if (sel && route.panel === 'run') route.panel = null; bump(); }   // Ask AI stays open while you click around, as in n8n
 export function focusNode(id) { route.view = 'builder'; route.selected = id ? { kind: 'node', id } : null; route.focus = { id, at: Date.now() }; if (route.panel === 'run') route.panel = null; bump(); }
 let toastTimer = 0;
 export function toast(text, kind = 'info') { route.toast = { text, kind, at: Date.now() }; bump(); clearTimeout(toastTimer); toastTimer = setTimeout(() => { route.toast = null; bump(); }, 3200); }

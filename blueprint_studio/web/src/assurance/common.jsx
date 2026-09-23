@@ -41,6 +41,23 @@ export function ScoreCard({ sc }) {
     </div>);
 }
 
+/* A candidate's label, rendered from its classes and params so it is translated
+   (the engine's own label is English). */
+export function candLabel(cand) {
+  if (!cand || !Array.isArray(cand.classes)) return cand?.label || '';
+  const p = cand.params || {}, parts = [];
+  if (cand.classes.includes('threshold')) parts.push(p.threshold?.field === 'dayTotal' ? t('cand.dayTotal', 'aggregate daily total above ${x}', { x: p.threshold.x }) : t('cand.amount', 'require approval above ${x}', { x: p.threshold?.x }));
+  if (cand.classes.includes('binding')) parts.push(t('cand.binding', 'bind approval to customer, order, amount (single-use)'));
+  if (cand.classes.includes('idem')) parts.push(t('cand.idem', 'idempotency key on the write'));
+  if (cand.classes.includes('injection')) parts.push(p.injection?.variant === 'a' ? t('cand.injA', 'move the secret read to the tool') : t('cand.injB', 'redact secrets before external emit'));
+  return parts.join(' · ') || t('cand.none', 'no change');
+}
+/* The label of the candidate a decision refers to, found on its parent revision. */
+export function decisionLabel(parentRev) {
+  const d = parentRev?.decision; if (!d) return '';
+  const c = parentRev.optimization?.candidates.find(x => x.candidate.id === d.candidateId);
+  return c ? candLabel(c.candidate) : d.label;
+}
 export const nodeLabelIn = (graph, id) => graph.nodes.find(n => n.id === id)?.label || id;
 export const pathLabel = (graph, ids) => ids.map(i => nodeLabelIn(graph, i)).join(' → ');
 

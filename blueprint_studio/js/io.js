@@ -36,7 +36,7 @@ function checkConfig(n, ids) {
   }
   return ok();
 }
-function checkGraph(g, label) {
+export function checkGraph(g, label) {
   if (!g || !Array.isArray(g.nodes) || !Array.isArray(g.edges)) return fail('bad_graph', `${label}: graph is not {nodes, edges}`);
   const ids = new Set();
   for (const n of g.nodes) {

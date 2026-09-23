@@ -6,7 +6,7 @@ const zh = (await import('../src/i18n/zh.js')).default;
 const req = (await import('../src/i18n/required.js')).REQUIRED_KEYS;
 const files = d => readdirSync(d).flatMap(f => statSync(join(d, f)).isDirectory() ? files(join(d, f)) : [join(d, f)]);
 const used = new Set(req);
-for (const f of files('src').filter(f => /\.(jsx?|mjs)$/.test(f))) for (const m of readFileSync(f, 'utf8').matchAll(/\bt\(\s*['"`]([\w.:-]+)['"`]/g)) used.add(m[1]);
+for (const f of files('src').filter(f => /\.(jsx?|mjs)$/.test(f))) for (const m of readFileSync(f, 'utf8').matchAll(/\bt\(\s*['"`]([\w.:-]+)['"`]/g)) if (!m[1].endsWith('.')) used.add(m[1]);   // 'act.' + x is a dynamic prefix, not a key
 const missing = [...used].filter(k => !(k in zh)).sort();
 if (missing.length) { console.error(`zh.js is missing ${missing.length} key(s):\n  ` + missing.join('\n  ')); process.exit(1); }
 console.log(`i18n: ${used.size} keys, all present in zh.js`);

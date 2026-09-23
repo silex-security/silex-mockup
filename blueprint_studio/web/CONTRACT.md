@@ -76,3 +76,27 @@ Engine modules are imported from `../../js/*.js` and bundled; templates from `..
 ## Probes
 
 `tests/probe/run-probes-v2.mjs` finds elements by the ids above and by `data-*` attributes on nodes (`[data-node]`), edge "+" buttons (`[data-plus]`), port stubs (`[data-stub]`), search items (`[cmdk-item][data-type]`), checklist entries (`.ci[data-kind]`) and monitor picks (`[data-monitor]`). Keep them.
+
+## Ask AI: the proposal language (plan §3.10–3.10.1)
+
+Both proposers — Claude (`src/assist/propose.js`) and rule-based (`src/assist/rules.js`) — return a **proposal**:
+
+```js
+{ summary: string, ops: ProposalOp[] }          // 1–30 ops; strings ≤ 200 chars; arrays ≤ 20
+```
+
+| ProposalOp | Meaning |
+|---|---|
+| `{op:'insertStep', from:NodeRef, to:NodeRef, type, ref?, label?, config?}` | Insert a new `type` (agent / tool / decision / control) on the flow edge from→to. A control's denied port goes to the decline outcome, as in `insert.js` |
+| `{op:'addNext', node:NodeRef, port, type, ref?, label?, config?}` | Add a new step after an open out port (any flow type, outcome included) |
+| `{op:'addMonitor', node:NodeRef, kind, ref?}` | Add a monitor watching a tool or outcome (`unauthorized_write`, `duplicate_effect`, `secret_exposure`) |
+| `{op:'addData', node:NodeRef, label, sensitivity, ref?}` | Add a data resource read by an agent or tool |
+| `{op:'connect', from:{node:NodeRef, port}, to:{node:NodeRef, port}}` | Connect two ports (`canConnect` rules) |
+| `{op:'setLabel', node:NodeRef, label}` | Rename a step |
+| `{op:'setConfig', node:NodeRef, key, value}` | Set one schema field (must apply to the node's type and current config) |
+| `{op:'removeNode', node:NodeRef}` / `{op:'removeEdge', from:NodeRef, to:NodeRef}` | Delete a step (with its edges) / delete the flow edge from→to |
+
+- **`NodeRef`**: an existing node id, **or** `{ref:"name"}` pointing at a node created earlier in the *same* proposal. The validator remaps each ref to the id it actually allocates.
+- **Not in the language:** raw `addNode`, `addEdge` and `moveNode`. Positions always come from the layout.
+- **Validation:** `src/assist/validateProposal.js` → `validateProposal(graph, proposal) → Result<{ ops: PatchOp[], created: nodeId[], touched: nodeId[] }>`. It expands op by op against a working graph, and rejects the whole proposal on the first failure, naming the op index. The returned `ops` are primitive patch ops, ready for one `store.dispatch({type:'patch'})`.
+- **Rule-based proposer:** `rules.js` exports `proposeByRules(text, graph) → Result<{summary, ops, unmatched: string[]}>`. It resolves node names to ids by label, case-insensitive, and falls back to id. It never guesses: a sentence it can't map goes to `unmatched`. Its output goes through `validateProposal` like Claude's.

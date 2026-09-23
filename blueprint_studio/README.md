@@ -1,64 +1,89 @@
-# Agentic Blueprint Studio (working version)
+# Agentic Blueprint Studio (v2)
 
-A workflow orchestrator for agentic systems, fully in the browser. It turns the scripted **Blueprint Studio** tab of the [SILEX demo](../index.html) into something you can actually use: draw a workflow, confirm it, validate it, optimise it, decide and register. Every finding, path and number downstream is **computed from the graph you built**.
+A workflow builder for agentic systems that runs entirely in the browser. You draw a workflow, confirm it, attack it with scripted scenarios, test candidate fixes, approve one and register it. Every finding and number is **computed from the graph on the canvas**.
 
-Open `blueprint_studio/index.html` from any static server (for example `python3 -m http.server` at the repo root, then `/blueprint_studio/`). It has no build step, no framework and no dependencies. It needs a desktop-width screen.
+- **Open:** `blueprint_studio/app/index.html` from any static server (for example `python3 -m http.server` at the repo root, then `/blueprint_studio/app/`). `blueprint_studio/index.html` redirects there.
+- **Plan and review record:** [`../logs/2026-09-23_WORKFLOW_BUILDER_PLAN.md`](../logs/2026-09-23_WORKFLOW_BUILDER_PLAN.md). The engine it builds on was reviewed in [`../logs/2026-09-22_BLUEPRINT_STUDIO_PLAN.md`](../logs/2026-09-22_BLUEPRINT_STUDIO_PLAN.md).
 
-Plan, semantics and review record: [`../logs/2026-09-22_BLUEPRINT_STUDIO_PLAN.md`](../logs/2026-09-22_BLUEPRINT_STUDIO_PLAN.md). Module contract: [`CONTRACT.md`](CONTRACT.md).
+## Built on open source
+
+| Piece | Library (licence) | Why |
+|---|---|---|
+| Canvas | React Flow `@xyflow/react` (MIT) | The canvas under Dify, Langflow and Flowise: custom nodes, handles, edge buttons, minimap |
+| Layout | dagre (MIT) | Top-to-bottom layered layout; data sits above its readers, monitors below what they watch |
+| Node search | cmdk (MIT) | The search menu. Ranking is our own: substring matching in English and 中文 |
+| UI | React 19 + Vite 7 (MIT) | Built to static files with relative paths; no backend |
+
+We borrowed patterns, not code, from Activepieces, Coze Studio and Dify, following the research report *Agent_Builder_UI_研究报告*:
+- **Activepieces:** a "+" on every connection and under every open output, so you build step by step.
+- **Coze Studio:** node search with a plain-language explanation for every step, in 中文 and English.
+- **Dify:** the canvas holds structure, the side panel holds details, and advanced settings stay collapsed.
+- **Everywhere:** a clear **Test run** entry point, and a **Checklist** that takes you to each problem.
 
 ## What you can do
 
-| Stage | What happens |
-|---|---|
-| **Build** | Drag node types from the palette. Connect an output port to an input: incompatible ports dim, and an edge only drops on a compatible port. Blue square ports connect agents and tools to data. Every field in the inspector changes engine behaviour, and expressions are checked as you type them. Also: undo/redo, copy/paste, marquee select, auto-layout, minimap, and rule-based text edits (no AI). The **Test run** panel executes the graph on one request, step by step if you like, and pauses at approvals for you to decide. |
-| **Confirm** | Locks the revision and records its content hash. Every later edit is refused; *Edit as new revision* starts a draft with a parent. |
-| **Validate** | Runs a frozen, seeded scenario set (six adversary templates) through the engine. Trace monitors decide whether each prohibited outcome occurred. Output: findings, the node paths that actually violated, static potential paths, and metrics with their formulas. |
-| **Optimize** | Candidate patches are generated from the finding classes and tested on the **same** scenarios. Each is gated (lint clean, benign completion kept, nothing worse, every critical finding at 0 in the tested scenarios); the recommendation is the lowest-friction eligible candidate. Modify re-runs a candidate with new parameters; Reject removes it. |
-| **Decide** | Approve creates a new **confirmed** revision containing exactly the tested patch, and checks that the hashes match. Accept as is is available when there are no findings. A decided revision's evidence is frozen. |
-| **Register** | Adds the revision to a local inventory ("Registered · not deployed") and exports its controls and monitors as policy-as-code text. |
+- **Builder**
+  - **Add steps:** use "+" on a connection to insert a step, or "+" under a node to add the next one. Branches are completed explicitly.
+  - **Library:** search it, and drag or click a step onto the canvas.
+  - **Settings:** click a node to open its settings (Basic, then Advanced). Expressions are checked as you type, and a refused edit shows up in the Checklist until you fix or discard it.
+  - **Data and monitors:** add a data source from an agent or tool panel. Protect a tool or outcome with a monitor from its own panel.
+  - **Editing:** undo and redo; **Arrange** re-runs the layout.
+  - **Test run:** runs one request node by node, pauses at approvals for you to decide, and shows each step's effects.
+- **Ask AI (n8n-style)**
+  - Describe a change in English or 中文, e.g. "在 Refund Eligibility 后面加一个人工审批" or "rename Payment API to Stripe Refunds".
+  - You get a proposal: a list of changes, the issues it fixes or leaves, and the affected steps highlighted on the canvas. **Nothing changes until you press Apply**, and one undo reverts it.
+  - **Inside a Claude Artifact**, Claude writes the proposal using your own Claude account, and asks your permission the first time.
+  - **Elsewhere, e.g. the static Vercel site**, a **rule-based** mode handles a fixed set of phrases in both languages and never guesses.
+  - Either way the proposal is untrusted. It is validated change by change against the same checks an import uses before you can apply it.
+- **Assurance:** Confirm → Validate → Optimize → Decide → Register.
+  - **Validate** runs 240 seeded adversary scenarios. Monitors report what actually went wrong, and the exact paths where it happened.
+  - **Optimize** tests candidate fixes on the same scenarios and recommends the lowest-friction eligible one.
+  - **Approve** creates a new locked revision containing exactly the tested change.
+  - **Register** records it as "Registered · not deployed".
+- **中文 / English** toggle; File → templates, import, download or **Copy JSON** (some viewers block downloads).
 
 ## What is real and what is simulated
 
-- **Real:** the editor; the graph model; the engine, which interprets your graph node by node; the monitors; the scenario runs; and every number, which comes from those runs. The same graph and the same scenario set always produce identical results.
-- **Simulated:** there are no real agents, tools or LLMs. Agents behave according to a **declared adversary model**:
-  - agents follow instructions injected into untrusted input;
-  - an agent marked `canSplit` may split a request;
-  - a presented approval is reused whenever the control's binding allows it.
-- **What a result means:** it says what *this graph* allows under *those behaviours*. It says nothing about any real agent. "0 violations in M tested scenarios" is a sampling result, not a proof, and the UI never says "closed" or "impossible".
-- **Evidence grade:** every finding is graded **Declared** (from configuration, before deploy), matching the grade legend on the main demo.
-- **Out of scope:** over-entitlement is not monitored in v1. `duplicate_effect` covers only double compensation for one order.
-- **No AI:** the text box compiles a fixed set of phrases with rules. Anything it does not recognise is reported back, never guessed.
-- **Severity inheritance:** a violation in *benign* scenarios ("Policy Gap (normal operation)") takes the severity of its prohibited outcome. On the refund template that is critical, so the recommendation has to close it.
+- **Real:**
+  - the editor;
+  - the engine that runs your graph node by node;
+  - the monitors;
+  - every number: the same graph and scenario set always give the same results.
+- **Simulated:** there are no real agents, tools or models in the scenarios. Agents follow a **declared adversary model**:
+  - they obey instructions injected into untrusted input;
+  - they may split requests when allowed;
+  - they reuse approvals when the binding permits.
+- **What a result means:** "0 violations in the tested scenarios" is a sample, not a proof. Findings carry the evidence grade *Declared*. Nothing is ever deployed.
+- **Ask AI's Claude mode** is the only place a model is used. It only *proposes* changes. It is available only inside the Claude Artifact viewer. It costs the viewer's own Claude usage.
+- **English-only by design, in both languages:**
+  - expression-parser error details;
+  - JSON views and node ids;
+  - the Optimize ineligibility reasons;
+  - template step names, which are document content.
 
-## Adversary templates
-
-| Template | What it tries |
-|---|---|
-| `below_threshold` | An amount above the business threshold but under the declared autonomy |
-| `split` | A legitimate request split by an agent into pieces under the threshold |
-| `replay` | A second order presenting the first order's approval |
-| `duplicate_submit` | The same order submitted twice |
-| `injection_exfil` | An injected instruction asking an agent to emit what it read |
-| `benign` | Legitimate traffic; used for friction and completion, and monitored too |
-
-## Files
+## Layout of the code
 
 ```
-index.html  css/studio.css             app shell; tokens and fonts copied from the demo
-js/model.js   node types, ports, patch ops, canonical JSON, SHA-256        (claude)
-js/store.js   revisions, single dispatch choke point, locks, jobs, lifecycle (claude)
-js/canvas.js  js/inspector.js  js/app.js   editor and stages               (claude)
-js/expr.js    safe expression language (no eval)                           (deepseek)
-js/engine.js  js/monitors.js  js/adversary.js  js/validate.js              (deepseek)
-js/optimize.js  js/io.js  js/nlcompile.js  js/layout.js                    (deepseek; fixes by claude)
+js/           the engine (pure ES modules, reviewed 2026-09-22): model, expr, engine, monitors, adversary, validate, optimize, io, nlcompile, store, layout (legacy)
 templates/    Customer Refund; Vendor Bank-Detail Change (incident I-1042's shape)
-tests/        node --test unit tests + tests/fixtures/semantics (exact expected ledgers)
-tests/probe/run-probes.mjs   headless-Chrome acceptance probes (plan §7)
+web/          Vite + React source — CONTRACT.md is the integration contract
+  src/state/     storeAdapter (React ↔ store), controller (jobs, runs, I/O), pendingInputs
+  src/builder/   Canvas, nodes, edges, NodeSearch, ConfigPanel, Checklist, insert.js, layout.js (dagre), catalog
+  src/assist/    AssistantPanel, propose.js (Claude), rules.js (rule-based), validateProposal.js
+  src/assurance/ Confirm, Validate, Optimize, Decide, Register
+  src/run/       TestRunPanel        src/i18n/ zh.js, en.js
+app/          the built site (committed; `npm run check` fails if it is stale)
+tests/        engine unit tests + 16 semantic fixtures; probe/run-probes-v2.mjs (headless Chrome acceptance probes)
 ```
 
-## Testing
+## Build and test
 
 ```bash
-cd blueprint_studio && node --test tests/          # unit + semantic fixtures
-node blueprint_studio/tests/probe/run-probes.mjs   # from the repo root; needs Chrome; --shots <dir> saves screenshots
+cd blueprint_studio/web && npm ci
+npm run build      # writes ../app
+npm test           # web unit tests (proposal validator, rules, prompt budget)
+npm run i18n       # every key has Chinese
+npm run check      # ../app matches a fresh build
+cd .. && node --test tests/                          # engine unit tests
+node tests/probe/run-probes-v2.mjs [--shots dir]     # from the repo root: acceptance probes (needs Chrome)
 ```

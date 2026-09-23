@@ -3,6 +3,7 @@
    one-line explanation, and search synonyms. Chinese lives in i18n/zh.js
    under the same keys. */
 import { t } from '../i18n/index.js';
+import zh from '../i18n/zh.js';
 
 export const CATALOG = [
   { type: 'trigger', group: 'inputs', color: 'var(--c-trigger)', icon: 'M5 12h10M11 6l6 6-6 6', label: 'Trigger', desc: 'Where a request enters the workflow: chat, email, API event or ticket.', syn: 'start input entry request event' },
@@ -24,6 +25,24 @@ export const entry = type => CATALOG.find(c => c.type === type);
 export const typeLabel = type => t(`node.${type}.label`, entry(type)?.label || type);
 export const typeDesc = type => t(`node.${type}.desc`, entry(type)?.desc || '');
 export const typeSyn = type => `${entry(type)?.syn || ''} ${t(`node.${type}.syn`, '')}`;
+/* Search text in both languages, whatever the UI language (plan §3.3). */
+export const searchText = type => { const e = entry(type) || {}; return [type, e.label, e.desc, e.syn, zh[`node.${type}.label`], zh[`node.${type}.desc`], zh[`node.${type}.syn`]].filter(Boolean).join(' '); };
 export const groupLabel = g => t(`group.${g}`, GROUPS.find(x => x[0] === g)?.[1] || g);
 export const monitorLabel = k => t(`monitor.${k}.label`, MONITORS.find(m => m.kind === k)?.label || k);
 export const monitorDesc = k => t(`monitor.${k}.desc`, MONITORS.find(m => m.kind === k)?.desc || '');
+
+/* Predictable ranking for node search (substring, not fuzzy): a label that
+   starts with the query beats a label that contains it, which beats a synonym,
+   which beats the description. 0 = no match. Both languages always count. */
+export function rankType(type, query) {
+  const q = query.trim().toLowerCase(); if (!q) return 1;
+  const e = entry(type) || {};
+  const labels = [type, e.label, typeLabel(type), zh[`node.${type}.label`]].filter(Boolean).map(x => x.toLowerCase());
+  const syns = [e.syn, zh[`node.${type}.syn`], t(`node.${type}.syn`, '')].filter(Boolean).join(' ').toLowerCase();
+  const descs = [e.desc, typeDesc(type), zh[`node.${type}.desc`]].filter(Boolean).join(' ').toLowerCase();
+  if (labels.some(l => l.startsWith(q))) return 4;
+  if (labels.some(l => l.includes(q))) return 3;
+  if (syns.split(/\s+/).some(w => w.startsWith(q)) || syns.includes(q)) return 2;
+  if (descs.includes(q)) return 1;
+  return 0;
+}

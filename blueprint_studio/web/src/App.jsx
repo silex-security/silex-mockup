@@ -33,7 +33,25 @@ function stageDone(st) {
 }
 const PAGES = { confirm: Confirm, validate: Validate, optimize: Optimize, decide: Decide, register: Register };
 
-function DocMenu({ onClose }) {
+function About({ onClose }) {
+  return (
+    <div className="modal-back" onClick={onClose}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" onClick={e => e.stopPropagation()}>
+        <h2 id="aboutTitle">{t('about.title', 'About Agentic Blueprint Studio')}</h2>
+        <p>{t('about.what', 'Draw an agentic workflow, confirm it, then test it against scripted attack scenarios, compare candidate fixes, approve one and register it.')}</p>
+        <h3>{t('about.realTitle', 'What is real')}</h3>
+        <p>{t('about.real', 'The editor, the engine that runs your graph node by node, the monitors, and every number: each comes from runs of the graph on screen. The same graph and scenario set always give the same results.')}</p>
+        <h3>{t('about.simTitle', 'What is simulated')}</h3>
+        <p>{t('about.sim', 'There are no real agents, tools or AI models. Agents behave according to a declared adversary model: they follow instructions injected into untrusted input, may split requests if allowed, and reuse approvals when the binding lets them. “0 violations in the tested scenarios” is a sample, not a proof. Nothing is ever deployed.')}</p>
+        <h3>{t('about.viewerTitle', 'In this viewer')}</h3>
+        <p>{t('about.viewer', 'Work is saved in this browser only. Some viewers block file downloads: use File → Copy JSON instead. Import works everywhere.')}</p>
+        <p className="muted">{t('about.built', 'Canvas: React Flow (MIT). Layout: dagre (MIT). Search: cmdk (MIT).')}</p>
+        <div className="row-actions"><button className="btn primary" autoFocus onClick={onClose}>{t('about.close', 'Close')}</button></div>
+      </div>
+    </div>);
+}
+
+function DocMenu({ onClose, onAbout }) {
   const file = useRef(null);
   const copy = async () => { const txt = ctl.exportText(); try { await navigator.clipboard.writeText(txt); ctl.toast(t('menu.copied', 'Document JSON copied')); } catch { ctl.toast(t('menu.copyFailed', 'Copy was refused by the browser'), 'error'); } onClose(); };
   const download = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ctl.exportText()], { type: 'application/json' })); a.download = (store.doc.name || 'blueprint').replace(/[^\w.\- ]+/g, '_') + '.json'; document.body.append(a); a.click(); a.remove(); onClose(); };
@@ -49,6 +67,7 @@ function DocMenu({ onClose }) {
       <button role="menuitem" id="copyJsonBtn" onClick={copy}><Icon d={I.copy} />{t('menu.copy', 'Copy JSON')}</button>
       <input ref={file} type="file" accept="application/json,.json" hidden onChange={async e => { const f = e.target.files[0]; e.target.value = ''; if (f) ctl.importText(await f.text()); onClose(); }} />
       <div className="menu-sep" />
+      <button role="menuitem" id="aboutBtn" onClick={() => { onClose(); onAbout(); }}><Icon d={I.info} />{t('menu.about', 'About this demo')}</button>
       <p className="menu-note">{t('menu.note', 'Everything runs in this browser and is saved here only. Some viewers block downloads; use Copy JSON there.')}</p>
     </div>);
 }
@@ -57,6 +76,7 @@ export default function App() {
   useStudio();
   const [menu, setMenu] = useState(false);
   const [check, setCheck] = useState(false);
+  const [about, setAbout] = useState(false);
   const route = ctl.getRoute(), doc = store.doc;
   if (!doc) return null;
   const rev = store.active();
@@ -87,10 +107,11 @@ export default function App() {
               <button className={'btn sm ' + (errs || pending.size ? 'danger' : '')} id="checklistBtn" onClick={() => setCheck(c => !c)}><Icon d={I.list} />{t('top.checklist', 'Checklist')}<span className="count">{total}</span></button>
               {check ? <Checklist onClose={() => setCheck(false)} /> : null}
             </div>
+            <button className={'btn sm ' + (route.panel === 'assist' ? 'primary' : '')} id="askAiBtn" onClick={() => ctl.setPanel(route.panel === 'assist' ? null : 'assist')}><Icon d={I.spark} />{t('top.askAi', 'Ask AI')}</button>
             <button className="btn primary sm" id="testRunBtn" onClick={() => ctl.setPanel(route.panel === 'run' ? null : 'run')}><Icon d={I.play} />{t('top.testRun', 'Test run')}</button>
           </> : null}
           <button className="btn ghost sm" id="langBtn" onClick={() => setLang(getLang() === 'zh' ? 'en' : 'zh')} title="中文 / English"><Icon d={I.globe} />{t('app.lang', '中文')}</button>
-          <div className="pop-anchor"><button className="btn sm" id="docMenuBtn" onClick={() => setMenu(m => !m)}>{t('top.file', 'File')}</button>{menu ? <DocMenu onClose={() => setMenu(false)} /> : null}</div>
+          <div className="pop-anchor"><button className="btn sm" id="docMenuBtn" onClick={() => setMenu(m => !m)}>{t('top.file', 'File')}</button>{menu ? <DocMenu onClose={() => setMenu(false)} onAbout={() => setAbout(true)} /> : null}</div>
         </div>
       </header>
       {route.view === 'builder' ? <Builder /> : (
@@ -104,6 +125,7 @@ export default function App() {
           </nav>
           <div className="assurance-body"><StagePage /></div>
         </main>)}
+      {about ? <About onClose={() => setAbout(false)} /> : null}
       {route.toast ? <div className={'toast ' + route.toast.kind} role="status">{route.toast.text}</div> : null}
     </div>);
 }

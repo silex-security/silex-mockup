@@ -1,6 +1,6 @@
-# Workflow Builder v2: rebuild the Blueprint Studio editor on open-source foundations (plan v0.3)
+# Workflow Builder v2: rebuild the Blueprint Studio editor on open-source foundations (plan v0.5)
 
-Author: Claude (lead) · 2026-09-23 · Status: **v0.3 — APPROVED by all three seats in round 3: DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · CLAUDE: PLAN-APPROVED.** Code-review base: `8d5b900`.
+Author: Claude (lead) · 2026-09-23 · Status: **v0.5 — APPROVED by all three seats (round 5 for the §3.10 amendment; v0.3 in round 3): DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · CLAUDE: PLAN-APPROVED. The implementation of v0.3 is in progress (Task 0–5 done; 29/29 probes).**
 Request: *"反馈是 studio 编排的太粗糙了，可以利用已有的开源工具来做我们的 workflow builder，参考这个研究报告来生成我们的方案（Downloads/Agent_Builder_UI_研究报告.docx），一致通过后生成一个 demo 网站给我 review。"*
 Roster: **claude** (lead, judge) · **deepseek** (`opencode`, `deepseek/deepseek-reasoner`) · **codex** (Pro account, limit verified 2026-09-23). Both gates are unanimous.
 Predecessor: [`2026-09-22_BLUEPRINT_STUDIO_PLAN.md`](2026-09-22_BLUEPRINT_STUDIO_PLAN.md). Its engine was approved unanimously on revision `951bf49`. That branch was never pushed, and the user stopped the push.
@@ -103,6 +103,174 @@ These are the report's three borrowings, one per region, plus its onboarding rul
    - An empty state offering two starter templates (Customer Refund, Vendor Bank Change) and "start from a trigger".
    - It never shows every parameter at once.
    - An About panel states what is simulated and what the demo viewer cannot do (downloads).
+
+## 3.10 Amendment (v0.4): Ask AI — edit the workflow from a prompt (n8n-style)
+
+**The user's request (2026-09-23):** "还需要类似 n8n 的功能可以提供 prompt 可以直接增删改 workflow". n8n's AI Workflow Builder turns a chat prompt into workflow changes. Ours does the same, within the security product's rules.
+
+**UX:**
+- **Where:** an **Ask AI** button in the builder's top bar opens a right-side chat panel, in the same slot as the config and test-run panels.
+- **Input:** the user types a request in either language, e.g. "在 Refund Eligibility 后面加一个人工审批，金额超过 1000 才需要；删除 Duplicate Compensation 监控；把 Payment API 改名为 Stripe Refunds".
+- **Proposal:** the assistant answers with a **proposal**:
+  - a one-line summary;
+  - the list of changes (human-readable, from `describeOp`);
+  - the **lint delta** (issues added and removed);
+  - the affected nodes highlighted on the canvas.
+- **Apply / Discard:** **Apply** dispatches the proposal as **one patch = one undo step**. **Discard** drops it. **Nothing is applied without the click.**
+- **Follow-ups:** they see the current graph and the chat so far.
+- **On a confirmed revision:** the assistant offers "Edit as new revision" first and never proposes on a locked graph.
+
+**Two proposers; one validator:**
+1. **Claude (in the Claude Artifact demo).** Declare the Artifact `sample` capability. `sample.json` is called once per request (`modelTier: 'default'`, `cache: false`, with a Stop button) with:
+   - the instruction;
+   - the compact current graph (ids, types, labels, config, edges);
+   - the node-type schema summary from `NODE_TYPES`;
+   - the allowed operations;
+   - the last chat turns;
+   - the user's message.
+
+   The reply format is `{summary, ops:[…]}`. It runs on the viewer's own Claude usage, and the first call asks the viewer's consent. Errors follow the capability's codes:
+   - `not_granted` or `sampling_disabled`: fall back to the rule-based mode, with a note;
+   - `rate_limited`: tell the user;
+   - `invalid_json`: offer "Try again";
+   - no automatic retry.
+2. **Rule-based (always available; the only mode on the static Vercel site, which has no model or key).**
+   - It extends the existing phrase set with add / delete / rename / set, in English and 中文: "add <type> after <node>", "insert <type> between <A> and <B>", "delete <node>", "rename <node> to <name>", "set <field> of <node> to <value>", "protect <tool> with <monitor>". It also reuses `nlcompile.compileText` for the existing policy phrases.
+   - It is labelled "Rule-based — no AI" in the panel. When `sample` is unavailable, the panel says "AI proposals are available when this page runs as a Claude artifact".
+
+**The proposal language and its validation (the model's output is untrusted input):**
+- **Ops accepted:** the seven primitive patch ops, plus four **macro ops** expanded by the approved `insert.js` builders, so structural edits stay lint-clean:
+  - `{op:'insertStep', edge|from+to, type, label?, config?}` → `insertOnEdge`
+  - `{op:'addNext', node, port, type, label?, config?}` → `addAfter`
+  - `{op:'addMonitor', node, kind}` → `addMonitor`
+  - `{op:'addData', node, label, sensitivity}` → `addData`
+- **Validation, in order, with the first failure rejecting the whole proposal and naming the op:**
+  1. The reply is an object with an `ops` array of at most 30.
+  2. Each op is on the whitelist.
+  3. Node types pass `isNodeType`, which checks own properties only.
+  4. Ids exist, or are new ids made with `nextId` (a model-supplied id for `addNode` is replaced).
+  5. The macros expand.
+  6. `applyPatch` succeeds.
+  7. The **resulting graph passes the same structural and config check that import uses**. The only engine change: `io.js` exports its existing `checkGraph`.
+  8. Positions come from the dagre layout, never from the model.
+- **Lint:** the lint delta is shown but does not block, so a user may knowingly apply a change that leaves an incomplete branch. The checklist then lists it as usual.
+- **Rendering:** every string the model returns is rendered as text only: no `dangerouslySetInnerHTML`, no URLs followed.
+- **Prompt injection:** labels in the graph could carry injected text, so the prompt fences the graph as data. Nothing is applied without the user's click, and every apply is one undo step.
+
+**Ownership:**
+
+| Owner | Files | What |
+|---|---|---|
+| claude | `web/src/assist/AssistantPanel.jsx`, `propose.js` (the Claude proposer and prompt), `expand.js` (macros → ops), `validateProposal.js`, and the one-line `io.js` export | The panel, the Claude proposer, the expander and the validator |
+| deepseek | `web/src/assist/rules.js` | The rule-based proposer (bilingual grammar), with unit tests in `web/tests/rules.test.mjs` (`node --test`) |
+| deepseek | `web/src/i18n/zh.js` | The new keys |
+
+**Probes (A):**
+- **A1 (rule-based, real input):**
+  - "add a human approval after Refund Eligibility" → the preview shows the insert → Apply → the graph is lint-clean → one undo restores the hash;
+  - "删除 Duplicate Compensation" → the node and its watch line are removed;
+  - "rename Payment API to Stripe Refunds" → the label changes.
+- **A2 (Claude path, with the probe injecting a stub `window.claude` whose `use('sample')` returns fixed replies):**
+  - a valid macro proposal → preview → apply;
+  - an invalid proposal (an unknown type, `__proto__`, a bad config value, an op on a missing id, 31 ops) → rejected with the op named and the graph unchanged;
+  - a locked revision → no proposal, and "Edit as new revision" is offered;
+  - `not_granted` → falls back to rule-based mode with the note.
+- **A3 (screenshots, both languages):** the panel with a proposal preview, added to V1.
+- **Not testable headless:** a real Claude call inside the claude.ai viewer. After publishing, Claude verifies the artifact declares `sample`. The user's first real prompt is the live check, and this is said plainly in the hand-over.
+
+**Also in v0.4, from Claude's own screenshot review before the code gate:**
+- candidate labels in Optimize and Decide are rendered in the UI from the candidate's classes and params, so they are translated in 中文;
+- the Optimize header layout;
+- the minimap size.
+
+Ineligibility reasons stay as engine English detail and are added to the documented English-only list.
+
+### 3.10.1 Revisions from round 4 (v0.5)
+
+**A. Proposal lifecycle and binding (Codex 1)**
+
+- **Binding:** every request gets a `requestId` and captures `{docId, rev, graphHash, requestId}` at send time. A proposal carries that binding plus the **exact expanded patch** that was previewed.
+- **One request at a time:**
+  - a new prompt aborts the running call (a new `AbortController` per call);
+  - **Stop** aborts it;
+  - an abort, a late reply or a failed reply is dropped when its `requestId` is no longer current;
+  - no partial or failed reply ever leaves an applicable proposal.
+- **Staleness:** any store event that changes the doc, revision, draft status or graph hash marks the current proposal `stale`. The preview says "The workflow changed since this was proposed — ask again", and Apply is disabled.
+- **Apply** re-checks, in order:
+  1. the proposal is current and not stale;
+  2. doc, rev and graph hash are equal to the binding;
+  3. the revision is a draft;
+  4. no Apply has already happened, since the proposal is consumed on first Apply.
+
+  It then dispatches **exactly the previewed ops** as one patch, and a double click cannot apply twice.
+- **Confirmed revision:** the panel shows "Edit as new revision"; send is disabled.
+
+**B. Validation is per operation, against a working graph (Codex 2)**
+
+- **Structural checks before anything is applied:**
+  - `ops` is an array of 1–30 plain objects;
+  - every string is ≤ 200 chars and every array ≤ 20 items;
+  - no key named `__proto__`, `constructor` or `prototype` at any depth;
+  - numbers are finite and within the field's bounds (±1e9).
+- **Per-op schemas, with exactly these keys:**
+  - `setLabel {id, label}`
+  - `setConfig {id, key, value}`: `key` must be a schema field of that node's type that applies to its current config (`when`); `value` must pass the same field-type check import uses (`select` in options, `bool`, finite `number`, a `caps` list, a `range`, `nodeRefs` to existing nodes, an `expr` that parses)
+  - `removeNode {id}`, `removeEdge {id}`
+  - `connect {from:{node,port}, to:{node,port}}`: the primitive `addEdge` is not offered to the model; the id comes from `nextId` and the edge is checked with `canConnect`
+  - macros `insertStep {from, to | edge, type, label?, config?}`, `addNext {node, port, type, label?, config?}`, `addMonitor {node, kind}`, `addData {node, label, sensitivity}`
+  - raw `addNode` and `moveNode` are **not** offered to the model: nodes are created only through macros, and positions come from layout.
+- **Sequential expansion on a working graph:**
+  - Op *k* is expanded and applied to the graph produced by ops 1…k−1.
+  - A macro may carry a model-chosen `ref` ("new1"). Later ops may use `{ref:"new1"}` wherever a node id is expected, and it is remapped to the id `nextId` actually allocated.
+  - A macro's `label` and `config` overrides are validated with the `setConfig` rules above, then **appended as `setLabel` / `setConfig` ops on the new node**, so the approved `insert.js` builders are used unchanged.
+- **Errors:**
+  - Any exception during validation, expansion or application is caught and becomes a Result naming the op index.
+  - The first failure rejects the whole proposal, and the graph is untouched.
+- **Final check:** the final graph must pass `io.checkGraph` (as v0.4), which adds import's canonical-edge and reference checks.
+- **Tests (DeepSeek-owned, `web/tests/validateProposal.test.mjs`, run by `node --test`):**
+  - `null`, non-objects and unknown ops;
+  - a `setConfig` with an unknown key or `__proto__`;
+  - out-of-range numbers;
+  - a multi-op proposal whose later ops reference an earlier macro's `ref`;
+  - a proposal whose third op fails, leaving the graph unchanged.
+
+**C. The `sample` capability, handled completely (Codex 3; DeepSeek non-blocking)**
+
+- **Availability:** `window.claude` absent, **or** `await claude.use('sample')` resolves `null`, both mean the Claude mode is hidden and the panel runs rule-based with its note.
+- **Permanent codes:** `not_granted`, `sampling_disabled`, `not_declared`, `capability_disabled`, `capability_removed` and `tools_unavailable` switch to rule-based mode for the rest of the page load. The panel shows one line explaining it and never re-asks.
+- **Per-request codes:**
+  - `cancelled` is silent;
+  - `rate_limited` and `session_expired` show a message and keep the input;
+  - `refused` clears any partial output and asks the user to rephrase;
+  - `empty_completion` asks for less;
+  - `invalid_json` offers a manual "Try again";
+  - `prompt_too_large` shows "This workflow is too large to send; ask about one part";
+  - `upstream_error` and **any unknown code** offer a manual retry.
+- **Never retry automatically.** Failures never leave an applicable proposal.
+- **Waiting state:** "Thinking… (the first request asks your permission)" shows from send until the reply, with a Stop button. There is no page timer; the platform ends over-long calls.
+- **Size:**
+  - the assembled prompt is measured in UTF-8 bytes against `sample.limits().maxPromptBytes`, or 65536 if limits is unavailable, keeping 4 KiB of headroom;
+  - the oldest chat turns are dropped first;
+  - if it's still too large, the graph section keeps ids, types, labels and the configs of nodes the message names, and summarises the rest by type count;
+  - if it's still too large, the request is refused locally with the `prompt_too_large` message.
+
+**D. Probe additions (A2, stub `window.claude`)**
+
+- The stub's `use('sample')` returns `null`, so the panel is rule-based.
+- A permanent code (`capability_removed`) switches to rule-based mode and hides the Claude option.
+- **Stop** during a slow stub reply leaves no proposal.
+- An **edit during generation** makes the late reply stale, and Apply is disabled.
+- **Switching document**, and **confirming before Apply**, both disable Apply.
+- **Repeated Apply** applies once: the hash changes once and there is one undo entry.
+- An **oversized message** is refused locally, with no call made.
+- Earlier turns are dropped when the chat grows.
+
+**E. Wording fixes**
+
+- "Engine changes" now reads: the `canConnect` change (§6) **and** exporting `checkGraph` from `io.js`. Both are listed in the review.
+- The ineligibility reasons are added to the English-only list in §3.8.
+
+**Ownership:** unchanged. `web/tests/validateProposal.test.mjs` goes to deepseek, alongside `rules.js`; the validator itself stays claude's.
 
 **The lifecycle is unchanged in substance.** Confirm → Validate → Optimize → Decide → Register are re-rendered in React on the same `store.js` commands, guards and evidence rules, with the same claim discipline. They live in a secondary **Assurance** view reached from the top bar.
 
@@ -286,3 +454,21 @@ These turn the report's tasks into probes.
 ### Round 3 (v0.3) — DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
 
 DeepSeek re-verified the `canConnect` change against the engine's join and skip handling, `lint()` and `checkGraph`, and noted that the duplicate check was a genuine miss in its own round-2 approval.
+
+### Round 4 (v0.4 amendment): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (3)
+
+| # | Objection (who) | Change in v0.5 |
+|---|---|---|
+| C4-1 | Proposals aren't bound to their source graph; there's no late-response handling and no protection against a repeated Apply (codex) | §3.10.1 A: request binding, one request at a time, a stale state, Apply re-checks and consumes, plus probes |
+| C4-2 | An op whitelist plus `checkGraph` isn't enough: `setConfig` accepts arbitrary keys, there are prototype keys, `ref` remapping and macro overrides are undefined (codex) | §3.10.1 B: per-op schemas and bounds, a working-graph expansion with `ref` remapping, overrides turned into validated `setLabel`/`setConfig`, raw `addNode`/`moveNode` withheld from the model, exceptions turned into Results, unit tests |
+| C4-3 | The `sample` handling is incomplete: the `null` capability, the full set of permanent codes, the waiting state, the byte bound (codex; deepseek non-blocking) | §3.10.1 C: every code mapped, unknown codes treated as retryable manually, the byte budget with a truncation order; probes in D |
+| D-ns | Error code map, prompt size, and the "only engine change" wording (deepseek) | C, and E |
+
+### Round 5 (v0.5): DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
+
+DeepSeek's non-blocking notes are applied in the implementation, and the plan text is unchanged:
+- per-op value checks apply the op to a working graph and run the exported `checkGraph`, so no second export is needed;
+- the rule-based proposer's output goes through the same validator;
+- a macro's overrides are applied in dependency order (`kind` / `action` / `monitor` first);
+- `web/package.json` gains `"test": "node --test tests/"`.
+

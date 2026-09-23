@@ -14,7 +14,8 @@ import { edgeTypes } from './edges/Edges.jsx';
 import NodeSearch from './NodeSearch.jsx';
 import ConfigPanel from './ConfigPanel.jsx';
 import TestRunPanel from '../run/TestRunPanel.jsx';
-import { CATALOG, GROUPS, typeLabel, typeDesc, typeSyn, groupLabel } from './catalog.js';
+import AssistantPanel, { assist } from '../assist/AssistantPanel.jsx';
+import { CATALOG, GROUPS, typeLabel, typeDesc, groupLabel, rankType } from './catalog.js';
 import { insertOnEdge, addAfter, addStandalone, EDGE_INSERTABLE, PORT_ADDABLE } from './insert.js';
 import { layoutOps, sizeOf } from './layout.js';
 
@@ -22,7 +23,7 @@ const nodeTypes = { flow: FlowNode };
 
 function Library({ onAdd, locked }) {
   const [q, setQ] = useState('');
-  const match = c => !q.trim() || `${c.type} ${c.label} ${c.desc} ${typeLabel(c.type)} ${typeDesc(c.type)} ${typeSyn(c.type)}`.toLowerCase().includes(q.trim().toLowerCase());
+  const match = c => rankType(c.type, q) > 0;
   return (
     <aside className="library" aria-label={t('lib.title', 'Steps')}>
       <div className="lib-search"><Icon d={I.search} /><input id="libSearch" value={q} onChange={e => setQ(e.target.value)} placeholder={t('lib.search', 'Search steps')} /></div>
@@ -89,7 +90,7 @@ function Canvas() {
         const o = old.get(n.id);
         return { id: n.id, type: 'flow', position: { x: n.x, y: n.y }, draggable: !locked, deletable: !locked, connectable: !locked,
           selected: route.selected?.kind === 'node' && route.selected.id === n.id, measured: o?.measured, width: sizeOf(n).width,
-          data: { node: n, issues: issuesByNode[n.id] || [], run: hl.nodes[n.id], locked, openPorts, onPlus, flash: flashId === n.id } };
+          data: { node: n, issues: issuesByNode[n.id] || [], run: hl.nodes[n.id], locked, openPorts, onPlus, flash: flashId === n.id, ai: assist.highlight.includes(n.id) } };
       });
     });
   }, [version, flashId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -117,7 +118,7 @@ function Canvas() {
   const fitted = useRef('');
   useEffect(() => {
     const key = store.doc.id + ':' + rev.rev;
-    if (fitted.current !== key && rfNodes.length && rfNodes.every(n => n.measured?.width)) { fitted.current = key; rf.fitView({ padding: 0.15 }); }
+    if (fitted.current !== key && rfNodes.length && rfNodes.every(n => n.measured?.width)) { fitted.current = key; rf.fitView({ padding: 0.15, maxZoom: 1 }); }
   }, [rfNodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const patch = (ops, label, merge) => store.dispatch({ type: 'patch', ops, label, merge });
@@ -156,6 +157,15 @@ function Canvas() {
     patch([{ op: 'addEdge', edge: { id: nextId(g.edges.map(e => e.id), r.value.kind === 'access' ? 'a' : 'e'), ...r.value } }], 'Connect');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* Keep a newly added step in view at the current zoom (the flow grows downward). */
+  const ensureVisible = id => requestAnimationFrame(() => requestAnimationFrame(() => {
+    const n = rf.getInternalNode(id), box = wrap.current?.getBoundingClientRect(); if (!n || !box) return;
+    const { x, y, zoom } = rf.getViewport(), w = n.measured?.width || 272, h = n.measured?.height || 76;
+    const sx = n.internals.positionAbsolute.x * zoom + x, sy = n.internals.positionAbsolute.y * zoom + y;
+    if (sx < 40 || sy < 40 || sx + w * zoom > box.width - 40 || sy + h * zoom > box.height - 60)
+      rf.setCenter(n.internals.positionAbsolute.x + w / 2, n.internals.positionAbsolute.y + h / 2, { zoom, duration: 250 });
+  }));
+
   const pick = type => {
     const g = store.active().graph, s = search; setSearch(null);
     const r = s.kind === 'edge' ? insertOnEdge(g, s.edgeId, type, measured()) : addAfter(g, s.nodeId, s.port, type, measured());
@@ -163,7 +173,7 @@ function Canvas() {
     const before = new Set(g.nodes.map(n => n.id));
     if (patch(r.value, s.kind === 'edge' ? 'Insert step' : 'Add step').ok) {
       const added = store.active().graph.nodes.find(n => !before.has(n.id) && n.type === type);
-      if (added) ctl.setSelected({ kind: 'node', id: added.id });
+      if (added) { ctl.setSelected({ kind: 'node', id: added.id }); ensureVisible(added.id); }
     }
   };
 
@@ -171,7 +181,7 @@ function Canvas() {
     const g = store.active().graph;
     const p = screen ? rf.screenToFlowPosition(screen) : (() => { const b = wrap.current.getBoundingClientRect(); return rf.screenToFlowPosition({ x: b.left + b.width / 2, y: b.top + b.height / 2 }); })();
     const r = addStandalone(g, type, p.x - sizeOf({ type }).width / 2, p.y - 30);
-    if (patch(r.value, 'Add ' + type).ok) ctl.setSelected({ kind: 'node', id: r.id });
+    if (patch(r.value, 'Add ' + type).ok) { ctl.setSelected({ kind: 'node', id: r.id }); ensureVisible(r.id); }
   };
 
   const arrange = () => { if (patch(layoutOps(store.active().graph, measured()), 'Arrange').ok) setTimeout(() => rf.fitView({ duration: 250, padding: 0.15 }), 30); };
@@ -197,7 +207,7 @@ function Canvas() {
         <ReactFlow nodes={rfNodes} edges={rfEdges} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
           onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onDelete={onDelete} onConnect={onConnect} isValidConnection={isValidConnection}
           onPaneClick={() => ctl.setSelected(null)} deleteKeyCode={locked ? null : ['Backspace', 'Delete']} nodesDraggable={!locked} nodesConnectable={!locked}
-          minZoom={0.25} maxZoom={1.8} proOptions={{ hideAttribution: true }} fitViewOptions={{ padding: 0.15 }}>
+          minZoom={0.25} maxZoom={1.8} proOptions={{ hideAttribution: true }} fitViewOptions={{ padding: 0.15, maxZoom: 1 }}>
           <Background gap={18} size={1.2} color="#d3d7de" />
           <Controls showInteractive={false} position="bottom-left" />
           <MiniMap pannable zoomable position="bottom-right" nodeColor={n => ({ trigger: '#6b7482', agent: '#536bdb', tool: '#8a63c9', decision: '#d18a2f', control: '#c9771b', data: '#3f86ab', outcome: '#2f7a57', prohibited: '#c54545' }[n.data?.node?.type] || '#999')} />
@@ -220,7 +230,7 @@ export default function Builder() {
     <ReactFlowProvider>
       <main className="builder">
         <Canvas />
-        {route.panel === 'run' ? <TestRunPanel /> : sel && sel.kind === 'node' && store.active().graph.nodes.some(n => n.id === sel.id) ? <ConfigPanel nodeId={sel.id} /> : null}
+        {route.panel === 'assist' ? <AssistantPanel /> : route.panel === 'run' ? <TestRunPanel /> : sel && sel.kind === 'node' && store.active().graph.nodes.some(n => n.id === sel.id) ? <ConfigPanel nodeId={sel.id} /> : null}
       </main>
     </ReactFlowProvider>);
 }

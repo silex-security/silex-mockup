@@ -12,12 +12,12 @@ import { COMPACT } from '../layout.js';
 const PORT_LABEL = { true: ['port.yes', 'yes'], false: ['port.no', 'no'], approved: ['port.approved', 'approved'], denied: ['port.denied', 'denied'] };
 
 function FlowNode({ id, data, selected }) {
-  const { node, issues = [], run, locked, openPorts = [], onPlus, flash } = data;
+  const { node, issues = [], run, locked, openPorts = [], onPlus, flash, ai } = data;
   const cat = entry(node.type), compact = COMPACT.has(node.type);
   const outs = portsOf(node).filter(p => p.kind === 'out');
   const hasIn = portsOf(node).some(p => p.kind === 'in');
   const errs = issues.filter(i => i.severity === 'error').length;
-  const cls = ['fn', 'fn-' + node.type, compact ? 'compact' : '', selected ? 'sel' : '', run ? 'run-' + run : '', flash ? 'flash' : ''].filter(Boolean).join(' ');
+  const cls = ['fn', 'fn-' + node.type, compact ? 'compact' : '', selected ? 'sel' : '', run ? 'run-' + run : '', flash ? 'flash' : '', ai ? 'ai' : ''].filter(Boolean).join(' ');
   return (
     <div className={cls} data-node={id} style={{ '--tc': cat?.color }}>
       {hasIn ? <Handle type="target" id="in" position={Position.Top} className="h h-in" /> : null}
