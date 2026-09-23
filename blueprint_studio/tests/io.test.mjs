@@ -23,7 +23,7 @@ test('io: malformed import is rejected with a message', () => {
   assert.equal(importDocument('{"schema":"silex.blueprint/v1","revisions":[]}').error.code, 'schema');
   const bad = JSON.parse(readFileSync(new URL('../templates/customer-refund.json', import.meta.url)));
   bad.graph.nodes.push({ id: 'ghost', type: 'nope', config: {} });
-  assert.equal(importDocument(JSON.stringify({ schema: 'silex.blueprint/v1', id: 'x', name: 'x', domain: 'x', owner: 'x', activeRev: 0, revisions: [{ rev: 0, graph: bad.graph }] })).error.code, 'bad_graph');
+  assert.equal(importDocument(JSON.stringify({ schema: 'silex.blueprint/v1', id: 'x', name: 'x', domain: 'x', owner: 'x', activeRev: 0, revisions: [{ rev: 0, parent: null, status: 'draft', origin: 'edit', hash: null, graph: bad.graph }] })).error.code, 'bad_graph');
 });
 
 test('io: diffGraphs reports added/removed/changed nodes and edges', () => {
@@ -45,4 +45,16 @@ test('io: policyExport lists the revision controls and monitors (number or objec
   assert.ok(text.includes('Unauthorized Refund'));
   assert.ok(text.includes('unauthorized_write'));
   assert.ok(policyExport(doc, rev).includes('Customer Refund'));
+});
+
+test('review r1: import rejects bad activeRev, bad config types and a tampered confirmed graph', async () => {
+  const { createStore, newDocument, memoryStorage } = await import('../js/store.js');
+  const st = createStore({ storage: memoryStorage() }); st.load(newDocument(tpl('customer-refund'))); st.dispatch({ type: 'confirm' });
+  const good = JSON.parse(exportDocument(st.doc));
+  assert.ok(importDocument(JSON.stringify(good)).ok);
+  assert.equal(importDocument(JSON.stringify({ ...good, activeRev: 999 })).error.code, 'schema');
+  const badCaps = JSON.parse(JSON.stringify(good)); badCaps.revisions[0].graph.nodes.find(n => n.id === 'execution').config.capabilities = 'all';
+  assert.equal(importDocument(JSON.stringify(badCaps)).ok, false);
+  const tampered = JSON.parse(JSON.stringify(good)); tampered.revisions[0].graph.nodes.find(n => n.id === 'gate').config.condition = 'amount > 99999';
+  assert.equal(importDocument(JSON.stringify(tampered)).error.code, 'hash_mismatch');
 });

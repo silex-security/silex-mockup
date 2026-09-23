@@ -21,6 +21,8 @@ function newSession(scenario) {
     latencyMinutes: 0,
     humanApprovals: 0,
     paths: {},              // activation -> [nodeId] executed
+    children: {},           // split parent activation -> piece activation ids
+    effectMark: 0,          // effects before this index are attached to a trace step
     nodeState: {},          // `${activation}\n${nodeId}` -> {fired, delivered:Set, gotToken, firstToken}
     seq: 0
   };
@@ -66,10 +68,18 @@ export function createRun(graph, scenario, opts = {}) {
     return s.nodeState[k];
   };
 
-  const traceStep = (activation, node, type, status, inp, out, effects, note) => {
-    const step = { seq: s.trace.length, activation, node: node ? node.id : null, type, status, in: inp, out, effects, note };
+  /* Every effect belongs to the trace step that produced it: a step takes the
+     effects emitted since the previous step; effects emitted after a step (a
+     dangling-port error, say) are flushed onto that step by flushEffects(). */
+  const traceStep = (activation, node, type, status, inp, out, _effects, note) => {
+    const step = { seq: s.trace.length, activation, node: node ? node.id : null, type, status, in: inp, out, effects: s.effects.slice(s.effectMark), note };
+    s.effectMark = s.effects.length;
     s.trace.push(step);
     return step;
+  };
+  const flushEffects = () => {
+    const last = s.trace[s.trace.length - 1];
+    if (last && s.effects.length > s.effectMark) { last.effects.push(...s.effects.slice(s.effectMark)); s.effectMark = s.effects.length; }
   };
   const effect = e => { s.effects.push(e); return e; };
 
@@ -155,11 +165,18 @@ export function createRun(graph, scenario, opts = {}) {
       if (node.config.canSplit && token.req.intent && token.req.intent.split) {
         const k = token.req.intent.split;
         const amounts = splitAmounts(token.req.amount, k);
+        s.children[activation] = [];
         for (let i = k; i >= 1; i--) {
           const piece = cloneToken(token);
-          piece.activation = token.requestId + '#' + i;
+          piece.activation = activation + '#' + i;              // unique under nesting; = requestId#i for a first split
           piece.piece = i;
-          piece.req = { ...token.req, amount: amounts[i - 1] };
+          const { intent, ...rest } = token.req;                  // the split intent is consumed once
+          piece.req = { ...rest, amount: amounts[i - 1] };
+          s.children[activation].unshift(piece.activation);
+          for (const [k2, st] of Object.entries(s.nodeState)) {  // skips already delivered to the parent apply to each piece
+            const [act, nid] = k2.split('\n');
+            if (act === activation && !st.fired) s.nodeState[piece.activation + '\n' + nid] = { fired: false, delivered: new Set(st.delivered), gotToken: false, firstToken: null };
+          }
           s.paths[piece.activation] = [...(s.paths[activation] || [])];   // a piece's path starts with the request's path up to the split
           sendToken(node.id, 'out', piece);
         }
@@ -174,6 +191,7 @@ export function createRun(graph, scenario, opts = {}) {
       if (!r.ok) {
         effect({ type: 'error', node: node.id, activation, code: r.error.code, message: r.error.message });
         traceStep(activation, node, 'decision', 'error', inp, { port: null, payload: null }, []);
+        sendSkip(node.id, 'true', activation); sendSkip(node.id, 'false', activation);
         endActivation(token, node.id, 'error');
         return { fired: true };
       }
@@ -186,12 +204,19 @@ export function createRun(graph, scenario, opts = {}) {
     }
 
     if (node.type === 'control') {
-      const applies = node.config.appliesWhen === '' || node.config.appliesWhen == null ? true : (() => {
+      let applies = true;
+      if (node.config.appliesWhen !== '' && node.config.appliesWhen != null) {
         const r = evalExpr(node.config.appliesWhen, token);
-        if (!r.ok) { effect({ type: 'error', node: node.id, activation, code: r.error.code, message: r.error.message }); traceStep(activation, node, 'control', 'error', inp, { port: null, payload: null }, []); endActivation(token, node.id, 'error'); return { fired: true, errored: true }; }
-        return r.value;
-      })();
-      if (applies === undefined) return { fired: true }; // errored, already handled
+        if (!r.ok || typeof r.value !== 'boolean') {
+          const err = r.ok ? { code: 'expr_type', message: 'appliesWhen must be a boolean' } : r.error;
+          effect({ type: 'error', node: node.id, activation, code: err.code, message: err.message });
+          traceStep(activation, node, 'control', 'error', inp, { port: null, payload: null }, []);
+          sendSkip(node.id, 'approved', activation); sendSkip(node.id, 'denied', activation);
+          endActivation(token, node.id, 'error');
+          return { fired: true };
+        }
+        applies = r.value;
+      }
 
       if (node.config.kind === 'policy_gate') {
         if (node.config.action === 'redact') {
@@ -372,6 +397,8 @@ export function createRun(graph, scenario, opts = {}) {
   function deliver(ev) {
     const node = nodeById(graph, ev.toNode);
     if (!node) return { none: true };
+    if (ev.kind === 'skip' && s.children[ev.activation])       // a skip for a split request reaches every piece
+      for (const c of s.children[ev.activation]) push({ ...ev, activation: c });
     const st = getState(ev.activation, ev.toNode);
     if (st.fired) return { none: true };
     st.delivered.add(ev.edgeId);
@@ -412,11 +439,13 @@ export function createRun(graph, scenario, opts = {}) {
     let guard = 0;
     while (true) {
       if (queue.length === 0) {
-        if (requests.length) { const r = requests.shift(); startRequest(r); continue; }
+        if (requests.length) { const r = requests.shift(); startRequest(r); flushEffects(); if (queue.length) return { done: false, waiting: null, step: s.trace[s.trace.length - 1] || null }; continue; }
+        finalize();
         return { done: true, waiting: null, step: null };
       }
       const ev = pop();
       const r = deliver(ev);
+      flushEffects();
       if (r && r.paused) {
         return { done: false, waiting: { activation: pendingApproval.activation, node: pendingApproval.node.id }, step: null };
       }
@@ -427,12 +456,27 @@ export function createRun(graph, scenario, opts = {}) {
     }
   }
 
+  /* An activation that started but never reached an outcome (e.g. a join that
+     can never fire) is an execution error, not a silent success. */
+  let finalized = false;
+  function finalize() {
+    if (finalized) return; finalized = true;
+    const ended = new Set(s.activations.map(a => a.id));
+    for (const act of Object.keys(s.paths).sort()) {
+      if (ended.has(act) || s.children[act]) continue;
+      const path = s.paths[act];
+      const last = path[path.length - 1] || null;
+      const [requestId, ...pieces] = act.split('#');
+      effect({ type: 'error', node: last, activation: act, code: 'unfinished', message: 'Activation never reached an outcome' });
+      s.activations.push({ id: act, requestId, parentRequestId: requestId, piece: pieces.length ? Number(pieces[pieces.length - 1]) : 0, status: 'error', end: last, path });
+    }
+    flushEffects();
+  }
+
   function resolveApproval(approve) {
     if (!pendingApproval) return { done: false, waiting: null, step: null };
     const { activation, node, token, inp } = pendingApproval;
     pendingApproval = null;
-    s.paths[activation] = s.paths[activation] || [];
-    s.paths[activation].push(node.id);
     const effects = [];
     if (approve) {
       const ap = issueApproval(node, token);
@@ -449,7 +493,7 @@ export function createRun(graph, scenario, opts = {}) {
     return step();
   }
 
-  const result = () => ({
+  const result = () => (queue.length === 0 && requests.length === 0 && !pendingApproval && finalize(), {
     scenarioId: s.scenarioId,
     template: s.template,
     activations: s.activations,

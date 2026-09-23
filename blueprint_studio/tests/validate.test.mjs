@@ -72,3 +72,14 @@ test('potentialPaths: from the untrusted trigger to the watched tool with guards
   assert.ok(toPayment.length >= 1);
   for (const p of toPayment) assert.ok(p.guards.includes('gate'));
 });
+
+test('review r1: lint requires a reachable success outcome and a decision condition / blocking rule', async () => {
+  const { applyPatch, makeNode } = await import('../js/model.js');
+  const g0 = JSON.parse((await import('node:fs')).readFileSync(new URL('../templates/customer-refund.json', import.meta.url))).graph;
+  const noSuccess = applyPatch(g0, [{ op: 'setConfig', id: 'resolved', key: 'success', value: false }]).value;
+  assert.ok(lint(noSuccess).some(i => i.code === 'no_success_outcome'));
+  const noCond = applyPatch(g0, [{ op: 'setConfig', id: 'gate', key: 'condition', value: '' }]).value;
+  assert.ok(lint(noCond).some(i => i.code === 'missing_config' && i.nodeId === 'gate'));
+  const gate = makeNode('control', 'blk', { config: { kind: 'policy_gate', action: 'block', rule: '' } });
+  assert.ok(lint(applyPatch(g0, [{ op: 'addNode', node: gate }]).value).some(i => i.code === 'missing_config' && i.nodeId === 'blk'));
+});

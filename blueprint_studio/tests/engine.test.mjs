@@ -62,3 +62,46 @@ test('engine: interactive run pauses at a human approval and resumes on resolve'
   assert.equal(res.ledger.writes.length, 1);
   assert.equal(res.ledger.writes[0].approvalId, 'ap1');
 });
+
+/* ---- regressions from code review round 1 (codex) ---- */
+import { applyPatch as _ap, makeNode as _mk } from '../js/model.js';
+import { runScenario as _run } from '../js/engine.js';
+const _refund = () => JSON.parse(readFileSync(new URL('../templates/customer-refund.json', import.meta.url))).graph;
+const _req = o => ({ id: 'r1', customer: 'c1', order: 'o1', amount: 2500, eligible: 2500, channel: 'support_chat', ...o });
+
+test('review r1: an appliesWhen evaluation error ends the activation and performs no write', () => {
+  const g = _ap(_refund(), [{ op: 'setConfig', id: 'approval', key: 'appliesWhen', value: '!amount' }]).value;
+  const r = _run(g, { id: 's', template: 't', requests: [_req()] });
+  assert.equal(r.ledger.writes.length, 0);
+  assert.deepEqual(r.activations.map(a => a.status), ['error']);
+});
+
+test('review r1: two splitting agents do not lose money; ids stay unique; intent is consumed once', () => {
+  const g = _ap(_refund(), [{ op: 'setConfig', id: 'eligibility', key: 'canSplit', value: true }]).value;
+  const r = _run(g, { id: 's', template: 't', requests: [_req({ amount: 800, eligible: 800, intent: { split: 2 } })] });
+  const total = r.ledger.writes.reduce((a, w) => a + w.amount, 0);
+  assert.equal(total, 800);
+  const ids = r.activations.map(a => a.id);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('review r1: a splitter after a decision still receives the untaken branch skip at a join:all node', () => {
+  // request -> triage -> eligibility -> gate -(false)-> S (splitting agent) -> execution(join all) ; gate -(true)-> approval -(approved)-> execution
+  let g = _refund();
+  const S = _mk('agent', 'splitter', { x: 0, y: 0, config: { canSplit: true } });
+  const eFalse = g.edges.find(e => e.from.node === 'gate' && e.from.port === 'false');
+  g = _ap(g, [{ op: 'setConfig', id: 'triage', key: 'canSplit', value: false }, { op: 'addNode', node: S }, { op: 'removeEdge', id: eFalse.id },
+    { op: 'addEdge', edge: { id: 'x1', kind: 'flow', from: { node: 'gate', port: 'false' }, to: { node: 'splitter', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'x2', kind: 'flow', from: { node: 'splitter', port: 'out' }, to: { node: 'execution', port: 'in' } } },
+    { op: 'setConfig', id: 'execution', key: 'join', value: 'all' }]).value;
+  const r = _run(g, { id: 's', template: 't', requests: [_req({ amount: 1000, eligible: 1000, intent: { split: 2 } })] });
+  assert.deepEqual(r.activations.map(a => `${a.id}:${a.status}:${a.end}`).sort(), ['r1#1:success:resolved', 'r1#2:success:resolved']);
+  assert.equal(r.ledger.writes.length, 2);
+});
+
+test('review r1: trace steps carry their effects (write, approval, read)', () => {
+  const r = _run(_refund(), { id: 's', template: 't', requests: [_req()] });
+  const all = r.trace.flatMap(st => st.effects.map(e => e.type));
+  for (const t of ['data_read', 'approval_issued', 'write', 'approval_consumed', 'emit']) assert.ok(all.includes(t), t);
+  assert.equal(all.length, r.effects.length, 'every effect is attached to exactly one step');
+});

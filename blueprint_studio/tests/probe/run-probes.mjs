@@ -384,6 +384,23 @@ await probe(20, 'performance: validate + optimize on the refund template at n=40
   return { pass: ms < 3000, detail: ms + ' ms' };
 });
 
+await probe(21, 'review r1: trace shows effects; a pending run is cancelled when the graph changes; a tampered import is rejected atomically', async () => {
+  await load();
+  await ev(`const f=__bs.ui.form; f.amount=2500; f.eligible=2500; f.interactive=false; document.getElementById('runBtn').click(); return 1`);
+  const effectsShown = await ev(`return [...document.querySelectorAll('#traceList .st')].some(e=>/write/.test(e.textContent)) && [...document.querySelectorAll('#traceList .st')].some(e=>/approval_issued/.test(e.textContent))`);
+  await ev(`const f=__bs.ui.form; f.interactive=true; document.getElementById('runBtn').click(); return 1`);
+  const waiting = await ev('return !!__bs.ui.run?.waiting');
+  await ev(`${S} st.dispatch({type:'patch', ops:[{op:'setConfig', id:'gate', key:'condition', value:'amount > 100'}]}); return 1`);
+  const cancelled = await ev('return __bs.ui.run === null');
+  await ev(`${S} st.dispatch({type:'confirm'}); return 1`);
+  const h0 = await hash();
+  const tampered = await ev(`${S} const d=JSON.parse(M.io.exportDocument(st.doc)); d.revisions[0].graph.nodes.find(n=>n.id==='gate').config.condition='amount > 99999'; return JSON.stringify(d)`);
+  await ev(`__bs.importText(${JSON.stringify(tampered)}); return 1`);
+  const h1 = await hash();
+  const toast = await ev('return document.getElementById("toast").textContent');
+  return { pass: effectsShown && waiting && cancelled && h0 === h1 && /hash/.test(toast), detail: JSON.stringify({ effectsShown, waiting, cancelled, toast }) };
+});
+
 /* Not a pass/fail probe: with --shots, captures every stage for reviewers. */
 if (SHOTS && (!ONLY || ONLY.has('tour'))) {
   await load(); await confirmActive(); await validateN(40); await optimize();

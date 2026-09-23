@@ -54,3 +54,11 @@ test('nlcompile: compiled ops are applicable to the graph', () => {
   const patched = applyPatch(graph, r.ops);
   assert.ok(patched.ok, JSON.stringify(patched.error));
 });
+
+test('review r1: sentences compose — "approval above $500. aggregate per day." yields dayTotal > 500', async () => {
+  const { applyPatch } = await import('../js/model.js');
+  const graph = JSON.parse(readFileSync(new URL('../templates/customer-refund.json', import.meta.url))).graph;
+  const r = compileText('Require approval above $500. Aggregate per customer per day.', graph).value;
+  const g = applyPatch(graph, r.ops).value;
+  assert.equal(g.nodes.find(n => n.id === 'gate').config.condition, 'dayTotal > 500');
+});

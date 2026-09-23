@@ -394,9 +394,14 @@ function describeOp(graph, o) {
   }
 }
 function scoreBox(sc) {
-  const S = (v, l) => h('div', {}, h('b', { text: v }), h('span', { text: l }));
-  return h('div', { class: 'sc' }, S(sc.violationsClosed ? frac(sc.violationsClosed) : 'n/a', 'violations closed'), S(pct(sc.residualReachability), 'residual reach.'), S(pct(sc.benignCompletion), 'benign completion'),
-    S(pct(sc.friction), 'friction'), S(sc.addedLatencyMedian == null ? 'n/a' : sc.addedLatencyMedian + ' min', 'added latency'), S(String(sc.patchOps ?? '—'), 'patch ops'));
+  const S = (v, l, f) => h('div', { title: f }, h('b', { text: v }), h('span', { text: l }));
+  return h('div', { class: 'sc' },
+    S(sc.violationsClosed ? frac(sc.violationsClosed) : 'n/a', 'baseline findings at 0 violations in tested scenarios', 'baseline findings with no violating scenario in this candidate’s run / baseline findings (same frozen scenario set; a sample, not a proof)'),
+    S(pct(sc.residualReachability), 'residual reachability', 'adversarial scenarios with ≥1 violation / adversarial scenarios run'),
+    S(pct(sc.benignCompletion), 'benign completion', 'benign scenarios ending at a success outcome / benign scenarios run'),
+    S(pct(sc.friction), 'friction', 'benign scenarios needing a human approval / benign scenarios run'),
+    S(sc.addedLatencyMedian == null ? 'n/a' : sc.addedLatencyMedian + ' min', 'median approval latency', 'median total approval minutes over benign scenarios'),
+    S(String(sc.patchOps ?? '—'), 'patch ops', 'number of graph operations in the patch'));
 }
 function paramControls(rev, c) {
   const opts = c.candidate.paramOptions || {};
@@ -510,10 +515,10 @@ function renderRegister() {
 
 /* ------------------------------------------------------------- run panel */
 function runHighlights() {
-  const v = ui.runView; if (!v) return {};
+  const v = ui.runView; if (!v || !sameCtx(v.ctx)) return {};
   const out = {};
   for (const st of v.trace) out[st.node] = st.status === 'ok' ? 'ok' : st.status === 'waiting' ? 'wait' : st.status === 'error' ? 'err' : (out[st.node] || 'skip');
-  const g = store.active().graph;
+  const g = v.ctx.graph;
   for (const a of v.activations || []) for (let i = 1; i < a.path.length; i++) { const e = g.edges.find(x => x.kind === 'flow' && x.from.node === a.path[i - 1] && x.to.node === a.path[i]); if (e) out['edge:' + e.id] = true; }
   return out;
 }
@@ -545,25 +550,32 @@ function renderRunPanel() {
     h('span', { text: String(st.seq).padStart(2, '0') }), h('span', { text: st.activation }), h('span', { class: 's-' + st.status, text: st.status }), h('span', { text: nodeLabel(st.node) }), h('span', { text: st.out?.port ? '→ ' + st.out.port : '' }),
     h('span', { text: (st.effects || []).map(e => e.type).join(', ') }))));
   const sel = v.trace[ui.stepSel ?? v.trace.length - 1];
-  const summary = h('div', {}, h('div', { class: 'hint', text: (v.activations || []).map(a => `${a.id}: ${a.status} at ${nodeLabel(a.end)}`).join(' · ') + (v.violations ? ' · violations: ' + v.violations : '') }),
+  const summary = h('div', {}, sameCtx(v.ctx) ? null : h('div', { class: 'hint', text: `Recorded on ${revLabel(v.ctx.rev)}; the graph shown has changed since, so it is not highlighted.` }), h('div', { class: 'hint', text: (v.activations || []).map(a => `${a.id}: ${a.status} at ${nodeLabel(a.end)}`).join(' · ') + (v.violations ? ' · violations: ' + v.violations : '') }),
     h('pre', { class: 'json', id: 'stepJson', text: sel ? JSON.stringify({ node: sel.node, status: sel.status, in: sel.in, out: sel.out, effects: sel.effects }, null, 1) : '' }));
   body.append(list, summary); p.append(body);
 }
-const nodeLabel = id => store.active().graph.nodes.find(n => n.id === id)?.label || id;
+/* A run is bound to the document, revision and graph it started on. Labels and
+   monitors use that snapshot; the canvas is highlighted only while the active
+   graph is still the one the run executed. */
+const runCtx = () => { const r = store.active(); return { docId: store.doc.id, rev: r.rev, hash: store.hashOf(r), graph: clone(r.graph) }; };
+const sameCtx = c => !!c && c.docId === store.doc.id && c.rev === store.active().rev && c.hash === store.hashOf(store.active());
+const nodeLabel = (id, g = ui.runView?.ctx?.graph || store.active().graph) => g.nodes.find(n => n.id === id)?.label || id;
 function finishRun() {
-  const run = ui.run, res = run.result(), g = store.active().graph;
+  const run = ui.run, res = run.result(), ctx = ui.run.ctx, g = ctx.graph;
   let violations = '';
   if (run.done) {
     const mons = monitors.evaluateMonitors(g, res).filter(m => m.violations.length);
-    violations = mons.length ? mons.map(m => `${nodeLabel(m.node)} (${m.violations.map(v => v.activation).join(', ')})`).join('; ') : 'none';
+    violations = mons.length ? mons.map(m => `${nodeLabel(m.node, g)} (${m.violations.map(v => v.activation).join(', ')})`).join('; ') : 'none';
   }
-  ui.runView = { trace: res.trace, activations: res.activations, effects: res.effects, violations };
-  if (run.done) ui.runs.unshift({ label: `${ui.runs.length + 1}. $${ui.form.amount}${ui.form.split > 1 ? ' ÷' + ui.form.split : ''}${ui.form.injected ? ' inj' : ''}${ui.form.replay ? ' replay' : ''}${ui.form.dup ? ' dup' : ''} → ${res.activations.map(a => a.status).join('/')}`, view: ui.runView });
+  ui.runView = { trace: res.trace, activations: res.activations, effects: res.effects, violations, ctx };
+  if (run.done) ui.runs.unshift({ label: `${ui.runs.length + 1}. ${revLabel(ctx.rev)} $${ui.form.amount}${ui.form.split > 1 ? ' ÷' + ui.form.split : ''}${ui.form.injected ? ' inj' : ''}${ui.form.replay ? ' replay' : ''}${ui.form.dup ? ' dup' : ''} → ${res.activations.map(a => a.status).join('/')}`, view: ui.runView });
   if (ui.runs.length > 10) ui.runs.pop();
 }
 function startRun(stepMode) {
   const scenario = manualScenario(ui.form);
-  ui.run = engine.createRun(store.active().graph, scenario, { interactive: ui.form.interactive });
+  const ctx = runCtx();
+  ui.run = engine.createRun(ctx.graph, scenario, { interactive: ui.form.interactive });
+  ui.run.ctx = ctx;
   ui.stepSel = null;
   if (!stepMode) { let guard = 0; while (!ui.run.done && !ui.run.waiting && guard++ < 5000) ui.run.step(); }
   else ui.run.step();
@@ -610,7 +622,11 @@ async function boot() {
   $('importBtn').addEventListener('click', () => $('importFile').click());
   $('importFile').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) importText(await f.text()); });
   if (!store.restore()) store.load(newDocument(await loadTemplate('customer-refund')));
-  store.on(ev => { if (ev.reason !== 'refused') renderAll(); else renderBuild(); });
+  store.on(ev => {
+    if (ev.reason === 'load') { ui.run = null; ui.runView = null; ui.runs = []; }
+    else if (ui.run && !sameCtx(ui.run.ctx)) { ui.run = null; toast('Test run cancelled: the graph or revision changed'); }
+    if (ev.reason !== 'refused') renderAll(); else renderBuild();
+  });
   renderAll();
   requestAnimationFrame(() => { canvas.fit(); renderBuild(); });
   window.__bs = { store, canvas, ui, go, runValidation, runOptimize, modifyCandidate, recommendedId, approvable, importText, startFromTemplate, autoLayout, addNode, modules: { expr, engine, adversary, validator, optimizer, layouter, io, nl } };

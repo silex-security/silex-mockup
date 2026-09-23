@@ -2,7 +2,7 @@
    Labelled "rule-based, no AI". No LLM. Case-insensitive, one phrase per sentence.
    Anything unrecognised goes to `unmatched`, never guessed. */
 
-import { nodeById, flowIn, nextId, makeNode, ok } from './model.js';
+import { nodeById, flowIn, nextId, makeNode, ok, fail, applyPatch } from './model.js';
 import { potentialPaths } from './validate.js';
 
 export const PHRASES = [
@@ -127,11 +127,16 @@ export function compileText(text, graph) {
   const ops = [];
   const matched = [];
   const unmatched = [];
+  let working = graph;                                   // each sentence sees the previous sentences' changes
   for (const s of sentences) {
     let hit = false;
     for (const h of handlers) {
       const m = h.re.exec(s);
-      if (m) { ops.push(...h.produce(graph, m)); matched.push(s); hit = true; break; }
+      if (!m) continue;
+      const produced = h.produce(working, m);
+      const next = applyPatch(working, produced);
+      if (!next.ok) return fail('nl_compose', `“${s}” cannot be applied after the earlier sentences: ${next.error.message}`);
+      working = next.value; ops.push(...produced); matched.push(s); hit = true; break;
     }
     if (!hit) unmatched.push(s);
   }

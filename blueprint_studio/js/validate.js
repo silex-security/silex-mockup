@@ -44,7 +44,7 @@ export function lint(graph) {
 
   // success outcome reachable from a trigger
   const successOutcomes = nodes.filter(n => n.type === 'outcome' && n.config.success);
-  if (triggers.length && successOutcomes.length && !successOutcomes.some(o => reachable.has(o.id))) {
+  if (triggers.length && !successOutcomes.some(o => reachable.has(o.id))) {
     issues.push({ severity: 'error', code: 'no_success_outcome', message: 'No success outcome is reachable from a trigger' });
   }
 
@@ -63,16 +63,26 @@ export function lint(graph) {
     }
   }
 
-  // expressions
+  // expressions: a decision condition and a blocking rule are required; appliesWhen is optional
+  const exprIssue = (n, what, src) => {
+    const r = check(src);
+    if (!r.ok) issues.push({ severity: 'error', code: r.error.code === 'expr_unknown_identifier' ? 'expr_unknown_identifier' : 'expr_syntax', message: `Bad ${what} in "${n.label}": ${r.error.message}`, nodeId: n.id });
+  };
+  const blank = v => v == null || String(v).trim() === '';
   for (const n of nodes) {
-    if (n.type === 'decision' && n.config.condition) {
-      const r = check(n.config.condition);
-      if (!r.ok) issues.push({ severity: 'error', code: r.error.code === 'expr_unknown_identifier' ? 'expr_unknown_identifier' : 'expr_syntax', message: `Bad condition in "${n.label}": ${r.error.message}`, nodeId: n.id });
+    if (n.type === 'decision') {
+      if (blank(n.config.condition)) issues.push({ severity: 'error', code: 'missing_config', message: `Decision "${n.label}" has no condition`, nodeId: n.id });
+      else exprIssue(n, 'condition', n.config.condition);
     }
     if (n.type === 'control') {
-      if (n.config.appliesWhen) { const r = check(n.config.appliesWhen); if (!r.ok) issues.push({ severity: 'error', code: r.error.code === 'expr_unknown_identifier' ? 'expr_unknown_identifier' : 'expr_syntax', message: `Bad appliesWhen in "${n.label}": ${r.error.message}`, nodeId: n.id }); }
-      if (n.config.kind === 'policy_gate' && n.config.action === 'block' && n.config.rule) { const r = check(n.config.rule); if (!r.ok) issues.push({ severity: 'error', code: r.error.code === 'expr_unknown_identifier' ? 'expr_unknown_identifier' : 'expr_syntax', message: `Bad rule in "${n.label}": ${r.error.message}`, nodeId: n.id }); }
+      if (!blank(n.config.appliesWhen)) exprIssue(n, 'appliesWhen', n.config.appliesWhen);
+      if (n.config.kind === 'policy_gate' && n.config.action === 'block') {
+        if (blank(n.config.rule)) issues.push({ severity: 'error', code: 'missing_config', message: `Blocking gate "${n.label}" has no rule`, nodeId: n.id });
+        else exprIssue(n, 'rule', n.config.rule);
+      }
     }
+    if (n.type === 'prohibited' && n.config.monitor !== 'secret_exposure' && blank(n.config.cap))
+      issues.push({ severity: 'error', code: 'missing_config', message: `Prohibited "${n.label}" has no capability`, nodeId: n.id });
   }
 
   // write tool with empty cap
