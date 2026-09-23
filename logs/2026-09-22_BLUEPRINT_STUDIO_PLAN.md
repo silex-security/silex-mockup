@@ -274,3 +274,65 @@ Idempotency note, found while applying C2-1: keyed on (customer, order, cap) it 
 ### Round 3 (v0.3) — DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
 
 DeepSeek re-traced all six templates for baseline and composite under the new rules. Its four non-blocking notes are **pinned in `CONTRACT.md` (Task 0)**, not in this text, so the approved plan is unchanged and the notes are checked at the code gate: variant (b)'s gate is `redactAbove: internal`, `appliesWhen` absent (always); the vendor template's exact condition `amount > 10000` with its false and denied branches; a splitting agent fires once and emits k tokens; redact runs "regardless of `rule`, whenever `appliesWhen` holds".
+
+## 10. Implementation record
+
+Branch `blueprint-studio`. Review base `d322487`. Commits: `3843e6d` Task 0 foundation · `c46d7ce` implementation (reviewed as revision `3a9bce3`) · round-1 fixes (revision `bb5fcbe`) · `6f8ae63` round-2 fixes (revision `c455e71`).
+
+**Who built what.**
+- **Claude:** Task 0 (model, store, contract, templates, 16 semantic fixtures); Task 6 (canvas, inspector, app, CSS, README, probe runner).
+- **DeepSeek:** Tasks 1–5 (expr, engine, monitors, adversary, validate, optimize, layout, io, nlcompile, and their tests). It reported contract ambiguities instead of editing files it didn't own; it also picked up the mid-task `paramOptions` contract addition.
+
+**Claude's fixes to DeepSeek's files before review, found by the probes and screenshots:**
+- `layout.js`: it put prohibited nodes 40 rows down and had no row ordering. Rewritten with barycentre rows and a band below the flow.
+- `nlcompile.js`: it did not return the contract's Result shape.
+- `optimize.js`: with threshold 0, the vendor template produced duplicate candidate ids, and finding classes were keyed on template alone instead of monitor + template.
+- `io.diffGraphs`: now reports `config.<key>`.
+- `engine`: split pieces now carry their request's path prefix.
+
+### Roster changes (authorized by the user)
+
+1. **Code-review rounds 1–2: Codex only.** DeepSeek's API account ran out of credit ("Insufficient Balance") while it reviewed round 1, so it returned no verdict. The user chose to top it up and keep the three-seat roster.
+2. **Codex out, then back in.** Codex hit its weekly usage limit (resets 2026-09-27) during round 3, and the user first chose to drop it from the code gate. The user then upgraded Codex to a Pro account and asked to verify the new limit before using it. `/status` showed the weekly limit at 100% (resets 30 Sep), and a one-line test prompt succeeded. Codex was restored, and the roster is again **Claude + DeepSeek + Codex**, unanimous.
+
+### Code review round 1 (revision `3a9bce3`) — Codex IMPL-REJECTED (8), DeepSeek no verdict (no API credit)
+
+| # | Defect (codex, each reproduced) | Fix |
+|---|---|---|
+| 1 | Import accepted malformed documents and a tampered confirmed graph with its old hash | Strict, atomic import: typed config, canonical edges, revision references, confirmed hashes recomputed, evidence ↔ hash checked |
+| 2 | An `appliesWhen` evaluation error still let the write happen | The error branch ends the activation and skips both ports |
+| 3 | Two splitters lost half the money (activation ids collided); skips were lost for pieces | Piece id is `parent#i`; the split intent is consumed once; pieces inherit skip state; unfinished activations become errors |
+| 4 | Lint allowed a graph with no success outcome, and empty conditions or rules | Both are now lint errors; candidate eligibility uses the same lint |
+| 5 | Trace steps carried no effects | Each effect is attached to exactly one step |
+| 6 | Interactive runs mixed graph revisions | Each run is bound to a snapshot of {doc, rev, hash, graph}; a change cancels the pending run |
+| 7 | The scorecard said "violations closed" | Renamed "baseline findings at 0 violations in tested scenarios", with a formula tooltip on every cell |
+| 8 | Sentences in the NL box were compiled against the original graph | They now compose sequentially; a failed composition returns an error |
+
+### Code review round 2 (revision `bb5fcbe`) — Codex IMPL-REJECTED (3), converging
+
+| # | Defect | Fix |
+|---|---|---|
+| 1 | Split pieces after a decision ran the gate before any write, and wrote out of order | Pending skips are settled before splitting; pieces run strictly in order |
+| 2 | Import skipped missing config fields; a `__proto__` node type passed the lookup | Own-property type check; every applicable schema field is required |
+| 3 | Imported lifecycle evidence was checked only shallowly; Register accepted a decision with no evidence | Deep checks for validation, optimization, accept and approve evidence; Register re-checks independently |
+
+### Code review round 3 (revision `c455e71`) — Codex IMPL-REJECTED (2)
+
+| # | Defect | Fix |
+|---|---|---|
+| 1 | Decision associations were unchecked: a rejected or ineligible candidate, a nonexistent run id, or evidence friction edited to 999/1 all imported and registered | One checker, `decisionProblem`, is used by both import and Register. Evidence must equal what `approvalEvidence` / `childValidationResult` derive from the cited candidate run |
+| 2 | Result validation was shallow: `metrics: {}` was accepted | Import **recomputes** everything: it regenerates the scenario set from (hash, n) and re-runs validation, every candidate run and every verdict, and requires an exact match (`evidence_mismatch`). The engine is deterministic, so a document can only carry evidence the engine really produced |
+
+### Code review round 4 (revision `16bc25c`) — Codex IMPL-REJECTED (1)
+
+| # | Defect | Fix |
+|---|---|---|
+| 1 | Candidate `params: {threshold: null}` threw during import; `paramOptions: {threshold: 7}` passed import and then crashed Optimize | Params must use the optimizer's own keys and option values. The whole candidate record, except `paramsVersion`, must equal the regenerated one. Recompute is wrapped so that malformed input returns a failed Result and never throws. A legitimately modified candidate still imports (test) |
+
+### Code review round 5 (revision `951bf49`, `git diff d322487`) — verdicts
+
+- **CODEX: IMPL-APPROVED** (round 5).
+- **CLAUDE: IMPL-APPROVED.** I checked the 14 fixes against their regression tests (91/91 unit, 22/22 probes). `index.html`, `assurance.html` and `swm/` are unchanged, and there is no `eval`, `Function` or `innerHTML` in `blueprint_studio/js`.
+- **DEEPSEEK: pending.** Its API balance is −$0.06 (`is_available: false`, checked on the balance endpoint), so it returned no verdict in any code round. The gate is **not** passed until DeepSeek approves this revision.
+
+Nothing has been pushed. The branch `blueprint-studio` exists only locally.
