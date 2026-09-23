@@ -566,6 +566,53 @@ await probe('C5', 'redact secrets with a decision whose two branches reach Refun
   return { pass: state === 'enabled' && r.gates.length >= 2 && r.gates.every(g => g === 'control:redact') && !r.lint.length && leaks.every(n => n === 0), detail: JSON.stringify({ state, ...r, leaks }) };
 });
 
+
+/* ------------------------------------------------------ templates (G, §3.11) */
+async function openGallery() { await clickSel('#docMenuBtn'); await clickSel('#browseTemplatesBtn'); await sleep(300); }
+await probe('G1', 'gallery: 13 cards; each category tab filters; "发票" and "invoice" both find invoice processing', async () => {
+  await load();
+  await openGallery();
+  const total = await ev('return document.querySelectorAll(".tpl-card").length');
+  const cats = await ev(`${S} const m={}; for (const id of ctl.TEMPLATE_IDS) { const c=ctl.TEMPLATES[id].category; m[c]=(m[c]||0)+1 } return m`);
+  const tabs = {};
+  for (const c of Object.keys(cats)) { await clickSel(`.cat-tabs button[data-cat="${c}"]`); await sleep(100); tabs[c] = await ev('return document.querySelectorAll(".tpl-card").length'); }
+  await clickSel('.cat-tabs button[data-cat="All"]');
+  const find = async q => { await ev(`const i=document.querySelector('#gallerySearch'); const set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set; set.call(i, ${JSON.stringify(q)}); i.dispatchEvent(new Event('input',{bubbles:true})); return 1`); await sleep(150); return ev('return [...document.querySelectorAll(".tpl-card")].map(c=>c.dataset.template)'); };
+  const zh = await find('发票'), en = await find('invoice');
+  const allCats = Object.keys(cats).sort().join();
+  return { pass: total === 13 && Object.keys(cats).every(c => tabs[c] === cats[c]) && allCats === ['AI', 'Document Ops', 'IT Ops', 'Marketing', 'Other', 'Sales', 'Support'].sort().join() && zh.includes('docops-invoice-processing') && en.includes('docops-invoice-processing'), detail: JSON.stringify({ total, cats, tabs, zh, en }) };
+});
+await probe('G2', 'every template via the gallery renders without console errors and with no overlapping nodes, in English and 中文', async () => {
+  const out = {};
+  for (const lang of ['en', 'zh']) {
+    await load({ lang });
+    const ids = await ev(`${S} return ctl.TEMPLATE_IDS`);
+    for (const id of ids) {
+      await openGallery();
+      await clickSel(`[data-use="${id}"]`); await sleep(500); await fit();
+      const r = await overlapCheck();
+      const nodes = await ev(`${S} return G().nodes.length`);
+      const codes = await lintCodes();
+      if (r.overlap || !r.inside || r.n !== nodes || codes.length) out[lang + ':' + id] = { ...r, nodes, codes };
+    }
+  }
+  return { pass: Object.keys(out).length === 0, detail: Object.keys(out).length ? JSON.stringify(out) : 'all templates clean in both languages' };
+});
+await probe('G3', 'Ask AI (rule-based) works on new templates: add a human approval after an agent', async () => {
+  const res = {};
+  for (const id of ['docops-invoice-processing', 'itops-access-request']) {
+    await load();
+    await ev(`__bs2.ctl.startFromTemplate('${id}'); return 1`); await sleep(500);
+    const a = await ev(`${S} const g=G(); const ag=g.nodes.find(n=>n.type==='agent' && g.edges.filter(e=>e.kind==='flow'&&e.from.node===n.id).length===1); return ag && ag.label`);
+    const h0 = await hash();
+    await ask(`add a human approval after ${a}`); await sleep(200);
+    const st = await applyState();
+    if (st === 'enabled') { await clickSel('#assistApply'); await sleep(300); }
+    res[id] = { agent: a, st, changed: (await hash()) !== h0, lint: await lintCodes() };
+  }
+  return { pass: Object.values(res).every(r => r.st === 'enabled' && r.changed && !r.lint.length), detail: JSON.stringify(res) };
+});
+
 /* ------------------------------------------------------ i18n, T3, T4, V1 */
 await probe('I1', '中文 changes UI strings, checklist sentences and node explanations; search matches Chinese', async () => {
   await load({ lang: 'en' });
@@ -616,6 +663,7 @@ if (SHOTS && (!ONLY || ONLY.has('V1'))) {
     await ev(`${S} ctl.clearRun(); ctl.setPanel(null); ctl.confirm(); await ctl.runValidation(40); ctl.go('assurance','validate'); return 1`); await sleep(400); await shot(`v1-${lang}-7-validate`);
     await ev(`${S} await ctl.runOptimize(); ctl.go('assurance','optimize'); return 1`); await sleep(400); await shot(`v1-${lang}-8-optimize`);
     await load({ lang }); await fit(); await ask(lang === 'zh' ? '在 Refund Eligibility 后面加一个人工审批' : 'add a human approval after Refund Eligibility'); await sleep(300); await shot(`v1-${lang}-10-ask-ai`);
+    await load({ lang }); await openGallery(); await shot(`v1-${lang}-11-gallery`);
     await ev(`${S} ctl.go('assurance','decide'); return 1`); await sleep(400); await shot(`v1-${lang}-9-decide`);
   }
   console.log('V1 screenshots written to ' + SHOTS);

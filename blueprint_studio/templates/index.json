@@ -1,0 +1,12 @@
+{
+  "order": [
+    "customer-refund", "support-email-triage",
+    "ai-rag-support-agent", "ai-multi-agent-content",
+    "sales-lead-enrichment", "sales-discount-approval",
+    "marketing-rss-social",
+    "docops-invoice-processing", "docops-contract-review", "vendor-bank-change",
+    "itops-access-request", "itops-alert-containment",
+    "hr-employee-onboarding"
+  ],
+  "categories": ["AI", "Sales", "IT Ops", "Marketing", "Document Ops", "Support", "Other"]
+}

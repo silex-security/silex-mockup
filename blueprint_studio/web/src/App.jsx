@@ -7,6 +7,7 @@ import * as ctl from './state/controller.js';
 import { t, getLang, setLang } from './i18n/index.js';
 import Icon, { I } from './ui/Icon.jsx';
 import Builder from './builder/Builder.jsx';
+import Gallery from './templates/Gallery.jsx';
 import Checklist from './builder/Checklist.jsx';
 import Confirm from './assurance/Confirm.jsx';
 import Validate from './assurance/Validate.jsx';
@@ -57,9 +58,8 @@ function DocMenu({ onClose, onAbout }) {
   const download = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ctl.exportText()], { type: 'application/json' })); a.download = (store.doc.name || 'blueprint').replace(/[^\w.\- ]+/g, '_') + '.json'; document.body.append(a); a.click(); a.remove(); onClose(); };
   return (
     <div className="menu" role="menu">
-      <div className="menu-label">{t('menu.new', 'New from template')}</div>
-      <button role="menuitem" onClick={() => { ctl.startFromTemplate('customer-refund'); onClose(); }}>{t('tpl.refund', 'Customer Refund')}</button>
-      <button role="menuitem" onClick={() => { ctl.startFromTemplate('vendor-bank-change'); onClose(); }}>{t('tpl.vendor', 'Vendor Bank-Detail Change')}</button>
+      <div className="menu-label">{t('menu.new', 'New')}</div>
+      <button role="menuitem" id="browseTemplatesBtn" onClick={() => { ctl.openGallery(true); onClose(); }}><Icon d={I.layout} />{t('menu.browse', 'Browse templates… ({n})', { n: ctl.TEMPLATE_IDS.length })}</button>
       <button role="menuitem" onClick={() => { ctl.startBlank(); onClose(); }}>{t('tpl.blank', 'Blank workflow')}</button>
       <div className="menu-sep" />
       <button role="menuitem" onClick={() => file.current.click()}><Icon d={I.upload} />{t('menu.import', 'Import JSON…')}</button>
@@ -126,6 +126,7 @@ export default function App() {
           <div className="assurance-body"><StagePage /></div>
         </main>)}
       {about ? <About onClose={() => setAbout(false)} /> : null}
+      {route.gallery ? <Gallery /> : null}
       {route.toast ? <div className={'toast ' + route.toast.kind} role="status">{route.toast.text}</div> : null}
     </div>);
 }

@@ -52,8 +52,7 @@ function EmptyState() {
       <h2>{t('empty.title', 'Start a workflow')}</h2>
       <p className="muted">{t('empty.sub', 'Pick a starter, or begin with a trigger and add steps with +.')}</p>
       <div className="empty-actions">
-        <button className="btn" onClick={() => ctl.startFromTemplate('customer-refund')}>{t('tpl.refund', 'Customer Refund')}</button>
-        <button className="btn" onClick={() => ctl.startFromTemplate('vendor-bank-change')}>{t('tpl.vendor', 'Vendor Bank-Detail Change')}</button>
+        <button className="btn" id="emptyBrowseBtn" onClick={() => ctl.openGallery(true)}>{t('empty.browse', 'Browse {n} templates', { n: ctl.TEMPLATE_IDS.length })}</button>
         <button className="btn primary" id="startTriggerBtn" onClick={() => { const r = addStandalone(store.active().graph, 'trigger', 0, 0); if (store.dispatch({ type: 'patch', ops: r.value, label: 'Add trigger' }).ok) ctl.setSelected({ kind: 'node', id: r.id }); }}>{t('empty.trigger', 'Start from a trigger')}</button>
       </div>
     </div>);

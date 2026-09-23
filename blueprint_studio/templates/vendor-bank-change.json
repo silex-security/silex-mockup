@@ -4,6 +4,7 @@
   "domain": "Finance",
   "owner": "Accounts Payable",
   "description": "Vendor bank-detail change requests arriving by email (the shape of incident I-1042). amount = payment exposure of the changed record. Every change needs approval (monitor threshold 0); the declared workflow asks only above $10,000.",
+  "category": "Document Ops",
   "graph": {
     "nodes": [
       {
@@ -262,5 +263,14 @@
         }
       }
     ]
-  }
+  },
+  "n8nPattern": "Vendor email → finance agent → procurement agent → approval → ERP vendor master",
+  "integrations": [
+    "Gmail",
+    "OpenAI",
+    "SAP"
+  ],
+  "amountMeaning": "Payment exposure of the changed vendor record $",
+  "customerMeaning": "Vendor",
+  "orderMeaning": "Vendor record change"
 }

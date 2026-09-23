@@ -1,0 +1,271 @@
+{
+  "id": "bp-sales-discount-approval",
+  "name": "Quote Discount Approval",
+  "domain": "Sales",
+  "owner": "Deal Desk",
+  "description": "Quote discount approval where an AI pricing agent proposes a discount and deal desk approves above policy. amount = discount $. The business constraint (approval above $200) is declared on the Discount Above Policy monitor while the workflow only asks above $1,000. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
+  "category": "Sales",
+  "n8nPattern": "CRM deal → AI pricing agent → approval → CPQ",
+  "amountMeaning": "Discount $",
+  "customerMeaning": "the buying account",
+  "orderMeaning": "the quote",
+  "integrations": [
+    "Salesforce",
+    "CPQ"
+  ],
+  "expectedFindings": [
+    {
+      "id": "unauth:below_threshold",
+      "why": "an amount in [$200, $1000) sits below the Discount > $1,000? autonomy (amount ≤ $1000) but above the monitor's $200 threshold, so it writes without approval"
+    },
+    {
+      "id": "unauth:split",
+      "why": "a split request is divided into pieces each below the Discount > $1,000? autonomy, so every piece writes without its own approval"
+    },
+    {
+      "id": "unauth:replay",
+      "why": "the second request presents the first request's approval and the customer-only binding lets the consumed approval be reused for a second write"
+    },
+    {
+      "id": "unauth:benign",
+      "why": "a benign amount between $200 and $1000 bypasses approval and writes without it"
+    }
+  ],
+  "recommendation": "exists",
+  "graph": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "type": "trigger",
+        "label": "CRM Deal",
+        "x": 0,
+        "y": 140,
+        "config": {
+          "channel": "api_event",
+          "trust": "untrusted"
+        }
+      },
+      {
+        "id": "triage",
+        "type": "agent",
+        "label": "Pricing Agent",
+        "x": 0,
+        "y": 140,
+        "config": {
+          "candidate": "AI Pricing Agent v3",
+          "capabilities": [],
+          "canSplit": true,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "gate",
+        "type": "decision",
+        "label": "Discount > $1,000?",
+        "x": 200,
+        "y": 140,
+        "config": {
+          "condition": "amount > 1000",
+          "join": "first"
+        }
+      },
+      {
+        "id": "approval",
+        "type": "control",
+        "label": "Deal Desk Approval",
+        "x": 400,
+        "y": 140,
+        "config": {
+          "kind": "human_approval",
+          "appliesWhen": "",
+          "binding": [
+            "customer"
+          ],
+          "singleUse": false,
+          "slaMinutes": 15,
+          "rule": "",
+          "action": "block",
+          "redactAbove": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "declined",
+        "type": "outcome",
+        "label": "Quote Declined",
+        "x": 600,
+        "y": 276,
+        "config": {
+          "success": false,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "executor",
+        "type": "agent",
+        "label": "Quote Execution",
+        "x": 800,
+        "y": 140,
+        "config": {
+          "candidate": "CPQ Agent v2",
+          "capabilities": [
+            {
+              "cap": "cpq.quote",
+              "limit": 5000
+            }
+          ],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "tool",
+        "type": "tool",
+        "label": "CPQ Quote API",
+        "x": 1000,
+        "y": 140,
+        "config": {
+          "cap": "cpq.quote",
+          "sideEffect": "write",
+          "idempotencyKey": false,
+          "join": "first"
+        }
+      },
+      {
+        "id": "done",
+        "type": "outcome",
+        "label": "Quote Issued",
+        "x": 1200,
+        "y": 140,
+        "config": {
+          "success": true,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "unauth",
+        "type": "prohibited",
+        "label": "Discount Above Policy",
+        "x": 1240,
+        "y": 452,
+        "config": {
+          "monitor": "unauthorized_write",
+          "cap": "cpq.quote",
+          "threshold": 200,
+          "scope": "request",
+          "minApprovers": 1,
+          "probeRange": [
+            200,
+            1000
+          ],
+          "severity": "critical",
+          "watches": [
+            "tool"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "from": {
+          "node": "trigger",
+          "port": "out"
+        },
+        "to": {
+          "node": "triage",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "from": {
+          "node": "triage",
+          "port": "out"
+        },
+        "to": {
+          "node": "gate",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "true"
+        },
+        "to": {
+          "node": "approval",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e4",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "false"
+        },
+        "to": {
+          "node": "executor",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e5",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "approved"
+        },
+        "to": {
+          "node": "executor",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e6",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "denied"
+        },
+        "to": {
+          "node": "declined",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e7",
+        "kind": "flow",
+        "from": {
+          "node": "executor",
+          "port": "out"
+        },
+        "to": {
+          "node": "tool",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e8",
+        "kind": "flow",
+        "from": {
+          "node": "tool",
+          "port": "out"
+        },
+        "to": {
+          "node": "done",
+          "port": "in"
+        }
+      }
+    ]
+  }
+}

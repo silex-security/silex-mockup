@@ -265,3 +265,30 @@
 .proposal-sub{margin:0 0 4px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .proposal ol.requested{margin-bottom:8px}
 .proposal ul.expanded{margin:0 0 8px;padding-left:16px;display:grid;gap:2px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);max-height:220px;overflow:auto}
+.modal.gallery{max-width:1120px;width:100%;padding:0;display:flex;flex-direction:column;max-height:90vh}
+.gallery-head{display:flex;justify-content:space-between;gap:12px;padding:18px 20px 8px}
+.gallery-head h2{margin:0 0 4px}
+.gallery-head p{margin:0}
+.gallery-tools{display:flex;flex-direction:column;gap:10px;padding:0 20px 12px;border-bottom:1px solid var(--line)}
+.gallery-tools .lib-search{max-width:420px;margin:0}
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.cat-tabs button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:99px;border:1px solid var(--line-2);background:var(--panel);font-weight:600;cursor:pointer;color:var(--ink-2)}
+.cat-tabs button.on{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding:16px 20px;overflow:auto}
+.tpl-card{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel)}
+.tpl-card:hover{border-color:var(--blue-2);box-shadow:var(--shadow-1)}
+.tpl-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tpl-card h3{margin:0;font-size:14px;text-wrap:balance}
+.tpl-desc{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.tpl-pattern{margin:0;font-size:12px;color:var(--muted);line-height:1.45}
+.tpl-pattern b{color:var(--ink-2);font-weight:600;margin-right:4px}
+.tpl-amount{margin:0;font-size:12px;color:var(--ink-2)}
+.tpl-card .chips .chip{height:20px;font-size:10.5px}
+.type-strip{display:flex;flex-wrap:wrap;gap:4px}
+.ts{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 6px;border-radius:6px;font-size:11px;font-weight:600;color:var(--tc);background:color-mix(in srgb,var(--tc) 10%,white)}
+.ts .icon{width:12px;height:12px}
+.tpl-card .btn{margin-top:auto;align-self:flex-start}
+.gallery-note{padding:10px 20px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-2)}
+.gallery-note summary{cursor:pointer;font-weight:600}
+.gallery-note ul{margin:6px 0 0;padding-left:18px;font-size:11.5px}
+@media (max-width:640px){.gallery-grid{grid-template-columns:1fr;padding:12px}.gallery-head,.gallery-tools{padding-left:12px;padding-right:12px}}

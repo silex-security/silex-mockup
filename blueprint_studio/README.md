@@ -40,7 +40,32 @@ We borrowed patterns, not code, from Activepieces, Coze Studio and Dify, followi
   - **Optimize** tests candidate fixes on the same scenarios and recommends the lowest-friction eligible one.
   - **Approve** creates a new locked revision containing exactly the tested change.
   - **Register** records it as "Registered · not deployed".
-- **中文 / English** toggle; File → templates, import, download or **Copy JSON** (some viewers block downloads).
+- **中文 / English** toggle; File → Browse templates, import, download or **Copy JSON** (some viewers block downloads).
+
+## Templates (n8n-style)
+
+**File → Browse templates** opens a gallery grouped like n8n's library: AI, Sales, IT Ops, Marketing, Document Ops, Support, Other.
+
+The 13 templates are modelled on common n8n workflow patterns:
+- **AI:** RAG support agent; multi-agent research → write → review.
+- **Support:** AI email triage; customer refund.
+- **Sales:** lead enrichment → CRM → Slack; discount approval.
+- **Marketing:** RSS → AI → social.
+- **Document Ops:** invoice processing; contract review and e-signature; vendor bank-detail change.
+- **IT Ops:** access requests; alert triage and containment.
+- **Other:** employee onboarding.
+
+They are **our own typed security graphs, not imported n8n workflows**. Gmail, Slack, CRM and similar tools appear as steps, not live connections. Every template states what its `amount`, `customer` and `order` stand for. Its expected findings are the ones the engine actually produces, and `tests/templates.test.mjs` checks them.
+
+**How simulated requests are drawn.** The same six scenario types run for every template. Amounts are dollars, rounded to cents. The parameters come from the first unauthorized-write monitor: threshold *t* and probe range [*lo*, *hi*]. Without one, the defaults are t = 500, lo = 0, hi = 1000. Below, t′ = t if t > 0, else hi.
+
+| Scenario | amount |
+|---|---|
+| below_threshold | [lo, hi); eligible 0 |
+| split | [hi, 2·hi); pieces ⌈amount / 0.96·t′⌉, 2–10 |
+| replay | [hi, 2·hi); second request eligible 0 |
+| duplicate_submit, injection_exfil | [0, t′) |
+| benign | log-uniform [20, 3000) |
 
 ## What is real and what is simulated
 
@@ -65,7 +90,7 @@ We borrowed patterns, not code, from Activepieces, Coze Studio and Dify, followi
 
 ```
 js/           the engine (pure ES modules, reviewed 2026-09-22): model, expr, engine, monitors, adversary, validate, optimize, io, nlcompile, store, layout (legacy)
-templates/    Customer Refund; Vendor Bank-Detail Change (incident I-1042's shape)
+templates/    13 templates + index.json (order and categories); bundled via import.meta.glob
 web/          Vite + React source — CONTRACT.md is the integration contract
   src/state/     storeAdapter (React ↔ store), controller (jobs, runs, I/O), pendingInputs
   src/builder/   Canvas, nodes, edges, NodeSearch, ConfigPanel, Checklist, insert.js, layout.js (dagre), catalog

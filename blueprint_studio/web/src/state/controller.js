@@ -15,19 +15,25 @@ import * as validator from '../../../js/validate.js';
 import * as optimizer from '../../../js/optimize.js';
 import * as io from '../../../js/io.js';
 import { layoutGraph } from '../builder/layout.js';
-import refundTpl from '../../../templates/customer-refund.json';
-import vendorTpl from '../../../templates/vendor-bank-change.json';
+import manifest from '../../../templates/index.json';
 
-export const TEMPLATES = { 'customer-refund': refundTpl, 'vendor-bank-change': vendorTpl };
+/* Every template file is bundled (plan §3.11); the manifest fixes the order and the
+   categories. A file not in the manifest is appended after the listed ones. */
+const files = import.meta.glob('../../../templates/*.json', { eager: true, import: 'default' });
+const byId = Object.fromEntries(Object.entries(files).filter(([p]) => !p.endsWith('/index.json')).map(([p, tpl]) => [p.split('/').pop().replace(/\.json$/, ''), tpl]));
+export const TEMPLATE_IDS = [...manifest.order.filter(id => byId[id]), ...Object.keys(byId).filter(id => !manifest.order.includes(id)).sort()];
+export const TEMPLATES = Object.fromEntries(TEMPLATE_IDS.map(id => [id, byId[id]]));
+export const CATEGORIES = manifest.categories;
 export { revLabel, isDecided };
 const tick = () => new Promise(r => setTimeout(r, 0));
 
 /* ------------------------------------------------------------------ route */
-const route = { view: 'builder', stage: 'validate', panel: null, decideId: null, toast: null, selected: null, focus: null };
+const route = { view: 'builder', stage: 'validate', panel: null, decideId: null, toast: null, selected: null, focus: null, gallery: false };
 export const getRoute = () => route;
 export function go(view, stage) { route.view = view; if (stage) route.stage = stage; bump(); }
 export function setPanel(panel) { route.panel = panel; bump(); }           // null | 'run'
 export function setDecideId(id) { route.decideId = id; bump(); }
+export function openGallery(open = true) { route.gallery = open; bump(); }
 /* Builder selection ({kind:'node'|'edge', id} | null) and focus requests
    (the checklist asks the canvas to centre a node, or to fit the whole flow). */
 export function setSelected(sel) { route.selected = sel; if (sel && route.panel === 'run') route.panel = null; bump(); }   // Ask AI stays open while you click around, as in n8n
@@ -44,6 +50,8 @@ function laidOut(tpl) {
   return t;
 }
 export function startFromTemplate(name) {
+  if (!TEMPLATES[name]) return toast('Unknown template ' + name, 'error');
+  route.gallery = false;
   const tpl = laidOut(TEMPLATES[name]);
   store.load(newDocument({ ...tpl, id: `${tpl.id}-${Date.now().toString(36)}` }));
   resetSession(); route.view = 'builder'; bump();

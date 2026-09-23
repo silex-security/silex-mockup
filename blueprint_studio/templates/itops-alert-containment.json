@@ -1,0 +1,271 @@
+{
+  "id": "bp-itops-alert-containment",
+  "name": "Security Alert Containment",
+  "domain": "Security",
+  "owner": "Security Operations",
+  "description": "Security alert triage that isolates a host after on-call approval. amount = estimated business impact of isolating the host, $ per hour. The business constraint (approval above $200) is declared on the High-Impact Isolation monitor while the workflow only asks above $1,000. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
+  "category": "IT Ops",
+  "n8nPattern": "SIEM webhook → AI triage → on-call approval → EDR isolate",
+  "amountMeaning": "Estimated business impact of isolating the host, $ per hour",
+  "customerMeaning": "the affected host",
+  "orderMeaning": "the alert",
+  "integrations": [
+    "Splunk",
+    "CrowdStrike"
+  ],
+  "expectedFindings": [
+    {
+      "id": "unauth:below_threshold",
+      "why": "an amount in [$200, $1000) sits below the Impact > $1,000/hr? autonomy (amount ≤ $1000) but above the monitor's $200 threshold, so it writes without approval"
+    },
+    {
+      "id": "unauth:split",
+      "why": "a split request is divided into pieces each below the Impact > $1,000/hr? autonomy, so every piece writes without its own approval"
+    },
+    {
+      "id": "unauth:replay",
+      "why": "the second request presents the first request's approval and the customer-only binding lets the consumed approval be reused for a second write"
+    },
+    {
+      "id": "unauth:benign",
+      "why": "a benign amount between $200 and $1000 bypasses approval and writes without it"
+    }
+  ],
+  "recommendation": "exists",
+  "graph": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "type": "trigger",
+        "label": "SIEM Webhook",
+        "x": 0,
+        "y": 140,
+        "config": {
+          "channel": "api_event",
+          "trust": "untrusted"
+        }
+      },
+      {
+        "id": "triage",
+        "type": "agent",
+        "label": "AI Triage",
+        "x": 0,
+        "y": 140,
+        "config": {
+          "candidate": "Alert Triage Agent v4",
+          "capabilities": [],
+          "canSplit": true,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "gate",
+        "type": "decision",
+        "label": "Impact > $1,000/hr?",
+        "x": 200,
+        "y": 140,
+        "config": {
+          "condition": "amount > 1000",
+          "join": "first"
+        }
+      },
+      {
+        "id": "approval",
+        "type": "control",
+        "label": "On-Call Approval",
+        "x": 400,
+        "y": 140,
+        "config": {
+          "kind": "human_approval",
+          "appliesWhen": "",
+          "binding": [
+            "customer"
+          ],
+          "singleUse": false,
+          "slaMinutes": 15,
+          "rule": "",
+          "action": "block",
+          "redactAbove": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "declined",
+        "type": "outcome",
+        "label": "Isolation Declined",
+        "x": 600,
+        "y": 276,
+        "config": {
+          "success": false,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "executor",
+        "type": "agent",
+        "label": "Containment",
+        "x": 800,
+        "y": 140,
+        "config": {
+          "candidate": "Containment Agent v2",
+          "capabilities": [
+            {
+              "cap": "edr.isolate",
+              "limit": 5000
+            }
+          ],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "tool",
+        "type": "tool",
+        "label": "EDR Isolate API",
+        "x": 1000,
+        "y": 140,
+        "config": {
+          "cap": "edr.isolate",
+          "sideEffect": "write",
+          "idempotencyKey": false,
+          "join": "first"
+        }
+      },
+      {
+        "id": "done",
+        "type": "outcome",
+        "label": "Host Isolated",
+        "x": 1200,
+        "y": 140,
+        "config": {
+          "success": true,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "unauth",
+        "type": "prohibited",
+        "label": "High-Impact Isolation",
+        "x": 1240,
+        "y": 452,
+        "config": {
+          "monitor": "unauthorized_write",
+          "cap": "edr.isolate",
+          "threshold": 200,
+          "scope": "request",
+          "minApprovers": 1,
+          "probeRange": [
+            200,
+            1000
+          ],
+          "severity": "critical",
+          "watches": [
+            "tool"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "from": {
+          "node": "trigger",
+          "port": "out"
+        },
+        "to": {
+          "node": "triage",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "from": {
+          "node": "triage",
+          "port": "out"
+        },
+        "to": {
+          "node": "gate",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "true"
+        },
+        "to": {
+          "node": "approval",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e4",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "false"
+        },
+        "to": {
+          "node": "executor",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e5",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "approved"
+        },
+        "to": {
+          "node": "executor",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e6",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "denied"
+        },
+        "to": {
+          "node": "declined",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e7",
+        "kind": "flow",
+        "from": {
+          "node": "executor",
+          "port": "out"
+        },
+        "to": {
+          "node": "tool",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e8",
+        "kind": "flow",
+        "from": {
+          "node": "tool",
+          "port": "out"
+        },
+        "to": {
+          "node": "done",
+          "port": "in"
+        }
+      }
+    ]
+  }
+}
