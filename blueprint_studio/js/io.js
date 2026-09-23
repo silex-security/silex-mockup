@@ -124,7 +124,10 @@ export function importDocument(text) {
     } else if (r.hash != null || r.validation || r.optimization || r.decision) return fail('schema', `${label}: a draft carries no hash or evidence`);
     const ev = checkEvidence(r, byRev, meta, label); if (!ev.ok) return ev;
   }
-  const re = recompute(doc, byRev, meta); if (!re.ok) return re;
+  let re;
+  try { re = recompute(doc, byRev, meta); }
+  catch (e) { return fail('evidence_mismatch', 'The evidence cannot be recomputed: ' + String(e && e.message || e)); }   // malformed input never escapes as a throw
+  if (!re.ok) return re;
   return ok(doc);
 }
 
@@ -146,8 +149,15 @@ function recompute(doc, byRev, meta) {
       for (const c of r.optimization.candidates) {
         const g0 = generated.find(x => x.id === c.candidate.id);
         if (!g0) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} is not one the optimizer generates`);
-        const expect = same(c.candidate.params, g0.params) ? g0 : reparam(r.graph, vres, g0, c.candidate.params);
-        if (!same(expect.patch, c.candidate.patch) || !same(expect.classes, c.candidate.classes)) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} patch differs from its parameters`);
+        /* params must be exactly one of the optimizer's own options per key; then the whole
+           record (label, classes, params, paramOptions, patch) must equal the regenerated one */
+        const p = c.candidate.params;
+        const keysOk = p && typeof p === 'object' && !Array.isArray(p) && same(Object.keys(p).sort(), Object.keys(g0.params).sort())
+          && Object.keys(p).every(k => (g0.paramOptions[k] || [g0.params[k]]).some(o => same(o, p[k])));
+        if (!keysOk) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} has parameters the optimizer does not offer`);
+        const expect = same(p, g0.params) ? g0 : reparam(r.graph, vres, g0, p);
+        const { paramsVersion: _a, ...got } = c.candidate, { paramsVersion: _b, ...want } = expect;
+        if (!same(got, want) || !Number.isInteger(c.candidate.paramsVersion) || c.candidate.paramsVersion < 1) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} differs from what its parameters generate`);
         if (c.result == null) { if (c.state === 'tested') return fail('bad_evidence', `${label}: tested candidate without a result`); continue; }
         const run = runCandidate(r.graph, c.candidate, set, meta);
         if (!run.ok) return fail('evidence_mismatch', `${label}: candidate ${c.candidate.id} no longer applies`);
