@@ -1,0 +1,345 @@
+{
+  "id": "bp-customer-refund",
+  "name": "Customer Refund",
+  "domain": "Customer Service",
+  "owner": "Customer Support Operations",
+  "description": "Refund requests with triage, eligibility, an approval above the declared autonomy ($2,000) and payment execution. The business constraint (approval above $500) is declared on the Unauthorized Refund monitor.",
+  "graph": {
+    "nodes": [
+      {
+        "id": "profile",
+        "type": "data",
+        "label": "Customer Profile",
+        "x": 240,
+        "y": 0,
+        "config": {
+          "sensitivity": "internal"
+        }
+      },
+      {
+        "id": "request",
+        "type": "trigger",
+        "label": "Customer Request",
+        "x": 20,
+        "y": 150,
+        "config": {
+          "channel": "support_chat",
+          "trust": "untrusted"
+        }
+      },
+      {
+        "id": "triage",
+        "type": "agent",
+        "label": "Request Triage",
+        "x": 240,
+        "y": 150,
+        "config": {
+          "candidate": "Internal Triage Agent v4",
+          "capabilities": [],
+          "canSplit": true,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "eligibility",
+        "type": "agent",
+        "label": "Refund Eligibility",
+        "x": 460,
+        "y": 150,
+        "config": {
+          "candidate": "Internal Refund Agent v3",
+          "capabilities": [],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "gate",
+        "type": "decision",
+        "label": "Refund > $2,000?",
+        "x": 680,
+        "y": 150,
+        "config": {
+          "condition": "amount > 2000",
+          "join": "first"
+        }
+      },
+      {
+        "id": "approval",
+        "type": "control",
+        "label": "Approval",
+        "x": 680,
+        "y": 330,
+        "config": {
+          "kind": "human_approval",
+          "appliesWhen": "",
+          "binding": [
+            "customer"
+          ],
+          "singleUse": false,
+          "slaMinutes": 15,
+          "rule": "",
+          "action": "block",
+          "redactAbove": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "declined",
+        "type": "outcome",
+        "label": "Refund Declined",
+        "x": 900,
+        "y": 330,
+        "config": {
+          "success": false,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "execution",
+        "type": "agent",
+        "label": "Refund Execution",
+        "x": 460,
+        "y": 330,
+        "config": {
+          "candidate": "Internal Payments Agent",
+          "capabilities": [
+            {
+              "cap": "refund.issue",
+              "limit": 10000
+            }
+          ],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "payment",
+        "type": "tool",
+        "label": "Payment API",
+        "x": 240,
+        "y": 330,
+        "config": {
+          "cap": "refund.issue",
+          "sideEffect": "write",
+          "idempotencyKey": false,
+          "join": "first"
+        }
+      },
+      {
+        "id": "resolved",
+        "type": "outcome",
+        "label": "Refund Resolved",
+        "x": 20,
+        "y": 330,
+        "config": {
+          "success": true,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "unauth",
+        "type": "prohibited",
+        "label": "Unauthorized Refund",
+        "x": 20,
+        "y": 510,
+        "config": {
+          "monitor": "unauthorized_write",
+          "cap": "refund.issue",
+          "threshold": 500,
+          "scope": "request",
+          "minApprovers": 1,
+          "probeRange": [
+            500,
+            2000
+          ],
+          "severity": "critical",
+          "watches": [
+            "payment"
+          ]
+        }
+      },
+      {
+        "id": "dup",
+        "type": "prohibited",
+        "label": "Duplicate Compensation",
+        "x": 240,
+        "y": 510,
+        "config": {
+          "monitor": "duplicate_effect",
+          "cap": "refund.issue",
+          "severity": "high",
+          "watches": [
+            "payment"
+          ]
+        }
+      },
+      {
+        "id": "credentials",
+        "type": "data",
+        "label": "Payment Credentials",
+        "x": 460,
+        "y": 510,
+        "config": {
+          "sensitivity": "secret"
+        }
+      },
+      {
+        "id": "exposure",
+        "type": "prohibited",
+        "label": "Payment Credential Exposure",
+        "x": 680,
+        "y": 510,
+        "config": {
+          "monitor": "secret_exposure",
+          "severity": "high",
+          "watches": [
+            "resolved",
+            "declined"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "from": {
+          "node": "request",
+          "port": "out"
+        },
+        "to": {
+          "node": "triage",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "from": {
+          "node": "triage",
+          "port": "out"
+        },
+        "to": {
+          "node": "eligibility",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "eligibility",
+          "port": "out"
+        },
+        "to": {
+          "node": "gate",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e4",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "true"
+        },
+        "to": {
+          "node": "approval",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e5",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "false"
+        },
+        "to": {
+          "node": "execution",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e6",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "approved"
+        },
+        "to": {
+          "node": "execution",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e7",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "denied"
+        },
+        "to": {
+          "node": "declined",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e8",
+        "kind": "flow",
+        "from": {
+          "node": "execution",
+          "port": "out"
+        },
+        "to": {
+          "node": "payment",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e9",
+        "kind": "flow",
+        "from": {
+          "node": "payment",
+          "port": "out"
+        },
+        "to": {
+          "node": "resolved",
+          "port": "in"
+        }
+      },
+      {
+        "id": "a1",
+        "kind": "access",
+        "mode": "read",
+        "from": {
+          "node": "triage",
+          "port": "acc"
+        },
+        "to": {
+          "node": "profile",
+          "port": "acc"
+        }
+      },
+      {
+        "id": "a2",
+        "kind": "access",
+        "mode": "read",
+        "from": {
+          "node": "execution",
+          "port": "acc"
+        },
+        "to": {
+          "node": "credentials",
+          "port": "acc"
+        }
+      }
+    ]
+  }
+}

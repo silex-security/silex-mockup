@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SILEX · Agentic Blueprint Studio</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f3031'/%3E%3Cpath d='M8 11.5 16 7l8 4.5v9L16 25l-8-4.5z' fill='none' stroke='%238198ff' stroke-width='2.4'/%3E%3Cpath d='m11.5 16 3 3 6-7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/studio.css" />
+</head>
+<body>
+<div class="narrow-note" id="narrowNote"><strong>Blueprint Studio is a desktop editor.</strong><p>Open it on a screen at least 1024 px wide. The overview of the lifecycle is on the <a href="../index.html">SILEX demo</a>.</p></div>
+
+<div class="app" id="app">
+  <header class="topbar">
+    <a class="brand" href="../index.html" title="Back to the SILEX demo"><span class="logo"></span>SILEX</a>
+    <div class="doc-title"><strong id="docName">Blueprint</strong><span class="lc" id="revChip">v1.0 · Draft</span><select id="revSelect" aria-label="Revision"></select></div>
+    <div class="topbar-actions">
+      <select id="templateSelect" aria-label="Template"><option value="">New from template…</option><option value="customer-refund">Customer Refund</option><option value="vendor-bank-change">Vendor Bank-Detail Change</option></select>
+      <button class="btn secondary" id="importBtn">Import</button><input type="file" id="importFile" accept="application/json,.json" hidden />
+      <button class="btn secondary" id="exportBtn">Export JSON</button>
+    </div>
+  </header>
+
+  <nav class="stagebar" id="stagebar">
+    <button class="stage" data-stage="build"><b>1</b>Build</button><span class="arr">→</span>
+    <button class="stage" data-stage="confirm"><b>2</b>Confirm</button><span class="arr">→</span>
+    <button class="stage" data-stage="validate"><b>3</b>Validate</button><span class="arr">→</span>
+    <button class="stage" data-stage="optimize"><b>4</b>Optimize</button><span class="arr">→</span>
+    <button class="stage" data-stage="decide"><b>5</b>Decide</button><span class="arr">→</span>
+    <button class="stage" data-stage="register"><b>6</b>Register</button>
+    <span class="stage-note">Simulated against a declared adversary model · no real agents or tools are run</span>
+  </nav>
+
+  <main class="workspace" id="workspace">
+    <section class="panel stage-panel active" id="stage-build">
+      <div class="build">
+        <aside class="palette" id="palette" aria-label="Node palette"></aside>
+        <div class="canvas-col">
+          <div class="toolbar" id="toolbar"></div>
+          <div class="canvas-wrap" id="canvasWrap" tabindex="0" aria-label="Blueprint canvas">
+            <div class="viewport" id="viewport"><svg class="edges" id="edges"></svg><div class="nodes" id="nodes"></div></div>
+            <div class="lock-note" id="lockNote" hidden></div>
+            <canvas class="minimap" id="minimap" width="180" height="120"></canvas>
+          </div>
+          <div class="runpanel" id="runpanel"></div>
+        </div>
+        <aside class="inspector" id="inspector" aria-label="Inspector"></aside>
+      </div>
+    </section>
+    <section class="panel stage-panel" id="stage-confirm"></section>
+    <section class="panel stage-panel" id="stage-validate"></section>
+    <section class="panel stage-panel" id="stage-optimize"></section>
+    <section class="panel stage-panel" id="stage-decide"></section>
+    <section class="panel stage-panel" id="stage-register"></section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
