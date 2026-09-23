@@ -61,15 +61,20 @@ export function decisionLabel(parentRev) {
 export const nodeLabelIn = (graph, id) => graph.nodes.find(n => n.id === id)?.label || id;
 export const pathLabel = (graph, ids) => ids.map(i => nodeLabelIn(graph, i)).join(' → ');
 
-/* Human-readable patch op, used by Optimize and Decide. */
+/* Port names as shown on the canvas (yes/no, approved/denied, in/out, reads). */
+const PORT_EN = { true: 'yes', false: 'no', approved: 'approved', denied: 'denied', in: 'in', out: 'out', acc: 'reads' };
+export const portName = p => t('port.' + p, PORT_EN[p] || p);
+
+/* Human-readable patch op, used by Optimize, Decide and Ask AI. Connections name
+   both endpoints and their ports, so swapped branches read differently. */
 export function describeOp(graph, o) {
   const lbl = id => nodeLabelIn(graph, id);
   switch (o.op) {
     case 'setConfig': return `${lbl(o.id)} · ${o.key} = ${JSON.stringify(o.value)}`;
     case 'addNode': return t('op.addNode', 'add “{label}”', { label: o.node.label });
     case 'removeNode': return t('op.removeNode', 'remove {label}', { label: lbl(o.id) });
-    case 'addEdge': return t('op.addEdge', 'connect {a} → {b}', { a: lbl(o.edge.from.node), b: o.edge.to.node === o.edge.from.node ? '' : lbl(o.edge.to.node) });
-    case 'removeEdge': { const e = graph.edges.find(x => x.id === o.id); return e ? t('op.removeEdge', 'disconnect {a} → {b}', { a: lbl(e.from.node), b: lbl(e.to.node) }) : o.id; }
+    case 'addEdge': return t('op.addEdge2', 'connect {a} [{ap}] → {b} [{bp}]', { a: lbl(o.edge.from.node), ap: portName(o.edge.from.port), b: lbl(o.edge.to.node), bp: portName(o.edge.to.port) });
+    case 'removeEdge': { const e = graph.edges.find(x => x.id === o.id); return e ? t('op.removeEdge2', 'disconnect {a} [{ap}] → {b} [{bp}]', { a: lbl(e.from.node), ap: portName(e.from.port), b: lbl(e.to.node), bp: portName(e.to.port) }) : o.id; }
     default: return o.op;
   }
 }

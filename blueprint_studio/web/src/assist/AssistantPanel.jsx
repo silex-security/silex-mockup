@@ -99,7 +99,7 @@ export default function AssistantPanel() {
         requested: (raw.ops || []).map(op => describe(op, graph)), lines: expandedLines(graph, v.value.graph, v.value.ops), after: v.value.graph });
       assist.consumed = null;
       assist.highlight = v.value.touched;
-      push({ role: 'assistant', text: v.value.summary || t('assist.proposed', 'Here is a proposal. Review it, then Apply or Discard.'), proposalId: id });
+      push({ role: 'assistant', text: raw.__mode === 'rules' ? t('assist.proposedRules', 'Here is what the rule-based mode understood. Review it, then Apply or Discard.') : (v.value.summary || t('assist.proposed', 'Here is a proposal. Review it, then Apply or Discard.')), proposalId: id });
     };
     if (mode === 'rules') {
       const r = proposeByRules(msg, graph);

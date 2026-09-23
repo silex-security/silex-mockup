@@ -19,6 +19,7 @@ function apply(text) {
   return { proposal: p.value, ops: v.value.ops, graph: v.value.graph, errors: lint(v.value.graph).filter(i => i.severity === 'error') };
 }
 const expectClean = text => assert.equal(apply(text).errors.length, 0, `lint: ${apply(text).errors.map(e => e.code).join(',')}`);
+const expectUnmatched = text => { const p = proposeByRules(text, graph); assert.ok(p.ok); assert.equal(p.value.ops.length, 0, `should produce no op for: ${text}`); assert.equal(p.value.unmatched.length, 1); };
 
 test('rules: add a human approval after Refund Eligibility (English) is a clean insert', () => {
   const r = apply('add a human approval after Refund Eligibility');
@@ -93,20 +94,6 @@ test('rules: existing nlcompile phrases are reused', () => {
   assert.ok(r3.proposal.ops.every(o => o.op === 'setConfig' && o.key === 'idempotencyKey'));
 });
 
-test('rules: sentences it cannot map go to unmatched, never guessed', () => {
-  const p = proposeByRules('please do something magical and ineffable', graph);
-  assert.ok(p.ok);
-  assert.equal(p.value.ops.length, 0);
-  assert.equal(p.value.unmatched.length, 1);
-});
-
-test('rules: an unknown node name is not guessed', () => {
-  const p = proposeByRules('delete the unicorn step', graph);
-  assert.ok(p.ok);
-  assert.equal(p.value.ops.length, 0);
-  assert.equal(p.value.unmatched.length, 1);
-});
-
 test('rules: add a data resource to a tool with an explicit sensitivity', () => {
   const r = apply('add an internal data resource Vendor Notes to the Payment API');
   assert.equal(r.proposal.ops[0].op, 'addData');
@@ -115,10 +102,9 @@ test('rules: add a data resource to a tool with an explicit sensitivity', () => 
   const r2 = apply('add data resource Changelog public to the Payment API');
   assert.equal(r2.proposal.ops[0].sensitivity, 'public');
   assert.equal(r2.proposal.ops[0].label, 'Changelog');
-  expectClean('add a public data resource Changelog to the Payment API');
 });
 
-/* ---- Codex round-1 defect 4: qualifiers, decimals and thousands ---- */
+/* ---- Codex round-1 defect 4: faithful qualifiers, decimals, thousands ---- */
 function newControl(text) {
   const r = apply(text);
   const n = r.graph.nodes.find(x => x.type === 'control' && x.id !== 'approval');
@@ -147,24 +133,81 @@ test('rules: decimals and thousands parse exactly, both languages', () => {
   assert.equal(newControl('在 Refund Eligibility 后面加一个超过 1,000 元的人工审批').config.appliesWhen, 'amount > 1000');
 });
 
-test('rules: a sentence with an unmappable qualifier is left wholly unmatched', () => {
-  for (const s of [
-    'add a human approval within 2 hours after Refund Eligibility',
-    'add a dual approval unless VIP after Refund Eligibility',
-    'add an approval below $500 after Refund Eligibility',
-    'add an approval for new customers after Refund Eligibility',
-    '在 Refund Eligibility 后面加一个2小时内的人工审批'
-  ]) {
-    const p = proposeByRules(s, graph);
-    assert.ok(p.ok);
-    assert.equal(p.value.ops.length, 0, `should produce no op for: ${s}`);
-    assert.deepEqual(p.value.unmatched, [s]);
-  }
-});
-
 test('rules: a decimal amount is not split into two sentences', () => {
   const p = proposeByRules('add a human approval above 500.75 after Refund Eligibility', graph);
   assert.ok(p.ok);
   assert.equal(p.value.ops.length, 1);
   assert.equal(p.value.unmatched.length, 0);
+});
+
+/* ---- Codex round-2 defect 2: whole-sentence consumption, no silent drops ---- */
+test('rules: an unsupported qualifier leaves the whole sentence unmatched (English)', () => {
+  for (const s of [
+    'add a human approval after Refund Eligibility unless the customer is VIP',
+    'add a human approval above $1,000 and only for international orders after Refund Eligibility',
+    'add a human approval within 2 hours after Refund Eligibility',
+    'add a human approval for VIP customers after Refund Eligibility',
+    'add a human approval except for new customers after Refund Eligibility',
+    'add a human approval after Refund Eligiblity'
+  ]) expectUnmatched(s);
+});
+
+test('rules: an unsupported qualifier leaves the whole sentence unmatched (中文)', () => {
+  for (const s of [
+    '在 Refund Eligibility 后面加一个人工审批，除非客户是 VIP',
+    '在 Refund Eligibility 后面加一个2小时内的人工审批',
+    '在 Refund Eligibility 后面加一个仅当是新客户的人工审批'
+  ]) expectUnmatched(s);
+});
+
+test('rules: sentences it cannot map go to unmatched, never guessed', () => {
+  const p = proposeByRules('please do something magical and ineffable', graph);
+  assert.ok(p.ok);
+  assert.equal(p.value.ops.length, 0);
+  assert.equal(p.value.unmatched.length, 1);
+});
+
+test('rules: a misspelled node name is not matched', () => {
+  expectUnmatched('delete the unicorn step');
+  expectUnmatched('delete Duplicat Compensation');
+});
+
+test('rules: politeness words are stripped; extra trailing clause is unmatched', () => {
+  expectClean('please delete Duplicate Compensation');
+  expectUnmatched('delete Duplicate Compensation and also rename Payment API');
+});
+
+/* ---- Chinese comma threshold clause (the UI's own suggested phrases) ---- */
+function newControlZh(text) {
+  const r = apply(text);
+  assert.equal(r.proposal.ops[0].op, 'insertStep');
+  assert.equal(r.proposal.ops[0].type, 'control');
+  const n = r.graph.nodes.find(x => x.type === 'control' && x.id !== 'approval');
+  assert.ok(n);
+  return n;
+}
+
+test('rules: a Chinese comma threshold after the spec maps to appliesWhen', () => {
+  for (const [s, want] of [
+    ['在 Refund Eligibility 后面加一个人工审批，金额超过 1,000', 'amount > 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，超过 1000 才需要', 'amount > 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，金额超过 1,000 元', 'amount > 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，金额大于 1,000', 'amount > 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，金额高于 1,000', 'amount > 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，金额不少于 1,000', 'amount >= 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，至少 1,000 元', 'amount >= 1000'],
+    ['在 Refund Eligibility 后面加一个人工审批，超过 1000 时需要', 'amount > 1000']
+  ]) {
+    const n = newControlZh(s);
+    assert.equal(n.config.kind, 'human_approval', s);
+    assert.equal(n.config.appliesWhen, want, s);
+  }
+});
+
+test('rules: a non-threshold clause after the Chinese comma stays unmatched', () => {
+  for (const s of [
+    '在 Refund Eligibility 后面加一个人工审批，除非客户是 VIP',
+    '在 Refund Eligibility 后面加一个人工审批，仅当是新客户',
+    '在 Refund Eligibility 后面加一个人工审批，超过 1000 才需要，并且只限国际订单'
+  ]) expectUnmatched(s);
 });

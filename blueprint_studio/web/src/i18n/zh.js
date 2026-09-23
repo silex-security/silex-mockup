@@ -570,4 +570,7 @@ export default {
   'field.badLimit': '每个上限都必须是数字',
   'field.badRange': '请输入两个数字，第二个大于第一个',
   'field.high': '上限',
+  'op.addEdge2': '连接 {a} [{ap}] → {b} [{bp}]',
+  'op.removeEdge2': '断开 {a} [{ap}] → {b} [{bp}]',
+  'assist.proposedRules': '以下是基于规则的模式理解到的改动。请检查，然后应用或丢弃。',
 };

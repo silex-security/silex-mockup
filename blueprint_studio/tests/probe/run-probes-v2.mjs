@@ -502,7 +502,9 @@ await probe('C1', 'AI preview lists every expanded change incl. settings and bra
   await ev(`window.__stubQueue.push({reply:{summary:'gate', ops:[{op:'insertStep', from:'eligibility', to:'gate', type:'control', config:{kind:'policy_gate', action:'redact', redactAbove:'internal', appliesWhen:'amount > 100'}}]}}); return 1`);
   await ask('add a redact gate'); await sleep(300);
   const lines = await ev('return [...document.querySelectorAll("#proposalLines li")].map(l=>l.innerText).join(" | ")');
-  return { pass: ['kind', 'policy_gate', 'action', 'redact', 'appliesWhen', 'amount > 100', 'approved', 'denied'].every(w => lines.includes(w)) || (['kind', 'policy_gate', 'redact', 'amount > 100'].every(w => lines.includes(w)) && /Refund > \$2,000\?|Refund Declined/.test(lines)), detail: lines.slice(0, 400) };
+  const need = ['kind', 'policy_gate', 'action', 'redact', 'redactAbove', 'appliesWhen', 'amount > 100', '[approved] → Refund > $2,000? [in]', '[denied] → Refund Declined [in]', 'Refund Eligibility [out] →', 'disconnect Refund Eligibility [out] → Refund > $2,000? [in]'];
+  const missing = need.filter(w => !lines.includes(w));
+  return { pass: missing.length === 0, detail: missing.length ? 'missing ' + JSON.stringify(missing) + ' in ' + lines.slice(0, 400) : lines.slice(0, 300) };
 });
 await probe('C2', 'config inputs follow the graph: capability limit edit then Undo shows the restored value; row removal; revision switch', async () => {
   await load();
@@ -537,14 +539,14 @@ await probe('C3', 'Checklist → Discard restores the field display; an invalid 
 await probe('C4', 'rule-based parsing is faithful: "above $1,000" → amount > 1000; dual approval; 500.75 kept; unsupported clause unmatched', async () => {
   await load();
   const out = [];
-  for (const q of ['add a human approval above $1,000 after Refund Eligibility', 'add a dual approval after Refund Eligibility', 'add a human approval above $500.75 after Refund Eligibility', '在 Refund Eligibility 后面加一个人工审批，金额超过 1,000', 'add a human approval unless the customer is VIP after Refund Eligibility']) {
+  for (const q of ['add a human approval above $1,000 after Refund Eligibility', 'add a dual approval after Refund Eligibility', 'add a human approval above $500.75 after Refund Eligibility', '在 Refund Eligibility 后面加一个人工审批，金额超过 1,000', 'add a human approval unless the customer is VIP after Refund Eligibility', 'add a human approval after Refund Eligibility unless the customer is VIP', 'add a human approval after Refund Eligibility above $1,000 and only for international orders']) {
     await load({ clear: true });
     await ask(q); await sleep(200);
     const has = await applyState();
     if (has === 'enabled') { await clickSel('#assistApply'); await sleep(200); }
     out.push(await ev(`${S} const c=G().nodes.find(n=>n.type==='control'&&n.id!=='approval'); return c ? c.config.kind+'|'+c.config.appliesWhen : 'none'`));
   }
-  return { pass: out[0] === 'human_approval|amount > 1000' && out[1].startsWith('dual_approval|') && out[2] === 'human_approval|amount > 500.75' && out[3] === 'human_approval|amount > 1000' && out[4] === 'none', detail: JSON.stringify(out) };
+  return { pass: out[0] === 'human_approval|amount > 1000' && out[1].startsWith('dual_approval|') && out[2] === 'human_approval|amount > 500.75' && out[3] === 'human_approval|amount > 1000' && out[4] === 'none' && out[5] === 'none' && out[6] === 'none', detail: JSON.stringify(out) };
 });
 
 /* ------------------------------------------------------ i18n, T3, T4, V1 */
