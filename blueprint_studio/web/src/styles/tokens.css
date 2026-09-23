@@ -1,0 +1,41 @@
+/* Blueprint Studio v2. Silex tokens (../../index.html :root) + the builder's
+   own surfaces. One light theme, deliberately: it matches the Silex demo. */
+:root{
+  --ink:#17191d; --ink-2:#3b414b; --muted:#68707c; --faint:#9aa1ab;
+  --line:#e4e7ec; --line-2:#d6dae1; --soft:#f6f7f9; --panel:#ffffff; --canvas:#f3f4f7; --nav:#1f2126;
+  --blue:#536bdb; --blue-2:#718aff; --blue-soft:#eef1ff; --blue-ring:rgba(83,107,219,.22);
+  --green:#2b8766; --green-bg:#e5f4ee; --red:#c54545; --red-bg:#fcebea; --amber:#a66a14; --amber-bg:#fff3d8;
+  --c-trigger:#6b7482; --c-agent:#536bdb; --c-tool:#8a63c9; --c-decision:#d18a2f; --c-control:#c9771b; --c-data:#3f86ab; --c-outcome:#2f7a57; --c-prohibited:#c54545;
+  --radius:12px; --shadow-1:0 1px 2px rgba(20,24,36,.06),0 1px 1px rgba(20,24,36,.04); --shadow-2:0 8px 28px rgba(20,24,36,.12);
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:Inter,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%;margin:0}
+body{font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--canvas);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* buttons and chips */
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel);font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover:not(:disabled){background:#4659c4}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.danger{color:var(--red);border-color:#f0c9c9}
+.btn.sm{height:26px;padding:0 9px;font-size:12px;border-radius:7px}
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:99px;font-size:11px;font-weight:600;background:var(--soft);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.chip.ok{background:var(--green-bg);color:var(--green);border-color:transparent}
+.chip.warn{background:var(--amber-bg);color:var(--amber);border-color:transparent}
+.chip.bad{background:var(--red-bg);color:var(--red);border-color:transparent}
+.chip.blue{background:var(--blue-soft);color:var(--blue);border-color:transparent}
+.kbd{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100;background:var(--nav);color:#fff;padding:9px 14px;border-radius:10px;font-size:12.5px;box-shadow:var(--shadow-2);max-width:min(560px,90vw)}
+.toast.error{background:var(--red)}

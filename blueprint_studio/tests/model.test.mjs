@@ -78,3 +78,13 @@ test('makeNode applies defaults; nextId skips taken ids', () => {
   assert.equal(n.config.kind, 'human_approval');
   assert.equal(nextId(['agent-1', 'agent-2'], 'agent'), 'agent-3');
 });
+
+test('v2 model change: two branch ports of one node may target the same input; one port still takes one edge', () => {
+  const g0 = tpl('customer-refund').graph;
+  const d = makeNode('decision', 'd2', { config: { condition: 'amount > 100' } });
+  const g = applyPatch(g0, [{ op: 'addNode', node: d },
+    { op: 'addEdge', edge: { id: 'x1', kind: 'flow', from: { node: 'd2', port: 'true' }, to: { node: 'payment', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'x2', kind: 'flow', from: { node: 'd2', port: 'false' }, to: { node: 'payment', port: 'in' } } }]);
+  assert.ok(g.ok, JSON.stringify(g.error));
+  assert.equal(canConnect(g.value, { node: 'd2', port: 'true' }, { node: 'resolved', port: 'in' }).error.code, 'port_taken');
+});

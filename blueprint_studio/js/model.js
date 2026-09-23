@@ -122,7 +122,9 @@ export function canConnect(graph, from, to) {
   if (pa.kind === 'out' && pb.kind === 'in') {
     if (graph.edges.some(e => e.kind === 'flow' && e.from.node === a.id && e.from.port === pa.id))
       return fail('port_taken', 'That output already has an edge');
-    if (graph.edges.some(e => e.kind === 'flow' && e.from.node === a.id && e.to.node === b.id && e.to.port === pb.id))
+    /* Two branches of one node (true/false, approved/denied) may rejoin the same step,
+       so a duplicate is the same source *port* to the same target port. */
+    if (graph.edges.some(e => e.kind === 'flow' && e.from.node === a.id && e.from.port === pa.id && e.to.node === b.id && e.to.port === pb.id))
       return fail('duplicate_edge', 'Edge already exists');
     return ok({ kind: 'flow', from: { node: a.id, port: pa.id }, to: { node: b.id, port: pb.id } });
   }

@@ -123,3 +123,21 @@ test('review r2: pieces after a decision run strictly in order through a dayTota
   assert.deepEqual(r.ledger.writes.map(w => !!w.approvalId), [false, true, true]);
   assert.deepEqual(r.activations.map(a => a.status), ['success', 'success', 'success']);
 });
+
+test('v2 model change: a decision whose two branches rejoin one node fires it once per activation (join first and all)', () => {
+  for (const join of ['first', 'all']) {
+    let g = _refund();
+    const D = _mk('decision', 'd2', { config: { condition: 'amount > 1000' } });
+    const eIn = g.edges.find(e => e.from.node === 'eligibility');
+    g = _ap(g, [{ op: 'removeEdge', id: eIn.id }, { op: 'addNode', node: D },
+      { op: 'addEdge', edge: { id: 'y1', kind: 'flow', from: { node: 'eligibility', port: 'out' }, to: { node: 'd2', port: 'in' } } },
+      { op: 'addEdge', edge: { id: 'y2', kind: 'flow', from: { node: 'd2', port: 'true' }, to: { node: 'gate', port: 'in' } } },
+      { op: 'addEdge', edge: { id: 'y3', kind: 'flow', from: { node: 'd2', port: 'false' }, to: { node: 'gate', port: 'in' } } },
+      { op: 'setConfig', id: 'gate', key: 'join', value: join }]).value;
+    for (const amount of [300, 1500]) {
+      const r = _run(g, { id: 's', template: 't', requests: [_req({ amount, eligible: amount })] });
+      assert.equal(r.trace.filter(t => t.node === 'gate' && t.status === 'ok').length, 1, `${join} ${amount}`);
+      assert.deepEqual(r.activations.map(a => a.status), ['success']);
+    }
+  }
+});

@@ -157,3 +157,17 @@ test('review r4: a legitimately modified candidate (paramsVersion 2, new params,
   const imp = importDocument(exportDocument(st.doc));
   assert.ok(imp.ok, JSON.stringify(imp.error));
 });
+
+test('v2 model change: a graph with two branches into one input round-trips through import', async () => {
+  const { createStore, newDocument, memoryStorage } = await import('../js/store.js');
+  const { makeNode } = await import('../js/model.js');
+  const st = createStore({ storage: memoryStorage() }); st.load(newDocument(tpl('customer-refund')));
+  const eIn = st.active().graph.edges.find(e => e.from.node === 'eligibility');
+  assert.ok(st.dispatch({ type: 'patch', ops: [{ op: 'removeEdge', id: eIn.id }, { op: 'addNode', node: makeNode('decision', 'd2', { config: { condition: 'amount > 1000' } }) },
+    { op: 'addEdge', edge: { id: 'y1', kind: 'flow', from: { node: 'eligibility', port: 'out' }, to: { node: 'd2', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'y2', kind: 'flow', from: { node: 'd2', port: 'true' }, to: { node: 'gate', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'y3', kind: 'flow', from: { node: 'd2', port: 'false' }, to: { node: 'gate', port: 'in' } } }] }).ok);
+  st.dispatch({ type: 'confirm' });
+  const r = importDocument(exportDocument(st.doc));
+  assert.ok(r.ok, JSON.stringify(r.error));
+});
