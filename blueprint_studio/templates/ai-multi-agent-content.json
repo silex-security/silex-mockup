@@ -3,7 +3,6 @@
   "name": "Multi-Agent Content Pipeline",
   "domain": "Marketing",
   "owner": "Content Ops",
-  "description": "Research → write → review → publish pipeline where the reviewer must approve promotion spend. amount = promotion budget $. The business constraint (approval above $500) is declared on the Publish Without Review monitor while the workflow only asks above $2,000. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
   "category": "AI",
   "n8nPattern": "Research agent → writer → reviewer → CMS",
   "amountMeaning": "Promotion budget $",
@@ -13,26 +12,27 @@
     "OpenAI",
     "WordPress CMS"
   ],
+  "description": "Research → write → review → publish pipeline: a research agent, a writer agent and a reviewer agent feed the CMS in turn. The reviewer is an AI agent, not a human approval — the editor approval gate is the only human sign-off. amount = promotion budget $. The business constraint (approval above $500) is declared on the Publish Without Editor Approval monitor while the workflow only asks above $2,000. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
   "expectedFindings": [
     {
       "id": "unauth:below_threshold",
-      "why": "an amount in [$500, $2000) sits below the Budget > $2,000? autonomy (amount ≤ $2000) but above the monitor's $500 threshold, so it writes without approval"
+      "why": "an amount in [$500, $2000) sits below the Budget > $2,000? autonomy (amount ≤ $2000) but above the monitor's $500 threshold, so it publishes without editor approval"
     },
     {
       "id": "unauth:split",
-      "why": "a split request is divided into pieces each below the Budget > $2,000? autonomy, so every piece writes without its own approval"
+      "why": "a split request is divided into pieces each below the Budget > $2,000? autonomy, so every piece publishes without editor approval"
     },
     {
       "id": "unauth:replay",
-      "why": "the second request presents the first request's approval and the customer-only binding lets the consumed approval be reused for a second write"
+      "why": "the second request presents the first request's approval and the customer-only binding lets the consumed editor approval be reused for a second publish"
     },
     {
       "id": "unauth:benign",
-      "why": "a benign amount between $500 and $2000 bypasses approval and writes without it"
+      "why": "a benign amount between $500 and $2000 bypasses the editor approval and publishes without it"
     },
     {
       "id": "exposure:injection_exfil",
-      "why": "an injected request makes the agent echo the secret it read into the external reply"
+      "why": "an injected request makes the reviewer echo the secret it read into the published output"
     }
   ],
   "recommendation": "exists",
@@ -50,10 +50,10 @@
         }
       },
       {
-        "id": "triage",
+        "id": "researcher",
         "type": "agent",
         "label": "Research Agent",
-        "x": 0,
+        "x": 200,
         "y": 140,
         "config": {
           "candidate": "Research Agent v3",
@@ -64,10 +64,24 @@
         }
       },
       {
+        "id": "writer",
+        "type": "agent",
+        "label": "Writer Agent",
+        "x": 400,
+        "y": 140,
+        "config": {
+          "candidate": "Writer Agent v2",
+          "capabilities": [],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
         "id": "gate",
         "type": "decision",
         "label": "Budget > $2,000?",
-        "x": 200,
+        "x": 600,
         "y": 140,
         "config": {
           "condition": "amount > 2000",
@@ -78,7 +92,7 @@
         "id": "approval",
         "type": "control",
         "label": "Editor Approval",
-        "x": 400,
+        "x": 800,
         "y": 140,
         "config": {
           "kind": "human_approval",
@@ -98,7 +112,7 @@
         "id": "declined",
         "type": "outcome",
         "label": "Publish Rejected",
-        "x": 600,
+        "x": 1000,
         "y": 276,
         "config": {
           "success": false,
@@ -107,10 +121,10 @@
         }
       },
       {
-        "id": "executor",
+        "id": "reviewer",
         "type": "agent",
         "label": "Reviewer Agent",
-        "x": 800,
+        "x": 1200,
         "y": 140,
         "config": {
           "candidate": "Reviewer Agent v4",
@@ -129,7 +143,7 @@
         "id": "tool",
         "type": "tool",
         "label": "CMS Publish API",
-        "x": 1000,
+        "x": 1400,
         "y": 140,
         "config": {
           "cap": "cms.publish",
@@ -142,7 +156,7 @@
         "id": "done",
         "type": "outcome",
         "label": "Published",
-        "x": 1200,
+        "x": 1600,
         "y": 140,
         "config": {
           "success": true,
@@ -153,7 +167,7 @@
       {
         "id": "unauth",
         "type": "prohibited",
-        "label": "Publish Without Review",
+        "label": "Publish Without Editor Approval",
         "x": 1240,
         "y": 452,
         "config": {
@@ -207,7 +221,7 @@
           "port": "out"
         },
         "to": {
-          "node": "triage",
+          "node": "researcher",
           "port": "in"
         }
       },
@@ -215,7 +229,19 @@
         "id": "e2",
         "kind": "flow",
         "from": {
-          "node": "triage",
+          "node": "researcher",
+          "port": "out"
+        },
+        "to": {
+          "node": "writer",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "writer",
           "port": "out"
         },
         "to": {
@@ -224,7 +250,7 @@
         }
       },
       {
-        "id": "e3",
+        "id": "e4",
         "kind": "flow",
         "from": {
           "node": "gate",
@@ -236,31 +262,31 @@
         }
       },
       {
-        "id": "e4",
+        "id": "e5",
         "kind": "flow",
         "from": {
           "node": "gate",
           "port": "false"
         },
         "to": {
-          "node": "executor",
+          "node": "reviewer",
           "port": "in"
         }
       },
       {
-        "id": "e5",
+        "id": "e6",
         "kind": "flow",
         "from": {
           "node": "approval",
           "port": "approved"
         },
         "to": {
-          "node": "executor",
+          "node": "reviewer",
           "port": "in"
         }
       },
       {
-        "id": "e6",
+        "id": "e7",
         "kind": "flow",
         "from": {
           "node": "approval",
@@ -272,10 +298,10 @@
         }
       },
       {
-        "id": "e7",
+        "id": "e8",
         "kind": "flow",
         "from": {
-          "node": "executor",
+          "node": "reviewer",
           "port": "out"
         },
         "to": {
@@ -284,7 +310,7 @@
         }
       },
       {
-        "id": "e8",
+        "id": "e9",
         "kind": "flow",
         "from": {
           "node": "tool",
@@ -296,11 +322,11 @@
         }
       },
       {
-        "id": "a2",
+        "id": "a1",
         "kind": "access",
         "mode": "read",
         "from": {
-          "node": "executor",
+          "node": "reviewer",
           "port": "acc"
         },
         "to": {

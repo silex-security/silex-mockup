@@ -3,7 +3,6 @@
   "name": "RAG Support Agent",
   "domain": "Customer Service",
   "owner": "AI Support Ops",
-  "description": "Support chat agent with a knowledge base (RAG) that answers and issues a goodwill credit. amount = goodwill credit $. The business constraint (approval above $100) is declared on the Unauthorized Goodwill Credit monitor while the workflow only asks above $500, so credits between the two slip through without approval. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
   "category": "AI",
   "n8nPattern": "Chat trigger → AI agent + vector store → reply",
   "amountMeaning": "Goodwill credit $",
@@ -14,6 +13,7 @@
     "Pinecone",
     "Zendesk"
   ],
+  "description": "Support chat agent with a knowledge base (vector store, RAG) that reads the knowledge base, answers and issues a goodwill credit. amount = goodwill credit $. The business constraint (approval above $100) is declared on the Unauthorized Goodwill Credit monitor while the workflow only asks above $500, so credits between the two slip through without approval. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
   "expectedFindings": [
     {
       "id": "unauth:below_threshold",
@@ -54,7 +54,7 @@
         "id": "triage",
         "type": "agent",
         "label": "Support Triage",
-        "x": 0,
+        "x": 200,
         "y": 140,
         "config": {
           "candidate": "RAG Support Agent v5",
@@ -68,7 +68,7 @@
         "id": "gate",
         "type": "decision",
         "label": "Credit > $500?",
-        "x": 200,
+        "x": 400,
         "y": 140,
         "config": {
           "condition": "amount > 500",
@@ -79,7 +79,7 @@
         "id": "approval",
         "type": "control",
         "label": "Supervisor Approval",
-        "x": 400,
+        "x": 600,
         "y": 140,
         "config": {
           "kind": "human_approval",
@@ -99,7 +99,7 @@
         "id": "declined",
         "type": "outcome",
         "label": "Credit Declined",
-        "x": 600,
+        "x": 800,
         "y": 276,
         "config": {
           "success": false,
@@ -111,7 +111,7 @@
         "id": "executor",
         "type": "agent",
         "label": "Credit Execution",
-        "x": 800,
+        "x": 1000,
         "y": 140,
         "config": {
           "candidate": "Credit Agent v2",
@@ -130,7 +130,7 @@
         "id": "tool",
         "type": "tool",
         "label": "Goodwill Credit API",
-        "x": 1000,
+        "x": 1200,
         "y": 140,
         "config": {
           "cap": "goodwill.credit",
@@ -143,7 +143,7 @@
         "id": "done",
         "type": "outcome",
         "label": "Reply Sent",
-        "x": 1200,
+        "x": 1400,
         "y": 140,
         "config": {
           "success": true,
@@ -171,6 +171,16 @@
           "watches": [
             "tool"
           ]
+        }
+      },
+      {
+        "id": "knowledgeBase",
+        "type": "data",
+        "label": "Knowledge Base (vector store)",
+        "x": 248,
+        "y": 4,
+        "config": {
+          "sensitivity": "internal"
         }
       },
       {
@@ -294,6 +304,19 @@
         "to": {
           "node": "done",
           "port": "in"
+        }
+      },
+      {
+        "id": "a1",
+        "kind": "access",
+        "mode": "read",
+        "from": {
+          "node": "triage",
+          "port": "acc"
+        },
+        "to": {
+          "node": "knowledgeBase",
+          "port": "acc"
         }
       },
       {

@@ -16,14 +16,14 @@ export default {
 
   // gallery templates (tpl.<file-id>.*)
   'tpl.ai-rag-support-agent.name': '知识库支持智能体',
-  'tpl.ai-rag-support-agent.desc': '带知识库（RAG）的支持聊天智能体，回答问题并发放善意补偿金。',
+  'tpl.ai-rag-support-agent.desc': '带向量知识库（RAG）的支持聊天智能体，读取知识库、回答问题并发放善意补偿金。',
   'tpl.ai-rag-support-agent.pattern': '聊天触发 → AI 智能体 + 向量库 → 回复',
   'tpl.ai-rag-support-agent.amount': '善意补偿金 $',
   'tpl.ai-rag-support-agent.customer': '收到补偿金的最终客户',
   'tpl.ai-rag-support-agent.order': '支持工单',
   'tpl.ai-multi-agent-content.name': '多智能体内容流水线',
-  'tpl.ai-multi-agent-content.desc': '调研 → 写作 → 审核 → 发布的流水线，审核环节必须批准推广预算。',
-  'tpl.ai-multi-agent-content.pattern': '调研智能体 → 写作 → 审核 → CMS',
+  'tpl.ai-multi-agent-content.desc': '调研 → 写作 → 审核 → 发布流水线：调研、写作、审核三个智能体依次处理，再交给 CMS。审核智能体是 AI 而非人工审批，编辑审批闸门才是唯一的人工把关。',
+  'tpl.ai-multi-agent-content.pattern': '调研智能体 → 写作智能体 → 审核智能体 → CMS',
   'tpl.ai-multi-agent-content.amount': '推广预算 $',
   'tpl.ai-multi-agent-content.customer': '内容活动',
   'tpl.ai-multi-agent-content.order': '内容作品',

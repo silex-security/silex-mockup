@@ -117,6 +117,42 @@ for (const name of ALL) {
   }
 }
 
+/* §3.11 truthfulness: the two AI templates model their advertised stages. */
+test('template ai-rag-support-agent: the support agent reads the knowledge base in every benign run', () => {
+  const t = tpl('ai-rag-support-agent');
+  const graph = t.graph;
+  const kb = graph.nodes.find(n => n.type === 'data' && n.config.sensitivity === 'internal');
+  assert.ok(kb, 'a modelled internal knowledge-base data node exists');
+  const readEdge = graph.edges.find(e => e.kind === 'access' && e.to.node === kb.id);
+  assert.ok(readEdge, 'the knowledge base is read by an agent');
+  const set = generateScenarioSet(graph, { n: 20, baseHash: hashGraph(graph, { name: t.name, domain: t.domain }) });
+  const benign = validate(graph, set).runs.filter(r => r.template === 'benign');
+  assert.ok(benign.length === 20, '20 benign runs');
+  for (const r of benign) {
+    assert.ok(r.session.effects.some(e => e.type === 'data_read' && e.data === kb.id && e.node === readEdge.from.node),
+      `${r.scenarioId}: the support agent reads the knowledge base`);
+  }
+});
+
+test('template ai-multi-agent-content: every success path visits researcher → writer → reviewer → CMS in order', () => {
+  const t = tpl('ai-multi-agent-content');
+  const graph = t.graph;
+  const ids = ['researcher', 'writer', 'reviewer', 'tool'];
+  for (const id of ids) assert.ok(graph.nodes.some(n => n.id === id), `node ${id} exists`);
+  assert.equal(graph.nodes.find(n => n.id === 'writer').type, 'agent');
+  assert.equal(graph.nodes.find(n => n.id === 'reviewer').type, 'agent');
+  assert.equal(graph.nodes.find(n => n.id === 'unauth').label, 'Publish Without Editor Approval');
+  const set = generateScenarioSet(graph, { n: 20, baseHash: hashGraph(graph, { name: t.name, domain: t.domain }) });
+  const runs = validate(graph, set).runs;
+  const successes = runs.flatMap(r => r.session.activations.filter(a => a.status === 'success'));
+  assert.ok(successes.length > 0, 'some runs succeed');
+  for (const a of successes) {
+    const pos = ids.map(id => a.path.indexOf(id));
+    assert.ok(pos.every(p => p !== -1), `activation ${a.id} visits all four stages (path: ${a.path.join(',')})`);
+    assert.ok(pos[0] < pos[1] && pos[1] < pos[2] && pos[2] < pos[3], `activation ${a.id}: researcher → writer → reviewer → CMS in order (path: ${a.path.join(',')})`);
+  }
+});
+
 for (const name of dupTemplates()) {
   test(`template ${name}: both duplicate_submit writes execute (no write_denied)`, () => {
     const graph = tpl(name).graph;
