@@ -15,13 +15,14 @@ import { proposeByRules } from './rules.js';
 import { layoutOps } from '../builder/layout.js';
 import { typeLabel, monitorLabel } from '../builder/catalog.js';
 import { lintSentence } from '../builder/Checklist.jsx';
+import { describeOp } from '../assurance/common.jsx';
 
 /* Session state survives closing the panel; it resets with the document. */
-export const assist = { turns: [], proposal: null, seq: 0, current: 0, busy: false, mode: null, claudeOff: null, ctl: null, highlight: [] };
+export const assist = { turns: [], proposal: null, consumed: null, seq: 0, current: 0, busy: false, mode: null, claudeOff: null, ctl: null, highlight: [] };
 const MAX_MESSAGE = 2000;
 
 const bindingNow = () => { const r = store.active(); return { docId: store.doc.id, rev: r.rev, hash: store.hashOf(r), draft: r.status === 'draft' }; };
-export const isStale = p => { if (!p) return true; const b = bindingNow(); return p.consumed || b.docId !== p.binding.docId || b.rev !== p.binding.rev || b.hash !== p.binding.hash || !b.draft; };
+export const isStale = p => { if (!p) return true; const b = bindingNow(); return assist.consumed === p.id || b.docId !== p.binding.docId || b.rev !== p.binding.rev || b.hash !== p.binding.hash || !b.draft; };
 
 const ERR = {
   rate_limited: ['assist.err.rate', 'Too many requests right now. Try again in a little while.'],
@@ -48,6 +49,13 @@ function describe(op, g) {
     case 'removeEdge': return t('assist.op.removeEdge', 'Disconnect {a} → {b}', { a: lbl(op.from), b: lbl(op.to) });
     default: return op.op;
   }
+}
+
+/* Every primitive change the proposal will make — settings and connections
+   included — labelled against the graph it came from (removals) or produces
+   (everything else). This, not the model's own wording, is what Apply applies. */
+function expandedLines(before, after, ops) {
+  return ops.filter(o => o.op !== 'moveNode').map(o => (o.op === 'removeNode' || o.op === 'removeEdge') ? describeOp(before, o) : describeOp(after, o));
 }
 
 function lintDelta(before, after) {
@@ -87,7 +95,9 @@ export default function AssistantPanel() {
       const v = validateProposal(graph, raw);
       if (!v.ok) { push({ role: 'assistant', text: (raw && typeof raw.summary === 'string' && v.error.code === 'empty') ? raw.summary.slice(0, 400) : t('assist.rejected', 'I could not turn that into a valid change: {why}', { why: v.error.message }), kind: v.error.code === 'empty' ? 'info' : 'error' }); return; }
       const before = lint(graph), after = lint(v.value.graph);
-      assist.proposal = { id, binding: b, raw, ops: v.value.ops, touched: v.value.touched, delta: lintDelta(before, after), summary: v.value.summary, consumed: false, mode: raw.__mode };
+      assist.proposal = Object.freeze({ id, binding: b, raw, ops: Object.freeze(v.value.ops), touched: v.value.touched, delta: lintDelta(before, after), summary: v.value.summary, mode: raw.__mode,
+        requested: (raw.ops || []).map(op => describe(op, graph)), lines: expandedLines(graph, v.value.graph, v.value.ops), after: v.value.graph });
+      assist.consumed = null;
       assist.highlight = v.value.touched;
       push({ role: 'assistant', text: v.value.summary || t('assist.proposed', 'Here is a proposal. Review it, then Apply or Discard.'), proposalId: id });
     };
@@ -118,18 +128,16 @@ export default function AssistantPanel() {
 
   function apply() {
     const p = assist.proposal;
-    if (!p || p.consumed || isStale(p)) return ctl.toast(t('assist.stale', 'The workflow changed since this was proposed — ask again.'), 'error');
-    p.consumed = true;                                    // consumed before dispatch: a double click cannot apply twice
-    const g = store.active().graph;
-    const after = validateProposal(g, p.raw);             // same graph (hash checked), same result
-    if (!after.ok) return ctl.toast(after.error.message, 'error');
-    const r = store.dispatch({ type: 'patch', ops: [...p.ops, ...layoutOps(after.value.graph)], label: 'Ask AI' });
+    if (!p || assist.consumed === p.id || isStale(p)) return ctl.toast(t('assist.stale', 'The workflow changed since this was proposed — ask again.'), 'error');
+    assist.consumed = p.id;                               // consumed before dispatch: a double click cannot apply twice
+    // The previewed, frozen patch — applied unchanged; only positions are added (layout of the previewed result).
+    const r = store.dispatch({ type: 'patch', ops: [...p.ops, ...layoutOps(p.after)], label: 'Ask AI' });
     if (r.ok) { assist.highlight = []; push({ role: 'note', text: t('assist.applied', 'Applied. Undo reverts it in one step.') }); }
   }
   function discard() { if (assist.proposal) { assist.proposal = null; assist.highlight = []; push({ role: 'note', text: t('assist.discarded', 'Discarded.') }); } }
   function stop() { assist.ctl?.abort(); assist.current = ++assist.seq; assist.busy = false; bump(); }
 
-  const p = assist.proposal, stale = p && isStale(p) && !p.consumed;
+  const p = assist.proposal, consumed = p && assist.consumed === p.id, stale = p && isStale(p) && !consumed;
   return (
     <aside className="config assist" aria-label={t('assist.title', 'Ask AI')}>
       <header className="cp-head">
@@ -152,7 +160,10 @@ export default function AssistantPanel() {
             {m.retry ? <button className="link" onClick={() => setText(m.retry)}>{t('assist.tryAgain', 'Try again')}</button> : null}
             {m.proposalId && p && p.id === m.proposalId ? (
               <div className="proposal" id="proposalCard" data-stale={stale ? '1' : '0'}>
-                <ol>{(p.raw.ops || []).map((op, k) => <li key={k}>{describe(op, store.active().graph)}</li>)}</ol>
+                <p className="proposal-sub">{t('assist.requested', 'Requested')}</p>
+                <ol className="requested">{p.requested.map((line, k) => <li key={k}>{line}</li>)}</ol>
+                <p className="proposal-sub">{t('assist.willChange', 'Exactly what Apply changes ({n})', { n: p.lines.length })}</p>
+                <ul className="expanded" id="proposalLines">{p.lines.map((line, k) => <li key={k}>{line}</li>)}</ul>
                 <div className="delta">
                   {p.delta.removed.length ? <span className="chip ok">{t('assist.fixes', 'fixes {n} issue(s)', { n: p.delta.removed.length })}</span> : null}
                   {p.delta.added.length ? <span className="chip warn" title={p.delta.added.map(x => lintSentence(x, store.active().graph)).join('\n')}>{t('assist.adds', 'leaves {n} issue(s) to fix', { n: p.delta.added.length })}</span> : <span className="chip">{t('assist.noNew', 'no new issues')}</span>}
@@ -160,8 +171,8 @@ export default function AssistantPanel() {
                 </div>
                 {stale ? <p className="err">{t('assist.stale', 'The workflow changed since this was proposed — ask again.')}</p> : null}
                 <div className="ref-actions">
-                  <button className="btn primary sm" id="assistApply" disabled={stale || p.consumed} onClick={apply}><Icon d={I.check} />{t('assist.apply', 'Apply')}</button>
-                  <button className="btn sm" id="assistDiscard" disabled={p.consumed} onClick={discard}>{t('assist.discard', 'Discard')}</button>
+                  <button className="btn primary sm" id="assistApply" disabled={stale || consumed} onClick={apply}><Icon d={I.check} />{t('assist.apply', 'Apply')}</button>
+                  <button className="btn sm" id="assistDiscard" disabled={consumed} onClick={discard}>{t('assist.discard', 'Discard')}</button>
                 </div>
               </div>) : null}
           </div>))}

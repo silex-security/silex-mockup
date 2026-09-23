@@ -495,6 +495,58 @@ await probe('A2b', 'stub: Stop leaves no proposal; edit during generation → st
   return { pass: afterStop === 'none' && afterEdit === 'disabled' && fresh === 'enabled' && afterConfirm === 'disabled' && sendDisabled && calls1 === calls0 && tooLong, detail: JSON.stringify({ afterStop, afterEdit, fresh, afterConfirm, sendDisabled, calls0, calls1, tooLong }) };
 });
 
+
+/* ------------------------------------------------ code review r1 (codex) */
+await probe('C1', 'AI preview lists every expanded change incl. settings and branch connections', async () => {
+  await load({ stub: 'sample' });
+  await ev(`window.__stubQueue.push({reply:{summary:'gate', ops:[{op:'insertStep', from:'eligibility', to:'gate', type:'control', config:{kind:'policy_gate', action:'redact', redactAbove:'internal', appliesWhen:'amount > 100'}}]}}); return 1`);
+  await ask('add a redact gate'); await sleep(300);
+  const lines = await ev('return [...document.querySelectorAll("#proposalLines li")].map(l=>l.innerText).join(" | ")');
+  return { pass: ['kind', 'policy_gate', 'action', 'redact', 'appliesWhen', 'amount > 100', 'approved', 'denied'].every(w => lines.includes(w)) || (['kind', 'policy_gate', 'redact', 'amount > 100'].every(w => lines.includes(w)) && /Refund > \$2,000\?|Refund Declined/.test(lines)), detail: lines.slice(0, 400) };
+});
+await probe('C2', 'config inputs follow the graph: capability limit edit then Undo shows the restored value; row removal; revision switch', async () => {
+  await load();
+  await ev(`__bs2.ctl.focusNode('execution'); return 1`); await sleep(400);
+  const sel = '#f-execution-capabilities input[type=number]';
+  await clickSel(sel); await ev(`document.querySelector('${sel}').select(); return 1`); await type('555'); await key('Tab', 'Tab', 9); await sleep(200);
+  const edited = await ev(`${S} return G().nodes.find(n=>n.id==='execution').config.capabilities[0].limit`);
+  await ev(`${S} st.dispatch({type:'undo'}); return 1`); await sleep(200);
+  const shown = await ev(`return document.querySelector('${sel}').value`);
+  await ev(`${S} st.dispatch({type:'redo'}); return 1`); await sleep(200);
+  const shownRedo = await ev(`return document.querySelector('${sel}').value`);
+  await ev(`${S} st.dispatch({type:'undo'}); return 1`);
+  await ev(`__bs2.ctl.confirm(); __bs2.ctl.newRevision(); return 1`); await sleep(200);
+  await ev(`${S} st.dispatch({type:'patch', ops:[{op:'setConfig', id:'execution', key:'capabilities', value:[{cap:'refund.issue', limit:42}]}]}); __bs2.ctl.focusNode('execution'); return 1`); await sleep(300);
+  const r1 = await ev(`return document.querySelector('${sel}').value`);
+  await ev(`__bs2.ctl.setActiveRevision(0); __bs2.ctl.focusNode('execution'); return 1`); await sleep(300);
+  const r0 = await ev(`return document.querySelector('${sel}').value`);
+  return { pass: edited === 555 && shown === '10000' && shownRedo === '555' && r1 === '42' && r0 === '10000', detail: JSON.stringify({ edited, shown, shownRedo, r1, r0 }) };
+});
+await probe('C3', 'Checklist → Discard restores the field display; an invalid range registers a pending input and blocks Confirm', async () => {
+  await load();
+  await ev(`__bs2.ctl.focusNode('gate'); return 1`); await sleep(400);
+  await clickSel('#f-gate-condition'); await ev('document.querySelector("#f-gate-condition").select(); return 1'); await type('amount >'); await key('Tab', 'Tab', 9); await sleep(200);
+  await clickSel('#checklistBtn'); await sleep(200); await clickSel('.ci[data-kind="pending"] .btn'); await sleep(300);
+  const shown = await ev('return document.querySelector("#f-gate-condition").value');
+  await ev(`__bs2.ctl.focusNode('unauth'); return 1`); await sleep(400);
+  await clickSel('#advToggle'); await sleep(150);
+  await clickSel('#f-unauth-probeRange'); await ev('document.querySelector("#f-unauth-probeRange").select(); return 1'); await type('5000'); await key('Tab', 'Tab', 9); await sleep(200);
+  const r = await ev(`${S} return {pend: b.pending.size, confirm: ctl.confirm().error?.code, range: JSON.stringify(G().nodes.find(n=>n.id==='unauth').config.probeRange)}`);
+  return { pass: shown === 'amount > 2000' && r.pend === 1 && r.confirm === 'pending_input' && r.range === '[500,2000]', detail: JSON.stringify({ shown, ...r }) };
+});
+await probe('C4', 'rule-based parsing is faithful: "above $1,000" → amount > 1000; dual approval; 500.75 kept; unsupported clause unmatched', async () => {
+  await load();
+  const out = [];
+  for (const q of ['add a human approval above $1,000 after Refund Eligibility', 'add a dual approval after Refund Eligibility', 'add a human approval above $500.75 after Refund Eligibility', '在 Refund Eligibility 后面加一个人工审批，金额超过 1,000', 'add a human approval unless the customer is VIP after Refund Eligibility']) {
+    await load({ clear: true });
+    await ask(q); await sleep(200);
+    const has = await applyState();
+    if (has === 'enabled') { await clickSel('#assistApply'); await sleep(200); }
+    out.push(await ev(`${S} const c=G().nodes.find(n=>n.type==='control'&&n.id!=='approval'); return c ? c.config.kind+'|'+c.config.appliesWhen : 'none'`));
+  }
+  return { pass: out[0] === 'human_approval|amount > 1000' && out[1].startsWith('dual_approval|') && out[2] === 'human_approval|amount > 500.75' && out[3] === 'human_approval|amount > 1000' && out[4] === 'none', detail: JSON.stringify(out) };
+});
+
 /* ------------------------------------------------------ i18n, T3, T4, V1 */
 await probe('I1', '中文 changes UI strings, checklist sentences and node explanations; search matches Chinese', async () => {
   await load({ lang: 'en' });

@@ -117,3 +117,54 @@ test('rules: add a data resource to a tool with an explicit sensitivity', () => 
   assert.equal(r2.proposal.ops[0].label, 'Changelog');
   expectClean('add a public data resource Changelog to the Payment API');
 });
+
+/* ---- Codex round-1 defect 4: qualifiers, decimals and thousands ---- */
+function newControl(text) {
+  const r = apply(text);
+  const n = r.graph.nodes.find(x => x.type === 'control' && x.id !== 'approval');
+  assert.ok(n, 'a new control was created');
+  return n;
+}
+
+test('rules: dual approval produces kind dual_approval (not single-person)', () => {
+  const r = apply('add a dual approval after Refund Eligibility');
+  assert.equal(r.proposal.ops[0].config.kind, 'dual_approval');
+  assert.equal(newControl('add a dual approval after Refund Eligibility').config.kind, 'dual_approval');
+});
+
+test('rules: approval above/over/at-least map to appliesWhen, exactly', () => {
+  assert.equal(newControl('add a human approval above $1,000 after Refund Eligibility').config.appliesWhen, 'amount > 1000');
+  assert.equal(newControl('add a manager approval over $500 after Refund Eligibility').config.appliesWhen, 'amount > 500');
+  assert.equal(newControl('add an approval at least $250 after Refund Eligibility').config.appliesWhen, 'amount >= 250');
+  assert.equal(newControl('add an approval more than 900 after Refund Eligibility').config.appliesWhen, 'amount > 900');
+});
+
+test('rules: decimals and thousands parse exactly, both languages', () => {
+  assert.equal(newControl('add a human approval above 500.75 after Refund Eligibility').config.appliesWhen, 'amount > 500.75');
+  assert.equal(newControl('add a human approval above $1,000 after Refund Eligibility').config.appliesWhen, 'amount > 1000');
+  assert.equal(newControl('add a human approval above 1000.5 after Refund Eligibility').config.appliesWhen, 'amount > 1000.5');
+  assert.equal(newControl('在 Refund Eligibility 后面加一个金额超过1000的人工审批').config.appliesWhen, 'amount > 1000');
+  assert.equal(newControl('在 Refund Eligibility 后面加一个超过 1,000 元的人工审批').config.appliesWhen, 'amount > 1000');
+});
+
+test('rules: a sentence with an unmappable qualifier is left wholly unmatched', () => {
+  for (const s of [
+    'add a human approval within 2 hours after Refund Eligibility',
+    'add a dual approval unless VIP after Refund Eligibility',
+    'add an approval below $500 after Refund Eligibility',
+    'add an approval for new customers after Refund Eligibility',
+    '在 Refund Eligibility 后面加一个2小时内的人工审批'
+  ]) {
+    const p = proposeByRules(s, graph);
+    assert.ok(p.ok);
+    assert.equal(p.value.ops.length, 0, `should produce no op for: ${s}`);
+    assert.deepEqual(p.value.unmatched, [s]);
+  }
+});
+
+test('rules: a decimal amount is not split into two sentences', () => {
+  const p = proposeByRules('add a human approval above 500.75 after Refund Eligibility', graph);
+  assert.ok(p.ok);
+  assert.equal(p.value.ops.length, 1);
+  assert.equal(p.value.unmatched.length, 0);
+});

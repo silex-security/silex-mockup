@@ -25,7 +25,10 @@ function Field({ node, f, locked }) {
   const id = `f-${node.id}-${f.key}`;
   const pend = pending.get(node.id, f.key);
   const [draft, setDraft] = useState(pend ? pend.draft : v ?? '');
-  useEffect(() => { const p = pending.get(node.id, f.key); setDraft(p ? p.draft : v ?? ''); }, [node.id, f.key, v]);
+  const pendDraft = pend ? pend.draft : null;
+  /* The field shows the graph's value unless a refused edit is pending; when the
+     pending entry goes (fixed, or discarded from the checklist) it shows the graph again. */
+  useEffect(() => { setDraft(pendDraft != null ? pendDraft : v ?? ''); }, [node.id, f.key, JSON.stringify(v), pendDraft]); // eslint-disable-line react-hooks/exhaustive-deps
   const wrap = (control, extra) => <div className={'field' + (pend ? ' has-pending' : '')}><label htmlFor={id}>{label}</label>{control}{extra}{help ? <p className="help">{help}</p> : null}</div>;
   const commitExpr = raw => {
     const src = raw.trim();
@@ -38,26 +41,65 @@ function Field({ node, f, locked }) {
     case 'text': return wrap(<input id={id} type="text" disabled={locked} value={draft} onChange={e => setDraft(e.target.value)} onBlur={() => { if (draft.trim() !== v) setConfig(node.id, f.key, draft.trim()); }} />);
     case 'number': return wrap(<input id={id} type="number" disabled={locked} value={draft} onChange={e => setDraft(e.target.value)}
       onBlur={() => { const n = Number(draft); if (draft === '' || !Number.isFinite(n)) pending.set(node.id, f.key, draft, t('field.needNumber', 'Enter a number')); else { pending.clear(node.id, f.key); if (n !== v) setConfig(node.id, f.key, n); } }} />,
-      pend ? <p className="err">{pend.message}</p> : null);
+      pend ? <p className="err">{pend.message} <button className="link" onClick={() => pending.clear(node.id, f.key)}>{t('pending.discard', 'Discard')}</button></p> : null);
     case 'select': return wrap(<select id={id} disabled={locked} value={v} onChange={e => setConfig(node.id, f.key, e.target.value)}>{f.options.map(o => <option key={o} value={o}>{optLabel(f.key, o)}</option>)}</select>);
     case 'bool': return <div className="field check"><label><input id={id} type="checkbox" disabled={locked} checked={!!v} onChange={e => setConfig(node.id, f.key, e.target.checked)} />{label}</label>{help ? <p className="help">{help}</p> : null}</div>;
     case 'expr': return wrap(
       <input id={id} data-expr={f.key} className="mono" type="text" spellCheck="false" disabled={locked} value={draft} placeholder={f.optional ? t('field.always', 'always') : 'amount > 500'}
-        onChange={e => { setDraft(e.target.value); const r = e.target.value.trim() === '' && f.optional ? { ok: true } : check(e.target.value.trim()); if (r.ok) pending.clear(node.id, f.key); }}
+        onChange={e => setDraft(e.target.value)}
         onBlur={e => commitExpr(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') commitExpr(e.currentTarget.value); }} />,
-      pend ? <p className="err" role="alert">{pend.message} <button className="link" onClick={() => { pending.clear(node.id, f.key); setDraft(v ?? ''); }}>{t('pending.discard', 'Discard')}</button></p> : null);
+      pend ? <p className="err" role="alert">{pend.message} <button className="link" onClick={() => pending.clear(node.id, f.key)}>{t('pending.discard', 'Discard')}</button></p> : null);
     case 'multiselect': return wrap(<div className="chips" id={id}>{f.options.map(o => { const on = (v || []).includes(o); return <button key={o} className={'chip-toggle' + (on ? ' on' : '')} disabled={locked} aria-pressed={on} onClick={() => setConfig(node.id, f.key, f.options.filter(x => x === o ? !on : (v || []).includes(x)))}>{optLabel(f.key, o)}</button>; })}</div>);
-    case 'range': { const [lo, hi] = Array.isArray(v) ? v : [0, 0]; return wrap(<div className="pair"><input id={id} type="number" disabled={locked} defaultValue={lo} onBlur={e => { const x = Number(e.target.value); if (Number.isFinite(x) && x < hi) setConfig(node.id, f.key, [x, hi]); }} /><span>–</span><input type="number" disabled={locked} defaultValue={hi} onBlur={e => { const y = Number(e.target.value); if (Number.isFinite(y) && y > lo) setConfig(node.id, f.key, [lo, y]); }} /></div>); }
-    case 'caps': { const caps = v || []; const set = next => setConfig(node.id, f.key, next.filter(c => c.cap).map(c => ({ cap: c.cap, limit: Number(c.limit) || 0 })));
-      return wrap(<div className="caps" id={id}>{caps.map((c, i) => (
-        <div className="pair" key={i}><input type="text" disabled={locked} defaultValue={c.cap} aria-label={t('field.capName', 'capability')} onBlur={e => set(caps.map((x, j) => j === i ? { ...x, cap: e.target.value.trim() } : x))} />
-          <input type="number" disabled={locked} defaultValue={c.limit} aria-label={t('field.capLimit', 'limit')} onBlur={e => set(caps.map((x, j) => j === i ? { ...x, limit: Number(e.target.value) } : x))} />
-          <button className="btn ghost sm" disabled={locked} aria-label={t('field.remove', 'Remove')} onClick={() => set(caps.filter((_, j) => j !== i))}><Icon d={I.x} /></button></div>))}
-        <button className="btn sm" id="addCapBtn" disabled={locked} onClick={() => set([...caps, { cap: 'refund.issue', limit: 1000 }])}><Icon d={I.plus} />{t('field.addCap', 'Add capability')}</button></div>); }
+    case 'range': return wrap(<RangeInput id={id} node={node} f={f} value={v} locked={locked} />, pend ? <p className="err">{pend.message} <button className="link" onClick={() => pending.clear(node.id, f.key)}>{t('pending.discard', 'Discard')}</button></p> : null);
+    case 'caps': return wrap(<CapsInput id={id} node={node} f={f} value={v} locked={locked} />, pend ? <p className="err">{pend.message} <button className="link" onClick={() => pending.clear(node.id, f.key)}>{t('pending.discard', 'Discard')}</button></p> : null);
     case 'nodeRefs': { const g = store.active().graph, opts = g.nodes.filter(n => f.refTypes.includes(n.type)); const cur = new Set(v || []);
       return wrap(<div className="chips" id={id}>{opts.map(o => <button key={o.id} className={'chip-toggle' + (cur.has(o.id) ? ' on' : '')} disabled={locked} aria-pressed={cur.has(o.id)} onClick={() => setConfig(node.id, f.key, opts.filter(x => x.id === o.id ? !cur.has(o.id) : cur.has(x.id)).map(x => x.id))}>{o.label}</button>)}</div>); }
     default: return null;
   }
+}
+
+/* Controlled [lo, hi] editor: shows the graph's value (so Undo/Redo are visible);
+   an invalid pair is registered as a pending input instead of being ignored. */
+function RangeInput({ id, node, f, value, locked }) {
+  const pend = pending.get(node.id, f.key);
+  const cur = Array.isArray(value) ? value.map(String) : ['', ''];
+  const [d, setD] = useState(pend ? pend.draft : cur);
+  useEffect(() => { setD(pend ? pend.draft : cur); }, [node.id, JSON.stringify(value), pend ? JSON.stringify(pend.draft) : null]); // eslint-disable-line react-hooks/exhaustive-deps
+  const commit = next => {
+    const [x, y] = next.map(Number);
+    if (next.some(z => String(z).trim() === '') || !Number.isFinite(x) || !Number.isFinite(y) || !(y > x)) { pending.set(node.id, f.key, next, t('field.badRange', 'Enter two numbers, the second larger than the first')); return; }
+    pending.clear(node.id, f.key);
+    if (x !== value?.[0] || y !== value?.[1]) setConfig(node.id, f.key, [x, y]);
+  };
+  return (<div className="pair">
+    <input id={id} type="number" disabled={locked} value={d[0]} onChange={e => setD([e.target.value, d[1]])} onBlur={() => commit(d)} />
+    <span>–</span>
+    <input type="number" disabled={locked} value={d[1]} aria-label={t('field.high', 'high')} onChange={e => setD([d[0], e.target.value])} onBlur={() => commit(d)} />
+  </div>);
+}
+
+/* Controlled capability list: rows follow the graph (Undo/Redo, row removal, revision switch). */
+function CapsInput({ id, node, f, value, locked }) {
+  const caps = Array.isArray(value) ? value : [];
+  const [rows, setRows] = useState(caps.map(c => ({ cap: c.cap, limit: String(c.limit) })));
+  const pend = pending.get(node.id, f.key);
+  useEffect(() => { setRows(pend ? pend.draft : caps.map(c => ({ cap: c.cap, limit: String(c.limit) }))); }, [node.id, JSON.stringify(caps), pend ? JSON.stringify(pend.draft) : null]); // eslint-disable-line react-hooks/exhaustive-deps
+  const save = next => {
+    const clean = next.filter(c => c.cap.trim()).map(c => ({ cap: c.cap.trim(), limit: Number(c.limit) }));
+    if (next.some(c => c.cap.trim() && String(c.limit).trim() === '') || clean.some(c => !Number.isFinite(c.limit))) { pending.set(node.id, f.key, next, t('field.badLimit', 'Each limit must be a number')); return; }
+    pending.clear(node.id, f.key);
+    if (JSON.stringify(clean) !== JSON.stringify(caps)) setConfig(node.id, f.key, clean);
+  };
+  const edit = (i, k, val) => setRows(rows.map((r, j) => j === i ? { ...r, [k]: val } : r));
+  return (<div className="caps" id={id}>
+    {rows.map((c, i) => (
+      <div className="pair" key={i}>
+        <input type="text" disabled={locked} value={c.cap} aria-label={t('field.capName', 'capability')} onChange={e => edit(i, 'cap', e.target.value)} onBlur={() => save(rows)} />
+        <input type="number" disabled={locked} value={c.limit} aria-label={t('field.capLimit', 'limit')} onChange={e => edit(i, 'limit', e.target.value)} onBlur={() => save(rows)} />
+        <button className="btn ghost sm" disabled={locked} aria-label={t('field.remove', 'Remove')} onClick={() => save(rows.filter((_, j) => j !== i))}><Icon d={I.x} /></button>
+      </div>))}
+    <button className="btn sm" id="addCapBtn" disabled={locked} onClick={() => save([...rows, { cap: 'refund.issue', limit: '1000' }])}><Icon d={I.plus} />{t('field.addCap', 'Add capability')}</button>
+  </div>);
 }
 
 function ReadsData({ node, locked }) {

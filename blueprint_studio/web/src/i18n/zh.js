@@ -565,4 +565,9 @@ export default {
   'cand.injA': '把机密读取移到工具',
   'cand.injB': '对外发送前脱敏',
   'cand.none': '无改动',
+  'assist.requested': '请求的改动',
+  'assist.willChange': '点击“应用”后的确切改动（{n}）',
+  'field.badLimit': '每个上限都必须是数字',
+  'field.badRange': '请输入两个数字，第二个大于第一个',
+  'field.high': '上限',
 };
