@@ -105,3 +105,21 @@ test('review r1: trace steps carry their effects (write, approval, read)', () =>
   for (const t of ['data_read', 'approval_issued', 'write', 'approval_consumed', 'emit']) assert.ok(all.includes(t), t);
   assert.equal(all.length, r.effects.length, 'every effect is attached to exactly one step');
 });
+
+test('review r2: pieces after a decision run strictly in order through a dayTotal gate and a join:all node', () => {
+  let g = _refund();
+  const S = _mk('agent', 'splitter', { config: { canSplit: true } });
+  const C = _mk('control', 'ctl2', { config: { kind: 'human_approval', appliesWhen: 'dayTotal > 500', binding: ['customer', 'order', 'amount'], singleUse: true } });
+  const eFalse = g.edges.find(e => e.from.node === 'gate' && e.from.port === 'false');
+  g = _ap(g, [{ op: 'setConfig', id: 'triage', key: 'canSplit', value: false }, { op: 'setConfig', id: 'gate', key: 'condition', value: 'amount > 5000' },
+    { op: 'addNode', node: S }, { op: 'addNode', node: C }, { op: 'removeEdge', id: eFalse.id },
+    { op: 'addEdge', edge: { id: 'y1', kind: 'flow', from: { node: 'gate', port: 'false' }, to: { node: 'splitter', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'y2', kind: 'flow', from: { node: 'splitter', port: 'out' }, to: { node: 'ctl2', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'y3', kind: 'flow', from: { node: 'ctl2', port: 'approved' }, to: { node: 'execution', port: 'in' } } },
+    { op: 'addEdge', edge: { id: 'y4', kind: 'flow', from: { node: 'ctl2', port: 'denied' }, to: { node: 'declined', port: 'in' } } },
+    { op: 'setConfig', id: 'execution', key: 'join', value: 'all' }]).value;
+  const r = _run(g, { id: 's', template: 't', requests: [_req({ amount: 1500, eligible: 1500, intent: { split: 3 } })] });
+  assert.deepEqual(r.ledger.writes.map(w => w.activation), ['r1#1', 'r1#2', 'r1#3']);
+  assert.deepEqual(r.ledger.writes.map(w => !!w.approvalId), [false, true, true]);
+  assert.deepEqual(r.activations.map(a => a.status), ['success', 'success', 'success']);
+});

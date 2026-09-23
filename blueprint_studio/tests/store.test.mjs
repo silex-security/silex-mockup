@@ -121,3 +121,10 @@ test('accept as is only without findings', () => {
   assert.ok(t.dispatch({ type: 'accept', rev: 0 }).ok);
   assert.ok(t.dispatch({ type: 'register', rev: 0 }).ok);
 });
+
+test('review r2: register refuses a decision without evidence even if it got into the store', () => {
+  const s = fresh(); s.dispatch({ type: 'confirm' });
+  s.active().decision = { action: 'accept' };            // simulate a document that bypassed import validation
+  assert.equal(s.dispatch({ type: 'register', rev: 0 }).error.code, 'bad_evidence');
+  assert.equal(s.inventory().length, 0);
+});

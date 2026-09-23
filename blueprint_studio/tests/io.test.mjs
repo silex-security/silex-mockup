@@ -58,3 +58,19 @@ test('review r1: import rejects bad activeRev, bad config types and a tampered c
   const tampered = JSON.parse(JSON.stringify(good)); tampered.revisions[0].graph.nodes.find(n => n.id === 'gate').config.condition = 'amount > 99999';
   assert.equal(importDocument(JSON.stringify(tampered)).error.code, 'hash_mismatch');
 });
+
+test('review r2: import rejects missing applicable config, prototype node types, and incomplete lifecycle evidence', async () => {
+  const { createStore, newDocument, memoryStorage } = await import('../js/store.js');
+  const st = createStore({ storage: memoryStorage() }); st.load(newDocument(tpl('customer-refund')));
+  const draft = JSON.parse(exportDocument(st.doc));
+  const noKind = JSON.parse(JSON.stringify(draft)); delete noKind.revisions[0].graph.nodes.find(n => n.id === 'approval').config.kind;
+  assert.equal(importDocument(JSON.stringify(noKind)).ok, false);
+  const proto = JSON.parse(JSON.stringify(draft)); proto.revisions[0].graph.nodes[0].type = '__proto__';
+  const pr = importDocument(JSON.stringify(proto)); assert.equal(pr.ok, false); assert.equal(pr.error.code, 'bad_graph');
+  st.dispatch({ type: 'confirm' });
+  const conf = JSON.parse(exportDocument(st.doc));
+  const bareValidation = JSON.parse(JSON.stringify(conf)); bareValidation.revisions[0].validation = { revHash: conf.revisions[0].hash };
+  assert.equal(importDocument(JSON.stringify(bareValidation)).error.code, 'bad_evidence');
+  const bareAccept = JSON.parse(JSON.stringify(conf)); bareAccept.revisions[0].decision = { action: 'accept' };
+  assert.equal(importDocument(JSON.stringify(bareAccept)).error.code, 'bad_evidence');
+});

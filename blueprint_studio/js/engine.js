@@ -165,6 +165,13 @@ export function createRun(graph, scenario, opts = {}) {
       if (node.config.canSplit && token.req.intent && token.req.intent.split) {
         const k = token.req.intent.split;
         const amounts = splitAmounts(token.req.amount, k);
+        /* Settle the request's pending skips first, so every piece inherits the
+           final branch state and pieces run strictly one after another. */
+        for (;;) {
+          const i = queue.findIndex(e => e.kind === 'skip' && e.activation === activation);
+          if (i < 0) break;
+          deliver(queue.splice(i, 1)[0]);
+        }
         s.children[activation] = [];
         for (let i = k; i >= 1; i--) {
           const piece = cloneToken(token);

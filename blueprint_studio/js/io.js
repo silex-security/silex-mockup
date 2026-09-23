@@ -1,6 +1,6 @@
 /* Import/export, schema validation, graph diff, policy-as-code text (contract §9). */
 
-import { SCHEMA, NODE_TYPES, canConnect, hashGraph, ok, fail, clone } from './model.js';
+import { SCHEMA, NODE_TYPES, isNodeType, canConnect, hashGraph, applyPatch, canonical, ok, fail, clone } from './model.js';
 
 export function exportDocument(doc) {
   return JSON.stringify(doc, null, 2);
@@ -15,9 +15,10 @@ const isNum = v => typeof v === 'number' && Number.isFinite(v);
 function checkConfig(n, ids) {
   const def = NODE_TYPES[n.type];
   for (const f of def.schema) {
+    if (f.when && !f.when(n.config)) continue;                        // field does not apply to this configuration
     const v = n.config[f.key];
-    if (v === undefined) continue;                                   // defaults apply
     const bad = msg => fail('bad_graph', `Node ${n.id}: ${f.key} ${msg}`, { nodeId: n.id });
+    if (v === undefined) return bad('is missing');                     // the engine reads every applicable field
     switch (f.type) {
       case 'text': case 'expr': if (!isStr(v)) return bad('must be text'); break;
       case 'number': if (!isNum(v)) return bad('must be a number'); break;
@@ -37,7 +38,7 @@ function checkGraph(g, label) {
   for (const n of g.nodes) {
     if (!n || !isStr(n.id) || !n.id || ids.has(n.id)) return fail('bad_graph', `${label}: missing or duplicate node id`);
     ids.add(n.id);
-    if (!NODE_TYPES[n.type]) return fail('bad_graph', `${label}: unknown node type "${n.type}"`);
+    if (!isNodeType(n.type)) return fail('bad_graph', `${label}: unknown node type "${n.type}"`);
     if (!isStr(n.label) || !isNum(n.x) || !isNum(n.y)) return fail('bad_graph', `${label}: node ${n.id} needs a label and numeric x, y`);
     if (typeof n.config !== 'object' || n.config === null || Array.isArray(n.config)) return fail('bad_graph', `${label}: node ${n.id} has no config`);
   }
@@ -51,6 +52,46 @@ function checkGraph(g, label) {
     if (!r.ok) return fail('bad_graph', `${label}: edge ${e.id}: ${r.error.message}`);
     if (r.value.kind !== e.kind || r.value.from.node !== e.from.node || r.value.to.node !== e.to.node) return fail('bad_graph', `${label}: edge ${e.id} is not in canonical form`);
     built.edges.push(clone(e));
+  }
+  return ok();
+}
+
+const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const isResult = v => isObj(v) && Array.isArray(v.findings) && isObj(v.metrics) && Array.isArray(v.lint) && Array.isArray(v.runs);
+const isEvidence = v => isObj(v) && Array.isArray(v.findings) && isObj(v.metrics);
+const CAND_STATES = ['untested', 'running', 'tested', 'stale', 'rejected'];
+
+/* Lifecycle evidence must be complete and must belong to this revision's graph. */
+function checkEvidence(r, byRev, meta, label) {
+  const bad = (code, msg) => fail(code, `${label}: ${msg}`);
+  const v = r.validation, o = r.optimization, d = r.decision;
+  if (v != null) {
+    if (!isObj(v) || v.revHash !== r.hash || !isStr(v.scenarioSetId) || !Number.isInteger(v.n) || v.n < 1 || !isResult(v.result)) return bad('bad_evidence', 'validation is incomplete or belongs to another graph');
+  }
+  if (o != null) {
+    if (!isObj(o) || o.revHash !== r.hash || !v || o.scenarioSetId !== v.scenarioSetId || !Array.isArray(o.candidates)) return bad('bad_evidence', 'optimization is incomplete or belongs to another graph or scenario set');
+    const ids = new Set();
+    for (const c of o.candidates) {
+      if (!isObj(c) || !isObj(c.candidate) || !isStr(c.candidate.id) || ids.has(c.candidate.id) || !Array.isArray(c.candidate.patch) || !Number.isInteger(c.candidate.paramsVersion) || !CAND_STATES.includes(c.state)) return bad('bad_evidence', 'a candidate record is malformed');
+      ids.add(c.candidate.id);
+      if (c.state === 'tested' && (!isResult(c.result) || !isStr(c.result.patchedHash) || !isObj(c.verdict) || typeof c.verdict.eligible !== 'boolean')) return bad('bad_evidence', `candidate ${c.candidate.id} has no complete result`);
+    }
+  }
+  if (d != null) {
+    if (!isObj(d) || !isEvidence(d.evidence) || !isStr(d.scenarioSetId)) return bad('bad_evidence', 'decision has no evidence');
+    if (d.action === 'accept') {
+      if (!v || v.result.findings.length || d.scenarioSetId !== v.scenarioSetId || d.evidence.findings.length) return bad('bad_evidence', 'accept-as-is needs a completed validation with no findings');
+    } else if (d.action === 'approve') {
+      const c = o && o.candidates.find(x => x.candidate.id === d.candidateId);
+      if (!c || !Array.isArray(d.patch) || canonical(d.patch) !== canonical(c.candidate.patch) || d.scenarioSetId !== o.scenarioSetId || !isStr(d.runId)) return bad('bad_evidence', 'approval does not match a tested candidate');
+      const patched = applyPatch(r.graph, d.patch);
+      const child = byRev.get(d.childRev);
+      if (!patched.ok || hashGraph(patched.value, meta) !== d.childHash || !child || child.parent !== r.rev || child.origin !== 'approve' || child.hash !== d.childHash) return bad('hash_mismatch', 'approval does not match its approved revision');
+    } else return bad('schema', 'bad decision');
+  }
+  if (r.origin === 'approve') {
+    const parent = byRev.get(r.parent);
+    if (r.status !== 'confirmed' || !parent || parent.decision?.action !== 'approve' || parent.decision.childRev !== r.rev || !v) return bad('schema', "an approved revision needs its parent's decision and its evidence");
   }
   return ok();
 }
@@ -77,19 +118,7 @@ export function importDocument(text) {
     if (r.status === 'confirmed') {
       if (hashGraph(r.graph, meta) !== r.hash) return fail('hash_mismatch', `${label}: the graph does not match its confirmed hash`);
     } else if (r.hash != null || r.validation || r.optimization || r.decision) return fail('schema', `${label}: a draft carries no hash or evidence`);
-    if (r.validation && r.validation.revHash !== r.hash) return fail('hash_mismatch', `${label}: validation belongs to another graph`);
-    if (r.optimization && (r.optimization.revHash !== r.hash || !r.validation || r.optimization.scenarioSetId !== r.validation.scenarioSetId)) return fail('hash_mismatch', `${label}: optimization belongs to another graph or scenario set`);
-    if (r.decision) {
-      if (!['approve', 'accept'].includes(r.decision.action)) return fail('schema', `${label}: bad decision`);
-      if (r.decision.action === 'approve') {
-        const child = byRev.get(r.decision.childRev);
-        if (!child || child.parent !== r.rev || child.origin !== 'approve' || child.hash !== r.decision.childHash) return fail('hash_mismatch', `${label}: decision does not match its approved revision`);
-      }
-    }
-    if (r.origin === 'approve') {
-      const parent = byRev.get(r.parent);
-      if (r.status !== 'confirmed' || !parent || parent.decision?.childRev !== r.rev) return fail('schema', `${label}: an approved revision needs its parent's decision`);
-    }
+    const ev = checkEvidence(r, byRev, meta, label); if (!ev.ok) return ev;
   }
   return ok(doc);
 }

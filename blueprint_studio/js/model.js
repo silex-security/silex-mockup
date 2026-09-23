@@ -100,7 +100,9 @@ export const NODE_TYPES = {
 
 export const CATEGORIES = ['Inputs', 'Agents & tools', 'Logic & controls', 'Data', 'Outcomes'];
 
-export function portsOf(node) { return (NODE_TYPES[node.type] || { ports: [] }).ports; }
+export const isNodeType = t => typeof t === 'string' && Object.hasOwn(NODE_TYPES, t);
+
+export function portsOf(node) { return isNodeType(node.type) ? NODE_TYPES[node.type].ports : []; }
 export function portDef(node, portId) { return portsOf(node).find(p => p.id === portId) || null; }
 export function nodeById(graph, id) { return graph.nodes.find(n => n.id === id) || null; }
 
@@ -147,7 +149,7 @@ export function clone(v) { return v === undefined ? v : JSON.parse(JSON.stringif
 
 export function makeNode(type, id, { x = 0, y = 0, label, config } = {}) {
   const def = NODE_TYPES[type];
-  if (!def) throw new Error('Unknown node type ' + type);
+  if (!isNodeType(type)) throw new Error('Unknown node type ' + type);
   return { id, type, label: label || def.label, x: Math.round(x), y: Math.round(y), config: { ...clone(def.defaults), ...clone(config || {}) } };
 }
 
@@ -173,7 +175,7 @@ export function applyPatch(graph, ops) {
 function applyOp(g, o) {
   switch (o.op) {
     case 'addNode': {
-      if (!o.node || !NODE_TYPES[o.node.type]) return fail('bad_op', 'addNode needs a typed node');
+      if (!o.node || !isNodeType(o.node.type)) return fail('bad_op', 'addNode needs a typed node');
       if (nodeById(g, o.node.id)) return fail('duplicate_id', 'Node id exists: ' + o.node.id);
       g.nodes.push(clone(o.node)); return ok();
     }

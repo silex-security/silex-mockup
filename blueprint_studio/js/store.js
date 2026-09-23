@@ -227,6 +227,12 @@ export function createStore({ storage = null, lint = () => [] } = {}) {
       const accepted = r.decision?.action === 'accept';
       if (!(r.origin === 'approve' || accepted)) return fail('not_registrable', 'Register an approved revision (or one accepted as is)');
       const parent = r.origin === 'approve' ? api.revision(r.parent) : r;
+      /* Register re-checks the evidence it pins, independently of how it got here (e.g. an import). */
+      const d = parent?.decision, ev = d?.evidence;
+      const evidenceOk = r.status === 'confirmed' && r.hash === api.hashOf(r) && ev && Array.isArray(ev.findings) && ev.metrics && typeof d.scenarioSetId === 'string' && (
+        accepted ? (!!r.validation && r.validation.result?.findings?.length === 0 && d.scenarioSetId === r.validation.scenarioSetId)
+                 : (d.action === 'approve' && d.childRev === r.rev && d.childHash === r.hash && typeof d.runId === 'string'));
+      if (!evidenceOk) return fail('bad_evidence', 'The decision evidence for this revision is missing or inconsistent');
       const key = `${s.doc.id}|${r.rev}|${r.hash}`;
       const existing = s.inventory.find(x => x.key === key);
       if (existing) return ok(existing);
