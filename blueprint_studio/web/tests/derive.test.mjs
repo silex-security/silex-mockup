@@ -282,3 +282,34 @@ test('derive: each (family, threat) relation keeps its own limit; counts use dis
   assert.equal(S.counts.relatedInstantiated, 4);
   assert.equal(S.counts.relatedOutside, 2);
 });
+
+test('derive: the rationale scopes approval context to the prefix before the first write (approval between writes)', () => {
+  const graph = {
+    nodes: [
+      makeNode('trigger', 'tr', { config: { channel: 'support_chat', trust: 'untrusted' } }),
+      makeNode('agent', 'ag', { config: { candidate: 'Agent', capabilities: [{ cap: 'shared.cap', limit: 5000 }], canSplit: false } }),
+      makeNode('tool', 'first', { label: 'First Write', config: { cap: 'shared.cap', sideEffect: 'write', idempotencyKey: false } }),
+      makeNode('control', 'appr', { label: 'Late Approval', config: { kind: 'human_approval', binding: ['customer'], slaMinutes: 15 } }),
+      makeNode('outcome', 'declined', { config: { success: false, external: true } }),
+      makeNode('outcome', 'done', { config: { success: true, external: true } }),
+      { id: 'unauth', type: 'prohibited', label: 'Unauthorized Write', config: { monitor: 'unauthorized_write', cap: 'shared.cap', threshold: 500, scope: 'request', minApprovers: 1, probeRange: [500, 2000], severity: 'critical', watches: ['first'] } },
+    ],
+    edges: [
+      { id: 'e1', kind: 'flow', from: { node: 'tr', port: 'out' }, to: { node: 'ag', port: 'in' } },
+      { id: 'e2', kind: 'flow', from: { node: 'ag', port: 'out' }, to: { node: 'first', port: 'in' } },
+      { id: 'e3', kind: 'flow', from: { node: 'first', port: 'out' }, to: { node: 'appr', port: 'in' } },
+      { id: 'e4', kind: 'flow', from: { node: 'appr', port: 'approved' }, to: { node: 'done', port: 'in' } },
+      { id: 'e5', kind: 'flow', from: { node: 'appr', port: 'denied' }, to: { node: 'declined', port: 'in' } },
+    ],
+  };
+  const s = createStore({ storage: memoryStorage() });
+  s.load(newDocument({ id: 'bp-fixture-late-approval', name: 'Late Approval', domain: 'Test', owner: 'T', graph }));
+  assert.ok(s.dispatch({ type: 'confirm' }).ok);
+  const r = s.active(), set = generateScenarioSet(r.graph, { n: 20, baseHash: r.hash });
+  assert.ok(s.dispatch({ type: 'setValidation', rev: r.rev, jobId: s.startJob('validate:' + r.rev), revHash: r.hash, scenarioSetId: set.id, n: 20, result: compactResult(validate(r.graph, set)) }).ok);
+  const text = deriveTrace({ doc: s.doc, revNo: r.rev, slice, meta: s.meta() }).rationale;
+  assert.ok(text);
+  assert.match(text, /no approval step precedes the write/);
+  assert.ok(!/no approval step is on this path/.test(text));
+  assert.ok(!/Late Approval precedes/.test(text));
+});

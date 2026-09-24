@@ -280,18 +280,20 @@ function buildRationale(graph, simulation) {
     const where = outs.length > 1 ? `one of the external outcomes (${names(outs)})` : outs.length ? `an external outcome (${outs[0].label})` : 'an external outcome';
     return `On its most frequent violating path, a secret-labelled read reaches ${where}, starting from ${from}.`;
   }
-  const tools = effect.filter(n => n.type === 'tool');
+  const tools = effect.filter(n => n.type === 'tool').sort((x, y) => path.indexOf(x) - path.indexOf(y));
   const what = tools.length > 1 ? `one of the write tools (${names(tools)})` : tools.length ? `a write tool (${tools[0].label})` : 'a monitored write';
-  const idx = tools.length ? Math.min(...tools.map(t => path.indexOf(t))) : path.length;
-  const before = path.slice(0, idx);
+  // Context is stated only for the path prefix before the FIRST possible write, and says so (Codex r2).
+  const first = tools[0] || null;
+  const before = path.slice(0, first ? path.indexOf(first) : path.length);
+  const target = tools.length > 1 ? `the first of them (${first.label})` : 'it';
   const agent = [...before].reverse().find(n => n.type === 'agent');
-  const cap = tools.length ? tools[0].config.cap : null;
+  const cap = first ? first.config.cap : null;
   const decl = agent && cap ? (agent.config.capabilities || []).find(c => c.cap === cap) : null;
-  const via = agent ? (decl ? ` through ${agent.label}, which declares ${cap}${decl.limit != null ? ` ≤ $${decl.limit}` : ''}` : ` through ${agent.label}`) : '';
-  const approval = before.find(n => n.type === 'control' && n.config.kind !== 'policy_gate');
-  const appr = approval
-    ? `; the path passes ${approval.label}, bound to ${(approval.config.binding || []).join(', ') || 'no field'} and ${approval.config.singleUse ? 'single-use' : 'reusable'}`
-    : '; no approval step is on this path';
+  const via = agent ? `; the last agent before ${target} is ${agent.label}${decl ? `, which declares ${cap}${decl.limit != null ? ` ≤ $${decl.limit}` : ''}` : ''}` : '';
+  const approval = [...before].reverse().find(n => n.type === 'control' && n.config.kind !== 'policy_gate');
+  const appr = !first ? ''
+    : approval ? `; ${approval.label} precedes ${tools.length > 1 ? 'that write' : 'the write'}, bound to ${(approval.config.binding || []).join(', ') || 'no field'} and ${approval.config.singleUse ? 'single-use' : 'reusable'}`
+    : `; no approval step precedes ${tools.length > 1 ? 'that write' : 'the write'}`;
   return `On its most frequent violating path, ${what} is reached from ${from}${via}${appr}.`;
 }
 
