@@ -1,6 +1,6 @@
 # Proposal: Decision Trace — Blueprint validation shown through the Security Ontology and the Security World Model
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.3 — round 2: DeepSeek approved, Codex rejected. This revision is for round 3 (changes are listed in §2.2). Needs unanimous approval before any code changes.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.4 — round 3: DeepSeek approved, Codex rejected (2). This revision is for round 4 (changes are listed in §2.3). Needs unanimous approval before any code changes.**
 
 ## 0. The ask
 
@@ -87,6 +87,13 @@ Round 2: DeepSeek PLAN-APPROVED (3 nits), Codex PLAN-REJECTED (4).
 | **Codex 3** | Monitors do not restrict violations to `config.watches`: write monitors match any write with the capability, and exposure monitors match every external emit | Attribution comes **from the violation evidence** (§3.2): the steps on each violating path that can produce the monitored effect, i.e. a tool declaring the monitor's capability with side effect write, or an external outcome. The declared watch link is drawn separately, as declared. Tests: two tools sharing a capability; an exposure at an unwatched outcome |
 | **Codex 4** | The below_threshold limit reverses the constraint | §4.2 now describes each family's **actual sampling**. It separates the workflow's **routing threshold** (a decision's condition) from the monitor's **policy threshold** *t*. A generated request need not violate either |
 | DeepSeek nits | agent criterion wording · semanticRationale assembled from facts · the "not simulated" edge target | §4.1 criterion reworded. §3.4 rationale assembled by `derive.js` from declared facts, with a test. The grey style is assigned to "associated threat with no related family" in the collapsed list and to candidate-state "untested" |
+
+## 2.3 Revisions from round 3 (v0.4)
+
+| # | Defect | Change |
+|---|---|---|
+| **Codex 1** | X12's accept-as-is on the approved child is a forbidden transition: an approve-origin revision is decided, and the store refuses revalidation and accept | X12 now follows the allowed lifecycle: approved child → **Edit as new revision** → confirm → validate → accept only if finding-free. The store's guards are unchanged. If no template's new revision validates finding-free, the accept-path check uses an imported fixture document |
+| **Codex 2** | Split sampling claimed each piece falls under the threshold, but the piece count is capped at 10 | §4.2 gives the exact formula and its consequences, and adds a test at the cap |
 
 ## 3. The proposal: a **Decision Trace** view
 
@@ -247,7 +254,7 @@ Tests assert the counterexamples: Payment Credentials and Customer Profile are u
 | Family | Law | Related public threats | Abstraction limit (shown on the link) |
 |---|---|---|---|
 | below_threshold | authority | owasp:LLM06 Excessive Agency; owaspa:T2 Tool Misuse | **Sampling:** one ineligible request (eligible = 0), amount uniform in [lo, hi). It often falls under the workflow's **routing threshold** (a decision's condition, e.g. `amount > 2000`) and so skips approval. It is a violation only when the scoped write total exceeds the monitor's **policy threshold** *t* without a proper approval. A generated request need not violate either threshold |
-| split | authority | owasp:LLM06; owaspa:T2 | **Sampling:** amount in [hi, 2·hi), split by a splitting agent into ⌈amount / 0.96·t′⌉ pieces (2–10), each under the per-piece threshold. The only mechanism is one request split into several writes to tools of one capability |
+| split | authority | owasp:LLM06; owaspa:T2 | **Sampling:** amount in [hi, 2·hi). A split takes place only when the request **reaches an agent with `canSplit`**. It then makes k = clamp(⌈amount / (0.96·t′)⌉, 2, 10) pieces, where t′ = t if t > 0, else hi (t is the first unauthorized-write monitor's threshold, hi the top of its probe range). Because k is capped at 10, **a piece can still exceed t′** when amount > 9.6·t′. Splitting guarantees neither an approval bypass nor a violation. The only mechanism is one request split into several writes by tools of one capability |
 | replay | approval binding | owaspa:T3 Privilege Compromise | **Sampling:** amount in [hi, 2·hi); a second request (eligible = 0) presents the first request's approval. The only mechanism is approval reuse. In swm-1.0, T3 is associated with Credential Broker, which Blueprint does not instantiate |
 | duplicate_submit | idempotency | **none** | **Sampling:** amount in [0, t′); the same customer and order are submitted as two requests. A business-outcome failure (double compensation) with no public threat id |
 | injection_exfil | taint | atlas:AML.T0051 LLM Prompt Injection; owasp:LLM01 Prompt Injection; owasp:LLM02 Sensitive Information Disclosure | **Sampling:** amount in [0, t′); the untrusted input carries a scripted injection flag, not crafted content. Disclosure is modelled only as a secret-labelled read reaching an external emit. (AML.T0086, exfiltration through tool invocation, is **not** related: a different mechanism) |
@@ -280,7 +287,7 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
 | # | Owner | Files | Acceptance |
 |---|---|---|---|
 | 1 | deepseek | `tools/ontology-slice.mjs`, `ontology/slice.json`, `web/src/trace/mapping.js` (the §4.1 and §4.2 tables with definitions, criteria and limits), `tests/trace-data.test.mjs` | The slice is reproducible and not stale; every mapped id exists; the slice keeps each link's `src`. Semantic counterexamples: Payment Credentials, Customer Profile, the trigger and `gate` are unmapped. `duplicate_submit` has no related threat; AML.T0086 is absent |
-| 2 | deepseek | `web/src/trace/derive.js`: pure functions (revision, parent/child, slice) → {spine, funnel, thread graph, record, statement}; `web/tests/derive.test.mjs`. **Also tests:** an eligible candidate with residual non-critical findings produces a statement listing them (a fixture graph is built if no template yields one); candidate states under modify, retest and reject (store-driven); attribution with two tools sharing one capability (only one watched), and an exposure at an unwatched outcome; per-family sample counts from `result.runs` | The funnel equals the engine's own numbers on 3 templates. **Customer Refund: 10 of 14 mapped / 48 associated / 4 related / 7 paths / 240 runs / 200 of 200 / 16 of 40 / 6 findings / 16 candidates / 2 eligible.** The record's candidates and rejected reasons equal Optimize's. Candidate descriptions come from the patch ops (§4.3). The only grades present are `declared`, `simulated` and `not run` |
+| 2 | deepseek | `web/src/trace/derive.js`: pure functions (revision, parent/child, slice) → {spine, funnel, thread graph, record, statement}; `web/tests/derive.test.mjs`. **Also tests:** an eligible candidate with residual non-critical findings produces a statement listing them (a fixture graph is built if no template yields one); candidate states under modify, retest and reject (store-driven); attribution with two tools sharing one capability (only one watched), and an exposure at an unwatched outcome; per-family sample counts from `result.runs`; a split test with a probe range large enough that k hits the cap of 10 and a piece exceeds t′, where the trace's sampling text stays true | The funnel equals the engine's own numbers on 3 templates. **Customer Refund: 10 of 14 mapped / 48 associated / 4 related / 7 paths / 240 runs / 200 of 200 / 16 of 40 / 6 findings / 16 candidates / 2 eligible.** The record's candidates and rejected reasons equal Optimize's. Candidate descriptions come from the patch ops (§4.3). The only grades present are `declared`, `simulated` and `not run` |
 | 3 | claude | `web/src/trace/TraceView.jsx`, `ThreadGraph.jsx`, `Spine.jsx`, `DecisionRecord.jsx`, the App/nav wiring, the Validate, Optimize and Decide links, i18n, CSS | §7 probes |
 | 4 | claude | probes, README, this plan's record | — |
 
@@ -304,7 +311,7 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
   - Modify a candidate: Trace shows it as "modified — retest to use", and the funnel's tested count drops by one.
   - Retest: it is tested again.
   - Reject: it shows "rejected by a person", even though its verdict was eligible.
-  - Accept-as-is on the re-validated approved child, which has no findings: the statement shows 0 per monitor, with run counts.
+  - Accept-as-is, on the allowed path: approved child → **Edit as new revision** → confirm → validate → accept, only when finding-free. The statement shows 0 per monitor, with run counts. The approved child itself shows no accept or validate action (the store guards are unchanged). If none of the three templates' new revisions validates finding-free, the accept-path check imports a fixture document that does.
 - **X13.** The statement for the approved candidate equals `derive.js`'s generation from the cited result. It lists every remaining finding. It never says "no violations" while a finding remains.
 - **X6.** Before Validate, Trace shows only Schema and World State, with "run Validate to fill Laws/Simulation". Nothing is fabricated.
 - **X7.** The decision record JSON parses, and its hash, candidates and decision match the store. After export → import, the record is identical.
@@ -324,6 +331,10 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
 ### Round 1 (v0.1): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (3)
 
 See §2.1. Both reviewers reproduced the engine numbers in §3.3.
+
+### Round 3 (v0.3): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (2)
+
+See §2.3.
 
 ### Round 2 (v0.2): DeepSeek PLAN-APPROVED (3 nits), Codex PLAN-REJECTED (4)
 
