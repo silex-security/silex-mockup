@@ -341,3 +341,39 @@ See §2.3.
 ### Round 2 (v0.2): DeepSeek PLAN-APPROVED (3 nits), Codex PLAN-REJECTED (4)
 
 See §2.2. Both re-verified the 10/14, 4-class, 48-associated and 4-related counts, and the 105/32 Silex-authored link counts.
+
+## 10. Implementation record
+
+**Build split.** The user asked that Codex, now on a Pro account, take build work.
+
+| Seat | Built |
+|---|---|
+| DeepSeek | Data layer: `tools/ontology-slice.mjs`, `ontology/slice.json`, `trace/mapping.js`, `trace/derive.js` and their tests |
+| Codex | Probes X1–X13 in `run-probes-v2.mjs` |
+| Claude | The view (`trace/*.jsx`), the wiring and links, CSS, the zh keys, the README, X14, and the fixes listed below |
+
+**Fixes found by the probes and reviews:**
+
+| Source | Fix |
+|---|---|
+| Codex's probes (3) | The eligible count now includes the approved candidate; the families return their related-threat objects; accept-as-is records its revision |
+| Claude's smoke test | A `.empty` class collision; zoom to the focused thread; candidates sorted by state; the limits for AML.T0051/LLM01 and the benign sampling text corrected |
+| Code review round 1: Codex (4) | The child's record is built from the evaluated parent; the rationale uses only the cited path's declarations and the trigger's declared trust; relations are kept per (family, threat); ambiguous attribution says "one of these produced it" (X14) |
+| Code review round 2: Codex (1) | The rationale's context is scoped to the prefix before the first possible write |
+
+### Code review
+
+| Round | DeepSeek | Codex | Claude |
+|---|---|---|---|
+| 1 | IMPL-APPROVED (4 nits) | IMPL-REJECTED (4) | — |
+| 2 | IMPL-APPROVED | IMPL-REJECTED (1) | — |
+| 3 | IMPL-APPROVED | IMPL-APPROVED | IMPL-APPROVED |
+
+**Evidence at approval:**
+- engine and data tests: 149/149;
+- web tests: 55/55;
+- i18n: 559 keys;
+- `npm run check`: green;
+- probes: 58/58 at round 1 fixes, and X1–X14 green at round 3.
+
+**Delivery.** A new private artifact, as the user asked; the earlier Blueprint Studio artifact is left unchanged. Nothing was pushed.
