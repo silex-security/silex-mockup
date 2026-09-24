@@ -16,7 +16,7 @@ export const GROUPS = [
 ];
 
 export const LAYERS = [
-  { id:1, key:'general',  name:'General Agent Security Ontology', blurb:'Reusable semantics shared by every domain and every agentic system' },
+  { id:1, key:'general',  name:'General Agent Ontology Graph', blurb:'Reusable semantics shared by every domain and every agentic system' },
   { id:2, key:'domain',   name:'Domain Ontology Packs',           blurb:'Business meaning per enterprise domain' },
   { id:3, key:'agentic',  name:'Agentic-System Ontology',         blurb:'Planner, memory, tools, MCP and the threats that target them' },
   { id:4, key:'runtime',  name:'Runtime Knowledge Graph',         blurb:'What is actually deployed, observed and decided right now' }

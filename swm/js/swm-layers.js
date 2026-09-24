@@ -50,7 +50,7 @@
             '<div class="swm-hint">Click a plane to set the abstraction level · inspect a hop for its true predicate direction</div>' +
           '</div>' +
           '<div class="swm-side">' +
-            '<div class="swm-card"><h4 id="swmChainTitle">L1 · General Agent Security Ontology</h4>' +
+            '<div class="swm-card"><h4 id="swmChainTitle">L1 · General Agent Ontology Graph</h4>' +
               '<p class="sub" id="swmChainBlurb"></p>' +
               '<div class="swm-facts" id="swmChainFacts"></div>' +
               '<h4 style="margin-top:12px">Select a tier</h4>' +
