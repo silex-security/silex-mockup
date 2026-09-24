@@ -1,7 +1,7 @@
-# Security World Model — what was built (2026-09-17)
+# Enterprise World Model — what was built (2026-09-17)
 
-Record of the work on the **Security World Model** section of the mockup: the *World Model
-Coverage*, *Security Ontology* and *Ontology Layers* tabs. Everything below is live at
+Record of the work on the **Enterprise World Model** section of the mockup: the *World Model
+Coverage*, *Ontology Graph* and *Ontology Layers* tabs. Everything below is live at
 [silex-mockup.vercel.app](https://silex-mockup.vercel.app/); the code lives in
 [`swm/`](swm/README.md), and the page keeps its single-file shell in `index.html`.
 
@@ -23,7 +23,7 @@ as drawn was wrong.
 | Tab | What it does |
 |---|---|
 | **World Model Coverage** | Zoomable sunburst over Enterprise → Domain → Capability → Workflow. A six-dimension radar beside it **re-reads at whichever level is in focus**, KPIs come from the bundle, and the gap list cross-filters to the selected subtree while keeping its jumps into the Workflow Library, a workflow or an incident. A second mode recolours the ring by unmodelled share instead of coverage. |
-| **Security Ontology** | Four-layer explorer with three renderings of one graph: force layout (rings = distance from the group anchor), radial hierarchy, and a group × group relation matrix. Rail carries the layer selector, search, group filters and a *colour by* switch (layer / coverage / status). The inspector gives each node's definition, its real public identifier with a link, its coverage and its typed relations. |
+| **Ontology Graph** | Four-layer explorer with three renderings of one graph: force layout (rings = distance from the group anchor), radial hierarchy, and a group × group relation matrix. Rail carries the layer selector, search, group filters and a *colour by* switch (layer / coverage / status). The inspector gives each node's definition, its real public identifier with a link, its coverage and its typed relations. |
 | **Ontology Layers** | The L1 → L2 → L3 → L4 chain drawn from the data: four bands with real counts, average coverage and group mix, and ribbons as thick as the typed relations crossing each hop. Clicking a band sets the shared abstraction level. |
 
 All three share one abstraction level (`SWM.setLevel` / `SWM.onLevel`), so picking L3 in the Layers
@@ -35,7 +35,7 @@ The corrected relationship is a single chain — **an agentic system is a specia
 it runs in**, not a parallel taxonomy:
 
 ```
-L1 General Agent Security Ontology     370 types · avg coverage 74%
+L1 General Agent Ontology Graph     370 types · avg coverage 74%
       │  43 typed relations (SPECIALIZES)
 L2 Domain Ontology Packs                86 types · 78%
       │  21 typed relations (DEPLOYED_IN)
