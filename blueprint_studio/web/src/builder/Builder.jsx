@@ -17,7 +17,7 @@ import TestRunPanel from '../run/TestRunPanel.jsx';
 import AssistantPanel, { assist } from '../assist/AssistantPanel.jsx';
 import { CATALOG, GROUPS, typeLabel, typeDesc, groupLabel, rankType } from './catalog.js';
 import { insertOnEdge, addAfter, addStandalone, EDGE_INSERTABLE, PORT_ADDABLE } from './insert.js';
-import { layoutOps, sizeOf } from './layout.js';
+import { layoutOps, directionOps, dirOf, sizeOf } from './layout.js';
 
 const nodeTypes = { flow: FlowNode };
 
@@ -42,7 +42,7 @@ function Library({ onAdd, locked }) {
               </button>))}
           </section>);
       })}
-      <p className="lib-help">{t('lib.help', 'Tip: use the + on a connection to insert a step, or the + under a node to add the next one. Drag between handles to connect.')}</p>
+      <p className="lib-help">{t('lib.help', 'Tip: use the + on a connection to insert a step, or the + beside a node’s output to add the next one. Drag between handles to connect.')}</p>
     </aside>);
 }
 
@@ -58,10 +58,39 @@ function EmptyState() {
     </div>);
 }
 
+/* Arrange split button (plan §3.12): the main part re-arranges in the current
+   direction; the caret opens a menu that re-arranges in the chosen direction
+   and switches to it, as one patch and one undo step. */
+function ArrangeControl({ dir, onArrange, onDirection }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = e => { if (!box.current?.contains(e.target)) setOpen(false); };
+    const esc = e => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', away); document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
+  }, [open]);
+  const items = [['LR', I.flowLR, t('builder.dirLR', 'Left to right')], ['TB', I.flowTB, t('builder.dirTB', 'Top to bottom')]];
+  return (
+    <div className="split" ref={box}>
+      <button className="btn sm" id="arrangeBtn" onClick={onArrange} title={t('builder.arrangeTitle', 'Re-arrange the steps ({dir})', { dir: dir === 'LR' ? t('builder.dirLR', 'Left to right') : t('builder.dirTB', 'Top to bottom') })}>
+        <Icon d={dir === 'LR' ? I.flowLR : I.flowTB} />{t('builder.arrange', 'Arrange')}</button>
+      <button className="btn sm caret" id="arrangeMenuBtn" aria-haspopup="menu" aria-expanded={open} aria-label={t('builder.arrangeMenu', 'Arrange options')} onClick={() => setOpen(o => !o)}><Icon d={I.caret} /></button>
+      {open ? (
+        <div className="menu" role="menu">
+          <div className="menu-label">{t('builder.arrangeAs', 'Arrange and switch to')}</div>
+          {items.map(([d, icon, label]) => (
+            <button key={d} role="menuitemradio" aria-checked={dir === d} data-dir={d} onClick={() => { setOpen(false); onDirection(d); }}>
+              <Icon d={icon} />{label}{dir === d ? <span className="tick"><Icon d={I.check} /></span> : null}</button>))}
+        </div>) : null}
+    </div>);
+}
+
 function Canvas() {
   const version = useStudio();
   const route = ctl.getRoute();
-  const rev = store.active(), graph = rev.graph, locked = rev.status !== 'draft';
+  const rev = store.active(), graph = rev.graph, locked = rev.status !== 'draft', dir = dirOf(graph);
   const rf = useReactFlow();
   const [rfNodes, setRfNodes] = useState([]);
   const [search, setSearch] = useState(null);
@@ -89,7 +118,7 @@ function Canvas() {
         const o = old.get(n.id);
         return { id: n.id, type: 'flow', position: { x: n.x, y: n.y }, draggable: !locked, deletable: !locked, connectable: !locked,
           selected: route.selected?.kind === 'node' && route.selected.id === n.id, measured: o?.measured, width: sizeOf(n).width,
-          data: { node: n, issues: issuesByNode[n.id] || [], run: hl.nodes[n.id], locked, openPorts, onPlus, flash: flashId === n.id, ai: assist.highlight.includes(n.id) } };
+          data: { node: n, issues: issuesByNode[n.id] || [], run: hl.nodes[n.id], locked, openPorts, onPlus, flash: flashId === n.id, ai: assist.highlight.includes(n.id), dir } };
       });
     });
   }, [version, flashId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -108,7 +137,11 @@ function Canvas() {
   useEffect(() => {
     const f = route.focus; if (!f) return;
     requestAnimationFrame(() => {
-      if (f.id) { rf.fitView({ nodes: [{ id: f.id }], duration: 300, maxZoom: 1.1, padding: 0.6 }); setFlashId(f.id); setTimeout(() => setFlashId(null), 1400); }
+      if (f.id) {                                           // centre the node at a readable zoom (a wide LR flow fits small)
+        const n = rf.getInternalNode(f.id);
+        if (n) rf.setCenter(n.internals.positionAbsolute.x + (n.measured?.width || 272) / 2, n.internals.positionAbsolute.y + (n.measured?.height || 76) / 2, { zoom: Math.min(Math.max(rf.getZoom(), 0.9), 1.1), duration: 300 });
+        setFlashId(f.id); setTimeout(() => setFlashId(null), 1400);
+      }
       else rf.fitView({ duration: 300, padding: 0.15 });
     });
   }, [route.focus?.at]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -156,7 +189,7 @@ function Canvas() {
     patch([{ op: 'addEdge', edge: { id: nextId(g.edges.map(e => e.id), r.value.kind === 'access' ? 'a' : 'e'), ...r.value } }], 'Connect');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Keep a newly added step in view at the current zoom (the flow grows downward). */
+  /* Keep a newly added step in view at the current zoom (the flow grows right or down). */
   const ensureVisible = id => requestAnimationFrame(() => requestAnimationFrame(() => {
     const n = rf.getInternalNode(id), box = wrap.current?.getBoundingClientRect(); if (!n || !box) return;
     const { x, y, zoom } = rf.getViewport(), w = n.measured?.width || 272, h = n.measured?.height || 76;
@@ -183,7 +216,9 @@ function Canvas() {
     if (patch(r.value, 'Add ' + type).ok) { ctl.setSelected({ kind: 'node', id: r.id }); ensureVisible(r.id); }
   };
 
-  const arrange = () => { if (patch(layoutOps(store.active().graph, measured()), 'Arrange').ok) setTimeout(() => rf.fitView({ duration: 250, padding: 0.15 }), 30); };
+  const fitSoon = () => setTimeout(() => rf.fitView({ duration: 250, padding: 0.15 }), 30);
+  const arrange = () => { if (patch(layoutOps(store.active().graph, measured()), 'Arrange').ok) fitSoon(); };
+  const switchDirection = d => { if (patch(directionOps(store.active().graph, d, measured()), d === 'LR' ? 'Arrange left to right' : 'Arrange top to bottom').ok) fitSoon(); };
 
   /* Undo / redo shortcuts while focus is not in a text field. */
   useEffect(() => {
@@ -212,7 +247,7 @@ function Canvas() {
           <MiniMap pannable zoomable position="bottom-right" nodeColor={n => ({ trigger: '#6b7482', agent: '#536bdb', tool: '#8a63c9', decision: '#d18a2f', control: '#c9771b', data: '#3f86ab', outcome: '#2f7a57', prohibited: '#c54545' }[n.data?.node?.type] || '#999')} />
           <Panel position="top-left" className="canvas-tools">
             {locked ? <div className="locked-note" id="lockNote"><b>{t('builder.locked', '{rev} is confirmed and locked.', { rev: ctl.revLabel(rev.rev) })}</b> {t('builder.lockedSub', 'Edits are refused; start a new revision to change it.')}<button className="btn sm" id="newRevBtn" onClick={() => ctl.newRevision()}>{t('builder.newRevision', 'Edit as new revision')}</button></div>
-              : <button className="btn sm" id="arrangeBtn" onClick={arrange}><Icon d={I.layout} />{t('builder.arrange', 'Arrange')}</button>}
+              : <ArrangeControl dir={dir} onArrange={arrange} onDirection={switchDirection} />}
           </Panel>
         </ReactFlow>
         {search ? <NodeSearch at={search} allowed={search.kind === 'edge' ? EDGE_INSERTABLE : PORT_ADDABLE}

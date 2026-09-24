@@ -2,7 +2,7 @@
    the complete op list — including the re-arrangement moves — so one user
    action is one store dispatch and one undo step. Pure: no React, no store. */
 import { makeNode, nextId, applyPatch, nodeById, NODE_TYPES } from '../../../js/model.js';
-import { layoutOps } from './layout.js';
+import { layoutOps, dirOf } from './layout.js';
 import { t } from '../i18n/index.js';
 
 export const EDGE_INSERTABLE = ['agent', 'tool', 'decision', 'control'];            // "+" on an edge
@@ -57,7 +57,7 @@ export function addAfter(graph, nodeId, port, type, measured) {
   if (!PORT_ADDABLE.includes(type)) return { ok: false, error: { code: 'not_addable', message: `${type} cannot follow a port` } };
   const A = nodeById(graph, nodeId);
   const I = ids(graph), id = I.node(type);
-  return arranged(graph, [{ op: 'addNode', node: newNode(type, id, A.x, A.y + 140) }, flow(I.edge(), nodeId, port, id)], measured);
+  return arranged(graph, [{ op: 'addNode', node: newNode(type, id, dirOf(graph) === 'LR' ? A.x + 340 : A.x, dirOf(graph) === 'LR' ? A.y : A.y + 140) }, flow(I.edge(), nodeId, port, id)], measured);
 }
 
 /* From the library: an unconnected node (a monitor arrives unattached). */

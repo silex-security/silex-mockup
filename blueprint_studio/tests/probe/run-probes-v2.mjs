@@ -613,6 +613,76 @@ await probe('G3', 'Ask AI (rule-based) works on new templates: add a human appro
   return { pass: Object.values(res).every(r => r.st === 'enabled' && r.changed && !r.lint.length), detail: JSON.stringify(res) };
 });
 
+/* ------------------------------------------- direction (plan §3.12, D1–D5) */
+/* Rendered flow edges: every target starts after its source along the main axis. */
+const flowGeom = () => ev(`${S} const r=id=>document.querySelector('.react-flow__node[data-id="'+id+'"]').getBoundingClientRect();
+  return G().edges.filter(e=>e.kind==='flow').map(e=>{const a=r(e.from.node), b=r(e.to.node); return {e:e.id, lr: b.left>=a.right-1, tb: b.top>=a.bottom-1}})`);
+/* Every flow edge's drawn path starts on its source handle and ends on its target handle (screen px). */
+const anchored = () => ev(`${S} const c=(n,h)=>{const r=document.querySelector('.react-flow__node[data-id="'+n+'"] .react-flow__handle[data-handleid="'+h+'"]').getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}};
+  const pt=(el,l)=>{const p=el.getPointAtLength(l).matrixTransform(el.getScreenCTM()); return {x:p.x,y:p.y}}; const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const bad=G().edges.filter(e=>e.kind==='flow').filter(e=>{const el=document.getElementById(e.id); if(!el) return true; const L=el.getTotalLength();
+    return d(pt(el,0), c(e.from.node,e.from.port))>8 || d(pt(el,L), c(e.to.node,e.to.port))>8}).map(e=>e.id); return bad.length ? bad.join() : 'ok'`);
+const inSide = () => ev(`return [...document.querySelectorAll('.react-flow__handle[data-handleid="in"]')].map(h=>['left','top','right','bottom'].find(s=>h.classList.contains('react-flow__handle-'+s)))`);
+const posJson = () => ev(`${S} return JSON.stringify(G().nodes.map(n=>[n.id,n.x,n.y]))`);
+async function pickDir(d) { await clickSel('#arrangeMenuBtn'); await sleep(150); await clickSel(`.split .menu [data-dir="${d}"]`); await sleep(500); await stable(); }
+
+await probe('D1', 'a template opens left to right: flow targets right of sources, in-handles on the left, no overlap (en, 中文)', async () => {
+  const out = {};
+  for (const lang of ['en', 'zh']) {
+    await load({ lang }); await fit();
+    const g = await flowGeom(), sides = await inSide();
+    out[lang] = { dir: await ev(`${S} return G().direction`), lr: g.every(x => x.lr), sides: [...new Set(sides)], anchored: await anchored(), ...(await overlapCheck()) };
+  }
+  return { pass: ['en', 'zh'].every(l => out[l].dir === 'LR' && out[l].lr && out[l].sides.join() === 'left' && out[l].anchored === 'ok' && out[l].overlap === 0 && out[l].inside), detail: JSON.stringify(out) };
+});
+await probe('D2', 'Arrange ▾ → Top to bottom: TB layout and top in-handles; one undo restores LR and exact positions; redo reapplies', async () => {
+  await load();
+  const p0 = await posJson();
+  await clickSel('#arrangeMenuBtn'); await sleep(150);
+  const checked = await ev('return [...document.querySelectorAll(".split .menu [data-dir]")].map(b=>b.dataset.dir+":"+b.getAttribute("aria-checked")).join()');
+  await shot('v1-en-12-arrange-menu');
+  await clickSel('.split .menu [data-dir="TB"]'); await sleep(500); await fit();
+  const menuGone = await ev('return !document.querySelector(".split .menu")');
+  const tb = { dir: await ev(`${S} return G().direction`), geo: (await flowGeom()).every(x => x.tb), sides: [...new Set(await inSide())].join(), anchored: await anchored() };
+  await shot('v1-en-13-top-to-bottom');
+  const p1 = await posJson();
+  await ev(`${S} st.dispatch({type:'undo'}); return 1`); await sleep(300);
+  const undo = { dir: await ev(`${S} return G().direction`), same: (await posJson()) === p0, sides: [...new Set(await inSide())].join(), anchored: await anchored() };
+  await ev(`${S} st.dispatch({type:'redo'}); return 1`); await sleep(300);
+  const redo = { dir: await ev(`${S} return G().direction`), same: (await posJson()) === p1 };
+  return { pass: checked === 'LR:true,TB:false' && menuGone && tb.dir === 'TB' && tb.geo && tb.sides === 'top' && tb.anchored === 'ok' && undo.dir === 'LR' && undo.same && undo.sides === 'left' && undo.anchored === 'ok' && redo.dir === 'TB' && redo.same, detail: JSON.stringify({ checked, menuGone, tb, undo, redo }) };
+});
+await probe('D3', 'direction survives export → import; a bad direction is refused on import; hash is the same in LR and TB', async () => {
+  await load();
+  const hLR = await hash();
+  await pickDir('TB');
+  const hTB = await hash(); const txt = await ev(`${S} return ctl.exportText()`);
+  await load(); await ev(`__bs2.ctl.importText(${JSON.stringify(txt)}); return 1`); await sleep(400);
+  const imp = { dir: await ev(`${S} return G().direction`), sides: [...new Set(await inSide())].join(), anchored: await anchored() };
+  const bad = JSON.stringify({ ...JSON.parse(txt), revisions: JSON.parse(txt).revisions.map(r => ({ ...r, graph: { ...r.graph, direction: 'diagonal' } })) });
+  const before = await ev(`${S} return st.doc.id`);
+  const code = await ev(`__bs2.ctl.importText(${JSON.stringify(bad)}); return 1`) && await ev(`${S} return st.doc.id`);
+  return { pass: hLR === hTB && imp.dir === 'TB' && imp.sides === 'top' && imp.anchored === 'ok' && code === before, detail: JSON.stringify({ sameHash: hLR === hTB, imp, badRefused: code === before }) };
+});
+await probe('D4', 'a confirmed revision shows neither Arrange nor its menu', async () => {
+  await load();
+  await ev(`${S} ctl.confirm(); return 1`); await sleep(300);
+  const r = await ev('return {arrange: !!document.querySelector("#arrangeBtn"), menu: !!document.querySelector("#arrangeMenuBtn")}');
+  return { pass: !r.arrange && !r.menu, detail: JSON.stringify(r) };
+});
+await probe('D5', 'Ask AI proposal made in LR, direction switched to TB, then Apply → TB result; one undo returns to the pre-Apply TB graph', async () => {
+  await load();
+  await ask('add a human approval after Refund Eligibility'); await sleep(200);
+  await pickDir('TB');
+  const pre = await ev(`${S} return JSON.stringify(G())`);
+  const st0 = await applyState();
+  await clickSel('#assistApply'); await sleep(500); await fit();
+  const res = { st0, dir: await ev(`${S} return G().direction`), n: await ev(`${S} return G().nodes.length`), tb: (await flowGeom()).every(x => x.tb), sides: [...new Set(await inSide())].join(), anchored: await anchored() };
+  await ev(`${S} st.dispatch({type:'undo'}); return 1`); await sleep(200);
+  res.undo = (await ev(`${S} return JSON.stringify(G())`)) === pre;
+  return { pass: st0 === 'enabled' && res.dir === 'TB' && res.n === 15 && res.tb && res.sides === 'top' && res.anchored === 'ok' && res.undo, detail: JSON.stringify(res) };
+});
+
 /* ------------------------------------------------------ i18n, T3, T4, V1 */
 await probe('I1', '中文 changes UI strings, checklist sentences and node explanations; search matches Chinese', async () => {
   await load({ lang: 'en' });
@@ -664,6 +734,8 @@ if (SHOTS && (!ONLY || ONLY.has('V1'))) {
     await ev(`${S} await ctl.runOptimize(); ctl.go('assurance','optimize'); return 1`); await sleep(400); await shot(`v1-${lang}-8-optimize`);
     await load({ lang }); await fit(); await ask(lang === 'zh' ? '在 Refund Eligibility 后面加一个人工审批' : 'add a human approval after Refund Eligibility'); await sleep(300); await shot(`v1-${lang}-10-ask-ai`);
     await load({ lang }); await openGallery(); await shot(`v1-${lang}-11-gallery`);
+    await key('Escape', 'Escape', 27); await sleep(300); await ev(`${S} const e=G().edges.find(e=>e.from.node==='approval'&&e.from.port==='denied'); st.dispatch({type:'patch', ops:[{op:'removeEdge', id:e.id}]}); ctl.setSelected(null); return 1`); await sleep(300);
+    await ev(`__bs2.ctl.focusNode('approval'); return 1`); await sleep(700); await stable(); await shot(`v1-${lang}-14-lr-zoom`);
     await ev(`${S} ctl.go('assurance','decide'); return 1`); await sleep(400); await shot(`v1-${lang}-9-decide`);
   }
   console.log('V1 screenshots written to ' + SHOTS);

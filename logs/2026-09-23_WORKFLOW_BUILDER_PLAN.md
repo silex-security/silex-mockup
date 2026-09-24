@@ -393,6 +393,76 @@ Plus, re-categorised: **Customer Refund** (Support) and **Vendor Bank-Detail Cha
 
 **The lifecycle is unchanged in substance.** Confirm → Validate → Optimize → Decide → Register are re-rendered in React on the same `store.js` commands, guards and evidence rules, with the same claim discipline. They live in a secondary **Assurance** view reached from the top bar.
 
+## 3.12 Amendment (v0.9): left-to-right canvas, with top-to-bottom as an Arrange option
+
+**User request (2026-09-23):** "修改builder交互生产workflow页面成左右方向编排页面（目前是上下方向），“Arrange” 图标那里可以给一个用户option的子图标自动arrange并切换成上下编排的workflow。" In English: make the builder canvas flow left to right, as it does today top to bottom. Next to Arrange, add a sub-option that arranges automatically and switches the workflow to top to bottom.
+
+**Where the direction lives.** It is stored in the graph as `graph.direction`, set to `'LR'` or `'TB'`. It is view state, like the node x and y, so it has no effect on the semantic hash: `semanticGraph` already keeps only nodes and edges.
+
+Keeping it in the graph, and not in a viewer preference, means the positions and the handle sides can never disagree:
+- undo and redo restore it together with the positions;
+- autosave, export and import carry it with the revision it belongs to;
+- approving a candidate, or starting a new revision, clones it.
+
+**Defaults.**
+- New documents, from any template or blank, are `'LR'`.
+- A graph without the field is treated as `'TB'`. Documents saved or exported before this change have top-to-bottom positions, so they keep showing exactly as they did. The Arrange menu shows which direction is current, so switching them is one click.
+
+**Engine changes. These are the only ones.**
+- `model.applyPatch` gets one new op, `{op:'setDirection', direction:'LR'|'TB'}`. Any other value fails with `bad_op`.
+- `io.checkGraph` rejects a graph whose `direction` is present and is not `'LR'` or `'TB'`.
+- Ask AI's proposal language does not get this op. Proposals keep the graph's current direction.
+
+**Layout** (`builder/layout.js`). dagre's `rankdir` comes from the graph's direction. The rank relationships stay as they are:
+- data goes one rank before its reader, which is above it in TB and to its left in LR;
+- a monitor goes one rank after what it watches.
+
+Spacing is tuned for each direction. In LR, ranks are further apart so the port labels and "+" stubs on the right have room. Every caller already goes through `layoutGraph` or `layoutOps` and gets the graph's direction: Arrange, the "+" inserts, Ask AI's apply, and the template load.
+
+**Nodes and edges.** Each handle rotates with the direction:
+
+| Handle | TB | LR |
+|---|---|---|
+| flow in | Top | Left |
+| flow out ports | Bottom, spread along it | Right, spread along it |
+| agent/tool "reads data" | Top, left 18% | Left, top 18% |
+| data `acc` | Bottom | Right |
+| tool/outcome watch source | Bottom, left 88% | Right, top 88% |
+| monitor watch target | Top | Left |
+
+Port labels (yes/no, approved/denied) and "+" stubs go beside each out port: below it in TB, to its right in LR. Edges keep `getSmoothStepPath`, which follows the handle positions. The midpoint "+" is unchanged.
+
+**The Arrange control** is a split button. It is hidden on locked revisions, as Arrange is today.
+- **Arrange** (`#arrangeBtn`) re-runs the layout in the current direction. This is unchanged behaviour.
+- **▾** (`#arrangeMenuBtn`) opens a small menu with two items, each with an icon and a check mark on the current direction:
+  - "Left to right" (`[data-dir="LR"]`);
+  - "Top to bottom" (`[data-dir="TB"]`).
+- Picking an item dispatches **one patch**: `[{op:'setDirection'}, ...layoutOps(graph in that direction)]`, labelled "Arrange left to right" or "Arrange top to bottom". Then the canvas fits the view. One undo restores the old direction and the old positions together.
+- Escape, or a click outside, closes the menu. Every string is in en and zh.
+
+**Acceptance (new probes):**
+- **D1.** A template opens LR: every flow edge's target is to the right of its source (target x > source x + width/2), and B7's no-overlap check passes in LR, in en and zh.
+- **D2.** The menu's "Top to bottom" item produces TB: flow targets are below their sources, and a flow in-handle is on the node's top edge. One undo restores LR and the exact previous positions. Redo reapplies both.
+- **D3.** Export → import keeps `direction`. A graph with `direction: 'diagonal'` fails to import with `bad_graph`. The semantic hash is equal for the same graph in LR and TB.
+- **D4.** A locked revision shows neither Arrange nor the menu.
+- **Unit tests:** a `setDirection` op test; `checkGraph` accepting and rejecting direction values; `layoutGraph` monotonic along x in LR and along y in TB for every template.
+- **Existing tests:** all existing probes still pass. Probes whose geometry assumed TB are updated to read the direction.
+
+**Ownership.** Claude implements everything; the change is small and touches the UI throughout. DeepSeek and Codex review the plan and the code. No push.
+
+### 3.12.1 Revisions from round 9 (v0.10)
+
+- **Ask AI apply uses the current direction** (Codex #1). A direction switch does not change the semantic hash, so a proposal made before the switch stays applicable. Apply now lays out the previewed result in the direction the graph has at that moment: `layoutOps({...p.after, direction: dirOf(store.active().graph)})`. The frozen ops are still applied unchanged, and layout recomputes every position, so the result has no stale positions and no stale handle sides.
+  - New probe **D5**: propose a change in LR, switch to TB from the menu, then Apply. The result is TB: `graph.direction === 'TB'` and flow targets are below their sources. One undo returns to the TB graph from before Apply.
+- **Where the LR default is injected** (DeepSeek nit 2):
+  - `controller.laidOut` sets `graph.direction = 'LR'` before it lays out a template;
+  - `startBlank` creates `{nodes: [], edges: [], direction: 'LR'}`;
+  - one helper, `dirOf(graph) = graph.direction === 'LR' ? 'LR' : 'TB'`, is the single reader.
+- **Only handle `Position` changes** (DeepSeek nit 3). Handle ids (`in`, out ports, `acc`, `w`) are unchanged, so every stored edge stays valid.
+- **The direction switch lays out the projected graph** (DeepSeek nit 5). The ops are `setDirection` followed by `layoutOps({...graph, direction: next})`.
+- **§6 is updated** (DeepSeek nit 1). The allowed engine changes now include `setDirection` in `model.applyPatch` and the `direction` check in `io.checkGraph`.
+- **Stale comments** in `layout.js` and in `Builder.ensureVisible` are updated (DeepSeek nit 4).
+
 ## 4. Architecture
 
 ```
@@ -452,6 +522,7 @@ blueprint_studio/
 ## 6. Constraints
 
 - **Engine modules unchanged except one listed change**, `layout.js` included (kept for compatibility). The 91 existing unit tests must still pass.
+  - **Added by §3.12 (v0.9):** `model.applyPatch` gains `{op:'setDirection', direction:'LR'|'TB'}`, and `io.checkGraph` rejects a `direction` other than `'LR'` or `'TB'`. Neither affects the semantic hash or the simulation.
   - **The one model change:** in `model.js` `canConnect`, the flow duplicate-edge check also compares `from.port`. Old: the same source node, target node and target port counts as a duplicate. New: the same **source port** and target port counts as a duplicate.
   - Why: two branches of one decision (true, false) or control (approved, denied) may rejoin the same step.
   - Why the engine is unaffected: join state is keyed by edge id (`delivered`); dead-path skips travel per edge; `lint()` looks only at out ports; `importDocument` uses `canConnect`, so it follows automatically.
@@ -674,3 +745,9 @@ DeepSeek's nit on the stale `(lo, hi]` comment in `adversary.js` is taken as a o
 - **Round 2:** DeepSeek IMPL-APPROVED, Codex IMPL-APPROVED, Claude IMPL-APPROVED.
 - **Evidence:** engine tests 139/139, web tests 37/37, i18n 392 keys, `npm run check` green, probes 40/40.
 - **Delivery:** the demo artifact was republished to the same URL (version 2). Nothing was pushed.
+
+### Round 9 (v0.9 direction amendment): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (1)
+
+Codex found that an Ask AI proposal made before a direction switch would be laid out in the old direction when applied. The fix is in §3.12.1, along with DeepSeek's nits.
+
+### Round 10 (v0.10): DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED

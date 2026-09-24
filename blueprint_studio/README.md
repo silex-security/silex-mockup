@@ -10,12 +10,12 @@ A workflow builder for agentic systems that runs entirely in the browser. You dr
 | Piece | Library (licence) | Why |
 |---|---|---|
 | Canvas | React Flow `@xyflow/react` (MIT) | The canvas under Dify, Langflow and Flowise: custom nodes, handles, edge buttons, minimap |
-| Layout | dagre (MIT) | Top-to-bottom layered layout; data sits above its readers, monitors below what they watch |
+| Layout | dagre (MIT) | Layered layout, left to right by default or top to bottom; data sits before its readers, monitors after what they watch |
 | Node search | cmdk (MIT) | The search menu. Ranking is our own: substring matching in English and 中文 |
 | UI | React 19 + Vite 7 (MIT) | Built to static files with relative paths; no backend |
 
 We borrowed patterns, not code, from Activepieces, Coze Studio and Dify, following the research report *Agent_Builder_UI_研究报告*:
-- **Activepieces:** a "+" on every connection and under every open output, so you build step by step.
+- **Activepieces:** a "+" on every connection and beside every open output, so you build step by step.
 - **Coze Studio:** node search with a plain-language explanation for every step, in 中文 and English.
 - **Dify:** the canvas holds structure, the side panel holds details, and advanced settings stay collapsed.
 - **Everywhere:** a clear **Test run** entry point, and a **Checklist** that takes you to each problem.
@@ -23,11 +23,15 @@ We borrowed patterns, not code, from Activepieces, Coze Studio and Dify, followi
 ## What you can do
 
 - **Builder**
-  - **Add steps:** use "+" on a connection to insert a step, or "+" under a node to add the next one. Branches are completed explicitly.
+  - **Add steps:** use "+" on a connection to insert a step, or "+" beside a node’s open output to add the next one. Branches are completed explicitly.
   - **Library:** search it, and drag or click a step onto the canvas.
   - **Settings:** click a node to open its settings (Basic, then Advanced). Expressions are checked as you type, and a refused edit shows up in the Checklist until you fix or discard it.
   - **Data and monitors:** add a data source from an agent or tool panel. Protect a tool or outcome with a monitor from its own panel.
   - **Editing:** undo and redo; **Arrange** re-runs the layout.
+  - **Direction:** workflows flow **left to right**. **Arrange ▾ → Top to bottom** re-arranges and switches direction, and **Left to right** switches back.
+    - A switch is one undo step.
+    - The direction is saved with the revision (`graph.direction`), outside the semantic hash.
+    - Documents saved before this option existed keep their top-to-bottom layout.
   - **Test run:** runs one request node by node, pauses at approvals for you to decide, and shows each step's effects.
 - **Ask AI (n8n-style)**
   - Describe a change in English or 中文, e.g. "在 Refund Eligibility 后面加一个人工审批" or "rename Payment API to Stripe Refunds".
@@ -98,7 +102,7 @@ web/          Vite + React source — CONTRACT.md is the integration contract
   src/assurance/ Confirm, Validate, Optimize, Decide, Register
   src/run/       TestRunPanel        src/i18n/ zh.js, en.js
 app/          the built site (committed; `npm run check` fails if it is stale)
-tests/        engine unit tests + 16 semantic fixtures; probe/run-probes-v2.mjs (headless Chrome acceptance probes)
+tests/        engine unit tests (incl. direction) + 16 semantic fixtures; probe/run-probes-v2.mjs (headless Chrome acceptance probes)
 ```
 
 ## Build and test

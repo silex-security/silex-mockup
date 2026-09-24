@@ -164,7 +164,8 @@ export function makeNode(type, id, { x = 0, y = 0, label, config } = {}) {
      {op:'setLabel', id, label}
      {op:'setConfig', id, key, value}
      {op:'addEdge', edge}                       edge is a full edge object (with id)
-     {op:'removeEdge', id}                                                      */
+     {op:'removeEdge', id}
+     {op:'setDirection', direction}             'LR' | 'TB' — view state, like x/y   */
 export function applyPatch(graph, ops) {
   const g = clone(graph);
   for (const o of ops) {
@@ -188,6 +189,10 @@ function applyOp(g, o) {
       for (const n of g.nodes) if (n.type === 'prohibited' && Array.isArray(n.config.watches))
         n.config.watches = n.config.watches.filter(w => w !== o.id);
       return ok();
+    }
+    case 'setDirection': {
+      if (o.direction !== 'LR' && o.direction !== 'TB') return fail('bad_op', 'setDirection needs LR or TB');
+      g.direction = o.direction; return ok();
     }
     case 'moveNode': {
       const n = nodeById(g, o.id); if (!n) return fail('unknown_node', 'No node ' + o.id, { nodeId: o.id });

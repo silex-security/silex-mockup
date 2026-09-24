@@ -38,6 +38,7 @@ function checkConfig(n, ids) {
 }
 export function checkGraph(g, label) {
   if (!g || !Array.isArray(g.nodes) || !Array.isArray(g.edges)) return fail('bad_graph', `${label}: graph is not {nodes, edges}`);
+  if (g.direction !== undefined && g.direction !== 'LR' && g.direction !== 'TB') return fail('bad_graph', `${label}: direction must be LR or TB`);
   const ids = new Set();
   for (const n of g.nodes) {
     if (!n || !isStr(n.id) || !n.id || ids.has(n.id)) return fail('bad_graph', `${label}: missing or duplicate node id`);

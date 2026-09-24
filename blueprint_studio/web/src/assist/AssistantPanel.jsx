@@ -12,7 +12,7 @@ import Icon, { I } from '../ui/Icon.jsx';
 import { validateProposal } from './validateProposal.js';
 import { proposeWithClaude, getSample, PERMANENT } from './propose.js';
 import { proposeByRules } from './rules.js';
-import { layoutOps } from '../builder/layout.js';
+import { layoutOps, dirOf } from '../builder/layout.js';
 import { typeLabel, monitorLabel } from '../builder/catalog.js';
 import { lintSentence } from '../builder/Checklist.jsx';
 import { describeOp } from '../assurance/common.jsx';
@@ -130,8 +130,9 @@ export default function AssistantPanel() {
     const p = assist.proposal;
     if (!p || assist.consumed === p.id || isStale(p)) return ctl.toast(t('assist.stale', 'The workflow changed since this was proposed — ask again.'), 'error');
     assist.consumed = p.id;                               // consumed before dispatch: a double click cannot apply twice
-    // The previewed, frozen patch — applied unchanged; only positions are added (layout of the previewed result).
-    const r = store.dispatch({ type: 'patch', ops: [...p.ops, ...layoutOps(p.after)], label: 'Ask AI' });
+    // The previewed, frozen patch — applied unchanged; only positions are added: the layout of the previewed
+    // result in the direction the graph has now (a switch after proposing leaves the proposal valid; plan §3.12.1).
+    const r = store.dispatch({ type: 'patch', ops: [...p.ops, ...layoutOps({ ...p.after, direction: dirOf(store.active().graph) })], label: 'Ask AI' });
     if (r.ok) { assist.highlight = []; push({ role: 'note', text: t('assist.applied', 'Applied. Undo reverts it in one step.') }); }
   }
   function discard() { if (assist.proposal) { assist.proposal = null; assist.highlight = []; push({ role: 'note', text: t('assist.discarded', 'Discarded.') }); } }

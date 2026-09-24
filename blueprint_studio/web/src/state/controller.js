@@ -45,6 +45,7 @@ store.on(ev => { if (ev.reason === 'refused' && ev.error && ev.error.code !== 's
 /* --------------------------------------------------------------- documents */
 function laidOut(tpl) {
   const t = clone(tpl);
+  t.graph.direction = 'LR';                                 // new documents flow left to right (plan §3.12)
   const pos = layoutGraph(t.graph);
   for (const n of t.graph.nodes) if (pos[n.id]) { n.x = pos[n.id].x; n.y = pos[n.id].y; }
   return t;
@@ -57,7 +58,7 @@ export function startFromTemplate(name) {
   resetSession(); route.view = 'builder'; bump();
 }
 export function startBlank() {
-  store.load(newDocument({ id: 'bp-' + Date.now().toString(36), name: 'Untitled workflow', domain: 'General', owner: 'Workflow owner', graph: { nodes: [], edges: [] } }));
+  store.load(newDocument({ id: 'bp-' + Date.now().toString(36), name: 'Untitled workflow', domain: 'General', owner: 'Workflow owner', graph: { nodes: [], edges: [], direction: 'LR' } }));
   resetSession(); route.view = 'builder'; bump();
 }
 export function boot() {

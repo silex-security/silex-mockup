@@ -7,7 +7,8 @@ export const I = {
   info: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM12 11v6M12 7.5h.01', search: 'M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14zM20 20l-4-4', warn: 'M12 4l9 16H3zM12 10v4M12 17h.01',
   step: 'M6 5v14M10 5l9 7-9 7z', trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13', link: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
   spark: 'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6',
-  chevron: 'M9 6l6 6-6 6', copy: 'M9 9h10v10H9zM5 15V5h10', upload: 'M12 16V4M7 9l5-5 5 5M5 20h14', file: 'M6 3h8l4 4v14H6zM14 3v4h4'
+  chevron: 'M9 6l6 6-6 6', caret: 'M7 10l5 5 5-5',
+  flowLR: 'M3 9h5v6H3zM16 9h5v6h-5zM8 12h8M13 9.5l3 2.5-3 2.5', flowTB: 'M9 3h6v5H9zM9 16h6v5H9zM12 8v8M9.5 13l2.5 3 2.5-3', copy: 'M9 9h10v10H9zM5 15V5h10', upload: 'M12 16V4M7 9l5-5 5 5M5 20h14', file: 'M6 3h8l4 4v14H6zM14 3v4h4'
 };
 export default function Icon({ d, className = 'icon', title }) {
   return <svg className={className} viewBox="0 0 24 24" aria-hidden={title ? undefined : true} role={title ? 'img' : undefined}>{title ? <title>{title}</title> : null}<path d={d} /></svg>;
