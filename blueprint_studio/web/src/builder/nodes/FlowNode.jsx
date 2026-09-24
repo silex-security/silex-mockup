@@ -22,7 +22,7 @@ function FlowNode({ id, data, selected }) {
   const { node, issues = [], run, locked, openPorts = [], onPlus, flash, ai, dir = 'TB' } = data;
   const side = SIDE[dir];
   const updateInternals = useUpdateNodeInternals();
-  useEffect(() => { updateInternals(id); }, [dir]); // eslint-disable-line react-hooks/exhaustive-deps -- React Flow caches handle bounds; re-measure when they move
+  useEffect(() => { updateInternals(id); }, [dir, id]); // eslint-disable-line react-hooks/exhaustive-deps -- React Flow caches handle bounds; re-measure when they move
   const cat = entry(node.type), compact = COMPACT.has(node.type);
   const outs = portsOf(node).filter(p => p.kind === 'out');
   const hasIn = portsOf(node).some(p => p.kind === 'in');

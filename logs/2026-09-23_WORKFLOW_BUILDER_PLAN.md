@@ -751,3 +751,13 @@ DeepSeek's nit on the stale `(lo, hi]` comment in `adversary.js` is taken as a o
 Codex found that an Ask AI proposal made before a direction switch would be laid out in the old direction when applied. The fix is in §3.12.1, along with DeepSeek's nits.
 
 ### Round 10 (v0.10): DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
+
+### Direction implementation and code review (plan v0.10 §3.12–§3.12.1)
+
+- **Built by Claude** (4e95c5c).
+- **Three fixes beyond the plan**, each found by probing:
+  1. React Flow caches handle bounds, so after a switch the edges stayed on the old sides. `FlowNode` now calls `useUpdateNodeInternals` when the direction changes. D1/D2/D3/D5 assert that every flow edge's path starts and ends within 8 px of its handles. With the fix removed, this check fails.
+  2. `focusNode` had refit the whole graph instead of zooming to the node, a bug from before this change. It now centres the node at a zoom between 0.9 and 1.1.
+  3. In LR, the "+" stub covered a port label. In LR the label and stub now sit in one row beside the port.
+- **Round 1:** DeepSeek IMPL-APPROVED (4 nits; nit 1, `[dir, id]` in the effect's dependencies, was applied), Codex IMPL-APPROVED, Claude IMPL-APPROVED.
+- **Evidence:** engine tests 143/143, web tests 41/41, i18n 397 keys, `npm run check` green, probes 45/45.
