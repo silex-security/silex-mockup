@@ -35,7 +35,7 @@ The corrected relationship is a single chain — **an agentic system is a specia
 it runs in**, not a parallel taxonomy:
 
 ```
-L1 General Agent Ontology Graph     370 types · avg coverage 74%
+L1 General Agent Ontology Graph        370 types · avg coverage 74%
       │  43 typed relations (SPECIALIZES)
 L2 Domain Ontology Packs                86 types · 78%
       │  21 typed relations (DEPLOYED_IN)
