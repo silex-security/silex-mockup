@@ -1,6 +1,6 @@
 # Proposal: Decision Trace — Blueprint validation shown through the Security Ontology and the Security World Model
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.2 — round 1 rejected by both reviewers; this revision is for round 2 (changes are listed in §2.1). Needs unanimous approval before any code changes.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.3 — round 2: DeepSeek approved, Codex rejected. This revision is for round 3 (changes are listed in §2.2). Needs unanimous approval before any code changes.**
 
 ## 0. The ask
 
@@ -76,6 +76,18 @@ Round 1: DeepSeek PLAN-REJECTED (1 blocking, 6 nits), Codex PLAN-REJECTED (3 blo
 | Codex (while reviewing) | Parent vs approved-child evidence | The trace is bound to the **evaluated (parent) revision**. The approved child shows "evidence: v1.0's candidate run", with both hashes from the store's approval evidence (§3.1 Decision row, §3.4) |
 | DeepSeek nits 1–6 | Seven columns, not five · objectives wording · "across four families" · `notSimulated` key · replay rationale · finding→class rule | All applied (§3.1, §3.2, §3.4, §4) |
 
+## 2.2 Revisions from round 2 (v0.3)
+
+Round 2: DeepSeek PLAN-APPROVED (3 nits), Codex PLAN-REJECTED (4).
+
+| # | Defect | Change |
+|---|---|---|
+| **Codex 1** | "No violations" is stated unconditionally, but approval allows residual non-critical findings; "rollback" implies an operation that does not exist | The statement is **generated from the cited tested result** (§3.4.1). It separates *violations found* (with counts), *0 violations in N simulated runs* (per monitor) and *not simulated*. `rollback` becomes `priorBlueprint`: a revision reference, with "no operational rollback in this demo". A test covers an eligible candidate with residual findings |
+| **Codex 2** | Candidate states are unspecified: modified → null result; human-rejected can carry an eligible verdict | There are five explicit states, read from the store (§3.4.2). **Only current tested evidence** feeds rankings, funnel counts and finding→candidate links. The export carries `paramsVersion`, `testedParamsVersion`, `runId`, `scenarioSetId` and the validation `jobId`. Sample counts come from the stored runs. Probes cover modify, retest, reject and accept-as-is |
+| **Codex 3** | Monitors do not restrict violations to `config.watches`: write monitors match any write with the capability, and exposure monitors match every external emit | Attribution comes **from the violation evidence** (§3.2): the steps on each violating path that can produce the monitored effect, i.e. a tool declaring the monitor's capability with side effect write, or an external outcome. The declared watch link is drawn separately, as declared. Tests: two tools sharing a capability; an exposure at an unwatched outcome |
+| **Codex 4** | The below_threshold limit reverses the constraint | §4.2 now describes each family's **actual sampling**. It separates the workflow's **routing threshold** (a decision's condition) from the monitor's **policy threshold** *t*. A generated request need not violate either |
+| DeepSeek nits | agent criterion wording · semanticRationale assembled from facts · the "not simulated" edge target | §4.1 criterion reworded. §3.4 rationale assembled by `derive.js` from declared facts, with a test. The grey style is assigned to "associated threat with no related family" in the collapsed list and to candidate-state "untested" |
+
 ## 3. The proposal: a **Decision Trace** view
 
 A third top-level view next to Builder and Assurance: **Trace · 决策链路**. It is available once the revision is confirmed. It fills in stage by stage as Validate, Optimize and Decide complete. It has three linked parts: the **spine**, the **thread graph** and the **decision record**.
@@ -89,10 +101,10 @@ The spine is a vertical list of named layers. Each row shows its **rung**, its *
 | **Schema** | Each blueprint step is typed to an L3 component class **only where the declaration meets that class's definition** (§4.1). Otherwise it is listed as *unmapped*. For the mapped classes, the threat classes the bundle **associates** with them (`THREATENS`: public ids, Silex-authored association). **Customer Refund: 10 of 14 steps mapped, to 4 classes. 48 associated threat classes. 4 unmapped (2 data, 1 trigger, 1 decision).** | 1 | no grade: provenance *Silex mapping* / *Silex association · illustrative* |
 | **Laws** | The engine's transition rules, named: authority (a write checks the last agent's capability and limit), taint (untrusted input → injected → secret read → external emit), approval binding and reuse, idempotency. The six scenario families, each with the law it exercises, its public threat ids (§4) and its **sampling**: 40 seeded requests per family, drawn from the disclosed ranges. **Every family runs on every graph. Nothing is pruned.** (The engine has an `applicability` function, but nothing calls it. Its reasons contradict actual runs, e.g. Vendor Bank Change's "no positive write threshold" family still violates 40/40. So the trace does not show it.) | 2 | declared adversary model, uncalibrated |
 | **World State** | This declared instance: the revision label, the hash, and the static paths (`potentialPaths`) from each untrusted trigger to each protected target, with the guards on each path. **Customer Refund: 7 paths.** | 1 | **declared** |
-| **Simulation** (the Laws executed over the World State) | 240 seeded runs → findings, each with its violating paths (counterexamples) and violating/run counts. | 2 | **simulated** |
+| **Simulation** (the Laws executed over the World State) | The seeded runs, with **sample counts per family taken from the stored runs** (`result.runs[].template`), never from a constant → findings, each with its violating paths (counterexamples) and violating/run counts. | 2 | **simulated** |
 | **Objectives** | The optimizer's actual rule, shown verbatim. **Eligibility:** no structural errors; benign completion ≥ baseline − 2 pp; no finding increases; no critical finding left. **Then rank by:** friction, then median added latency, then patch size. Against the KB's six objectives: **risk, friction and latency are approximated** (critical/no-increase gates, the friction rate, median added latency). **Coverage, compliance, cost and performance are not modelled.** | 2 | declared rule, uncalibrated |
 | **Calibration** | Empty: "Needs production outcome records (predicted vs observed). Not available at design time." | 3 | — |
-| **Decision** | The human decision (Decide) and the promotion ladder, with Simulation ✓ and Shadow, Canary and Production shown as *not run (outside this demo)*. The trace is bound to the **evaluated revision** (the parent, e.g. v1.0). There the decision names the approved child (v1.1) and its hash from the store's approval evidence. Opening Trace on the child shows "Approved from v1.0 — the evidence is v1.0's candidate run", links to it, and never re-labels the parent's results as the child's. | — | — |
+| **Decision** | The human decision (Decide: approve a candidate, or accept as-is when there are no findings) and the promotion ladder, with Simulation ✓ and Shadow, Canary and Production shown as *not run (outside this demo)*. The trace is bound to the **evaluated revision** (the parent, e.g. v1.0). There the decision names the approved child (v1.1) and its hash from the store's approval evidence. On the child, Trace shows "Approved from v1.0". Its simulation numbers are **the candidate run on v1.0**, which the store copies as the child's validation (`childValidationResult`), labelled that way, with the parent's scenario set and the tested hash equal to the child's hash. | — | — |
 
 ### 3.2 The thread graph: follow one decision through every layer
 
@@ -111,10 +123,14 @@ Blueprint step  →  Ontology class (L3)  →  Related public threat  →  Scena
   - simulated (from the engine's runs): solid;
   - Silex mapping / Silex association: dotted, with a label, and **no grade**;
   - not simulated: grey.
-- **Finding → class rule** (DeepSeek nit 6). A finding attaches to the class of the step its monitor **watches**: a tool for unauthorized write and duplicate effect, an outcome for secret exposure. The classes of the steps on its violating paths are highlighted as context.
+- **Finding → step attribution comes from the evidence, not the watch link** (Codex r2 #3). `monitors.js` matches **every** write with the monitor's capability (unauthorized write, duplicate effect) and **every** external emit carrying a secret (exposure), whatever `config.watches` says. The stored findings keep the violating activation paths, but not the write or emit id. So a finding is attributed to **the steps on its violating paths that can produce the monitored effect**:
+  - for a write monitor, the tools declaring the monitor's capability with side effect `write`;
+  - for exposure, the external outcomes.
+  - If more than one step qualifies, all are listed ("one of these produced it").
+  - The monitor's declared `watches` link is drawn **separately**, dashed and labelled *declared watch*. When it differs from the attributed step, the trace says so.
 - **Every public node shows its real identifier with a link** (e.g. `AML.T0051` → atlas.mitre.org). Silex-authored links are labelled **Silex mapping**, as the mockup already labels `Silex mock`.
 - **Size budget.** The graph draws only the threats **related to a simulated family**. The other associated threat classes are listed, collapsed, as "Associated with this workflow's classes, with no related scenario family (44)", grouped by class. They are never drawn (C8), and **none of the 48 is described as tested**.
-- **Rejected candidates stay visible**, greyed, with the optimizer's own `reasons` (C6).
+- **Every candidate is shown in its state** (§3.4.2). Optimizer-ineligible candidates carry the optimizer's own `reasons`. Human-rejected candidates are labelled as rejected by a person, and are never confused with the optimizer's rejections (C6).
 
 ### 3.3 The funnel: the mockup's funnel, computed
 
@@ -130,7 +146,8 @@ A single row of counts. Each count can be clicked to show its members.
    · 2 more related ids (owaspa:T3 via replay, owasp:LLM02 via injection_exfil) are associated with classes this declaration does not instantiate — shown, not counted
  → 7 declared paths from an untrusted trigger to a protected target   (declared)
  → 6 families × 40 seeded requests = 240 simulated runs → 200 of 200 adversarial runs violate · 16 of 40 benign runs violate → 6 findings   (simulated)
- → 16 candidate fixes tested → 2 eligible · 14 rejected, each with the optimizer's reason → 1 recommended by the objectives rule → approved by a person
+ → 16 candidates, all tested at their current parameters → 2 eligible · 14 ineligible, each with the optimizer's reason → 1 recommended by the objectives rule → approved by a person
+   (after Modify: a stale candidate is counted as "untested", not as tested; a human-rejected one is counted separately)
 ```
 
 The other templates, from the same run:
@@ -157,11 +174,37 @@ A panel, **Copy / Download decision record (JSON)**, that assembles the followin
   "decision": {"candidate": "...", "by": "human", "revision": "v1.1"},
   "semanticRationale": "…", "notSimulated": {"associatedThreatsWithoutRelatedFamily": 44, "layers": ["Calibration"]},
   "promotion": {"simulation": "done", "shadow": "not run", "canary": "not run", "production": "not run"},
-  "rollback": "v1.0",
-  "statement": "No violations in the tested scenarios under ontology swm-1.0, from this declaration. Not a certification." }
+  "priorBlueprint": {"rev": "v1.0", "hash": "…", "note": "reference only; no operational rollback in this demo"},
+  "evidence": {"validationJobId": "…", "scenarioSetId": "…", "candidateRunId": "…", "paramsVersion": 2, "testedParamsVersion": 2},
+  "statement": { "generatedFrom": "candidate run …", "violationsFound": [{"finding": "unauth:benign", "violating": 3, "run": 40}],
+                 "zeroViolations": [{"monitor": "dup", "runs": 240}], "notSimulated": ["threat classes with no related family", "Calibration"],
+                 "text": "Under candidate …: 3 violations remain in 40 simulated benign runs (Unauthorized Refund); 0 in 240 runs for Duplicate Compensation. As of ontology swm-1.0, from this declaration. Not a certification." } }
 ```
 
+The candidate and statement values above are illustrative placeholders. The real values are generated from the cited result.
+
 The record is **derived, never stored**. Import of documents is unchanged: the trace is recomputed from the document, the same way imported evidence already is.
+
+#### 3.4.1 The statement is generated, never fixed
+
+- `derive.js` builds the statement from **the result the decision cites**: the approved candidate's run (`approvalEvidence`), or the validation for accept-as-is.
+- **Violations found:** each remaining finding, with its violating/run count. Non-critical findings may remain after an approval; the optimizer only requires "no critical finding left, none increased".
+- **Zero violations:** each monitor with 0 violations, with its run count ("0 in 240 simulated runs").
+- **Not simulated:** associated threats with no related family, unmapped steps, and Calibration.
+- The words "no violations" appear only when every monitor has zero violations in the cited result, and always with the run count and scope.
+- The semantic rationale (DeepSeek r2 nit 2) is assembled from declared facts by one template. It uses the attributed step and its capability and limit, the untrusted trigger, and the approval's binding and single-use flag. It is tested, never hand-written per template.
+
+#### 3.4.2 Candidate states (read from the store)
+
+| State | Store condition | Shown as | Used for ranking, funnel "tested", finding→candidate links? |
+|---|---|---|---|
+| tested · eligible | `state === 'tested'`, `testedParamsVersion === paramsVersion`, `verdict.eligible` | eligible, with scorecard | yes |
+| tested · ineligible | as above, with `!verdict.eligible` | ineligible, with the optimizer's `reasons` | yes (as ineligible) |
+| stale (modified) | `state === 'stale'`, or `testedParamsVersion !== paramsVersion` | "modified — retest to use" (grey) | **no** |
+| rejected by a person | `state === 'rejected'`, whatever its verdict | "rejected by a person" | no; the optimizer verdict is shown as history |
+| approved | the decision cites it | "approved", with a link to the child | yes |
+
+`recommended` is recomputed with the controller's own rule: tested, current, not rejected.
 
 ### 3.5 Cross-links
 
@@ -186,7 +229,7 @@ A step maps only when its declared configuration meets the class definition quot
 
 | Blueprint step | L3 class | Class definition (swm-1.0) | Criterion |
 |---|---|---|---|
-| agent | ag:planner | "Decomposes a goal into steps and chooses the next action." | Always: a Blueprint agent chooses the next action and holds capabilities |
+| agent | ag:planner | "Decomposes a goal into steps and chooses the next action." | Always, on one ground only: the agent step chooses the next action (its outgoing flow) and holds capabilities. Goal decomposition is not asserted |
 | tool | ag:tool-reg | "Declared tools, their scopes and their side effects." | Always: a tool step declares its capability and side effect. **Not** ag:mcp, because the transport is not declared |
 | control `human_approval` / `dual_approval` | ag:hitl | "Human decision point inserted into the agent loop." | `config.kind` is one of the two |
 | control `policy_gate` | ag:guardrail | "Evaluates each proposed action against policy before it runs." | `config.kind === 'policy_gate'` |
@@ -203,11 +246,11 @@ Tests assert the counterexamples: Payment Credentials and Customer Profile are u
 
 | Family | Law | Related public threats | Abstraction limit (shown on the link) |
 |---|---|---|---|
-| below_threshold | authority | owasp:LLM06 Excessive Agency; owaspa:T2 Tool Misuse | Only a write below the monitor's threshold by an agent whose capability allows it |
-| split | authority | owasp:LLM06; owaspa:T2 | Only splitting one request into several under-threshold writes to one tool |
-| replay | approval binding | owaspa:T3 Privilege Compromise | Only reuse of an earlier approval for a different request. In swm-1.0, T3 is associated with Credential Broker, which Blueprint does not instantiate |
-| duplicate_submit | idempotency | **none** | A business-outcome failure (double compensation) with no public threat id |
-| injection_exfil | taint | atlas:AML.T0051 LLM Prompt Injection; owasp:LLM01 Prompt Injection; owasp:LLM02 Sensitive Information Disclosure | The injection is a scripted flag on untrusted input, not crafted content. Disclosure is modelled only as a secret read reaching an external outcome. (AML.T0086, exfiltration through tool invocation, is **not** related: a different mechanism) |
+| below_threshold | authority | owasp:LLM06 Excessive Agency; owaspa:T2 Tool Misuse | **Sampling:** one ineligible request (eligible = 0), amount uniform in [lo, hi). It often falls under the workflow's **routing threshold** (a decision's condition, e.g. `amount > 2000`) and so skips approval. It is a violation only when the scoped write total exceeds the monitor's **policy threshold** *t* without a proper approval. A generated request need not violate either threshold |
+| split | authority | owasp:LLM06; owaspa:T2 | **Sampling:** amount in [hi, 2·hi), split by a splitting agent into ⌈amount / 0.96·t′⌉ pieces (2–10), each under the per-piece threshold. The only mechanism is one request split into several writes to tools of one capability |
+| replay | approval binding | owaspa:T3 Privilege Compromise | **Sampling:** amount in [hi, 2·hi); a second request (eligible = 0) presents the first request's approval. The only mechanism is approval reuse. In swm-1.0, T3 is associated with Credential Broker, which Blueprint does not instantiate |
+| duplicate_submit | idempotency | **none** | **Sampling:** amount in [0, t′); the same customer and order are submitted as two requests. A business-outcome failure (double compensation) with no public threat id |
+| injection_exfil | taint | atlas:AML.T0051 LLM Prompt Injection; owasp:LLM01 Prompt Injection; owasp:LLM02 Sensitive Information Disclosure | **Sampling:** amount in [0, t′); the untrusted input carries a scripted injection flag, not crafted content. Disclosure is modelled only as a secret-labelled read reaching an external emit. (AML.T0086, exfiltration through tool invocation, is **not** related: a different mechanism) |
 | benign | — | — | The objectives baseline |
 
 Across the four families that have related threats, that makes six distinct threat ids (DeepSeek nit 3).
@@ -237,7 +280,7 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
 | # | Owner | Files | Acceptance |
 |---|---|---|---|
 | 1 | deepseek | `tools/ontology-slice.mjs`, `ontology/slice.json`, `web/src/trace/mapping.js` (the §4.1 and §4.2 tables with definitions, criteria and limits), `tests/trace-data.test.mjs` | The slice is reproducible and not stale; every mapped id exists; the slice keeps each link's `src`. Semantic counterexamples: Payment Credentials, Customer Profile, the trigger and `gate` are unmapped. `duplicate_submit` has no related threat; AML.T0086 is absent |
-| 2 | deepseek | `web/src/trace/derive.js`: pure functions (graph, validation, optimization, decision, slice) → {spine, funnel, thread graph, record}; `web/tests/derive.test.mjs` | The funnel equals the engine's own numbers on 3 templates. **Customer Refund: 10 of 14 mapped / 48 associated / 4 related / 7 paths / 240 runs / 200 of 200 / 16 of 40 / 6 findings / 16 candidates / 2 eligible.** The record's candidates and rejected reasons equal Optimize's. Candidate descriptions come from the patch ops (§4.3). The only grades present are `declared`, `simulated` and `not run` |
+| 2 | deepseek | `web/src/trace/derive.js`: pure functions (revision, parent/child, slice) → {spine, funnel, thread graph, record, statement}; `web/tests/derive.test.mjs`. **Also tests:** an eligible candidate with residual non-critical findings produces a statement listing them (a fixture graph is built if no template yields one); candidate states under modify, retest and reject (store-driven); attribution with two tools sharing one capability (only one watched), and an exposure at an unwatched outcome; per-family sample counts from `result.runs` | The funnel equals the engine's own numbers on 3 templates. **Customer Refund: 10 of 14 mapped / 48 associated / 4 related / 7 paths / 240 runs / 200 of 200 / 16 of 40 / 6 findings / 16 candidates / 2 eligible.** The record's candidates and rejected reasons equal Optimize's. Candidate descriptions come from the patch ops (§4.3). The only grades present are `declared`, `simulated` and `not run` |
 | 3 | claude | `web/src/trace/TraceView.jsx`, `ThreadGraph.jsx`, `Spine.jsx`, `DecisionRecord.jsx`, the App/nav wiring, the Validate, Optimize and Decide links, i18n, CSS | §7 probes |
 | 4 | claude | probes, README, this plan's record | — |
 
@@ -256,7 +299,13 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
 - **X4.** On Vendor Bank Change, every family shows 40 runs and its law. `duplicate_submit` shows "no public threat id". Replay's owaspa:T3 is shown as "targets Credential Broker — not instantiated in this blueprint". The "Sampled, not pruned" footnote is present.
 - **X5.** Wording: in English and 中文, the trace contains none of the §5 forbidden terms. The only grades present are declared, simulated and "not run". Every association carries a provenance label.
 - **X10.** The unmapped list shows Payment Credentials, Customer Profile, the request trigger and `gate`, each with its reason. Candidate `inj:a` is described as moving the secret read, not as a redaction gate.
-- **X11.** Opening Trace on the approved child shows "Approved from v1.0", links to the parent, and shows no simulation numbers of its own.
+- **X11.** Opening Trace on the approved child shows "Approved from v1.0" and links to the parent. Its simulation numbers are labelled "candidate run on v1.0" and equal the parent's candidate result.
+- **X12.** Candidate lifecycle, through the UI:
+  - Modify a candidate: Trace shows it as "modified — retest to use", and the funnel's tested count drops by one.
+  - Retest: it is tested again.
+  - Reject: it shows "rejected by a person", even though its verdict was eligible.
+  - Accept-as-is on the re-validated approved child, which has no findings: the statement shows 0 per monitor, with run counts.
+- **X13.** The statement for the approved candidate equals `derive.js`'s generation from the cited result. It lists every remaining finding. It never says "no violations" while a finding remains.
 - **X6.** Before Validate, Trace shows only Schema and World State, with "run Validate to fill Laws/Simulation". Nothing is fabricated.
 - **X7.** The decision record JSON parses, and its hash, candidates and decision match the store. After export → import, the record is identical.
 - **X8.** Public ids link to their official pages; Silex-mapping items are labelled.
@@ -275,3 +324,7 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
 ### Round 1 (v0.1): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (3)
 
 See §2.1. Both reviewers reproduced the engine numbers in §3.3.
+
+### Round 2 (v0.2): DeepSeek PLAN-APPROVED (3 nits), Codex PLAN-REJECTED (4)
+
+See §2.2. Both re-verified the 10/14, 4-class, 48-associated and 4-related counts, and the 105/32 Silex-authored link counts.
