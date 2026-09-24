@@ -1,4 +1,4 @@
-/* SILEX Security World Model — shared runtime: colour scales, glyphs, tooltip,
+/* SILEX Enterprise World Model — shared runtime: colour scales, glyphs, tooltip,
    provenance chips, motion/visibility helpers and the lazy panel registry.
    Charts draw on a dark STAGE (#10162b→#26305a); inspectors stay on white PAPER.
    Contrast is measured against #26305a or #ffffff (notes per ramp). CSS copies

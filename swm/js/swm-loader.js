@@ -1,5 +1,5 @@
 /* ============================================================================
-   Lazy loader for the Security World Model observatory.
+   Lazy loader for the Enterprise World Model observatory.
    D3 and the distilled ontology bundle (~300KB) are only fetched the first
    time a visitor opens one of the two observatory panels, so the rest of the
    demo keeps its original weight.
