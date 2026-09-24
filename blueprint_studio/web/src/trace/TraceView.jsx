@@ -56,9 +56,9 @@ function Inspector({ trace, focus, graph }) {
       <h3>{label(f.prohibited)}</h3>
       <p className="mono muted">{f.id} · {f.violating} / {f.run}</p>
       <p>{t('trace.inspect.family', 'Scenario family')}: <b>{t('template.' + f.family, f.family)}</b> · {t('trace.inspect.law', 'law')}: <b>{tr('law', f.law)}</b></p>
-      <h4>{t('trace.inspect.attributed', 'Produced at (from the violating paths)')}</h4>
+      <h4>{f.attributed.length > 1 ? t('trace.inspect.attributedMany', 'One of these produced it (steps on the violating paths that can produce this effect)') : t('trace.inspect.attributed', 'Produced at (from the violating paths)')}</h4>
       <ul>{f.attributed.map(s => <li key={s}>{label(s)} <span className="muted mono">{s}</span></li>)}</ul>
-      <p className="muted">{t('trace.inspect.watch', 'Declared watch')}: {f.declaredWatch.map(label).join(', ') || '—'}{f.attributionDiffers ? <b className="warn-text"> · {t('trace.inspect.differs', 'differs from where the effect was produced')}</b> : null}</p>
+      <p className="muted">{t('trace.inspect.watch', 'Declared watch')}: {f.declaredWatch.map(label).join(', ') || '—'}{f.attributionDiffers ? <b className="warn-text"> · {t('trace.inspect.differsPossible', 'differs from the possible producers above')}</b> : null}</p>
       <h4>{t('trace.inspect.related', 'Related public threats (related, not tested)')}</h4>
       <ul>{f.related.map(id => { const r = S.related.find(x => x.threatId === id && x.family === f.family); return <li key={id}>{link(id)} {threat(id)?.label} <div className="muted">{tr('limit', `${f.family}.${id}`, r?.limit)}</div></li>; })}{f.related.length ? null : <li className="muted">{t('trace.inspect.noThreat', 'No public threat id (a business-outcome failure)')}</li>}</ul>
       <h4>{t('trace.inspect.paths', 'Violating paths')}</h4>

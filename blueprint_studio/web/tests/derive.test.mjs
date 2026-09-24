@@ -236,3 +236,49 @@ test('derive: split sampling text is accurate at the cap of 10', () => {
   assert.equal(splits.length, 20);
   assert.ok(splits.some(sc => runScenario(graph, sc).ledger.writes.length === 10), 'k reaches the cap of 10');
 });
+
+/* ---- implementation review round 1 (Codex) ---- */
+test('derive: the approved child exports the evaluated parent\'s record (gaps, alternatives, rationale)', () => {
+  const { s, rev } = confirmValidateOptimize('customer-refund');
+  const parentTrace = deriveTrace({ doc: s.doc, revNo: rev, slice, meta: s.meta() });
+  const id = parentTrace.recommended;
+  assert.ok(s.dispatch({ type: 'approve', rev, candidateId: id, at: 'T' }).ok);
+  const child = s.active().rev;
+  const p = deriveTrace({ doc: s.doc, revNo: rev, slice, meta: s.meta() }).record;
+  const c = deriveTrace({ doc: s.doc, revNo: child, slice, meta: s.meta() }).record;
+  assert.deepEqual(c, p);
+  assert.equal(p.gap.length, 6);
+  assert.equal(p.candidates.length, 16);
+  assert.ok(p.semanticRationale);
+  assert.equal(p.decision.candidate, id);
+});
+
+test('derive: the rationale reads the declared trust and the violating path, never assumes "untrusted"', () => {
+  const t = tpl('customer-refund');
+  t.graph.nodes.find(n => n.type === 'trigger').config.trust = 'internal';
+  const s = createStore({ storage: memoryStorage() });
+  s.load(newDocument(t));
+  assert.ok(s.dispatch({ type: 'confirm' }).ok);
+  const r = s.active(), set = generateScenarioSet(r.graph, { n: 40, baseHash: r.hash });
+  const v = validate(r.graph, set);
+  assert.ok(s.dispatch({ type: 'setValidation', rev: r.rev, jobId: s.startJob('validate:' + r.rev), revHash: r.hash, scenarioSetId: set.id, n: 40, result: compactResult(v) }).ok);
+  const trace = deriveTrace({ doc: s.doc, revNo: r.rev, slice, meta: s.meta() });
+  assert.ok(trace.rationale);
+  {
+    assert.ok(!/untrusted/.test(trace.rationale), trace.rationale);
+    assert.match(trace.rationale, /internal trigger/);
+    const f = trace.simulation.findings[0], top = [...f.paths].sort((a, b) => b.count - a.count)[0];
+    for (const n of r.graph.nodes) if (trace.rationale.includes(`(${n.label})`) || trace.rationale.includes(`through ${n.label}`)) assert.ok(top.nodes.includes(n.id), `${n.label} is not on the cited path`);
+  }
+});
+
+test('derive: each (family, threat) relation keeps its own limit; counts use distinct ids', () => {
+  const { s, rev } = confirmValidateOptimize('customer-refund');
+  const S = deriveTrace({ doc: s.doc, revNo: rev, slice, meta: s.meta() }).schema;
+  for (const fam of FAMILIES) for (const r of fam.related) {
+    const x = S.related.find(y => y.family === fam.id && y.threatId === r.threatId);
+    assert.ok(x, `${fam.id} ${r.threatId}`); assert.equal(x.limit, r.limit);
+  }
+  assert.equal(S.counts.relatedInstantiated, 4);
+  assert.equal(S.counts.relatedOutside, 2);
+});

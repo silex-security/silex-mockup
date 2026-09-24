@@ -981,6 +981,23 @@ await probe('X13', 'approved residual noncritical findings remain in generated s
   return {pass:true,detail:`${c.candidate.id}: ${c.result.findings.length} residual findings correctly disclosed`};
 });
 
+await probe('X14', 'two write tools sharing one capability: the inspector says "one of these produced it" (en, 中文), not a definite producer', async () => {
+  const out = {};
+  for (const lang of ['en', 'zh']) {
+    await load({ lang });
+    await ev(`${S} const p=G().nodes.find(n=>n.id==='payment'), e=G().edges.find(e=>e.kind==='flow'&&e.from.node==='execution'&&e.to.node==='payment');
+      st.dispatch({type:'patch', ops:[{op:'removeEdge', id:e.id}, {op:'addNode', node:{...p, id:'payment2', label:'Ledger API', x:p.x-200, y:p.y, config:{...p.config}}},
+        {op:'addEdge', edge:{id:'ex14a', kind:'flow', from:{node:'execution', port:e.from.port}, to:{node:'payment2', port:'in'}}},
+        {op:'addEdge', edge:{id:'ex14b', kind:'flow', from:{node:'payment2', port:'out'}, to:{node:'payment', port:'in'}}}]});
+      ctl.confirm(); await ctl.runValidation(40); return 1`);
+    const fid = await ev(`${S} const f=st.active().validation.result.findings.find(f=>f.monitor==='unauthorized_write'); return f&&f.id`);
+    await ev(`__bs2.ctl.openTrace('finding', ${JSON.stringify(fid)}); return 1`); await sleep(700);
+    out[lang] = await ev(`const i=document.querySelector('#traceInspector'); const h=[...i.querySelectorAll('h4')].map(x=>x.innerText); return {h: h[0], items: [...i.querySelectorAll('ul')[0].querySelectorAll('li')].map(x=>x.innerText)}`);
+  }
+  const ok = out.en.h.startsWith('One of these produced it') && out.zh.h.startsWith('由其中之一产生') && ['en', 'zh'].every(l => out[l].items.length === 2);
+  return { pass: ok, detail: JSON.stringify(out) };
+});
+
 /* V1: screenshots for the visual review (not pass/fail) */
 if (SHOTS && (!ONLY || ONLY.has('V1'))) {
   for (const lang of ['en', 'zh']) {

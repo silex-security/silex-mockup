@@ -44,7 +44,7 @@ export default function Spine({ trace, open, setOpen, onFocus, focus }) {
         summary={L ? t('trace.laws.sum', '{n} scenario families · 4 laws', { n: L.families.length }) : pending}>
         {L ? L.families.map(f => (
           <div className="fam" key={f.id} data-family={f.id}>
-            <div><b>{t('template.' + f.id, f.id)}</b> · {tr('law', f.law)} <span className="mono muted">{f.violatingRuns}/{f.runs}</span></div>
+            <div><b>{t('template.' + f.id, f.id)}</b>{f.law ? <> · {tr('law', f.law)}</> : null} <span className="mono muted">{f.violatingRuns}/{f.runs}</span></div>
             <div className="muted">{tr('sampling', f.id, f.sampling)}</div>
             {f.related.length ? f.related.map(r => <div key={r.threatId} className="rel"><span className="mono">{r.threatId}</span> <span className="muted">{tr('limit', `${f.id}.${r.threatId}`, r.limit)}</span></div>) : (f.id === 'benign' ? null : <div className="rel muted">{t('trace.inspect.noThreat', 'No public threat id (a business-outcome failure)')}</div>)}
           </div>)) : <p className="muted">{pending}</p>}

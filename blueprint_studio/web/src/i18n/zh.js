@@ -722,7 +722,6 @@ export default {
   'trace.inspect.law': '规律',
   'trace.inspect.attributed': '产生位置（来自违规路径）',
   'trace.inspect.watch': '声明的监控对象',
-  'trace.inspect.differs': '与效果实际产生的位置不同',
   'trace.inspect.related': '相关公开威胁（相关，未测试）',
   'trace.inspect.noThreat': '没有公开威胁编号（属于业务结果类失败）',
   'trace.inspect.paths': '违规路径',
@@ -842,4 +841,6 @@ export default {
   'trace.obj.cost': '成本',
   'trace.obj.performance': '性能',
   'trace.unmapped.control': '控制类型既未声明为人工决策，也未声明为策略引擎。',
+  'trace.inspect.attributedMany': '由其中之一产生（违规路径上能产生该效果的步骤）',
+  'trace.inspect.differsPossible': '与上面列出的可能产生者不同',
 };

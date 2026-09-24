@@ -51,7 +51,7 @@ function buildSchema(graph, slice) {
   const related = [];
   for (const fam of FAMILIES) {
     for (const r of fam.related) {
-      if (related.some(x => x.threatId === r.threatId)) continue;
+      if (related.some(x => x.threatId === r.threatId && x.family === fam.id)) continue;   // one entry per (family, threat): each has its own limit
       const cls = threatClass.get(r.threatId) || null;
       related.push({
         threatId: r.threatId, label: threatById.get(r.threatId)?.label || r.threatId,
@@ -61,12 +61,13 @@ function buildSchema(graph, slice) {
     }
   }
 
-  const relatedInstantiated = related.filter(r => r.instantiated).length;
+  const uniq = xs => new Set(xs.map(r => r.threatId)).size;           // counts are over distinct threat ids
+  const relatedInstantiated = uniq(related.filter(r => r.instantiated));
   const counts = {
     associated: associated.length,
     relatedInstantiated,
     withoutRelatedFamily: associated.length - relatedInstantiated,
-    relatedOutside: related.filter(r => !r.instantiated).length,
+    relatedOutside: uniq(related.filter(r => !r.instantiated)),
   };
 
   return { steps, mappedCount, unmappedCount: steps.length - mappedCount, classes, associated, related, counts };
@@ -260,24 +261,38 @@ function buildStatement(rev, doc, slice, schema) {
 
 /* --------------------------------------------------------------- rationale */
 function buildRationale(graph, simulation) {
+  // Assembled only from declarations on the finding's most frequent violating path (plan §3.4.1, C5):
+  // the trigger's declared trust, the last agent before the effect and its declared capability, and any
+  // approval on that path. Ambiguity (several possible producers) is said, not resolved.
   if (!simulation || !simulation.findings.length) return null;
   const f = simulation.findings[0];
-  const steps = (f.attributed || []).map(id => graph.nodes.find(n => n.id === id)).filter(Boolean);
-  const trigger = graph.nodes.find(n => n.type === 'trigger');
-  const triggerPhrase = trigger ? `an untrusted trigger (${trigger.label})` : 'an untrusted trigger';
+  const byId = id => graph.nodes.find(n => n.id === id);
+  const top = [...(f.paths || [])].sort((a, b) => b.count - a.count)[0];
+  const path = (top ? top.nodes : []).map(byId).filter(Boolean);
+  if (!path.length) return null;
+  const names = xs => xs.map(n => n.label).join(', ');
+  const trig = path.find(n => n.type === 'trigger');
+  const trust = trig && trig.config ? trig.config.trust : null;
+  const from = trig ? `${trust === 'untrusted' ? 'an untrusted' : trust ? `a ${trust}` : 'a'} trigger (${trig.label})` : "the path's entry";
+  const effect = (f.attributed || []).map(byId).filter(n => n && path.includes(n));
   if (f.monitor === 'secret_exposure') {
-    const outcome = steps.find(s => s.type === 'outcome');
-    return `A secret-labelled read reaches an external outcome (${outcome ? outcome.label : 'the outcome'}) from ${triggerPhrase}.`;
+    const outs = effect.filter(n => n.type === 'outcome');
+    const where = outs.length > 1 ? `one of the external outcomes (${names(outs)})` : outs.length ? `an external outcome (${outs[0].label})` : 'an external outcome';
+    return `On its most frequent violating path, a secret-labelled read reaches ${where}, starting from ${from}.`;
   }
-  const tool = steps.find(s => s.type === 'tool');
-  if (!tool) return `A monitored write is reached from ${triggerPhrase}.`;
-  const cap = tool.config.cap;
-  const holder = graph.nodes.find(n => n.type === 'agent' && (n.config.capabilities || []).some(c => c.cap === cap));
-  const limit = holder ? holder.config.capabilities.find(c => c.cap === cap)?.limit : null;
-  const approval = graph.nodes.find(n => n.type === 'control' && n.config.kind !== 'policy_gate');
-  const binding = approval ? (approval.config.binding || []).join(', ') : 'nothing';
-  const single = approval ? (approval.config.singleUse ? 'single-use' : 'reusable') : 'reusable';
-  return `A write tool (${tool.label}) is reached from ${triggerPhrase} through an agent holding ${cap}${limit != null ? ` ≤ $${limit}` : ''}; the approval is bound to ${binding || 'nothing'} and is ${single}.`;
+  const tools = effect.filter(n => n.type === 'tool');
+  const what = tools.length > 1 ? `one of the write tools (${names(tools)})` : tools.length ? `a write tool (${tools[0].label})` : 'a monitored write';
+  const idx = tools.length ? Math.min(...tools.map(t => path.indexOf(t))) : path.length;
+  const before = path.slice(0, idx);
+  const agent = [...before].reverse().find(n => n.type === 'agent');
+  const cap = tools.length ? tools[0].config.cap : null;
+  const decl = agent && cap ? (agent.config.capabilities || []).find(c => c.cap === cap) : null;
+  const via = agent ? (decl ? ` through ${agent.label}, which declares ${cap}${decl.limit != null ? ` ≤ $${decl.limit}` : ''}` : ` through ${agent.label}`) : '';
+  const approval = before.find(n => n.type === 'control' && n.config.kind !== 'policy_gate');
+  const appr = approval
+    ? `; the path passes ${approval.label}, bound to ${(approval.config.binding || []).join(', ') || 'no field'} and ${approval.config.singleUse ? 'single-use' : 'reusable'}`
+    : '; no approval step is on this path';
+  return `On its most frequent violating path, ${what} is reached from ${from}${via}${appr}.`;
 }
 
 /* ------------------------------------------------------------------ thread */
@@ -427,6 +442,13 @@ const OBJECTIVES = {
   notModelled: ['coverage', 'compliance', 'cost', 'performance'],
 };
 
+/* The decision record of an evaluated revision, built from that revision's own evidence. */
+function recordFor(doc, r, slice) {
+  const g = r.graph, sc = buildSchema(g, slice), sim = buildSimulation(r, g);
+  const { candidates, recommended } = buildCandidates(r, g, r.validation?.result?.findings || []);
+  return buildRecord(doc, r, sc, buildWorldState(r, g), sim, candidates, recommended, buildDecision(r, doc), buildStatement(r, doc, slice, sc), buildRationale(g, sim), slice);
+}
+
 /* -------------------------------------------------------------------- main */
 export function deriveTrace(input) {
   const { doc, revNo, slice, meta } = input;
@@ -451,7 +473,9 @@ export function deriveTrace(input) {
   const rationale = buildRationale(graph, simulation);
   const thread = buildThread(graph, simulation, candidates, decision, slice);
   const funnel = buildFunnel(schema, worldState, simulation, candidates);
-  const record = buildRecord(doc, rev, schema, worldState, simulation, candidates, recommended, decision, statement, rationale, slice);
+  const record = rev.origin === 'approve' && revisionOf(doc, rev.parent)
+    ? recordFor(doc, revisionOf(doc, rev.parent), slice)            // the child's record is the evaluated parent's (plan §3.1 Decision row)
+    : buildRecord(doc, rev, schema, worldState, simulation, candidates, recommended, decision, statement, rationale, slice);
 
   return { stamp, binding, stage, schema, laws, worldState, simulation, objectives: OBJECTIVES, candidates, recommended, decision, funnel, statement, rationale, thread, record };
 }
