@@ -89,6 +89,7 @@ export default function Decide() {
         <div className="card-head">
           <div><h2>{t('decide.head', 'Decision · {doc} {rev}', { doc: store.doc.name, rev: ctl.revLabel(rev.rev) })}</h2><p className="muted">{candLabel(c.candidate)}</p></div>
           <span className={'chip ' + (ok ? 'ok' : 'warn')} id="decideChip">{chipText}</span>
+          <button className="btn sm" id="whyBtn" onClick={() => ctl.openTrace('candidate', c.candidate.id)}>{t('trace.why', 'Why this decision?')}</button>
         </div>
         <ul>{c.candidate.patch.map((op, i) => <li key={i}>{describeOp(rev.graph, op)}</li>)}</ul>
         {c.verdict ? <ScoreCard sc={c.verdict.scorecard || {}} /> : null}

@@ -98,6 +98,7 @@ export default function Optimize() {
               <ParamControls key={c.candidate.id + ':' + c.candidate.paramsVersion} rev={rev} c={c} />
               <div className="acts">
                 <button className="btn sm primary" disabled={c.state === 'rejected'} onClick={() => { ctl.setDecideId(c.candidate.id); ctl.go('assurance', 'decide'); }}>{t('optimize.review', 'Review decision →')}</button>
+                <button className="btn sm ghost" data-trace-link={c.candidate.id} onClick={() => ctl.openTrace('candidate', c.candidate.id)}>{t('trace.link', 'Trace →')}</button>
                 <button className="btn sm danger" data-reject={c.candidate.id} disabled={c.state === 'rejected' || decided} onClick={() => ctl.reject(c.candidate.id)}>{t('optimize.reject', 'Reject')}</button>
               </div>
             </div>);

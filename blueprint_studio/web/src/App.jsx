@@ -15,6 +15,7 @@ import Optimize from './assurance/Optimize.jsx';
 import Decide from './assurance/Decide.jsx';
 import Register from './assurance/Register.jsx';
 import { lint } from '../../js/validate.js';
+import TraceView from './trace/TraceView.jsx';
 
 const STAGES = ['confirm', 'validate', 'optimize', 'decide', 'register'];
 export function stageEnabled(st) {
@@ -98,6 +99,7 @@ export default function App() {
         <nav className="seg" aria-label={t('top.views', 'Views')}>
           <button className={route.view === 'builder' ? 'on' : ''} id="navBuilder" onClick={() => ctl.go('builder')}>{t('top.builder', 'Builder')}</button>
           <button className={route.view === 'assurance' ? 'on' : ''} id="navAssurance" onClick={() => ctl.go('assurance', stage)}><Icon d={I.shield} />{t('top.assurance', 'Assurance')}</button>
+          <button className={route.view === 'trace' ? 'on' : ''} id="navTrace" onClick={() => ctl.go('trace')} title={t('top.traceTitle', 'How the decision was reached: blueprint, ontology and world-model layers')}><Icon d={I.flowLR} />{t('top.trace', 'Trace')}</button>
         </nav>
         <div className="top-actions">
           {route.view === 'builder' ? <>
@@ -114,7 +116,7 @@ export default function App() {
           <div className="pop-anchor"><button className="btn sm" id="docMenuBtn" onClick={() => setMenu(m => !m)}>{t('top.file', 'File')}</button>{menu ? <DocMenu onClose={() => setMenu(false)} onAbout={() => setAbout(true)} /> : null}</div>
         </div>
       </header>
-      {route.view === 'builder' ? <Builder /> : (
+      {route.view === 'builder' ? <Builder /> : route.view === 'trace' ? <TraceView /> : (
         <main className="assurance">
           <nav className="stages" aria-label={t('top.stages', 'Assurance stages')}>
             {STAGES.map((s, i) => (

@@ -47,7 +47,7 @@ export default function Validate() {
                 <td><b>{nodeLabelIn(rev.graph, f.prohibited)}</b><div className="muted">{t('validate.via', 'via {tpl} scenarios', { tpl: t('template.' + f.template, f.template.replace(/_/g, ' ')) })}</div></td>
                 <td>{t('category.' + f.category, f.category)}</td>
                 <td><span className={'chip ' + (f.severity === 'critical' ? 'bad' : 'warn')}>{t('severity.' + f.severity, f.severity)}</span></td>
-                <td className="mono">{f.violating} / {f.run}</td>
+                <td className="mono">{f.violating} / {f.run}<div><button className="linkish" data-trace-link={f.id} onClick={() => ctl.openTrace('finding', f.id)}>{t('trace.link', 'Trace →')}</button></div></td>
                 <td>{f.paths.slice(0, 3).map((p, i) => <div className="path" key={i}><span className="grade">{t('grade.declared', 'Declared')}</span><span>{pathLabel(rev.graph, p.nodes)}</span><span className="muted">{t('validate.activations', '{n} activation(s)', { n: p.count })}</span></div>)}
                   {f.paths.length > 3 ? <div className="muted">{t('validate.morePaths', '+{n} more paths', { n: f.paths.length - 3 })}</div> : null}</td>
               </tr>))}</tbody>

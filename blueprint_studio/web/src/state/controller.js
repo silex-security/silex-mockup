@@ -28,9 +28,12 @@ export { revLabel, isDecided };
 const tick = () => new Promise(r => setTimeout(r, 0));
 
 /* ------------------------------------------------------------------ route */
-const route = { view: 'builder', stage: 'validate', panel: null, decideId: null, toast: null, selected: null, focus: null, gallery: false };
+const route = { view: 'builder', stage: 'validate', panel: null, decideId: null, toast: null, selected: null, focus: null, gallery: false, traceFocus: null };
 export const getRoute = () => route;
 export function go(view, stage) { route.view = view; if (stage) route.stage = stage; bump(); }
+/* Decision Trace focus ({kind, ref, rev}); openTrace jumps there from Validate / Optimize / Decide. */
+export function setTraceFocus(f) { route.traceFocus = f; bump(); }
+export function openTrace(kind, ref) { route.traceFocus = kind ? { kind, ref, rev: store.active().rev } : null; route.view = 'trace'; bump(); }
 export function setPanel(panel) { route.panel = panel; bump(); }           // null | 'run'
 export function setDecideId(id) { route.decideId = id; bump(); }
 export function openGallery(open = true) { route.gallery = open; bump(); }

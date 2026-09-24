@@ -720,6 +720,267 @@ await probe('PERF', 'validate + optimize on the refund template at n=40 under 3 
   return { pass: ms < 3000, detail: ms + ' ms' };
 });
 
+/* ----------------------------------------------------- Decision Trace (X)
+   Independent oracles are the store, deterministic engine and source ontology.
+   Do not use deriveTrace/focusSet to prove their own output. X9 is the existing
+   full regression suite (run this harness without --only), not a synthetic PASS. */
+const xa = (await import('node:assert/strict')).default;
+const xValidator = await import('../../js/validate.js');
+const xOptimizer = await import('../../js/optimize.js');
+const xOntology = JSON.parse(await readFile(join(ROOT, 'swm/data/ontology.json'), 'utf8'));
+const xFamilies = ['below_threshold', 'split', 'replay', 'duplicate_submit', 'injection_exfil', 'benign'];
+const xRelated = {
+  below_threshold: ['owasp:LLM06', 'owaspa:T2'], split: ['owasp:LLM06', 'owaspa:T2'],
+  replay: ['owaspa:T3'], duplicate_submit: [],
+  injection_exfil: ['atlas:AML.T0051', 'owasp:LLM01', 'owasp:LLM02'], benign: []
+};
+const xClass = n => ({agent:'ag:planner', tool:'ag:tool-reg', outcome:'ag:harness', prohibited:'ag:harness'}[n.type]
+  || (n.type === 'control' ? (n.config.kind === 'policy_gate' ? 'ag:guardrail' : 'ag:hitl') : null));
+const xDoc = () => ev(`${S} return st.doc`);
+const xActive = doc => doc.revisions.find(r => r.rev === doc.activeRev);
+const xAttr = (name, value) => `[${name}=${JSON.stringify(value)}]`;
+async function xOpen(kind, ref) {
+  await ev(`${S} ctl.openTrace(${JSON.stringify(kind || null)}, ${JSON.stringify(ref || null)}); return 1`);
+  await sleep(250); await stable();
+}
+async function xLayer(id) {
+  const sel = `#traceSpine [data-layer="${id}"] .layer-head`;
+  if (await ev(`return document.querySelector(${JSON.stringify(sel)})?.getAttribute('aria-expanded') !== 'true'`)) await clickSel(sel);
+  await sleep(250);
+}
+async function xSetup({lang = 'en', template = 'customer-refund', n = 40, optimize = true} = {}) {
+  await load({lang});
+  await ev(`${S} ctl.startFromTemplate(${JSON.stringify(template)}); const c=ctl.confirm(); if(!c.ok) throw Error(JSON.stringify(c));
+    const v=await ctl.runValidation(${n}); if(!v.ok) throw Error(JSON.stringify(v));
+    ${optimize ? 'const o=await ctl.runOptimize(); if(!o.ok) throw Error(JSON.stringify(o));' : ''} return 1`);
+  await xOpen();
+}
+async function xApprove(id = null) {
+  return ev(`${S} const id=${JSON.stringify(id)} || ctl.recommendedId(st.active()); const parent=st.active().rev;
+    const r=ctl.approve(id); if(!r.ok) throw Error(JSON.stringify(r)); return {id,parent,child:st.active().rev}`);
+}
+async function xRecord() {
+  await clickSel('#recordBtn'); await sleep(150);
+  const raw = await ev('return document.querySelector("#recJson").textContent');
+  const rec = JSON.parse(raw);
+  await key('Escape', 'Escape', 27); await sleep(100);
+  return rec;
+}
+async function xFunnel() {
+  return ev(`return Object.fromEntries([...document.querySelectorAll('#traceFunnel [data-funnel]')].map(e=>[e.dataset.funnel,{value:e.querySelector('b').textContent, text:e.innerText}]))`);
+}
+const xSorted = xs => [...new Set(xs)].sort();
+function xStatement(rec, result) {
+  xa.ok(rec.statement, 'record needs a statement for the cited decision');
+  xa.deepEqual(rec.statement.violationsFound.map(f=>[f.finding,f.violating,f.run]).sort(),
+    result.findings.filter(f=>f.violating>0).map(f=>[f.id,f.violating,f.run]).sort(), 'remaining findings equal cited evidence');
+  xa.deepEqual(rec.statement.zeroViolations.map(z=>[z.prohibited,z.runs]).sort(),
+    Object.entries(result.metrics.byMonitor).filter(([,v])=>v.violating===0).map(([id,v])=>[id,v.run]).sort(), 'zero counts equal monitor evidence');
+  if (result.findings.length) xa.doesNotMatch(rec.statement.text, /no violations/i);
+}
+
+await probe('X1', 'Trace funnel and seven layers match engine, ontology and decided parent evidence', async () => {
+  await xSetup(); const decision = await xApprove();
+  await ev(`${S} ctl.setActiveRevision(${decision.parent}); return 1`); await xOpen();
+  const doc=await xDoc(), r=xActive(doc), v=r.validation.result;
+  const set=await ev(`${S} return ctl.scenarioSetFor(st.active(),st.active().validation.n)`);
+  const actual=xValidator.validate(r.graph,set), opt=xOptimizer.optimize(r.graph,actual,set,{name:doc.name,domain:doc.domain});
+  const f=await xFunnel(), classes=new Set(r.graph.nodes.map(xClass).filter(Boolean));
+  const threats=new Set(xOntology.links.filter(e=>e.pred==='THREATENS'&&classes.has(e.t)).map(e=>e.s));
+  const expected={mapped:`${r.graph.nodes.filter(xClass).length}/${r.graph.nodes.length}`, associated:String(threats.size), paths:String(actual.potential.length),runs:String(actual.runs.length), findings:String(actual.findings.length),candidates:String(opt.candidates.length)};
+  for(const [k,value] of Object.entries(expected)) xa.equal(f[k].value,value,k);
+  xa.deepEqual([expected.mapped,classes.size,threats.size,actual.potential.length,actual.runs.length,actual.findings.length,opt.candidates.length,opt.candidates.filter(c=>c.verdict.eligible).length],['10/14',4,48,7,240,6,16,2]);
+  xa.deepEqual(v.metrics,actual.metrics);
+  xa.ok(f.runs.text.includes('200/200') && f.runs.text.includes('16/40'), 'violation numerators and denominators');
+  xa.match(f.candidates.text,/2 eligible.*14 ineligible/s, 'approved candidate missing from eligible tested total: '+f.candidates.text.replace(/\n/g,' '));
+  const layers=await ev('return [...document.querySelectorAll("#traceSpine [data-layer]")].map(e=>e.dataset.layer)');
+  xa.deepEqual(layers,['schema','laws','world','simulation','objectives','calibration','decision']);
+  const stamp=await ev('return document.querySelector("#traceStamp").innerText');
+  for(const s of [xOntology.version,r.hash.slice(0,8),r.validation.scenarioSetId]) xa.ok(stamp.includes(s),s);
+  return {pass:true,detail:JSON.stringify(expected)};
+});
+
+await probe('X2', 'finding clicks highlight only its chain and candidates supported by current results; mini paths agree', async () => {
+  await xSetup(); const r=xActive(await xDoc()), f=r.validation.result.findings.find(f=>f.id==='unauth:split');
+  await xLayer('simulation'); await clickSel(xAttr('data-trace-finding',f.id)); await sleep(200);
+  const paths=new Set(f.paths.flatMap(p=>p.nodes)), monitor=r.graph.nodes.find(n=>n.id===f.prohibited);
+  const attributed=r.graph.nodes.filter(n=>paths.has(n.id)&&n.type==='tool'&&n.config.sideEffect==='write'&&n.config.cap===monitor.config.cap).map(n=>n.id);
+  const expectedCandidates=r.optimization.candidates.filter(c=>c.state==='tested'&&c.testedParamsVersion===c.candidate.paramsVersion&&!c.result.findings.some(x=>x.id===f.id&&x.violating>0)).map(c=>c.candidate.id);
+  const hot=await ev('return [...document.querySelectorAll("#threadGraph [data-thread].hot")].map(e=>e.dataset.thread)');
+  xa.deepEqual(xSorted(hot.filter(k=>k.startsWith('finding:'))),['finding:'+f.id]);
+  xa.deepEqual(xSorted(hot.filter(k=>k.startsWith('candidate:')).map(k=>k.slice(10))),xSorted(expectedCandidates));
+  xa.deepEqual(xSorted(hot.filter(k=>k.startsWith('threat:')).map(k=>k.slice(7))),xSorted(xRelated[f.template]));
+  for(const id of attributed) {xa.ok(hot.includes('step:'+id));xa.ok(hot.includes('class:'+xClass(r.graph.nodes.find(n=>n.id===id))));}
+  xa.ok(hot.includes('family:'+f.template));
+  const mini=await ev('return [...document.querySelectorAll("#miniBlueprint rect.hot")].map(e=>e.dataset.mini)');
+  for(const id of paths) xa.ok(mini.includes(id),'mini path '+id);
+  const focused=await ev('return document.querySelector("#threadGraph [data-thread].focus")?.dataset.thread');
+  xa.equal(focused,'finding:'+f.id);
+  xa.ok(await ev('return document.querySelectorAll("#threadGraph [data-thread].dim").length>0'));
+  const approved=await xApprove();
+  await ev(`${S} ctl.setActiveRevision(${approved.parent}); return 1`); await xOpen('candidate',approved.id);
+  const decisionNodes=await ev('return [...document.querySelectorAll("#threadGraph [data-thread]")].filter(e=>e.dataset.thread.startsWith("decision:")).map(e=>({id:e.dataset.thread,hot:e.classList.contains("hot")}))');
+  xa.equal(decisionNodes.length,1,'one decision node after approval');
+  xa.ok(decisionNodes[0].hot,'approved candidate focus must highlight its decision: '+JSON.stringify(decisionNodes));
+  return {pass:true,detail:JSON.stringify({finding:f.id,candidates:expectedCandidates.length,pathNodes:paths.size,decision:decisionNodes})};
+});
+
+await probe('X3', 'each ineligible candidate exposes exact optimizer reasons', async () => {
+  await xSetup(); const r=xActive(await xDoc()); let checked=0;
+  for(const c of r.optimization.candidates.filter(c=>!c.verdict.eligible)) {
+    await xOpen('candidate',c.candidate.id);
+    const ui=await ev('return {state:document.querySelector("#traceInspector [data-cand-state]")?.dataset.candState,text:document.querySelector("#traceInspector")?.innerText}');
+    xa.equal(ui.state,'ineligible'); for(const reason of c.verdict.reasons) xa.ok(ui.text.includes(reason),reason); checked++;
+  }
+  xa.ok(checked>0); return {pass:true,detail:`${checked} candidates' reasons checked`};
+});
+
+await probe('X4', 'Vendor families disclose stored sample counts, laws, related IDs and abstraction limits', async () => {
+  await xSetup({template:'vendor-bank-change'}); await xLayer('laws');
+  const r=xActive(await xDoc());
+  const rows=await ev('return [...document.querySelectorAll("[data-family]")].map(e=>({id:e.dataset.family,text:e.innerText}))');
+  xa.deepEqual(rows.map(r=>r.id).sort(),[...xFamilies].sort());
+  for(const row of rows) {
+    const runs=r.validation.result.runs.filter(x=>x.template===row.id);
+    xa.ok(row.text.includes(`${runs.filter(x=>x.violating).length}/${runs.length}`),row.id+' counts');
+    for(const id of xRelated[row.id]) xa.ok(row.text.includes(id),row.id+' missing '+id);
+  }
+  xa.match(rows.find(x=>x.id==='duplicate_submit').text,/no public threat id/i);
+  xa.match(rows.find(x=>x.id==='replay').text,/Credential Broker/);
+  xa.match(rows.find(x=>x.id==='replay').text,/not instantiate|not instantiated/i);
+  xa.match(await ev('return document.querySelector("#traceView").innerText'),/sampled, not pruned/i);
+  return {pass:true,detail:'six families, actual run counts, public IDs and limits'};
+});
+
+await probe('X5', 'English/中文 Trace and record obey grade, provenance and claim wording', async () => {
+  const checked=[];
+  for(const lang of ['en','zh']) {
+    await xSetup({lang}); const d=await xApprove(); await ev(`${S} ctl.setActiveRevision(${d.parent}); return 1`); await xOpen();
+    let text='';
+    for(const layer of ['schema','laws','world','simulation','objectives','calibration','decision']) {await xLayer(layer);text+='\n'+await ev('return document.querySelector("#traceView").innerText');}
+    const rec=await xRecord(), json=JSON.stringify(rec);
+    // Negated disclosures ("not tested", "no ... fit") are allowed. Public risk
+    // labels/user names are not evidence grades; this fixture uses known labels.
+    for(const [name,value] of [['view',text],['record',json]]) {
+      xa.doesNotMatch(value,/\b(safe|secure|verified|certified|observed|latent)\b|已认证|已验证|已观测|潜在级|世界模型拟合度/i,lang+' '+name);
+      xa.doesNotMatch(value,/(?:threats? (?:was |were |are )?(?:tested|exercised)|已测试的(?:公开)?威胁)/i,lang+' threat verdict');
+    }
+    const grades=[]; const visit=v=>{if(v&&typeof v==='object') {if(v.grade) grades.push(...Object.values(v.grade)); for(const x of Object.values(v))visit(x);}};visit(rec);
+    xa.ok(grades.every(x=>['declared','simulated','not run'].includes(x)),'record grades');
+    xa.match(text,/Silex (?:mapping|association)|Silex.*(?:映射|关联)/i,'provenance');
+    if(lang==='zh') xa.match(text,/[\u4e00-\u9fff]/);
+    checked.push(lang);
+  }
+  return {pass:true,detail:checked.join(', ')};
+});
+
+await probe('X6', 'before Validate no simulation or candidate results are fabricated', async () => {
+  await load(); await ev(`${S} ctl.confirm(); return 1`); await xOpen();
+  const f=await xFunnel(); for(const k of ['runs','findings','candidates'])xa.equal(f[k].value,'—',k);
+  await xLayer('laws'); xa.equal(await ev('return document.querySelectorAll("[data-family]").length'),0);
+  await xLayer('simulation'); xa.equal(await ev('return document.querySelectorAll("[data-trace-finding]").length'),0);
+  xa.match(await ev('return document.querySelector("#traceView").innerText'),/Run Validate/);
+  const rec=await xRecord();xa.equal(rec.statement,null);xa.equal(rec.promotion.simulation,'not run');
+  return {pass:true,detail:'schema/world state only; null evidence and no simulated promotion'};
+});
+
+await probe('X7', 'decision record pins store evidence and is identical after export/import', async () => {
+  await xSetup(); const d=await xApprove(); await ev(`${S} ctl.setActiveRevision(${d.parent}); return 1`); await xOpen();
+  const doc=await xDoc(), r=xActive(doc), c=r.optimization.candidates.find(c=>c.candidate.id===d.id), rec=await xRecord();
+  xa.equal(rec.blueprint.hash,r.decision.childHash);xa.equal(rec.evaluatedRevision.hash,r.hash);
+  xa.equal(rec.approvedChild.hash,r.decision.childHash);xa.equal(rec.decision.candidate,d.id);
+  xa.deepEqual(rec.candidates.map(c=>c.id).sort(),r.optimization.candidates.map(c=>c.candidate.id).sort());
+  xa.equal(rec.evidence.candidateRunId,c.runId);xa.equal(rec.evidence.scenarioSetId,r.validation.scenarioSetId);
+  xa.equal(rec.evidence.paramsVersion,c.candidate.paramsVersion);xa.equal(rec.evidence.testedParamsVersion,c.testedParamsVersion);xa.equal(rec.evidence.validationJobId,r.validation.jobId);
+  xStatement(rec,c.result);
+  const exported=await ev(`${S} return ctl.exportText()`); await load();
+  await ev(`${S} const r=ctl.importText(${JSON.stringify(exported)}); if(!r.ok) throw Error(JSON.stringify(r)); return 1`);await xOpen();
+  xa.deepEqual(await xRecord(),rec,'record survives import');return {pass:true,detail:`${d.id}, ${c.runId}, stable record`};
+});
+
+await probe('X8', 'public threat identifiers link to official pages and associations carry provenance', async () => {
+  await xSetup(); await xLayer('schema');
+  await ev('document.querySelector("#traceSpine .assoc").open=true; return 1');
+  const links=await ev('return [...document.querySelectorAll("#traceView a[href]")].map(a=>({text:a.textContent.trim(),url:a.href}))');
+  for(const id of xSorted(Object.values(xRelated).flat())) {
+    await xOpen('threat',id);
+    const a=await ev('return [...document.querySelectorAll("#traceInspector a[href]")].map(a=>({text:a.textContent.trim(),url:a.href}))');
+    xa.ok(a.some(a=>a.text===id),'linked identifier '+id);links.push(...a);
+    xa.match(await ev('return document.querySelector("#traceInspector").innerText'),/Silex association|Silex-authored/i);
+  }
+  xa.ok(links.length>6);
+  for(const a of links) {const u=new URL(a.url);xa.equal(u.protocol,'https:');xa.ok(['atlas.mitre.org','genai.owasp.org'].includes(u.hostname),a.url);if(a.text.startsWith('atlas:'))xa.ok(u.pathname.includes(a.text.slice(6)),a.text);}
+  return {pass:true,detail:`${links.length} links checked (no external requests)`};
+});
+
+await probe('X10', 'unmapped counterexamples and inj:a data-access explanation', async () => {
+  await xSetup();await xLayer('schema');
+  const r=xActive(await xDoc()), expected=r.graph.nodes.filter(n=>['data','trigger','decision'].includes(n.type)).map(n=>n.id);
+  const rows=await ev('return [...document.querySelectorAll("[data-unmapped]")].map(e=>({id:e.dataset.unmapped,text:e.innerText}))');
+  xa.deepEqual(rows.map(r=>r.id).sort(),expected.sort());xa.ok(rows.every(r=>r.text.length>20));
+  await xOpen('candidate','inj:a'); const text=await ev('return document.querySelector("#traceInspector").innerText');
+  xa.match(text,/read/i);xa.match(text,/tool/i);xa.doesNotMatch(text,/adds? (?:a )?redact|redaction gate/i);
+  return {pass:true,detail:JSON.stringify({unmapped:expected,inj:'data-access change'})};
+});
+
+await probe('X11', 'approved child cites parent candidate evidence, both hashes and the original scenario set', async () => {
+  await xSetup();const d=await xApprove();await xOpen();
+  const doc=await xDoc(),child=xActive(doc),parent=doc.revisions.find(r=>r.rev===d.parent),c=parent.optimization.candidates.find(c=>c.candidate.id===d.id);
+  const note=await ev('return document.querySelector("#traceChildNote")?.innerText');xa.match(note,/Approved from v1\.0/);xa.match(note,/candidate run/i);
+  const f=await xFunnel();xa.equal(Number(f.runs.value),c.result.runs.length);xa.equal(Number(f.findings.value),c.result.findings.length);
+  const rec=await xRecord();xa.equal(rec.blueprint.hash,child.hash);xa.equal(rec.evaluatedRevision.hash,parent.hash);xa.equal(rec.scenarioSet,parent.validation.scenarioSetId);
+  xa.equal(rec.evidence.candidateRunId,c.runId,`child candidateRunId=${rec.evidence.candidateRunId}; expected ${c.runId}`);xStatement(rec,c.result);
+  await clickSel('#traceChildNote button'); await sleep(200);xa.equal(xActive(await xDoc()).rev,parent.rev);
+  return {pass:true,detail:`child ${child.rev} from ${c.runId} on ${parent.validation.scenarioSetId}`};
+});
+
+await probe('X12', 'modify → stale → retest → human rejection; new revision → confirm → validate → accept', async () => {
+  await xSetup();const id=await ev(`${S} return ctl.recommendedId(st.active())`);
+  // Modify normally auto-retests in one tick. Supersede that job to leave its
+  // real store-generated stale state visible, then use the controller to retest.
+  await ev(`${S} const c=st.active().optimization.candidates.find(c=>c.candidate.id===${JSON.stringify(id)});
+    const p=ctl.modifyCandidate(c.candidate.id,c.candidate.params);st.startJob('cand:'+st.active().rev+':'+c.candidate.id);await p;return 1`);
+  await xOpen('candidate',id);
+  xa.equal(await ev('return document.querySelector("[data-cand-state]")?.dataset.candState'),'stale');
+  let rec=await xRecord();xa.equal(rec.candidates.find(c=>c.id===id).scorecard,null);
+  xa.match((await xFunnel()).candidates.text,/1 untested/);
+  await ev(`${S} const c=st.active().optimization.candidates.find(c=>c.candidate.id===${JSON.stringify(id)});const r=await ctl.modifyCandidate(c.candidate.id,c.candidate.params);if(!r.ok)throw Error(JSON.stringify(r));return 1`);await xOpen('candidate',id);
+  xa.equal(await ev('return document.querySelector("[data-cand-state]")?.dataset.candState'),'eligible');
+  await ev(`${S} ctl.reject(${JSON.stringify(id)});return 1`);await xOpen('candidate',id);
+  xa.equal(await ev('return document.querySelector("[data-cand-state]")?.dataset.candState'),'rejected');
+  xa.match((await xFunnel()).candidates.text,/1 rejected by a person/);
+  await xSetup();await xApprove();
+  await ev(`${S} const n=ctl.newRevision();if(!n.ok)throw Error(JSON.stringify(n));ctl.confirm();await ctl.runValidation(40);return 1`);
+  let r=xActive(await xDoc());
+  if(r.validation.result.findings.length) {
+    // A real, finding-free fixture: always require fully bound single-use approval,
+    // prevent duplicate effects, and move secret reads off the agent.
+    await load();await ev(`${S} const ops=[{op:'setConfig',id:'gate',key:'condition',value:'amount >= 0'},
+      {op:'setConfig',id:'approval',key:'binding',value:['customer','order','amount']},{op:'setConfig',id:'approval',key:'singleUse',value:true},
+      {op:'setConfig',id:'payment',key:'idempotencyKey',value:true},
+      ...G().edges.filter(e=>e.kind==='access'&&G().nodes.find(n=>n.id===e.to.node)?.config.sensitivity==='secret').map(e=>({op:'removeEdge',id:e.id}))];
+      const p=st.dispatch({type:'patch',ops});if(!p.ok)throw Error(JSON.stringify(p));const txt=ctl.exportText();const imp=ctl.importText(txt);if(!imp.ok)throw Error(JSON.stringify(imp));ctl.confirm();await ctl.runValidation(40);return 1`);
+    r=xActive(await xDoc());
+  }
+  xa.equal(r.validation.result.findings.length,0,'accept fixture must be engine-validated clean');
+  await ev(`${S} ctl.go('assurance','decide');return 1`);await sleep(200);await clickSel('#acceptBtn');await xOpen();
+  rec=await xRecord();xa.equal(xActive(await xDoc()).decision.action,'accept');xStatement(rec,r.validation.result);
+  xa.equal(rec.decision.revision,`v1.${r.rev}`,`accept decision.revision=${rec.decision.revision}; expected v1.${r.rev}`);
+  return {pass:true,detail:'stale/retest/rejected and finding-free accept evidence checked'};
+});
+
+await probe('X13', 'approved residual noncritical findings remain in generated statement and rendered record', async () => {
+  await load();await ev(`${S} st.dispatch({type:'patch',ops:G().nodes.filter(n=>n.type==='prohibited').map(n=>({op:'setConfig',id:n.id,key:'severity',value:'high'}))});ctl.confirm();await ctl.runValidation(40);await ctl.runOptimize();return 1`);
+  const r=xActive(await xDoc()),c=r.optimization.candidates.find(c=>c.verdict.eligible&&c.result.findings.length);
+  xa.ok(c,'fixture needs a tested eligible candidate with residual findings');
+  const d=await xApprove(c.candidate.id);await ev(`${S} ctl.setActiveRevision(${d.parent});return 1`);await xOpen();
+  const rec=await xRecord();xStatement(rec,c.result);
+  await clickSel('#recordBtn');await sleep(100);const text=await ev('return document.querySelector("#recStatement").innerText');
+  for(const f of c.result.findings) {xa.ok(text.includes(f.id));xa.ok(text.includes(`${f.violating} / ${f.run}`));}
+  xa.doesNotMatch(text,/no violations/i);await key('Escape','Escape',27);
+  return {pass:true,detail:`${c.candidate.id}: ${c.result.findings.length} residual findings correctly disclosed`};
+});
+
 /* V1: screenshots for the visual review (not pass/fail) */
 if (SHOTS && (!ONLY || ONLY.has('V1'))) {
   for (const lang of ['en', 'zh']) {
@@ -737,6 +998,10 @@ if (SHOTS && (!ONLY || ONLY.has('V1'))) {
     await key('Escape', 'Escape', 27); await sleep(300); await ev(`${S} const e=G().edges.find(e=>e.from.node==='approval'&&e.from.port==='denied'); st.dispatch({type:'patch', ops:[{op:'removeEdge', id:e.id}]}); ctl.setSelected(null); return 1`); await sleep(300);
     await ev(`__bs2.ctl.focusNode('approval'); return 1`); await sleep(700); await stable(); await shot(`v1-${lang}-14-lr-zoom`);
     await ev(`${S} ctl.go('assurance','decide'); return 1`); await sleep(400); await shot(`v1-${lang}-9-decide`);
+  }
+  for (const lang of ['en', 'zh']) {
+    await xSetup({ lang }); await xLayer('simulation'); await shot(`v1-${lang}-15-trace`);
+    await xApprove(); await xOpen(); await clickSel('#recordBtn'); await sleep(200); await shot(`v1-${lang}-16-trace-record`);
   }
   console.log('V1 screenshots written to ' + SHOTS);
 }

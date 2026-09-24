@@ -71,6 +71,23 @@ They are **our own typed security graphs, not imported n8n workflows**. Gmail, S
 | duplicate_submit, injection_exfil | [0, t′) |
 | benign | log-uniform [20, 3000) |
 
+## Decision Trace (决策链路)
+
+The **Trace** view shows how a decision was reached. It lays the Blueprint's own results onto the Security World Model's named layers and the Security Ontology. Plan: [`../logs/2026-09-24_DECISION_TRACE_PROPOSAL.md`](../logs/2026-09-24_DECISION_TRACE_PROPOSAL.md).
+
+- **The spine** lists the world-model layers: Schema, Laws, World State, Simulation, Objectives, Calibration and Decision. Each shows its rung on the ladder of causation, its grade or provenance, and the numbers computed for this revision.
+  - Calibration stays empty: at design time there are no outcome records.
+- **The funnel** is computed, not illustrated. It runs from steps mapped to ontology classes → associated threat classes → declared paths → simulated runs → findings → candidates → a person's decision.
+- **The thread graph** runs: step → ontology class → related public threat → scenario family → finding → candidate → decision. Click anything to follow its thread.
+- **The decision record** (Copy or Download JSON) is shaped like a Policy Change Proposal. It carries a statement generated from the result the decision cites.
+- **Honesty rules:**
+  - Paths are *declared* and outcomes *simulated*; nothing is shown as latent or observed.
+  - Ontology links carry provenance, not a grade. The threat ids are public (ATLAS/OWASP); their links to components come from the Silex bundle `swm-1.0`, are Silex-authored, and are illustrative.
+  - Data, trigger and decision steps are left unmapped, because the declaration does not establish their class.
+  - "Related" never means "tested".
+- **Data:** `ontology/slice.json` is generated from `../swm/data/ontology.json` by `tools/ontology-slice.mjs`; `--check` fails if the slice is stale. The derivation is in `web/src/trace/derive.js` and `mapping.js`, and the rendering in `web/src/trace/*.jsx`.
+- **English-only by design:** the candidate change descriptions and the record JSON.
+
 ## What is real and what is simulated
 
 - **Real:**
