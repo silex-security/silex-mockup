@@ -1,6 +1,6 @@
 # Proposal: Decision Trace — Blueprint validation shown through the Security Ontology and the Security World Model
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.4 — round 3: DeepSeek approved, Codex rejected (2). This revision is for round 4 (changes are listed in §2.3). Needs unanimous approval before any code changes.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.4 — APPROVED unanimously in round 4: DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · CLAUDE: PLAN-APPROVED.**
 
 ## 0. The ask
 
@@ -331,6 +331,8 @@ We do not add D3FEND links. Every `COUNTERS` link in the bundle is Silex-authore
 ### Round 1 (v0.1): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (3)
 
 See §2.1. Both reviewers reproduced the engine numbers in §3.3.
+
+### Round 4 (v0.4): DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
 
 ### Round 3 (v0.3): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (2)
 
