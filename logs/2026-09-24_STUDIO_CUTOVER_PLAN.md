@@ -1,6 +1,6 @@
 # Plan: replace the live site's Blueprint Studio with the React Blueprint Studio, and keep every link consistent
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.4. Round 3: DeepSeek approved, Codex rejected (1); the change is listed in §2.0c. Nothing is changed or pushed before unanimous approval.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.4 — APPROVED unanimously in round 4: DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · CLAUDE: PLAN-APPROVED.**
 
 ## 0. The ask
 
@@ -273,6 +273,8 @@ User direction: give Codex build work.
 - Server-side routing.
 
 ## 6. Review record
+
+### Round 4 (v0.4): DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED, Claude PLAN-APPROVED
 
 ### Round 3 (v0.3): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (1)
 
