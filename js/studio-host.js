@@ -21,9 +21,18 @@ function commandHash(cmd, p = {}) {
   return q.toString();
 }
 
+/* The frame fills the viewport below the host chrome, whatever its height (sidebar collapses on phones). */
+function sizeFrame() {
+  const wrap = document.getElementById('studioFrameWrap'); if (!wrap || !wrap.offsetParent) return;
+  const top = wrap.getBoundingClientRect().top + window.scrollY;
+  wrap.style.height = Math.max(420, window.innerHeight - top - 16) + 'px';
+}
+window.addEventListener('resize', sizeFrame);
+
 /* Called by the site's showView('blueprint'). */
 function studioShown() {
   const wrap = document.getElementById('studioFrameWrap'); if (!wrap) return;
+  requestAnimationFrame(() => { window.scrollTo(0, 0); sizeFrame(); });
   const h = pendingCmd || commandHash('resume'); pendingCmd = null;
   if (!frame) {
     frame = document.createElement('iframe');

@@ -284,7 +284,7 @@ export function renderPcp(container, cards, { onOpen, onTrace } = {}) {
     c.appendChild(body); c.appendChild(s);
     const acts = el(d, 'div', 'row-actions');
     const openBtn = el(d, 'button', 'btn sm'); openBtn.setAttribute('data-studio-open', ''); openBtn.textContent = 'Open in Studio';
-    openBtn.addEventListener('click', () => onOpen && onOpen({ cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'assurance' }));
+    openBtn.addEventListener('click', () => onOpen && onOpen({ cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'assurance', stage: card.state === 'awaiting' ? 'decide' : 'register' }));
     const traceBtn = el(d, 'button', 'btn sm'); traceBtn.setAttribute('data-studio-trace', ''); traceBtn.textContent = 'Trace';
     traceBtn.addEventListener('click', () => onTrace && onTrace({ cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'trace' }));
     acts.appendChild(openBtn); acts.appendChild(traceBtn);

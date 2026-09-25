@@ -1201,7 +1201,7 @@ const incidentData={
 
   function newBlueprint(){ location.href = 'index.html#studio=new'; }
   function openBlueprintForReview(){ location.href = 'index.html#studio'; }
-  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-review-bp],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf],');if(!t||t.disabled)return;const ds=t.dataset;
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-review-bp],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf]');if(!t||t.disabled)return;const ds=t.dataset;
     if(ds.close){$id(ds.close).classList.remove('open');return}
     if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else showView(ds.go);return}
     if(ds.def){defsModal.classList.add('open');const d=$id('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#e9edff'},{background:'#fff'}],{duration:1600})}return}
