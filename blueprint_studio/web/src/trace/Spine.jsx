@@ -1,4 +1,4 @@
-/* The spine (plan §3.1): the Security World Model's named layers, each with
+/* The spine (plan §3.1): the Enterprise World Model's named layers, each with
    its rung, its grade or provenance, and what this revision supplies. Layers
    are named, never numbered (C2). */
 import { t } from '../i18n/index.js';
@@ -25,8 +25,9 @@ export default function Spine({ trace, open, setOpen, onFocus, focus }) {
   const pending = t('trace.pending.validate', 'Run Validate to fill this layer.');
   const isFocus = (k, r) => focus && focus.kind === k && focus.ref === r;
   return (
-    <aside className="spine" id="traceSpine" aria-label={t('trace.spine', 'Security World Model layers')}>
-      <h3 className="spine-title">{t('trace.spine', 'Security World Model layers')}</h3>
+    <aside className="spine" id="traceSpine" aria-label={t('trace.spine', 'Enterprise World Model layers')}>
+      <h3 className="spine-title">{t('trace.spine', 'Enterprise World Model layers')}</h3>
+      <p className="spine-note muted">{t('trace.spine.note', 'These are the world model\'s reasoning layers. The Ontology Graph\'s L1–L4 tiers are a different axis; Schema draws on L1–L3.')}</p>
 
       <Row id="schema" name={t('trace.layer.schema', 'Schema')} rung={1} grade={t('trace.prov.mapping', 'Silex mapping')} open={open} setOpen={setOpen}
         summary={t('trace.schema.sum', '{m} of {n} steps → {c} classes · {a} associated threats', { m: S.mappedCount, n: S.steps.length, c: S.classes.length, a: S.counts.associated })}>

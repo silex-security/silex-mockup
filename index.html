@@ -321,7 +321,8 @@
     #assurance .as-glegend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px;font-size:11px;color:var(--muted);align-items:center}
     @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
     @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
-  </style>
+  .studio-frame-wrap{height:calc(100vh - 150px);min-height:560px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.studio-frame-wrap iframe{display:block;width:100%;height:100%;border:0}.studio-frame-loading{display:grid;place-items:center;height:100%;color:var(--muted);font-size:13px}.studio-pending .muted,.studio-pcp .muted,.studio-lib-rows .muted,.studio-empty{color:var(--muted)}.studio-pending .row{display:grid;grid-template-columns:1fr auto;gap:3px 12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:12px;text-align:left}.studio-pending .row b{font-size:13px}.studio-pending .row>*:not(button){grid-column:1}.studio-pending .row>button{grid-column:2;grid-row:1/span 3}.studio-pending small,.studio-pcp small{font-size:11px}.studio-empty{font-size:12px;padding:6px 2px 10px}.studio-pcp{display:contents}.studio-card{padding:16px}.studio-card ul{margin:8px 0;padding-left:18px;font-size:12px}.studio-card .row-actions,.studio-lib-rows .row-actions{display:flex;gap:8px;margin-top:10px}.studio-lib-rows{padding:0 20px 18px}.studio-lib-rows .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border-top:1px solid var(--line);padding:12px 0;font-size:12px}.studio-lib-rows .row .row-actions{margin:0 0 0 auto}.studio-lib-rows .warn{color:var(--amber)}.studio-pending .btn.sm,.studio-pcp .btn.sm,.studio-lib-rows .btn.sm{padding:7px 11px;font-size:12px;background:#fff;color:var(--ink);border:1px solid var(--line)}.studio-lib-rows .btn.sm:disabled{opacity:.45;cursor:not-allowed}#blueprint.view.active{display:block}@media(max-width:760px){.studio-frame-wrap{height:calc(100vh - 120px);border-radius:10px}}
+</style>
   <style>
     /* ===== 2026-09-21 artifact upgrade (scoped .rx-*; see logs/2026-09-21_ARTIFACT_UPGRADE_PLAN.md) ===== */
     .rx-cap{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);background:var(--amber-bg);border-radius:5px;padding:3px 7px;display:inline-block}
@@ -612,7 +613,7 @@
 <div class="card-head"><div><h2>Policy Decisions</h2><p>Validated recommendations waiting for a human decision</p></div><span class="status review" id="ovPendingCount">2 pending</span></div>
 <div class="pending-list">
 <button class="pending-row" data-open-incident="I-1042"><span><strong>Bind approval to vendor + intent + mutation</strong><small><span class="dom">Finance</span>Vendor Master Update · from incident I-1042</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1042">Review</span></button>
-<button class="pending-row" data-review-bp="1"><span><strong>Manager approval for refunds above $500</strong><small><span class="dom">Customer Service</span>Customer Refund blueprint · pre-deployment</small></span><span class="validated" style="background:var(--soft);color:var(--muted)">Blueprint</span><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></button>
+<div id="ovStudioPending" class="studio-pending"></div>
 <button class="pending-row" data-open-incident="I-1038"><span><strong>Bind control to cumulative outcome</strong><small><span class="dom">Customer Support</span>Refund Resolution · from incident I-1038</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1038">Review</span></button>
 </div>
 </div>
@@ -644,218 +645,7 @@
 </section>
 
 <section class="view" id="blueprint">
-<div class="title-row">
-<div>
-<h1>Agentic Blueprint Studio</h1>
-<p>Describe an intended agentic workflow, confirm it, and validate it before deployment. No production telemetry required.</p>
-</div>
-<div style="display:flex;gap:10px;align-items:center"><span class="lc" id="bpState">Draft</span><span class="pill">No telemetry required</span></div>
-</div>
-<div class="bp-stagebar chg" data-chg="PRD §49 lifecycle" id="bpStages">
-<div class="bp-stage active" data-bp-stage="build"><b>1</b>Build</div><span class="bp-stage-arrow">→</span>
-<div class="bp-stage" data-bp-stage="confirm"><b>2</b>Confirm</div><span class="bp-stage-arrow">→</span>
-<div class="bp-stage" data-bp-stage="validate"><b>3</b>Validate</div><span class="bp-stage-arrow">→</span>
-<div class="bp-stage" data-bp-stage="optimize"><b>4</b>Optimize</div><span class="bp-stage-arrow">→</span>
-<div class="bp-stage" data-bp-stage="decide"><b>5</b>Decide</div><span class="bp-stage-arrow">→</span>
-<div class="bp-stage" data-bp-stage="register"><b>6</b>Register</div>
-<span class="bp-stage-note">Steps 3–5 use the same engine as incident-driven validation</span>
-</div>
-
-<div class="stage-panel active" id="bp-build">
-<div class="next-bar" id="bpLockedNote" style="display:none;margin:0 0 12px"><p><strong>Confirmed v1.0 is locked.</strong> Edits here are not saved to v1.0; create a revision to change the workflow.</p><div><button class="btn secondary" id="reviseFromBuildBtn">Edit as v1.1 draft</button></div></div>
-<div class="bp-builder" id="blueprintBuilder">
-          <div class="card bp-prompt"><div class="bp-prompt-top"><strong>Describe or modify the workflow</strong><span>Natural language compiles into a typed, editable blueprint</span></div><div class="bp-prompt-row"><textarea id="blueprintPrompt">Build a customer refund workflow. Check eligibility, require approval above $500, execute the refund, and notify the customer. Prevent duplicate compensation and unauthorized access to payment credentials.</textarea><button class="btn blue" id="generateBlueprint">Generate / Update</button></div></div>
-          <div class="builder-shell">
-            <div class="builder-main"><div class="builder-toolbar"><div class="builder-toolbar-left"><strong>Customer Refund · Draft v1.0</strong><span class="evidence-tag" id="groundingBadge">Grounding 91%</span></div><div class="builder-toolbar-right"><button class="tool-btn" id="addAgentBtn">＋ Agent</button><button class="tool-btn" id="addControlBtn">＋ Control</button><button class="tool-btn" id="autoLayoutBtn">Auto layout</button><span class="evidence-tag">Drag nodes to edit</span><span class="evidence-tag chg" data-chg="图例">▭ Agent · ◆ Control point</span></div></div>
-              <div class="bp-canvas-wrap"><div class="bp-canvas" id="blueprintCanvas"><svg class="bp-lines" id="blueprintLines"><line data-from="bp-trigger" data-to="bp-triage"/><line data-from="bp-triage" data-to="bp-eligibility"/><line data-from="bp-eligibility" data-to="bp-decision"/><line data-from="bp-decision" data-to="bp-approval"/><line data-from="bp-approval" data-to="bp-refund"/><line data-from="bp-refund" data-to="bp-payment"/><line data-from="bp-payment" data-to="bp-outcome"/><line class="branch" data-from="bp-payment" data-to="bp-risk"/></svg>
-                <div class="bp-node trigger" id="bp-trigger" data-node-type="Trigger" data-node-name="Customer Refund Request" style="left:20px;top:55px"><div class="bp-node-head"><small>Trigger</small><span>⋮⋮</span></div><strong>Customer Request</strong><select aria-label="Customer request channel"><option>Support chat</option><option>Email</option><option>API event</option><option>Support ticket</option></select><div class="node-meta">Untrusted input boundary</div></div>
-                <div class="bp-node agent" id="bp-triage" data-node-type="Agent Role" data-node-name="Request Triage Agent" style="left:230px;top:55px"><div class="bp-node-head"><small>Agent role</small><span>⋮⋮</span></div><strong>Request Triage</strong><select class="component-select" aria-label="Triage agent candidate"><option>Internal Triage Agent v4</option><option>Vendor Agent A</option><option>Rules + LLM Hybrid</option></select><div class="node-meta">Read: request · customer profile</div></div>
-                <div class="bp-node agent selected" id="bp-eligibility" data-node-type="Agent Role" data-node-name="Refund Eligibility Agent" style="left:440px;top:55px"><div class="bp-node-head"><small>Agent role</small><span>⋮⋮</span></div><strong>Refund Eligibility</strong><select class="component-select" aria-label="Eligibility agent candidate"><option>Internal Refund Agent v3</option><option>Vendor Agent X</option><option>Vendor Agent Y</option><option>Rules + LLM Hybrid</option></select><div class="node-meta">Read: policy · transaction history</div></div>
-                <div class="bp-node decision" id="bp-decision" data-node-type="Business Constraint" data-node-name="Refund Amount Decision" style="left:650px;top:55px"><div class="bp-node-head"><small>Decision</small><span>⋮⋮</span></div><strong>Refund amount &gt; $500?</strong><select aria-label="Refund threshold"><option>Threshold: $500</option><option>Threshold: $1,000</option><option>Risk-based threshold</option></select><div class="node-meta">Finance baseline · FIN-R12</div></div>
-                <div class="bp-node control chg" data-chg="control point 与 agent 形状/颜色区分" id="bp-approval" data-node-type="Control / Agent Role" data-node-name="Approval Agent" style="left:650px;top:225px"><div class="bp-node-head"><small>Control point</small><span>⋮⋮</span></div><strong>Approval Agent</strong><select class="component-select" aria-label="Approval candidate"><option>Human + Policy Gate</option><option>Internal Approval Agent</option><option>Dual Authorization</option><option>Vendor Approval Agent Z</option></select><div class="node-meta">Bind: user · intent · exact amount</div></div>
-                <div class="bp-node agent" id="bp-refund" data-node-type="Agent Role" data-node-name="Refund Execution Agent" style="left:440px;top:225px"><div class="bp-node-head"><small>Agent role</small><span>⋮⋮</span></div><strong>Refund Execution</strong><select class="component-select" aria-label="Refund execution candidate"><option>Internal Payments Agent</option><option>Vendor Agent P</option><option>Workflow Service</option></select><div class="node-meta">Authority: execute approved refund</div></div>
-                <div class="bp-node tool" id="bp-payment" data-node-type="Tool / MCP" data-node-name="Payment API" style="left:230px;top:225px"><div class="bp-node-head"><small>Tool / MCP</small><span>⋮⋮</span></div><strong>Payment API</strong><select class="component-select" aria-label="Payment tool candidate"><option>Internal Payment MCP</option><option>Processor API</option><option>Payment Orchestrator</option></select><div class="node-meta">Write capability · financial side effect</div></div>
-                <div class="bp-node outcome" id="bp-outcome" data-node-type="Legitimate Outcome" data-node-name="Refund Resolved" style="left:20px;top:225px"><div class="bp-node-head"><small>Outcome</small><span>⋮⋮</span></div><strong>Refund Resolved</strong><select aria-label="Outcome SLA"><option>SLA: under 2 minutes</option><option>SLA: under 1 hour</option></select><div class="node-meta">Customer notified · ledger updated</div></div>
-                <div class="bp-node prohibited" id="bp-risk" data-node-type="Prohibited Outcome" data-node-name="Unauthorized Refund" style="left:230px;top:405px"><div class="bp-node-head"><small>Prohibited outcome</small><span>⋮⋮</span></div><strong>Unauthorized Refund</strong><select aria-label="Outcome severity"><option>Severity: Critical</option><option>Severity: High</option></select><div class="node-meta">Declared path candidate</div></div>
-              </div></div>
-            </div>
-            <aside class="card node-inspector"><div class="inspector-head"><div><small>Node Inspector</small><strong id="inspectorName">Refund Eligibility Agent</strong></div><span class="status running" id="inspectorType">Agent Role</span></div><div class="inspector-body"><div class="inspector-section"><h3>Role & implementation</h3><div class="field"><label>Role</label><input id="inspectorRole" value="Evaluate refund eligibility" /></div><div class="field"><label>Implementation candidate</label><select id="inspectorCandidate"><option>Internal Refund Agent v3</option><option>Vendor Agent X</option><option>Vendor Agent Y</option><option>Rules + LLM Hybrid</option></select></div><div class="component-card"><strong id="componentTitle">Internal Refund Agent v3</strong><p id="componentDescription">Customer VPC · Existing internal component · Independently tested</p><div class="component-tags"><span>94% grounding</span><span>PII access</span><span>No delegation</span></div></div></div><div class="inspector-section"><h3>Authority & resources</h3><div class="field"><label>Permission scope</label><select><option>Read transaction history</option><option>Read customer profile</option><option>No resource access</option></select></div><div class="field"><label>Credential</label><select><option>Scoped workload identity</option><option>Delegated user token</option><option>No credential</option></select></div></div><div class="inspector-section"><div class="preflight"><b>!</b><div><strong>Draft preflight · 2 hints</strong><span>Approval binding and payment credential isolation need confirmation. Not a validation result.</span></div></div></div><button class="btn secondary" id="removeNodeBtn" style="width:100%;justify-content:center">Remove selected node</button></div></aside>
-          </div>
-          <div class="card builder-footer"><div class="draft-state"><strong>Draft</strong> · Finance Development · Declared environment · 9 typed nodes</div><div class="builder-actions"><button class="btn secondary" id="saveDraftBtn">Save draft</button><button class="btn primary" id="confirmBlueprintBtn">Next: Confirm Blueprint →</button></div></div>
-        </div>
-        
-</div>
-
-<div class="stage-panel" id="bp-confirm">
-<div class="card confirm-card chg" data-chg="PRD §12: Confirm Blueprint">
-<div>
-<span class="status running">Customer Refund · Draft v1.0</span>
-<div class="confirm-statement">“This graph accurately represents the workflow that the enterprise intends to deploy.”</div>
-<p>Confirming locks v1.0. Further edits create a new revision. Only a confirmed Blueprint is treated as a simulated enterprise workflow and can be validated.</p>
-<div class="check-row"><b>✓</b>9 typed nodes · 8 relationships · 2 control points</div>
-<div class="check-row"><b>✓</b>Business constraint: refunds above $500 need approval (currently declared as autonomous up to $2,000)</div>
-<div class="check-row"><b>✓</b>Owner: Customer Support Operations · Domain: Customer Service</div>
-<div class="check-row pending"><label><input type="checkbox" id="confirmAck"> I confirm this is the workflow we intend to deploy</label></div>
-</div>
-<div>
-<div class="wf-fact" style="margin-bottom:10px"><small>Version</small><strong>v1.0 (draft)</strong></div>
-<div class="wf-fact" style="margin-bottom:10px"><small>Environment</small><strong>Simulated · Customer Service domain</strong></div>
-<div class="wf-fact"><small>After confirmation</small><strong>Validate Blueprint</strong></div>
-</div>
-</div>
-<div class="card check-actions" id="confirmActions">
-<p>Draft → <b>Confirmed</b>. The confirmed version cannot be edited in place.</p>
-<div><button class="btn secondary" id="backToBuildBtn">← Back to edit</button><button class="btn primary" id="confirmBtn" disabled>Confirm Blueprint</button></div>
-</div>
-<div class="card check-actions" id="confirmDone" style="display:none">
-<p><b>Blueprint v1.0 confirmed.</b> SILEX now treats it as a simulated version of a real enterprise workflow.</p>
-<div><button class="btn secondary" id="reviseBtn">Edit as v1.1 draft</button><button class="btn blue" id="startValidateBtn">Validate Blueprint →</button></div>
-</div>
-</div>
-
-<div class="stage-panel" id="bp-validate">
-<div class="card section-card chg" data-chg="PRD §13-14: baseline validation">
-<div class="card-head"><div><h2>Validation · baseline simulation</h2><p>If this workflow were deployed, which unsafe security or business outcomes would be reachable?</p></div><span class="status running" id="valStatus">Validation running</span></div>
-<div class="body"><div class="run-steps" id="valSteps">
-<div class="run-step"><i></i><div>Load confirmed Blueprint v1.0 into the simulation environment</div><span>simulated agents</span></div>
-<div class="run-step"><i></i><div>Run baseline simulation without new controls</div><span>1,200 scenarios</span></div>
-<div class="run-step"><i></i><div>Explore alternative paths to each unsafe outcome</div><span>agents · tools · privileges</span></div>
-<div class="run-step"><i></i><div>Summarize findings and reachability</div><span>ranked by severity</span></div>
-</div></div>
-</div>
-<div id="valResults" style="display:none">
-<div class="two-col">
-<div class="card chg" data-chg="PRD §14 finding categories">
-<div class="card-head"><div><h2>Security findings</h2><p>Baseline, before any recommended policy <span class="tbd">Taxonomy TBD</span></p></div><span class="status blocked">Risk identified</span></div>
-<div class="body" style="padding:0 20px 18px"><table class="matrix">
-<thead><tr><th>Finding</th><th>Category</th><th>Severity</th><th>Ontology basis</th></tr></thead>
-<tbody>
-<tr><td class="bold">Support Agent can issue refunds up to $2,000 without approval</td><td><span class="finding-cat">Missing Approval</span></td><td><span class="status blocked">Critical</span></td><td><span class="tbd">TBD</span></td></tr>
-<tr><td class="bold">Approval can be reused across refund requests</td><td><span class="finding-cat">Workflow Logic Risk</span></td><td><span class="status review">High</span></td><td><span class="tbd">TBD</span></td></tr>
-<tr><td class="bold">Payment credential reaches the notification context</td><td><span class="finding-cat">Data Exposure</span></td><td><span class="status review">High</span></td><td><span class="tbd">TBD</span></td></tr>
-<tr><td class="bold">Triage and payment agents can split one refund into several</td><td><span class="finding-cat">Cross-Agent Risk</span></td><td><span class="status review">High</span></td><td><span class="tbd">TBD</span></td></tr>
-</tbody></table></div>
-</div>
-<div class="card chg" data-chg="PRD §14: reachability">
-<div class="card-head"><div><h2>Reachability</h2><p>Is each unsafe outcome still reachable? · <button class="def-link" data-def="residual">definition</button></p></div></div>
-<div class="body" style="padding:0 20px 18px">
-<div class="rec-metric"><span>Unauthorized refund</span><b style="color:var(--red)">Reachable · 4 paths</b></div>
-<div class="rec-metric"><span>Duplicate compensation</span><b style="color:var(--red)">Reachable · 2 paths</b></div>
-<div class="rec-metric"><span>Payment credential exposure</span><b style="color:var(--amber)">Reachable · 1 path</b></div>
-<div class="rec-metric"><span>Residual reachability</span><b>18%</b></div>
-<div class="rec-metric"><span>Defense confidence</span><b>64%</b></div>
-</div>
-</div>
-</div>
-<div class="card section-card chg" data-chg="PRD §15: alternative paths">
-<div class="card-head"><div><h2>Alternative paths to “Unauthorized refund”</h2><p>Blocking one path does not prove the failure is closed</p></div><span class="status blocked">3 paths open</span></div>
-<div class="body">
-<div class="outcome-target"><b>Unsafe outcome:</b> refund issued without the required approval</div>
-<div class="grade-legend"><span class="grade g-obs">Observed</span> exercised in your runtime graph · <span class="grade g-lat">Latent</span> asserted possible by type over your real agents, no trace yet · <span class="grade g-dec">Declared</span> from configuration, before deploy</div>
-<div class="path-stack">
-<div class="path-row blocked"><strong>Path A</strong><span><span class="grade g-obs">Observed</span> Customer request → Support Agent → Refund above $2,000 → Payment API</span><span class="status" style="background:var(--green-bg);color:var(--green)">Blocked</span></div>
-<div class="path-row open"><strong>Path B</strong><span><span class="grade g-lat">Latent</span> Support Agent → $1,900 refund (below existing limit) → Payment API <em style="color:var(--muted)">· RefundLimit constraint permits amounts under threshold</em></span><span class="status blocked">Open</span></div>
-<div class="path-row open"><strong>Path C</strong><span><span class="grade g-lat">Latent</span> Triage Agent splits → two $950 refunds → Payment API <em style="color:var(--muted)">· aggregation not bound per customer</em></span><span class="status blocked">Open</span></div>
-<div class="path-row open"><strong>Path D</strong><span><span class="grade g-lat">Latent</span> Reused approval token → Refund Execution Agent → new refund <em style="color:var(--muted)">· ApprovalToken reusable across executions</em></span><span class="status blocked">Open</span></div>
-</div>
-</div>
-</div>
-<div class="card check-actions">
-<p>Risk identified. Next, SILEX generates policy candidates and tests each one in simulation before recommending anything.</p>
-<div><button class="btn blue" id="toOptimizeBtn">Generate and test policy candidates →</button></div>
-</div>
-</div>
-</div>
-
-<div class="stage-panel" id="bp-optimize">
-<div class="card section-card chg" data-chg="PRD §16-17: validated candidates">
-<div class="card-head"><div><h2>Policy candidates · each tested in simulation</h2><p>Current: Support Agent may issue refunds up to $2,000 autonomously</p></div><span class="status" style="background:var(--green-bg);color:var(--green)">Recommendation ready</span></div>
-<div class="body"><div class="cand-grid">
-<div class="cand rejected"><span class="rej-tag">Rejected</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>A · Require dual approval above $1,000</h3><p>Closes the largest refunds; leaves $500–$1,000 refunds autonomous.</p><div class="six-obj"><div><span class="ov ok">−79%</span><span class="ol">risk reduction</span></div><div><span class="ov">3 / 4 paths</span><span class="ol">coverage</span></div><div><span class="ov">+6%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">low</span><span class="ol">cost</span></div><div><span class="ov">−18 ms</span><span class="ol">performance</span></div></div><div class="rej-why">Rejected — one latent path (below-limit refund) stays open; coverage incomplete.</div></div>
-<div class="cand best"><span class="rec">RECOMMENDED</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>B · Require manager approval above $500</h3><p>Closes paths B, C and D; no effect on refunds below $500.</p><div class="six-obj"><div><span class="ov ok">−91%</span><span class="ol">risk reduction</span></div><div><span class="ov ok">4 / 4 paths</span><span class="ol">coverage</span></div><div><span class="ov">+12%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">low</span><span class="ol">cost</span></div><div><span class="ov">−18 ms</span><span class="ol">performance</span></div></div></div>
-<div class="cand rejected"><span class="rej-tag">Rejected</span><span class="validated">✓ Validated · 2,400 scenarios</span><h3>C · Autonomous refunds only for verified merchants</h3><p>Strong security, but blocks most legitimate first-time customers.</p><div class="six-obj"><div><span class="ov ok">−88%</span><span class="ol">risk reduction</span></div><div><span class="ov ok">4 / 4 paths</span><span class="ol">coverage</span></div><div><span class="ov bad">+31%</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">med</span><span class="ol">cost</span></div><div><span class="ov">−40 ms</span><span class="ol">performance</span></div></div><div class="rej-why">Rejected — closes every path but business friction (+31%) fails the Objectives bar.</div></div>
-</div></div>
-</div>
-<div class="side-by-side chg" data-chg="PRD §19: path ↔ control" style="margin-bottom:18px">
-<div class="sbs-col"><h3>Residual paths</h3><p>What stays reachable today</p>
-<div class="path-stack">
-<div class="path-row open"><strong>Path B</strong><span>$1,900 refund below the current limit</span><span class="status blocked">Open</span></div>
-<div class="path-row open"><strong>Path C</strong><span>Split into two $950 refunds</span><span class="status blocked">Open</span></div>
-<div class="path-row open"><strong>Path D</strong><span>Reused approval token</span><span class="status blocked">Open</span></div>
-</div></div>
-<div class="sbs-col"><h3>Recommended control</h3><p>The intervention designed to close them</p>
-<div class="pick on"><span class="validated">✓</span><span><strong>Manager approval for refunds above $500</strong><small>Approval bound to the customer, transaction and amount; aggregated per customer per day</small></span><span class="status" style="background:var(--green-bg);color:var(--green)">Closes B · C · D</span></div>
-</div>
-</div>
-<div class="card section-card chg" data-chg="PRD §18: recommendation card">
-<div class="card-head"><div><h2>Policy Change Proposal</h2><p>Ranked candidates, tested in simulation — promoted through shadow and canary before production</p></div><span class="validated">✓ Validated</span></div>
-<div class="rec-card">
-<div class="rec-box"><small>Current state</small><div class="rec-metric"><span>Defense confidence</span><b>64%</b></div><div class="rec-metric"><span>Residual reachability</span><b>18%</b></div><div class="rec-metric"><span>Critical paths open</span><b>6</b></div></div>
-<div class="rec-arrow">→</div>
-<div class="rec-box intervention"><small>Recommended intervention</small><strong id="bpRecText">Require manager approval for refunds greater than $500.</strong><p>Candidate B · validated against 2,400 scenarios</p></div>
-<div class="rec-arrow">→</div>
-<div class="rec-box validated-state"><small>Validated state</small><div class="rec-metric"><span>Defense confidence</span><b id="bpValDC">91%</b></div><div class="rec-metric"><span>Residual reachability</span><b id="bpValRR">3%</b></div><div class="rec-metric"><span>Critical paths open</span><b id="bpValPaths">1</b></div></div>
-</div>
-<div class="impact-row">
-<div class="impact"><b id="bpImpact1">+12%</b>workflows require approval</div>
-<div class="impact"><b id="bpImpact2">+18 sec</b>estimated median latency</div>
-<div class="impact"><b>No effect</b>on refunds below $500</div>
-</div>
-<div class="rationale"><b>Why, in type terms:</b> the open paths are <b>authorization-scope evasion</b> — the amount threshold and a reusable approval token let a delegated identity reach the same prohibited outcome below the covered limit. Binding approval to customer + transaction + amount closes the class, not just path A.</div>
-<div class="promo"><span class="plabel">Validation stage</span><span class="stg done">Simulation</span><span class="arr">→</span><span class="stg on">Shadow</span><span class="arr">→</span><span class="stg">Canary</span><span class="arr">→</span><span class="stg">Production</span><span class="pnote">No policy reaches production from simulation alone. Rollback is preserved at every stage.</span></div>
-</div>
-<div class="card check-actions">
-<p>Recommendation ready. The decision stays with a human.</p>
-<div><button class="btn blue" id="toDecideBtn">Review decision →</button></div>
-</div>
-</div>
-
-<div class="stage-panel" id="bp-decide">
-<div class="card section-card chg" data-chg="PRD §20: Approve / Modify / Reject">
-<div class="card-head"><div><h2>Decision · Customer Refund Blueprint v1.0</h2><p>Human approval is required in V1</p></div><span class="lc warn" id="bpDecisionChip">Ready for approval</span></div>
-<div class="body" style="padding:0 20px 16px">
-<div class="rec-metric"><span>Recommendation</span><b id="bpDecisionText">Require manager approval for refunds greater than $500</b></div>
-<div class="rec-metric"><span>Validated state</span><b id="bpDecisionState">Defense 91% · Reachability 3% · 1 critical path</b></div>
-<div class="rec-metric"><span>Business impact</span><b id="bpDecisionImpact">+12% approvals · +18 sec median latency</b></div>
-<div class="deploy-note"><b>On approval</b>, SILEX opens a pull request against your policy-as-code — it never sits inline and never holds the enforcement decision; you deploy through the surface you already own. <b>Rollback</b> covers agent-side state (context, session, cached scope); business effects get a compensating-action recommendation executed through your systems.</div>
-</div>
-<div class="decision-state" id="bpDecisionMsg"></div>
-<div class="modify-form" id="bpModifyForm">
-<div class="field"><label>Approval threshold</label><select id="bpThreshold"><option value="500">Above $500</option><option value="750">Above $750</option><option value="1000">Above $1,000</option></select></div>
-<div class="field"><label>Required approver</label><select><option>Support manager</option><option>Finance manager</option><option>Dual approval</option></select></div>
-<button class="btn blue" id="bpRerunBtn">Re-run validation</button>
-</div>
-<div class="decision-bar">
-<p>Approve accepts the validated recommendation. Modify changes its parameters and re-runs validation. Reject returns to the other candidates.</p>
-<div><button class="btn danger" id="bpRejectBtn">Reject</button><button class="btn secondary" id="bpModifyBtn">Modify</button><button class="btn blue" id="bpApproveBtn">Approve</button></div>
-</div>
-</div>
-</div>
-
-<div class="stage-panel" id="bp-register">
-<div class="card confirm-card chg" data-chg="PRD §22: Register Workflow">
-<div>
-<h2 style="margin:0 0 6px;font-size:18px">Register Workflow</h2>
-<p>Registration adds the workflow to the enterprise inventory. It does not deploy it to production.</p>
-<div class="check-row"><b>✓</b>Blueprint v1.0 confirmed</div>
-<div class="check-row"><b>✓</b>Validation completed · 3 unsafe outcomes evaluated</div>
-<div class="check-row"><b>✓</b>Recommendation approved · manager approval above $<span id="bpRegThreshold">500</span></div>
-<div class="check-row"><b>✓</b>Required controls accepted</div>
-</div>
-<div>
-<div class="wf-fact" style="margin-bottom:10px"><small>After registration</small><strong>Registered · not deployed</strong></div>
-<div class="wf-fact"><small>Later</small><strong>Mark as deployed → short-term revalidation on change</strong></div>
-</div>
-</div>
-<div class="card check-actions" id="registerActions">
-<p>Approved → <b>Registered</b></p>
-<div><button class="btn primary" id="registerBtn">Register Workflow</button></div>
-</div>
-<div class="card check-actions" id="registerDone" style="display:none">
-<p><b>Registered.</b> Customer Refund is now in the Workflow Library as <b>Registered · not deployed</b>.</p>
-<div><button class="btn secondary" data-jump="library">Workflow Library</button><button class="btn blue" data-open-workflow="WF-041">Open workflow →</button></div>
-</div>
-</div>
+<div class="studio-frame-wrap" id="studioFrameWrap"><div class="studio-frame-loading" id="studioFrameLoading">Opening Blueprint Studio…</div></div>
 </section>
 
 <section class="view" id="incidents">
@@ -1060,6 +850,7 @@
 </table>
 </div>
 <div class="workflow-grid" id="libCards" style="display:none"></div>
+<div class="card section-card studio-lib"><div class="card-head"><div><h2>Registered from Blueprint Studio</h2><p>This browser · not deployed · computed by Blueprint Studio (simulated)</p></div></div><div id="libStudioGroup" class="studio-lib-rows"></div></div>
 </section>
 
 <section class="view" id="workflow">
@@ -1097,7 +888,7 @@
 </div><div class="decision-state" id="wfRevalResult" style="margin:12px 0 0"></div></div>
 </div>
 <div class="card section-card">
-<div class="card-head"><div><h2>Workflow graph</h2><p>High-level view; open Agentic Blueprint Studio for the editable graph</p></div></div>
+<div class="card-head"><div><h2>Workflow graph</h2><p>Illustrative fixture — it has no Blueprint document. <button class="def-link" data-new-blueprint="1">Model a workflow in Blueprint Studio →</button></p></div></div>
 <div class="wf-graph" id="wfGraph"></div>
 </div>
 <div class="two-col">
@@ -1147,13 +938,7 @@
 <div class="workflow-meta"><div><strong>62→93%</strong><span>DEFENSE</span></div><div><strong>21→2%</strong><span>REACHABILITY</span></div><div><strong>+420ms</strong><span>LATENCY</span></div></div>
 <button class="btn secondary" data-review-inc="I-1042">Review in context →</button>
 </article>
-<article class="card workflow-card">
-<div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></div>
-<h3>Manager approval for refunds above $500</h3>
-<p>Customer Refund · Agentic Blueprint v1.0 · pre-deployment · closes paths B, C, D</p>
-<div class="workflow-meta"><div><strong>64→91%</strong><span>DEFENSE</span></div><div><strong>18→3%</strong><span>REACHABILITY</span></div><div><strong>+12%</strong><span>APPROVALS</span></div></div>
-<button class="btn secondary" data-review-bp="1">Review in context →</button>
-</article>
+<div id="pcpStudioCards" class="studio-pcp"></div>
 <article class="card workflow-card">
 <div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status review" data-rec-status="I-1038">Ready for approval</span></div>
 <h3>Bind control to cumulative outcome</h3>
@@ -1170,7 +955,6 @@
 <table class="queue-table">
 <thead><tr><th>Workflow</th><th>Policy recommendation</th><th>Impact</th><th>Confidence</th><th>Status</th></tr></thead>
 <tbody>
-<tr data-review-bp="1"><td class="incident-name">Refund Processing</td><td>Approval &gt; $500</td><td>High</td><td>94%</td><td><span class="status running" data-rec-status="BP-REFUND">Awaiting validation</span></td></tr>
 <tr data-review-inc="I-1031"><td class="incident-name">Procurement</td><td>Vendor restriction</td><td>Medium</td><td>91%</td><td><span class="status review" data-rec-status="I-1031">Review</span></td></tr>
 <tr data-review-inc="I-1007"><td class="incident-name">IT Access</td><td>Reduce agent scope</td><td>High</td><td>96%</td><td><span class="status review" data-rec-status="I-1007">Review</span></td></tr>
 <tr data-review-inc="I-1042"><td class="incident-name">Vendor Master Update</td><td>Bind approval to vendor + intent + mutation</td><td>High</td><td>93%</td><td><span class="status review" data-rec-status="I-1042">Review</span></td></tr>
@@ -1354,7 +1138,7 @@
 <div class="modal-backdrop" id="defsModal">
 <div class="modal wide">
 <h2>Definitions</h2>
-<p>Product terminology from the V1 PRD. Metric formulas are still TBD; values on these pages are illustrative.</p>
+<p>Product terminology from the V1 PRD. Metric formulas are still TBD; values on these pages are illustrative — except Blueprint Studio, which computes its results on the declared graph (simulated outcomes, declared adversary model).</p>
 <div class="def-list">
 <div class="def-item" id="def-blueprint"><strong>Agentic Blueprint</strong><p>A pre-deployment, user-confirmed representation of an intended agentic workflow, used for simulation and security validation.</p></div>
 <div class="def-item" id="def-validation"><strong>Validation</strong><p>Testing whether unsafe outcomes remain reachable within a workflow or the enterprise environment.</p></div>
@@ -1380,7 +1164,7 @@
 <div class="chg-list">
 <div class="chg-item"><strong>Navigation</strong><span>Regrouped into Workspace (Overview, Blueprint Studio, Workflow Library) · Security (Incident Queue, Policy Review) · Environment. Proving Ground and Sim-to-Real pages removed; Integrations hidden (V2).</span><button class="btn secondary" data-go="overview">Go</button></div>
 <div class="chg-item"><strong>Overview</strong><span>Enterprise security posture metrics, Domain Suites, Workflow Coverage, Policy Decisions; secondary modules collapsed. World Model Coverage moved to the Enterprise World Model page.</span><button class="btn secondary" data-go="overview">Go</button></div>
-<div class="chg-item"><strong>Agentic Blueprint Studio</strong><span>Build → Confirm → Validate → Optimize → Decide → Register, with findings, alternative paths, validated candidates, recommendation card and Approve / Modify / Reject.</span><button class="btn secondary" data-go="blueprint">Go</button></div>
+<div class="chg-item"><strong>Agentic Blueprint Studio</strong><span>9/24: now the computed Blueprint Studio (editor, templates, Ask AI, Validate → Optimize → Decide → Register, Decision Trace). Its pending decisions, PCP cards and registrations appear on Overview, PCP and the Workflow Library, labelled simulated.</span><button class="btn secondary" data-go="blueprint">Go</button></div>
 <div class="chg-item"><strong>Incident Queue</strong><span>PRD summary metrics and filters.</span><button class="btn secondary" data-go="incidents">Go</button></div>
 <div class="chg-item"><strong>Incident detail</strong><span>Evidence → paths → candidates → recommendation → decision; causal graph kept as technical detail.</span><button class="btn secondary" data-go="incident">Go</button></div>
 <div class="chg-item"><strong>Workflow Library</strong><span>Inventory table, lifecycle and deployment status, Registered vs Deployed.</span><button class="btn secondary" data-go="library">Go</button></div>
@@ -1396,19 +1180,6 @@
 
 <div class="toast" id="toast">Ready</div>
 <script>
-const bpCanvas=document.getElementById('blueprintCanvas');let selectedBPNode=document.getElementById('bp-eligibility'),bpNodeCounter=0;
-  function drawBlueprintEdges(){if(!bpCanvas)return;const canvasRect=bpCanvas.getBoundingClientRect();document.querySelectorAll('#blueprintLines line').forEach(line=>{const a=document.getElementById(line.dataset.from),b=document.getElementById(line.dataset.to);if(!a||!b){line.style.display='none';return}line.style.display='';const ar=a.getBoundingClientRect(),br=b.getBoundingClientRect();line.setAttribute('x1',ar.left-canvasRect.left+ar.width/2);line.setAttribute('y1',ar.top-canvasRect.top+ar.height/2);line.setAttribute('x2',br.left-canvasRect.left+br.width/2);line.setAttribute('y2',br.top-canvasRect.top+br.height/2)})}
-  function componentCopy(value){if(value.includes('Vendor'))return 'External managed component · Third-party trust boundary · Vendor-declared evidence';if(value.includes('Human'))return 'Human approval with policy enforcement · High assurance · Adds review latency';if(value.includes('Rules'))return 'Customer VPC · Lower autonomy · High explainability';if(value.includes('MCP'))return 'Customer-managed MCP binding · Scoped write capability';return 'Customer VPC · Existing internal component · Independently tested'}
-  function selectBPNode(node){if(!node)return;selectedBPNode=node;document.querySelectorAll('.bp-node').forEach(n=>n.classList.toggle('selected',n===node));document.getElementById('inspectorName').textContent=node.dataset.nodeName;document.getElementById('inspectorType').textContent=node.dataset.nodeType;const local=node.querySelector('select'),inspector=document.getElementById('inspectorCandidate');inspector.innerHTML='';if(local){[...local.options].forEach(o=>inspector.add(new Option(o.text,o.value,o.selected,o.selected)));inspector.disabled=false;document.getElementById('componentTitle').textContent=local.value;document.getElementById('componentDescription').textContent=componentCopy(local.value)}else{inspector.add(new Option('No implementation binding',''));inspector.disabled=true;document.getElementById('componentTitle').textContent='Semantic node';document.getElementById('componentDescription').textContent='Defined by the workflow blueprint and ontology grounding'}}
-  function attachBPNode(node){node.addEventListener('click',e=>{if(!e.target.closest('select'))selectBPNode(node)});const local=node.querySelector('select');if(local)local.addEventListener('change',()=>{selectBPNode(node);document.getElementById('componentTitle').textContent=local.value;document.getElementById('componentDescription').textContent=componentCopy(local.value)});const handle=node.querySelector('.bp-node-head');if(handle)handle.addEventListener('pointerdown',e=>{e.preventDefault();selectBPNode(node);const startX=e.clientX,startY=e.clientY,startL=parseFloat(node.style.left)||0,startT=parseFloat(node.style.top)||0;handle.setPointerCapture(e.pointerId);const move=ev=>{node.style.left=Math.max(0,Math.min(bpCanvas.clientWidth-node.offsetWidth,startL+ev.clientX-startX))+'px';node.style.top=Math.max(0,Math.min(bpCanvas.clientHeight-node.offsetHeight,startT+ev.clientY-startY))+'px';drawBlueprintEdges()};const up=()=>{handle.removeEventListener('pointermove',move);handle.removeEventListener('pointerup',up);document.getElementById('groundingBadge').textContent='Draft changed · re-grounding'};handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',up)})}
-  document.querySelectorAll('.bp-node').forEach(attachBPNode);requestAnimationFrame(drawBlueprintEdges);window.addEventListener('resize',drawBlueprintEdges);
-  document.getElementById('inspectorCandidate').addEventListener('change',e=>{const local=selectedBPNode&&selectedBPNode.querySelector('select');if(local){local.value=e.target.value;document.getElementById('componentTitle').textContent=e.target.value;document.getElementById('componentDescription').textContent=componentCopy(e.target.value);document.getElementById('groundingBadge').textContent='Draft changed · re-grounding'}});
-  document.getElementById('generateBlueprint').addEventListener('click',()=>{document.getElementById('groundingBadge').textContent='Grounding 93% · Updated';bpCanvas.animate([{opacity:.72},{opacity:1}],{duration:420});notify('Blueprint updated from natural-language instruction')});
-  function addBlueprintNode(type){bpNodeCounter++;const node=document.createElement('div');node.className='bp-node '+(type==='Control'?'control':'agent');node.id='bp-added-'+bpNodeCounter;node.dataset.nodeType=type==='Control'?'Control':'Agent Role';node.dataset.nodeName=type==='Control'?'New Control Point':'New Agent Role';node.style.left=(520+bpNodeCounter*24)+'px';node.style.top=(390+bpNodeCounter*18)+'px';node.innerHTML=`<div class="bp-node-head"><small>${type==='Control'?'Control point':'Agent role'}</small><span>⋮⋮</span></div><strong>${node.dataset.nodeName}</strong><select><option>${type==='Control'?'Policy Gate':'Select component'}</option><option>${type==='Control'?'Human Approval':'Internal Agent Template'}</option></select><div class="node-meta">New unconnected node · configure in inspector</div>`;bpCanvas.appendChild(node);attachBPNode(node);selectBPNode(node);document.getElementById('groundingBadge').textContent='Draft changed · re-grounding';notify(type+' added to blueprint')}
-  document.getElementById('addAgentBtn').addEventListener('click',()=>addBlueprintNode('Agent'));document.getElementById('addControlBtn').addEventListener('click',()=>addBlueprintNode('Control'));
-  document.getElementById('autoLayoutBtn').addEventListener('click',()=>{const positions={"bp-trigger":[20,55],"bp-triage":[230,55],"bp-eligibility":[440,55],"bp-decision":[650,55],"bp-approval":[650,225],"bp-refund":[440,225],"bp-payment":[230,225],"bp-outcome":[20,225],"bp-risk":[230,405]};Object.entries(positions).forEach(([id,p])=>{const n=document.getElementById(id);if(n){n.style.left=p[0]+'px';n.style.top=p[1]+'px'}});drawBlueprintEdges();notify('Blueprint layout normalized')});
-  document.getElementById('removeNodeBtn').addEventListener('click',()=>{if(!selectedBPNode)return;const name=selectedBPNode.dataset.nodeName;selectedBPNode.remove();selectedBPNode=document.querySelector('.bp-node');selectBPNode(selectedBPNode);drawBlueprintEdges();document.getElementById('groundingBadge').textContent='Draft changed · re-grounding';notify(name+' removed from draft')});
-  document.getElementById('saveDraftBtn').addEventListener('click',()=>notify('Blueprint draft saved'));
   
 const suiteData={
     finance:{name:'Finance',title:'Finance Domain Suite',description:'Finance-specific entities, permissions, controls, business constraints, and prohibited outcomes mapped to the agent systems that execute them.',ontology:'Finance Security Pack v2.6',owner:'CFO · Finance Operations',systems:'AP Agent · Treasury Agent',runtime:'6.8K entities · 21.4K edges',capabilities:[['Accounts Payable','Invoice Processing · Vendor Management · Payment Approval','3 open incidents'],['Treasury','Cash Management · Liquidity Forecasting · Bank Operations','1 open incident'],['Controllership','Journal Entry · Close · Reconciliation','0 open incidents']]},
@@ -1434,7 +1205,7 @@ const incidentData={
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
   const viewNames={assurance:'Assurance',overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','short-term':'Pre-release','long-term':'System Validation','security-model':'Enterprise World Model'};
-  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint')requestAnimationFrame(drawBlueprintEdges);if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
+  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
   document.getElementById('regAssurance').addEventListener('click',()=>showView('assurance'));
   document.getElementById('regOps').addEventListener('click',()=>showView('overview'));
@@ -1451,7 +1222,7 @@ const incidentData={
   function setRecStatus(key,text,cls){document.querySelectorAll('[data-rec-status="'+key+'"]').forEach(el=>{el.textContent=text;el.className='status '+(cls||'')})}
   // Pending decisions are counted once per item (fix 5-C).
   const pending=new Set(['I-1042','I-1038']);
-  function refreshPending(){setText('ovPendingCount',pending.size+' pending')}
+  function refreshPending(){setText('ovPendingCount',(pending.size+(window.studioAwaitingCount||0))+' pending')}
   function addPending(k){pending.add(k);refreshPending()}
   function resolvePending(k){pending.delete(k);refreshPending()}
 
@@ -1493,7 +1264,7 @@ const incidentData={
     const inc=w.incident&&incidentData[w.incident];
     const activity=w.activity||[['Latest incident',inc?w.incident+' · '+inc.title:'None','View'],['Latest policy change',inc?inc.candidate+' · recommended':'—',''],['Latest revalidation',w.last+' · '+w.validation,''],['Latest deployment change',w.deploy,'']];
     $id('wfActivity').innerHTML=activity.map(a=>`<div class="activity-row"><small>${a[0]}</small><span>${a[1]}</span>${a[2]&&inc?`<button class="def-link" data-open-incident="${w.incident}">${a[2]} →</button>`:'<span></span>'}</div>`).join('');
-    const detail=w.detail||[['Evidence',inc?inc.summary:'No production evidence yet.'],['Alternative paths',inc?inc.paths.join(' · '):'From blueprint validation: paths B, C and D closed by the approved control.'],['Control history',inc?inc.control+' in place; candidate: '+inc.candidate:'Manager approval control added at registration.'],['Policy history',w.policies+' approved policies'],['Validation runs','Last run '+w.last+' · '+w.validation]];
+    const detail=w.detail||[['Evidence',inc?inc.summary:'No production evidence yet.'],['Alternative paths',inc?inc.paths.join(' · '):'Illustrative: no Blueprint document is linked to this fixture workflow.'],['Control history',inc?inc.control+' in place; candidate: '+inc.candidate:'Illustrative: manager approval control added at registration.'],['Policy history',w.policies+' approved policies'],['Validation runs','Last run '+w.last+' · '+w.validation]];
     $id('wfDetail').innerHTML=detail.map(d=>`<details><summary>${d[0]}</summary><div class="detail-body">${d[1]}</div></details>`).join('');
     showView('workflow')}
   $id('wfIncidentBtn').addEventListener('click',()=>{const w=workflowData[currentWorkflow];if(w.incident)renderIncident(w.incident)});
@@ -1508,52 +1279,7 @@ const incidentData={
     ST_CHANGES.unshift({icon:'D',title:'New deployment',sub:w.name+' moved to production',tag:'Deployment',cls:'running'});if(!ST_AFFECTED.some(a=>a.id===id))ST_AFFECTED.push({id,trigger:'Deployment'});
     renderShortTerm();renderLibrary();openWorkflow(id);notify('Marked as deployed · queued for Workflow Validation')});
 
-  // Blueprint lifecycle with guards (fixes 5-A, 5-B, 5-C, 5-N).
-  const BP_ORDER=['build','confirm','validate','optimize','decide','register'];
-  let bpReached=0,bpConfirmed=false,bpValidated=false,bpDecision=null,bpRegistered=false;
-  const reach=name=>{bpReached=Math.max(bpReached,BP_ORDER.indexOf(name))};
-  function setBpStage(name){const idx=BP_ORDER.indexOf(name);document.querySelectorAll('#bpStages .bp-stage').forEach((s,k)=>{s.classList.toggle('done',k<idx||(bpRegistered&&k<=bpReached));s.classList.toggle('active',k===idx&&!bpRegistered);s.classList.toggle('reachable',k<=bpReached&&k!==idx)});
-    document.querySelectorAll('#blueprint .stage-panel').forEach(p=>p.classList.toggle('active',p.id==='bp-'+name));$id('bpLockedNote').style.display=name==='build'&&bpConfirmed?'flex':'none';$id('registerBtn').disabled=bpDecision!=='approved'||bpRegistered;if(name==='decide')renderBpDecision();if(name==='build')requestAnimationFrame(drawBlueprintEdges);window.scrollTo({top:0,behavior:'smooth'})}
-  document.querySelectorAll('#bpStages .bp-stage').forEach(s=>s.addEventListener('click',()=>{if(BP_ORDER.indexOf(s.dataset.bpStage)<=bpReached)setBpStage(s.dataset.bpStage)}));
-  function setBpState(text,cls){const el=$id('bpState');el.textContent=text;el.className='lc'+(cls?' '+cls:'')}
-  $id('confirmBlueprintBtn').addEventListener('click',()=>{reach('confirm');setBpStage('confirm')});
-  $id('backToBuildBtn').addEventListener('click',()=>setBpStage('build'));
-  $id('confirmAck').addEventListener('change',e=>{$id('confirmBtn').disabled=!e.target.checked});
-  $id('confirmBtn').addEventListener('click',()=>{bpConfirmed=true;reach('validate');setBpState('Confirmed','ok');$id('confirmActions').style.display='none';$id('confirmDone').style.display='flex';document.querySelector('.builder-toolbar strong').textContent='Customer Refund · Confirmed v1.0';setBpStage('confirm');notify('Blueprint v1.0 confirmed')});
-  function reviseBlueprint(label){bpConfirmed=false;bpValidated=false;bpDecision=null;bpReached=0;setBpState('Draft');$id('confirmDone').style.display='none';$id('confirmActions').style.display='flex';$id('confirmAck').checked=false;$id('confirmBtn').disabled=true;$id('valResults').style.display='none';document.querySelector('.builder-toolbar strong').textContent=label;setRecStatus('BP-REFUND','Awaiting validation','running');resolvePending('BP-REFUND');renderBpDecision();setBpStage('build')}
-  $id('reviseBtn').addEventListener('click',()=>{reviseBlueprint('Customer Refund · Draft v1.1');$id('groundingBadge').textContent='New revision · v1.0 stays confirmed';notify('Created draft v1.1; v1.0 is unchanged')});
-  $id('reviseFromBuildBtn').addEventListener('click',()=>$id('reviseBtn').click());
-  $id('startValidateBtn').addEventListener('click',()=>{setBpStage('validate');setBpState('Validating');$id('valResults').style.display='none';const st=$id('valStatus');st.textContent='Validation running';st.className='status running';
-    runSteps($id('valSteps'),{onDone:()=>{bpValidated=true;reach('optimize');$id('valResults').style.display='block';st.textContent='Risk identified';st.className='status blocked';setBpState('Risk identified','bad');setBpStage('validate');setRecStatus('BP-REFUND','Ready for approval','review');if(bpDecision!=='approved')addPending('BP-REFUND')}})});
-  $id('toOptimizeBtn').addEventListener('click',()=>{reach('optimize');setBpStage('optimize');if(!bpDecision)setBpState('Recommendation ready')});
-  $id('toDecideBtn').addEventListener('click',()=>{reach('decide');if(bpDecision==='rejected')bpDecision=null;setBpStage('decide');if(!bpDecision)setBpState('Ready for approval','warn')});
-  function renderBpDecision(){const locked=bpDecision==='approved';['bpApproveBtn','bpModifyBtn','bpRejectBtn','bpRerunBtn'].forEach(x=>$id(x).disabled=locked);const chip=$id('bpDecisionChip');
-    if(locked){chip.textContent=bpRegistered?'Approved · registered':'Approved';chip.className='lc ok';$id('bpModifyForm').classList.remove('open');setMsgHtml($id('bpDecisionMsg'),bpRegistered?'Decision recorded: approved, and the workflow is registered.':'Decision recorded: approved. <button class="def-link" data-bp-go="register">Continue to Register →</button>','approved')}
-    else{chip.textContent='Ready for approval';chip.className='lc warn';if(bpDecision!=='rejected')$id('bpDecisionMsg').className='decision-state'}}
-  const BP_VARIANTS={500:{dc:91,rr:3,paths:1,app:12,lat:18},750:{dc:86,rr:6,paths:2,app:8,lat:12},1000:{dc:79,rr:9,paths:3,app:6,lat:9}};
-  $id('bpModifyBtn').addEventListener('click',()=>$id('bpModifyForm').classList.toggle('open'));
-  $id('bpRerunBtn').addEventListener('click',()=>{if(bpDecision==='approved')return;const t=$id('bpThreshold').value,v=BP_VARIANTS[t],amt=Number(t).toLocaleString();setMsg($id('bpDecisionMsg'),'Re-running validation with approval above $'+amt+'…','');setBpState('Candidate testing');
-    setTimeout(()=>{setText('bpValDC',v.dc+'%');setText('bpValRR',v.rr+'%');setText('bpValPaths',v.paths);setText('bpImpact1','+'+v.app+'%');setText('bpImpact2','+'+v.lat+' sec');const txt='Require manager approval for refunds greater than $'+amt;setText('bpRecText',txt+'.');setText('bpDecisionText',txt);setText('bpDecisionState','Defense '+v.dc+'% · Reachability '+v.rr+'% · '+v.paths+' critical path'+(v.paths===1?'':'s'));setText('bpDecisionImpact','+'+v.app+'% approvals · +'+v.lat+' sec median latency');setText('bpRegThreshold',amt);setMsg($id('bpDecisionMsg'),'Validation re-run for approval above $'+amt+'. Updated validated state shown.','approved');setBpState('Ready for approval','warn');$id('bpModifyForm').classList.remove('open')},900)});
-  $id('bpRejectBtn').addEventListener('click',()=>{if(bpDecision==='approved')return;bpDecision='rejected';resolvePending('BP-REFUND');setMsg($id('bpDecisionMsg'),'Rejected. Returning to the other candidates.','rejected');setBpState('Rejected','bad');setRecStatus('BP-REFUND','Rejected','blocked');setTimeout(()=>setBpStage('optimize'),900)});
-  $id('bpApproveBtn').addEventListener('click',()=>{if(bpDecision==='approved')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for Customer Refund Blueprint v1.0.',box:'<strong>'+$id('bpDecisionText').textContent+'</strong><br>'+$id('bpDecisionState').textContent+'<br><br>Next: register the workflow. Approval does not deploy anything.',onConfirm:()=>{bpDecision='approved';reach('register');resolvePending('BP-REFUND');setBpState('Approved','ok');setRecStatus('BP-REFUND','Approved','');renderBpDecision();setTimeout(()=>{if(!bpRegistered)setBpStage('register')},600)}})});
-  $id('registerBtn').addEventListener('click',()=>{if(bpRegistered||bpDecision!=='approved')return;const thr=$id('bpRegThreshold').textContent;
-    workflowData['WF-041']={name:'Customer Service · Customer Refund',domain:'Customer Service',desc:'Refund requests with triage, eligibility, manager approval above $'+thr+' and payment execution. Registered from Agentic Blueprint v1.0.',owner:'Customer Support Operations',sec:'CX Security',agents:4,tools:2,resources:2,controls:3,policies:1,lifecycle:'Registered',validation:'Approved',last:'Today',deploy:'Registered · not deployed',risk:'Low',coverage:'91%',defense:$id('bpValDC').textContent,reach:$id('bpValRR').textContent,open:$id('bpValPaths').textContent,incident:null,graph:[['Customer request','Input'],['Request Triage','Agent'],['Refund Eligibility','Agent'],['Manager approval > $'+thr,'Control'],['Payment API','Tool'],['Refund resolved','Outcome']],activity:[['Registered','Today · from Agentic Blueprint v1.0',''],['Recommendation approved','Manager approval above $'+thr,''],['Validation completed','Baseline + 3 candidates · 2,400 scenarios each',''],['Deployment','Not deployed yet','']]};
-    bpRegistered=true;renderLibrary();$id('registerActions').style.display='none';$id('registerDone').style.display='flex';setBpState('Registered','ok');setBpStage('register');notify('Registered · Customer Refund added to the Workflow Library (not deployed)')});
-  function resetBlueprint(){reviseBlueprint('New workflow · Draft v1.0');bpRegistered=false;$id('registerActions').style.display='flex';$id('registerDone').style.display='none';$id('groundingBadge').textContent='New draft';setBpStage('build')}
-  function newBlueprint(){showView('blueprint');if(bpRegistered){resetBlueprint();notify('Started a new Agentic Blueprint draft; Customer Refund stays in the Workflow Library')}else if(bpReached>0){setBpStage(BP_ORDER[bpReached]);notify('Continuing the blueprint in progress')}else setBpStage('build')}
-  function openBlueprintForReview(){showView('blueprint');if(bpRegistered){setBpStage('register');notify('Already approved and registered');return}
-    if(bpValidated){setBpStage(bpDecision==='approved'?'register':bpReached>=4?'decide':'optimize');return}
-    setBpStage(BP_ORDER[Math.min(bpReached,2)]);notify('Confirm and validate this blueprint before reviewing its recommendation')}
-
-  // Inspector fields update the selected node (fixes 4-4, 4-5).
-  const inspectorField=label=>[...document.querySelectorAll('.node-inspector .field')].find(f=>f.querySelector('label')&&f.querySelector('label').textContent.trim()===label);
-  const scopeSel=inspectorField('Permission scope').querySelector('select'),credSel=inspectorField('Credential').querySelector('select');
-  const baseSelectBPNode=selectBPNode;
-  selectBPNode=function(node){baseSelectBPNode(node);if(!node)return;$id('inspectorRole').value=node.dataset.role||node.dataset.nodeName||'';if(node.dataset.scope)scopeSel.value=node.dataset.scope;if(node.dataset.cred)credSel.value=node.dataset.cred};
-  const markChanged=()=>{$id('groundingBadge').textContent='Draft changed · re-grounding'};
-  $id('inspectorRole').addEventListener('input',e=>{const n=selectedBPNode;if(!n)return;n.dataset.role=e.target.value;n.dataset.nodeName=e.target.value;const s=n.querySelector('strong');if(s)s.textContent=e.target.value;setText('inspectorName',e.target.value);markChanged()});
-  [scopeSel,credSel].forEach(sel=>sel.addEventListener('change',()=>{const n=selectedBPNode;if(!n)return;n.dataset.scope=scopeSel.value;n.dataset.cred=credSel.value;const m=n.querySelector('.node-meta');if(m)m.textContent=scopeSel.value+' · '+credSel.value;markChanged()}));
-
+  // Blueprint Studio: the React app in an iframe (js/studio-host.js; cutover plan 2026-09-24).
 
   /* ---- 9/15: incidents, policy review, environment, security model, modals, init ---- */
   const INC_WF={'I-1042':'WF-021','I-1038':'WF-014','I-1031':'WF-008','I-1019':'WF-033','I-1007':'WF-005','I-0994':'WF-026'};
@@ -1807,26 +1533,28 @@ const incidentData={
   toggleHighlights.addEventListener('click',()=>setHighlights(!document.body.classList.contains('show-changes')));
   [decisionModal,defsModal,changesModal].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
 
-  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-review-bp],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf],[data-bp-go]');if(!t||t.disabled)return;const ds=t.dataset;
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf]');if(!t||t.disabled)return;const ds=t.dataset;
     if(ds.close){$id(ds.close).classList.remove('open');return}
     if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else showView(ds.go);return}
     if(ds.def){defsModal.classList.add('open');const d=$id('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#e9edff'},{background:'#fff'}],{duration:1600})}return}
-    if(ds.newBlueprint){newBlueprint();return}
+    if(ds.newBlueprint){if(window.openStudio)window.openStudio('new');else showView('blueprint');return}
     if(ds.revalidateWf){revalidateWorkflow(ds.revalidateWf);return}
-    if(ds.bpGo){setBpStage(ds.bpGo);return}
     if(ds.libRisk||ds.libUnregistered){showView('library');$id('deployFilter').value=ds.libUnregistered?'Not registered':'';$id('riskFilter').value=ds.libRisk?'atrisk':'';$id('workflowSearch').value='';$id('domainFilter').value='';renderLibrary();return}
     if(ds.openWorkflow){openWorkflow(ds.openWorkflow);return}
     if(ds.openIncident){renderIncident(ds.openIncident);return}
     if(ds.reviewInc){renderIncident(ds.reviewInc);setIncTab(2);return}
-    if(ds.reviewBp){openBlueprintForReview();return}
     if(ds.incident){renderIncident(ds.incident);return}
     if(ds.suiteJump){showView('security-model');document.querySelector('[data-wm-panel="wm-landscape"]').click();const c=document.querySelector('[data-suite="'+ds.suiteJump+'"]');if(c)c.click();return}
     if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next system validation');return}
     if(ds.jump){showView(ds.jump)}});
 
-  setRecStatus('BP-REFUND','Awaiting validation','running');refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
+  refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
+  /* Hooks for js/studio-host.js (cutover plan 2026-09-24 §2.4). */
+  window.__siteShowView=showView;window.__siteRefreshPending=refreshPending;window.__siteNotify=notify;
+  if(window.studioHostReady)window.studioHostReady();
 
 </script>
+<script type="module" src="js/studio-host.js"></script>
 <script src="swm/js/swm-loader.js"></script>
 <script defer src="swm/js/swm-vowl.js"></script>
 <script defer src="swm/js/swm-vowl-ui.js"></script>

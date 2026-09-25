@@ -73,7 +73,7 @@ They are **our own typed security graphs, not imported n8n workflows**. Gmail, S
 
 ## Decision Trace (决策链路)
 
-The **Trace** view shows how a decision was reached. It lays the Blueprint's own results onto the Security World Model's named layers and the Security Ontology. Plan: [`../logs/2026-09-24_DECISION_TRACE_PROPOSAL.md`](../logs/2026-09-24_DECISION_TRACE_PROPOSAL.md).
+The **Trace** view shows how a decision was reached. It lays the Blueprint's own results onto the Enterprise World Model's named layers and the Ontology Graph. Plan: [`../logs/2026-09-24_DECISION_TRACE_PROPOSAL.md`](../logs/2026-09-24_DECISION_TRACE_PROPOSAL.md).
 
 - **The spine** lists the world-model layers: Schema, Laws, World State, Simulation, Objectives, Calibration and Decision. Each shows its rung on the ladder of causation, its grade or provenance, and the numbers computed for this revision.
   - Calibration stays empty: at design time there are no outcome records.

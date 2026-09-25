@@ -16,6 +16,7 @@ import Decide from './assurance/Decide.jsx';
 import Register from './assurance/Register.jsx';
 import { lint } from '../../js/validate.js';
 import TraceView from './trace/TraceView.jsx';
+import { EMBED } from './embed.js';
 
 const STAGES = ['confirm', 'validate', 'optimize', 'decide', 'register'];
 export function stageEnabled(st) {
@@ -88,7 +89,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <a className="brand" href="https://silex-mockup.vercel.app/" title="SILEX"><span className="logo" />SILEX</a>
+        {EMBED ? null : <a className="brand" href="https://silex-mockup.vercel.app/" title="SILEX"><span className="logo" />SILEX</a>}
         <div className="doc">
           <strong className="doc-name" title={doc.name}>{doc.name}</strong>
           <select id="revSelect" aria-label={t('top.revision', 'Revision')} value={rev.rev} onChange={e => ctl.setActiveRevision(Number(e.target.value))}>

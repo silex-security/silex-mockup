@@ -6,6 +6,7 @@
 import { useSyncExternalStore } from 'react';
 import { createStore } from '../../../js/store.js';
 import { lint } from '../../../js/validate.js';
+import { publishSummary } from './summary.js';
 
 const storage = (() => { try { localStorage.setItem('bs2.t', '1'); localStorage.removeItem('bs2.t'); return localStorage; } catch { return null; } })();
 export const store = createStore({ storage, lint });
@@ -14,6 +15,16 @@ let version = 0;
 const listeners = new Set();
 export function bump() { version++; for (const l of listeners) l(); }
 store.on(() => bump());
+
+/* Cutover plan §2.3: republish bs.summary.v1 (rebuilt from every saved document)
+   after store changes, and re-read registrations written by other contexts. */
+let publishTimer = 0;
+export function schedulePublish(delay = 120) { clearTimeout(publishTimer); publishTimer = setTimeout(() => publishSummary(storage), delay); }
+store.on(() => schedulePublish());
+if (typeof window !== 'undefined') window.addEventListener('storage', e => {
+  if (e.key && e.key.startsWith('bs.reg.')) { store.refreshInventory(); bump(); }
+});
+export { storage };
 
 const subscribe = fn => { listeners.add(fn); return () => listeners.delete(fn); };
 export function useStudio() { return useSyncExternalStore(subscribe, () => version); }

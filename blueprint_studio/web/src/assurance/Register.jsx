@@ -15,7 +15,7 @@ export default function Register() {
   const parent = rev.origin === 'approve' ? store.revision(rev.parent) : rev;
   const d = parent.decision;
   const title = t('register.title', 'Register');
-  const sub = t('register.sub', 'Registration adds the workflow to the enterprise inventory. It does not deploy it to production.');
+  const sub = t('register.sub', 'Registration adds the workflow to the workflow inventory in this browser. It does not deploy it to production.');
   const policy = ctl.policyText(rev.rev);
 
   const copy = async () => {

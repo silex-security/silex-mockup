@@ -69,6 +69,14 @@ export function boot() {
   bump();
 }
 function resetSession() { route.selected = null; route.focus = null; pending.clearAll(); run.current = null; run.view = null; run.history = []; route.panel = null; route.decideId = null; }
+/* Opens a document that embed.js has already validated (cutover plan §2.2). */
+export function openDocument(doc, rev, view = 'assurance', stage = null) {
+  route.gallery = false;
+  store.load(doc); resetSession();
+  store.dispatch({ type: 'setActive', rev });
+  route.view = view; if (stage) route.stage = stage;
+  bump();
+}
 export function setActiveRevision(rev) { const r = store.dispatch({ type: 'setActive', rev }); pending.clearAll(); return r; }
 export function newRevision() {
   const r = store.dispatch({ type: 'newRevision', from: store.active().rev });

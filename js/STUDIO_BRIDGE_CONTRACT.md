@@ -7,14 +7,14 @@
 | `blueprint_studio/web/src/state/summary.js` | Claude (done) | Publishes `bs.summary.v1` (schema in the plan §2.3) and `fnv1a(raw)` |
 | `blueprint_studio/js/store.js` | Claude (done) | Registrations under `bs.reg.<encodeURIComponent(docId\|rev\|hash)>`; `readRegistrations(storage)` |
 | `tests/site/fixtures/storage.sample.json` | Claude (done) | Real `bs.doc.*`, `bs.reg.*` and `bs.summary.v1` values. It holds one document per state: awaiting approve; approved with a non-recommended candidate and the child registered; awaiting accept, with an HTML-looking name |
-| `js/studio-bridge.mjs` | DeepSeek | Pure logic and DOM renderers (below). No globals, no `innerHTML` |
+| `js/studio-bridge.js` | DeepSeek | Pure logic and DOM renderers (below). No globals, no `innerHTML` |
 | `tests/site/studio-bridge.test.mjs` | DeepSeek | node tests over the fixture and mutated copies |
 | `assurance.html` | DeepSeek | Retire the duplicate Studio (plan §2.5) |
-| `js/studio-host.mjs` | Claude | The frame, `window.openStudio`, storage listeners, and calls to the bridge renderers |
+| `js/studio-host.js` | Claude | The frame, `window.openStudio`, storage listeners, and calls to the bridge renderers |
 | `index.html` | Claude | Removes the legacy Studio; adds the containers below |
 | `tests/site/run-site-probes.mjs` | Codex | S1–S12 |
 
-## `js/studio-bridge.mjs` API (ES module, browser and node)
+## `js/studio-bridge.js` API (ES module, browser and node)
 
 ```js
 export function fnv1a(str)                    // identical to summary.js
@@ -50,7 +50,7 @@ export function renderUnavailable(container, reason)
 | `#pcpStudioCards` | PCP page | cards `[data-studio-pcp="<key>"][data-state="awaiting\|approved\|accepted"]`, with `[data-studio-open]` and `[data-studio-trace]` |
 | `#libStudioGroup` | Workflow Library | rows `[data-studio-reg="<key>"]`, with `[data-studio-open]` (disabled when `[data-source-replaced]`) and `[data-studio-trace]` |
 | `[data-studio-summary="unavailable"]` | any of the three containers | shown when `readSummary` fails; no numbers are rendered |
-| `window.openStudio(cmd, params)` | global, from `studio-host.mjs` | `cmd` ∈ `resume` \| `new` \| `open` |
+| `window.openStudio(cmd, params)` | global, from `studio-host.js` | `cmd` ∈ `resume` \| `new` \| `open` |
 
 Keys are the registration key `docId|rev|hash`. A pending or PCP row for an unregistered revision uses the same form.
 

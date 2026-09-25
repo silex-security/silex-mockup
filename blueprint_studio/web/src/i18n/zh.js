@@ -564,7 +564,7 @@ export default {
 
   // register
   'register.title': '注册',
-  'register.sub': '注册会把该工作流加入企业清单。它不会部署到生产环境。',
+  'register.sub': '注册会把该工作流加入本浏览器中的工作流清单。它不会部署到生产环境。',
   'register.confirmed': '{rev} 已确认 · 哈希 {hash}…',
   'register.evidence': '验证证据：{set} · 已测场景中剩余 {n} 项发现',
   'register.decision': '决策：在 {rev} 上批准了“{label}”',
@@ -742,7 +742,7 @@ export default {
   'trace.state.stale': '已修改·未测试',
   'trace.state.rejected': '被人工拒绝',
   'trace.state.approved': '已批准',
-  'trace.spine': '安全世界模型各层',
+  'trace.spine': '企业世界模型各层',
   'trace.rung.title': '因果阶梯：1 关联 · 2 干预 · 3 反事实',
   'trace.rung': '第 {n} 阶',
   'trace.pending.validate': '运行验证以填充这一层。',
@@ -843,4 +843,6 @@ export default {
   'trace.unmapped.control': '控制类型既未声明为人工决策，也未声明为策略引擎。',
   'trace.inspect.attributedMany': '由其中之一产生（违规路径上能产生该效果的步骤）',
   'trace.inspect.differsPossible': '与上面列出的可能产生者不同',
+  'trace.spine.note': '这些是世界模型的推理层。本体图（Ontology Graph）的 L1–L4 层级是另一条轴；模式层（Schema）取自 L1–L3。',
+  'embed.missing': '此修订已不在本浏览器保存的文档副本中。',
 };

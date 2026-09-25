@@ -8,11 +8,18 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
   - **Operations**: the security-team dashboard.
 
   The left nav is an **Agent Lifecycle** rail: Blueprint Studio → Pre-release → PCP · Policy → Incident Queue.
-- **Security World Model:** the sub-tabs are *Security Ontology* (default), *Ontology Layers*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
+- **Blueprint Studio:** the computed Blueprint Studio from [`blueprint_studio/`](blueprint_studio/README.md), embedded in the Blueprint Studio view.
+  - It includes the editor, templates, Ask AI, Validate → Optimize → Decide → Register, and the Decision Trace.
+  - Its pending decisions, PCP cards and registrations appear on Overview, PCP · Policy and the Workflow Library, stored in this browser.
+  - How it is wired: [`js/STUDIO_BRIDGE_CONTRACT.md`](js/STUDIO_BRIDGE_CONTRACT.md), plan [`logs/2026-09-24_STUDIO_CUTOVER_PLAN.md`](logs/2026-09-24_STUDIO_CUTOVER_PLAN.md).
+- **Enterprise World Model:** the sub-tabs are *Ontology Graph* (default), *Ontology Layers*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
   - They are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists.
-  - The Security Ontology opens on the animated **Network** view (WebVOWL-style).
+  - The Ontology Graph opens on the animated **Network** view (WebVOWL-style).
   - What was built and why: [`SECURITY_WORLD_MODEL.md`](SECURITY_WORLD_MODEL.md). Code and data pipeline: [`swm/`](swm/README.md).
-- **Figures are illustrative.** All agents are simulated; no engine runs behind the page. Public ontology data is real (see [`swm/data/SOURCES.md`](swm/data/SOURCES.md)).
+- **Figures are illustrative, except in Blueprint Studio.**
+  - Blueprint Studio runs a deterministic engine on the declared graph: simulated outcomes under a declared adversary model, with no real agents or tools.
+  - Every other panel is illustrative.
+  - Public ontology data is real (see [`swm/data/SOURCES.md`](swm/data/SOURCES.md)).
 
 ## What changed, and when
 

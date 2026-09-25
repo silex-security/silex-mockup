@@ -387,3 +387,5 @@
 .rec-rationale{font-size:12px;margin:6px 0 !important}
 .rec-json{max-height:40vh;overflow:auto;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:11px;font-family:var(--mono)}
 @media (max-width:1100px){.tr-body{grid-template-columns:300px minmax(0,1fr)}.tr-right{display:none}}
+.spine-note{font-size:11px;margin:0 4px 8px;line-height:1.4}
+html[data-embed="1"] .topbar{padding-left:12px}
