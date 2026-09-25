@@ -1,6 +1,6 @@
 # Plan: replace the live site's Blueprint Studio with the React Blueprint Studio, and keep every link consistent
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.3. Round 2: DeepSeek approved, Codex rejected (3); the changes are listed in §2.0b. Nothing is changed or pushed before unanimous approval.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.4. Round 3: DeepSeek approved, Codex rejected (1); the change is listed in §2.0c. Nothing is changed or pushed before unanimous approval.**
 
 ## 0. The ask
 
@@ -53,7 +53,13 @@ In English:
 |---|---|---|
 | Codex 1 | The load path mutates state before validating | §2.2: parse, import-check, revision and hash checks all run **before** any store call. A refused command leaves the document, the active revision, storage and jobs unchanged, and a test checks this |
 | Codex 2 | A 200-character id limit excludes valid imports | The limit is removed: any non-empty string, as `io.importDocument` accepts. A test reopens a registered document whose id is longer than 200 characters |
-| Codex 3 | Two open contexts can overwrite each other's registrations (the store writes its cached inventory array) | `js/store.js` (Claude) makes the inventory **merge-safe**. `register` re-reads `bs.inventory` from storage immediately before writing and merges by key. A new `store.syncInventory()` merges the stored array with memory (union by key) and is called on `storage` events for `bs.inventory`. S12 registers from two contexts and checks that both entries survive a reload |
+| Codex 3 | Two open contexts can overwrite each other's registrations (the store writes its cached inventory array) | `js/store.js` (Claude) makes the inventory **merge-safe** (superseded in v0.4 by per-key registrations, §2.0c). `register` re-reads `bs.inventory` from storage immediately before writing and merges by key. A new `store.syncInventory()` merges the stored array with memory (union by key) and is called on `storage` events for `bs.inventory`. S12 registers from two contexts and checks that both entries survive a reload |
+
+### 2.0c Revision from round 3 (v0.4)
+
+| # | Defect | Change |
+|---|---|---|
+| Codex 1 | Read-merge-write can still lose a registration across tabs if the overwritten writer closes before repairing | Each registration is persisted under **its own key**, `bs.reg.<encodeURIComponent(docId\|rev\|hash)>`. Unrelated registrations never write the same key, so none can overwrite another; the same key is idempotent. The inventory is the union of `bs.reg.*`. The old `bs.inventory` array is read once, migrated into per-key entries, and left in place, never rewritten. S12 forces overlapping writes and closes a writer immediately |
 
 ### 2.1 Embed the Studio in an iframe; don't mount it into the host page
 
@@ -140,17 +146,18 @@ Each writer rebuilds the whole summary, so two tabs converge: the last writer wi
 - So a stale summary, from before the lazy iframe ever loads in this session, can never show claims for a document it doesn't match.
 - The host re-reads the summary on load, on every `storage` event (the iframe's writes reach the host document), and on every host view change.
 
-**Inventory is merge-safe** (Codex r2 #3). The one engine change:
-- `store.register` re-reads `bs.inventory` from storage just before writing, then merges by `key` (union; an existing key wins), writes and updates memory.
-- `store.syncInventory()` performs the same merge without adding anything. The controller calls it on `storage` events for `bs.inventory` and whenever it publishes the summary.
-
-Same-origin frames in one tab share one event loop, so the read-merge-write runs as one step between them. Across tabs, a racing write is repaired: the next `storage` event triggers a merge, and the union is written back.
+**Inventory is conflict-free by construction** (Codex r2 #3, r3 #1). The one engine change, in `js/store.js`:
+- `register` writes one key per registration, `bs.reg.<encodeURIComponent(key)>`, with `key = docId|rev|hash`. If the key already exists, its entry is returned unchanged. No array is rewritten.
+- `inventory()` returns the union of every `bs.reg.*` entry, sorted by `registeredAt` then `key`.
+- **Migration:** at store creation, each entry of a legacy `bs.inventory` array that has no `bs.reg.*` key gets one. `bs.inventory` itself is never written again.
+- The controller re-reads the inventory on `storage` events for `bs.reg.*`, so an open Register page and the host both update live.
+- Because no two registrations share a key, overlapping writers in any number of tabs cannot lose each other's entries, even if a writer closes immediately.
 
 **Identity** (Codex r1 #2, DeepSeek r1 nit 3):
 - Everywhere, the key is the store's registration key, `docId|rev|hash`.
 - Library rows deduplicate on it, and **Open** passes `doc`, `rev` and `hash`.
 - It is never mapped to `WF-*` or `I-*`.
-- A registration whose source revision has been replaced keeps its row. The row shows the **evidence pinned in `bs.inventory`** and "source revision replaced in this browser"; its Open action is disabled.
+- A registration whose source revision has been replaced keeps its row. The row shows the **evidence pinned in its registration entry (`bs.reg.*`)** and "source revision replaced in this browser"; its Open action is disabled.
 
 **Projections.** The pure functions are `projectPending(summary, docs)`, `projectPcp(summary, docs)` and `projectLibrary(inventory, summary, docs)`. They return plain data. The renderer uses `textContent` and `createElement` only (F9).
 
@@ -231,13 +238,13 @@ The root README says "no engine runs behind the page". It is scoped as: "Bluepri
   - **stale:** a document edited in another context without republishing → the host shows "changed since the Studio last summarised it";
   - **deletion:** a `bs.doc.*` removed → its rows disappear;
   - **two contexts:** two frames or tabs each update a different document, and both appear;
-  - **two registrations:** two already-open contexts each **register** a different document, and both inventory entries survive a reload (Codex r2 #3).
+  - **two registrations:** two already-open contexts register different documents with **overlapping** writes (both read the inventory first, then both write). One context is closed immediately after its write. After a reload, both entries are present (Codex r2 #3, r3 #1).
 
 **Studio tests:**
 - all existing tests: 149 engine, 55 web, the 58 app probes, i18n, `npm run check`;
 - unit tests:
   - `embed.js`: validation, the nonce, id encoding (including an id longer than 200 characters), and a hash mismatch or a missing revision that leaves the store, storage and jobs unchanged;
-  - `store.js`: `register` merges with a concurrently written inventory; `syncInventory` computes the union;
+  - `store.js`: per-key registration is idempotent; `inventory()` is the union; legacy `bs.inventory` is migrated without being rewritten; two stores over one storage, registering in interleaved order, keep both entries;
   - `summary.js`: every rule in §2.3, including approve vs accept, and a non-recommended approval;
   - `studio-bridge.js` projections: fixtures for stale, malformed, replaced, rejected, stale candidates, accept, and approved child.
 
@@ -250,7 +257,7 @@ User direction: give Codex build work.
 | # | Owner | Files | Acceptance |
 |---|---|---|---|
 | 0 | claude | Rebase `blueprint-studio` onto `origin/main` first (DeepSeek verified it is conflict-free); the naming fixes (§2.7) | tests green |
-| 1 | claude | `blueprint_studio/js/store.js` (merge-safe inventory, §2.3), `blueprint_studio/web/src/embed.js`, `web/src/state/summary.js`, embed-mode UI tweaks, Register copy, the spine note, and their tests. First commits a sample `bs.summary.v1` fixture, `tests/site/fixtures/summary.sample.json` | the unit tests in §3 |
+| 1 | claude | `blueprint_studio/js/store.js` (per-key registrations, §2.3), `blueprint_studio/web/src/embed.js`, `web/src/state/summary.js`, embed-mode UI tweaks, Register copy, the spine note, and their tests. First commits a sample `bs.summary.v1` fixture, `tests/site/fixtures/summary.sample.json` | the unit tests in §3 |
 | 2 | deepseek | `js/studio-bridge.js` (schema check, FNV fingerprint, pure projections, a `textContent` renderer), `tests/site/studio-bridge.test.mjs`, and the `assurance.html` retirement (§2.5) | projection tests; S10 |
 | 3 | claude | `index.html` host changes (§2.4, §2.6), the root README, the change-log entry | S1–S9 |
 | 4 | codex | `tests/site/run-site-probes.mjs` (S1–S12, headless, reusing the probe style of `blueprint_studio/tests/probe`), plus the live read-back mode `--base <url>` | reports PASS/FAIL; UI defects reported, not fixed |
@@ -266,6 +273,10 @@ User direction: give Codex build work.
 - Server-side routing.
 
 ## 6. Review record
+
+### Round 3 (v0.3): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (1)
+
+See §2.0c.
 
 ### Round 2 (v0.2): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (3)
 
