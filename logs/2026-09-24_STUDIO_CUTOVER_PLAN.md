@@ -1,6 +1,6 @@
 # Plan: replace the live site's Blueprint Studio with the React Blueprint Studio, and keep every link consistent
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.2. Round 1 was rejected by both reviewers; the changes are listed in §2.0. Nothing is changed or pushed before unanimous approval.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.3. Round 2: DeepSeek approved, Codex rejected (3); the changes are listed in §2.0b. Nothing is changed or pushed before unanimous approval.**
 
 ## 0. The ask
 
@@ -47,6 +47,14 @@ In English:
 | Codex 6 | `assurance.html` keeps contradictory figures | The Blueprint card and row become neutral notices; its legacy handlers and init dependencies are removed |
 | DeepSeek nits 1, 2, 4 | The load path; findings semantics per revision; recommendation vs decision | §2.2 load path; `validation` is each revision's own (the child's is the labelled candidate run); §2.3 rules |
 
+### 2.0b Revisions from round 2 (v0.3)
+
+| # | Defect | Change |
+|---|---|---|
+| Codex 1 | The load path mutates state before validating | §2.2: parse, import-check, revision and hash checks all run **before** any store call. A refused command leaves the document, the active revision, storage and jobs unchanged, and a test checks this |
+| Codex 2 | A 200-character id limit excludes valid imports | The limit is removed: any non-empty string, as `io.importDocument` accepts. A test reopens a registered document whose id is longer than 200 characters |
+| Codex 3 | Two open contexts can overwrite each other's registrations (the store writes its cached inventory array) | `js/store.js` (Claude) makes the inventory **merge-safe**. `register` re-reads `bs.inventory` from storage immediately before writing and merges by key. A new `store.syncInventory()` merges the stored array with memory (union by key) and is called on `storage` events for `bs.inventory`. S12 registers from two contexts and checks that both entries survive a reload |
+
 ### 2.1 Embed the Studio in an iframe; don't mount it into the host page
 
 - `section#blueprint.view` stays, because the router discovers views by that wrapper.
@@ -73,12 +81,15 @@ The React app gets `web/src/embed.js`. It parses `location.hash` at boot and on 
 | `#cmd=new&n=…` | Opens the **template gallery**. The current document is kept until the user picks a template |
 | `#cmd=open&doc=<id>&rev=<n>&hash=<h>&view=builder\|assurance\|trace[&stage=<stage>]&n=…` | Loads a saved document and revision (see the load path below) |
 
-**Load path for `open`** (DeepSeek r1 nit 1):
-1. Read `localStorage['bs.doc.' + id]` and parse it with `io.importDocument`, the same checks as a file import. Load it with `store.load`, then `setActiveRevision(rev)`.
-2. If the key is missing, the revision is missing, or **its hash ≠ `hash`**, nothing is replaced. The Studio shows "This revision is no longer in this browser's copy of the document" and stays on the current document (Codex r1 #2).
+**Load path for `open`** (DeepSeek r1 nit 1; **validate first**, Codex r2 #1). Every check runs before any store call:
+1. Read `localStorage['bs.doc.' + id]`.
+2. Parse it with `io.importDocument` (the file-import checks).
+3. Check that `doc.id === id`, that revision `rev` exists, and that **its hash equals `hash`**.
+
+Only when all of these pass does the Studio call `store.load(doc)` and then `setActiveRevision(rev)`. If any check fails, no store method is called: the document, active revision, `bs.current`, undo history and jobs are untouched. The Studio shows "This revision is no longer in this browser's copy of the document" (Codex r1 #2).
 
 **Validation:**
-- `doc` is any non-empty string up to 200 characters, `encodeURIComponent`-encoded by the host. This matches `io.importDocument`, which accepts any non-empty id.
+- `doc` is any non-empty string, with no length limit, `encodeURIComponent`-encoded by the host. This matches `io.importDocument` exactly (Codex r2 #2).
 - `rev` is a non-negative integer, and `hash` is 64 hex characters.
 - `view` and `stage` come from fixed lists, and any other key is ignored.
 - Nothing from the hash is rendered as HTML.
@@ -128,6 +139,12 @@ Each writer rebuilds the whole summary, so two tabs converge: the last writer wi
   - If `bs.doc.<id>` is missing, the document is dropped.
 - So a stale summary, from before the lazy iframe ever loads in this session, can never show claims for a document it doesn't match.
 - The host re-reads the summary on load, on every `storage` event (the iframe's writes reach the host document), and on every host view change.
+
+**Inventory is merge-safe** (Codex r2 #3). The one engine change:
+- `store.register` re-reads `bs.inventory` from storage just before writing, then merges by `key` (union; an existing key wins), writes and updates memory.
+- `store.syncInventory()` performs the same merge without adding anything. The controller calls it on `storage` events for `bs.inventory` and whenever it publishes the summary.
+
+Same-origin frames in one tab share one event loop, so the read-merge-write runs as one step between them. Across tabs, a racing write is repaired: the next `storage` event triggers a merge, and the union is written back.
 
 **Identity** (Codex r1 #2, DeepSeek r1 nit 3):
 - Everywhere, the key is the store's registration key, `docId|rev|hash`.
@@ -213,12 +230,14 @@ The root README says "no engine runs behind the page". It is scoped as: "Bluepri
   - **malformed:** `bs.summary.v1` set to junk → the host shows "summary unavailable" and no claims;
   - **stale:** a document edited in another context without republishing → the host shows "changed since the Studio last summarised it";
   - **deletion:** a `bs.doc.*` removed → its rows disappear;
-  - **two contexts:** two frames or tabs each update a different document, and both appear.
+  - **two contexts:** two frames or tabs each update a different document, and both appear;
+  - **two registrations:** two already-open contexts each **register** a different document, and both inventory entries survive a reload (Codex r2 #3).
 
 **Studio tests:**
 - all existing tests: 149 engine, 55 web, the 58 app probes, i18n, `npm run check`;
 - unit tests:
-  - `embed.js`: validation, the nonce, id encoding, a hash mismatch;
+  - `embed.js`: validation, the nonce, id encoding (including an id longer than 200 characters), and a hash mismatch or a missing revision that leaves the store, storage and jobs unchanged;
+  - `store.js`: `register` merges with a concurrently written inventory; `syncInventory` computes the union;
   - `summary.js`: every rule in §2.3, including approve vs accept, and a non-recommended approval;
   - `studio-bridge.js` projections: fixtures for stale, malformed, replaced, rejected, stale candidates, accept, and approved child.
 
@@ -231,7 +250,7 @@ User direction: give Codex build work.
 | # | Owner | Files | Acceptance |
 |---|---|---|---|
 | 0 | claude | Rebase `blueprint-studio` onto `origin/main` first (DeepSeek verified it is conflict-free); the naming fixes (§2.7) | tests green |
-| 1 | claude | `blueprint_studio/web/src/embed.js`, `web/src/state/summary.js`, embed-mode UI tweaks, Register copy, the spine note, and their tests. First commits a sample `bs.summary.v1` fixture, `tests/site/fixtures/summary.sample.json` | the unit tests in §3 |
+| 1 | claude | `blueprint_studio/js/store.js` (merge-safe inventory, §2.3), `blueprint_studio/web/src/embed.js`, `web/src/state/summary.js`, embed-mode UI tweaks, Register copy, the spine note, and their tests. First commits a sample `bs.summary.v1` fixture, `tests/site/fixtures/summary.sample.json` | the unit tests in §3 |
 | 2 | deepseek | `js/studio-bridge.js` (schema check, FNV fingerprint, pure projections, a `textContent` renderer), `tests/site/studio-bridge.test.mjs`, and the `assurance.html` retirement (§2.5) | projection tests; S10 |
 | 3 | claude | `index.html` host changes (§2.4, §2.6), the root README, the change-log entry | S1–S9 |
 | 4 | codex | `tests/site/run-site-probes.mjs` (S1–S12, headless, reusing the probe style of `blueprint_studio/tests/probe`), plus the live read-back mode `--base <url>` | reports PASS/FAIL; UI defects reported, not fixed |
@@ -247,6 +266,10 @@ User direction: give Codex build work.
 - Server-side routing.
 
 ## 6. Review record
+
+### Round 2 (v0.2): DeepSeek PLAN-APPROVED, Codex PLAN-REJECTED (3)
+
+See §2.0b.
 
 ### Round 1 (v0.1): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (6)
 
