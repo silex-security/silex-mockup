@@ -128,3 +128,54 @@ test('review r2: register refuses a decision without evidence even if it got int
   assert.equal(s.dispatch({ type: 'register', rev: 0 }).error.code, 'bad_evidence');
   assert.equal(s.inventory().length, 0);
 });
+
+/* Cutover plan 2026-09-24 §2.3: per-key registrations. */
+import { REG_PREFIX, regKey, readRegistrations, INVENTORY_KEY } from '../js/store.js';
+test('store: registrations are one key each, idempotent, and survive interleaved writers', async () => {
+  const { createStore, newDocument, memoryStorage } = await import('../js/store.js');
+  const storage = memoryStorage();
+  const fake = (id, rev, hash, at) => ({ key: `${id}|${rev}|${hash}`, docId: id, name: id, rev, hash, registeredAt: at, status: 'Registered · not deployed' });
+  // two stores over one storage: both read first, then both write different entries (the cross-tab race)
+  const a = createStore({ storage }), b = createStore({ storage });
+  assert.equal(a.inventory().length, 0); assert.equal(b.inventory().length, 0);
+  storage.setItem(regKey('docA|1|' + 'a'.repeat(64)), JSON.stringify(fake('docA', 1, 'a'.repeat(64), '2026-09-24T01:00:00Z')));
+  storage.setItem(regKey('docB|1|' + 'b'.repeat(64)), JSON.stringify(fake('docB', 1, 'b'.repeat(64), '2026-09-24T02:00:00Z')));
+  const c = createStore({ storage });                       // "after reload"
+  assert.deepEqual(c.inventory().map(e => e.docId), ['docA', 'docB']);
+  assert.deepEqual(a.refreshInventory().map(e => e.docId), ['docA', 'docB']);
+  assert.ok([...storage.keys()].every(k => !k.startsWith(REG_PREFIX) || readRegistrations(storage).some(e => regKey(e.key) === k)));
+});
+
+test('store: legacy bs.inventory is migrated into per-key entries and never rewritten', async () => {
+  const { createStore, memoryStorage } = await import('../js/store.js');
+  const storage = memoryStorage();
+  const legacy = [{ key: 'old|2|' + 'c'.repeat(64), docId: 'old', rev: 2, hash: 'c'.repeat(64), registeredAt: '2026-09-20T00:00:00Z' }];
+  storage.setItem(INVENTORY_KEY, JSON.stringify(legacy));
+  const s = createStore({ storage });
+  assert.equal(s.inventory().length, 1);
+  assert.ok(storage.getItem(regKey(legacy[0].key)));
+  assert.equal(storage.getItem(INVENTORY_KEY), JSON.stringify(legacy));
+});
+
+test('store: registering the same revision twice from two stores keeps one entry', () => {
+  const t = JSON.parse(readFileSync(new URL('../templates/customer-refund.json', import.meta.url)));
+  return (async () => {
+    const { createStore, newDocument, memoryStorage } = await import('../js/store.js');
+    const { generateScenarioSet } = await import('../js/adversary.js');
+    const { validate, compactResult } = await import('../js/validate.js');
+    const storage = memoryStorage();
+    const s = createStore({ storage });
+    s.load(newDocument({ ...t, graph: { ...t.graph, nodes: t.graph.nodes.filter(n => n.type !== 'prohibited') } }));
+    // a graph without monitors validates with zero findings → accept-as-is → register
+    assert.ok(s.dispatch({ type: 'confirm' }).ok);
+    const r = s.active(), set = generateScenarioSet(r.graph, { n: 10, baseHash: r.hash });
+    assert.ok(s.dispatch({ type: 'setValidation', rev: r.rev, jobId: s.startJob('validate:' + r.rev), revHash: r.hash, scenarioSetId: set.id, n: 10, result: compactResult(validate(r.graph, set)) }).ok);
+    assert.ok(s.dispatch({ type: 'accept', rev: r.rev, at: 'T' }).ok);
+    const e1 = s.dispatch({ type: 'register', rev: r.rev, at: 'T1' });
+    const other = createStore({ storage }); other.load(JSON.parse(JSON.stringify(s.doc)));
+    const e2 = other.dispatch({ type: 'register', rev: r.rev, at: 'T2' });
+    assert.ok(e1.ok && e2.ok);
+    assert.equal(e2.value.registeredAt, 'T1');
+    assert.equal(createStore({ storage }).inventory().length, 1);
+  })();
+});

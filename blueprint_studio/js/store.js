@@ -10,7 +10,24 @@ export const isDecided = rev => !!(rev && (rev.decision || rev.origin === 'appro
 
 const DOC_KEY = id => 'bs.doc.' + id;
 const CURRENT_KEY = 'bs.current';
-export const INVENTORY_KEY = 'bs.inventory';
+export const INVENTORY_KEY = 'bs.inventory';          // legacy array: read once for migration, never written again
+export const REG_PREFIX = 'bs.reg.';                  // one key per registration (plan 2026-09-24 cutover §2.3)
+export const regKey = key => REG_PREFIX + encodeURIComponent(key);
+function storageKeys(storage) {
+  const out = [];
+  if (!storage) return out;
+  if (typeof storage.length === 'number' && typeof storage.key === 'function') { for (let i = 0; i < storage.length; i++) { const k = storage.key(i); if (k != null) out.push(k); } }
+  else if (typeof storage.keys === 'function') out.push(...storage.keys());
+  return out;
+}
+/* Registrations: the union of bs.reg.* entries, oldest first. Unrelated
+   registrations never share a key, so concurrent writers in any number of
+   contexts cannot overwrite one another. */
+export function readRegistrations(storage) {
+  const out = [];
+  for (const k of storageKeys(storage)) if (k.startsWith(REG_PREFIX)) { try { const e = JSON.parse(storage.getItem(k)); if (e && typeof e.key === 'string' && regKey(e.key) === k) out.push(e); } catch { /* skip malformed */ } }
+  return out.sort((a, b) => String(a.registeredAt ?? '').localeCompare(String(b.registeredAt ?? '')) || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+}
 
 export function newDocument(template) {
   const t = clone(template);
@@ -67,9 +84,15 @@ export function decisionProblem(parent, child) {
 export function createStore({ storage = null, lint = () => [] } = {}) {
   const listeners = new Set();
   const s = { doc: null, undo: [], redo: [], lastMerge: null, jobs: {}, jobSeq: 0, inventory: [] };
-  const loadInventory = () => { try { s.inventory = JSON.parse(storage?.getItem(INVENTORY_KEY) || '[]'); } catch { s.inventory = []; } };
-  const saveInventory = () => { try { storage?.setItem(INVENTORY_KEY, JSON.stringify(s.inventory)); } catch { /* ignore */ } };
-  loadInventory();
+  /* Migrate the legacy array once (each entry without its own key gets one), then read the union. */
+  const migrateInventory = () => {
+    if (!storage) return;
+    let legacy = [];
+    try { legacy = JSON.parse(storage.getItem(INVENTORY_KEY) || '[]'); } catch { legacy = []; }
+    for (const e of Array.isArray(legacy) ? legacy : []) if (e && typeof e.key === 'string' && storage.getItem(regKey(e.key)) == null) { try { storage.setItem(regKey(e.key), JSON.stringify(e)); } catch { /* ignore */ } }
+  };
+  const loadInventory = () => { if (storage) s.inventory = readRegistrations(storage); };
+  migrateInventory(); loadInventory();
 
   const emit = (reason, detail = {}) => { for (const fn of listeners) fn({ reason, ...detail }); };
   const save = () => {
@@ -88,7 +111,8 @@ export function createStore({ storage = null, lint = () => [] } = {}) {
     canRedo() { return s.redo.length > 0 && api.active()?.status === 'draft'; },
     hashOf(rev) { return hashGraph(rev.graph, { name: s.doc.name, domain: s.doc.domain }); },
     meta() { return { name: s.doc.name, domain: s.doc.domain }; },
-    inventory() { return clone(s.inventory); },
+    inventory() { loadInventory(); return clone(s.inventory); },
+    refreshInventory() { loadInventory(); return clone(s.inventory); },
     /* Jobs: long computations register here; a result is accepted only while
        its job is still the current one for that key. Changing the active
        revision cancels every job. */
@@ -270,12 +294,15 @@ export function createStore({ storage = null, lint = () => [] } = {}) {
       const evidenceOk = !problem;
       if (!evidenceOk) return fail('bad_evidence', 'The decision evidence for this revision is missing or inconsistent: ' + problem);
       const key = `${s.doc.id}|${r.rev}|${r.hash}`;
-      const existing = s.inventory.find(x => x.key === key);
+      const stored = storage && storage.getItem(regKey(key));          // idempotent per key, across contexts
+      if (stored) { try { const e = JSON.parse(stored); loadInventory(); return ok(e); } catch { /* malformed: rewrite below */ } }
+      const existing = !storage && s.inventory.find(x => x.key === key);
       if (existing) return ok(existing);
       const entry = { key, docId: s.doc.id, name: s.doc.name, domain: s.doc.domain, owner: s.doc.owner, rev: r.rev, hash: r.hash,
         decisionRef: { rev: parent.rev, action: parent.decision.action, candidateId: parent.decision.candidateId || null, runId: parent.decision.runId },
         evidence: clone(accepted ? r.decision.evidence : parent.decision.evidence), registeredAt: cmd.at || null, status: 'Registered · not deployed' };
-      s.inventory.push(entry); saveInventory();
+      if (storage) { try { storage.setItem(regKey(key), JSON.stringify(entry)); } catch { /* quota: keep in memory */ } loadInventory(); if (!s.inventory.some(x => x.key === key)) s.inventory.push(entry); }
+      else s.inventory.push(entry);
       return ok(entry);
     }
   });
@@ -289,5 +316,6 @@ export function createStore({ storage = null, lint = () => [] } = {}) {
 /* In-memory storage with the localStorage interface, for tests. */
 export function memoryStorage() {
   const m = new Map();
-  return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), clear: () => m.clear() };
+  return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), clear: () => m.clear(),
+    key: i => [...m.keys()][i] ?? null, get length() { return m.size; }, keys: () => [...m.keys()] };
 }
