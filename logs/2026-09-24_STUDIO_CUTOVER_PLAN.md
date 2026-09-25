@@ -287,3 +287,41 @@ See §2.0b.
 ### Round 1 (v0.1): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (6)
 
 See §2.0.
+
+## 7. Implementation record
+
+**Build split:**
+
+| Seat | Built |
+|---|---|
+| Claude | The foundation (`summary.js`, per-key registrations, the fixture, the contract); the Studio's `embed.js` and its wiring; the `index.html` host surgery; `js/studio-host.js`; the READMEs |
+| DeepSeek | `js/studio-bridge.js`, its tests, and the `assurance.html` retirement |
+| Codex | `tests/site/run-site-probes.mjs` (S1–S12, plus a `--base` live mode) |
+
+**Fixes found along the way:**
+
+| Source | Fix |
+|---|---|
+| Claude's smoke test | Host modules renamed `.mjs` → `.js` (a module refused over its MIME type); host styles for the projections, empty states, the Library group title |
+| Codex's probes (8/12 at first) | PCP Open → Decide; a trailing comma in an `assurance.html` `closest()` selector that broke its incident clicks; frame height computed from the viewport |
+
+### Code review
+
+| Round | DeepSeek | Codex | Claude |
+|---|---|---|---|
+| 1 | IMPL-APPROVED | IMPL-REJECTED (3) | — |
+| 2 | IMPL-APPROVED | IMPL-APPROVED | IMPL-APPROVED |
+
+Codex's round-1 defects, fixed in `bf7cf91`:
+1. An approved PCP card opened the parent at Register. It now opens the **child**.
+2. Stored values that passed validation could still crash the projections. Validation is now strict, the host render is wrapped in a `try`/`catch`, and regressions cover it.
+3. Recommended and approved cards weren't visibly distinguished. The status is now shown as text.
+
+**Evidence at approval:**
+- engine and store tests: 152/152;
+- web tests: 61/61;
+- bridge tests: 13/13;
+- app probes: 58/58;
+- site probes: 12/12;
+- i18n: 561 keys;
+- `npm run check`: green.
