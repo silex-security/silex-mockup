@@ -325,3 +325,16 @@ Codex's round-1 defects, fixed in `bf7cf91`:
 - site probes: 12/12;
 - i18n: 561 keys;
 - `npm run check`: green.
+
+## 8. Deploy record
+
+- **2026-09-24:** the user pushed `blueprint-studio` → `main` (`b5127c6..6eee480`, a fast-forward). Claude's own push had been blocked by the permission system.
+- **Vercel:** served the new build within about 10 s. `js/studio-host.js` and `js/studio-bridge.js` return `200 application/javascript`, and `/blueprint_studio/app/index.html` returns `200`.
+- **Live read-back** (`node tests/site/run-site-probes.mjs --base https://silex-mockup.vercel.app`) passed 4/4:
+
+| Probe | Checked on the live site |
+|---|---|
+| S1 | Every entry, repeatable commands, deep links |
+| S3 | The live recommendation and scorecards equal the saved store |
+| S4 | Registrations are idempotent and survive a reload |
+| S5 | No legacy residue, and no exceptions on any view of either page |
