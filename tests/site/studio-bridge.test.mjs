@@ -207,3 +207,48 @@ test('renderUnavailable marks the container and makes no claims', () => {
   assert.ok(el);
   assert.ok(collectText(container).join(' ').includes('unavailable'));
 });
+
+/* ---- implementation review round 1 (Codex) ---- */
+import { openFor, statusText } from '../../js/studio-bridge.js';
+test('an approved PCP card opens the approved child at Register; awaiting opens the parent at Decide', () => {
+  const s = mapStorage(fixture);
+  const cards = projectPcp(readSummary(s).summary, s);
+  const ap = cards.find(c => c.docId === 'bp-fixture-approved' && c.state === 'approved');
+  const sum = JSON.parse(fixture['bs.summary.v1']);
+  const child = sum.docs.find(d => d.docId === 'bp-fixture-approved').revs.find(r => r.origin === 'approve');
+  assert.deepEqual(openFor(ap), { cmd: 'open', doc: 'bp-fixture-approved', rev: child.rev, hash: child.hash, view: 'assurance', stage: 'register' });
+  const aw = cards.find(c => c.docId === 'bp-fixture-awaiting');
+  assert.equal(openFor(aw).stage, 'decide'); assert.equal(openFor(aw).rev, aw.rev);
+});
+
+test('PCP cards state visibly: recommended/awaiting, approved (with child), awaiting acceptance', () => {
+  const s = mapStorage(fixture);
+  const cards = projectPcp(readSummary(s).summary, s);
+  const doc = fakeDocument(), box = fakeContainer(doc);
+  renderPcp(box, cards, {});
+  const text = collectText({ children: box.children }).join(' ');
+  assert.match(text, /Recommended by the objectives rule — awaiting a person's approval/);
+  assert.match(text, /Approved by a person → v1\.1/);
+  assert.match(text, /awaiting acceptance/);
+  assert.equal(statusText({ state: 'accepted' }), 'Accepted as is by a person');
+});
+
+test('malformed stored values are rejected before projection (no throw)', () => {
+  const bad = JSON.parse(fixture['bs.summary.v1']);
+  bad.docs[0].name = { toString: null };
+  const s1 = mapStorage({ ...fixture, 'bs.summary.v1': JSON.stringify(bad) });
+  const r1 = readSummary(s1);
+  assert.equal(r1.ok, false);
+  const bad2 = JSON.parse(fixture['bs.summary.v1']); bad2.docs[0].revs[0].hash = 42;
+  assert.equal(readSummary(mapStorage({ ...fixture, 'bs.summary.v1': JSON.stringify(bad2) })).ok, false);
+  const bad3 = JSON.parse(fixture['bs.summary.v1']); const d = bad3.docs.find(x => x.docId === 'bp-fixture-approved'); d.revs[0].decision.childRev = 'x';
+  assert.equal(readSummary(mapStorage({ ...fixture, 'bs.summary.v1': JSON.stringify(bad3) })).ok, false);
+  // a registration with a numeric hash or a non-string name is skipped, never rendered
+  const regKey = Object.keys(fixture).find(k => k.startsWith('bs.reg.'));
+  const e = JSON.parse(fixture[regKey]);
+  const s2 = mapStorage({ ...fixture, [regKey]: JSON.stringify({ ...e, hash: 12345 }) });
+  assert.doesNotThrow(() => renderLibrary(fakeContainer(fakeDocument()), projectLibrary(s2, readSummary(s2).summary), {}));
+  assert.equal(projectLibrary(s2, readSummary(s2).summary).length, 0);
+  const s3 = mapStorage({ ...fixture, [regKey]: JSON.stringify({ ...e, name: { toString: null } }) });
+  assert.equal(projectLibrary(s3, readSummary(s3).summary).length, 0);
+});

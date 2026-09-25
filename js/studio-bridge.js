@@ -33,6 +33,9 @@ const getRaw = (storage, k) => (storage ? storage.getItem(k) : null);
 const isStr = v => typeof v === 'string';
 const isNum = v => typeof v === 'number' && Number.isFinite(v);
 const isInt = v => Number.isInteger(v);
+const isHash = v => typeof v === 'string' && /^[0-9a-f]{64}$/.test(v);
+const optStr = v => v == null || typeof v === 'string';
+const optInt = v => v == null || Number.isInteger(v);
 /* a metric is either null/absent, or {num,den} finite with num <= den */
 function metricOk(m) {
   if (m == null) return true;
@@ -52,12 +55,14 @@ function scorecardOk(sc) {
 }
 function revOk(r) {
   if (!r || typeof r !== 'object') return false;
-  if (!isInt(r.rev) || !isStr(r.label)) return false;
-  if (r.hash != null && !isStr(r.hash)) return false;
+  if (!isInt(r.rev) || r.rev < 0 || !isStr(r.label)) return false;
+  if (r.hash != null && !isHash(r.hash)) return false;
+  if (r.optimization != null && (typeof r.optimization !== 'object' || !optStr(r.optimization.scenarioSetId))) return false;
   if (r.awaiting != null && r.awaiting !== 'approve' && r.awaiting !== 'accept') return false;
   if (r.validation != null) {
     const v = r.validation;
     if (typeof v !== 'object' || !isStr(v.scenarioSetId) || !isNum(v.runs) || !Array.isArray(v.findings) || !metricsOk(v.metrics)) return false;
+    if (!v.findings.every(f => f && typeof f === 'object' && isStr(f.id))) return false;
   }
   if (r.recommended != null) {
     const rec = r.recommended;
@@ -65,7 +70,8 @@ function revOk(r) {
   }
   if (r.decision != null) {
     const d = r.decision;
-    if (typeof d !== 'object' || !isStr(d.action)) return false;
+    if (typeof d !== 'object' || (d.action !== 'approve' && d.action !== 'accept')) return false;
+    if (!optStr(d.candidateId) || !optStr(d.label) || !optInt(d.childRev) || !optStr(d.childLabel) || !(d.childHash == null || isHash(d.childHash)) || !optStr(d.scenarioSetId)) return false;
     if (d.scorecard != null && !scorecardOk(d.scorecard)) return false;
     if (d.metrics != null && !metricsOk(d.metrics)) return false;
   }
@@ -74,6 +80,7 @@ function revOk(r) {
 function docOk(d) {
   if (!d || typeof d !== 'object') return false;
   if (!isStr(d.docId) || !d.docId) return false;
+  if (!optStr(d.name) || !optStr(d.domain) || !optStr(d.owner)) return false;
   if (!isStr(d.fp) || !/^[0-9a-f]{8}$/.test(d.fp)) return false;
   if (!Array.isArray(d.revs) || !d.revs.every(revOk)) return false;
   return true;
@@ -104,11 +111,16 @@ export function docStatus(summary, storage) {
 }
 
 /* ---------------------------------------------------------------- registration */
+/* A registration is used only if its identity and every field the Library renders have the stored types. */
+function regOk(e) {
+  return !!e && typeof e === 'object' && isStr(e.docId) && e.docId !== '' && isInt(e.rev) && e.rev >= 0 && isHash(e.hash)
+    && e.key === `${e.docId}|${e.rev}|${e.hash}` && optStr(e.name) && optStr(e.domain) && optStr(e.registeredAt) && optStr(e.status);
+}
 export function readRegistrations(storage) {
   const out = [];
   for (const k of storageKeys(storage)) {
     if (!k.startsWith(REG_PREFIX)) continue;
-    try { const e = JSON.parse(getRaw(storage, k)); if (e && isStr(e.key) && e.key === decodeURIComponent(k.slice(REG_PREFIX.length))) out.push(e); } catch { /* skip malformed */ }
+    try { const e = JSON.parse(getRaw(storage, k)); if (regOk(e) && e.key === decodeURIComponent(k.slice(REG_PREFIX.length))) out.push(e); } catch { /* skip malformed */ }
   }
   return out.sort((a, b) => String(a.registeredAt ?? '').localeCompare(String(b.registeredAt ?? '')) || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 }
@@ -142,16 +154,16 @@ export function projectPending(summary, storage) {
   for (const d of summary.docs || []) {
     const st = status.get(d.docId);
     if (st === 'missing') continue;
-    if (st === 'stale') { rows.push({ key: keyOf(d.docId, -1, ''), docId: d.docId, name: String(d.name ?? d.docId), stale: true }); continue; }
+    if (st === 'stale') { rows.push({ key: keyOf(d.docId, -1, ''), docId: d.docId, name: String(d.name || d.docId), stale: true }); continue; }
     for (const r of d.revs || []) {
       if (!r.awaiting) continue;
       const key = keyOf(d.docId, r.rev, r.hash);
       if (r.awaiting === 'approve') {
-        rows.push({ key, docId: d.docId, name: String(d.name ?? d.docId), rev: r.rev, label: r.label, hash: r.hash, kind: 'approve',
+        rows.push({ key, docId: d.docId, name: String(d.name || d.docId), rev: r.rev, label: r.label, hash: r.hash, kind: 'approve',
           recommended: r.recommended ? { id: r.recommended.id, label: r.recommended.label, violationsClosed: r.recommended.scorecard?.violationsClosed ?? null } : null,
           scenarioSetId: r.validation?.scenarioSetId ?? r.optimization?.scenarioSetId ?? null });
       } else {
-        rows.push({ key, docId: d.docId, name: String(d.name ?? d.docId), rev: r.rev, label: r.label, hash: r.hash, kind: 'accept',
+        rows.push({ key, docId: d.docId, name: String(d.name || d.docId), rev: r.rev, label: r.label, hash: r.hash, kind: 'accept',
           runs: r.validation?.runs ?? null, scenarioSetId: r.validation?.scenarioSetId ?? null });
       }
     }
@@ -166,20 +178,22 @@ export function projectPcp(summary, storage) {
   for (const d of summary.docs || []) {
     const st = status.get(d.docId);
     if (st === 'missing') continue;
-    if (st === 'stale') { cards.push({ key: keyOf(d.docId, -1, ''), docId: d.docId, name: String(d.name ?? d.docId), stale: true }); continue; }
+    if (st === 'stale') { cards.push({ key: keyOf(d.docId, -1, ''), docId: d.docId, name: String(d.name || d.docId), stale: true }); continue; }
     for (const r of d.revs || []) {
       if (r.awaiting === 'approve' && r.recommended) {
-        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name ?? d.docId), rev: r.rev, label: r.label, hash: r.hash,
+        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name || d.docId), rev: r.rev, label: r.label, hash: r.hash,
           state: 'awaiting', candidate: { id: r.recommended.id, label: r.recommended.label }, scorecard: r.recommended.scorecard, scenarioSetId: r.validation?.scenarioSetId ?? r.optimization?.scenarioSetId ?? null });
       } else if (r.awaiting === 'accept') {
-        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name ?? d.docId), rev: r.rev, label: r.label, hash: r.hash,
+        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name || d.docId), rev: r.rev, label: r.label, hash: r.hash,
           state: 'awaiting', metrics: r.validation?.metrics ?? null, scenarioSetId: r.validation?.scenarioSetId ?? null });
       } else if (r.decision?.action === 'approve') {
-        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name ?? d.docId), rev: r.rev, label: r.label, hash: r.hash,
+        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name || d.docId), rev: r.rev, label: r.label, hash: r.hash,
           state: 'approved', candidate: { id: r.decision.candidateId, label: r.decision.label ?? r.decision.candidateId }, scorecard: r.decision.scorecard,
-          childLabel: r.decision.childLabel ?? null, scenarioSetId: r.decision.scenarioSetId ?? r.validation?.scenarioSetId ?? null });
+          childLabel: r.decision.childLabel ?? null,
+          child: r.decision.childRev != null && r.decision.childHash ? { rev: r.decision.childRev, hash: r.decision.childHash, label: r.decision.childLabel ?? labelOf(r.decision.childRev) } : null,
+          scenarioSetId: r.decision.scenarioSetId ?? r.validation?.scenarioSetId ?? null });
       } else if (r.decision?.action === 'accept') {
-        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name ?? d.docId), rev: r.rev, label: r.label, hash: r.hash,
+        cards.push({ key: keyOf(d.docId, r.rev, r.hash), docId: d.docId, name: String(d.name || d.docId), rev: r.rev, label: r.label, hash: r.hash,
           state: 'accepted', metrics: r.decision.metrics ?? r.validation?.metrics ?? null, scenarioSetId: r.decision.scenarioSetId ?? r.validation?.scenarioSetId ?? null });
       }
     }
@@ -250,6 +264,23 @@ export function renderPending(container, rows, { onOpen } = {}) {
   }
 }
 
+/* Where a PCP card opens: awaiting → the evaluated revision at Decide; approved → the approved CHILD at Register
+   (Register needs the child); accepted → that revision at Register. */
+export function openFor(card) {
+  if (card.state === 'approved' && card.child) return { cmd: 'open', doc: card.docId, rev: card.child.rev, hash: card.child.hash, view: 'assurance', stage: 'register' };
+  if (card.state === 'approved') return { cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'assurance', stage: 'decide' };
+  return { cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'assurance', stage: card.state === 'awaiting' ? 'decide' : 'register' };
+}
+
+/* The visible claim framing of a card (Codex r1 #3): recommended ≠ approved ≠ accepted. */
+export function statusText(card) {
+  if (card.state === 'awaiting' && card.candidate) return 'Recommended by the objectives rule — awaiting a person\'s approval';
+  if (card.state === 'awaiting') return 'No findings in the simulated runs — awaiting acceptance';
+  if (card.state === 'approved') return `Approved by a person${card.child ? ' → ' + card.child.label : ''}`;
+  if (card.state === 'accepted') return 'Accepted as is by a person';
+  return '';
+}
+
 export function renderPcp(container, cards, { onOpen, onTrace } = {}) {
   if (!container) return;
   const d = docOf(container); if (!d) return;
@@ -260,6 +291,9 @@ export function renderPcp(container, cards, { onOpen, onTrace } = {}) {
     c.setAttribute('data-studio-pcp', card.key);
     c.setAttribute('data-state', card.stale ? 'stale' : card.state);
     if (card.stale) { setText(c, `${card.name} · `); staleNote(d, c); container.appendChild(c); continue; }
+    const st = el(d, 'span', 'status ' + (card.state === 'awaiting' ? 'review' : 'running'));
+    st.setAttribute('data-studio-status', card.state); st.textContent = statusText(card);
+    c.appendChild(st);
     const head = el(d, 'b'); head.textContent = `${card.name} ${card.label}`;
     c.appendChild(head);
     const body = el(d, 'p', 'muted');
@@ -284,7 +318,7 @@ export function renderPcp(container, cards, { onOpen, onTrace } = {}) {
     c.appendChild(body); c.appendChild(s);
     const acts = el(d, 'div', 'row-actions');
     const openBtn = el(d, 'button', 'btn sm'); openBtn.setAttribute('data-studio-open', ''); openBtn.textContent = 'Open in Studio';
-    openBtn.addEventListener('click', () => onOpen && onOpen({ cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'assurance', stage: card.state === 'awaiting' ? 'decide' : 'register' }));
+    openBtn.addEventListener('click', () => onOpen && onOpen(openFor(card)));
     const traceBtn = el(d, 'button', 'btn sm'); traceBtn.setAttribute('data-studio-trace', ''); traceBtn.textContent = 'Trace';
     traceBtn.addEventListener('click', () => onTrace && onTrace({ cmd: 'open', doc: card.docId, rev: card.rev, hash: card.hash, view: 'trace' }));
     acts.appendChild(openBtn); acts.appendChild(traceBtn);

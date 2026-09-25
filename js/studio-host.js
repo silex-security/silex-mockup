@@ -62,12 +62,15 @@ function render() {
   let awaiting = 0;
   if (!summary) {
     for (const c of [ov, pcp, lib]) if (c) B.renderUnavailable(c, res.reason);
-  } else {
+  } else try {
     const pend = B.projectPending(summary, store);
     awaiting = pend.filter(r => !r.stale).length;
     if (ov) B.renderPending(ov, pend, { onOpen: openCmd });
     if (pcp) B.renderPcp(pcp, B.projectPcp(summary, store), { onOpen: openCmd, onTrace: openCmd });
     if (lib) B.renderLibrary(lib, B.projectLibrary(store, summary), { onOpen: openCmd, onTrace: openCmd });
+  } catch (e) {                                   // defence in depth: never let stored data break the site
+    awaiting = 0;
+    for (const c of [ov, pcp, lib]) if (c) B.renderUnavailable(c, 'summary could not be projected');
   }
   window.studioAwaitingCount = awaiting;
   if (window.__siteRefreshPending) window.__siteRefreshPending();
