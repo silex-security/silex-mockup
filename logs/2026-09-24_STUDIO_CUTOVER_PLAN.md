@@ -1,6 +1,6 @@
 # Plan: replace the live site's Blueprint Studio with the React Blueprint Studio, and keep every link consistent
 
-Author: Claude (lead) · 2026-09-24 · Status: **v0.1, for review by DeepSeek and Codex. Nothing is changed or pushed before unanimous approval.**
+Author: Claude (lead) · 2026-09-24 · Status: **v0.2. Round 1 was rejected by both reviewers; the changes are listed in §2.0. Nothing is changed or pushed before unanimous approval.**
 
 ## 0. The ask
 
@@ -35,6 +35,18 @@ In English:
 
 ## 2. Design
 
+### 2.0 Revisions from round 1 (v0.2)
+
+| # | Defect | Change |
+|---|---|---|
+| Codex 1 · DeepSeek 1 | The summary can't support the PCP card's numbers; recommended vs approved isn't distinguished | §2.3's schema carries each revision's own validation metrics, the recommended candidate's scorecard and evidence ids, and the decision with its own scorecard. The PCP card shows the recommendation while a decision is awaited and the approved result once decided. S3 checks against the **store**, not the summary |
+| Codex 2 · DeepSeek nit 3 | Registration identity drops the hash; the id syntax is too narrow | One key everywhere, `docId\|rev\|hash`. `open` passes the hash and refuses a mismatch. A replaced source is shown as such, with the pinned evidence. The id accepts any non-empty string (encoded). A test covers replacement |
+| Codex 3 | Summary persistence and reconciliation are underspecified | The summary is rebuilt from all `bs.doc.*`, checked against a schema, and each document is fingerprinted and checked by the host. Tests cover stale, malformed, replacement, deletion and two contexts |
+| Codex 4 | Identical hash requests don't repeat | A nonce per command, and the hash is cleared after it is consumed. A test sends consecutive identical requests without a reload |
+| Codex 5 | Accept-as-is is missing from pending | `awaiting: 'accept'`, with its own wording. A test covers validation → pending → accept → register |
+| Codex 6 | `assurance.html` keeps contradictory figures | The Blueprint card and row become neutral notices; its legacy handlers and init dependencies are removed |
+| DeepSeek nits 1, 2, 4 | The load path; findings semantics per revision; recommendation vs decision | §2.2 load path; `validation` is each revision's own (the child's is the labelled candidate run); §2.3 rules |
+
 ### 2.1 Embed the Studio in an iframe; don't mount it into the host page
 
 - `section#blueprint.view` stays, because the router discovers views by that wrapper.
@@ -49,59 +61,105 @@ Why an iframe:
 
 The frame is `100%` wide, and its height is `calc(100vh − host topbar)`; the host page does not scroll around it. On widths ≤ 760 px the host sidebar collapses (existing rule) and the frame takes the full width.
 
-### 2.2 Host → Studio: a validated hash route (no postMessage)
+### 2.2 Host → Studio: validated, repeatable hash commands (no postMessage)
 
-The React app gets a small `embed.js`. It parses `location.hash` at boot and on `hashchange`, and accepts only these routes:
+The React app gets `web/src/embed.js`. It parses `location.hash` at boot and on `hashchange`.
 
-| Route | Effect in the Studio |
+**Every command carries a nonce**, `n=<integer>`, which the host increments per request. After acting on a command, `embed.js` clears the hash with `history.replaceState`, which fires no event. So the host can send an identical request twice, e.g. New Blueprint → pick a template → New Blueprint, and each one is delivered (Codex r1 #4). A command whose nonce was already consumed in this frame is ignored.
+
+| Command | Effect in the Studio |
 |---|---|
-| `#resume` | Opens the last document, as the standalone app does |
-| `#new` | Opens the **template gallery**. The current document is kept until the user picks a template |
-| `#doc=<id>&rev=<n>&view=builder\|assurance\|trace[&stage=<stage>]` | Loads that saved document and revision. If the document is not in this browser, it shows a toast "This Blueprint is not in this browser" and falls back to `#resume` |
+| `#cmd=resume&n=…` | Opens the last document, as the standalone app does |
+| `#cmd=new&n=…` | Opens the **template gallery**. The current document is kept until the user picks a template |
+| `#cmd=open&doc=<id>&rev=<n>&hash=<h>&view=builder\|assurance\|trace[&stage=<stage>]&n=…` | Loads a saved document and revision (see the load path below) |
 
-- Any other key or value is ignored.
-- `id` must match `^[\w.-]{1,80}$`, and `rev` must be an integer that exists.
+**Load path for `open`** (DeepSeek r1 nit 1):
+1. Read `localStorage['bs.doc.' + id]` and parse it with `io.importDocument`, the same checks as a file import. Load it with `store.load`, then `setActiveRevision(rev)`.
+2. If the key is missing, the revision is missing, or **its hash ≠ `hash`**, nothing is replaced. The Studio shows "This revision is no longer in this browser's copy of the document" and stays on the current document (Codex r1 #2).
+
+**Validation:**
+- `doc` is any non-empty string up to 200 characters, `encodeURIComponent`-encoded by the host. This matches `io.importDocument`, which accepts any non-empty id.
+- `rev` is a non-negative integer, and `hash` is 64 hex characters.
+- `view` and `stage` come from fixed lists, and any other key is ignored.
 - Nothing from the hash is rendered as HTML.
 
-In embed mode (`?embed=1`):
-- the Studio's SILEX brand link is hidden (the host has one), so the frame never nests the site inside itself;
+**In embed mode (`?embed=1`):**
+- the Studio's SILEX brand link is hidden;
 - links that must leave the Studio use `target="_top"`.
 
-### 2.3 Studio → host: a versioned summary in localStorage, read by the host
+### 2.3 Studio → host: a summary rebuilt from all saved documents, checked by the host
 
-On every store change, the React app writes one key, `bs.summary.v1`. It is derived, never authoritative:
+**Publisher (Studio).** After every store change, and once at boot, `state/summary.js` **rebuilds** `bs.summary.v1` from **every** `bs.doc.*` key in storage, not only the active document. So:
+- inactive documents stay in it;
+- deleted documents drop out;
+- a replaced document is recomputed.
+
+Each writer rebuilds the whole summary, so two tabs converge: the last writer wins, but with a complete, consistent snapshot (Codex r1 #3).
+
+**Schema (v1).** Every figure below is copied from the store; none is recomputed:
 
 ```js
 { v: 1, at: ISO, docs: [ { docId, name, domain, owner,
-    revs: [ { rev, label, status: 'draft'|'confirmed', origin: 'edit'|'approve', hash,
-              validated: bool, findings: n|null, optimized: bool,
-              awaitingDecision: bool,             // optimized, not decided, and a recommended (tested, current, not rejected) candidate exists
-              recommended: { id, label, closes: n, of: n } | null,
-              decision: { action: 'approve'|'accept', childRev: n|null } | null } ] } ] }
+    fp,                                      // FNV-1a of the raw bs.doc.<id> string the summary was built from
+    revs: [ { rev, label, status, origin, parent, hash,
+      validation: null | { scenarioSetId, jobId, n, runs, findings: [{ id, prohibited, severity, violating, run }],
+                           metrics: { residualReachability, benignCompletion, friction } },   // THIS revision's own validation;
+                                             // for an approved child, it is the candidate run (store.childValidationResult), labelled as such
+      optimization: null | { scenarioSetId, candidates: n, tested: n, eligible: n },
+      recommended: null | { id, label, paramsVersion, testedParamsVersion, runId,
+                            scorecard: { violationsClosed, residualReachability, benignCompletion, friction, addedLatencyMedian, patchOps } },
+      awaiting: null | 'approve' | 'accept',
+      decision: null | { action, candidateId, label, paramsVersion, runId, scenarioSetId, childRev, childHash, decidedAt,
+                         scorecard }            // an approved decision's evidence.scorecard; for accept, the validation metrics
+    } ] } ] }
 ```
 
-- The host reads it, and the existing `bs.inventory` (React's Register output), on load, on every `storage` event (the iframe writes, so the host document receives the event), and whenever a host view is shown.
-- **Host projections** live in a new `js/studio-bridge.js`, outside any build output. It has pure functions `projectPending(summary)`, `projectLibrary(inventory, summary)` and `projectPcp(summary)` that return plain data, and a renderer that builds the DOM with `textContent` only (F9).
-- Studio identity is namespaced `bs:<docId>:<rev>`, and it is **never** mapped to `WF-*` or `I-*` (F5).
+**Rules:**
+- `recommended` is the controller's rule: tested, current parameters, not rejected, then `optimize.recommend`.
+- `awaiting = 'approve'` when the revision is optimized, undecided and has a recommended candidate.
+- `awaiting = 'accept'` when it is confirmed, validated with **zero findings**, undecided, and not an approved child (Codex r1 #5).
+- An approved child never awaits anything.
+- **Recommended ≠ approved.** A person may approve a different eligible candidate. The PCP card therefore shows the **recommendation while awaiting**, and the **approved decision (its own label and scorecard) once decided** (DeepSeek r1 nit 4).
+
+**Host validation (`js/studio-bridge.js`):**
+- The host parses the summary with a schema check: `v === 1`, the types of every field used, numbers finite, and `num ≤ den`. If the check fails, the host shows **"Blueprint Studio summary unavailable — open the Studio to refresh"** and makes no claim.
+- For each document, the host computes the FNV-1a of the current `bs.doc.<id>` string and compares it with `fp`.
+  - If they differ, that document is shown as "changed since the Studio last summarised it — open the Studio to refresh", with no numbers.
+  - If `bs.doc.<id>` is missing, the document is dropped.
+- So a stale summary, from before the lazy iframe ever loads in this session, can never show claims for a document it doesn't match.
+- The host re-reads the summary on load, on every `storage` event (the iframe's writes reach the host document), and on every host view change.
+
+**Identity** (Codex r1 #2, DeepSeek r1 nit 3):
+- Everywhere, the key is the store's registration key, `docId|rev|hash`.
+- Library rows deduplicate on it, and **Open** passes `doc`, `rev` and `hash`.
+- It is never mapped to `WF-*` or `I-*`.
+- A registration whose source revision has been replaced keeps its row. The row shows the **evidence pinned in `bs.inventory`** and "source revision replaced in this browser"; its Open action is disabled.
+
+**Projections.** The pure functions are `projectPending(summary, docs)`, `projectPcp(summary, docs)` and `projectLibrary(inventory, summary, docs)`. They return plain data. The renderer uses `textContent` and `createElement` only (F9).
 
 ### 2.4 Host changes in `index.html` (origin/main version)
 
 | Area | Change |
 |---|---|
 | `#blueprint` view (646–859) | Replaced by the frame container (§2.1). The legacy markup is removed |
-| Legacy Studio script (`1399–1411`, `1512–1555`, and its init references in `1827`) | Removed atomically: `bp*` state, `BP_ORDER`/`BP_VARIANTS`, `setBpStage`/`setBpState`, the editor handlers, the inspector patch, and `WF-041` registration. **Kept:** the shared `decisionModal`/`decisionCb`, used by incidents, plus `showView`, the pending Set for incidents, and the toast |
+| Legacy Studio script (`1399–1411`, `1512–1555`, and its init references in `1827`) | Removed atomically: `bp*` state, `BP_ORDER`/`BP_VARIANTS`, `setBpStage`/`setBpState`, the editor handlers, the inspector patch, and `WF-041` registration. **Kept:** the shared `decisionModal`/`decisionCb` (incidents), `showView`, the incident entries of the pending Set, and the toast |
 | Nav + `data-jump=blueprint` + change-log Go | `openStudio('resume')` |
-| New Blueprint (Overview 577, Library 1040) and the unregistered Library rows (`data-new-blueprint`) | `openStudio('new')`, which opens the gallery. It no longer relabels a singleton refund draft as another workflow |
-| Overview Policy Decisions (615) + `ovPendingCount` | The static BP-REFUND row is removed. Rows come from `projectPending`: "*{name}* {rev} · awaiting a person's decision · recommended by the objectives rule: *{label}* · closes {closes}/{of} findings in simulation" → `openStudio('doc=…&view=assurance&stage=decide')`. The count = incident pending + Studio awaiting. With none awaiting: "No Blueprint decision is awaiting review" |
-| PCP page Blueprint card + executive preview row (1151–1155, 1173) | The static Candidate B, "94% confidence", "+12% approval" and "+18 s" are removed. The card is rendered from `projectPcp`: the recommended candidate's label; its **simulated** result (findings closed, benign completion, friction), labelled "simulated · declared adversary model"; a link to the Trace. With no Studio evidence, an empty state points to the Studio. Incident PCP cards are untouched |
-| Library (1458–1483) | A new group, **"Registered from Blueprint Studio · this browser · not deployed"**, rendered from `bs.inventory` joined with `bs.summary.v1`. Each row shows the name, revision, short hash, "Registered · not deployed", the time registered, and actions **Open in Studio** / **Trace**. Fixture rows and `updateCounts` are unchanged; Studio entries are counted separately, so fixture KPIs keep their meaning (Codex §4). Registering twice does not duplicate a row (the key is `docId:rev`) |
-| Workflow Detail (1100) | The inert sentence becomes: "Illustrative fixture — it has no Blueprint document. **Model a workflow in Blueprint Studio →**" (`openStudio('new')`). The default detail text claiming "paths B/C/D closed" is scoped as "illustrative" (F4) |
-| Change log (1381–1391) and Definitions (1357–1368) | One change-log entry is added, describing the Studio as a computed editor with a Decision Trace. The Definitions modal scopes its claims: "Blueprint Studio computes its results on the declared graph (simulated); the other panels are illustrative" |
-| Pre-release, Incidents, Enterprise World Model | **No behavioural change** (Codex §3–4): their fixtures stay fixtures. The World Model's `WF-021`/`I-1042` fixture labels stay as they are, and nothing links them to Studio documents |
+| New Blueprint (Overview 577, Library 1040) + unregistered Library rows (`data-new-blueprint`) | `openStudio('new')`, which opens the gallery |
+| Overview Policy Decisions (615) + `ovPendingCount` | The static BP-REFUND row is removed. There is one row per `awaiting` revision:<br>• `approve`: "*{name}* {rev} · awaiting a person's decision · recommended by the objectives rule: *{label}* · closes {violationsClosed.num}/{den} findings · simulated";<br>• `accept`: "*{name}* {rev} · no findings in {runs} simulated runs · awaiting acceptance".<br>Both open the Studio at `open … stage=decide`. The count = incident pending + Studio awaiting. With none: "No Blueprint decision is awaiting review" |
+| PCP page Blueprint card + preview row (1151–1155, 1173) | The static Candidate B, "94% confidence", "+12% approval" and "+18 s" are removed. A card per awaiting or decided revision, from `projectPcp`:<br>• **awaiting**: the recommended label and its scorecard (findings closed, benign completion, friction, added latency);<br>• **decided**: the approved label and **its** scorecard, or accept-as-is with the validation metrics.<br>Every figure is labelled "simulated · declared adversary model · scenario set {id}", and a Trace link is included. The empty state points to the Studio |
+| Library (1458–1483) | Group **"Registered from Blueprint Studio · this browser · not deployed"**, from `projectLibrary`. Each row shows the name, revision, short hash, status, time registered, **Open in Studio**, **Trace**, and the replaced-source state. Fixture rows and `updateCounts` are unchanged |
+| Workflow Detail (1100) | "Illustrative fixture — it has no Blueprint document. **Model a workflow in Blueprint Studio →**". The default "paths B/C/D closed" text is labelled illustrative |
+| Change log / Definitions | One change-log entry is added. The Definitions modal scopes its claims: the Studio computes; the other panels are illustrative |
+| Pre-release, Incidents, Enterprise World Model | No behavioural change. The fixtures, including `WF-021`/`I-1042`, stay fixtures |
 
-### 2.5 `assurance.html` (F7)
+### 2.5 `assurance.html` (F7; Codex r1 #6)
 
-Recommendation: **retire only its duplicate Studio**. Its Blueprint view becomes a short notice, "Blueprint Studio moved to the main demo", with a link to `index.html#studio`. Its Studio entry points (New, review, PCP card and row, change-log Go) link to `index.html#studio` / `#studio=new`, and its `WF-041` registration and `BP-REFUND` pending code are removed. The rest of the A/B page is untouched.
+Its duplicate Studio is **retired**:
+- The Blueprint view becomes a notice, "Blueprint Studio moved to the main demo", with a link to `index.html#studio`.
+- Its Blueprint PCP card and preview row (`assurance.html:1002–1006`, `1024`), with their fixed closure, defense and "94% confidence" figures, become a **neutral notice**, "Blueprint decisions are reviewed in the main demo's Blueprint Studio →". Retargeting its static figures would contradict S5, so they go.
+- Its Overview review row gets the same neutral notice.
+- Its legacy editor, lifecycle, inspector handlers, `WF-041` registration, `BP-REFUND` pending code and their init references are removed.
+- Its incident handlers, the shared modal, navigation and everything else are kept.
 
 ### 2.6 Deep link into the host
 
@@ -126,34 +184,45 @@ The root README says "no engine runs behind the page". It is scoped as: "Bluepri
 
 **S-probes, headless Chrome, against a local static server of the rebased tree, at 1440 × 900 unless noted:**
 
-- **S1.** Every upstream entry in F3 lands on the Studio view with the frame loaded and the right Studio route:
+- **S1.** Every upstream entry in F3 lands on the Studio with the frame loaded and the right command:
   - nav, the Assurance job and change-log Go → resume;
   - New Blueprint and the unregistered rows → the gallery is open;
-  - review from Overview and PCP → the right document, revision and Decide stage;
-  - `index.html#studio` and `#studio=new` → as in §2.6.
-- **S2.** The frame is not loaded before the first Studio visit: no request to `blueprint_studio/app/assets/*` on Overview.
-- **S3.** The whole lifecycle inside the frame (Confirm → Validate → Optimize) updates the host:
-  - Overview shows one awaiting row with the recommended label, and `ovPendingCount` = incidents + 1;
-  - the PCP card shows the same label and **computed** numbers (equal to `bs.summary.v1`);
-  - Approve → the row disappears, and the count drops by one.
-- **S4.** Register in the frame → one Library row in the Studio group ("Registered · not deployed"). Registering again doesn't duplicate it. A second template adds a second row. A reload preserves both. **Open in Studio** opens that document and revision, not the last one edited.
+  - review from Overview and PCP → the right document, revision **and hash**, at Decide;
+  - `index.html#studio` and `#studio=new`.
+  - **Repeatability:** New Blueprint → pick a template → New Blueprint again opens the gallery again, with no reload. Opening the same review twice after navigating inside the Studio returns to it both times.
+- **S2.** The frame is not loaded before the first Studio visit: there is no request to `blueprint_studio/app/assets/*` on Overview.
+- **S3.** Lifecycle in the frame, checked against the **store** (the probe reads `bs.doc.*` and recomputes the recommendation with the engine's `recommend`):
+  - After Confirm → Validate → Optimize: Overview shows one `approve` row with the recommended label, and the PCP card shows that candidate's scorecard, equal to the store's `verdict.scorecard`. `ovPendingCount` = incidents + 1.
+  - Approve a **non-recommended** eligible candidate: the row disappears, and the PCP card shows the approved label and its own scorecard.
+  - **Accept-as-is path:** approved child → Edit as new revision → confirm → validate with zero findings → Overview shows an `accept` row → accept → the row disappears → Register → one Library row.
+- **S4.** Registration and identity:
+  - Register → one Library row, "Registered · not deployed". Registering again doesn't duplicate it; a second template adds a second row; a reload keeps both.
+  - **Open in Studio** opens that document, revision and hash, not the last one edited.
+  - **Replacement:** import a document with the same id and different content. The old row shows "source revision replaced" with its pinned evidence, Open is disabled, and a forged open command with the old hash is refused.
 - **S5.** No legacy residue:
   - none of `bpState`, `WF-041` or `BP-REFUND` is in the DOM or scripts of either page;
-  - none of "Candidate B", "94%", "2,400", "1,200 scenarios" or "Observed" appears inside Studio-linked cards;
-  - there are **no console errors** on any view of either page.
-- **S6.** Injection: a document named `<img src=x onerror=alert(1)>` is registered in the frame. The Library and Overview render it as text, and no element is created.
-- **S7.** Incidents still work: approving I-1042 through the shared `decisionModal` resolves only the incident, and Pre-release and the World Model views render unchanged. Also, the pending-row counts for incidents are equal before and after the cutover.
+  - no fixed Studio figure (Candidate B, 94%, 2,400, 1,200 scenarios, "Observed") appears in any Studio-linked card of **either** page;
+  - there are no console errors on any view of either page.
+- **S6.** Injection: a document named `<img src=x onerror=alert(1)>` is registered in the frame and rendered as text in the Library, Overview and PCP. No element is created.
+- **S7.** Incidents: approving I-1042 through the shared modal resolves only the incident. Pre-release and the World Model views render unchanged, and the incident pending count is the same before and after the cutover.
 - **S8.** Naming: neither page nor the Studio (en and zh) contains "Security World Model" or "Security Ontology".
-- **S9.** Widths 1440, 1024, 768 and 390: the Studio frame fills the content area, with no horizontal page scroll. The Trace's record modal and the split button are usable. At 390 px the Studio is usable with its own responsive rules; this is checked by screenshot.
-- **S10.** `assurance.html`: its Studio notice and links reach `index.html#studio`; it has no legacy Studio DOM and no console errors.
-- **S11.** In the frame, Copy JSON, the record download and file import still work. Ask AI shows its rule-based note, because no Claude sample exists on the static site.
+- **S9.** Widths 1440, 1024, 768 and 390: the frame fills the content area; there is no horizontal page scroll; the record modal and the split button are usable.
+- **S10.** `assurance.html`: its notices and links reach `index.html#studio`; it has no legacy Studio DOM or handlers and no console errors; its incident flows still work.
+- **S11.** In the frame, Copy JSON, the record download and file import still work, and Ask AI shows its rule-based note.
+- **S12.** Summary robustness:
+  - **malformed:** `bs.summary.v1` set to junk → the host shows "summary unavailable" and no claims;
+  - **stale:** a document edited in another context without republishing → the host shows "changed since the Studio last summarised it";
+  - **deletion:** a `bs.doc.*` removed → its rows disappear;
+  - **two contexts:** two frames or tabs each update a different document, and both appear.
 
 **Studio tests:**
 - all existing tests: 149 engine, 55 web, the 58 app probes, i18n, `npm run check`;
-- new unit tests for `embed.js` (hash validation) and the summary publisher (the `awaitingDecision` and `recommended` rules equal the controller's);
-- a unit test for `studio-bridge.js`'s projection functions, run with node against fixture payloads (including stale, rejected, approved and accept).
+- unit tests:
+  - `embed.js`: validation, the nonce, id encoding, a hash mismatch;
+  - `summary.js`: every rule in §2.3, including approve vs accept, and a non-recommended approval;
+  - `studio-bridge.js` projections: fixtures for stale, malformed, replaced, rejected, stale candidates, accept, and approved child.
 
-**Live read-back after the push:** S1, S3, S4 and S5 are rerun against `https://silex-mockup.vercel.app/`, once the deploy serves the new commit, and recorded.
+**Live read-back after the push:** S1, S3 (first bullet), S4 (first bullet) and S5 are rerun against `https://silex-mockup.vercel.app/` once it serves the new commit, and recorded.
 
 ## 4. Ownership
 
@@ -162,10 +231,10 @@ User direction: give Codex build work.
 | # | Owner | Files | Acceptance |
 |---|---|---|---|
 | 0 | claude | Rebase `blueprint-studio` onto `origin/main` first (DeepSeek verified it is conflict-free); the naming fixes (§2.7) | tests green |
-| 1 | claude | `blueprint_studio/web/src/embed.js`, the summary publisher in `state/`, embed-mode UI tweaks, Register copy, the spine note, and their tests | the unit tests in §3 |
-| 2 | deepseek | `js/studio-bridge.js` (pure projections + a `textContent` renderer), `tests/site/studio-bridge.test.mjs`, and the `assurance.html` retirement (§2.5) | projection tests; S10 |
+| 1 | claude | `blueprint_studio/web/src/embed.js`, `web/src/state/summary.js`, embed-mode UI tweaks, Register copy, the spine note, and their tests. First commits a sample `bs.summary.v1` fixture, `tests/site/fixtures/summary.sample.json` | the unit tests in §3 |
+| 2 | deepseek | `js/studio-bridge.js` (schema check, FNV fingerprint, pure projections, a `textContent` renderer), `tests/site/studio-bridge.test.mjs`, and the `assurance.html` retirement (§2.5) | projection tests; S10 |
 | 3 | claude | `index.html` host changes (§2.4, §2.6), the root README, the change-log entry | S1–S9 |
-| 4 | codex | `tests/site/run-site-probes.mjs` (S1–S11, headless, reusing the probe style of `blueprint_studio/tests/probe`), plus the live read-back mode `--base <url>` | reports PASS/FAIL; UI defects reported, not fixed |
+| 4 | codex | `tests/site/run-site-probes.mjs` (S1–S12, headless, reusing the probe style of `blueprint_studio/tests/probe`), plus the live read-back mode `--base <url>` | reports PASS/FAIL; UI defects reported, not fixed |
 
 - Slices 1 and 2 build against §2.3's summary format; Claude commits a sample `bs.summary.v1` fixture first.
 - Code review: all three seats, unanimous. Then push, then the live read-back.
@@ -179,4 +248,6 @@ User direction: give Codex build work.
 
 ## 6. Review record
 
-*(pending)*
+### Round 1 (v0.1): DeepSeek PLAN-REJECTED (1), Codex PLAN-REJECTED (6)
+
+See §2.0.
