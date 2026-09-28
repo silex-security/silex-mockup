@@ -206,3 +206,53 @@ Verdicts: **DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · PLANNER (claude):
 | The §6 pipeline shows "read-back" after "action", which can read as a separate stage (DeepSeek 2) | T2: the Inspector labels it "read-back rule (post_tool span)" |
 
 Roster: planner Claude (Opus 5.5); coder-deepseek on `deepseek/deepseek-v4-pro` (the skill's `deepseek-reasoner` id is not offered by this OpenCode; same provider seat); reviewer-codex on `gpt-5.5` (Codex's default here was a non-OpenAI bridge model, so the seat was pinned with `-m gpt-5.5` for this session only).
+
+## Implementation (Step 5–7)
+
+Built on branch `jev-observability-demo` from base `3f90c1d`:
+
+- **T0 foundation (planner):** `5b24aab`: contract, types, scenarios, seeded RNG and engine stubs.
+- **T1 engine (DeepSeek):** 8 modules, 23 `node --test` tests, and a deterministic fixture (sha1 `008275a9655b…`, byte-identical across regenerations).
+  - It documented 7 contract interpretations, all accepted.
+  - #5 (an RTT spike can exceed the deadline and become L2) led to relabelling the fault option.
+- **T2 UI (planner):** Live, Replay, Policy Studio, About.
+- **T3 probes (Codex, build slice):** `tests/probe/run-probes.js`, P1–P8. Codex's writes were limited to that file; its command approvals were one at a time (the exact runner, or scratch-only mutants).
+
+The first integration run passed 4/8 probes. The failures were:
+- probe helpers that guessed field names instead of using the contract;
+- the Replay select using row numbers where the probes expected span ids;
+- replay-hook envelopes that could carry the live policy version (now always `+replay-N`).
+
+Each was fixed, giving 8/8.
+
+A process fix: T0's `npm test` script (`node --test tests/engine/`) fails on Node 25. It was changed to a glob.
+
+### Code round 1 (HEAD `be546ae`, diff revision `15699072…`)
+
+Verdicts: **DEEPSEEK: IMPL-APPROVED · CODEX: IMPL-APPROVED.** The non-blocking notes were folded in anyway, because they touched claim discipline and probe rigor:
+
+| Note (who) | Change |
+|---|---|
+| P2's UI sweep passed on a stale after-card once a band went invalid (DeepSeek 1, Codex 2) | P2 resets before each trial, uses valid bands only, asserts no policy error, and requires a freshly rendered `+replay-N` card. A stale-replay mutant (Re-run made a no-op) now fails P2 and P4 |
+| P4's extra hook call replayed under the live policy (DeepSeek 3) | Removed; P4 asserts the DOM replay under the raised threshold |
+| `injectScenario` flushed the whole stream under a fault (DeepSeek 4) | No flush; the fault is set only for the inject |
+| "Jev battery alone" showed the fallback verdict on a timeout (DeepSeek 2) | It shows `no answer (<status>)` |
+| The KPI tile label itself should say simulated (Codex 4, plan §2) | Labels read "(simulated)" / "(simulated tokens)" |
+| Agent and risk filters from plan §6 were missing (Codex 1) | Added |
+| `runStream` ignored `ctx.history` (Codex 3) | Seeds from `ctx.history`; the fixture is unchanged |
+
+### Code round 2 (confirmation; HEAD `dc95c11`, diff revision `ccc78bb5092b43576cc4b492a12392903e89f7ad`, fixture excluded, sha1 `008275a9655b…`)
+
+**DEEPSEEK: IMPL-APPROVED · CODEX: IMPL-APPROVED · PLANNER (claude): IMPL-APPROVED**, all against base `3f90c1d`.
+
+The remaining non-blocking note from DeepSeek is left as-is: the risk filter uses Jev's semantic risk label, so a hard-rule BLOCK with low Jev risk is hidden under "risk high".
+
+## Outcome
+
+- **Rounds:** plan, 2 (unanimous in round 2); code, 2 (approved in round 1 and confirmed in round 2 after the notes were folded in).
+- **Evidence:** unit tests 23/23 · probes 8/8 · mutation proofs P2, P4 and P5 (Codex) plus the stale-replay mutant (planner) · smoke screenshots at 1400 px and 390 px with no JS errors.
+- **What each seat caught:**
+  - **Codex:** plan-conformance gaps (KPI label wording, the §6 filters, `runStream` history); as builder, a probe suite whose mutation runs worked.
+  - **DeepSeek:** probe claims outrunning their evidence (stale-state passes, a no-op cross-check, fault pollution); a Jev-labelled cell showing a fallback verdict; 7 contract ambiguities, including RTT spike → L2.
+  - **Planner:** integration defects on the first probe run (select values, replay version labels); the Node 25 test-script bug; a mutant proving the new freshness guard.
+- **Not deployed.** Merging to `main` deploys to Vercel. That needs the user's go-ahead.
