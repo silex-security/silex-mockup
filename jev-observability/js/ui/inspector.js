@@ -135,7 +135,7 @@ export function renderInspector(el, row, ctx) {
     <div class="tbl-wrap"><table class="tbl">
       <tr><th>Path</th><th>Verdict</th><th>Latency</th><th>Tokens</th><th>Cost</th></tr>
       <tr><td>Hard rules (code)</td><td>${esc(ruleVerdict)}</td><td class="num">${fmtMs(lb.rules)}</td><td class="num">0</td><td class="num">$0</td></tr>
-      <tr><td>Jev battery alone (simulated)</td><td>${jevAlone ? decisionChip(jevAlone.decision) : '—'}</td>
+      <tr><td>Jev battery alone (simulated)</td><td>${jevOk && jevAlone ? decisionChip(jevAlone.decision) : `no answer (${esc(env.jev_status ?? 'not called')})`}</td>
         <td class="num">${jevOk ? fmtMs((env.latency_breakdown?.serialize || 0) + (env.latency_breakdown?.jev || 0)) || '—' : fmtMs(policy?.deadline_ms)}</td>
         <td class="num">${env.tokens_in || 0}</td><td class="num" title="${esc(PRICES.source)}">${fmtUsd(env.cost_usd)}</td></tr>
       <tr><td>LLM judge (simulated${env.escalation ? ', escalated' : ', comparison only'})</td><td>${esc(slow?.verdict ?? '—')}</td>

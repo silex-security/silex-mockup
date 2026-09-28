@@ -262,7 +262,6 @@ async function injectScenario(id, { fault = null } = {}) {
     const demo = window.__jevDemo;
     if (${quote(fault)} !== null) demo.setFault(${quote(fault)});
     const envelopes = await demo.inject(${quote(id)});
-    await demo.flush();
     if (${quote(fault)} !== null) demo.setFault(null);
     return envelopes;
   })()`);
@@ -351,12 +350,47 @@ async function selectReplaySpan(spanId) {
 }
 
 async function runReplay() {
+  const beforeText = await replayAfterText();
   await click('[data-replay-run]');
-  await until(() => evaluate('!!document.querySelector("[data-replay-after]")?.dataset.decision'), 'replay result');
+  await until(async () => {
+    const errorText = await policyErrorText();
+    assert.equal(errorText, '', `policy error: ${errorText}`);
+    const text = await replayAfterText();
+    const version = versionFromText(text);
+    return text !== beforeText && !!version && !!(await replayDecision());
+  }, 'fresh replay result');
+  assert.equal(await policyErrorText(), '', 'policy error after replay');
+  return replayAfterVersion();
 }
 
 async function replayDecision() {
   return evaluate('document.querySelector("[data-replay-after]")?.dataset.decision?.toUpperCase() || ""');
+}
+
+async function replayAfterText() {
+  return evaluate('document.querySelector("[data-replay-after]")?.innerText || ""');
+}
+
+function versionFromText(text) {
+  return String(text).match(/policy-v\d+(?:\+replay-\d+)?/)?.[0] ?? null;
+}
+
+async function replayAfterVersion() {
+  return versionFromText(await replayAfterText());
+}
+
+async function policyErrorText() {
+  return evaluate('document.querySelector("[data-policy-error]")?.textContent.trim() || ""');
+}
+
+async function resetReplayDraft() {
+  await click('#replay-reset');
+  await sleep(20);
+  assert.equal(await policyErrorText(), '', 'policy error after replay reset');
+}
+
+async function thresholdValue(threshold) {
+  return evaluate(`Number(document.querySelector('[data-threshold=${quote(threshold)}]')?.value)`);
 }
 
 async function setThreshold(selector, value) {
@@ -428,9 +462,20 @@ try {
     const thresholds = await evaluate('[...document.querySelectorAll("[data-threshold]")].map(el => el.dataset.threshold)');
     assert.ok(thresholds.length, 'missing replay threshold controls');
     for (const threshold of thresholds) {
-      for (const value of Array.from({ length: 19 }, (_, index) => ((index + 1) * 0.05).toFixed(2))) {
+      const [qid, kind] = threshold.split('.');
+      const pair = kind === 'review_threshold' ? `${qid}.block_threshold` : `${qid}.review_threshold`;
+      await resetReplayDraft();
+      const pairValue = await thresholdValue(pair);
+      const values = Array.from({ length: 19 }, (_, index) => (index + 1) * 0.05)
+        .filter(value => kind === 'review_threshold' ? value < pairValue - 1e-9 : value > pairValue + 1e-9)
+        .map(value => value.toFixed(2));
+      assert.ok(values.length, `no valid sweep values for ${threshold}`);
+      for (const value of values) {
+        await resetReplayDraft();
         await setThreshold(`[data-threshold="${threshold}"]`, value);
-        await runReplay();
+        assert.equal(await policyErrorText(), '', `${threshold}=${value} produced invalid policy`);
+        const version = await runReplay();
+        assert.match(version, /\+replay-\d+$/, `${threshold}=${value} did not render a fresh replay version`);
         assert.equal(await replayDecision(), 'BLOCK', `${threshold}=${value} changed S3`);
       }
     }
@@ -463,10 +508,9 @@ try {
     assert.ok(payeeProbability < 0.99, `payee_mismatch probability too high to raise threshold: ${payeeProbability}`);
     await selectReplaySpan(spanId);
     await setThreshold('[data-threshold="payee_mismatch.review_threshold"]', Math.min(0.99, payeeProbability + 0.01).toFixed(2));
-    await runReplay();
+    assert.equal(await policyErrorText(), '', 'raised payee threshold produced invalid policy');
+    const afterVersion = await runReplay();
     assert.equal(await replayDecision(), 'ALLOW');
-    const after = await evaluate(`window.__jevDemo.replay(${quote(spanId)}, window.__jevDemo.policy()).after`);
-    const afterVersion = policyVersionOf(after);
     assert.ok(beforeVersion, 'missing original policy_version');
     assert.ok(afterVersion, 'missing replay policy_version');
     assert.notEqual(afterVersion, beforeVersion, 'policy version did not change');

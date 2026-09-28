@@ -80,6 +80,14 @@
             <option value="nonallow">not ALLOW</option>
             <option>ALLOW</option><option>REVIEW</option><option>HOLD</option><option>BLOCK</option><option>ALERT</option><option>STOP</option>
           </select>
+          <select class="btn" id="f-agent" aria-label="Filter by agent">
+            <option value="">all agents</option>
+            <option value="ap-agent">ap-agent</option>
+          </select>
+          <select class="btn" id="f-risk" aria-label="Filter by risk">
+            <option value="">any risk</option>
+            <option value="high">risk high</option><option value="medium">risk medium</option><option value="low">risk low</option>
+          </select>
           <label class="jv-meta"><input type="checkbox" id="f-scen"> scenarios only</label>
         </header>
         <div class="jv-stream" id="stream" aria-live="polite"></div>

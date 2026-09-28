@@ -94,7 +94,7 @@ export function route(span, ctx) {
 }
 
 export function runStream(spans, ctx) {
-  const history = [];
+  const history = [...(ctx.history ?? [])]; // continue an existing log (per-trace filtering happens in buildState)
   const out = [];
   for (const span of spans) {
     const env = route(span, { ...ctx, history });

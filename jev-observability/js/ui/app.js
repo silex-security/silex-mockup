@@ -110,11 +110,13 @@ function setPlaying(on) {
 
 // ---- rendering -------------------------------------------------------------
 const streamEl = $('#stream'), inspEl = $('#inspector');
-const fBoundary = $('#f-boundary'), fDecision = $('#f-decision'), fScen = $('#f-scen');
+const fBoundary = $('#f-boundary'), fDecision = $('#f-decision'), fScen = $('#f-scen'), fAgent = $('#f-agent'), fRisk = $('#f-risk');
 
 function visible(row) {
   const d = fDecision.value, b = fBoundary.value;
   if (b && row.env.boundary !== b) return false;
+  if (fAgent.value && row.env.agent !== fAgent.value) return false;
+  if (fRisk.value && row.env.risk?.label !== fRisk.value) return false;
   if (d === 'nonallow' && row.env.decision === 'ALLOW' && !row.env.alert) return false;
   if (d && d !== 'nonallow' && row.env.decision !== d) return false;
   if (fScen.checked && !row.span.scenario) return false;
@@ -156,13 +158,13 @@ function select(s) {
 }
 
 const KPI_DEFS = [
-  ['p50', 'p50 added gate latency', k => fmtMs(k.p50_ms), k => k.p50_ms, 'simulated · pre_tool spans'],
-  ['p95', 'p95 added gate latency', k => fmtMs(k.p95_ms), k => k.p95_ms, 'simulated · report POC target ≤ 500 ms'],
+  ['p50', 'p50 added gate latency (simulated)', k => fmtMs(k.p50_ms), k => k.p50_ms, 'pre_tool spans · report budget'],
+  ['p95', 'p95 added gate latency (simulated)', k => fmtMs(k.p95_ms), k => k.p95_ms, 'report POC target ≤ 500 ms'],
   ['blocks', 'Blocks', k => String(k.blocks ?? 0), k => k.blocks, k => `holds ${k.holds ?? 0} · alerts ${k.alerts ?? 0}`],
   ['review_rate', 'Human review rate', k => fmtPct(k.review_rate), k => k.review_rate, 'REVIEW + HOLD + ALERT + STOP'],
   ['false_block', 'False-block rate', k => fmtPct(k.false_block_rate), k => k.false_block_rate, k => `vs scenario labels · n=${k.labelled_allow ?? 0}`],
   ['coverage', 'Pre-tool coverage', k => fmtPct(k.coverage), k => k.coverage, k => `${k.pre_tool ?? 0} pre_tool spans routed`],
-  ['cost', 'Jev $ / 1k judgments', k => fmtUsd(k.jev_cost_per_1k_usd), k => k.jev_cost_per_1k_usd, 'vendor list price · simulated tokens'],
+  ['cost', 'Jev $ / 1k judgments (simulated tokens)', k => fmtUsd(k.jev_cost_per_1k_usd), k => k.jev_cost_per_1k_usd, 'vendor list price, report p.3'],
 ];
 const TIP = {
   p50: 'Nearest-rank percentile of decision_latency_ms over pre_tool envelopes. Simulated from the report budget, not measured.',
@@ -201,7 +203,7 @@ $$('[data-speed]').forEach(b => b.addEventListener('click', () => {
 }));
 $$('[data-inject]').forEach(b => b.addEventListener('click', () => inject(b.dataset.inject)));
 $('[data-fault]').addEventListener('change', e => { fault = e.target.value || null; });
-[fBoundary, fDecision, fScen].forEach(x => x.addEventListener('change', applyFilters));
+[fBoundary, fDecision, fScen, fAgent, fRisk].forEach(x => x.addEventListener('change', applyFilters));
 streamEl.addEventListener('click', e => { const r = e.target.closest('.jv-row'); if (r) select(Number(r.dataset.seq)); });
 streamEl.addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
