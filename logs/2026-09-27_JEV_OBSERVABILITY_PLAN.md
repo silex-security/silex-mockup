@@ -1,6 +1,6 @@
 # Jev Real-time Agent Observability demo (plan v0.2)
 
-Author: Claude (planner) · 2026-09-27 · Status: **v0.2 — round 1 approved by DeepSeek and Codex; non-blocking notes folded in; confirmation round 2 pending**
+Author: Claude (planner) · 2026-09-27 · Status: **v0.2 — APPROVED by all three seats in round 2 (plan commit `23b705c`): DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · PLANNER (claude): PLAN-APPROVED.**
 Branch: `jev-observability-demo` (cut from `origin/main` `0ed6ae6`) · Review base: *recorded at Step 5*
 
 **Request (user, 2026-09-27):** "我要做 agent realtime observability using Jev 的 demo，请根据 ~/Downloads/llm-judge-realtime-observability-report.pdf 来生成一个 design plan，如果 review 通过可以开始实现，实现代码放到 Silex/silex-mockup 目录下面，建一个新的目录 for this specific demo."
@@ -195,3 +195,14 @@ Verdicts: **DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED.** No blocking objec
 | T0 acceptance cwd ambiguous (Codex 1) | "run from `jev-observability/`" |
 | Latency tile could read as live measurement (Codex 3) | KPI tile label says "simulated" (§2, §6) |
 
+
+### Round 2 (plan v0.2, commit `23b705c`, confirmation)
+
+Verdicts: **DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · PLANNER (claude): PLAN-APPROVED.** The plan text is frozen at `23b705c`. DeepSeek's two new non-blocking notes are carried to implementation (judged at the code gate), not written into the plan:
+
+| Suggestion (who) | Where it lands |
+|---|---|
+| Enforce `review_threshold < block_threshold` (DeepSeek 1) | T1: an engine test asserts `policy.validate` rejects inverted bands; T2: Policy Studio clamps |
+| The §6 pipeline shows "read-back" after "action", which can read as a separate stage (DeepSeek 2) | T2: the Inspector labels it "read-back rule (post_tool span)" |
+
+Roster: planner Claude (Opus 5.5); coder-deepseek on `deepseek/deepseek-v4-pro` (the skill's `deepseek-reasoner` id is not offered by this OpenCode; same provider seat); reviewer-codex on `gpt-5.5` (Codex's default here was a non-OpenAI bridge model, so the seat was pinned with `-m gpt-5.5` for this session only).
