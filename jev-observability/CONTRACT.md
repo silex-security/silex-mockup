@@ -167,7 +167,7 @@ log(), kpis(), inject(id) → Envelope[], setFault(kind|null), flush(), select(s
 | `[data-span-id]` rows with `data-scenario`, `data-boundary`, `data-decision`, `data-decided-by` | stream rows (routed spans) |
 | `[data-play]`, `[data-step]`, `[data-speed="1|4"]`, `[data-inject="S1".."S6"|"F1"]`, `[data-fault]` (select: none/rtt_spike/timeout/down) | stream controls |
 | `[data-inspector]` with `data-span-id`; `[data-jev-answer="<qid>"][data-simulated="true"]`; `[data-override-note]` (present when a rule decided and Jev is advisory) ; `[data-envelope]` (JSON `<pre>`) ; `[data-siem]` | Decision Inspector |
-| `[data-replay-span]` (select), `[data-threshold="<qid>.review_threshold|<qid>.block_threshold"]` (range inputs), `[data-replay-run]`, `[data-replay-before]` / `[data-replay-after]` with `data-decision`, `[data-replay-note]` | Replay |
+| `[data-replay-span]` (select; option values are envelope `span_id`s), `[data-threshold="<qid>.review_threshold|<qid>.block_threshold"]` (range inputs), `[data-replay-run]`, `[data-replay-before]` / `[data-replay-after]` with `data-decision`, `[data-replay-note]` | Replay |
 | `[data-policy-version]`, `[data-tool-mode="<tool>"]` (select monitor/gate), `[data-tool-fail="<tool>"]` (select open/closed), `[data-policy-error]` | Policy Studio |
 | `[data-simulated-badge]` | the persistent "simulated" banner |
 

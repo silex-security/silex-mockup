@@ -2,6 +2,24 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-09-27 — Jev real-time observability demo (new standalone page)
+
+[Plan v0.2 and review record](2026-09-27_JEV_OBSERVABILITY_PLAN.md) · [Demo README](../jev-observability/README.md).
+
+- A new directory, `jev-observability/`, holds a self-contained page, *Real-time Agent Risk Signals*. It is built from the report "Jev 驱动的实时 Agent 可观测性" (POC page p.15, blueprint p.11–14).
+- An AP / Procurement agent's spans pass hard rules → a simulated Jev battery → a policy in code:
+  - **Live:** trace stream, KPIs and the Decision Inspector, with scenarios S1–S6, the F1 timeout and fault injection;
+  - **Replay:** re-run a span under other thresholds, or sweep every threshold;
+  - **Policy Studio:** versioned thresholds, and per-tool Monitor / Gate and fail-open / fail-closed;
+  - **About & evidence:** what is simulated, the report's public numbers with their caveats, and its POC gates as hypotheses.
+- Claim discipline:
+  - no model is called: the judge is `jev-sim`, which derives its probabilities from State Engine features;
+  - latencies are simulated from the report's budget;
+  - KPIs are computed from the page's own log, and false-block rate and recall are measured against author labels, not a benchmark;
+  - the report's public figures appear only in the evidence panel.
+- Evidence: 23 engine tests (`npm test`); the fixture is byte-identical across regenerations; 8/8 headless probes (`npm run probe`). P2, P4 and P5 were each shown to fail against a mutated copy.
+- **Left alone:** `index.html`, `assurance.html`, `swm/`, `blueprint_studio/` and `js/`. The review diff touches only `jev-observability/`, this file, the project README and the plan file.
+
 ## 2026-09-22 — Sparse Observability: how the I-1042 picture was reconstructed
 
 [Plan v0.3](2026-09-22_SPARSE_OBSERVABILITY_PLAN.md) · [Implementation log](2026-09-22_SPARSE_OBSERVABILITY_IMPLEMENTATION.md).
