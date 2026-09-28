@@ -1,6 +1,6 @@
-# Jev Real-time Agent Observability demo (plan v0.1)
+# Jev Real-time Agent Observability demo (plan v0.2)
 
-Author: Claude (planner) · 2026-09-27 · Status: **v0.1 — draft, in review**
+Author: Claude (planner) · 2026-09-27 · Status: **v0.2 — round 1 approved by DeepSeek and Codex; non-blocking notes folded in; confirmation round 2 pending**
 Branch: `jev-observability-demo` (cut from `origin/main` `0ed6ae6`) · Review base: *recorded at Step 5*
 
 **Request (user, 2026-09-27):** "我要做 agent realtime observability using Jev 的 demo，请根据 ~/Downloads/llm-judge-realtime-observability-report.pdf 来生成一个 design plan，如果 review 通过可以开始实现，实现代码放到 Silex/silex-mockup 目录下面，建一个新的目录 for this specific demo."
@@ -29,9 +29,9 @@ This is the constraint the reviewers should check hardest.
 
 - **No real Jev call.** There is no TypeSafe API key, and a public demo must not send traces anywhere. The judge is a **scripted simulator** (`jev-sim`). Every place a Jev answer appears is labelled *simulated*. The judge version string is `jev-sim/1.13-shape (simulated)`, never `typesafe/jev-1.13.0`.
 - **Simulated probabilities have a source in the data.** Each probability is a deterministic function of State Engine features (e.g. payee-name similarity, an injection-marker score, destination domain vs allowlist), plus seeded jitter. The Inspector shows *which features fed it*. No hand-typed probabilities.
-- **Latencies are simulated from the report's budget table** (R p.9: local checks 5–15 ms, serialise/redact/network 30–100 ms, Jev 100–350 ms, policy + write-back 5–20 ms), seeded. The page says "simulated against the report's POC budget, not measured". The LLM-judge path is simulated in the 1.5–3 s range the report's external experiments show (R p.4), labelled the same way.
+- **Latencies are simulated from the report's budget table** (R p.9: local checks 5–15 ms, serialise/redact/network 30–100 ms, Jev 100–350 ms, policy + write-back 5–20 ms), seeded. The page says "simulated against the report's POC budget, not measured". The LLM-judge path is simulated in the **1.66–2.83 s** range measured in the report's external experiments (R p.4: OpenRouter 1.662 s, Arize 1.915 s, LangChain 2.16–2.83 s), labelled the same way.
 - **Cost:** Jev $/1k uses the vendor list price quoted in R p.3 ($0.042 per M input tokens, output free), labelled "vendor list price [R ref 7], simulated token counts". The LLM path shows **tokens and latency only**; no LLM price is quoted because the report sources none.
-- **KPIs are computed from the demo's own decision log** (p50/p95 added latency, blocks, review rate, coverage, false-block rate, $/1k). False-block rate and recall are against **scenario labels written by the demo author**, labelled "scenario labels — not a benchmark" (R p.16: 20 red-team samples do not prove a 90% catch rate).
+- **KPIs are computed from the demo's own decision log** (p50/p95 *simulated* added gate latency — the tile label itself says "simulated", blocks, review rate, coverage, false-block rate, $/1k). False-block rate and recall are against **scenario labels written by the demo author**, labelled "scenario labels — not a benchmark" (R p.16: 20 red-team samples do not prove a 90% catch rate).
 - **Public numbers from the report** (141 ms, 87%, etc.) appear **only** in an "Evidence from the report" drawer, each with its caveat and reference number, never on a KPI tile.
 - **Execution is the customer's.** The Action column says "sent to customer gateway (simulated)"; Silex never "executes" the payment (R p.13 boundary principle).
 
@@ -96,6 +96,10 @@ span  →  state.build(span, history, now)          // dense snapshot, source + 
 | `grounded` | Noul | Is the draft output supported only by the given evidence? | P1 rewrite/downgrade |
 | `intervene` | Noul | Does this trajectory need intervention now? | session health |
 
+**Thresholds (names fixed in CONTRACT.md):** per Noul question, `review_threshold` (p ≥ it → REVIEW) and `block_threshold` (p ≥ it → BLOCK), with `review_threshold < block_threshold`; plus `confidence_floor` and `margin_floor` for escalation. Hard rules have no threshold and are not reachable from the policy object.
+
+**Read-back placement:** the read-back rule is a hard rule evaluated inside `rules.check` **only at the `post_tool` boundary**, against the ERP read-back span; the pipeline's "read-back" stage is that rule, not a separate module.
+
 **Decision set:** `ALLOW`, `REVIEW`, `HOLD` (evidence gate: approval missing), `BLOCK`, plus `ALERT` for post-tool issues. Each carries `decided_by: rule | jev | llm | fallback`.
 
 **Modes** (R p.6): **Monitor** (shadow: action is always ALLOW, envelope records `would_have`) and **Gate** (enforced). Per-tool mode in Policy Studio.
@@ -123,7 +127,7 @@ All scenario inputs are OpenTelemetry-shaped spans (`invoke_agent`, `chat`, `exe
 One page, three tabs over a shared engine instance:
 
 - **Live** (default)
-  - **Top KPI strip:** p50 / p95 added gate latency, blocks, review rate, false-block rate *(scenario labels)*, coverage (% of `pre_tool` spans with an explicit route — R p.16 target 100%), Jev $/1k. Each tile has a hover source note.
+  - **Top KPI strip:** p50 / p95 *simulated* added gate latency, blocks, review rate, false-block rate *(scenario labels)*, coverage (% of `pre_tool` spans with an explicit route — R p.16 target 100%), Jev $/1k. Each tile has a hover source note.
   - **Left — Live Trace Stream:** spans stream in on a simulated clock (play / pause / 1× / 4× / step). Filters: boundary, agent, verdict, risk. Risk spans highlight immediately with judge RTT. "Inject scenario" buttons for S2–S6 and the F1 fault toggle.
   - **Right — Decision Inspector** for the selected span:
     - the decision order as a vertical pipeline (state → hard veto → Jev battery → policy → escalation → action → read-back), each step with its time;
@@ -140,18 +144,18 @@ Accessibility and layout: works at 1280 px and down to 390 px (stacked panels), 
 ## 7. Tasks and ownership (literal paths; nothing outside your list)
 
 **T0 — Foundation (planner, alone, first thing in Step 5, checkpoint-committed before dispatch).**
-`jev-observability/{CONTRACT.md,package.json}`, `js/engine/{types.js,scenarios.js,rng.js}`, stub exports for every engine module so imports resolve. Acceptance: `node -e "import('./js/engine/router.js')"` resolves; CONTRACT lists every function signature, the envelope schema, the DOM hooks and the probe title protocol.
+`jev-observability/{CONTRACT.md,package.json}`, `js/engine/{types.js,scenarios.js,rng.js}`, stub exports for every engine module so imports resolve. Acceptance: run from `jev-observability/`, `node -e "import('./js/engine/router.js')"` resolves; CONTRACT lists every function signature, the envelope schema, the threshold names, the DOM hooks (`data-*` attributes the probes select on) and the probe reporting convention.
 
 **T1 — Engine (deepseek).** `js/engine/{state,rules,jev-sim,llm-sim,policy,router,kpi,siem}.js`, `tests/engine/*.test.js`, `tools/build-fixture.js`, `data/fixture.json`.
 Acceptance: `npm test` green; each S1–S6 and F1 reaches its expected decision and `decided_by`; same seed ⇒ byte-identical fixture; no threshold in a sweep (0.05 steps over every band) changes S3/S4; every probability in the fixture lists ≥1 source feature; KPIs recomputed in a test from the raw log match `kpi.js`.
 
 **T2 — UI (planner).** `index.html`, `css/app.css`, `js/ui/*.js`, `README.md`. Acceptance: loads with no console error; all §6 panels render from the live engine; smoke run + screenshots at 1280 and 390 px.
 
-**T3 — Acceptance probes (reviewer-codex, build slice).** `tests/probe/run-probes.js` only, modelled on `tests/site/run-site-probes.mjs` (local static server, isolated Chrome profile, verdicts in `<title>`). Probes, at least:
+**T3 — Acceptance probes (reviewer-codex, build slice).** `tests/probe/run-probes.js` only, modelled on `tests/site/run-site-probes.mjs` and using **its convention**: local static server, isolated Chrome profile, driven over CDP, one PASS/FAIL line per probe on stdout and a non-zero `process.exitCode` on any failure; `--shots <dir>` for screenshots. No `<title>` protocol. Probes, at least:
 - P1 every tab / panel renders, no JS error;
 - P2 S3: hard-veto BLOCK survives every threshold in Replay; the Jev answer is shown as non-overriding;
 - P3 S4: HOLD with Jev "safe" ≥ 0.9 still HOLD;
-- P4 S2: REVIEW band, and moving the review floor above the probability flips it to ALLOW, while the envelope's policy version changes;
+- P4 S2: REVIEW band, and raising `review_threshold` above the probability flips it to ALLOW, while the envelope's policy version changes;
 - P5 F1: payment fails closed, lookup allows + alert, and no stale verdict is reused;
 - P6 Monitor mode: S3 logs `would_have: BLOCK`, action ALLOW;
 - P7 claim discipline: every Jev answer node carries the *simulated* label; the strings `typesafe/jev-1.13.0` and any KPI tile containing 141 / 87% are absent;
@@ -160,7 +164,7 @@ Each probe is shown to fail once with the fix disabled (skill rule).
 
 Codex's writes are approved only for `tests/probe/run-probes.js` during T3.
 
-**Parallelism:** after T0, T1 / T2 / T3 run in parallel against `CONTRACT.md` and a fixture generated from the stubbed-then-real engine. T2 uses the engine directly in the browser, so integration failures are real defects, not interface mismatches.
+**Parallelism:** after T0, T1 / T2 / T3 are **authored** in parallel against `CONTRACT.md`. T2 uses the engine directly in the browser, so integration failures are real defects, not interface mismatches. Probe **execution** is gated on T1 + T2 landing; T3 is not expected to run green inside its own slice.
 
 ## 8. Out of scope
 
@@ -177,4 +181,17 @@ Codex's writes are approved only for `tests/probe/run-probes.js` during T3.
 
 ## Review record
 
-*(Round tables are appended here.)*
+### Round 1 (plan v0.1, commit `776e9e9`)
+
+Verdicts: **DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED.** No blocking objections. Non-blocking suggestions folded in:
+
+| Suggestion (who) | Change in v0.2 |
+|---|---|
+| The existing probe runner has no `<title>` verdict convention; don't invent a divergent one (DeepSeek 1, Codex 2) | T3 uses the existing runner's stdout PASS/FAIL + exit-code convention; CONTRACT states it |
+| LLM latency 1.5–3 s over-reaches R p.4's measured range (DeepSeek 2) | Simulated LLM range is 1.66–2.83 s, each source named |
+| Two threshold knobs need fixed names so policy and probes agree (DeepSeek 3) | `review_threshold`, `block_threshold`, `confidence_floor`, `margin_floor` named in §4 and CONTRACT; P4 uses the name |
+| Read-back is both a rule and a pipeline stage (DeepSeek 4) | §4: it is a hard rule, evaluated only at `post_tool` inside `rules.check` |
+| T3 execution needs T1+T2 (DeepSeek 5) | §7: probes are authored in parallel; execution gated on T1+T2 |
+| T0 acceptance cwd ambiguous (Codex 1) | "run from `jev-observability/`" |
+| Latency tile could read as live measurement (Codex 3) | KPI tile label says "simulated" (§2, §6) |
+
