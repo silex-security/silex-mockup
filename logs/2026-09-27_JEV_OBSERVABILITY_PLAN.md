@@ -1,7 +1,7 @@
 # Jev Real-time Agent Observability demo (plan v0.2)
 
 Author: Claude (planner) · 2026-09-27 · Status: **v0.2 — APPROVED by all three seats in round 2 (plan commit `23b705c`): DEEPSEEK: PLAN-APPROVED · CODEX: PLAN-APPROVED · PLANNER (claude): PLAN-APPROVED.**
-Branch: `jev-observability-demo` (cut from `origin/main` `0ed6ae6`) · Review base: *recorded at Step 5*
+Branch: `jev-observability-demo` (cut from `origin/main` `0ed6ae6`) · Review base: `3f90c1d` (code-gate diffs are taken against it)
 
 **Request (user, 2026-09-27):** "我要做 agent realtime observability using Jev 的 demo，请根据 ~/Downloads/llm-judge-realtime-observability-report.pdf 来生成一个 design plan，如果 review 通过可以开始实现，实现代码放到 Silex/silex-mockup 目录下面，建一个新的目录 for this specific demo."
 
