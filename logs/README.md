@@ -2,13 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
-## 2026-09-30 — Runtime Observe becomes its own view
+## 2026-09-30 — Runtime Observation becomes its own view
 
 [Plan and review record](2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md).
 
-- **Runtime Observe** is now its own left-nav view in the Environment group, between Enterprise World Model and System Validation. Its content is the former Runtime tab, unchanged.
+- **Runtime Observation** is now its own left-nav view in the Environment group, between Enterprise World Model and System Validation. Its content is the former Runtime tab, unchanged.
 - **System Validation** is back to its original single page. Its section is byte-identical to the version before the integration (`fbd598d`).
-- **The old deep link** `#view=long-term&tab=runtime` redirects to `#view=runtime-observe`.
+- **The old deep link** `#view=long-term&tab=runtime` redirects to `#view=runtime-observation`.
 
 ## 2026-09-30 — Runtime Validation in System Validation (Jev runtime demo)
 

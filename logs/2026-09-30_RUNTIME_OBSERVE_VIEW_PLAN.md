@@ -1,5 +1,7 @@
 # Plan: Runtime Observe as its own view — r1
 
+> **Renamed 2026-09-30, after the code gate:** at the user's request ("改Tab名字叫 Runtime Observation") the view is named **Runtime Observation**, with id and deep link `#view=runtime-observation`. This record keeps the original name as written. The rename is a string and id change only (index.html, js/jev-runtime-host.js, probes, docs, guide §8 and screenshots 08–10 in both repos); suites after it: unit 20/20, probes 19/19.
+
 Date 2026-09-30 · branch `runtime-observe-tab` from `main` `d84c94d` · roster: planner Claude, `coder-deepseek`, `reviewer-codex`; both gates unanimous.
 
 **User request:** "把Jev runtime observability demo 功能独立出来作为一个新tab 放在 'System Validation' tab 上面, 'Enterprise World Model' 下面, tab名字叫 'Runtime Observe'". In English: split the Jev runtime demo out into its own left-nav entry named **Runtime Observe**, placed below Enterprise World Model and above System Validation.

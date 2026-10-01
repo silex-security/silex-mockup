@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observe S13–S19. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order). Isolated Chrome profile;
@@ -250,7 +250,7 @@ try {
   }
   const rt = code => ev('const w=globalThis.document.querySelector("#rtFrame").contentWindow;const document=w.document,window=w;'+code);
   async function rtReady(){await until(()=>ev('return !!document.querySelector("#rtFrame")?.contentWindow?.__jevDemo?.ready'),'runtime iframe ready');}
-  async function rtOpen(){await load();await until(()=>ev('return !!window.__jevRuntime?.ready'),'runtime host ready');await nav('runtime-observe');await rtReady();}
+  async function rtOpen(){await load();await until(()=>ev('return !!window.__jevRuntime?.ready'),'runtime host ready');await nav('runtime-observation');await rtReady();}
   async function rtRun(id,checkSelection=true){await rtClick(`[data-rt-scenario="${id}"] [data-rt-run]`);await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),'runtime '+id+' complete');await rtReady();if(checkSelection)await until(()=>rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='${id}').at(-1);return !!last&&document.querySelector('.run-card[data-selected]')?.dataset.runId===last.trace_id`),'selected latest '+id);}
   async function rtResult(id){
     const state=await rt(`const all=window.__jevDemo.log();const last=all.filter(e=>e.scenario==='${id}').at(-1);if(!last)throw Error('no injected envelopes');return all.filter(e=>e.trace_id===last.trace_id);`);
@@ -271,10 +271,10 @@ try {
     assert.deepEqual(old.ids,[true,true,true,true,true,true]);assert.equal(old.steps,6);assert.match(old.history,/Jul/);assert.match(old.history,/Aug/);
     assert.equal(await ev('return document.querySelectorAll("#rtFrame").length'),0,'no iframe before first visit');
     assert.equal(await ev('return document.querySelectorAll(".lt-tabs,.lt-tab,#ltPeriodic,#ltRuntime,#ltSub,#ltControls").length'),0,'tab markup and wrappers removed');
-    await nav('runtime-observe');await rtReady();
+    await nav('runtime-observation');await rtReady();
     assert.equal(await ev('return document.querySelectorAll("#rtFrame").length'),1,'one lazily created iframe');
     await nav('long-term');
-    assert.equal(await ev(`return ['ltCadence','runEnvBtn'].every(id=>{const e=document.getElementById(id),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'})`),true,'periodic controls visible after Runtime Observe');
+    assert.equal(await ev(`return ['ltCadence','runEnvBtn'].every(id=>{const e=document.getElementById(id),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'})`),true,'periodic controls visible after Runtime Observation');
     await rtClick('#runEnvBtn');await until(()=>ev('return document.querySelector("#ltStatus").textContent==="Complete"'),'periodic complete');
     assert.equal(await ev('return document.querySelectorAll("#ltHistory [data-sep]").length'),1);
     assert.match(await ev('return document.querySelector("#ltHistory [data-sep]").textContent'),/Sep.*24 workflows.*53 agents.*2,700.*3.*1/s);
@@ -313,7 +313,7 @@ try {
     claims(await ev('return document.querySelector("#rtSteps").textContent+document.querySelector("#rtResult").textContent'));
     const retained=await ev(`window.__probeRuntimeDocument=document.querySelector('#rtFrame').contentDocument;return {result:document.querySelector('#rtResult').textContent,steps:[...document.querySelectorAll('#rtSteps .run-step')].map(e=>e.className)}`);
     const selected=await rt('return document.querySelector(".run-card[data-selected]").dataset.runId');
-    await nav('long-term');await nav('runtime-observe');await rtReady();
+    await nav('long-term');await nav('runtime-observation');await rtReady();
     assert.equal(await ev('return document.querySelector("#rtFrame").contentDocument===window.__probeRuntimeDocument'),true,'frame document preserved on return');
     assert.equal(await ev('return document.querySelectorAll("#rtFrame").length'),1,'return reuses single iframe');
     assert.equal(await rt('return window.__jevDemo.policy().tools["payments.execute"].mode'),'monitor');
@@ -329,27 +329,27 @@ try {
     assert.ok((await rt('return document.querySelector(".run-card[data-selected][data-scenario=S3]").textContent')).includes('Blocked · did not run'));return 'SOC→AP switch, selected S3, hard-rule non-execution';
   });
   await probe('S17','Runtime deep link and full-page/back round trip',async()=>{
-    async function viewIs(id){await until(()=>ev(`return document.querySelector('.view.active')?.id===${Q(id)}`),'active '+id);assert.equal(await ev('return document.querySelector(".nav button.active")?.dataset.view'),id);assert.equal(await ev('return document.querySelector("#crumb").textContent'),id==='runtime-observe'?'Runtime Observe':id==='long-term'?'System Validation':'Agentic Blueprint Studio');}
-    await load({path:'/index.html#view=runtime-observe'});await rtReady();await viewIs('runtime-observe');
+    async function viewIs(id){await until(()=>ev(`return document.querySelector('.view.active')?.id===${Q(id)}`),'active '+id);assert.equal(await ev('return document.querySelector(".nav button.active")?.dataset.view'),id);assert.equal(await ev('return document.querySelector("#crumb").textContent'),id==='runtime-observation'?'Runtime Observation':id==='long-term'?'System Validation':'Agentic Blueprint Studio');}
+    await load({path:'/index.html#view=runtime-observation'});await rtReady();await viewIs('runtime-observation');
     const order=await ev(`return [...document.querySelectorAll('.nav button[data-view]')].map(e=>({id:e.dataset.view,label:e.textContent.trim()}))`);
     const world=order.findIndex(e=>e.id==='security-model');assert.ok(world>=0);
-    assert.deepEqual(order.slice(world,world+3).map(e=>e.id),['security-model','runtime-observe','long-term']);
-    assert.ok(order[world].label.includes('Enterprise World Model'));assert.ok(order[world+1].label.includes('Runtime Observe'));assert.ok(order[world+2].label.includes('System Validation'));
-    await load({path:'/index.html#view=long-term&tab=runtime'});await rtReady();await viewIs('runtime-observe');
-    assert.equal(await ev('return location.hash'),'#view=runtime-observe','cold legacy redirect');
+    assert.deepEqual(order.slice(world,world+3).map(e=>e.id),['security-model','runtime-observation','long-term']);
+    assert.ok(order[world].label.includes('Enterprise World Model'));assert.ok(order[world+1].label.includes('Runtime Observation'));assert.ok(order[world+2].label.includes('System Validation'));
+    await load({path:'/index.html#view=long-term&tab=runtime'});await rtReady();await viewIs('runtime-observation');
+    assert.equal(await ev('return location.hash'),'#view=runtime-observation','cold legacy redirect');
     await ev("location.hash='view=long-term&tab=periodic'");await viewIs('long-term');
-    await ev("location.hash='view=long-term&tab=runtime'");await viewIs('runtime-observe');
-    await until(()=>ev("return location.hash==='#view=runtime-observe'"),'loaded legacy hash rewritten');
+    await ev("location.hash='view=long-term&tab=runtime'");await viewIs('runtime-observation');
+    await until(()=>ev("return location.hash==='#view=runtime-observation'"),'loaded legacy hash rewritten');
     await ev("location.hash='view=long-term'");await viewIs('long-term');
-    await ev("location.hash='view=runtime-observe'");await viewIs('runtime-observe');await rtReady();
+    await ev("location.hash='view=runtime-observation'");await viewIs('runtime-observation');await rtReady();
     for(const [id,domain] of [['S3','ap'],['SOC2','soc']]){
       await rtRun(id);const seed=await rt('return window.__jevDemo.seed');
       await ev(`document.querySelector('#rtOpenFull').addEventListener('click',e=>e.preventDefault(),{once:true})`);await rtClick('#rtOpenFull');
       const href=await ev('return document.querySelector("#rtOpenFull").href');const u=new URL(href);
-      assert.equal(u.searchParams.get('domain'),domain);assert.equal(u.searchParams.get('seed'),String(seed));assert.ok(!u.searchParams.has('embed'));assert.equal(u.searchParams.get('back'),'../../index.html#view=runtime-observe');
+      assert.equal(u.searchParams.get('domain'),domain);assert.equal(u.searchParams.get('seed'),String(seed));assert.ok(!u.searchParams.has('embed'));assert.equal(u.searchParams.get('back'),'../../index.html#view=runtime-observation');
       await page.send('Page.navigate',{url:href});await until(()=>ev('return !!window.__jevDemo?.ready'),'full demo');
       assert.equal(await ev('return document.querySelector(".jv-back").textContent.trim()'),'← Back');await rtClick('.jv-back');
-      await until(()=>ev('return !!window.__jevRuntime?.ready&&document.querySelector("#runtime-observe").classList.contains("active")'),'Back to runtime');await rtReady();
+      await until(()=>ev('return !!window.__jevRuntime?.ready&&document.querySelector("#runtime-observation").classList.contains("active")'),'Back to runtime');await rtReady();
     }
     await navigate('/index.html#studio');await frameReady();await viewIs('blueprint');
     await ev("location.hash='view=long-term&tab=periodic'");await viewIs('long-term');
@@ -365,10 +365,10 @@ try {
     for(const width of [1440,390]){
       await viewport(width);await sleep(250);
       assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host '+width+'px overflow');
-      assert.equal(await ev(`return document.querySelector('.view.active')?.id==='runtime-observe'&&document.querySelectorAll('.view.active').length===1&&document.querySelector('.nav button.active')?.dataset.view==='runtime-observe'`),true,'nav and view hygiene '+width+'px');
-      assert.equal(await ev(`const e=document.querySelector('.nav [data-view="runtime-observe"]'),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'`),true,'runtime nav visible '+width+'px');
+      assert.equal(await ev(`return document.querySelector('.view.active')?.id==='runtime-observation'&&document.querySelectorAll('.view.active').length===1&&document.querySelector('.nav button.active')?.dataset.view==='runtime-observation'`),true,'nav and view hygiene '+width+'px');
+      assert.equal(await ev(`const e=document.querySelector('.nav [data-view="runtime-observation"]'),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'`),true,'runtime nav visible '+width+'px');
       assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'frame '+width+'px overflow');
-      assert.equal(await ev(`return [...document.querySelectorAll('#runtime-observe .rt-lead .pill')].some(e=>e.getBoundingClientRect().width>0&&/simulated/i.test(e.textContent))`),true,'host simulation label visible');
+      assert.equal(await ev(`return [...document.querySelectorAll('#runtime-observation .rt-lead .pill')].some(e=>e.getBoundingClientRect().width>0&&/simulated/i.test(e.textContent))`),true,'host simulation label visible');
       assert.equal(await rt(`const e=document.querySelector('[data-simulated-badge]');const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'&&/SIMULATED/.test(e.textContent)`),true,'frame badge visible');
     }
     return 'host/iframe responsive at 1440/390, visible simulation labels, no affirmative delivery claim or JS errors';

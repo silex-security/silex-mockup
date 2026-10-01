@@ -321,7 +321,7 @@
     #assurance .as-glegend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px;font-size:11px;color:var(--muted);align-items:center}
     @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
     @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
-  /* Runtime Observe view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md; content from the Runtime Validation plan). */
+  /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md; content from the Runtime Validation plan). */
   .rt-lead{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;padding:16px 20px;margin-bottom:18px}
   .rt-lead p{margin:0;color:var(--muted);font-size:13px;max-width:880px}.rt-lead p b{color:var(--ink)}.rt-lead .pill{white-space:nowrap}
   .rt-scen-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -463,7 +463,7 @@
 <div class="section-label">Environment</div>
 <nav class="nav">
 <button data-view="security-model"><span class="ico">◎</span>Enterprise World Model</button>
-<button data-view="runtime-observe"><span class="ico">◉</span>Runtime Observe</button>
+<button data-view="runtime-observation"><span class="ico">◉</span>Runtime Observation</button>
 <button data-view="long-term"><span class="ico">⟳</span>System Validation</button>
 </nav>
 <div class="section-label">Workspace</div>
@@ -1046,10 +1046,10 @@
 </div>
 </section>
 
-<section class="view" id="runtime-observe">
+<section class="view" id="runtime-observation">
 <div class="title-row">
 <div>
-<h1>Runtime Observe <span class="help" data-help="Watch each agent action as it happens and see what runtime validation decides before it runs. Simulated engine.">?</span></h1>
+<h1>Runtime Observation <span class="help" data-help="Watch each agent action as it happens and see what runtime validation decides before it runs. Simulated engine.">?</span></h1>
 <p>Action-wise. Is each agent action safe to run, decided before it runs?</p>
 </div>
 </div>
@@ -1208,7 +1208,7 @@
 <div class="def-item" id="def-workflowcov"><strong>Workflow Coverage</strong><p>How much of the enterprise agentic workflow inventory is represented.</p></div>
 <div class="def-item" id="def-worldmodel"><strong>World Model Coverage</strong><p>How much of the relevant enterprise environment SILEX currently understands.</p></div>
 <div class="def-item" id="def-workflowval"><strong>Workflow Validation</strong><p>Workflow-wise and change-triggered: a workflow is revalidated when the agents, permissions, policies or dependencies it relies on change.</p></div>
-<div class="def-item" id="def-runtimeval"><strong>Runtime Observe</strong><p>Watch each agent action as it happens and see what runtime validation decides before it runs (hard rules → judgment → policy). Shown with a simulated engine.</p></div>
+<div class="def-item" id="def-runtimeval"><strong>Runtime Observation</strong><p>Watch each agent action as it happens and see what runtime validation decides before it runs (hard rules → judgment → policy). Shown with a simulated engine.</p></div>
 <div class="def-item" id="def-systemval"><strong>System Validation</strong><p>System-wise and periodic: environment-wide recalibration, backtesting, red teaming and adversarial validation, on a cadence the enterprise defines.</p></div>
 </div>
 <div class="modal-actions"><button class="btn secondary" data-close="defsModal">Close</button></div>
@@ -1262,8 +1262,8 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Assurance',overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','short-term':'Pre-release','runtime-observe':'Runtime Observe','long-term':'System Validation','security-model':'Enterprise World Model'};
-  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observe'&&window.__jevRuntimeShown)window.__jevRuntimeShown();if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
+  const viewNames={assurance:'Assurance',overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','short-term':'Pre-release','runtime-observation':'Runtime Observation','long-term':'System Validation','security-model':'Enterprise World Model'};
+  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
   document.getElementById('regAssurance').addEventListener('click',()=>showView('assurance'));
   document.getElementById('regOps').addEventListener('click',()=>showView('overview'));
@@ -1609,14 +1609,14 @@ const incidentData={
   refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
   /* Hooks for js/studio-host.js (cutover plan 2026-09-24 §2.4). */
   window.__siteShowView=showView;window.__siteRefreshPending=refreshPending;window.__siteNotify=notify;
-  /* Runtime Observe view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md). js/jev-runtime-host.js uses this hook. */
+  /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md). js/jev-runtime-host.js uses this hook. */
   window.__siteRunSteps=runSteps;
-  /* Deep links: #view=runtime-observe and #view=long-term. The old #view=long-term&tab=runtime (from the earlier tab) is
-     rewritten to #view=runtime-observe; replaceState fires no hashchange, so the view is shown in the same call.
+  /* Deep links: #view=runtime-observation and #view=long-term. The old #view=long-term&tab=runtime (from the earlier tab) is
+     rewritten to #view=runtime-observation; replaceState fires no hashchange, so the view is shown in the same call.
      Other view= values are ignored, and #studio routes stay with js/studio-host.js. Nav clicks do not change the hash. */
   function applyViewHash(){const h=location.hash.slice(1);if(!h.startsWith('view='))return;const q=new URLSearchParams(h),v=q.get('view');
-    if(v==='long-term'&&q.get('tab')==='runtime'){history.replaceState(null,'','#view=runtime-observe');showView('runtime-observe');return}
-    if(v==='runtime-observe'||v==='long-term')showView(v)}
+    if(v==='long-term'&&q.get('tab')==='runtime'){history.replaceState(null,'','#view=runtime-observation');showView('runtime-observation');return}
+    if(v==='runtime-observation'||v==='long-term')showView(v)}
   window.addEventListener('hashchange',applyViewHash);applyViewHash();
   if(window.studioHostReady)window.studioHostReady();
 
