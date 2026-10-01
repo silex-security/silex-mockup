@@ -8,7 +8,7 @@
   let presentedPhone = phone.matches;
   let mode = 'auto', open = false, settled = true, input = 'pointer', pointerType = 'mouse';
   let timer = null, settleTimer = null, resizeTimer = null, resizeListener = null, resizeFrame = null;
-  let overEdge = false;
+  let overEdge = false, edgeBlocked = false, pointerX = Infinity;
   try { if (localStorage.getItem(KEY) === 'true') mode = 'pinned'; } catch {}
   const modal = () => !!document.querySelector('.modal-backdrop.open');
   const keyboardInside = () => input === 'keyboard' && sidebar.contains(document.activeElement);
@@ -19,8 +19,8 @@
     app.dataset.navMode = mode; app.dataset.navOpen = String(!phone.matches && open);
     sidebar.inert = !phone.matches && mode === 'auto' && !open;
     toggle.setAttribute('aria-expanded', String(state().open));
-    pinButton.setAttribute('aria-pressed', String(mode === 'pinned'));
-    const label = mode === 'pinned' ? 'Auto-hide sidebar' : 'Keep sidebar open';
+    pinButton.setAttribute('aria-expanded', String(state().open));
+    const label = mode === 'pinned' ? 'Hide sidebar' : 'Keep sidebar open';
     pinButton.setAttribute('aria-label', label); pinButton.title = label;
     clearTimeout(settleTimer);
     settled = phone.matches || reduced.matches;
@@ -36,15 +36,16 @@
     if (modal()) return;
     clearTimer();
     if (phone.matches || mode === 'pinned' || !open) return;
-    releaseFocus(reason); open = false; render();
+    edgeBlocked = pointerX >= 0 && pointerX <= 8;
+    open = false; app.dataset.navOpen = 'false';
+    releaseFocus(reason); render();
   }
-  function reveal(fromKeyboard = false) {
+  function reveal() {
     if (modal()) return;
     clearTimer();
     if (phone.matches || mode === 'pinned') return;
     open = true; render();
-    if (fromKeyboard) (sidebar.querySelector('.nav button.active') || sidebar.querySelector('.nav button'))?.focus({ preventScroll: true });
-    else scheduleClose();
+    scheduleClose();
   }
   function scheduleClose() {
     if (modal() || phone.matches || mode === 'pinned') return;
@@ -72,18 +73,27 @@
     clearTimer(); mode = on ? 'pinned' : 'auto';
     try { localStorage.setItem(KEY, String(on)); } catch { mode = 'auto'; }
     open = false;
-    if (mode === 'auto') { app.dataset.navMode = mode; releaseFocus('escape'); }
+    if (mode === 'auto') { edgeBlocked = pointerX >= 0 && pointerX <= 8; app.dataset.navMode = mode; app.dataset.navOpen = 'false'; releaseFocus('escape'); }
     render(); notifyResize();
   }
   document.addEventListener('keydown', e => {
     input = 'keyboard';
     if (e.key === 'Escape' && !modal()) close('escape');
   });
+  document.addEventListener('pointermove', e => { pointerX = e.clientX; }, true);
   document.addEventListener('pointerdown', e => {
+    pointerX = e.clientX;
     input = 'pointer'; pointerType = e.pointerType;
     if (!sidebar.contains(e.target) && !toggle.contains(e.target)) close();
   }, true);
-  toggle.addEventListener('click', () => { if (!modal()) reveal(input === 'keyboard'); });
+  toggle.addEventListener('click', () => {
+    if (modal()) return;
+    pin(true);
+    if (mode === 'pinned' && input === 'keyboard') {
+      const active = sidebar.querySelector('.nav button.active') || sidebar.querySelector('.nav button');
+      active?.focus({ preventScroll: true }); active?.scrollIntoView({ block: 'nearest' });
+    }
+  });
   pinButton.addEventListener('click', () => pin(mode !== 'pinned'));
   sidebar.addEventListener('click', e => {
     if (!e.target.closest('.nav button[data-view]') || modal()) return;
@@ -91,20 +101,20 @@
     if (input === 'keyboard' || pointerType === 'touch') close('selection');
   });
   sidebar.addEventListener('pointerenter', () => { if (!modal()) clearTimer(); });
-  sidebar.addEventListener('pointerleave', scheduleClose);
+  sidebar.addEventListener('pointerleave', e => { pointerX = e.clientX; scheduleClose(); });
   edge.addEventListener('pointerenter', e => {
-    overEdge = true;
-    if (modal() || phone.matches || mode === 'pinned' || e.pointerType === 'touch') return;
+    pointerX = e.clientX; overEdge = true;
+    if (edgeBlocked || modal() || phone.matches || mode === 'pinned' || e.pointerType === 'touch') return;
     clearTimer();
-    timer = setTimeout(() => { timer = null; if (overEdge && !modal() && !phone.matches && mode === 'auto') reveal(); }, 120);
+    timer = setTimeout(() => { timer = null; if (overEdge && !edgeBlocked && !modal() && !phone.matches && mode === 'auto') reveal(); }, 120);
   });
-  edge.addEventListener('pointerleave', () => { overEdge = false; if (!modal()) { clearTimer(); scheduleClose(); } });
+  edge.addEventListener('pointerleave', () => { overEdge = false; edgeBlocked = false; if (!modal()) { clearTimer(); scheduleClose(); } });
   sidebar.addEventListener('focusin', () => { if (input === 'keyboard' && !modal()) clearTimer(); });
   sidebar.addEventListener('focusout', () => {
     setTimeout(() => { if (!sidebar.contains(document.activeElement) && !modal()) close('focus'); }, 0);
   });
   phone.addEventListener('change', () => {
-    clearTimer(); cancelResize(); overEdge = false; open = false;
+    clearTimer(); cancelResize(); overEdge = false; edgeBlocked = pointerX >= 0 && pointerX <= 8; open = false;
     if (!phone.matches && mode === 'auto') releaseFocus('pointer');
     render();
   });
