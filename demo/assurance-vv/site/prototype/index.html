@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Silex — Agent assurance · Review demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="header">
+  <a class="brand" href="#view=assurance" aria-label="Silex home">SILE<span>X</span><i></i></a>
+  <span class="review-tag">REVIEW DEMO <span>01 / OCT / 2026</span></span>
+  <details class="more" id="more"><summary>More <span>＋</span></summary><div class="more-menu">
+    <p>TECHNICAL EVIDENCE</p><a href="#view=security-model">Enterprise World Model <span>↗</span></a>
+    <p>ADVANCED WORKFLOWS · FROZEN REFERENCE</p>
+    <button data-reference="policies">Policy decisions</button><button data-reference="incidents">Incident Queue</button>
+    <button data-reference="long-term">System Validation</button><button data-reference="overview">Overview</button><button data-reference="library">Workflow Library</button>
+    <p>ALTERNATE EXAMPLE</p><button data-soc>SOC runtime example</button>
+  </div></details>
+</header>
+<div class="nav-shell"><nav class="primary" aria-label="Main navigation">
+  <a href="#view=assurance" data-nav="assurance"><span>◆</span> Assurance</a>
+  <a href="#view=blueprint" data-nav="blueprint"><span>01</span> Blueprint Studio</a>
+  <a href="#view=short-term" data-nav="short-term"><span>02</span> Pre-release</a>
+  <a href="#view=runtime-observation" data-nav="runtime-observation"><span>03</span> Runtime Observation</a>
+</nav><div class="environment"><i></i> Simulated environment</div></div>
+<main id="main" tabindex="-1">
+<p id="routeNotice" class="notice" hidden></p>
+<section data-view="assurance">
+  <div class="hero">
+    <div class="hero-copy"><div class="eyebrow"><span class="line"></span> CONTINUOUS PRODUCTION ASSURANCE</div>
+      <h1>Evidence to release agents.<br><em>Checks to keep them aligned.</em></h1>
+      <p class="lede">Check declared permissions. Review changes before release.<br class="desktop"> Inspect runtime behavior against business intent.</p>
+      <div class="actions"><a class="button primary-button" href="#view=blueprint">Start with a blueprint <span>→</span></a><a class="text-link" href="#view=runtime-observation">See runtime checks ↗</a></div>
+      <p class="small muted">Interactive simulations and illustrative examples. No production deployment.</p>
+    </div>
+    <article class="agent-card"><div class="card-top"><span class="eyebrow">ONE AGENT. A CLEAR BOUNDARY.</span><span class="pill">DECLARED</span></div>
+      <div class="agent-mark">A<span>↗</span></div><h2>Finance Agent</h2><p>Vendor bank-detail changes</p>
+      <dl><div><dt>Owner</dt><dd>Accounts Payable</dd></div><div><dt>Task</dt><dd>Update vendor bank details</dd></div><div><dt>Business intent</dt><dd>Every change needs approval</dd></div></dl>
+      <div class="mismatch"><span>!</span><div><b>The declared workflow differs.</b><small>It requests approval only above $10,000.</small></div></div>
+      <p class="small muted">Source: Vendor Bank-Detail Change template. Named integrations are steps, not live connections.</p>
+    </article>
+  </div>
+  <div class="section-heading"><div><span class="eyebrow">ONE LIFECYCLE / THREE QUESTIONS</span><h2>From declared intent to runtime evidence.</h2></div><p>Three independent examples.<br>No shared deployment is implied.</p></div>
+  <div class="journey-grid">
+    <a class="journey" href="#view=blueprint"><div class="journey-top"><span>01 / BEFORE DEPLOYMENT</span><b>↗</b></div><h3>What can this agent do?</h3><p>Check a declared workflow. Compare fixes against both risk and normal business.</p><div class="journey-status" id="homeBlueprintStatus">Run a check to produce evidence</div><span class="source-label">DECLARED GRAPH · COMPUTED SIMULATION</span></a>
+    <a class="journey" href="#view=short-term"><div class="journey-top"><span>02 / BEFORE RELEASE</span><b>↗</b></div><h3>What changed?</h3><p>A model update passes output checks. An alternate route still needs review.</p><div class="journey-status amber">Output checks alone are not enough</div><span class="source-label">ILLUSTRATIVE MODEL COMPARISON</span></a>
+    <a class="journey" href="#view=runtime-observation"><div class="journey-top"><span>03 / DURING OPERATION</span><b>↗</b></div><h3>Did reality match intent?</h3><p>Inspect action decisions and verify the resulting business state.</p><div class="journey-status">Run an AP scenario to inspect its outcome</div><span class="source-label">SCRIPTED RUNTIME · SIMULATED JUDGE</span></a>
+  </div>
+  <div class="correspondence"><div><span class="eyebrow">THE REASON FOR BOTH</span><h2>Verification checks the specification.<br>Validation asks whether it still works.</h2><p>Evidence supports a decision to delegate more authority. Changes require fresh checks.</p><a class="text-link" href="#view=security-model">Explore the evidence behind a decision →</a></div><div class="intent-chain"><span>Designed intent</span><i>↕</i><span>Executed behavior</span><i>↕</i><span class="chain-last">Enterprise reality</span></div></div>
+</section>
+
+<section data-view="blueprint" hidden>
+  <div class="page-head"><div><span class="eyebrow">01 / AGENT ONBOARDING & V&V</span><h1>Bring an agent into a defined world.</h1><p>Inspect every entity and relationship, resolve missing semantics, then test the declared system.</p></div><span class="pill">DECLARED · BEFORE DEPLOYMENT</span></div>
+  <article class="intake panel">
+    <div class="intake-head"><div><span class="eyebrow">NEW AGENT INTAKE</span><h2 id="intakeName">Loading declared graph…</h2><p id="intakeSource">Real template · read-only intake preview</p></div><div class="intake-actions"><label class="button file-label">Import Blueprint JSON<input id="intakeFile" type="file" accept=".json,application/json"></label><button class="text-link" id="resetIntake">Use Finance template</button></div></div>
+    <p class="small muted">Supported: exported <code>silex.blueprint/v1</code> documents. Preview stays in memory; no automatic connection or write to Studio.</p>
+    <p class="notice" id="intakeChecks">Checking structure and mapping coverage…</p>
+    <div class="intake-grid"><div class="intake-canvas"><svg id="intakeGraph" role="group" aria-label="Agent onboarding graph. Select any entity or relation to inspect its schema."></svg><div class="graph-key"><span><i></i> Mapped entity</span><span><i class="key-gap"></i> Unmapped entity</span><span>→ flow</span><span>⇢ access</span></div><details><summary>All entities and relationships</summary><div id="intakeItemList"></div></details></div><aside id="entityInspector" aria-label="Selected entity or relation properties"></aside></div>
+    <details class="source-details"><summary>Structural findings and mapping limits</summary><p id="intakeLint"></p><p>Entity class mappings come from the existing Silex mapping and swm-1.0 slice. Every bp:flow / bp:access relation is a proposed local schema extension, not a public-ontology predicate. Flow does not prove delegation; access does not prove authorization.</p></details>
+    <p id="intakeError" class="small" role="status"></p>
+    <button class="button primary-button" id="continueStudio">Continue to V&V in Studio →</button>
+  </article>
+  <details class="studio-details" id="studioDetails"><summary>V&V workspace · existing Studio engine <span>Confirm → Validate → Compare → Decide → Register</span></summary>
+  <div class="instruction"><span class="step-badge">1</span><div><b>Use one Finance example.</b><p>In Studio: <strong>File → Browse templates → Vendor Bank-Detail Change → Use template</strong>. This opens a new copy. If you already chose it, continue your current workspace.</p><small>Manual selection in this review prototype. No document is replaced automatically.</small></div></div>
+  <div class="stage-strip"><span>Declare</span><i>→</i><span>Validate</span><i>→</i><span>Compare fixes</span><i>→</i><span>Decide</span><i>→</i><span>Register <small>not deployed</small></span></div>
+  <div class="frame-toolbar"><span id="studioStatus">Loading existing Studio…</span><button class="text-link" id="traceButton">Open current Decision Trace ↗</button></div>
+  <div class="frame-wrap"><iframe id="studioFrame" title="Blueprint Studio — existing simulation engine" sandbox="allow-scripts allow-same-origin allow-downloads allow-popups" data-src="../baseline/blueprint_studio/app/index.html?embed=1"></iframe></div>
+  <p class="small muted" id="traceNotice" role="status"></p>
+  </details>
+  <div class="next"><p><b>Registered is not deployed.</b> The next screen is a separate, illustrative Finance model-change example.</p><a class="button" href="#view=short-term">Review a model change →</a></div>
+</section>
+
+<section data-view="short-term" hidden>
+  <div class="page-head"><div><span class="eyebrow">02 / PRE-RELEASE V&V</span><h1>Green checks. A new route to review.</h1><p>Same prompts, tools, permissions and task suite. Only the model changes.</p></div><span class="pill amber-pill">ILLUSTRATIVE COMPARISON</span></div>
+  <p class="notice">Independent Finance model-change example. This is not a test of the Blueprint document you just edited.</p>
+  <div class="release-grid"><article class="panel"><div class="panel-title"><span class="eyebrow">VERIFICATION</span><span class="pill">SAME OUTPUT SCORES</span></div><h2>Did the outputs pass?</h2><div class="score-pair"><div><span>Current model</span><b>8<small>/8</small></b></div><i>→</i><div><span>Updated model</span><b>8<small>/8</small></b></div></div><p>Both models pass the AP output-check suite.</p><details><summary>Inspect the eight illustrative checks</summary><ul class="checks"><li>Invoice amount matches PO</li><li>Vendor name matches vendor master</li><li>No duplicate payment</li><li>Approval present above $10,000</li><li>Ledger entry balanced</li><li>Currency and remittance format</li><li>Remittance notice sent</li><li>Response format and tone</li></ul></details></article>
+  <article class="panel review-panel"><span class="eyebrow">VALIDATION</span><h2>Does the control still hold?</h2><div class="route-graph"><span>Finance</span><i>→</i><span>Support</span><i>→</i><span>Vendor merge</span><i>→</i><span class="risk-node">Inherited authority</span></div><p>The updated model uses a route the model had already flagged by type. It uses existing authority; it grants no new authority.</p><div class="mismatch"><span>!</span><div><b>Needs review</b><small>Output success does not close this path.</small></div></div><p class="small">Path remains <b>latent</b> in production traces. The model comparison is illustrative, not a recorded run.</p></article></div>
+  <article class="panel release-decision"><div><span class="eyebrow">RELEASE REVIEW</span><h2>Evidence required before a decision.</h2><p>Test the candidate control on this route and on legitimate work. Obtain runtime evidence before treating the change as validated in production.</p></div><span class="decision-badge">NOT RELEASED</span></article>
+  <details class="source-details"><summary>Source and scope</summary><p>Frozen main fe51c44 · Pre-release model-change comparison · I-1042 Path C. There is no live release action here, and no claim that all unsafe paths are covered.</p></details>
+  <div class="next"><p>Next: a <b>separate Northwind AP runtime example</b>. No policy or deployment transfers between examples.</p><a class="button" href="#view=runtime-observation">Inspect runtime behavior →</a></div>
+</section>
+
+<section data-view="runtime-observation" hidden>
+  <div class="page-head"><div><span class="eyebrow">03 / RUNTIME OBSERVATION</span><h1>Inspect the action. Verify the outcome.</h1><p>Runtime detection lives here: hard rules, a simulated judge, policy decisions, and business-state checks.</p></div><span class="pill">SCRIPTED RUNTIME</span></div>
+  <p class="notice" id="runtimeScope">Northwind AP · Independent example. Simulated judge, latency and tenant; no production calls or enforcement.</p>
+  <div class="scenario-grid" id="focusedScenarios">
+    <article><span class="eyebrow">S1 / NORMAL BUSINESS</span><h3>A verified invoice</h3><p>Read the PO, check the vendor, then pay.</p><button class="button" data-run="S1">Run normal case <span>↗</span></button></article>
+    <article><span class="eyebrow">S2 / ACTION JUDGMENT</span><h3>The payee does not match</h3><p>Inspect the judge’s reason for human review.</p><button class="button" data-run="S2">Run mismatch <span>↗</span></button></article>
+    <article><span class="eyebrow">S5 / OUTCOME CHECK</span><h3>HTTP 200. Nothing posted.</h3><p>A read-back finds the mismatch after the call.</p><button class="button" data-run="S5">Run result check <span>↗</span></button></article>
+  </div>
+  <p id="runtimeResult" class="result-line" role="status">Choose a scenario. Results will come from the existing simulated engine.</p>
+  <details class="learning-card" id="learningDetails"><summary><span>How feedback improves the judge</span><small>SIMULATED LEARNING + SEPARATE BENCHMARK EVIDENCE</small></summary><div><p>Review → labels → training → held-out checks → a proposal to promote. The interactive loop trains a browser toy model, not Kev. Promotion affects the learning comparison, not the Live judge.</p><p>The measured Kev panel uses open-benchmark labels. Human-label training and production promotion are not implemented; cross-task and cross-domain generalization remain unproven.</p><button class="button" id="openLearning">Open existing learning loop ↗</button></div></details>
+  <div class="frame-toolbar"><span>Existing runtime engine · AP / SOC and advanced controls remain available inside</span><button class="text-link" id="backToLive">Return to live view ↗</button></div>
+  <div class="frame-wrap runtime-frame"><iframe id="runtimeFrame" title="Runtime Observation — scripted scenarios and learning evidence" sandbox="allow-scripts allow-same-origin allow-downloads allow-popups" data-src="../baseline/jev-runtime/demo/index.html?embed=1&domain=ap&autoplay=0"></iframe></div>
+</section>
+
+<section data-view="security-model" hidden>
+  <div class="page-head"><div><span class="eyebrow">TECHNICAL EVIDENCE / ENTERPRISE WORLD MODEL</span><h1>Why did the system reach this decision?</h1><p>The security instance: business semantics, assumptions, and evidence behind one result.</p></div><span class="pill">UNDER THE HOOD</span></div>
+  <div class="tabs" role="tablist" aria-label="Enterprise World Model"><button role="tab" id="tab-evidence" aria-selected="true" aria-controls="evidencePanel" data-tab="evidence">Decision evidence</button><button role="tab" id="tab-reference" aria-selected="false" aria-controls="referencePanel" tabindex="-1" data-tab="reference">Model reference</button></div>
+  <div id="evidencePanel" role="tabpanel" aria-labelledby="tab-evidence"><article class="panel evidence-card"><span class="eyebrow">TRACE ONE DECISION</span><h2>From a declared step to a reviewed fix.</h2><div class="evidence-chain"><span>Step</span><i>→</i><span>Ontology class</span><i>→</i><span>Scenario</span><i>→</i><span>Finding</span><i>→</i><span>Candidate</span><i>→</i><span>Decision</span></div><p id="evidenceState">Run a blueprint check first. No current evidence is available.</p><button class="button" id="ewmTrace">Open current Decision Trace ↗</button><p class="small muted">Source: this preview origin’s local Studio workspace, not the live site’s data. Missing or stale results are not treated as current.</p></article><div class="evidence-notes"><article><h3>Meaning is not a prediction.</h3><p>Ontology defines entities and relationships. Counterfactuals also require dynamics. A risk score is not itself a world model.</p></article><article><h3>Evidence keeps its grade.</h3><p>Studio paths are declared and outcomes simulated. Public vocabulary is real; mappings are illustrative. Calibration stays empty without outcome records.</p></article></div></div>
+  <div id="referencePanel" role="tabpanel" aria-labelledby="tab-reference" hidden><div class="panel"><h2>Model layers, without the platform tour.</h2><div class="model-layers"><span>Schema</span><span>Laws</span><span>World State</span><span>Objectives</span><span>Calibration</span></div><p>L1–L4 describe ontology tiers, not these five model layers. Only model what can change the agent decision.</p></div><details class="reference-details" id="graphDetails"><summary>Browse public ontology and advanced model evidence</summary><p class="small muted">Frozen reference explorer. Vocabulary and illustrative coverage do not establish complete safety.</p><div class="reference-controls"><button data-wm="ontology">Ontology Graph</button><button data-wm="architecture">Ontology Layers</button><button data-wm="overview">Model Coverage</button><button data-wm="gaps">Coverage Gaps</button></div><div class="frame-wrap"><iframe id="graphFrame" title="Frozen model reference explorer" sandbox="allow-scripts allow-same-origin allow-downloads allow-popups"></iframe></div></details></div>
+</section>
+
+<section data-view="reference" hidden><div class="page-head"><div><span class="eyebrow">ADVANCED WORKFLOW / FROZEN REFERENCE</span><h1 id="referenceTitle">Reference</h1><p>Existing detail retained for questions. This screen is outside the focused demo path.</p></div><a class="button" href="#view=assurance">Back to Assurance →</a></div><div class="frame-wrap"><iframe id="referenceFrame" title="Advanced frozen reference" sandbox="allow-scripts allow-same-origin allow-downloads allow-popups"></iframe></div></section>
+</main>
+<footer><span>SILEX <b>Agent assurance</b></span><p>Review prototype · V&V + Runtime Observation · Isolated from the production site</p><a href="#view=assurance">Back to start ↑</a></footer>
+<script type="module" src="app.js"></script>
+<script type="module" src="intake.js"></script>
+</body></html>

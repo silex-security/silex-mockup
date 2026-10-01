@@ -1,0 +1,307 @@
+{
+  "name": "replay-single-use-same-binding",
+  "description": "r2 presents r1's single-use approval; the binding (customer, amount) matches but it is already consumed, so the control refuses it, asks the approver, who denies (900 > eligible 0).",
+  "graph": {
+    "nodes": [
+      {
+        "id": "TR",
+        "type": "trigger",
+        "label": "Request",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "channel": "support_chat",
+          "trust": "untrusted"
+        }
+      },
+      {
+        "id": "A",
+        "type": "agent",
+        "label": "Agent",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "candidate": "Internal Agent",
+          "capabilities": [
+            {
+              "cap": "pay",
+              "limit": 10000
+            }
+          ],
+          "canSplit": true,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "S",
+        "type": "data",
+        "label": "Secret",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "sensitivity": "secret"
+        }
+      },
+      {
+        "id": "T",
+        "type": "tool",
+        "label": "Pay",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "cap": "pay",
+          "sideEffect": "write",
+          "idempotencyKey": false,
+          "join": "first"
+        }
+      },
+      {
+        "id": "OK",
+        "type": "outcome",
+        "label": "Done",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "success": true,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "N",
+        "type": "outcome",
+        "label": "Declined",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "success": false,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "D",
+        "type": "decision",
+        "label": "Gate",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "condition": "amount > 500",
+          "join": "first"
+        }
+      },
+      {
+        "id": "C",
+        "type": "control",
+        "label": "Approval",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "kind": "human_approval",
+          "appliesWhen": "",
+          "binding": [
+            "customer",
+            "amount"
+          ],
+          "singleUse": true,
+          "slaMinutes": 15,
+          "rule": "",
+          "action": "block",
+          "redactAbove": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "P1",
+        "type": "prohibited",
+        "label": "Unauthorized write",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "monitor": "unauthorized_write",
+          "cap": "pay",
+          "threshold": 500,
+          "scope": "request",
+          "minApprovers": 1,
+          "probeRange": [
+            500,
+            2000
+          ],
+          "severity": "critical",
+          "watches": [
+            "T"
+          ]
+        }
+      },
+      {
+        "id": "P2",
+        "type": "prohibited",
+        "label": "Duplicate",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "monitor": "duplicate_effect",
+          "cap": "pay",
+          "severity": "high",
+          "watches": [
+            "T"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "from": {
+          "node": "TR",
+          "port": "out"
+        },
+        "to": {
+          "node": "A",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "from": {
+          "node": "A",
+          "port": "out"
+        },
+        "to": {
+          "node": "D",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "D",
+          "port": "true"
+        },
+        "to": {
+          "node": "C",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e4",
+        "kind": "flow",
+        "from": {
+          "node": "D",
+          "port": "false"
+        },
+        "to": {
+          "node": "T",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e5",
+        "kind": "flow",
+        "from": {
+          "node": "C",
+          "port": "approved"
+        },
+        "to": {
+          "node": "T",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e6",
+        "kind": "flow",
+        "from": {
+          "node": "C",
+          "port": "denied"
+        },
+        "to": {
+          "node": "N",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e7",
+        "kind": "flow",
+        "from": {
+          "node": "T",
+          "port": "out"
+        },
+        "to": {
+          "node": "OK",
+          "port": "in"
+        }
+      },
+      {
+        "id": "a8",
+        "kind": "access",
+        "mode": "read",
+        "from": {
+          "node": "A",
+          "port": "acc"
+        },
+        "to": {
+          "node": "S",
+          "port": "acc"
+        }
+      }
+    ]
+  },
+  "scenario": {
+    "id": "fx-replay-single-use-same-binding",
+    "template": "fixture",
+    "requests": [
+      {
+        "id": "r1",
+        "customer": "c1",
+        "order": "o1",
+        "amount": 900,
+        "eligible": 900,
+        "channel": "support_chat"
+      },
+      {
+        "id": "r2",
+        "customer": "c1",
+        "order": "o2",
+        "amount": 900,
+        "eligible": 0,
+        "channel": "support_chat",
+        "intent": {
+          "presentApprovalOf": "r1"
+        }
+      }
+    ]
+  },
+  "approver": "policy",
+  "expect": {
+    "activations": [
+      {
+        "id": "r1",
+        "end": "OK",
+        "status": "success"
+      },
+      {
+        "id": "r2",
+        "end": "N",
+        "status": "failure"
+      }
+    ],
+    "writes": [
+      {
+        "activation": "r1",
+        "amount": 900,
+        "approval": "issued:r1"
+      }
+    ],
+    "approvalsIssued": 1,
+    "approvalsReused": 0,
+    "writeDenied": [],
+    "violations": {
+      "P1": [],
+      "P2": []
+    }
+  }
+}

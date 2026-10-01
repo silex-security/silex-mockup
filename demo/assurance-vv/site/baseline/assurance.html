@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--
+    9/15 mockup: the 9/14 page realigned with the V1 PRD (Web UX / Investor Demo).
+    Changed elements carry class "chg"; the "9/15 changes" button lists and highlights them. Figures are illustrative.
+  -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SILEX — Agentic Security Platform · 9/15 mockup</title>
+  <meta name="description" content="Workflow-centric agentic control validation, causal incident analysis, and sim-to-real calibration workspace." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f3031'/%3E%3Cpath d='M8 11.5 16 7l8 4.5v9L16 25l-8-4.5z' fill='none' stroke='%238198ff' stroke-width='2.4'/%3E%3Cpath d='m11.5 16 3 3 6-7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="swm/css/swm.css" />
+  <style>
+    :root{--ink:#17191d;--muted:#68707c;--line:#e3e6ea;--soft:#f5f6f8;--panel:#fff;--nav:#26282d;--blue:#718aff;--blue2:#536bdb;--lav:#e9edff;--green:#2b8766;--green-bg:#e5f4ee;--red:#c54545;--red-bg:#fcebea;--amber:#a66a14;--amber-bg:#fff3d8;--shadow:0 10px 30px rgba(22,28,45,.07);--radius:16px}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#eef0f3;line-height:1.45} button{font:inherit} .app{display:grid;grid-template-columns:244px 1fr;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:var(--nav);color:#f8f8fa;padding:26px 18px;display:flex;flex-direction:column}.brand{font-weight:760;letter-spacing:.16em;font-size:19px;padding:0 12px 28px}.brand span{color:var(--blue)}.section-label{font-size:11px;color:#9197a3;text-transform:uppercase;letter-spacing:.14em;padding:0 12px;margin:10px 0 8px}.nav{display:grid;gap:5px}.nav button{appearance:none;border:0;background:transparent;color:#aeb4bf;padding:11px 12px;border-radius:9px;text-align:left;display:flex;align-items:center;gap:11px;cursor:pointer;font-size:14px}.nav button:hover,.nav button.active{color:#fff;background:#343740}.nav button.active{box-shadow:inset 3px 0 var(--blue)}.ico{width:17px;height:17px;display:inline-grid;place-items:center;font-size:15px}.spacer{flex:1}.system{border-top:1px solid #3a3d44;padding:18px 12px 0}.online{display:flex;align-items:center;gap:8px;font-size:12px;color:#bac0c9}.dot{width:8px;height:8px;border-radius:50%;background:#4bc28b;box-shadow:0 0 0 4px rgba(75,194,139,.12)}.tenant{margin-top:13px;color:#fff;font-size:13px}.tenant small{display:block;color:#898f99;margin-top:2px}.main{min-width:0}.topbar{height:68px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}.crumb{font-size:13px;color:var(--muted)}.crumb strong{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;color:#4f5864}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:white;font-size:12px}.content{padding:26px 30px 48px;max-width:1520px;margin:auto}.title-row{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}.title-row h1{font-size:26px;line-height:1.15;margin:0 0 5px;letter-spacing:-.025em}.title-row p{margin:0;color:var(--muted);font-size:13px}.btn{border:0;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:650;font-size:13px;display:inline-flex;align-items:center;gap:8px}.btn.primary{background:var(--ink);color:#fff}.btn.primary:hover{background:#000}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.blue{background:var(--blue);color:#fff}.btn:disabled{opacity:.48;cursor:not-allowed}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:var(--panel);border:1px solid #e1e4e8;border-radius:var(--radius);box-shadow:var(--shadow)}.metric{padding:18px 19px}.kicker{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-bottom:12px}.trend{font-size:11px;color:var(--green);background:var(--green-bg);padding:3px 7px;border-radius:99px}.metric-value{font-size:30px;font-weight:730;letter-spacing:-.04em;line-height:1}.metric-foot{font-size:12px;color:var(--muted);margin-top:10px}.two-col{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:18px;margin-bottom:18px}.card-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px}.card-head h2{font-size:15px;margin:0}.card-head p{font-size:12px;color:var(--muted);margin:3px 0 0}.status{font-size:11px;font-weight:720;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:5px 8px}.status.blocked{color:var(--red);background:var(--red-bg)}.status.running{color:var(--blue2);background:var(--lav)}.status.review{color:var(--amber);background:var(--amber-bg)}.incident{margin:0 20px 19px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.incident-top{display:flex;justify-content:space-between;padding:16px;background:#fafbfc;border-bottom:1px solid var(--line)}.incident-title{display:flex;gap:11px}.shield{width:36px;height:36px;border-radius:10px;background:var(--red-bg);color:var(--red);display:grid;place-items:center;font-weight:800}.incident-title strong{display:block;font-size:14px}.incident-title small{display:block;color:var(--muted);margin-top:3px}.path-wrap{padding:18px 16px 20px}.path-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}.path{display:grid;grid-template-columns:1fr 22px 1fr 22px 1.1fr 22px 1fr;align-items:center;gap:6px}.node{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;min-width:0}.node strong{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.node span{font-size:11px;color:var(--muted)}.node.danger{border-color:#efbaba;background:#fff8f8}.arrow{text-align:center;color:#979da6}.failure-note{margin-top:14px;padding:10px 12px;background:#fff6f5;border-left:3px solid var(--red);font-size:12px;color:#6c3a3a}.timeline{padding:4px 20px 19px}.event{display:grid;grid-template-columns:58px 14px 1fr;gap:10px;min-height:64px}.event time{font-size:11px;color:var(--muted);padding-top:2px}.rail{display:flex;flex-direction:column;align-items:center}.rail i{width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:4px;z-index:1}.rail:after{content:"";width:1px;flex:1;background:var(--line)}.event:last-child .rail:after{display:none}.event-copy strong{font-size:12px;display:block}.event-copy span{font-size:11px;color:var(--muted)}.validation{padding:0 20px 20px}.progress-top{display:flex;justify-content:space-between;align-items:end}.progress-number{font-weight:750;font-size:22px}.progress-track{height:7px;background:#e8eaf0;border-radius:99px;margin:10px 0 16px;overflow:hidden}.progress-bar{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),#9b79ef);border-radius:99px;transition:width .6s}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:11px;background:var(--soft);border-radius:10px}.stat strong{font-size:17px;display:block}.stat span{font-size:10px;color:var(--muted)}.findings{margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #f0c1bf;background:#fff9f8;border-radius:10px}.findings strong{font-size:12px;color:#8d3636}.findings span{font-size:11px;color:var(--muted)}.evidence-card{padding-bottom:6px}.evidence{padding:0 20px 18px}.confidence{display:grid;grid-template-columns:145px 1fr;gap:20px;align-items:center}.ring{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--blue) 0 78%,#eaecf0 78% 100%);position:relative}.ring:before{content:"";position:absolute;inset:11px;background:#fff;border-radius:50%}.ring-inner{position:relative;text-align:center}.ring-inner strong{font-size:27px;display:block}.ring-inner span{font-size:10px;color:var(--muted)}.e-list{display:grid;gap:12px}.e-item{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:12px}.e-item span{color:var(--muted)}.mini-track{grid-column:1/3;height:4px;background:#eceef2;border-radius:99px;overflow:hidden}.mini-track i{display:block;height:100%;background:var(--blue);border-radius:99px}.mini-track i.red{background:var(--red)}.section-card{margin-bottom:18px}.section-card .body{padding:0 20px 20px}.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px}.tab{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px}.tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.matrix{width:100%;border-collapse:collapse;font-size:12px}.matrix th{text-align:left;color:var(--muted);font-weight:560;border-bottom:1px solid var(--line);padding:10px 8px}.matrix td{padding:13px 8px;border-bottom:1px solid #eef0f2}.matrix tr:last-child td{border-bottom:0}.matrix .bold{font-weight:680}.matrix .score{font-weight:720}.evidence-tag{display:inline-block;border-radius:6px;background:var(--soft);padding:4px 7px;color:#555e69}.policy-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}.policy{border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}.policy.recommended{border-color:#879aff;box-shadow:inset 0 0 0 1px #879aff}.rec{position:absolute;top:12px;right:12px;background:var(--lav);color:var(--blue2);padding:4px 7px;border-radius:6px;font-size:10px;font-weight:700}.policy h3{font-size:13px;margin:0 0 7px;padding-right:80px}.policy p{font-size:11px;color:var(--muted);min-height:34px;margin:0 0 13px}.policy-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}.policy-metrics div{background:var(--soft);border-radius:8px;padding:8px}.policy-metrics strong{font-size:13px;display:block}.policy-metrics span{font-size:9px;color:var(--muted)}.calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chart{height:150px;border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;overflow:hidden;background:linear-gradient(to bottom,transparent 24%,#f0f2f4 25%,transparent 26%,transparent 49%,#f0f2f4 50%,transparent 51%,transparent 74%,#f0f2f4 75%,transparent 76%)}.chart svg{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px)}.chart-title{position:relative;z-index:1;font-size:11px;color:var(--muted)}.alert{border:1px solid #cdd5ff;background:#f7f8ff;border-radius:12px;padding:14px;display:flex;gap:11px;align-items:flex-start;margin-bottom:10px}.alert:last-child{margin-bottom:0}.alert-icon{color:var(--blue2);font-weight:800}.alert strong{font-size:12px;display:block}.alert p{font-size:11px;color:var(--muted);margin:3px 0 0}.view{display:none}.view.active{display:block}.modal-backdrop{position:fixed;inset:0;background:rgba(20,22,27,.48);z-index:30;display:none;align-items:center;justify-content:center;padding:20px}.modal-backdrop.open{display:flex}.modal{width:min(520px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);padding:22px}.modal h2{margin:0 0 8px;font-size:19px}.modal p{font-size:13px;color:var(--muted)}.modal-box{background:var(--soft);border-radius:10px;padding:13px;font-size:12px;margin:16px 0}.modal-actions{display:flex;justify-content:flex-end;gap:9px}.toast{position:fixed;right:24px;bottom:24px;background:#1f2227;color:#fff;padding:13px 16px;border-radius:10px;box-shadow:0 10px 35px rgba(0,0,0,.3);font-size:12px;transform:translateY(100px);opacity:0;transition:.25s;z-index:50}.toast.show{transform:translateY(0);opacity:1}
+    .workflow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.workflow-card{padding:18px;display:flex;flex-direction:column;min-height:225px}.workflow-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.workflow-icon{width:40px;height:40px;border-radius:11px;background:var(--lav);color:var(--blue2);display:grid;place-items:center;font-weight:800}.workflow-card h3{font-size:14px;margin:15px 0 4px}.workflow-card p{font-size:11px;color:var(--muted);margin:0;min-height:34px}.workflow-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:16px 0}.workflow-meta div{background:var(--soft);border-radius:8px;padding:8px}.workflow-meta strong{display:block;font-size:13px}.workflow-meta span{font-size:9px;color:var(--muted)}.workflow-card .btn{margin-top:auto;justify-content:center}.filter-row{display:flex;gap:9px;align-items:center;margin-bottom:16px}.search{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font:inherit;font-size:12px;min-width:0}.workspace-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 20px}.workspace-tab{border:0;background:transparent;color:var(--muted);padding:12px 11px 11px;cursor:pointer;font-size:12px;border-bottom:2px solid transparent}.workspace-tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:680}.tab-panel{display:none;padding:20px}.tab-panel.active{display:block}.ontology{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.onto-item{border:1px solid var(--line);border-radius:10px;padding:12px}.onto-item small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:9px;margin-bottom:5px}.onto-item strong{font-size:12px}.onto-item p{font-size:10px;color:var(--muted);margin:4px 0 0}.causal-canvas{border:1px solid var(--line);border-radius:13px;background:#fbfcfd;padding:18px;overflow:auto}.causal-flow{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr 32px 1fr;align-items:center;min-width:760px}.causal-node{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px;min-height:82px}.causal-node small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.causal-node strong{font-size:12px;display:block;margin:7px 0 2px}.causal-node span{font-size:10px;color:var(--muted)}.causal-node.evidence{border-color:#b9c4ff;background:#f7f8ff}.causal-node.mechanism{border-color:#efba86;background:#fffaf3}.causal-node.outcome{border-color:#efbaba;background:#fff8f8}.causal-arrow{text-align:center;color:#89909a;font-size:18px}.causal-caption{display:flex;justify-content:space-between;gap:16px;margin-top:13px;font-size:10px;color:var(--muted)}.legend{display:flex;gap:12px;flex-wrap:wrap}.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}.branch-list{display:grid;gap:9px}.branch{display:grid;grid-template-columns:85px 1fr 130px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:11px}.branch strong{font-size:11px}.branch-path{color:var(--muted)}.intervention-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.intervention{border:1px solid var(--line);border-radius:12px;padding:16px}.intervention.candidate{border-color:#879aff;background:#fafbff}.do-label{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--blue2);background:var(--lav);padding:5px 8px;border-radius:7px;display:inline-block}.intervention h3{font-size:13px;margin:13px 0 5px}.intervention p{font-size:11px;color:var(--muted);margin:0 0 14px}.reachability{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px;font-size:11px}.reachability strong{font-size:18px}.evidence-state{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}.state-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+    .view-switch{display:flex;gap:4px;padding:4px;background:var(--soft);border-radius:9px}.view-switch button{border:0;background:transparent;color:var(--muted);border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer}.view-switch button.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.incident-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}.incident-card{padding:16px;cursor:pointer;transition:.18s}.incident-card:hover{transform:translateY(-2px);border-color:#bfc8f7}.incident-card-top{display:flex;justify-content:space-between;gap:10px}.incident-id{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.incident-card h3{font-size:13px;margin:11px 0 5px}.incident-card p{font-size:11px;color:var(--muted);margin:0;min-height:32px}.incident-card-meta{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:11px;margin-top:13px;font-size:10px;color:var(--muted)}.queue-table{width:100%;border-collapse:collapse;font-size:12px}.queue-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:650;padding:10px;border-bottom:1px solid var(--line)}.queue-table td{padding:12px 10px;border-bottom:1px solid #eef0f2}.queue-table tbody tr{cursor:pointer}.queue-table tbody tr:hover{background:#f8f9fc}.queue-table .incident-name{font-weight:680}.queue-table small{display:block;color:var(--muted);margin-top:2px}.workspace-context{display:flex;align-items:center;gap:8px}.back-link{border:0;background:transparent;color:var(--blue2);font-size:12px;cursor:pointer;padding:0}.graph-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.mode-tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:9px;overflow:auto}.mode-tab{border:0;background:transparent;color:var(--muted);padding:7px 9px;border-radius:7px;font-size:10px;white-space:nowrap;cursor:pointer}.mode-tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.kg-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;background:linear-gradient(#fbfcfd,#f7f8fa);padding:12px}.kg-graph{position:relative;min-width:980px;height:430px}.kg-lines{position:absolute;inset:0;width:100%;height:100%}.kg-lines path{fill:none;stroke:#c9ced6;stroke-width:1.6}.kg-lines path.observed{stroke:var(--blue);stroke-width:3}.kg-lines path.causal{stroke:#d58a3f;stroke-width:2.5;stroke-dasharray:6 4}.kg-lines path.counterfactual{stroke:#9a72d4;stroke-width:2.5;stroke-dasharray:3 5}.kg-lines path.intervention{stroke:var(--green);stroke-width:3;stroke-dasharray:7 4}.kg-lines text{font-size:10px;fill:#7a828d}.kg-node{position:absolute;width:146px;min-height:72px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 11px;box-shadow:0 5px 15px rgba(29,35,52,.06);transition:.2s}.kg-node small{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.kg-node strong{font-size:11px;display:block;margin:5px 0 2px}.kg-node span{font-size:9px;color:var(--muted);display:block}.kg-node.agent{border-top:3px solid var(--blue)}.kg-node.identity{border-top:3px solid #499777}.kg-node.tool{border-top:3px solid #9a72d4}.kg-node.resource{border-top:3px solid #737b85}.kg-node.control{border-top:3px solid #e2a04e}.kg-node.outcome{border-top:3px solid var(--red)}.kg-node.mechanism{border:2px solid #e2a04e;background:#fffaf2;width:174px}.kg-node.observed-node{box-shadow:0 0 0 3px rgba(113,138,255,.18),0 7px 18px rgba(29,35,52,.08)}.kg-node .ev-badge{display:inline-block;margin-top:5px;background:var(--lav);color:var(--blue2);border-radius:5px;padding:2px 5px;font-size:8px}.kg-graph.mode-observed .kg-item:not(.observed),.kg-graph.mode-causal .kg-item:not(.causal),.kg-graph.mode-counterfactual .kg-item:not(.counterfactual),.kg-graph.mode-intervention .kg-item:not(.intervention){opacity:.15}.graph-insight{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.graph-insight div{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff}.graph-insight small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.graph-insight strong{font-size:11px;display:block;margin-top:4px}.wm-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 20px;overflow:auto}.wm-tab{border:0;background:transparent;color:var(--muted);padding:12px 10px 11px;cursor:pointer;font-size:12px;white-space:nowrap;border-bottom:2px solid transparent}.wm-tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:680}.wm-panel{display:none;padding:20px}.wm-panel.active{display:block}.world-overview{display:grid;grid-template-columns:minmax(420px,1.1fr) 1fr;gap:18px}.radar-card{border:1px solid var(--line);border-radius:13px;padding:14px;background:#fbfcfd}.radar-card svg{width:100%;height:330px;display:block}.radar-card text{font-size:10px;fill:#606975}.radar-card .grid{fill:none;stroke:#dfe3e8;stroke-width:1}.radar-card .axis{stroke:#d6dae1;stroke-width:1}.radar-card .data{fill:rgba(113,138,255,.22);stroke:var(--blue);stroke-width:2}.model-layers{display:grid;gap:9px}.model-layer{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff;display:grid;grid-template-columns:38px 1fr auto;gap:11px;align-items:center}.layer-icon{width:36px;height:36px;border-radius:9px;background:var(--soft);display:grid;place-items:center;color:var(--blue2);font-weight:750}.model-layer strong{font-size:11px;display:block}.model-layer span{font-size:9px;color:var(--muted)}.model-layer b{font-size:12px}.ontology-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ontology-token{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}.ontology-token i{width:9px;height:9px;border-radius:3px;display:block;margin-bottom:9px;background:var(--blue)}.ontology-token strong{font-size:11px;display:block}.ontology-token span{font-size:9px;color:var(--muted)}.harness-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.harness-card{border:1px solid var(--line);border-radius:12px;padding:15px}.harness-card h3{font-size:12px;margin:0 0 10px}.harness-card ul{padding-left:17px;margin:0;color:var(--muted);font-size:11px}.harness-card li{margin:6px 0}.model-health{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.world-graph{position:relative;height:380px;min-width:900px}.world-node{position:absolute;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;width:130px;box-shadow:0 4px 12px rgba(25,31,48,.06)}.world-node strong{font-size:10px;display:block}.world-node span{font-size:8px;color:var(--muted)}
+    @media(max-width:1100px){.metric-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.calibration{grid-template-columns:1fr}.policy-layout,.intervention-grid{grid-template-columns:1fr}.workflow-grid,.incident-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.world-overview,.model-health{grid-template-columns:1fr}.ontology-grid{grid-template-columns:repeat(2,1fr)}}
+    .landscape-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px}.landscape-head h2{font-size:16px;margin:0 0 4px}.landscape-head p{font-size:11px;color:var(--muted);margin:0}.suite-grid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;margin-bottom:16px}.suite-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px;text-align:left;cursor:pointer;transition:.18s;min-height:155px}.suite-card:hover,.suite-card.active{border-color:#879aff;box-shadow:0 7px 20px rgba(83,107,219,.11);transform:translateY(-1px)}.suite-card.active{background:#fafbff;box-shadow:inset 0 0 0 1px #879aff,0 7px 20px rgba(83,107,219,.09)}.suite-name{display:flex;justify-content:space-between;gap:8px;align-items:center}.suite-name strong{font-size:12px}.suite-icon{width:26px;height:26px;border-radius:8px;background:var(--lav);color:var(--blue2);display:grid;place-items:center;font-size:10px;font-weight:800}.suite-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:13px 0 10px}.suite-stats div{background:var(--soft);border-radius:7px;padding:7px}.suite-stats b{font-size:13px;display:block}.suite-stats span{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.risk-line{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--muted)}.landscape-detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr);gap:14px}.capability-map,.domain-summary{border:1px solid var(--line);border-radius:13px;background:#fbfcfd;padding:15px}.capability-map h3,.domain-summary h3{font-size:13px;margin:0 0 4px}.capability-map>p,.domain-summary>p{font-size:10px;color:var(--muted);margin:0 0 14px}.capability-tree{display:grid;gap:8px}.capability-row{display:grid;grid-template-columns:140px 1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px}.capability-row strong{font-size:11px}.capability-row span{font-size:9px;color:var(--muted)}.capability-row b{font-size:10px;color:var(--blue2)}.domain-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.domain-fact{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px}.domain-fact small{display:block;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.domain-fact strong{display:block;font-size:11px;margin-top:4px}.landscape-note{margin-top:10px;padding:10px;border-left:3px solid var(--blue);background:#f5f7ff;font-size:10px;color:#525b70}.onto-architecture{display:grid;gap:10px;max-width:1020px;margin:auto}.onto-tier{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center}.onto-tier .tier-id{font-size:17px;font-weight:780;color:var(--blue2)}.onto-tier strong{font-size:12px;display:block}.onto-tier p{font-size:10px;color:var(--muted);margin:3px 0 0}.onto-tier .tier-count{font-size:10px;color:var(--muted);text-align:right}.onto-tier.base{border-top:3px solid #718aff}.onto-tier.runtime{border-top:3px solid #377456;background:#f9fdfb}.onto-cross{display:grid;grid-template-columns:1fr 52px 1fr;gap:10px;align-items:stretch}.onto-cross .onto-tier{grid-template-columns:58px 1fr}.cross-mark{display:grid;place-items:center;color:var(--muted);font-size:20px;font-weight:300}.onto-connect{text-align:center;color:var(--muted);font-size:10px;line-height:1.2}.onto-connect b{display:block;color:#aab0ba;font-size:18px}.ontology-principle{border:1px solid #cdd5ff;background:#f7f8ff;border-radius:11px;padding:12px 14px;font-size:11px;color:#4f5870}.cross-domain-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:16px}.domain-graph{position:relative;height:410px;min-width:760px}.domain-node{position:absolute;width:145px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 4px 12px rgba(25,31,48,.06)}.domain-node small{display:block;font-size:8px;color:var(--muted);text-transform:uppercase}.domain-node strong{display:block;font-size:10px;margin-top:4px}.risk-stack{display:grid;gap:9px}.risk-card{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}.risk-card.high{border-left:3px solid var(--red)}.risk-card.medium{border-left:3px solid var(--amber)}.risk-card small{font-size:8px;color:var(--muted);text-transform:uppercase}.risk-card strong{display:block;font-size:11px;margin:4px 0}.risk-card p{font-size:9px;color:var(--muted);margin:0}.landscape-crumbs{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:10px;margin-bottom:12px}.landscape-crumbs b{color:var(--ink)}
+    .bp-stagebar{display:flex;align-items:center;gap:5px;margin-bottom:16px;overflow:auto}.bp-stage{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:10px;color:var(--muted);white-space:nowrap}.bp-stage b{width:19px;height:19px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:9px}.bp-stage.active{border-color:#aebaff;color:var(--blue2);background:#f8f9ff}.bp-stage.active b{background:var(--blue);color:#fff}.bp-stage.done{color:var(--green);border-color:#b9decf}.bp-stage.done b{background:var(--green);color:#fff}.bp-stage-arrow{color:#afb5be}.bp-prompt{padding:15px 16px;margin-bottom:14px}.bp-prompt-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:9px}.bp-prompt-top strong{font-size:12px}.bp-prompt-top span{font-size:9px;color:var(--muted)}.bp-prompt-row{display:grid;grid-template-columns:1fr auto;gap:10px}.bp-prompt textarea{resize:vertical;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;font-size:12px;line-height:1.45;color:var(--ink);outline:none}.bp-prompt textarea:focus{border-color:#98a9ff;box-shadow:0 0 0 3px rgba(113,138,255,.12)}.builder-shell{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px;align-items:start}.builder-main{min-width:0}.builder-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--line);border-bottom:0;border-radius:13px 13px 0 0;background:#fff}.builder-toolbar-left,.builder-toolbar-right{display:flex;align-items:center;gap:7px}.builder-toolbar strong{font-size:11px}.tool-btn{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:7px;padding:6px 8px;font-size:10px;cursor:pointer}.tool-btn:hover{color:var(--ink);border-color:#bdc5d0}.bp-canvas-wrap{overflow:auto;border:1px solid var(--line);border-radius:0 0 13px 13px;background:#f8f9fb}.bp-canvas{position:relative;min-width:900px;height:550px;background-image:linear-gradient(#e9ebef 1px,transparent 1px),linear-gradient(90deg,#e9ebef 1px,transparent 1px);background-size:24px 24px}.bp-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.bp-lines line{stroke:#b9c0ca;stroke-width:1.8}.bp-lines line.branch{stroke:#9a72d4;stroke-dasharray:5 4}.bp-node{position:absolute;width:170px;min-height:84px;background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 5px 15px rgba(29,35,52,.07);padding:10px;cursor:pointer;z-index:2;transition:border-color .15s,box-shadow .15s}.bp-node.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(113,138,255,.15),0 7px 18px rgba(29,35,52,.09)}.bp-node.trigger{border-top:3px solid #737b85}.bp-node.agent{border-top:3px solid var(--blue)}.bp-node.decision{border-top:3px solid #e2a04e}.bp-node.tool{border-top:3px solid #9a72d4}.bp-node.outcome{border-top:3px solid #377456}.bp-node.prohibited{border-top:3px solid var(--red);background:#fffafa}.bp-node-head{display:flex;justify-content:space-between;gap:7px;align-items:center;cursor:move}.bp-node-head small{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.bp-node-head span{font-size:10px;color:#a0a6af}.bp-node strong{font-size:11px;display:block;margin:5px 0 7px}.bp-node select{width:100%;border:1px solid var(--line);border-radius:7px;background:#fafbfc;padding:5px 6px;font:inherit;font-size:9px;color:#4e5661;outline:none}.bp-node select:focus{border-color:#98a9ff}.bp-node .node-meta{font-size:8px;color:var(--muted);margin-top:6px}.node-inspector{position:sticky;top:84px;overflow:hidden}.inspector-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.inspector-head small{display:block;font-size:8px;color:var(--muted);text-transform:uppercase}.inspector-head strong{display:block;font-size:13px;margin-top:3px}.inspector-body{padding:14px 15px}.inspector-section{border-bottom:1px solid var(--line);padding-bottom:13px;margin-bottom:13px}.inspector-section:last-child{border-bottom:0;margin-bottom:0}.inspector-section h3{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 9px}.field{margin-bottom:9px}.field:last-child{margin-bottom:0}.field label{display:block;font-size:9px;color:var(--muted);margin-bottom:4px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 8px;font:inherit;font-size:10px;color:var(--ink)}.component-card{border:1px solid #cfd6ff;background:#fafbff;border-radius:9px;padding:10px}.component-card strong{font-size:10px;display:block}.component-card p{font-size:8px;color:var(--muted);margin:4px 0 8px}.component-tags{display:flex;gap:4px;flex-wrap:wrap}.component-tags span{font-size:8px;background:#fff;border:1px solid var(--line);border-radius:5px;padding:3px 5px;color:var(--muted)}.preflight{display:flex;gap:9px;align-items:flex-start;background:#fffaf2;border:1px solid #efd6aa;border-radius:9px;padding:10px}.preflight b{color:var(--amber)}.preflight strong{font-size:9px;display:block}.preflight span{font-size:8px;color:var(--muted);display:block;margin-top:2px}.builder-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding:12px 14px}.draft-state{font-size:10px;color:var(--muted)}.draft-state strong{color:var(--ink)}.builder-actions{display:flex;gap:8px}.bp-result{display:none}.bp-result.open{display:block}.bp-builder.hidden{display:none}.check-hero{padding:18px 20px;margin-bottom:14px;border-left:4px solid var(--blue)}.check-hero-row{display:flex;justify-content:space-between;gap:18px;align-items:center}.check-hero h2{font-size:18px;margin:0 0 5px}.check-hero p{font-size:11px;color:var(--muted);margin:0}.check-score{display:flex;gap:8px}.check-score div{background:var(--soft);border-radius:10px;padding:10px 13px;min-width:92px}.check-score strong{font-size:18px;display:block}.check-score span{font-size:8px;color:var(--muted);text-transform:uppercase}.declared-banner{padding:10px 12px;background:#f5f7ff;border:1px solid #ccd4ff;border-radius:9px;font-size:10px;color:#46537a;margin-bottom:14px}.check-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:14px}.coverage-path{padding:16px}.coverage-path h3{font-size:12px;margin:0 0 3px}.coverage-path>p{font-size:9px;color:var(--muted);margin:0 0 14px}.declared-path{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;align-items:center}.declared-path .path-point{border:1px solid var(--line);border-radius:9px;padding:9px;background:#fff;position:relative}.declared-path .path-point:not(:last-child):after{content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:#a2a8b0}.path-point small{font-size:8px;color:var(--muted);display:block}.path-point strong{font-size:9px;display:block;margin-top:3px}.path-point.risk{border-color:#efbaba;background:#fff8f8}.control-points{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}.control-point{background:var(--soft);border-radius:8px;padding:8px;font-size:9px}.control-point b{color:var(--blue2)}.check-explain{display:grid;gap:9px}.explain-card{padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.explain-card small{font-size:8px;color:var(--muted);text-transform:uppercase}.explain-card strong{font-size:10px;display:block;margin:4px 0}.explain-card p{font-size:8px;color:var(--muted);margin:0}.check-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}.check-actions p{font-size:9px;color:var(--muted);margin:0;max-width:620px}.check-actions div{display:flex;gap:8px}
+    @media(max-width:1080px){.suite-grid{grid-template-columns:repeat(3,1fr)}.landscape-detail,.cross-domain-layout{grid-template-columns:1fr}.onto-cross{grid-template-columns:1fr}.cross-mark{height:28px}.cross-mark:after{content:"intersects";font-size:9px;margin-left:8px}.domain-graph{min-width:760px}.builder-shell,.check-layout{grid-template-columns:1fr}.node-inspector{position:relative;top:0}.check-score{flex-wrap:wrap}}
+    @media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:relative;padding:15px}.brand{padding-bottom:12px}.nav{grid-template-columns:repeat(7,1fr);overflow:auto}.nav button{font-size:0;justify-content:center}.nav .ico{font-size:16px}.section-label,.system{display:none}.topbar{top:0;padding:0 16px}.content{padding:18px 14px 38px}.metric-grid{grid-template-columns:1fr 1fr}.title-row{align-items:flex-start}.path{display:flex;overflow:auto}.node{min-width:140px}.confidence{grid-template-columns:1fr}.ring{margin:auto}.stats{grid-template-columns:1fr}.calibration{grid-template-columns:1fr}.policy-metrics{grid-template-columns:1fr 1fr}.top-actions .pill{display:none}.workflow-grid,.incident-grid{grid-template-columns:1fr}.ontology,.ontology-grid{grid-template-columns:1fr}.workspace-tabs{overflow:auto}.workspace-tab{white-space:nowrap}.branch{grid-template-columns:65px 1fr}.branch .status{grid-column:2}.filter-row{align-items:stretch;flex-direction:column}.graph-insight,.harness-grid{grid-template-columns:1fr}.world-overview{display:block}.radar-card{margin-bottom:12px}.queue-scroll{overflow:auto}.queue-table{min-width:800px}.suite-grid{grid-template-columns:1fr 1fr}.landscape-detail{display:block}.domain-summary{margin-top:12px}.capability-row{grid-template-columns:1fr auto}.capability-row span{grid-column:1/3}.onto-tier{grid-template-columns:48px 1fr}.onto-tier .tier-count{grid-column:2;text-align:left}.domain-facts{grid-template-columns:1fr}.landscape-head{display:block}.landscape-head .pill{margin-top:10px}.bp-prompt-row{grid-template-columns:1fr}.bp-prompt-row .btn{justify-content:center}.builder-toolbar{align-items:flex-start;gap:8px}.builder-toolbar-right{flex-wrap:wrap;justify-content:flex-end}.builder-footer,.check-hero-row,.check-actions{align-items:flex-start;flex-direction:column}.declared-path{grid-template-columns:1fr}.declared-path .path-point:not(:last-child):after{content:'↓';right:auto;left:50%;top:auto;bottom:-17px}.control-points{grid-template-columns:1fr}.check-actions div{width:100%;flex-wrap:wrap}}
+  
+    /* ---- 9/14 additions ---- */
+    .chg{position:relative}
+    body.show-changes .chg{outline:2px dashed #718aff;outline-offset:3px;border-radius:12px}
+    body.show-changes .chg::before{content:attr(data-chg);position:absolute;top:-10px;left:10px;z-index:6;background:#536bdb;color:#fff;font-size:9px;font-weight:700;letter-spacing:.02em;padding:2px 6px;border-radius:5px;white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+    body.show-changes .nav button.chg::before{left:auto;right:4px;top:-8px}
+    body.show-changes .section-label.chg::before{display:none}
+    body.show-changes .section-label.chg::after{content:attr(data-chg);display:block;width:max-content;max-width:100%;margin-top:5px;background:#536bdb;color:#fff;font-size:9px;font-weight:700;letter-spacing:0;text-transform:none;padding:2px 6px;border-radius:5px}
+    body.show-changes .section-label.chg{outline-offset:4px}
+    body.show-changes .wm-tab.chg::before,body.show-changes .workspace-tab.chg::before{top:0}
+    body.show-changes .bp-stagebar.chg,body.show-changes .title-row.chg,body.show-changes .optional-head.chg,body.show-changes .filter-row.chg{padding-top:16px}
+    body.show-changes .bp-stagebar.chg::before,body.show-changes .title-row.chg::before,body.show-changes .optional-head.chg::before,body.show-changes .filter-row.chg::before{top:-2px}
+    .chg-btn{cursor:pointer;font:inherit;font-size:12px}
+    .chg-btn.accent{border-color:#aebaff;color:var(--blue2);background:#f8f9ff}
+    .later-tag{font-size:9px;color:#8a919c;background:#eef0f3;border-radius:5px;padding:2px 5px;margin-left:6px;font-weight:600}
+    .sidebar .later-tag{background:#34373f;color:#9197a3}
+    .def-link{border:0;background:transparent;color:var(--blue2);font-size:10px;cursor:pointer;padding:0;font-weight:600}
+    .optional-head{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 10px}
+    .optional-head strong{font-size:12px}
+    .optional-head span{font-size:11px;color:var(--muted)}
+    .optional-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px;align-items:start}
+    .collapse-card summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px}
+    .collapse-card summary::-webkit-details-marker{display:none}
+    .collapse-card summary h2{font-size:14px;margin:0}
+    .collapse-card summary p{font-size:11px;color:var(--muted);margin:2px 0 0}
+    .collapse-card .sum-right{display:flex;align-items:center;gap:10px}
+    .chev{color:var(--muted);transition:transform .2s;font-size:16px}
+    .collapse-card[open] .chev{transform:rotate(90deg)}
+    .collapse-body{padding:0 20px 18px}
+    .collapse-body .incident{margin:0}
+    .collapse-body .validation,.collapse-body .timeline{padding-left:0;padding-right:0}
+    .suite-list{display:grid;gap:8px;padding:0 20px 18px}
+    .suite-list .capability-row{cursor:pointer;text-align:left;font:inherit;grid-template-columns:120px 1fr auto}
+    .suite-list .capability-row:hover{border-color:#bfc8f7}
+    .side-by-side{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+    .sbs-col{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+    .sbs-col h3{font-size:12px;margin:0 0 3px}
+    .sbs-col>p{font-size:10px;color:var(--muted);margin:0 0 10px}
+    .pick{display:grid;grid-template-columns:16px 1fr auto;gap:9px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:9px 10px;margin-bottom:7px;font-size:11px;cursor:pointer}
+    .pick:last-child{margin-bottom:0}
+    .pick input{margin:0}
+    .pick.on{border-color:#879aff;background:#fafbff}
+    .pick strong{font-size:11px;display:block}
+    .pick small{display:block;font-size:9px;color:var(--muted);margin-top:2px}
+    .next-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border:1px solid #cdd5ff;background:#f7f8ff;border-radius:11px}
+    .next-bar p{font-size:11px;color:#46537a;margin:0}
+    .next-bar div{display:flex;gap:8px;flex-wrap:wrap}
+    .pending-note{font-size:10px;color:var(--amber);background:var(--amber-bg);border-radius:7px;padding:6px 9px;display:inline-block;margin-top:10px}
+    .bp-stage.done{color:var(--green);border-color:var(--line);background:#fff}
+    .bp-stage.done b{background:var(--green-bg);color:var(--green)}
+    .bp-stage-note{font-size:10px;color:var(--muted);margin-left:8px;white-space:nowrap}
+    .bp-node.control{border-top:3px dashed #e2a04e;border-radius:4px;background:#fffdf7}
+    .bp-node.control .bp-node-head small::before{content:"◆ ";color:#e2a04e}
+    .source-pill{background:#f8f9ff;border-color:#cdd5ff;color:var(--blue2)}
+    .horizon-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .horizon-card{padding:18px;display:flex;flex-direction:column;gap:8px}
+    .horizon-card .h-top{display:flex;justify-content:space-between;align-items:center}
+    .horizon-card .h-top b{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .horizon-card h3{font-size:14px;margin:4px 0 0}
+    .horizon-card p{font-size:11px;color:var(--muted);margin:0}
+    .horizon-card .h-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:10px;font-size:10px;color:var(--muted)}
+    .dx{display:grid;grid-template-columns:1fr 34px 1fr;gap:10px;align-items:stretch;padding:0 20px 18px}
+    .dx-box{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+    .dx-box.tx{border-color:#879aff;background:#fafbff}
+    .dx-box small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .dx-box strong{display:block;font-size:12px;margin:5px 0}
+    .dx-box ul{margin:0;padding-left:16px;font-size:11px;color:var(--muted)}
+    .dx-box li{margin:4px 0}
+    .dx-arrow{display:grid;place-items:center;color:var(--muted);font-size:20px}
+    .dx-quote{margin:0 20px 18px;padding:10px 12px;border-left:3px solid var(--blue);background:#f5f7ff;font-size:11px;color:#46537a}
+    .domain-queue{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+    .dq-card{padding:14px}
+    .dq-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .dq-head strong{font-size:12px}
+    .dq-item{border-top:1px solid var(--line);padding:10px 0 2px}
+    .dq-item strong{font-size:11px;display:block}
+    .dq-item small{display:block;font-size:9px;color:var(--muted);margin:3px 0 7px}
+    .dq-item .dq-row{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10px}
+    .modal.wide{width:min(760px,100%)}
+    .def-list,.chg-list{display:grid;gap:8px;max-height:58vh;overflow:auto;margin:14px 0;padding-right:4px}
+    .def-item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+    .def-item strong{font-size:12px}
+    .def-item p{font-size:11px;color:var(--muted);margin:3px 0 0}
+    .chg-item{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+    .chg-item strong{font-size:12px}
+    .chg-item span{font-size:11px;color:var(--muted)}
+    @media(max-width:1100px){.optional-grid,.side-by-side,.horizon-grid,.dx{grid-template-columns:1fr}.domain-queue{grid-template-columns:repeat(2,minmax(0,1fr))}.dx-arrow{height:22px}.chg-item{grid-template-columns:1fr}}
+    @media(max-width:760px){.domain-queue{grid-template-columns:1fr}.next-bar{flex-direction:column;align-items:flex-start}.bp-stage-note{display:none}}
+  
+    /* ---- 9/15 PRD alignment ---- */
+    .tbd{display:inline-block;font-size:9px;font-weight:700;color:var(--amber);background:var(--amber-bg);border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle;letter-spacing:.04em;text-transform:none}
+    .help{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--soft);border:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:700;margin-left:6px;cursor:help;position:relative;vertical-align:middle}
+    .help:hover::after{content:attr(data-help);position:absolute;left:22px;top:-6px;width:300px;background:#1f2227;color:#fff;font-weight:400;font-size:11px;line-height:1.45;padding:9px 11px;border-radius:9px;z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:left;white-space:normal}
+    .demo-dot{background:#e2a04e;box-shadow:0 0 0 4px rgba(226,160,78,.15)}
+    .stage-panel{display:none}
+    .stage-panel.active{display:block}
+    .section-title{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px}
+    .section-title strong{font-size:13px}
+    .section-title span{font-size:11px;color:var(--muted)}
+    .confirm-card{padding:22px;display:grid;grid-template-columns:1.25fr .75fr;gap:22px}
+    .confirm-statement{font-size:17px;font-weight:650;line-height:1.4;border-left:4px solid var(--blue);padding:6px 0 6px 14px;margin:10px 0 16px}
+    .confirm-card p{font-size:12px;color:var(--muted);margin:0 0 10px}
+    .check-row{display:flex;align-items:center;gap:9px;font-size:12px;padding:9px 0;border-top:1px solid var(--line)}
+    .check-row b{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10px;background:var(--green-bg);color:var(--green);flex:none}
+    .check-row.pending b{background:var(--soft);color:var(--muted)}
+    .check-row label{display:flex;gap:8px;align-items:center;cursor:pointer}
+    .run-steps{display:grid;gap:8px}
+    .run-step{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:center;font-size:12px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+    .run-step i{width:14px;height:14px;border-radius:50%;border:2px solid #cfd4db;display:block}
+    .run-step.running i{border-color:var(--blue);border-top-color:transparent;animation:spin .8s linear infinite}
+    .run-step.done i{background:var(--green);border-color:var(--green)}
+    .run-step span{font-size:10px;color:var(--muted)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .finding-cat{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#5d4a86;background:#f1ecfb;border-radius:5px;padding:3px 6px;white-space:nowrap}
+    .path-stack{display:grid;gap:8px}
+    .path-row{display:grid;grid-template-columns:62px 1fr 110px;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;background:#fff}
+    .path-row strong{font-size:11px}
+    .path-row.blocked{background:#fafbfc;color:var(--muted)}
+    .path-row.open{border-color:#f0c1bf;background:#fff9f8}
+    .path-row .status{justify-self:end}
+    .outcome-target{border:1px dashed #efbaba;background:#fff8f8;border-radius:10px;padding:10px 12px;font-size:12px;text-align:center;margin-bottom:8px}
+    .cand-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .cand{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;position:relative}
+    .cand.best{border-color:#879aff;box-shadow:inset 0 0 0 1px #879aff;background:#fcfcff}
+    .cand h3{font-size:12px;margin:9px 0 4px}
+    .cand p{font-size:10px;color:var(--muted);margin:0 0 10px;min-height:28px}
+    .validated{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:var(--green);background:var(--green-bg);border-radius:5px;padding:3px 6px}
+    .cand-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .cand-metrics div{background:var(--soft);border-radius:8px;padding:7px}
+    .cand-metrics strong{display:block;font-size:12px}
+    .cand-metrics span{font-size:8px;color:var(--muted);text-transform:uppercase}
+    .rec-card{display:grid;grid-template-columns:1fr 34px 1.15fr 34px 1fr;gap:10px;align-items:stretch;padding:0 20px 16px}
+    .rec-box{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+    .rec-box small{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .rec-box.intervention{border-color:#879aff;background:#fafbff}
+    .rec-box.intervention strong{display:block;font-size:13px;line-height:1.35;margin-bottom:8px}
+    .rec-box.intervention p{font-size:10px;color:var(--muted);margin:0}
+    .rec-box.validated-state{border-color:#b9decf;background:#f8fcfa}
+    .rec-metric{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:6px 0;border-top:1px solid #eef0f2}
+    .rec-metric:first-of-type{border-top:0}
+    .rec-metric b{font-size:14px}
+    .rec-arrow{display:grid;place-items:center;color:var(--muted);font-size:18px}
+    .impact-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 20px 16px}
+    .impact{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--muted)}
+    .impact b{display:block;font-size:13px;color:var(--ink);margin-bottom:2px}
+    .decision-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-top:1px solid var(--line)}
+    .decision-bar p{font-size:11px;color:var(--muted);margin:0;max-width:560px}
+    .decision-bar div{display:flex;gap:8px;flex-wrap:wrap}
+    .btn.danger{background:#fff;color:var(--red);border:1px solid #efbaba}
+    .modify-form{display:none;padding:14px 20px;border-top:1px solid var(--line);background:#fbfcfd}
+    .modify-form.open{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+    .decision-state{display:none;margin:0 20px 16px;padding:10px 12px;border-radius:10px;font-size:12px}
+    .decision-state.show{display:block}
+    .decision-state.approved{background:var(--green-bg);color:var(--green)}
+    .decision-state.rejected{background:var(--red-bg);color:var(--red)}
+    .lib-table-wrap{overflow:auto}
+    .lib-table{min-width:1280px}
+    .lib-table td,.lib-table th{white-space:nowrap}
+    .lib-table tbody tr{cursor:pointer}
+    .lib-table tbody tr:hover{background:#f8f9fc}
+    .deploy,.lc{font-size:10px;font-weight:700;border-radius:99px;padding:4px 8px;display:inline-block;white-space:nowrap}
+    .deploy.deployed{color:var(--green);background:var(--green-bg)}
+    .deploy.pre{color:#5a6270;background:#eef0f3}
+    .lc{background:var(--lav);color:var(--blue2)}
+    .lc.warn{background:var(--amber-bg);color:var(--amber)}
+    .lc.bad{background:var(--red-bg);color:var(--red)}
+    .lc.ok{background:var(--green-bg);color:var(--green)}
+    .wf-header{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:18px}
+    .wf-fact{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .wf-fact small{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .wf-fact strong{display:block;font-size:13px;margin-top:5px}
+    .wf-graph{display:flex;align-items:center;gap:6px;overflow:auto;padding:4px 20px 20px}
+    .wf-graph .node{min-width:132px}
+    .activity{display:grid;gap:8px;padding:0 20px 18px}
+    .activity-row{display:grid;grid-template-columns:160px 1fr auto;gap:10px;align-items:center;font-size:11px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff}
+    .activity-row small{color:var(--muted)}
+    .detail-list{padding:0 20px 18px;display:grid;gap:8px}
+    .detail-list details{border:1px solid var(--line);border-radius:10px;background:#fff}
+    .detail-list summary{cursor:pointer;padding:10px 12px;font-size:12px;font-weight:650}
+    .detail-list .detail-body{padding:0 12px 12px;font-size:11px;color:var(--muted)}
+    .change-feed{display:grid;gap:8px;padding:0 20px 18px}
+    .change{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;background:#fff}
+    .change .ci{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--lav);color:var(--blue2);font-weight:800}
+    .change small{display:block;color:var(--muted);margin-top:2px}
+    .v2-note{font-size:11px;color:var(--muted);border:1px dashed #cfd4db;border-radius:10px;padding:10px 12px;background:#fbfcfd;margin-top:14px}
+    .two-col.wide-right{grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr)}
+    .pending-list{display:grid;gap:8px;padding:0 20px 18px}
+    .pending-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;font-size:11px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;cursor:pointer;text-align:left;font-family:inherit}
+    .pending-row:hover{border-color:#bfc8f7}
+    .pending-row small{display:block;color:var(--muted);margin-top:3px}
+    .pending-row .dom{display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--blue2);background:var(--lav);border-radius:5px;padding:2px 6px;margin-right:7px;vertical-align:1px}
+    .bar{height:8px;background:#eceef2;border-radius:99px;overflow:hidden;margin:10px 0 6px}
+    .bar i{display:block;height:100%;background:var(--blue);border-radius:99px}
+    .bar i.green{background:var(--green)}
+    .posture-card{padding:18px 20px}
+    .posture-card .metric-foot{margin-top:8px}
+    .gap-list{display:grid;gap:8px}
+    .gap{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;font-size:11px}
+    .gap small{display:block;color:var(--muted);margin-top:2px}
+    .tech-detail{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .tech-detail>summary{cursor:pointer;padding:12px 14px;font-size:12px;font-weight:650}
+    .tech-detail .tab-panel{display:block;padding:0 14px 14px}
+    @media(max-width:1100px){.confirm-card,.cand-grid,.rec-card,.impact-row,.two-col.wide-right{grid-template-columns:1fr}.rec-arrow{height:20px}.wf-header{grid-template-columns:repeat(2,minmax(0,1fr))}.modify-form.open{grid-template-columns:1fr}}
+    .lifecycle{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:10px;color:var(--muted)}
+    .lc-step{padding:3px 8px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:10px;color:var(--muted)}
+    .status{white-space:nowrap}
+    body.show-changes .section-title.chg{padding-top:16px}
+    body.show-changes .section-title.chg::before{top:-2px}
+    /* ---- UX path fixes ---- */
+    .pick:not(:has(input)){cursor:default}
+    .bp-stage.reachable,#incFlow .bp-stage{cursor:pointer}
+    .bp-stage.reachable:hover,#incFlow .bp-stage:hover{border-color:#aebaff}
+    .next-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .filter-row select.search{flex:0 0 auto;min-width:118px;padding-right:6px}
+    .filter-row{flex-wrap:wrap}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    #incidentSearch{flex:1 1 260px;min-width:240px}
+    .domain-label{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:8px;background:var(--lav);color:var(--blue2);font-size:11px;font-weight:700;white-space:nowrap}
+    /* ── positioning alignment (evidence grades, promotion ladder, objectives) ── */
+    .grade{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;vertical-align:middle}
+    .g-obs{background:var(--green-bg);color:var(--green)}
+    .g-lat{background:var(--amber-bg);color:var(--amber)}
+    .g-dec{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+    .grade-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--muted);margin:2px 2px 12px;align-items:center}
+    .grade-legend .grade{margin-right:5px}
+    .promo{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;padding:11px 13px;background:var(--soft);border-radius:11px;font-size:11px}
+    .promo .plabel{color:var(--muted);font-weight:700;margin-right:4px;text-transform:uppercase;letter-spacing:.05em;font-size:10px}
+    .promo .stg{padding:3px 9px;border-radius:7px;background:#fff;border:1px solid var(--line);color:var(--muted);font-weight:600}
+    .promo .stg.on{background:var(--lav);border-color:var(--blue);color:var(--blue2)}
+    .promo .stg.done{background:var(--green-bg);border-color:transparent;color:var(--green)}
+    .promo .arr{color:var(--muted)}
+    .promo .pnote{flex-basis:100%;color:var(--muted);margin-top:2px;font-size:10.5px}
+    .six-obj{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 14px;margin-top:10px}
+    .six-obj div{display:flex;flex-direction:column;gap:2px}
+    .six-obj .ov{font-size:13px;font-weight:800;color:var(--ink)}
+    .six-obj .ok{color:var(--green)} .six-obj .bad{color:var(--amber)}
+    .six-obj .ol{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .cand.rejected{opacity:.72}
+    .rej-tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--red-bg);color:var(--red)}
+    .rej-why{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic}
+    .rationale{font-size:11.5px;color:var(--blue2);background:var(--lav);border-radius:8px;padding:9px 12px;margin-top:12px;line-height:1.4}
+    .rationale b{color:var(--ink)}
+    .deploy-note{font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+    .deploy-note b{color:var(--ink)}
+    /* ── register toggle (dual-register: Assurance / Operations) ── */
+    .reg-toggle{display:flex;gap:3px;padding:3px;background:var(--soft);border-radius:10px;border:1px solid var(--line)}
+    .reg-toggle .reg{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .reg-toggle .reg.on{background:var(--panel);color:var(--blue2);box-shadow:0 1px 3px rgba(22,28,45,.1)}
+    .reg-hint{font-size:11px;color:var(--muted);margin-left:2px}
+    /* ── Assurance view (investor / technical register) ── */
+    #assurance{max-width:1060px}
+    #assurance .as-eyebrow{font-family:ui-monospace,"SF Mono",monospace;font-size:11.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue2)}
+    #assurance h1{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.02em;margin:.3em 0 .2em;max-width:20ch}
+    #assurance .as-lede{font-size:clamp(15px,1.7vw,17px);color:var(--muted);max-width:64ch;margin:0}
+    #assurance .as-sec{margin-top:34px}
+    #assurance .as-sechead{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+    #assurance .as-sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);font-weight:700}
+    #assurance .as-sub{color:var(--muted);font-size:13.5px;margin:2px 0 0}
+    #assurance .as-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}
+    #assurance .as-kpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 16px;box-shadow:var(--shadow)}
+    #assurance .as-kpi .v{font-weight:760;font-size:26px;letter-spacing:-.02em}
+    #assurance .as-kpi .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+    #assurance .as-kpi .d{font-size:11px;margin-top:6px;font-weight:600}
+    #assurance .as-kpi .d.up{color:var(--green)}#assurance .as-kpi .d.down{color:var(--amber)}#assurance .as-kpi .d.flat{color:var(--muted)}
+    #assurance .as-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+    #assurance .as-corr{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px}
+    #assurance .as-corr .n{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:14px;text-align:center}
+    #assurance .as-corr .n b{display:block;font-size:14px}#assurance .as-corr .n span{font-size:11px;color:var(--muted)}
+    #assurance .as-corr .lk{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--amber);min-width:88px}
+    #assurance .as-corr .lk .ar{font-size:17px}#assurance .as-corr .lk small{font-size:9px;text-transform:uppercase;letter-spacing:.04em;text-align:center;color:var(--amber)}
+    #assurance .as-quote{border-left:3px solid var(--blue);padding-left:13px;color:var(--muted);font-size:13px;font-style:italic;margin:14px 0 0}
+    #assurance .as-vv{display:grid;grid-template-columns:112px 1fr 1fr;gap:11px}
+    #assurance .as-vv .h{font-family:ui-monospace,monospace;font-size:11.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;letter-spacing:.03em}
+    #assurance .as-vv .rl{font-family:ui-monospace,monospace;font-size:11.5px;font-weight:700;color:var(--muted);display:flex;align-items:center}
+    #assurance .as-vvc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
+    #assurance .as-vvc.val{border-top-color:var(--green)}#assurance .as-vvc.clo{border-top-color:var(--amber);cursor:pointer}
+    #assurance .as-vvc.clo:hover{border-color:var(--amber)}
+    #assurance .as-vvc h4{margin:0 0 3px;font-size:13.5px}#assurance .as-vvc p{margin:0;font-size:12px;color:var(--muted)}
+    #assurance .as-vvc .r{font-family:ui-monospace,monospace;font-size:12px;font-weight:600;margin-top:8px}#assurance .as-vvc .r.w{color:var(--amber)}
+    #assurance .as-wm{display:grid;grid-template-columns:1.25fr 1fr;gap:15px}
+    #assurance .as-layer{display:grid;grid-template-columns:148px 1fr 78px;gap:11px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+    #assurance .as-layer:last-of-type{border-bottom:0}
+    #assurance .as-layer .ln{font-size:12.5px}#assurance .as-layer .ln b{font-family:ui-monospace,monospace}#assurance .as-layer .ln small{display:block;color:var(--muted);font-size:10px}
+    #assurance .as-b{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}#assurance .as-b i{display:block;height:100%;background:var(--blue);border-radius:4px}
+    #assurance .as-layer .pc{font-family:ui-monospace,monospace;font-size:12px;text-align:right;color:var(--muted)}#assurance .as-layer .pc b{color:var(--ink)}
+    #assurance .as-srcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}#assurance .as-src{font-family:ui-monospace,monospace;font-size:10.5px;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:4px 8px;color:var(--muted)}#assurance .as-src b{color:var(--ink)}
+    #assurance .as-gaps{display:flex;flex-direction:column;gap:7px}
+    #assurance .as-gap{display:flex;gap:9px;align-items:flex-start;font-size:12px}#assurance .as-gap b{color:var(--ink)}#assurance .as-gap span{color:var(--muted)}
+    #assurance .as-sev{font-family:ui-monospace,monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap;margin-top:1px}
+    #assurance .as-sev.critical{background:var(--red-bg);color:var(--red)}#assurance .as-sev.serious{background:var(--amber-bg);color:var(--amber)}#assurance .as-sev.warning{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+    #assurance .as-flow{display:flex;flex-wrap:wrap;align-items:center;gap:7px}#assurance .as-fstep{font-family:ui-monospace,monospace;font-size:11.5px;background:var(--lav);color:var(--blue2);border-radius:8px;padding:6px 11px;font-weight:600}#assurance .as-flow .a{color:var(--muted)}
+    #assurance .as-unlock{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:14px}#assurance .as-unlock .u{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:13px}#assurance .as-unlock .u small{font-family:ui-monospace,monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}#assurance .as-unlock .u div{font-size:13.5px;margin-top:3px}#assurance .as-unlock .mid{font-size:20px;color:var(--green);text-align:center}
+    #assurance .as-open{appearance:none;border:1px solid var(--blue);background:var(--lav);color:var(--blue2);font:inherit;font-weight:600;font-size:12.5px;padding:8px 14px;border-radius:9px;cursor:pointer;margin-top:14px;display:inline-flex;align-items:center;gap:7px}
+    #assurance .as-glegend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px;font-size:11px;color:var(--muted);align-items:center}
+    @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
+    @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">SILE<span>X</span></div>
+<div class="section-label">Assurance</div>
+<nav class="nav">
+<button class="active" data-view="assurance"><span class="ico">◆</span>Assurance</button>
+</nav>
+<div class="section-label chg" data-chg="9/15 review: Blueprint Studio and Workflow Library moved here">Workspace</div>
+<nav class="nav">
+<button data-view="overview"><span class="ico">◫</span>Overview</button>
+<button class="chg" data-chg="moved here" data-view="blueprint"><span class="ico">⌘</span>Agentic Blueprint Studio</button>
+<button class="chg" data-chg="moved here" data-view="library"><span class="ico">▦</span>Workflow Library</button>
+</nav>
+<div class="section-label chg" data-chg="9/15 review: narrowed to the reactive screens">Security</div>
+<nav class="nav">
+<button data-view="incidents"><span class="ico">!</span>Incident Queue</button>
+<button data-view="policies"><span class="ico">✓</span>Policy Review</button>
+</nav>
+<div class="section-label chg" data-chg="PRD §5: Environment">Environment</div>
+<nav class="nav">
+<button class="chg" data-chg="renamed · now first" data-view="security-model"><span class="ico">◎</span>Enterprise World Model</button>
+<button class="chg" data-chg="renamed from Short-Term Validation" data-view="short-term"><span class="ico">↻</span>Workflow Validation</button>
+<button class="chg" data-chg="renamed from Long-Term Validation" data-view="long-term"><span class="ico">⟳</span>System Validation</button>
+</nav>
+<div class="spacer"></div>
+<div class="system chg" data-chg="demo, not production">
+<div class="online"><i class="dot demo-dot"></i> Demo environment</div>
+<div class="tenant">Acme Financial<small>Simulated tenant · V1 demo</small></div>
+</div>
+</aside>
+<main class="main">
+<header class="topbar">
+<div class="crumb">SILEX / <strong id="crumb">Assurance</strong></div>
+<div class="reg-toggle" role="tablist" title="Switch register: Assurance (investor / technical) vs Operations (security team)">
+<button class="reg on" id="regAssurance" role="tab">◆ Assurance</button>
+<button class="reg" id="regOps" role="tab">▨ Operations</button>
+</div>
+<div class="top-actions">
+<span class="pill chg" data-chg="PRD §43">Simulated agents · illustrative data</span>
+<button class="pill chg-btn" id="defsBtn">ⓘ Definitions</button>
+<button class="pill chg-btn accent" id="changesBtn">◆ 9/15 changes</button>
+<div class="avatar">YY</div>
+</div>
+</header>
+<div class="content">
+<section class="view active" id="assurance">
+<div class="title-row"><div>
+<div class="as-eyebrow">Continuous Production Assurance</div>
+<h1>Proof that your agents still do what they should — as everything keeps changing.</h1>
+<p class="as-lede">SILEX runs continuous <b>Agent Verification &amp; Validation</b> on a live Enterprise World Model: verifying that agents follow their intended trajectories, and validating that the resulting business state — and the controls around it — still hold under today's reality.</p>
+</div></div>
+<div class="as-kpis">
+<div class="as-kpi"><div class="v">82%</div><div class="l">Weighted coverage</div><div class="d up">▲ +4 pts vs last calibration</div></div>
+<div class="as-kpi"><div class="v">29.4K</div><div class="l">Entities understood</div><div class="d flat">598 ontology types, typed &amp; linked</div></div>
+<div class="as-kpi"><div class="v">94%</div><div class="l">World-model fit</div><div class="d up">simulation vs observed agreement</div></div>
+<div class="as-kpi"><div class="v">8</div><div class="l">Known blind spots</div><div class="d down">▼ 2 critical · named &amp; addressable</div></div>
+</div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">The Correspondence Problem</h2><p class="as-sub">Three objects that used to travel together come apart once an agent holds real authority.</p></div></div>
+<div class="as-card"><div class="as-corr">
+<div class="n"><b>Designed Intent</b><span>prompts · blueprints · policy · permissions</span></div>
+<div class="lk"><span class="ar">↔</span><small>execution drifts<br>from design</small></div>
+<div class="n"><b>Executed Behavior</b><span>model reasoning · memory · tool responses</span></div>
+<div class="lk"><span class="ar">↔</span><small>outcome drifts<br>from intent</small></div>
+<div class="n"><b>Enterprise Reality</b><span>permissions · other agents · business state</span></div>
+</div><p class="as-quote">Correspondence cannot be verified without a model of reality; a useful model of reality must carry both semantics and causal structure.</p></div></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">02</span><div><h2 style="margin:0">Agent Verification &amp; Validation</h2><p class="as-sub">Verification asks whether execution conforms to spec. Validation asks whether the spec is still correct under reality.</p></div></div>
+<div class="as-vv">
+<div></div><div class="h">Verification — conforms to spec?</div><div class="h">Validation — spec still correct?</div>
+<div class="rl">Outcome side</div>
+<div class="as-vvc" data-jump="short-term"><h4>Actual state = expected state</h4><p>Replay every production trajectory against its designed path.</p><div class="r">1,240 trajectories replayed · 3 deviations flagged</div></div>
+<div class="as-vvc val" data-jump="long-term"><h4>Expected state still correct?</h4><p>Has the environment moved the "good" state under the agent?</p><div class="r w">2 workflows' expected outcome invalidated by env change</div></div>
+<div class="rl">Control side</div>
+<div class="as-vvc"><h4>Policy enforced as specified</h4><p>Every control fires where the design says it should.</p><div class="r">61 control types checked · enforced as specified</div></div>
+<div class="as-vvc clo" data-open-incident="I-1042"><h4>Failure Closure →</h4><p>Does the control prevent the prohibited outcome, or only block one path?</p><div class="r w">5 prohibited outcomes · 4 latent paths still open to "Unverified Bank Change"</div></div>
+</div>
+<p class="as-quote">Blocking one path does not prove that the underlying failure has been closed.</p></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">03</span><div><h2 style="margin:0">Enterprise World Model — the evidence base</h2><p class="as-sub">A self-evolving L1–L4 ontology over a runtime knowledge graph. 598 types · 800 relations · grounded in open standards.</p></div></div>
+<div class="as-wm">
+<div class="as-card">
+<div class="as-layer"><div class="ln"><b>L1 · General</b><small>Reusable agent-security semantics</small></div><div class="as-b"><i style="width:74%"></i></div><div class="pc"><b>370</b> · 74%</div></div>
+<div class="as-layer"><div class="ln"><b>L2 · Domain packs</b><small>Business meaning per vertical</small></div><div class="as-b"><i style="width:78%"></i></div><div class="pc"><b>86</b> · 78%</div></div>
+<div class="as-layer"><div class="ln"><b>L3 · Agentic-system</b><small>Planner · memory · tools · MCP</small></div><div class="as-b"><i style="width:60%;background:var(--amber)"></i></div><div class="pc"><b>118</b> · 60%</div></div>
+<div class="as-layer"><div class="ln"><b>L4 · Runtime graph</b><small>Deployed &amp; observed now</small></div><div class="as-b"><i style="width:81%"></i></div><div class="pc"><b>24</b> · 81%</div></div>
+<div class="as-srcs"><span class="as-src">D3FEND <b>213</b></span><span class="as-src">ATLAS <b>96</b></span><span class="as-src">ATT&amp;CK <b>61</b></span><span class="as-src">UCO <b>72</b></span><span class="as-src">OWASP <b>25</b></span></div>
+<div class="as-glegend"><b style="color:var(--muted)">Path grades →</b><span><span class="grade g-obs">Observed</span> in the graph</span><span><span class="grade g-lat">Latent</span> possible by type</span><span><span class="grade g-dec">Declared</span> from config</span></div>
+<button class="as-open" data-jump="security-model">◎ Open the full World Model explorer — 598 nodes, all four layers →</button>
+</div>
+<div class="as-card">
+<div style="font-family:ui-monospace,monospace;font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:10px">KNOWN BLIND SPOTS · 8 OPEN</div>
+<div class="as-gaps">
+<div class="as-gap"><span class="as-sev critical">Critical</span><span><b>Procurement vendor data not connected</b> — bank changes inferred from tool calls, not observed at source.</span></div>
+<div class="as-gap"><span class="as-sev critical">Critical</span><span><b>Long-term memory unmodelled</b> — 31 agents persist memory across runs; contents not in the graph.</span></div>
+<div class="as-gap"><span class="as-sev serious">Serious</span><span><b>Refund path below target</b> — WF-021 at 68%; goodwill-credit branch untested.</span></div>
+<div class="as-gap"><span class="as-sev serious">Serious</span><span><b>HR workflows partly represented</b> — 2 of 19 workflows registered · 68%.</span></div>
+<div class="as-gap"><span class="as-sev warning">Warning</span><span><b>Sub-agent delegation partly observed</b> — inherited authority across hand-off is inferred.</span></div>
+</div>
+<p class="as-quote" style="margin-top:14px">Each blind spot names the class and constraint that generated it — a hypothesis with an address, not a mystery. That is what makes the model self-evolving.</p>
+</div>
+</div></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="as-sub">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
+<div class="as-card">
+<div class="as-flow"><span class="as-fstep">Assurance</span><span class="a">→</span><span class="as-fstep">Authority</span><span class="a">→</span><span class="as-fstep">Production actions</span><span class="a">→</span><span class="as-fstep">Runtime evidence</span><span class="a">→</span><span class="as-fstep">Better world model</span><span class="a">→</span><span class="as-fstep">Stronger validation</span><span class="a">↺</span></div>
+<div class="as-unlock">
+<div class="u"><small>Before — human-gated</small><div>Vendor bank change → <b>human approval on every request</b></div></div>
+<div class="mid">→</div>
+<div class="u"><small>After — failure closure validated</small><div>Agent handles changes <b>up to $2,000</b>; re-auth bound to identity + intent + amount</div></div>
+</div>
+<p class="as-quote" style="margin-top:16px">Certification is a snapshot; assurance has to be continuous. — SILEX raises the autonomy ceiling of enterprise AI.</p>
+</div></div>
+</section>
+
+<section class="view" id="overview">
+<div class="title-row">
+<div>
+<h1>Enterprise Agentic Security</h1>
+<p>Which unsafe outcomes are still reachable across your agentic workflows, and what needs a decision.</p>
+</div>
+<button class="btn primary" data-new-blueprint="1">＋ New Agentic Blueprint</button>
+</div>
+<div class="section-title chg" data-chg="PRD §36: enterprise security posture"><strong>Enterprise Security Posture</strong><span>Illustrative values</span></div>
+<div class="metric-grid">
+<div class="card metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
+<div class="card metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
+<div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 6 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
+<div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="short-term">revalidate</button></div></div>
+</div>
+<div class="two-col" style="grid-template-columns:1fr">
+<div class="card chg" data-chg="9/15 review: World Model Coverage moved to Enterprise World Model">
+<div class="card-head"><div><h2>Domain Suites</h2><p>Enterprise → domain → agents, workflows, controls</p></div></div>
+<div class="suite-list">
+<button class="capability-row" data-suite-jump="finance"><strong>Finance</strong><span>12 agents · 38 workflows</span><b><span class="status review">4 risks</span></b></button>
+<button class="capability-row" data-suite-jump="support"><strong>Customer Service</strong><span>18 agents · 64 workflows</span><b><span class="status blocked">7 risks</span></b></button>
+<button class="capability-row" data-suite-jump="identity"><strong>Identity &amp; IT</strong><span>9 agents · 27 workflows</span><b><span class="status review">2 risks</span></b></button>
+<button class="capability-row" data-suite-jump="procurement"><strong>Procurement</strong><span>8 agents · 31 workflows</span><b><span class="status review">3 risks</span></b></button>
+<button class="capability-row" data-suite-jump="hr"><strong>Human Resources</strong><span>6 agents · 19 workflows</span><b><span class="status running">1 risk</span></b></button>
+</div>
+</div>
+</div>
+<div class="two-col wide-right">
+<div class="card chg" data-chg="PRD §36: workflow coverage">
+<div class="card-head"><div><h2>Workflow Coverage</h2><p>Registered workflows vs known workflows · <button class="def-link" data-def="workflowcov">definition</button></p></div><button class="btn secondary" data-jump="library">Workflow Library →</button></div>
+<div class="body" style="padding:0 20px 18px">
+<div style="display:flex;gap:28px;align-items:end">
+<div><div class="metric-value" id="ovRegistered">24</div><div class="metric-foot">registered</div></div>
+<div><div class="metric-value" style="color:var(--muted)" id="ovKnown">9</div><div class="metric-foot">known in the environment</div></div>
+<div><div class="metric-value" id="ovDeployed">18</div><div class="metric-foot">deployed</div></div>
+</div>
+<div class="bar"><i id="ovCoverageBar" style="width:77%"></i></div>
+<div class="metric-foot"><span id="ovCoveragePct">67%</span> workflow coverage · <button class="def-link" data-lib-unregistered="1" id="ovCoverageNote">3 known workflows not yet registered</button></div>
+</div>
+</div>
+<div class="card chg" data-chg="PRD §36: policy decisions">
+<div class="card-head"><div><h2>Policy Decisions</h2><p>Validated recommendations waiting for a human decision</p></div><span class="status review" id="ovPendingCount">2 pending</span></div>
+<div class="pending-list">
+<button class="pending-row" data-open-incident="I-1042"><span><strong>Bind approval to vendor + intent + mutation</strong><small><span class="dom">Finance</span>Vendor Master Update · from incident I-1042</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1042">Review</span></button>
+<div class="pending-row muted">Blueprint decisions are reviewed in the main demo's <a href="index.html#studio">Blueprint Studio</a>.</div>
+<button class="pending-row" data-open-incident="I-1038"><span><strong>Bind control to cumulative outcome</strong><small><span class="dom">Customer Support</span>Refund Resolution · from incident I-1038</small></span><span class="validated">✓ Validated</span><span class="status review" data-rec-status="I-1038">Review</span></button>
+</div>
+</div>
+</div>
+<div class="optional-head chg" data-chg="PRD §36: secondary modules collapsed"><strong>More detail</strong><span>Collapsed by default</span></div>
+<div class="optional-grid">
+<details class="card collapse-card">
+<summary><div><h2>Recent material activity</h2><p>Incidents, approvals, revalidations</p></div><div class="sum-right"><span class="chev">›</span></div></summary>
+<div class="collapse-body">
+<div class="timeline">
+<div class="event"><time>10:43</time><div class="rail"><i style="background:var(--red)"></i></div><div class="event-copy"><strong>Incident I-1042 observed</strong><span>Vendor bank mutation blocked by PAY-042; alternative paths remain</span></div></div>
+<div class="event"><time>11:12</time><div class="rail"><i></i></div><div class="event-copy"><strong>Recommendation validated</strong><span>Bind approval to vendor + intent + mutation · ready for approval</span></div></div>
+<div class="event"><time>Today</time><div class="rail"><i style="background:var(--amber)"></i></div><div class="event-copy"><strong>Environment change detected</strong><span>New vendor tool connected · 3 workflows may be affected</span></div></div>
+</div>
+</div>
+</details>
+<details class="card collapse-card">
+<summary><div><h2>Coverage confidence detail</h2><p>Path coverage and scenario representation</p></div><div class="sum-right"><span class="tbd">Formula TBD</span><span class="chev">›</span></div></summary>
+<div class="collapse-body">
+<div class="e-list">
+<div class="e-item"><span>Path coverage</span><strong>92%</strong><div class="mini-track"><i style="width:92%"></i></div></div>
+<div class="e-item"><span>Workflow coverage</span><strong>77%</strong><div class="mini-track"><i style="width:77%"></i></div></div>
+<div class="e-item"><span>Revalidation status</span><strong>21 / 24 valid</strong><div class="mini-track"><i style="width:88%"></i></div></div>
+</div>
+<div class="metric-foot" style="margin-top:10px"><button class="def-link" data-def="coverage">What coverage confidence means</button></div>
+</div>
+</details>
+</div>
+</section>
+
+<section class="view" id="blueprint">
+<div class="title-row">
+<div>
+<h1>Blueprint Studio</h1>
+<p>Blueprint Studio moved to the main demo.</p>
+</div>
+</div>
+<div class="card" style="max-width:560px">
+<p>Build, confirm, validate, optimize and decide workflows — with the computed Decision Trace — in the main demo. The other panels on this page are unchanged.</p>
+<a class="btn primary" href="index.html#studio">Open Blueprint Studio →</a>
+</div>
+</section>
+
+<section class="view" id="incidents">
+<div class="title-row">
+<div>
+<h1>Incident Queue</h1>
+<p>Post-deployment entry point: production incidents across registered workflows.</p>
+</div>
+<div class="view-switch"><button class="active" data-queue-view="cards">Cards</button><button data-queue-view="list">List</button></div>
+</div>
+<div class="metric-grid chg" data-chg="PRD §28 summary">
+<div class="card metric"><div class="kicker">Open incidents</div><div class="metric-value">12</div><div class="metric-foot">Last 30 days</div></div>
+<div class="card metric"><div class="kicker">Critical incidents</div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcome still reachable</div></div>
+<div class="card metric"><div class="kicker">Affected workflows</div><div class="metric-value">7</div><div class="metric-foot">of 18 deployed</div></div>
+<div class="card metric"><div class="kicker">Residual failures</div><div class="metric-value">5</div><div class="metric-foot">Blocked once, alternative paths open</div></div>
+</div>
+<div class="filter-row chg" data-chg="PRD §28 filters">
+<input class="search" id="incidentSearch" aria-label="Search incidents" placeholder="Search incident, workflow, agent or control…">
+<select class="search inc-filter" data-f="domain" aria-label="Domain"><option value="">All domains</option><option>Finance</option><option>Customer Service</option><option>Procurement</option><option>IT</option><option>Identity</option><option>Sales</option></select>
+<select class="search inc-filter" data-f="workflow" aria-label="Workflow"><option value="">All workflows</option><option value="WF-021">Vendor Master Update</option><option value="WF-014">Refund Resolution</option><option value="WF-008">PO Approval</option><option value="WF-033">Account Remediation</option><option value="WF-005">Access Provisioning</option><option value="WF-026">Quote-to-Contract</option></select>
+<select class="search inc-filter" data-f="agent" aria-label="Agent"><option value="">All agents</option><option>Finance Agent</option><option>Refund Agent Network</option><option>Procurement Agent</option><option>Remediation Agent</option><option>Provisioning Agent</option><option>Pricing Agent</option></select>
+<select class="search inc-filter" data-f="severity" aria-label="Severity"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Closed</option></select>
+<select class="search inc-filter" data-f="status" aria-label="Status"><option value="Open">Open</option><option value="">All statuses</option><option>Closed</option></select>
+<select class="search inc-filter" data-f="type" aria-label="Incident type"><option value="">All types</option><option>Tool mutation</option><option>Aggregate outcome</option><option>Stale approval</option><option>Ordering failure</option><option>Entitlement</option><option>Policy conflict</option></select>
+<select class="search inc-filter" data-f="time" aria-label="Time"><option value="720">Last 30 days</option><option value="168">Last 7 days</option><option value="24">Last 24 hours</option><option value="">All time</option></select>
+<span class="pill" id="incShown">5 shown</span>
+</div>
+<div class="incident-grid" id="incidentCards">
+          <article class="card incident-card" data-incident="I-1042" data-search="vendor bank mutation finance pay-042 intent approval binding"><div class="incident-card-top"><span class="incident-id">I-1042 · 18m ago</span><span class="status blocked">Critical</span></div><h3>Vendor bank mutation attempted</h3><p>Prompt injection reached the Vendor Update Tool and was blocked by PAY-042.</p><div class="incident-card-meta"><span>Finance · Vendor Master</span><span>Validating</span></div></article>
+          <article class="card incident-card" data-incident="I-1038" data-search="refund compensation customer support aggregate outcome fin-118"><div class="incident-card-top"><span class="incident-id">I-1038 · 2h ago</span><span class="status review">High</span></div><h3>Aggregate refund limit exceeded</h3><p>Individually allowed compensation actions composed into a prohibited $1,200 outcome.</p><div class="incident-card-meta"><span>Support · Refund Resolution</span><span>Investigating</span></div></article>
+          <article class="card incident-card" data-incident="I-1031" data-search="purchase order procurement delegated approval stale authority"><div class="incident-card-top"><span class="incident-id">I-1031 · 6h ago</span><span class="status review">High</span></div><h3>Delegated approval reused</h3><p>A stale approval state authorized a purchase-order change after the approver scope changed.</p><div class="incident-card-meta"><span>Procurement · PO Approval</span><span>Validation queued</span></div></article>
+          <article class="card incident-card" data-incident="I-1019" data-search="service account credential rotation it operations dependency"><div class="incident-card-top"><span class="incident-id">I-1019 · 1d ago</span><span class="status running">Medium</span></div><h3>Rotation bypassed dependency check</h3><p>A remediation agent rotated credentials before discovering a downstream production dependency.</p><div class="incident-card-meta"><span>IT · Account Remediation</span><span>Mechanism inferred</span></div></article>
+          <article class="card incident-card" data-incident="I-1007" data-search="identity access provisioning dormant entitlement iam"><div class="incident-card-top"><span class="incident-id">I-1007 · 3d ago</span><span class="status running">Medium</span></div><h3>Dormant entitlement restored</h3><p>A mover workflow inherited an obsolete entitlement from historical role state.</p><div class="incident-card-meta"><span>Identity · Access Provisioning</span><span>Monitoring</span></div></article>
+          <article class="card incident-card" data-incident="I-0994" data-search="sales discount quote contract policy approval"><div class="incident-card-top"><span class="incident-id">I-0994 · 5d ago</span><span class="status" style="background:var(--green-bg);color:var(--green)">Closed</span></div><h3>Discount policy conflict</h3><p>Regional and strategic-account policies produced contradictory approval decisions.</p><div class="incident-card-meta"><span>Sales · Quote-to-Contract</span><span>Re-validated</span></div></article>
+        </div>
+        <div class="card section-card queue-scroll" id="incidentList" style="display:none"><table class="queue-table"><thead><tr><th>Incident</th><th>Workflow</th><th>Evidence</th><th>Failure hypothesis</th><th>Priority</th><th>Stage</th><th>Owner</th></tr></thead><tbody><tr data-incident="I-1042"><td class="incident-name">I-1042<small>18m ago</small></td><td>Finance · Vendor Master</td><td>Tool mutation blocked</td><td>Intent–approval binding</td><td><span class="status blocked">Critical</span></td><td>Validating</td><td>M. Chen</td></tr><tr data-incident="I-1038"><td class="incident-name">I-1038<small>2h ago</small></td><td>Support · Refund Resolution</td><td>Aggregate outcome observed</td><td>Cross-agent value composition</td><td><span class="status review">High</span></td><td>Investigating</td><td>A. Patel</td></tr><tr data-incident="I-1031"><td class="incident-name">I-1031<small>6h ago</small></td><td>Procurement · PO Approval</td><td>Stale approval reused</td><td>Authority lifecycle mismatch</td><td><span class="status review">High</span></td><td>Queued</td><td>J. Kim</td></tr><tr data-incident="I-1019"><td class="incident-name">I-1019<small>1d ago</small></td><td>IT · Account Remediation</td><td>Dependency check skipped</td><td>Action-ordering failure</td><td><span class="status running">Medium</span></td><td>Inferred</td><td>SRE Security</td></tr><tr data-incident="I-1007"><td class="incident-name">I-1007<small>3d ago</small></td><td>Identity · Access Provisioning</td><td>Entitlement restored</td><td>Historical state leakage</td><td><span class="status running">Medium</span></td><td>Monitoring</td><td>IAM Team</td></tr><tr data-incident="I-0994"><td class="incident-name">I-0994<small>5d ago</small></td><td>Sales · Quote-to-Contract</td><td>Policy conflict observed</td><td>Policy precedence ambiguity</td><td><span class="status" style="background:var(--green-bg);color:var(--green)">Closed</span></td><td>Re-validated</td><td>Revenue Operations</td></tr></tbody></table></div>
+      
+</section>
+
+<section class="view" id="incident">
+<div class="workspace-context">
+<button class="back-link" data-jump="incidents">← Incident Queue</button>
+<span style="color:var(--line)">/</span>
+<span class="incident-id" id="incId">I-1042</span>
+</div>
+<div class="title-row" style="margin-top:12px">
+<div>
+<h1 id="incTitle">Vendor bank mutation attempted</h1>
+<p id="incMeta">Finance · Vendor Master Update · WF-021 · Production</p>
+</div>
+<div style="display:flex;gap:10px;align-items:center"><span class="status blocked" id="incSeverity">Critical</span><button class="btn secondary chg" data-chg="PRD §29: affected workflow" id="incOpenWorkflow">Affected workflow →</button></div>
+</div>
+<div class="bp-stagebar chg" data-chg="PRD §6 incident path" id="incFlow">
+<div class="bp-stage active"><b>1</b>Evidence</div><span class="bp-stage-arrow">→</span>
+<div class="bp-stage"><b>2</b>Alternative Paths</div><span class="bp-stage-arrow">→</span>
+<div class="bp-stage"><b>3</b>Candidates &amp; Recommendation</div><span class="bp-stage-arrow">→</span>
+<div class="bp-stage"><b>4</b>Decision</div>
+</div>
+<div class="card section-card">
+<div class="workspace-tabs" role="tablist">
+<button class="workspace-tab active" data-inc-panel="inc-evidence">Evidence &amp; known path</button>
+<button class="workspace-tab" data-inc-panel="inc-paths">Alternative paths</button>
+<button class="workspace-tab" data-inc-panel="inc-candidates">Candidates &amp; recommendation</button>
+<button class="workspace-tab" data-inc-panel="inc-decision">Decision</button>
+</div>
+
+<div class="tab-panel inc-panel active" id="inc-evidence">
+<div class="ontology">
+<div class="onto-item"><small>Incident evidence · what happened</small><strong id="incEvidence">I-1042 · Blocked tool mutation</strong><p id="incSummary">A blocked prompt injection is evidence of a broader workflow-level failure.</p></div>
+<div class="onto-item"><small>Existing controls · what blocked it</small><strong id="incControl">PAY-042</strong><p>Stopped the observed execution only.</p></div>
+<div class="onto-item"><small>Failure mechanism</small><strong id="incMechanism">Intent–approval binding failure</strong><p id="incMechanismDesc">Approval is not bound to the original identity, intent and exact mutation.</p></div>
+</div>
+<div class="path-label">Known attack / failure path</div>
+<div class="path">
+<div class="node"><strong id="obsInput">External email</strong><span>Observed input</span></div><div class="arrow">→</div>
+<div class="node"><strong id="obsAgent">Finance Agent</strong><span>Agent</span></div><div class="arrow">→</div>
+<div class="node"><strong id="obsAction">Vendor Update Tool</strong><span>Action</span></div><div class="arrow">→</div>
+<div class="node danger"><strong id="obsOutcome">Bank destination changed</strong><span id="obsControl">Blocked by PAY-042</span></div>
+</div>
+<div class="next-bar"><p><strong>Blocked once.</strong> Is the unsafe outcome still reachable another way?</p><div><button class="btn blue" data-inc-go="1">See alternative paths →</button></div></div>
+<details class="tech-detail chg" data-chg="causal graph kept as technical detail">
+<summary>Technical detail · causal workflow graph (for security engineers)</summary>
+<div class="tab-panel" id="causal-workflow">
+            <div class="graph-toolbar"><div><strong style="font-size:12px">Layered workflow graph</strong><div style="font-size:10px;color:var(--muted);margin-top:2px">Incident evidence is an overlay on enterprise structure—not the first cause in the chain.</div></div><div class="mode-tabs"><button class="mode-tab active" data-graph-mode="structure">Enterprise Structure</button><button class="mode-tab" data-graph-mode="observed">Observed Execution</button><button class="mode-tab" data-graph-mode="causal">Causal Mechanism</button><button class="mode-tab" data-graph-mode="counterfactual">Counterfactual</button><button class="mode-tab" data-graph-mode="intervention">Intervention Diff</button></div></div>
+            <div class="kg-wrap"><div class="kg-graph" id="causalGraph">
+              <svg class="kg-lines" viewBox="0 0 980 430" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#718aff"/></marker><marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#a9afb8"/></marker></defs><path class="kg-item structural observed" d="M176 105 L235 105" marker-end="url(#arrowBlue)"/><text x="183" y="95">INGESTS</text><path class="kg-item structural causal observed" d="M381 105 C410 105 420 170 440 195"/><text x="385" y="130">ADOPTS_INTENT</text><path class="kg-item structural causal observed" d="M381 302 C420 302 420 235 440 220"/><text x="383" y="285">AUTHORIZED_BY</text><path class="kg-item structural causal observed" d="M614 205 C635 190 640 115 660 105"/><text x="615" y="158">ENABLES</text><path class="kg-item structural observed" d="M806 105 C825 120 825 242 806 270"/><text x="820" y="188">MUTATES</text><path class="kg-item structural causal observed counterfactual" d="M806 286 C845 286 850 220 850 210"/><text x="813" y="270">LEADS_TO</text><path class="kg-item structural observed" d="M514 82 C570 40 625 55 660 80"/><text x="570" y="52">GOVERNS</text><path class="kg-item structural counterfactual" d="M176 305 C310 365 510 350 660 305"/><text x="380" y="360">ALTERNATIVE_ROUTE</text><path class="kg-item intervention" d="M527 380 L527 247"/><text x="540" y="345">INTERVENES_ON</text></svg>
+              <div class="kg-node kg-item observed observed-node" style="left:30px;top:68px"><small>External artifact</small><strong id="kgInput">External email</strong><span>Untrusted instruction source</span><em class="ev-badge">Observed · I-1042</em></div>
+              <div class="kg-node agent kg-item observed causal observed-node" style="left:235px;top:68px"><small>Agent</small><strong id="kgAgent">Finance Agent</strong><span>Identity: svc-finance-agent</span><em class="ev-badge">Observed</em></div>
+              <div class="kg-node identity kg-item observed causal" style="left:235px;top:250px"><small>Identity / authority</small><strong id="kgAuthority">Finance Approver</strong><span id="kgAuthorityMeta">Delegates bank-update authority</span></div>
+              <div class="kg-node mechanism kg-item observed causal counterfactual intervention" style="left:440px;top:170px"><small>Causal mechanism</small><strong id="kgMechanism">Intent provenance lost</strong><span>Approval state becomes reusable</span><em class="ev-badge" style="background:var(--amber-bg);color:var(--amber)">Inferred · 86%</em></div>
+              <div class="kg-node control kg-item observed structural" style="left:440px;top:18px"><small>Current control</small><strong id="kgControl">PAY-042</strong><span>Pattern-based tool guard</span></div>
+              <div class="kg-node tool kg-item observed causal counterfactual" style="left:660px;top:68px"><small>Tool</small><strong id="kgAction">Vendor Update Tool</strong><span>WRITE vendor.bank_account</span><em class="ev-badge">Observed</em></div>
+              <div class="kg-node resource kg-item observed causal counterfactual" style="left:660px;top:250px"><small>Resource / state</small><strong id="kgResource">Vendor bank record</strong><span id="kgResourceMeta">Critical financial resource</span></div>
+              <div class="kg-node agent kg-item counterfactual" style="left:30px;top:268px"><small>Alternative agent</small><strong>Procurement Agent</strong><span>Inherited vendor authority</span></div>
+              <div class="kg-node outcome kg-item observed causal counterfactual" style="left:830px;top:170px;width:135px"><small>Business outcome</small><strong id="kgOutcome">Bank destination changed</strong><span>Prohibited · $2.4M exposure</span></div>
+              <div class="kg-node control kg-item intervention" style="left:440px;top:350px"><small>Candidate control</small><strong id="kgCandidate">Bind identity + intent + mutation</strong><span>do(candidate control)</span></div>
+            </div></div>
+            <div class="graph-insight"><div><small>Observed evidence</small><strong>6 nodes · 5 transitions confirmed</strong></div><div><small>Inferred mechanism</small><strong id="graphMechanismInsight">Approval loses binding to verified intent</strong></div><div><small>Counterfactual result</small><strong>3 of 187 executions remain reachable</strong></div></div>
+          </div>
+          
+</details>
+</div>
+
+<div class="tab-panel inc-panel" id="inc-paths">
+<div class="outcome-target"><b>Unsafe outcome:</b> <span id="incOutcomeTarget">Bank destination changed</span></div>
+<div class="grade-legend"><span class="grade g-obs">Observed</span> exercised in your runtime graph · <span class="grade g-lat">Latent</span> asserted possible by type over your real agents, no trace yet · <span class="grade g-dec">Declared</span> from configuration, before deploy</div>
+<div class="path-stack" id="incPaths"></div>
+<div class="next-bar"><p><strong>Residual reachability.</strong> The same outcome is still reachable through <span id="incOpenCount">3</span> paths.</p><div><button class="btn blue" data-inc-go="2">Review candidates →</button></div></div>
+</div>
+
+<div class="tab-panel inc-panel" id="inc-candidates">
+<div class="cand-grid" id="incCands"></div>
+<div class="side-by-side">
+<div class="sbs-col"><h3>Residual paths</h3><p>What stays reachable today</p><div class="path-stack" id="incSbsPaths"></div></div>
+<div class="sbs-col"><h3>Recommended control</h3><p>The intervention designed to close them</p>
+<div class="pick on"><span class="validated">✓</span><span><strong id="incSbsControl">Bind approval to vendor + intent + mutation</strong><small>Validated in simulation · closes every open path above</small></span><span class="status" style="background:var(--green-bg);color:var(--green)">Closes all</span></div>
+</div>
+</div>
+<div class="card section-card" style="margin-top:16px;box-shadow:none">
+<div class="card-head"><div><h2>Policy Change Proposal</h2><p>Ranked candidates, tested in simulation — promoted through shadow and canary before production</p></div><span class="validated">✓ Validated</span></div>
+<div class="rec-card">
+<div class="rec-box"><small>Current state</small><div class="rec-metric"><span>Defense confidence</span><b id="incCurDC">62%</b></div><div class="rec-metric"><span>Residual reachability</span><b id="incCurRR">21%</b></div><div class="rec-metric"><span>Critical paths open</span><b id="incCurPaths">3</b></div></div>
+<div class="rec-arrow">→</div>
+<div class="rec-box intervention"><small>Recommended intervention</small><strong id="incRecText">Bind approval to vendor + intent + mutation</strong><p id="incRecNote">Validated against the scenario family</p></div>
+<div class="rec-arrow">→</div>
+<div class="rec-box validated-state"><small>Validated state</small><div class="rec-metric"><span>Defense confidence</span><b id="incValDC">93%</b></div><div class="rec-metric"><span>Residual reachability</span><b id="incValRR">2%</b></div><div class="rec-metric"><span>Critical paths open</span><b id="incValPaths">0</b></div></div>
+</div>
+<div class="impact-row">
+<div class="impact"><b id="incImpact1">97%</b>legitimate workflows still complete</div>
+<div class="impact"><b id="incImpact2">+420 ms</b>added latency</div>
+<div class="impact"><b id="incImpact3">2 steps</b>require re-authentication</div>
+</div>
+<div class="rationale"><b>Why, in type terms:</b> the block covered one route, but the failure is <b>authorization reuse through lost intent provenance</b> — an approval state that stays valid across executions. The latent paths reach the same prohibited outcome via a different tool, a delegated agent, or a poisoned document. Binding approval to identity + intent + mutation closes the class.</div>
+<div class="promo"><span class="plabel">Validation stage</span><span class="stg done">Simulation</span><span class="arr">→</span><span class="stg on">Shadow</span><span class="arr">→</span><span class="stg">Canary</span><span class="arr">→</span><span class="stg">Production</span><span class="pnote">No policy reaches production from simulation alone. Rollback preserved at every stage.</span></div>
+</div>
+<div class="next-bar"><p><strong>Recommendation ready.</strong> A human decides.</p><div><button class="btn blue" data-inc-go="3">Decide →</button></div></div>
+</div>
+
+<div class="tab-panel inc-panel" id="inc-decision">
+<div class="rec-metric"><span>Recommendation</span><b id="incDecisionText">Bind approval to vendor + intent + mutation</b></div>
+<div class="rec-metric"><span>Validated state</span><b id="incDecisionStateText">Defense 93% · Reachability 2% · 0 critical paths</b></div>
+<div class="deploy-note"><b>On approval</b>, SILEX opens a pull request against your enforcement surface (IAM / gateway / policy-as-code) — never inline, never holding the block decision. <b>Rollback</b> covers agent-side state; business effects get a compensating-action recommendation run through your systems.</div>
+<div class="decision-state" id="incDecisionMsg" style="margin:12px 0 0"></div>
+<div class="modify-form" id="incModifyForm" style="margin-top:12px">
+<div class="field"><label>Scope</label><select id="incScope"><option>All vendor mutations</option><option>Bank-account changes only</option><option>Changes above $10,000 exposure</option></select></div>
+<div class="field"><label>Enforcement point</label><select><option>Vendor Update Tool</option><option>Approval service</option></select></div>
+<button class="btn blue" id="incRerunBtn">Re-run validation</button>
+</div>
+<div class="decision-bar chg" data-chg="PRD §20, §29" style="padding-left:0;padding-right:0">
+<p>Approve accepts the validated recommendation. Modify changes it and re-runs validation. Reject returns to the other candidates.</p>
+<div><button class="btn danger" id="incRejectBtn">Reject</button><button class="btn secondary" id="incModifyBtn">Modify</button><button class="btn blue" id="incApproveBtn">Approve</button></div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="view" id="library">
+<div class="title-row">
+<div>
+<h1>Workflow Library</h1>
+<p>The enterprise inventory and system of record for registered agentic workflows.</p>
+</div>
+<div style="display:flex;gap:10px;align-items:center">
+<div class="view-switch chg" data-chg="PRD §25.2 inventory table"><button class="active" data-lib-view="table">Table</button><button data-lib-view="cards">Cards</button></div>
+<button class="btn primary" data-new-blueprint="1">＋ New Blueprint</button>
+</div>
+</div>
+<div class="metric-grid chg" data-chg="PRD §24 Registered vs Deployed">
+<div class="card metric"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">6</div><div class="metric-foot">shown in this demo</div></div>
+<div class="card metric"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">5</div><div class="metric-foot">active in production</div></div>
+<div class="card metric"><div class="kicker">Registered · not deployed</div><div class="metric-value" id="libPre">1</div><div class="metric-foot">pre-production</div></div>
+<div class="card metric"><div class="kicker">Needs revalidation</div><div class="metric-value" id="libReval">2</div><div class="metric-foot">after environment changes</div></div>
+</div>
+<div class="filter-row">
+<input class="search" id="workflowSearch" aria-label="Search workflows" placeholder="Search workflow, agent, tool, owner or domain…">
+<select class="search" id="domainFilter" style="flex:0 0 180px"><option value="">All domains</option><option>Finance</option><option>Customer Service</option><option>IT</option><option>Procurement</option><option>Identity</option><option>Sales</option></select>
+<select class="search" id="deployFilter" style="flex:0 0 200px"><option value="">All deployment states</option><option value="Deployed">Deployed</option><option value="Registered · not deployed">Registered · not deployed</option><option value="Not registered">Known · not registered</option></select>
+<select class="search" id="riskFilter" style="flex:0 0 160px"><option value="">All risk levels</option><option value="atrisk">At risk</option></select>
+</div>
+<div class="lifecycle" style="margin:0 2px 12px">Lifecycle: <span class="lc-step">Draft</span>→<span class="lc-step">Confirmed</span>→<span class="lc-step">Validating</span>→<span class="lc-step">Ready for Approval</span>→<span class="lc-step">Approved</span>→<span class="lc-step">Registered</span>→<span class="lc-step">Deployed</span>→<span class="lc-step">Needs Revalidation</span></div>
+<div class="card section-card lib-table-wrap" id="libTableWrap">
+<table class="queue-table lib-table">
+<thead><tr><th>Workflow</th><th>Domain</th><th>Business owner</th><th>Security owner</th><th>Agents</th><th>Tools</th><th>Resources</th><th>Controls</th><th>Policies</th><th>Lifecycle</th><th>Validation</th><th>Last validation</th><th>Deployment</th><th>Risk</th><th>Coverage conf.</th></tr></thead>
+<tbody id="libRows"></tbody>
+</table>
+</div>
+<div class="workflow-grid" id="libCards" style="display:none"></div>
+</section>
+
+<section class="view" id="workflow">
+<div class="workspace-context">
+<button class="back-link" data-jump="library">← Workflow Library</button>
+<span style="color:var(--line)">/</span>
+<span class="incident-id" id="wfId">WF-021</span>
+</div>
+<div class="title-row" style="margin-top:12px">
+<div>
+<h1 id="wfName">Finance · Vendor Master Update</h1>
+<p id="wfDesc">Vendor onboarding and bank-detail maintenance.</p>
+</div>
+<div style="display:flex;gap:8px;align-items:center">
+<span class="lc" id="wfLifecycle">Deployed</span>
+<button class="btn secondary" id="wfIncidentBtn">Latest incident →</button>
+<button class="btn secondary" id="wfRevalidateBtn">↻ Revalidate</button>
+<button class="btn blue chg" data-chg="PRD §24: deploy is separate" id="wfDeployBtn">Mark as deployed</button>
+</div>
+</div>
+<div class="wf-header chg" data-chg="PRD §27 header">
+<div class="wf-fact"><small>Domain</small><strong id="wfDomain">Finance</strong></div>
+<div class="wf-fact"><small>Status</small><strong id="wfStatus">Deployed</strong></div>
+<div class="wf-fact"><small>Business owner</small><strong id="wfOwner">Finance Operations</strong></div>
+<div class="wf-fact"><small>Security owner</small><strong id="wfSecOwner">M. Chen</strong></div>
+<div class="wf-fact"><small>Last validation</small><strong id="wfLastVal">Today 11:12</strong></div>
+<div class="wf-fact"><small>Defense confidence</small><strong id="wfDefense">78%</strong></div>
+</div>
+<div class="card section-card" id="wfRevalRun" style="display:none">
+<div class="card-head"><div><h2>Revalidation · <span id="wfRevalName">workflow</span></h2><p>Replays validation for this workflow with the latest environment changes</p></div></div>
+<div class="body"><div class="run-steps" id="wfRevalSteps">
+<div class="run-step"><i></i><div>Apply recent environment and policy changes</div><span>simulated</span></div>
+<div class="run-step"><i></i><div>Replay validation and explore alternative paths</div><span>this workflow</span></div>
+<div class="run-step"><i></i><div>Update validation status</div><span>Revalidated / Needs revision</span></div>
+</div><div class="decision-state" id="wfRevalResult" style="margin:12px 0 0"></div></div>
+</div>
+<div class="card section-card">
+<div class="card-head"><div><h2>Workflow graph</h2><p>Illustrative fixture — it has no Blueprint document. Model a workflow in the main demo's <a href="index.html#studio">Blueprint Studio</a>.</p></div></div>
+<div class="wf-graph" id="wfGraph"></div>
+</div>
+<div class="two-col">
+<div class="card">
+<div class="card-head"><div><h2>Security posture</h2><p>Illustrative values</p></div></div>
+<div class="body" style="padding:0 20px 18px">
+<div class="rec-metric"><span>Open risks</span><b id="wfOpenRisks">3</b></div>
+<div class="rec-metric"><span>Residual reachability</span><b id="wfReach">21%</b></div>
+<div class="rec-metric"><span>Coverage confidence</span><b id="wfCoverage">86%</b></div>
+<div class="rec-metric"><span>Approved policies</span><b id="wfPolicies">4</b></div>
+</div>
+</div>
+<div class="card">
+<div class="card-head"><div><h2>Activity</h2><p>Latest changes to this workflow</p></div></div>
+<div class="activity" id="wfActivity"></div>
+</div>
+</div>
+<div class="card section-card">
+<div class="card-head"><div><h2>Detail</h2><p>Expand as needed</p></div></div>
+<div class="detail-list" id="wfDetail"></div>
+</div>
+</section>
+
+
+<section class="view" id="policies">
+<div class="title-row">
+<div>
+<h1>Policy Review</h1>
+<p>Validated policy recommendations waiting for a human decision.</p>
+</div>
+<div style="display:flex;gap:10px;align-items:center">
+<div class="view-switch chg" data-chg="PRD §30: two experiences">
+<button class="active" data-pr="workflow">Workflow / incident review</button>
+<button data-pr="exec">Executive queue · V1.5 preview</button>
+</div>
+<span class="status review">Human approval required</span>
+</div>
+</div>
+
+<div id="prWorkflow">
+<div class="landscape-note" style="margin:0 0 14px">Used by security operators. Each recommendation stays connected to its incident or blueprint, workflow, failure path, control and validation result. Decisions are made in that context.</div>
+<div class="workflow-grid chg" data-chg="PRD §30.1 context kept">
+<article class="card workflow-card">
+<div class="workflow-head"><div class="domain-label">Finance</div><span class="status review" data-rec-status="I-1042">Ready for approval</span></div>
+<h3>Bind approval to vendor + intent + mutation</h3>
+<p>Finance · Vendor Master Update · incident I-1042 · closes 3 alternative paths</p>
+<div class="workflow-meta"><div><strong>62→93%</strong><span>DEFENSE</span></div><div><strong>21→2%</strong><span>REACHABILITY</span></div><div><strong>+420ms</strong><span>LATENCY</span></div></div>
+<button class="btn secondary" data-review-inc="I-1042">Review in context →</button>
+</article>
+<article class="card workflow-card">
+<div class="workflow-head"><div class="domain-label">Customer Service</div></div>
+<h3>Blueprint decisions</h3>
+<p>Blueprint decisions are reviewed in the main demo's Blueprint Studio.</p>
+<a class="btn secondary" href="index.html#studio">Open Blueprint Studio →</a>
+</article>
+<article class="card workflow-card">
+<div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status review" data-rec-status="I-1038">Ready for approval</span></div>
+<h3>Bind control to cumulative outcome</h3>
+<p>Customer Support · Refund Resolution · incident I-1038 · aggregate value capped</p>
+<div class="workflow-meta"><div><strong>58→90%</strong><span>DEFENSE</span></div><div><strong>26→4%</strong><span>REACHABILITY</span></div><div><strong>+310ms</strong><span>LATENCY</span></div></div>
+<button class="btn secondary" data-review-inc="I-1038">Review in context →</button>
+</article>
+</div>
+</div>
+
+<div id="prExec" style="display:none">
+<div class="v2-note chg" data-chg="PRD §42: V1.5 / V2" style="margin:0 0 14px">Preview. The aggregated approval queue for high-authority approvers is planned for V1.5 / V2. Clicking a row opens the underlying workflow context.</div>
+<div class="card section-card">
+<table class="queue-table">
+<thead><tr><th>Workflow</th><th>Policy recommendation</th><th>Impact</th><th>Confidence</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td class="incident-name">Blueprint decisions</td><td colspan="4">Reviewed in the main demo's <a href="index.html#studio">Blueprint Studio</a>.</td></tr>
+<tr data-review-inc="I-1031"><td class="incident-name">Procurement</td><td>Vendor restriction</td><td>Medium</td><td>91%</td><td><span class="status review" data-rec-status="I-1031">Review</span></td></tr>
+<tr data-review-inc="I-1007"><td class="incident-name">IT Access</td><td>Reduce agent scope</td><td>High</td><td>96%</td><td><span class="status review" data-rec-status="I-1007">Review</span></td></tr>
+<tr data-review-inc="I-1042"><td class="incident-name">Vendor Master Update</td><td>Bind approval to vendor + intent + mutation</td><td>High</td><td>93%</td><td><span class="status review" data-rec-status="I-1042">Review</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section class="view" id="short-term">
+<div class="title-row chg" data-chg="9/15 review: renamed from Short-Term Validation">
+<div>
+<h1>Workflow Validation <span class="help" data-help="Revalidate a workflow when the agents, permissions, policies or enterprise dependencies it relies on change.">?</span></h1>
+<p>Workflow-wise. Is the workflow still safe after the enterprise changes?</p>
+</div>
+<button class="btn primary" id="revalidateBtn">↻ Revalidate Affected Workflows</button>
+</div>
+<div class="two-col">
+<div class="card">
+<div class="card-head"><div><h2>Environment change detected</h2><p><b id="stAffectedText">3 workflows may be affected.</b> Security validity decays as the enterprise changes.</p></div><span class="status review" id="stChangeCount">3 changes</span></div>
+<div class="change-feed" id="changeFeed"></div>
+</div>
+<div class="card">
+<div class="card-head"><div><h2>Affected workflows</h2><p>Revalidation replays validation with the change applied</p></div></div>
+<div class="body" style="padding:0 20px 18px">
+<table class="matrix">
+<thead><tr><th>Workflow</th><th>Trigger</th><th>Last validation</th><th>Status</th></tr></thead>
+<tbody id="stRows"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="card section-card" id="stRun" style="display:none">
+<div class="card-head"><div><h2>Revalidation</h2><p>What SILEX is doing</p></div><span class="status running" id="stStatus">Running</span></div>
+<div class="body"><div class="run-steps" id="stSteps">
+<div class="run-step"><i></i><div>Apply detected changes to the simulated environment</div><span>3 changes</span></div>
+<div class="run-step"><i></i><div>Replay validation for affected workflows</div><span>3 workflows</span></div>
+<div class="run-step"><i></i><div>Explore newly reachable alternative paths</div><span>agents · tools · permissions</span></div>
+<div class="run-step"><i></i><div>Update workflow validation status</div><span>Revalidated / Needs revision</span></div>
+</div>
+<div class="decision-state" id="stResult" style="margin:12px 0 0"></div>
+</div>
+</div>
+</section>
+
+<section class="view" id="long-term">
+<div class="title-row chg" data-chg="9/15 review: renamed from Long-Term Validation">
+<div>
+<h1>System Validation <span class="help" data-help="Periodically reassess the whole enterprise environment as workflows, agents, dependencies and attack patterns evolve.">?</span></h1>
+<p>System-wise. Is the broader enterprise environment still safe as data, agents, workflows and threats evolve?</p>
+</div>
+<div style="display:flex;gap:10px;align-items:center"><select class="search" id="ltCadence" title="Validation cadence" style="min-width:134px"><option>Every 2 weeks</option><option selected>Monthly</option><option>Quarterly</option></select><button class="btn primary" id="runEnvBtn">⟳ Run System Validation</button></div>
+</div>
+<div class="metric-grid">
+<div class="card metric"><div class="kicker">Last system validation</div><div class="metric-value">Aug 31</div><div class="metric-foot chg" data-chg="9/15 review: cadence is enterprise-defined" id="ltCadenceFoot">Monthly cadence</div></div>
+<div class="card metric"><div class="kicker">Workflows in scope</div><div class="metric-value">24</div><div class="metric-foot">All registered workflows</div></div>
+<div class="card metric"><div class="kicker">Environment changes since</div><div class="metric-value">+3 / +5</div><div class="metric-foot">Workflows / agents</div></div>
+<div class="card metric"><div class="kicker">Revalidation status</div><div class="metric-value" id="ltValid">21 / 24</div><div class="metric-foot">Workflows still valid</div></div>
+</div>
+<div class="card section-card">
+<div class="card-head"><div><h2>What system validation does</h2><p>Visible and manually triggered in V1</p></div><span class="status running" id="ltStatus">Not started</span></div>
+<div class="body"><div class="run-steps" id="ltSteps">
+<div class="run-step"><i></i><div>1 · Recalibrating environment</div><span>Enterprise World Model</span></div>
+<div class="run-step"><i></i><div>2 · Updating workflow dependencies</div><span>24 workflows</span></div>
+<div class="run-step"><i></i><div>3 · Generating adversarial scenarios</div><span>incl. historical incident replay</span></div>
+<div class="run-step"><i></i><div>4 · Running attack mutations</div><span>red teaming · backtesting</span></div>
+<div class="run-step"><i></i><div>5 · Testing policy resilience</div><span>approved policies</span></div>
+<div class="run-step"><i></i><div>6 · Updating residual risk</div><span>residual reachability</span></div>
+</div>
+<div class="decision-state approved" id="ltResult" style="margin:12px 0 0">System validation complete. 2,700 scenarios · 3 unsafe outcomes still reachable · 1 policy weakened by the new vendor tool.</div>
+</div>
+</div>
+<div class="card section-card">
+<div class="card-head"><div><h2>Backtest history</h2><p>Same scenario family, re-run as agents and workflows are added</p></div></div>
+<div class="body"><table class="matrix">
+<thead><tr><th>Period</th><th>Environment</th><th>Scenarios</th><th>Unsafe outcomes reachable</th><th>Policies weakened</th></tr></thead>
+<tbody id="ltHistory">
+<tr><td class="bold">Jul</td><td>18 workflows · 41 agents</td><td>2,140</td><td style="color:var(--red)">6</td><td>2</td></tr>
+<tr><td class="bold">Aug</td><td>21 workflows · 48 agents</td><td>2,420</td><td style="color:var(--amber)">4</td><td>1</td></tr>
+</tbody>
+</table></div>
+</div>
+</section>
+
+<section class="view" id="security-model">
+<div class="title-row chg" data-chg="9/15 review: renamed from Security Model">
+<div>
+<h1>Enterprise World Model</h1>
+<p>Supports the workflow experience: ontology, world model, coverage and gaps. Final ontology layers and World Model representation are TBD.</p>
+</div>
+<span class="tbd chg" data-chg="PRD §38, §48">Pending technical alignment</span>
+</div>
+<div class="card section-card">
+<div class="wm-tabs" role="tablist">
+<button class="wm-tab active" data-wm-panel="wm-overview">World Model Coverage</button>
+<button class="wm-tab" data-wm-panel="wm-ontology">Ontology Graph</button>
+<button class="wm-tab" data-wm-panel="wm-architecture">Ontology Layers</button>
+<button class="wm-tab" data-wm-panel="wm-landscape">Domain Suites</button>
+<button class="wm-tab" data-wm-panel="wm-gaps">Coverage Gaps</button>
+</div>
+<div class="wm-panel" id="wm-landscape">
+            <div class="landscape-head"><div><h2>Enterprise Domain Suites</h2><p>Navigate the enterprise by business domain, then drill into capabilities, workflows, agentic systems, and runtime evidence.</p></div><span class="pill">5 domain packs · 53 agents · 179 workflows</span></div>
+            <div class="suite-grid" id="suiteGrid">
+              <button class="suite-card active" data-suite="finance"><div class="suite-name"><strong>Finance</strong><span class="suite-icon">FI</span></div><div class="suite-stats"><div><b>12</b><span>Agents</span></div><div><b>38</b><span>Workflows</span></div></div><div class="risk-line"><span>Coverage 86%</span><span class="status review">4 incidents</span></div></button>
+              <button class="suite-card" data-suite="support"><div class="suite-name"><strong>Customer Service</strong><span class="suite-icon">CX</span></div><div class="suite-stats"><div><b>18</b><span>Agents</span></div><div><b>64</b><span>Workflows</span></div></div><div class="risk-line"><span>Coverage 79%</span><span class="status blocked">7 incidents</span></div></button>
+              <button class="suite-card" data-suite="identity"><div class="suite-name"><strong>Identity & IT</strong><span class="suite-icon">IT</span></div><div class="suite-stats"><div><b>9</b><span>Agents</span></div><div><b>27</b><span>Workflows</span></div></div><div class="risk-line"><span>Coverage 91%</span><span class="status review">2 incidents</span></div></button>
+              <button class="suite-card" data-suite="hr"><div class="suite-name"><strong>Human Resources</strong><span class="suite-icon">HR</span></div><div class="suite-stats"><div><b>6</b><span>Agents</span></div><div><b>19</b><span>Workflows</span></div></div><div class="risk-line"><span>Coverage 68%</span><span class="status running">1 incident</span></div></button>
+              <button class="suite-card" data-suite="procurement"><div class="suite-name"><strong>Procurement</strong><span class="suite-icon">PO</span></div><div class="suite-stats"><div><b>8</b><span>Agents</span></div><div><b>31</b><span>Workflows</span></div></div><div class="risk-line"><span>Coverage 74%</span><span class="status review">3 incidents</span></div></button>
+            </div>
+            <div class="landscape-crumbs"><span>Enterprise</span><span>›</span><b id="suiteCrumb">Finance</b><span>›</span><span>Business capabilities</span></div>
+            <div class="landscape-detail"><div class="capability-map"><h3 id="suiteTitle">Finance Domain Suite</h3><p id="suiteDescription">Finance-specific entities, permissions, controls, business constraints, and prohibited outcomes mapped to the agent systems that execute them.</p><div class="capability-tree" id="capabilityTree"><div class="capability-row"><strong>Accounts Payable</strong><span>Invoice Processing · Vendor Management · Payment Approval</span><b>3 open incidents</b></div><div class="capability-row"><strong>Treasury</strong><span>Cash Management · Liquidity Forecasting · Bank Operations</span><b>1 open incident</b></div><div class="capability-row"><strong>Controllership</strong><span>Journal Entry · Close · Reconciliation</span><b>0 open incidents</b></div></div></div><div class="domain-summary"><h3>Selected Domain Context</h3><p>Organizational ownership is metadata; the domain ontology is organized around reusable business meaning.</p><div class="domain-facts"><div class="domain-fact"><small>Domain ontology</small><strong id="suiteOntology">Finance Security Pack v2.6</strong></div><div class="domain-fact"><small>Primary owner</small><strong id="suiteOwner">CFO · Finance Operations</strong></div><div class="domain-fact"><small>Agentic systems</small><strong id="suiteSystems">AP Agent · Treasury Agent</strong></div><div class="domain-fact"><small>Runtime scope</small><strong id="suiteRuntime">6.8K entities · 21.4K edges</strong></div></div><div class="landscape-note">Each suite is a navigational lens over the same federated ontology and runtime graph—not a separate security data silo.</div></div></div>
+          </div>
+          
+<div class="wm-panel active chg" data-chg="9/17: rebuilt as a drill-down observatory (D3)" id="wm-overview"><div class="v2-note" style="margin:0 0 14px">World Model Coverage: how much of the relevant enterprise environment SILEX currently understands. Drill from enterprise into domain, capability and workflow — the six-dimension radar re-reads at whichever level you are standing on. Formula TBD; figures illustrative.</div><div class="card-head" style="padding:0 0 14px"><div><h2>World Model Coverage</h2><p>Completeness of enterprise understanding, read at four levels of abstraction</p></div><span class="pill">Enterprise › Domain › Capability › Workflow</span></div><div id="swmCoverage"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the coverage model…</div></div></div><div style="margin-top:16px"><div class="model-layers"><div class="model-layer"><div class="layer-icon">O</div><div><strong>Federated Ontology Graph</strong><span>General semantics plus domain and agent-system overlays</span></div><b id="swmLayerTypes">142 types</b></div><div class="model-layer"><div class="layer-icon">G</div><div><strong>Runtime Security Knowledge Graph</strong><span>Populated identities, agents, tools, resources, controls, incidents, and outcomes</span></div><b>84%</b></div><div class="model-layer"><div class="layer-icon">C</div><div><strong>Causal Foundation</strong><span>Mechanisms, evidence strength, counterfactuals, and interventions</span></div><b>79%</b></div><div class="model-layer"><div class="layer-icon">H</div><div><strong>Business Harness</strong><span>Objectives, legitimate completion, prohibited outcomes, cost, and constraints</span></div><b>82%</b></div><div class="model-layer"><div class="layer-icon">S</div><div><strong>Simulation &amp; Calibration</strong><span>Behavior agreement, outcome agreement, drift, and reality validation</span></div><b>94%</b></div></div></div></div>
+          
+<div class="wm-panel chg" data-chg="PRD §38: coverage gaps" id="wm-gaps">
+<div class="card-head" style="padding:0 0 14px"><div><h2>Coverage Gaps</h2><p>How much of the failure and attack surface the policies in place cover. A separate reading from World Model Coverage, not a consequence of it.</p></div></div>
+<div class="gap-list">
+<div class="gap"><div><strong>HR workflows only partly represented</strong><small>6 agents known, 2 workflows registered · coverage 68%</small></div><button class="btn secondary" data-gap="HR workflows">Register workflows</button></div>
+<div class="gap"><div><strong>Procurement vendor data not connected</strong><small>Vendor master changes are inferred, not observed</small></div><button class="btn secondary" data-gap="Procurement vendor data">Connect data</button></div>
+<div class="gap"><div><strong>3 known workflows not yet registered</strong><small>Found in the environment but missing from the Workflow Library</small></div><button class="btn secondary" data-lib-unregistered="1">Review</button></div>
+<div class="gap"><div><strong>Horizontal agents unassigned to a domain</strong><small>File-reading and analytics agents used by every domain · taxonomy for later versions</small></div><span class="tbd">Later</span></div>
+</div>
+</div>
+<div class="wm-panel chg" data-chg="9/17: rebuilt as a four-layer explorer over public ontologies (D3)" id="wm-ontology"><div class="v2-note" style="margin:0 0 14px">L1 classes are distilled from public ontologies — MITRE D3FEND, ATT&amp;CK, ATLAS, UCO and the OWASP GenAI lists — and keep their real identifiers. L2 domain packs, L3 agentic components, the L4 runtime graph and all coverage figures are illustrative Silex mock content. Every node names its source in the inspector.</div><div class="card-head" style="padding:0 0 14px"><div><h2>Ontology Graph</h2><p>The semantic model that gives enterprise telemetry machine-readable security and business meaning</p></div><span class="pill">L1 general · L2 domain · L3 agentic · L4 runtime</span></div><div id="swmOntology"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the ontology graph…</div></div></div><table class="matrix" style="margin-top:16px"><thead><tr><th>Typed relationship</th><th>From</th><th>To</th><th>Meaning</th></tr></thead><tbody><tr><td class="bold">DELEGATES_AUTHORITY</td><td>Identity</td><td>Agent</td><td>Who empowered the agent and under what scope</td></tr><tr><td class="bold">CALLS / MUTATES</td><td>Agent / Tool</td><td>Tool / Resource</td><td>Which behavior caused an enterprise state transition</td></tr><tr><td class="bold">GOVERNS / GATES</td><td>Policy / Control</td><td>Action</td><td>Where enforcement changes the execution</td></tr><tr><td class="bold">THREATENS / COUNTERS</td><td>Threat / Countermeasure</td><td>Agentic component</td><td>Which published attack lands on which part of the system, and what answers it</td></tr><tr><td class="bold">REACHES</td><td>Failure / Path</td><td>Outcome</td><td>Why a prohibited business outcome remains possible</td></tr></tbody></table><p class="swm-note">Public sources: <a href="https://d3fend.mitre.org/" target="_blank" rel="noopener">MITRE D3FEND</a>, <a href="https://attack.mitre.org/" target="_blank" rel="noopener">MITRE ATT&amp;CK</a>, <a href="https://atlas.mitre.org/" target="_blank" rel="noopener">MITRE ATLAS</a>, <a href="https://unifiedcyberontology.org/" target="_blank" rel="noopener">UCO</a>, <a href="https://genai.owasp.org/" target="_blank" rel="noopener">OWASP GenAI Security Project</a>. Distillation and licences: <code>swm/data/SOURCES.md</code>.</p></div>
+          
+<div class="wm-panel chg" data-chg="9/17: corrected to a single L1→L2→L3→L4 chain, drawn from the data" id="wm-architecture"><div class="v2-note" style="margin:0 0 14px">Final naming is still pending technical alignment, but the relationship is now settled and enforced: <b>one chain, L1 → L2 → L3 → L4</b>. Each layer specialises the one above it — general semantics, then the domain pack, then the agentic system as deployed inside that domain, then the runtime graph that instantiates it. The build script refuses to publish a bundle where any type skips a hop.</div><div class="card-head" style="padding:0 0 14px"><div><h2>Ontology Layers</h2><p>The chain as the data actually holds it — band width, counts and every ribbon are computed from the bundle</p></div><span class="pill">L1 → L2 → L3 → L4</span></div><div id="swmLayers"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the ontology chain…</div></div></div><div class="ontology-principle" style="margin-top:16px"><b>Architecture principle:</b> one federated ontology carries every domain pack; an agentic system is a specialisation of the domain it runs in, not a parallel taxonomy; and the runtime graph is the one place where those semantics meet observed behaviour. Organisational ownership stays a navigational attribute.</div><p class="swm-note">Layer selection is shared with the <b>Ontology Graph</b> tab: pick a layer here and the explorer opens there.</p>
+</div>
+<div class="v2-note">Planned for V2 and hidden in this demo: Runtime Knowledge Graph, Cross-Domain Risk, Business Harness, Model Health, rich ontology exploration.</div>
+</section>
+
+
+
+</div>
+</main>
+</div>
+
+<div class="modal-backdrop" id="decisionModal">
+<div class="modal">
+<h2 id="decisionModalTitle">Approve validated recommendation?</h2>
+<p id="decisionModalText">This recommendation was already validated in simulation. Approving records a human decision; it does not deploy anything.</p>
+<div class="modal-box" id="decisionModalBox"><strong>What happens next</strong><br>The policy moves to Approved and the workflow can be registered or updated.</div>
+<div class="modal-actions"><button class="btn secondary" data-close="decisionModal">Cancel</button><button class="btn blue" id="decisionModalConfirm">Approve</button></div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="defsModal">
+<div class="modal wide">
+<h2>Definitions</h2>
+<p>Product terminology from the V1 PRD. Metric formulas are still TBD; values on these pages are illustrative.</p>
+<div class="def-list">
+<div class="def-item" id="def-blueprint"><strong>Agentic Blueprint</strong><p>A pre-deployment, user-confirmed representation of an intended agentic workflow, used for simulation and security validation.</p></div>
+<div class="def-item" id="def-validation"><strong>Validation</strong><p>Testing whether unsafe outcomes remain reachable within a workflow or the enterprise environment.</p></div>
+<div class="def-item" id="def-altpath"><strong>Alternative Path</strong><p>A different sequence of actions that can reach the same unsafe outcome after another path has been blocked.</p></div>
+<div class="def-item" id="def-residual"><strong>Residual Reachability</strong><p>The remaining ability to reach an unsafe outcome after one or more controls have been applied. Used instead of "residual risk", which is too broad. <span class="tbd">Formula TBD</span></p></div>
+<div class="def-item" id="def-defense"><strong>Defense Confidence</strong><p>Confidence that relevant attack or failure paths have been adequately evaluated and mitigated. <span class="tbd">Formula TBD</span></p></div>
+<div class="def-item" id="def-coverage"><strong>Coverage Confidence</strong><p>Confidence that relevant workflows, paths, scenarios and environment components are sufficiently represented in validation. <span class="tbd">Formula TBD</span></p></div>
+<div class="def-item" id="def-recommendation"><strong>Validated Policy Recommendation</strong><p>A policy candidate already tested in simulation and recommended on security improvement and business impact.</p></div>
+<div class="def-item" id="def-registered"><strong>Registered vs Deployed Workflow</strong><p>Registered: formally accepted into the SILEX workflow inventory, possibly still pre-production. Deployed: active in production, so telemetry can be linked to it.</p></div>
+<div class="def-item" id="def-workflowcov"><strong>Workflow Coverage</strong><p>How much of the enterprise agentic workflow inventory is represented.</p></div>
+<div class="def-item" id="def-worldmodel"><strong>World Model Coverage</strong><p>How much of the relevant enterprise environment SILEX currently understands.</p></div>
+<div class="def-item" id="def-workflowval"><strong>Workflow Validation</strong><p>Workflow-wise and change-triggered: a workflow is revalidated when the agents, permissions, policies or dependencies it relies on change.</p></div>
+<div class="def-item" id="def-systemval"><strong>System Validation</strong><p>System-wise and periodic: environment-wide recalibration, backtesting, red teaming and adversarial validation, on a cadence the enterprise defines.</p></div>
+</div>
+<div class="modal-actions"><button class="btn secondary" data-close="defsModal">Close</button></div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="changesModal">
+<div class="modal wide">
+<h2>9/15 changes · aligned with the V1 PRD</h2>
+<p>Changed elements are outlined on the page. Click a row to jump there.</p>
+<div class="chg-list">
+<div class="chg-item"><strong>Navigation</strong><span>Regrouped into Workspace (Overview, Blueprint Studio, Workflow Library) · Security (Incident Queue, Policy Review) · Environment. Proving Ground and Sim-to-Real pages removed; Integrations hidden (V2).</span><button class="btn secondary" data-go="overview">Go</button></div>
+<div class="chg-item"><strong>Overview</strong><span>Enterprise security posture metrics, Domain Suites, Workflow Coverage, Policy Decisions; secondary modules collapsed. World Model Coverage moved to the Enterprise World Model page.</span><button class="btn secondary" data-go="overview">Go</button></div>
+<div class="chg-item"><strong>Agentic Blueprint Studio</strong><span>Build → Confirm → Validate → Optimize → Decide → Register, with findings, alternative paths, validated candidates, recommendation card and Approve / Modify / Reject.</span><a class="btn secondary" href="index.html#studio">Go</a></div>
+<div class="chg-item"><strong>Incident Queue</strong><span>PRD summary metrics and filters.</span><button class="btn secondary" data-go="incidents">Go</button></div>
+<div class="chg-item"><strong>Incident detail</strong><span>Evidence → paths → candidates → recommendation → decision; causal graph kept as technical detail.</span><button class="btn secondary" data-go="incident">Go</button></div>
+<div class="chg-item"><strong>Workflow Library</strong><span>Inventory table, lifecycle and deployment status, Registered vs Deployed.</span><button class="btn secondary" data-go="library">Go</button></div>
+<div class="chg-item"><strong>Workflow detail</strong><span>New page: header, graph, security posture, activity, expandable detail, Mark as deployed.</span><button class="btn secondary" data-go="workflow">Go</button></div>
+<div class="chg-item"><strong>Policy Review</strong><span>Workflow-level review with Approve / Modify / Reject; executive queue table as V1.5 preview.</span><button class="btn secondary" data-go="policies">Go</button></div>
+<div class="chg-item"><strong>Workflow Validation</strong><span>Renamed from Short-Term Validation: change feed, affected workflows, manual Revalidate Affected Workflows. Horizon cards and the automation roadmap strip removed.</span><button class="btn secondary" data-go="short-term">Go</button></div>
+<div class="chg-item"><strong>System Validation</strong><span>Renamed from Long-Term Validation: Run System Validation with six visible steps; backtest history; cadence is enterprise-defined.</span><button class="btn secondary" data-go="long-term">Go</button></div>
+<div class="chg-item"><strong>Enterprise World Model</strong><span>Renamed from Security Model and now first under Environment. Domain Suites, World Model Coverage, Ontology Graph, Coverage Gaps; ontology layers marked TBD; V2 tabs hidden.</span><button class="btn secondary" data-go="security-model">Go</button></div>
+</div>
+<div class="modal-actions"><button class="btn secondary" id="toggleHighlights">Hide highlights</button><button class="btn secondary" data-close="changesModal">Close</button></div>
+</div>
+</div>
+
+<div class="toast" id="toast">Ready</div>
+<script>
+
+  
+const suiteData={
+    finance:{name:'Finance',title:'Finance Domain Suite',description:'Finance-specific entities, permissions, controls, business constraints, and prohibited outcomes mapped to the agent systems that execute them.',ontology:'Finance Security Pack v2.6',owner:'CFO · Finance Operations',systems:'AP Agent · Treasury Agent',runtime:'6.8K entities · 21.4K edges',capabilities:[['Accounts Payable','Invoice Processing · Vendor Management · Payment Approval','3 open incidents'],['Treasury','Cash Management · Liquidity Forecasting · Bank Operations','1 open incident'],['Controllership','Journal Entry · Close · Reconciliation','0 open incidents']]},
+    support:{name:'Customer Service',title:'Customer Service Domain Suite',description:'Customer identity, entitlement, case, compensation, refund, and communication semantics connected to multi-agent resolution workflows.',ontology:'Customer Service Pack v3.1',owner:'Chief Customer Officer · CX Automation',systems:'Triage · Refund · Loyalty Agents',runtime:'7.2K entities · 25.8K edges',capabilities:[['Case Resolution','Triage · Research · Escalation','2 open incidents'],['Refund & Recovery','Refund · Voucher · Service Credit','4 open incidents'],['Loyalty','Status · Points · Retention Offers','1 open incident']]},
+    identity:{name:'Identity & IT',title:'Identity & IT Domain Suite',description:'Identity lifecycle, entitlement, privileged access, asset dependency, change, and remediation semantics across enterprise infrastructure.',ontology:'Identity & IT Pack v2.9',owner:'CISO · CIO · IAM & SRE',systems:'Provisioning · IAM · Remediation Agents',runtime:'3.1K entities · 8.7K edges',capabilities:[['Identity Lifecycle','Joiner · Mover · Leaver','1 open incident'],['Privileged Access','Elevation · Session · Approval','0 open incidents'],['IT Remediation','Discovery · Rotation · Recovery','1 open incident']]},
+    hr:{name:'Human Resources',title:'Human Resources Domain Suite',description:'Worker, role, compensation, performance, recruiting, and sensitive employee-data semantics governed by privacy and employment constraints.',ontology:'Human Resources Pack v1.8',owner:'CHRO · People Operations',systems:'Recruiting · HR Service Agents',runtime:'1.9K entities · 5.2K edges',capabilities:[['Talent Acquisition','Candidate · Interview · Offer','0 open incidents'],['Employee Services','Case · Benefit · Leave','1 open incident'],['Workforce Changes','Transfer · Promotion · Termination','0 open incidents']]},
+    procurement:{name:'Procurement',title:'Procurement Domain Suite',description:'Supplier, sourcing, purchase order, contract, approval, and spend semantics connected to finance and third-party risk.',ontology:'Procurement Security Pack v2.2',owner:'Chief Procurement Officer',systems:'Sourcing · PO · Contract Agents',runtime:'2.7K entities · 9.6K edges',capabilities:[['Source-to-Contract','Supplier · Bid · Negotiation','1 open incident'],['Purchase-to-Order','Requisition · PO · Approval','2 open incidents'],['Supplier Risk','Onboarding · Monitoring · Renewal','0 open incidents']]}
+  };
+  document.querySelectorAll('[data-suite]').forEach(card=>card.addEventListener('click',()=>{const d=suiteData[card.dataset.suite];document.querySelectorAll('[data-suite]').forEach(c=>c.classList.remove('active'));card.classList.add('active');const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};set('suiteCrumb',d.name);set('suiteTitle',d.title);set('suiteDescription',d.description);set('suiteOntology',d.ontology);set('suiteOwner',d.owner);set('suiteSystems',d.systems);set('suiteRuntime',d.runtime);document.getElementById('capabilityTree').innerHTML=d.capabilities.map(x=>`<div class="capability-row"><strong>${x[0]}</strong><span>${x[1]}</span><b>${x[2]}</b></div>`).join('')}));
+  
+document.querySelectorAll('.mode-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');const graph=document.getElementById('causalGraph'),mode=tab.dataset.graphMode;graph.className='kg-graph'+(mode==='structure'?'':' mode-'+mode)}));
+  
+const incidentData={
+    'I-1042':{workflow:'Finance · Vendor Master Update',meta:'Workflow WF-021 · Owner: Finance Operations · Production',severity:'Critical evidence',severityClass:'blocked',title:'Vendor bank mutation attempted',summary:'A blocked prompt injection is evidence of a broader workflow-level causal failure.',evidence:'I-1042 · Blocked tool mutation',mechanism:'Intent–approval binding failure',mechanismDesc:'Approval is not causally bound to the original vendor identity, intent, and exact state mutation.',count:'187 executions explored',input:'External email',agent:'Finance Agent',action:'Vendor Update Tool',outcome:'Bank destination changed',control:'PAY-042',authority:'Finance Approver',authorityMeta:'Delegates bank-update authority',resource:'Vendor bank record',resourceMeta:'Critical financial resource',candidate:'Bind identity + intent + mutation',hypothesis:'The workflow permits high-risk vendor mutations whenever approval is evaluated as reusable state rather than evidence bound to the verified vendor, intent, and exact mutation.',paths:['Finance → Procurement → split mutation → reused approval','Finance → Support → vendor merge → inherited authority','AP Agent → Finance → stale authorization → bank update','Finance → Vendor Tool → direct mutation → PAY-042']},
+    'I-1038':{workflow:'Customer Support · Refund Resolution',meta:'Workflow WF-014 · Owner: CX Automation · Production',severity:'High evidence',severityClass:'review',title:'Aggregate refund limit exceeded',summary:'Individually allowed actions composed across agents into a prohibited $1,200 economic outcome.',evidence:'I-1038 · Aggregate outcome observed',mechanism:'Cross-agent value composition',mechanismDesc:'Per-action controls do not evaluate cumulative economic value across the shared customer state.',count:'243 executions explored',input:'Multi-turn customer requests',agent:'Refund Agent Network',action:'Compensation composition',outcome:'$1,200 aggregate value',control:'FIN-118',authority:'Customer Support Lead',authorityMeta:'Delegates compensation authority',resource:'Customer economic state',resourceMeta:'Refund + credit + loyalty value',candidate:'Bind control to cumulative outcome',hypothesis:'The workflow evaluates refund, travel credit, and loyalty compensation independently, allowing legitimate local actions to compose into an unauthorized aggregate outcome.',paths:['Rebook → compensate → loyalty credit → cancel → refund','Refund → escalation credit → loyalty adjustment','Rebook → voucher → cancellation → unused fare refund','Single-agent refund → FIN-118 aggregate check']},
+    'I-1031':{workflow:'Procurement · Purchase Order Approval',meta:'Workflow WF-008 · Owner: Procurement Operations · Production',severity:'High evidence',severityClass:'review',title:'Delegated approval reused',summary:'A stale approval state authorized a purchase-order change after the approver scope changed.',evidence:'I-1031 · Stale approval reused',mechanism:'Authority lifecycle mismatch',mechanismDesc:'Delegated authority persists longer than the business state and approver scope it was issued for.',count:'126 executions explored',input:'PO change request',agent:'Procurement Agent',action:'Purchase order mutation',outcome:'Unauthorized PO approved',control:'PROC-031',authority:'Category Approver',authorityMeta:'Authority scope changed',resource:'Purchase Order 4821',resourceMeta:'Supplier and payment terms',candidate:'Bind authority to state version',hypothesis:'Approval validity is checked as a static attribute instead of being bound to the current purchase-order version, supplier, and approver scope.',paths:['PO edit → stale approval → submit','Supplier swap → inherited approval → release','Split PO → threshold bypass → approval reuse','Version-bound approval → PROC-031']},
+    'I-1019':{workflow:'IT · Service Account Remediation',meta:'Workflow WF-033 · Owner: SRE Security · Production',severity:'Medium evidence',severityClass:'running',title:'Rotation bypassed dependency check',summary:'A remediation agent rotated credentials before discovering a downstream production dependency.',evidence:'I-1019 · Dependency check skipped',mechanism:'Action-ordering failure',mechanismDesc:'The workflow permits irreversible remediation before dependency discovery reaches sufficient confidence.',count:'98 executions explored',input:'Credential risk signal',agent:'Remediation Agent',action:'Credential rotation',outcome:'Production dependency broken',control:'IT-204',authority:'SRE On-call',authorityMeta:'Delegates emergency rotation',resource:'Service account secret',resourceMeta:'Used by 4 workloads',candidate:'Require dependency closure before rotate',hypothesis:'The workflow treats discovery and rotation as independently valid actions without enforcing the causal prerequisite that all critical dependencies are known.',paths:['Alert → rotate → discover dependency','Partial inventory → rotate → workload failure','Delegated agent → parallel restart → outage','Dependency gate → rotate → verify']},
+    'I-1007':{workflow:'Identity · Access Provisioning',meta:'Workflow WF-005 · Owner: IAM Team · Production',severity:'Medium evidence',severityClass:'running',title:'Dormant entitlement restored',summary:'A mover workflow inherited an obsolete entitlement from historical role state.',evidence:'I-1007 · Entitlement restored',mechanism:'Historical state leakage',mechanismDesc:'Historical entitlements are treated as current role evidence during a mover transition.',count:'84 executions explored',input:'Employee role change',agent:'Provisioning Agent',action:'Entitlement assignment',outcome:'Dormant privilege restored',control:'IAM-077',authority:'Role Owner',authorityMeta:'Approves current role bundle',resource:'Privileged entitlement',resourceMeta:'Dormant for 214 days',candidate:'Exclude historical grants from role inference',hypothesis:'The workflow infers required access from prior state without distinguishing active role requirements from historical exceptions.',paths:['Mover → prior bundle → entitlement restore','Department transfer → inherited group → privilege','Role merge → exception replay → access grant','Current-role baseline → IAM-077']},
+    'I-0994':{workflow:'Sales · Quote-to-Contract',meta:'Workflow WF-026 · Owner: Revenue Operations · Production',severity:'Closed',severityClass:'running',title:'Discount policy conflict',summary:'Regional and strategic-account policies produced contradictory approval decisions.',evidence:'I-0994 · Policy conflict observed',mechanism:'Policy precedence ambiguity',mechanismDesc:'Two valid policies resolve the same discount state without an explicit precedence relationship.',count:'156 executions explored',input:'Strategic quote request',agent:'Pricing Agent',action:'Discount approval',outcome:'Excess discount issued',control:'REV-212',authority:'Regional Sales VP',authorityMeta:'Delegates exception authority',resource:'Enterprise quote',resourceMeta:'31% requested discount',candidate:'Define policy precedence by account class',hypothesis:'The workflow allows regional and strategic-account discount policies to evaluate independently, producing an ambiguous effective control.',paths:['Regional approval → strategic override','Strategic approval → reseller adjustment','Quote revision → cached exception → submit','Precedence-bound policy → REV-212']}
+  };
+  
+
+  /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
+  const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
+  const viewNames={assurance:'Assurance',overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'Policy Review','short-term':'Workflow Validation','long-term':'System Validation','security-model':'Enterprise World Model'};
+  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
+  nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+  document.getElementById('regAssurance').addEventListener('click',()=>showView('assurance'));
+  document.getElementById('regOps').addEventListener('click',()=>showView('overview'));
+  const $id=x=>document.getElementById(x);
+  const setText=(x,v)=>{const e=$id(x);if(e)e.textContent=v};
+  const toast=$id('toast');let toastTimer=null;
+  function notify(t){toast.textContent=t;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
+  function runSteps(container,opts){const o=opts||{},ms=o.ms||420,steps=[...container.querySelectorAll('.run-step')];steps.forEach(s=>s.classList.remove('running','done'));let i=0;const next=()=>{if(i>0){steps[i-1].classList.remove('running');steps[i-1].classList.add('done')}if(i>=steps.length){if(o.onDone)o.onDone();return}steps[i].classList.add('running');i++;setTimeout(next,ms)};next()}
+  function setMsg(el,text,cls){el.textContent=text;el.className='decision-state show '+(cls||'')}
+  function setMsgHtml(el,html,cls){el.innerHTML=html;el.className='decision-state show '+(cls||'')}
+  let decisionCb=null;const decisionModal=$id('decisionModal');
+  function openDecision(o){setText('decisionModalTitle',o.title);setText('decisionModalText',o.text);$id('decisionModalBox').innerHTML=o.box;setText('decisionModalConfirm',o.confirm||'Approve');decisionCb=o.onConfirm;decisionModal.classList.add('open')}
+  $id('decisionModalConfirm').addEventListener('click',()=>{decisionModal.classList.remove('open');if(decisionCb)decisionCb();decisionCb=null});
+  function setRecStatus(key,text,cls){document.querySelectorAll('[data-rec-status="'+key+'"]').forEach(el=>{el.textContent=text;el.className='status '+(cls||'')})}
+  // Pending decisions are counted once per item (fix 5-C).
+  const pending=new Set(['I-1042','I-1038']);
+  function refreshPending(){setText('ovPendingCount',pending.size+' pending')}
+  function addPending(k){pending.add(k);refreshPending()}
+  function resolvePending(k){pending.delete(k);refreshPending()}
+
+  const workflowData={
+    'WF-021':{name:'Finance · Vendor Master Update',domain:'Finance',desc:'Vendor onboarding and bank-detail maintenance across Finance, Procurement and approval services.',owner:'Finance Operations',sec:'M. Chen',agents:4,tools:7,resources:5,controls:3,policies:4,lifecycle:'Needs Revalidation',validation:'Recommendation ready',last:'12 days ago',deploy:'Deployed',risk:'Critical',coverage:'86%',defense:'62%',reach:'21%',open:3,incident:'I-1042',graph:[['External email','Input'],['Finance Agent','Agent'],['Finance Approver','Human approver'],['Vendor Update Tool','Tool'],['Vendor bank record','Resource'],['Bank change','Outcome']]},
+    'WF-014':{name:'Customer Support · Refund Resolution',domain:'Customer Service',desc:'Multi-agent refund, compensation, loyalty credit and escalation workflow.',owner:'CX Automation',sec:'A. Patel',agents:5,tools:9,resources:4,controls:4,policies:6,lifecycle:'Deployed',validation:'Recommendation ready',last:'2 days ago',deploy:'Deployed',risk:'High',coverage:'79%',defense:'58%',reach:'26%',open:2,incident:'I-1038',graph:[['Customer request','Input'],['Refund Agent','Agent'],['Loyalty Agent','Agent'],['Payment & Credit API','Tool'],['Customer economic record','Data'],['Refund issued','Outcome']]},
+    'WF-008':{name:'Procurement · Purchase Order Approval',domain:'Procurement',desc:'Purchase requests, budget checks, supplier selection and delegated approvals.',owner:'Procurement Operations',sec:'J. Kim',agents:3,tools:6,resources:3,controls:3,policies:3,lifecycle:'Needs Revalidation',validation:'Validated',last:'9 days ago',deploy:'Deployed',risk:'High',coverage:'74%',defense:'66%',reach:'17%',open:1,incident:'I-1031',graph:[['PO change request','Input'],['Procurement Agent','Agent'],['Category Approver','Human approver'],['PO System','Tool'],['Purchase order','Resource'],['PO released','Outcome']]},
+    'WF-005':{name:'Identity · Access Provisioning',domain:'Identity',desc:'Joiner, mover and leaver orchestration across HRIS, IAM and application owners.',owner:'IAM Team',sec:'IAM Team',agents:4,tools:11,resources:6,controls:5,policies:5,lifecycle:'Deployed',validation:'Validated',last:'3 days ago',deploy:'Deployed',risk:'Medium',coverage:'91%',defense:'72%',reach:'12%',open:1,incident:'I-1007',graph:[['Role change','Input'],['Provisioning Agent','Agent'],['Role Owner','Human approver'],['IAM API','Tool'],['Entitlement','Resource'],['Access granted','Outcome']]},
+    'WF-026':{name:'Sales · Quote-to-Contract',domain:'Sales',desc:'Pricing, discount approvals, contract generation and CRM state transitions.',owner:'Revenue Operations',sec:'RevOps Security',agents:3,tools:8,resources:4,controls:4,policies:4,lifecycle:'Revalidated',validation:'Revalidated',last:'5 days ago',deploy:'Deployed',risk:'Low',coverage:'88%',defense:'81%',reach:'6%',open:0,incident:'I-0994',graph:[['Quote request','Input'],['Pricing Agent','Agent'],['Regional Sales VP','Human approver'],['CRM','Tool'],['Enterprise quote','Data'],['Contract issued','Outcome']]},
+    'WF-033':{name:'IT · Service Account Remediation',domain:'IT',desc:'Credential rotation, dependency discovery, workload restart and rollback.',owner:'SRE Security',sec:'SRE Security',agents:6,tools:14,resources:7,controls:3,policies:3,lifecycle:'Needs Revalidation',validation:'Validated',last:'21 days ago',deploy:'Deployed',risk:'Medium',coverage:'83%',defense:'70%',reach:'14%',open:1,incident:'I-1019',graph:[['Credential risk signal','Input'],['Remediation Agent','Agent'],['SRE On-call','Human approver'],['Secrets Manager','Tool'],['Service account secret','Resource'],['Credential rotated','Outcome']]}
+  };
+  // Known in the environment but not registered (fix 5-I, 5-M).
+  const UNREGISTERED=[['HR · Onboarding Assistant','Human Resources','People Operations'],['Finance · Expense Reimbursement','Finance','Finance Operations'],['IT · Software Deployment','IT','Platform Engineering']];
+  const lcClass=v=>({'Needs Revalidation':'warn','Deployed':'ok','Revalidated':'ok','Needs Revision':'bad','Approved':'ok'}[v]||'');
+  const riskClass=v=>({Critical:'blocked',High:'review',Medium:'running'}[v]||'');
+  const riskChip=v=>v==='Low'?'<span class="status" style="background:var(--green-bg);color:var(--green)">Low</span>':'<span class="status '+riskClass(v)+'">'+v+'</span>';
+  const deployChip=v=>'<span class="deploy '+(v==='Deployed'?'deployed':'pre')+'">'+v+'</span>';
+  const atRisk=w=>w.risk!=='Low'&&Number(w.open)>0;
+  function updateCounts(){const all=Object.values(workflowData),reg=all.length,dep=all.filter(w=>w.deploy==='Deployed').length,reval=all.filter(w=>w.lifecycle==='Needs Revalidation').length,risk=all.filter(atRisk).length,known=reg+UNREGISTERED.length,pct=Math.round(reg/known*100);
+    setText('libRegistered',reg);setText('libDeployed',dep);setText('libPre',reg-dep);setText('libReval',reval);
+    setText('ovRegistered',reg);setText('ovKnown',known);setText('ovDeployed',dep);$id('ovCoverageBar').style.width=pct+'%';setText('ovCoveragePct',pct+'%');setText('ovCoverageNote',UNREGISTERED.length+' known workflows not yet registered');setText('ovAtRisk',risk);setText('ovAtRiskFoot','of '+reg+' registered');setText('ovRevalidate',reval)}
+  function renderLibrary(){const q=$id('workflowSearch').value.toLowerCase().trim(),dom=$id('domainFilter').value,dep=$id('deployFilter').value,risk=$id('riskFilter').value;
+    if(dep==='Not registered'){const rows=UNREGISTERED.filter(u=>(!q||u.join(' ').toLowerCase().includes(q))&&(!dom||u[1]===dom));
+      $id('libRows').innerHTML=rows.map(u=>`<tr data-new-blueprint="1"><td class="incident-name">${u[0]}<small>Discovered</small></td><td>${u[1]}</td><td>${u[2]}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="lc warn">Discovered · not registered</span></td><td>Not validated</td><td>—</td><td><span class="deploy pre">Not registered</span></td><td>—</td><td>—</td></tr>`).join('');
+      $id('libCards').innerHTML=rows.map(u=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${u[1].slice(0,2).toUpperCase()}</div><span class="lc warn">Not registered</span></div><h3>${u[0]}</h3><p>Seen in the environment but not in the inventory. Describe it in Agentic Blueprint Studio to register it.</p><button class="btn secondary" style="margin-top:12px" data-new-blueprint="1">Start Agentic Blueprint →</button></article>`).join('');
+    }else{const rows=Object.entries(workflowData).filter(([id,w])=>(!q||(id+' '+w.name+' '+w.domain+' '+w.owner+' '+w.desc).toLowerCase().includes(q))&&(!dom||w.domain===dom)&&(!dep||w.deploy===dep)&&(!risk||atRisk(w)));
+      $id('libRows').innerHTML=rows.map(([id,w])=>`<tr data-open-workflow="${id}"><td class="incident-name">${w.name}<small>${id}</small></td><td>${w.domain}</td><td>${w.owner}</td><td>${w.sec}</td><td>${w.agents}</td><td>${w.tools}</td><td>${w.resources}</td><td>${w.controls}</td><td>${w.policies}</td><td><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></td><td>${w.validation}</td><td>${w.last}</td><td>${deployChip(w.deploy)}</td><td>${riskChip(w.risk)}</td><td>${w.coverage}</td></tr>`).join('');
+      $id('libCards').innerHTML=rows.map(([id,w])=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${w.domain.slice(0,2).toUpperCase()}</div><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></div><h3>${w.name}</h3><p>${w.desc}</p><div class="workflow-meta"><div><strong>${w.agents}</strong><span>AGENTS</span></div><div><strong>${w.tools}</strong><span>TOOLS</span></div><div><strong>${w.coverage}</strong><span>COVERAGE</span></div></div>${deployChip(w.deploy)}<button class="btn secondary" style="margin-top:12px" data-open-workflow="${id}">Open workflow →</button></article>`).join('')}
+    updateCounts()}
+  ['workflowSearch','domainFilter','deployFilter','riskFilter'].forEach(id=>$id(id).addEventListener('input',renderLibrary));
+  document.querySelectorAll('[data-lib-view]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-lib-view]').forEach(x=>x.classList.toggle('active',x===b));$id('libTableWrap').style.display=b.dataset.libView==='table'?'block':'none';$id('libCards').style.display=b.dataset.libView==='cards'?'grid':'none'}));
+
+  let currentWorkflow='WF-021';
+  function openWorkflow(id){const w=workflowData[id];if(!w)return;if(id!==currentWorkflow)$id('wfRevalRun').style.display='none';currentWorkflow=id;
+    setText('wfId',id);setText('wfName',w.name);setText('wfDesc',w.desc);setText('wfDomain',w.domain);setText('wfStatus',w.deploy);setText('wfOwner',w.owner);setText('wfSecOwner',w.sec);setText('wfLastVal',w.last);setText('wfDefense',w.defense);setText('wfOpenRisks',w.open);setText('wfReach',w.reach);setText('wfCoverage',w.coverage);setText('wfPolicies',w.policies);
+    const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);
+    $id('wfDeployBtn').style.display=w.deploy==='Deployed'?'none':'inline-flex';$id('wfIncidentBtn').style.display=w.incident?'inline-flex':'none';
+    $id('wfGraph').innerHTML=w.graph.map((n,i)=>`${i?'<div class="arrow">→</div>':''}<div class="node${n[1]==='Outcome'?' danger':''}"><strong>${n[0]}</strong><span>${n[1]}</span></div>`).join('');
+    const inc=w.incident&&incidentData[w.incident];
+    const activity=w.activity||[['Latest incident',inc?w.incident+' · '+inc.title:'None','View'],['Latest policy change',inc?inc.candidate+' · recommended':'—',''],['Latest revalidation',w.last+' · '+w.validation,''],['Latest deployment change',w.deploy,'']];
+    $id('wfActivity').innerHTML=activity.map(a=>`<div class="activity-row"><small>${a[0]}</small><span>${a[1]}</span>${a[2]&&inc?`<button class="def-link" data-open-incident="${w.incident}">${a[2]} →</button>`:'<span></span>'}</div>`).join('');
+    const detail=w.detail||[['Evidence',inc?inc.summary:'No production evidence yet.'],['Alternative paths',inc?inc.paths.join(' · '):'From blueprint validation: paths B, C and D closed by the approved control.'],['Control history',inc?inc.control+' in place; candidate: '+inc.candidate:'Manager approval control added at registration.'],['Policy history',w.policies+' approved policies'],['Validation runs','Last run '+w.last+' · '+w.validation]];
+    $id('wfDetail').innerHTML=detail.map(d=>`<details><summary>${d[0]}</summary><div class="detail-body">${d[1]}</div></details>`).join('');
+    showView('workflow')}
+  $id('wfIncidentBtn').addEventListener('click',()=>{const w=workflowData[currentWorkflow];if(w.incident)renderIncident(w.incident)});
+  // Revalidate the current workflow in place (fix 5-G).
+  function revalidateWorkflow(id){openWorkflow(id);const w=workflowData[id],res=$id('wfRevalResult');$id('wfRevalRun').style.display='block';setText('wfRevalName',w.name);res.className='decision-state';
+    runSteps($id('wfRevalSteps'),{onDone:()=>{const bad=id==='WF-033';w.lifecycle=bad?'Needs Revision':'Revalidated';w.validation=bad?'Needs revision':'Revalidated';w.last='Just now';if(w.activity)w.activity.unshift(['Latest revalidation','Just now · '+w.lifecycle,'']);
+      renderShortTerm();renderLibrary();const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);setText('wfLastVal','Just now');
+      if(bad)setMsgHtml(res,'Needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review incident →</button>','rejected');else setMsg(res,'Revalidated. No new reachable paths after the latest changes.','approved');notify(w.name+' · '+w.lifecycle)}})}
+  $id('wfRevalidateBtn').addEventListener('click',()=>revalidateWorkflow(currentWorkflow));
+  // A deployment is an environment change: queue the workflow for Workflow Validation (fix 5-H).
+  $id('wfDeployBtn').addEventListener('click',()=>{const id=currentWorkflow,w=workflowData[id];w.deploy='Deployed';w.lifecycle='Needs Revalidation';w.validation='Revalidation pending';if(w.activity)w.activity.unshift(['Deployed','Just now · first production revalidation pending','']);
+    ST_CHANGES.unshift({icon:'D',title:'New deployment',sub:w.name+' moved to production',tag:'Deployment',cls:'running'});if(!ST_AFFECTED.some(a=>a.id===id))ST_AFFECTED.push({id,trigger:'Deployment'});
+    renderShortTerm();renderLibrary();openWorkflow(id);notify('Marked as deployed · queued for Workflow Validation')});
+
+
+
+
+
+
+  /* ---- 9/15: incidents, policy review, environment, security model, modals, init ---- */
+  const INC_WF={'I-1042':'WF-021','I-1038':'WF-014','I-1031':'WF-008','I-1019':'WF-033','I-1007':'WF-005','I-0994':'WF-026'};
+  const INC_REC={'I-1042':[62,21,3,93,2,0,'97%','+420 ms','2 steps'],'I-1038':[58,26,4,90,4,1,'96%','+310 ms','1 step'],'I-1031':[66,17,3,92,3,0,'98%','+180 ms','1 step'],'I-1019':[70,14,2,91,4,0,'99%','+2 min','1 gate'],'I-1007':[72,12,2,94,2,0,'97%','+90 ms','1 review'],'I-0994':[81,6,1,95,1,0,'99%','+60 ms','1 rule']};
+  const INC_META={'I-1042':{domain:'Finance',workflow:'WF-021',agent:'Finance Agent',sev:'Critical',status:'Open',type:'Tool mutation',hours:0.3},'I-1038':{domain:'Customer Service',workflow:'WF-014',agent:'Refund Agent Network',sev:'High',status:'Open',type:'Aggregate outcome',hours:2},'I-1031':{domain:'Procurement',workflow:'WF-008',agent:'Procurement Agent',sev:'High',status:'Open',type:'Stale approval',hours:6},'I-1019':{domain:'IT',workflow:'WF-033',agent:'Remediation Agent',sev:'Medium',status:'Open',type:'Ordering failure',hours:24},'I-1007':{domain:'Identity',workflow:'WF-005',agent:'Provisioning Agent',sev:'Medium',status:'Open',type:'Entitlement',hours:72},'I-0994':{domain:'Sales',workflow:'WF-026',agent:'Pricing Agent',sev:'Closed',status:'Closed',type:'Policy conflict',hours:120}};
+  const incDecision={'I-0994':'closed'};
+  let currentIncident='I-1042';
+  const GREEN='style="background:var(--green-bg);color:var(--green)"';
+  function setIncTab(i){document.querySelectorAll('#incident .workspace-tab').forEach((t,k)=>t.classList.toggle('active',k===i));document.querySelectorAll('#incident .inc-panel').forEach((p,k)=>p.classList.toggle('active',k===i));document.querySelectorAll('#incFlow .bp-stage').forEach((s,k)=>{s.classList.toggle('done',k<i);s.classList.toggle('active',k===i)})}
+  document.querySelectorAll('#incident .workspace-tab').forEach((t,i)=>t.addEventListener('click',()=>setIncTab(i)));
+  document.querySelectorAll('#incFlow .bp-stage').forEach((s,i)=>s.addEventListener('click',()=>setIncTab(i)));
+  const GRADE={obs:['g-obs','Observed'],lat:['g-lat','Latent'],dec:['g-dec','Declared']};
+  const gradeBadge=g=>g&&GRADE[g]?`<span class="grade ${GRADE[g][0]}">${GRADE[g][1]}</span> `:'';
+  const pathRow=(label,text,open,grade)=>`<div class="path-row ${open?'open':'blocked'}"><strong>${label}</strong><span>${gradeBadge(grade)}${text}</span>${open?'<span class="status blocked">Open</span>':'<span class="status" '+GREEN+'>'+(open===false?'Blocked':'Closed')+'</span>'}</div>`;
+  // Six-objective scorecard (risk reduction · coverage · business friction · compliance · cost · performance)
+  const sixObj=(risk,best)=>`<div class="six-obj"><div><span class="ov ok">−${risk}%</span><span class="ol">risk reduction</span></div><div><span class="ov ${best?'ok':''}">all paths</span><span class="ol">coverage</span></div><div><span class="ov ${best?'':'bad'}">${best?'low':'high'}</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">${best?'low':'med'}</span><span class="ol">cost</span></div><div><span class="ov">${best?'−420 ms':'−600 ms'}</span><span class="ol">performance</span></div></div>`;
+  function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
+    setText('incId',id);setText('incTitle',d.title);setText('incMeta',d.workflow+' · '+(INC_WF[id]||'')+' · '+(closed?'Closed':'Production'));setText('incEvidence',d.evidence);setText('incSummary',d.summary);setText('incControl',d.control);setText('incMechanism',d.mechanism);setText('incMechanismDesc',d.mechanismDesc);
+    setText('obsInput',d.input);setText('obsAgent',d.agent);setText('obsAction',d.action);setText('obsOutcome',d.outcome);setText('obsControl','Blocked or observed by '+d.control);setText('incOutcomeTarget',d.outcome);
+    const sev=$id('incSeverity');sev.textContent=closed?'Closed':d.severity.replace(' evidence','');sev.className='status '+(closed?'':d.severityClass);sev.style.cssText=closed?'background:var(--green-bg);color:var(--green)':'';
+    ['kgInput','kgAgent','kgMechanism','kgAction','kgOutcome','kgControl','kgAuthority','kgAuthorityMeta','kgResource','kgResourceMeta','kgCandidate','graphMechanismInsight'].forEach((k,i)=>setText(k,[d.input,d.agent,d.mechanism,d.action,d.outcome,d.control,d.authority,d.authorityMeta,d.resource,d.resourceMeta,d.candidate,d.mechanismDesc][i]));
+    const known=d.paths[d.paths.length-1],others=d.paths.slice(0,-1);
+    // Closed incidents are read-only: every path closed, only the applied control shown (fix 5-F).
+    $id('incPaths').innerHTML=pathRow('Path A',known,false,'obs')+others.map((p,i)=>pathRow('Path '+'BCD'[i],p,closed?null:true,'lat')).join('');
+    $id('incSbsPaths').innerHTML=closed?'<div class="path-row blocked"><strong>—</strong><span>No open paths. The approved control closed them.</span><span class="status" '+GREEN+'>Closed</span></div>':others.map((p,i)=>pathRow('Path '+'BCD'[i],p,true,'lat')).join('');
+    setText('incOpenCount',closed?0:others.length);setText('incSbsControl',d.candidate);
+    const cands=closed?[[d.candidate,'Approved earlier and re-validated after the change.',r[3],r[4],r[6],true]]:[[d.candidate,'Closes every open path while legitimate work continues.',r[3],r[4],r[6],true],['Remove agent write access','Closes the paths but stops the business action.',r[3]-2,r[4]+1,'71%',false],['Human review for every '+d.action.toLowerCase(),'Safe, but adds manual work to every execution.',r[3]-5,r[4]+2,'+45% reviews',false]];
+    $id('incCands').innerHTML=cands.map((c,i)=>{const best=c[5];return `<div class="cand${best?' best':' rejected'}">${best?'<span class="rec">'+(closed?'APPLIED':'RECOMMENDED')+'</span>':'<span class="rej-tag">Rejected</span>'}<span class="validated">✓ ${closed?'Approved · re-validated':'Validated in simulation'}</span><h3>${closed?'':'ABC'[i]+' · '}${c[0]}</h3><p>${c[1]}</p>${sixObj(c[2],best)}${best?'':'<div class="rej-why">Rejected — works, but fails the business-friction objective.</div>'}</div>`}).join('');
+    setText('incCurDC',r[0]+'%');setText('incCurRR',r[1]+'%');setText('incCurPaths',r[2]);setText('incRecText',d.candidate);setText('incRecNote',(closed?'Applied · ':'Validated against ')+d.count);setText('incValDC',r[3]+'%');setText('incValRR',r[4]+'%');setText('incValPaths',r[5]);setText('incImpact1',r[6]);setText('incImpact2',r[7]);setText('incImpact3',r[8]);
+    setText('incDecisionText',d.candidate);setText('incDecisionStateText','Defense '+r[3]+'% · Reachability '+r[4]+'% · '+r[5]+' critical paths');
+    applyIncDecision(id);setIncTab(0);if(show!==false)showView('incident')}
+  const nextActions=id=>{const wf=INC_WF[id];return '<div class="next-actions"><button class="btn secondary" data-open-workflow="'+wf+'">Open affected workflow →</button><button class="btn blue" data-revalidate-wf="'+wf+'">Revalidate workflow</button><button class="btn secondary" data-jump="incidents">Back to queue</button></div>'};
+  // Decisions are recorded per incident and lock after approval; approval always offers a next step (fixes 5-C, 5-D).
+  function applyIncDecision(id){const st=incDecision[id],msg=$id('incDecisionMsg'),lock=st==='approved'||st==='closed';['incApproveBtn','incModifyBtn','incRejectBtn','incRerunBtn'].forEach(x=>$id(x).disabled=lock);$id('incModifyForm').classList.remove('open');
+    if(st==='approved')setMsgHtml(msg,'Decision recorded: approved. The policy now applies to '+workflowData[INC_WF[id]].name+', which needs revalidation.'+nextActions(id),'approved');
+    else if(st==='closed')setMsgHtml(msg,'Closed. “'+incidentData[id].candidate+'” was approved earlier and the workflow was re-validated. <button class="def-link" data-open-workflow="'+INC_WF[id]+'">Open workflow →</button>','approved');
+    else if(st==='rejected')setMsg(msg,'Rejected earlier. Review the other candidates, or decide again.','rejected');
+    else msg.className='decision-state'}
+  document.querySelectorAll('[data-inc-go]').forEach(b=>b.addEventListener('click',()=>setIncTab(Number(b.dataset.incGo))));
+  $id('incOpenWorkflow').addEventListener('click',()=>openWorkflow(INC_WF[currentIncident]));
+  $id('incModifyBtn').addEventListener('click',()=>$id('incModifyForm').classList.toggle('open'));
+  $id('incRerunBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;const scope=$id('incScope').value,msg=$id('incDecisionMsg'),r=INC_REC[id];setMsg(msg,'Re-running validation for “'+scope+'”…','');setTimeout(()=>{const all=scope.startsWith('All'),dc=all?r[3]:r[3]-4,rr=all?r[4]:r[4]+3;setText('incValDC',dc+'%');setText('incValRR',rr+'%');setText('incDecisionStateText','Defense '+dc+'% · Reachability '+rr+'% · scope: '+scope);setMsg(msg,'Validation re-run with the modified scope. Updated validated state shown.','approved');$id('incModifyForm').classList.remove('open')},900)});
+  $id('incRejectBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;incDecision[id]='rejected';resolvePending(id);setRecStatus(id,'Rejected','blocked');applyIncDecision(id);setTimeout(()=>setIncTab(2),900)});
+  $id('incApproveBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+id+'.',box:'<strong>'+$id('incDecisionText').textContent+'</strong><br>'+$id('incDecisionStateText').textContent+'<br><br>Next: the policy is promoted through shadow → canary before production, and the affected workflow is queued for revalidation. Rollback stays available at each stage.',onConfirm:()=>{
+    incDecision[id]='approved';resolvePending(id);setRecStatus(id,'Approved','');const wfId=INC_WF[id],w=workflowData[wfId];
+    if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;if(!ST_AFFECTED.some(a=>a.id===wfId))ST_AFFECTED.push({id:wfId,trigger:'Policy change'});ST_CHANGES.unshift({icon:'P',title:'Policy approved',sub:incidentData[id].candidate+' · '+w.name,tag:'Policy change',cls:'review'})}
+    renderShortTerm();renderLibrary();applyIncDecision(id);notify('Recommendation approved for '+id)}})});
+
+  // Incident filters work together with search (fixes 4-1, 5-L).
+  function applyIncFilters(){const q=$id('incidentSearch').value.toLowerCase().trim(),f={};document.querySelectorAll('.inc-filter').forEach(s=>{f[s.dataset.f]=s.value});
+    const match=id=>{const m=INC_META[id];if(!m)return true;return(!f.domain||m.domain===f.domain)&&(!f.workflow||m.workflow===f.workflow)&&(!f.agent||m.agent===f.agent)&&(!f.severity||m.sev===f.severity)&&(!f.status||m.status===f.status)&&(!f.type||m.type===f.type)&&(!f.time||m.hours<=Number(f.time))};
+    let shown=0;document.querySelectorAll('#incidentCards .incident-card').forEach(c=>{const ok=match(c.dataset.incident)&&(!q||c.textContent.toLowerCase().includes(q)||(c.dataset.search||'').includes(q));c.style.display=ok?'block':'none';if(ok)shown++});
+    document.querySelectorAll('#incidentList tbody tr').forEach(r=>{const ok=match(r.dataset.incident)&&(!q||r.textContent.toLowerCase().includes(q));r.style.display=ok?'table-row':'none'});setText('incShown',shown+' shown')}
+  $id('incidentSearch').addEventListener('input',applyIncFilters);document.querySelectorAll('.inc-filter').forEach(s=>s.addEventListener('change',applyIncFilters));
+  document.querySelectorAll('[data-queue-view]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-queue-view]').forEach(b=>b.classList.toggle('active',b===btn));$id('incidentCards').style.display=btn.dataset.queueView==='cards'?'grid':'none';$id('incidentList').style.display=btn.dataset.queueView==='list'?'block':'none'}));
+
+  document.querySelectorAll('[data-pr]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-pr]').forEach(x=>x.classList.toggle('active',x===b));$id('prWorkflow').style.display=b.dataset.pr==='workflow'?'block':'none';$id('prExec').style.display=b.dataset.pr==='exec'?'block':'none'}));
+
+  // Workflow Validation is generated from state: deployments and approved policies add entries (fixes 5-G, 5-H).
+  const ST_CHANGES=[{icon:'T',title:'New tool connected',sub:'Vendor Merge Tool available to Procurement Agent',tag:'New tool',cls:'running'},{icon:'P',title:'Permission change',sub:'Procurement Agent gained vendor_master.write',tag:'Permission',cls:'review'},{icon:'A',title:'Agent role change',sub:'Remediation Agent can now restart production workloads',tag:'Agent role',cls:'running'}];
+  const ST_AFFECTED=[{id:'WF-021',trigger:'New tool'},{id:'WF-008',trigger:'Permission'},{id:'WF-033',trigger:'Agent role'}];
+  function renderShortTerm(){$id('changeFeed').innerHTML=ST_CHANGES.map(c=>`<div class="change"><div class="ci">${c.icon}</div><div><strong>${c.title}</strong><small>${c.sub}</small></div><span class="status ${c.cls}">${c.tag}</span></div>`).join('');
+    const need=ST_AFFECTED.filter(a=>workflowData[a.id]&&workflowData[a.id].lifecycle==='Needs Revalidation').length;
+    setText('stAffectedText',need?need+' workflow'+(need===1?'':'s')+' may be affected.':'No affected workflow is waiting for revalidation.');setText('stChangeCount',ST_CHANGES.length+' changes');
+    $id('stRows').innerHTML=ST_AFFECTED.map(a=>{const w=workflowData[a.id];return `<tr data-open-workflow="${a.id}" style="cursor:pointer"><td class="bold">${w.name.split(' · ').slice(-1)[0]}</td><td>${a.trigger}</td><td>${w.last}</td><td><span class="lc ${lcClass(w.lifecycle)}" id="st-${a.id}">${w.lifecycle}</span></td></tr>`}).join('');
+    $id('revalidateBtn').disabled=!need}
+  $id('revalidateBtn').addEventListener('click',()=>{const targets=ST_AFFECTED.filter(a=>workflowData[a.id].lifecycle==='Needs Revalidation');if(!targets.length){notify('Nothing to revalidate');return}
+    const run=$id('stRun'),res=$id('stResult'),st=$id('stStatus');run.style.display='block';res.className='decision-state';st.textContent='Running';st.className='status running';st.style.cssText='';
+    runSteps($id('stSteps'),{onDone:()=>{targets.forEach(a=>{const w=workflowData[a.id],bad=a.id==='WF-033';w.lifecycle=bad?'Needs Revision':'Revalidated';w.validation=bad?'Needs revision':'Revalidated';w.last='Just now'});renderShortTerm();renderLibrary();
+      const bad=targets.some(a=>a.id==='WF-033'),good=targets.length-(bad?1:0);
+      setMsgHtml(res,good+' workflow'+(good===1?'':'s')+' revalidated'+(bad?'. Service Account Remediation needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review →</button>':'.'),bad?'rejected':'approved');
+      st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';notify('Revalidation complete')}})});
+  $id('runEnvBtn').addEventListener('click',()=>{const st=$id('ltStatus'),res=$id('ltResult');res.className='decision-state approved';st.textContent='Running';st.className='status running';st.style.cssText='';runSteps($id('ltSteps'),{ms:480,onDone:()=>{st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';res.className='decision-state approved show';const h=$id('ltHistory');if(!h.querySelector('[data-sep]'))h.insertAdjacentHTML('beforeend','<tr data-sep><td class="bold">Sep</td><td>24 workflows · 53 agents</td><td>2,700</td><td style="color:var(--amber)">3</td><td>1</td></tr>');notify('System validation complete')}})});
+  // Cadence is defined by the enterprise, not hardcoded to monthly (9/15 review).
+  $id('ltCadence').addEventListener('change',e=>{setText('ltCadenceFoot',e.target.value+' cadence');notify('System validation cadence: '+e.target.value.toLowerCase())});
+
+  document.querySelectorAll('.wm-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.wm-tab').forEach(t=>t.classList.toggle('active',t===tab));document.querySelectorAll('.wm-panel').forEach(p=>p.classList.toggle('active',p.id===tab.dataset.wmPanel));if(window.SWMLoad)SWMLoad(tab.dataset.wmPanel)}));
+
+  const defsModal=$id('defsModal'),changesModal=$id('changesModal'),toggleHighlights=$id('toggleHighlights');
+  function setHighlights(on){document.body.classList.toggle('show-changes',on);toggleHighlights.textContent=on?'Hide highlights':'Show highlights'}
+  $id('defsBtn').addEventListener('click',()=>defsModal.classList.add('open'));
+  $id('changesBtn').addEventListener('click',()=>{setHighlights(true);changesModal.classList.add('open')});
+  toggleHighlights.addEventListener('click',()=>setHighlights(!document.body.classList.contains('show-changes')));
+  [decisionModal,defsModal,changesModal].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+  function newBlueprint(){ location.href = 'index.html#studio=new'; }
+  function openBlueprintForReview(){ location.href = 'index.html#studio'; }
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-review-bp],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf]');if(!t||t.disabled)return;const ds=t.dataset;
+    if(ds.close){$id(ds.close).classList.remove('open');return}
+    if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else showView(ds.go);return}
+    if(ds.def){defsModal.classList.add('open');const d=$id('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#e9edff'},{background:'#fff'}],{duration:1600})}return}
+    if(ds.newBlueprint){newBlueprint();return}
+    if(ds.revalidateWf){revalidateWorkflow(ds.revalidateWf);return}
+    if(ds.libRisk||ds.libUnregistered){showView('library');$id('deployFilter').value=ds.libUnregistered?'Not registered':'';$id('riskFilter').value=ds.libRisk?'atrisk':'';$id('workflowSearch').value='';$id('domainFilter').value='';renderLibrary();return}
+    if(ds.openWorkflow){openWorkflow(ds.openWorkflow);return}
+    if(ds.openIncident){renderIncident(ds.openIncident);return}
+    if(ds.reviewInc){renderIncident(ds.reviewInc);setIncTab(2);return}
+    if(ds.reviewBp){openBlueprintForReview();return}
+    if(ds.incident){renderIncident(ds.incident);return}
+    if(ds.suiteJump){showView('security-model');document.querySelector('[data-wm-panel="wm-landscape"]').click();const c=document.querySelector('[data-suite="'+ds.suiteJump+'"]');if(c)c.click();return}
+    if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next system validation');return}
+    if(ds.jump){showView(ds.jump)}});
+
+  refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
+
+</script>
+<script src="swm/js/swm-loader.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Silex Cloudflare Sync"
+  short_description: "Sync the approved Silex GitHub demo branch to Cloudflare Pages"
+  default_prompt: "Use $silex-cloudflare-sync to deploy the latest committed demo/assurance-vv branch to demo.opensilex.ai."

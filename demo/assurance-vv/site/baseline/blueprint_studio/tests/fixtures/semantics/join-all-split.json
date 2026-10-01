@@ -1,0 +1,282 @@
+{
+  "name": "join-all-split",
+  "description": "Three split pieces ($500 each, above 400) through decision -> policy gate -> a join:all tool; per activation the join receives a token from the gate and a skip from the untaken decision branch, and fires exactly once. A fourth request ($300) takes the false branch; the gate receives a skip, forwards skips, and the join fires once.",
+  "graph": {
+    "nodes": [
+      {
+        "id": "TR",
+        "type": "trigger",
+        "label": "Request",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "channel": "support_chat",
+          "trust": "untrusted"
+        }
+      },
+      {
+        "id": "A",
+        "type": "agent",
+        "label": "Agent",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "candidate": "Internal Agent",
+          "capabilities": [
+            {
+              "cap": "pay",
+              "limit": 10000
+            }
+          ],
+          "canSplit": true,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "S",
+        "type": "data",
+        "label": "Secret",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "sensitivity": "secret"
+        }
+      },
+      {
+        "id": "J",
+        "type": "tool",
+        "label": "Join tool",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "cap": "pay",
+          "sideEffect": "write",
+          "idempotencyKey": false,
+          "join": "all"
+        }
+      },
+      {
+        "id": "OK",
+        "type": "outcome",
+        "label": "Done",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "success": true,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "N",
+        "type": "outcome",
+        "label": "Declined",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "success": false,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "D",
+        "type": "decision",
+        "label": "Gate",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "condition": "amount > 400",
+          "join": "first"
+        }
+      },
+      {
+        "id": "G",
+        "type": "control",
+        "label": "Policy",
+        "x": 0,
+        "y": 0,
+        "config": {
+          "kind": "policy_gate",
+          "appliesWhen": "",
+          "binding": [
+            "customer"
+          ],
+          "singleUse": false,
+          "slaMinutes": 15,
+          "rule": "amount < 10000",
+          "action": "block",
+          "redactAbove": "internal",
+          "join": "first"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "from": {
+          "node": "TR",
+          "port": "out"
+        },
+        "to": {
+          "node": "A",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "from": {
+          "node": "A",
+          "port": "out"
+        },
+        "to": {
+          "node": "D",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "D",
+          "port": "true"
+        },
+        "to": {
+          "node": "G",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e4",
+        "kind": "flow",
+        "from": {
+          "node": "D",
+          "port": "false"
+        },
+        "to": {
+          "node": "J",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e5",
+        "kind": "flow",
+        "from": {
+          "node": "G",
+          "port": "approved"
+        },
+        "to": {
+          "node": "J",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e6",
+        "kind": "flow",
+        "from": {
+          "node": "G",
+          "port": "denied"
+        },
+        "to": {
+          "node": "N",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e7",
+        "kind": "flow",
+        "from": {
+          "node": "J",
+          "port": "out"
+        },
+        "to": {
+          "node": "OK",
+          "port": "in"
+        }
+      }
+    ]
+  },
+  "scenario": {
+    "id": "fx-join-all-split",
+    "template": "fixture",
+    "requests": [
+      {
+        "id": "r1",
+        "customer": "c1",
+        "order": "o1",
+        "amount": 1500,
+        "eligible": 1500,
+        "channel": "support_chat",
+        "intent": {
+          "split": 3
+        }
+      },
+      {
+        "id": "r2",
+        "customer": "c1",
+        "order": "o2",
+        "amount": 300,
+        "eligible": 300,
+        "channel": "support_chat"
+      }
+    ]
+  },
+  "approver": "policy",
+  "expect": {
+    "activations": [
+      {
+        "id": "r1#1",
+        "end": "OK",
+        "status": "success"
+      },
+      {
+        "id": "r1#2",
+        "end": "OK",
+        "status": "success"
+      },
+      {
+        "id": "r1#3",
+        "end": "OK",
+        "status": "success"
+      },
+      {
+        "id": "r2",
+        "end": "OK",
+        "status": "success"
+      }
+    ],
+    "writes": [
+      {
+        "activation": "r1#1",
+        "amount": 500,
+        "approval": null
+      },
+      {
+        "activation": "r1#2",
+        "amount": 500,
+        "approval": null
+      },
+      {
+        "activation": "r1#3",
+        "amount": 500,
+        "approval": null
+      },
+      {
+        "activation": "r2",
+        "amount": 300,
+        "approval": null
+      }
+    ],
+    "approvalsIssued": 0,
+    "writeDenied": [],
+    "nodeFires": {
+      "J": 4,
+      "G": 3,
+      "N": 0
+    },
+    "violations": {}
+  }
+}

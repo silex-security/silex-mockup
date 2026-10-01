@@ -1,0 +1,2280 @@
+{
+  "version": "swm-1.0",
+  "generated": "2026-09-17T23:20:50.477Z",
+  "source": "swm/data/ontology.json",
+  "classes": [
+    {
+      "id": "ag:cred-store",
+      "label": "Credential Broker",
+      "def": "Issues the identity an agent acts under.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:exec-ctx",
+      "label": "Execution Context",
+      "def": "Sandbox, runtime permissions and resource limits for a run.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:guardrail",
+      "label": "Guardrail / Policy Engine",
+      "def": "Evaluates each proposed action against policy before it runs.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:harness",
+      "label": "Business Outcome Harness",
+      "def": "Legitimate completion, prohibited outcomes, cost and the business constraints an agent must respect.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:hitl",
+      "label": "Human Approval Gate",
+      "def": "Human decision point inserted into the agent loop.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:mcp",
+      "label": "MCP / API Connector",
+      "def": "Transport that exposes enterprise systems to the agent.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:memory-lt",
+      "label": "Long-term Memory",
+      "def": "Persisted state reused across runs — a poisoning target.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:memory-st",
+      "label": "Short-term Memory",
+      "def": "Working context carried across steps of one run.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:planner",
+      "label": "Planner / Reasoner",
+      "def": "Decomposes a goal into steps and chooses the next action.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:retriever",
+      "label": "Retriever / RAG Index",
+      "def": "Vector or keyword index feeding untrusted content into context.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:subagent",
+      "label": "Sub-agent Delegation",
+      "def": "Agent-to-agent hand-off; authority travels with the call.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:tool-reg",
+      "label": "Tool Registry",
+      "def": "Declared tools, their scopes and their side effects.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    },
+    {
+      "id": "ag:trace",
+      "label": "Trace & Telemetry",
+      "def": "Observed steps, tool calls and decisions — the evidence base.",
+      "layer": 3,
+      "src": [
+        {
+          "sys": "silex",
+          "id": "SILEX-L3",
+          "label": "Silex agentic ontology"
+        }
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "atlas:AML.T0000",
+      "label": "Search Open Technical Databases",
+      "def": "Adversaries may search for publicly available research and technical documentation to learn how and where AI is used within a victim organization. The adversary can use this information to identify targets…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0000",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0000"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0001",
+      "label": "Search Open AI Vulnerability Analysis",
+      "def": "Much like the Search Open Technical Databases, there is often ample research available on the vulnerabilities of common AI models. Once a target has been identified, an adversary will likely try to identify…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0001",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0001"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0002",
+      "label": "Acquire Public AI Artifacts",
+      "def": "Adversaries may search public sources, including cloud storage, public-facing services, and software or data repositories, to identify AI artifacts. These AI artifacts may include the software stack used to…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0002",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0002"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0003",
+      "label": "Search Victim-Owned Websites",
+      "def": "Adversaries may search websites owned by the victim for information that can be used during targeting. Victim-owned websites may contain technical details about their AI-enabled products or services…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0003",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0003"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0004",
+      "label": "Search Application Repositories",
+      "def": "Adversaries may search open application repositories during targeting. Examples of these include Google Play, the iOS App store, the macOS App Store, and the Microsoft Store. Adversaries may craft search…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0004",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0004"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0005",
+      "label": "Create Proxy AI Model",
+      "def": "Adversaries may obtain models to serve as proxies for the target model in use at the victim organization. Proxy models are used to simulate complete access to the target model in a fully offline manner…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0005",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0005"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0006",
+      "label": "Active Scanning",
+      "def": "An adversary may probe or scan the victim system to gather information for targeting. This is distinct from other reconnaissance techniques that do not involve direct interaction with the victim system…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0006",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0006"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0007",
+      "label": "Discover AI Artifacts",
+      "def": "Adversaries may search private sources to identify AI learning artifacts that exist on the system and gather information about them. These artifacts can include the software stack used to train and deploy…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0007",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0007"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0008",
+      "label": "Acquire Infrastructure",
+      "def": "Adversaries may buy, lease, or rent infrastructure for use throughout their operation. A wide variety of infrastructure exists for hosting and orchestrating adversary operations. Infrastructure solutions…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0008",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0008"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0010",
+      "label": "AI Supply Chain Compromise",
+      "def": "Adversaries may gain initial access to a system by compromising the unique portions of the AI supply chain. This could include Hardware, Data and its annotations, parts of the AI AI Software stack, or the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0010",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0010"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0011",
+      "label": "User Execution",
+      "def": "An adversary may rely upon specific actions by a user in order to gain execution. Users may inadvertently execute unsafe code introduced via AI Supply Chain Compromise. Users may be subjected to social…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0011",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0011"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0012",
+      "label": "Valid Accounts",
+      "def": "Adversaries may obtain and abuse credentials of existing accounts as a means of gaining Initial Access. Credentials may take the form of usernames and passwords of individual user accounts or API keys that…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0012",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0012"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0013",
+      "label": "Discover AI Model Ontology",
+      "def": "Adversaries may discover the ontology of an AI model's output space, for example, the types of objects a model can detect. The adversary may discovery the ontology by repeated queries to the model, forcing it…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0013",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0013"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0014",
+      "label": "Discover AI Model Family",
+      "def": "Adversaries may discover the general family of model. General information about the model may be revealed in documentation, or the adversary may use carefully constructed examples and analyze the model's…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0014",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0014"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0015",
+      "label": "Evade AI Model",
+      "def": "Adversaries can Craft Adversarial Data that prevents an AI model from correctly identifying the contents of the data or Generate Deepfakes that fools an AI model expecting authentic data. This technique can…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0015",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0015"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0016",
+      "label": "Obtain Capabilities",
+      "def": "Adversaries may search for and obtain software capabilities for use in their operations. Capabilities may be specific to AI-based attacks Adversarial AI Attack Implementations or generic software tools…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0016",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0016"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0017",
+      "label": "Develop Capabilities",
+      "def": "Adversaries may develop their own capabilities to support operations. This process encompasses identifying requirements, building solutions, and deploying capabilities. Capabilities used to support attacks on…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0017",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0017"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0018",
+      "label": "Manipulate AI Model",
+      "def": "Adversaries may directly manipulate an AI model to change its behavior or introduce malicious code. Manipulating a model gives the adversary a persistent change in the system. This can include poisoning the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0018",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0018"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0019",
+      "label": "Publish Poisoned Datasets",
+      "def": "Adversaries may Poison Training Data and publish it to a public location. The poisoned dataset may be a novel dataset or a poisoned variant of an existing open source dataset. This data may be introduced to a…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0019",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0019"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0020",
+      "label": "Poison Training Data",
+      "def": "Adversaries may attempt to poison datasets used by an AI model by modifying the underlying data or its labels. This allows the adversary to embed vulnerabilities in AI models trained on the data that may not…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0020",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0020"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0021",
+      "label": "Establish Accounts",
+      "def": "Adversaries may create accounts with various services for use in targeting, to gain access to resources needed in AI Attack Staging, or for victim impersonation.",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0021",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0021"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0024",
+      "label": "Exfiltration via AI Inference API",
+      "def": "Adversaries may exfiltrate private information via AI Model Inference API Access. AI Models have been shown leak private information about their training data (e.g. Infer Training Data Membership, Invert AI…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0024",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0024"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0025",
+      "label": "Exfiltration via Cyber Means",
+      "def": "Adversaries may exfiltrate AI artifacts or other information relevant to their goals via traditional cyber means. See the ATT&CK Exfiltration tactic for more information.",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0025",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0025"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0029",
+      "label": "Denial of AI Service",
+      "def": "Adversaries may target AI-enabled systems with a flood of requests for the purpose of degrading or shutting down the service. Since many AI systems require significant amounts of specialized compute, they are…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0029",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0029"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0031",
+      "label": "Erode AI Model Integrity",
+      "def": "Adversaries may degrade the target model's performance with adversarial data inputs to erode confidence in the system over time. This can lead to the victim organization wasting time and money both attempting…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0031",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0031"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0034",
+      "label": "Cost Harvesting",
+      "def": "Adversaries may deliberately drive a victim's AI services beyond normal operating capacity with the intent of increasing the cost of services. This may be achieved via high-volume, low-complexity queries…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0034",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0034"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0035",
+      "label": "AI Artifact Collection",
+      "def": "Adversaries may collect AI artifacts for Exfiltration or for use in AI Attack Staging. AI artifacts include models and datasets as well as other telemetry data produced when interacting with a model.",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0035",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0035"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0036",
+      "label": "Data from Information Repositories",
+      "def": "Adversaries may leverage information repositories to mine valuable information. Information repositories are tools that allow for storage of information, typically to facilitate collaboration or information…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0036",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0036"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0037",
+      "label": "Data from Local System",
+      "def": "Adversaries may search local system sources, such as file systems and configuration files or local databases, to find files of interest and sensitive data prior to Exfiltration. This can include basic…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0037",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0037"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0040",
+      "label": "AI Model Inference API Access",
+      "def": "Adversaries may gain access to a model via legitimate access to the inference API. Inference API access can be a source of information to the adversary (Discover AI Model Ontology, Discover AI Model Family)…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0040",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0040"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0041",
+      "label": "Physical Environment Access",
+      "def": "In addition to the attacks that take place purely in the digital domain, adversaries may also exploit the physical environment for their attacks. If the model is interacting with data collected from the real…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0041",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0041"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0042",
+      "label": "Verify Attack",
+      "def": "Adversaries can verify the efficacy of their attack via an inference API or access to an offline copy of the target model. This gives the adversary confidence that their approach works and allows them to…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0042",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0042"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0043",
+      "label": "Craft Adversarial Data",
+      "def": "Adversarial data are inputs to an AI model that have been modified such that they cause the adversary's desired effect in the target model. Effects can range from misclassification, to missed detections, to…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0043",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0043"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0044",
+      "label": "Full AI Model Access",
+      "def": "Adversaries may gain full \"white-box\" access to an AI model. This means the adversary has complete knowledge of the model architecture, its parameters, and class ontology. They may exfiltrate the model to…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0044",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0044"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0046",
+      "label": "Spamming AI System with Chaff Data",
+      "def": "Adversaries may spam the AI system with chaff data that causes increase in the number of detections. This can cause analysts at the victim organization to waste time reviewing and correcting incorrect…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0046",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0046"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0047",
+      "label": "AI-Enabled Product or Service",
+      "def": "Adversaries may use a product or service that uses artificial intelligence under the hood to gain access to the underlying AI model. This type of indirect model access may reveal details of the AI model or…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0047",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0047"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0048",
+      "label": "External Harms",
+      "def": "Adversaries may abuse their access to a victim system and use its resources or capabilities to further their goals by causing harms external to that system. These harms could affect the organization (e.g…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0048",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0048"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0049",
+      "label": "Exploit Public-Facing Application",
+      "def": "Adversaries may attempt to take advantage of a weakness in an Internet-facing computer or program using software, data, or commands in order to cause unintended or unanticipated behavior. The weakness in the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0049",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0049"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0050",
+      "label": "Command and Scripting Interpreter",
+      "def": "Adversaries may abuse command and script interpreters to execute commands, scripts, or binaries. These interfaces and languages provide ways of interacting with computer systems and are a common feature…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0050",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0050"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0051",
+      "label": "LLM Prompt Injection",
+      "def": "An adversary may craft malicious prompts as inputs to an LLM that cause the LLM to act in unintended ways. These \"prompt injections\" are often designed to cause the model to ignore aspects of its original…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0051",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0051"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0052",
+      "label": "Phishing",
+      "def": "Adversaries may send phishing messages to gain access to victim systems. All forms of phishing are electronically delivered social engineering. Phishing can be targeted, known as spearphishing. In…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0052",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0052"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0053",
+      "label": "AI Agent Tool Invocation",
+      "def": "Adversaries may use their access to an AI agent to invoke tools the agent has access to. LLMs are often connected to other services or resources via tools to increase their capabilities. Tools may include…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0053",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0053"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0054",
+      "label": "LLM Jailbreak",
+      "def": "Adversaries may induce a large language model (LLM) to ignore, circumvent, or override its safety/alignment behaviors and/or guardails to elicit outputs the model is intended to withhold. Once jailbroken, the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0054",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0054"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0055",
+      "label": "Unsecured Credentials",
+      "def": "Adversaries may search compromised systems to find and obtain insecurely stored credentials. These credentials can be stored and/or misplaced in many locations on a system, including plaintext files (e.g…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0055",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0055"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0056",
+      "label": "Extract LLM System Prompt",
+      "def": "Adversaries may attempt to extract a large language model's (LLM) system prompt. This can be done via prompt injection to induce the model to reveal its own system prompt or may be extracted from a…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0056",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0056"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0057",
+      "label": "LLM Data Leakage",
+      "def": "Adversaries may craft prompts that induce the LLM to leak sensitive information. This can include private user data or proprietary information. The leaked information may come from proprietary training data…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0057",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0057"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0058",
+      "label": "Publish Poisoned Models",
+      "def": "Adversaries may publish a poisoned model to a public location such as a model registry or code repository. The poisoned model may be a novel model or a poisoned variant of an existing open-source model. This…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0058",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0058"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0059",
+      "label": "Erode Dataset Integrity",
+      "def": "Adversaries may poison or manipulate portions of a dataset to reduce its usefulness, reduce trust, and cause users to waste resources correcting errors.",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0059",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0059"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0060",
+      "label": "Publish Hallucinated Entities",
+      "def": "Adversaries may create an entity they control, such as a software package, website, or email address to a source hallucinated by an LLM. The hallucinations may take the form of package names commands, URLs…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0060",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0060"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0061",
+      "label": "LLM Prompt Self-Replication",
+      "def": "An adversary may use a carefully crafted LLM Prompt Injection designed to cause the LLM to replicate the prompt as part of its output. This allows the prompt to propagate to other LLMs and persist on the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0061",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0061"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0062",
+      "label": "Discover LLM Hallucinations",
+      "def": "Adversaries may prompt large language models and identify hallucinated entities. They may request software packages, commands, URLs, organization names, or e-mail addresses, and identify hallucinations with…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0062",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0062"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0063",
+      "label": "Discover AI Model Outputs",
+      "def": "Adversaries may discover model outputs, such as class scores, whose presence is not required for the system to function and are not intended for use by the end user. Model outputs may be found in logs or may…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0063",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0063"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0064",
+      "label": "Gather RAG-Indexed Targets",
+      "def": "Adversaries may identify data sources used in retrieval augmented generation (RAG) systems for targeting purposes. By pinpointing these sources, attackers can focus on poisoning or otherwise manipulating the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0064",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0064"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0065",
+      "label": "LLM Prompt Crafting",
+      "def": "Adversaries may use their acquired knowledge of the target generative AI system to craft prompts that bypass its defenses and allow malicious instructions to be executed. The adversary may iterate on the…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0065",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0065"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0066",
+      "label": "Retrieval Content Crafting",
+      "def": "Adversaries may write content designed to be retrieved by user queries and influence a user of the system in some way. This abuses the trust the user has in the system. The crafted content can be combined…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0066",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0066"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0067",
+      "label": "LLM Trusted Output Components Manipulation",
+      "def": "Adversaries may utilize prompts to a large language model (LLM) which manipulate various components of its response in order to make it appear trustworthy to the user. This helps the adversary continue to…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0067",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0067"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0068",
+      "label": "LLM Prompt Obfuscation",
+      "def": "Adversaries may hide or otherwise obfuscate prompt injections or retrieval content to avoid detection from humans, large language model (LLM) guardrails, or other detection mechanisms. For text inputs, this…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0068",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0068"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0069",
+      "label": "Discover LLM System Information",
+      "def": "The adversary is trying to discover something about the large language model's (LLM) system information. This may be found in a configuration file containing the system instructions or extracted via…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0069",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0069"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0070",
+      "label": "RAG Poisoning",
+      "def": "Adversaries may inject malicious content into data indexed by a retrieval augmented generation (RAG) system to contaminate a future thread through RAG-based search results. This may be accomplished by placing…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0070",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0070"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0071",
+      "label": "False RAG Entry Injection",
+      "def": "Adversaries may introduce false entries into a victim's retrieval augmented generation (RAG) database. Content designed to be interpreted as a document by the large language model (LLM) used in the RAG system…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0071",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0071"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0072",
+      "label": "Reverse Shell",
+      "def": "Adversaries may utilize a reverse shell to communicate and control the victim system. Typically, a user uses a client to connect to a remote machine which is listening for connections. With a reverse shell…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0072",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0072"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0073",
+      "label": "Impersonation",
+      "def": "Adversaries may impersonate a trusted person or organization in order to persuade and trick a target into performing some action on their behalf. For example, adversaries may communicate with victims (via…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0073",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0073"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0074",
+      "label": "Masquerading",
+      "def": "Adversaries may attempt to manipulate features of their artifacts to make them appear legitimate or benign to users and/or security tools. Masquerading occurs when the name or location of an object…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0074",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0074"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0075",
+      "label": "Cloud Service Discovery",
+      "def": "Adversaries may attempt to enumerate the cloud services running on a system after gaining access. These methods can differ from platform-as-a-service (PaaS), to infrastructure-as-a-service (IaaS)…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0075",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0075"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0076",
+      "label": "Corrupt AI Model",
+      "def": "An adversary may purposefully corrupt a malicious AI model file so that it cannot be successfully deserialized in order to evade detection by a model scanner. The corrupt model may still successfully execute…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0076",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0076"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0077",
+      "label": "LLM Response Rendering",
+      "def": "An adversary may get a large language model (LLM) to respond with private information that is hidden from the user when the response is rendered by the user's client. The private information is then…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0077",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0077"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0078",
+      "label": "Drive-by Compromise",
+      "def": "Adversaries may gain access to an AI system through a user visiting a website over the normal course of browsing, or an AI agent retrieving information from the web on behalf of a user. Websites can contain…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0078",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0078"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0079",
+      "label": "Stage Capabilities",
+      "def": "Adversaries may upload, install, or otherwise set up capabilities that can be used during targeting. To support their operations, an adversary may need to take capabilities they developed (Develop…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0079",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0079"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0080",
+      "label": "AI Agent Context Poisoning",
+      "def": "Adversaries may attempt to manipulate the context used by an AI agent's large language model (LLM) to influence the responses it generates or actions it takes. This allows an adversary to persistently change…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0080",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0080"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0081",
+      "label": "Modify AI Agent Configuration",
+      "def": "Adversaries may modify the configuration files for AI agents on a system. This allows malicious changes to persist beyond the life of a single agent and affects any agents that share the configuration…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0081",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0081"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0082",
+      "label": "RAG Credential Harvesting",
+      "def": "Adversaries may attempt to use their access to a large language model (LLM) on the victim's system to collect credentials. Credentials may be stored in internal documents which can inadvertently be ingested…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0082",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0082"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0083",
+      "label": "Credentials from AI Agent Configuration",
+      "def": "Adversaries may access the credentials of other tools or services on a system from the configuration of an AI agent. AI Agents often utilize external tools or services to take actions, such as querying…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0083",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0083"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0084",
+      "label": "Discover AI Agent Configuration",
+      "def": "Adversaries may attempt to discover configuration information for AI agents present on the victim's system. Agent configurations can include tools or services they have access to. Adversaries may directly…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0084",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0084"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0085",
+      "label": "Data from AI Services",
+      "def": "Adversaries may use their access to a victim organization's AI-enabled services to collect proprietary or otherwise sensitive information. As organizations adopt generative AI in centralized services for…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0085",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0085"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0086",
+      "label": "Exfiltration via AI Agent Tool Invocation",
+      "def": "AI agent tools capable of performing write operations may be invoked to exfiltrate data to an adversary. Sensitive information can be encoded into the tool's input parameters and transmitted to an…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0086",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0086"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0087",
+      "label": "Gather Victim Identity Information",
+      "def": "Adversaries may gather information about the victim's identity that can be used during targeting. Information about identities may include a variety of details, including personal data (ex: employee names…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0087",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0087"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0088",
+      "label": "Generate Deepfakes",
+      "def": "Adversaries may use generative artificial intelligence (GenAI) to create synthetic media (i.e. imagery, video, audio, and text) that appear authentic. These \"deepfakes\" may mimic a real person or depict…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0088",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0088"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0089",
+      "label": "Process Discovery",
+      "def": "Adversaries may attempt to get information about processes running on a system. Once obtained, this information could be used to gain an understanding of common AI-related software/applications running on…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0089",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0089"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0090",
+      "label": "OS Credential Dumping",
+      "def": "Adversaries may extract credentials from OS caches, application memory, or other sources on a compromised system. Credentials are often in the form of a hash or clear text, and can include usernames and…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0090",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0090"
+        }
+      ]
+    },
+    {
+      "id": "atlas:AML.T0091",
+      "label": "Use Alternate Authentication Material",
+      "def": "Adversaries may use alternate authentication material, such as password hashes, Kerberos tickets, and application access tokens, in order to move laterally within an environment and bypass normal system…",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "atlas",
+          "id": "AML.T0091",
+          "label": "ATLAS technique",
+          "url": "https://atlas.mitre.org/techniques/AML.T0091"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM01",
+      "label": "Prompt Injection",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM01",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM01",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM02",
+      "label": "Sensitive Information Disclosure",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM02",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM02",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM03",
+      "label": "Supply Chain Vulnerabilities",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM03",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM03",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM04",
+      "label": "Data and Model Poisoning",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM04",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM04",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM05",
+      "label": "Improper Output Handling",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM05",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM05",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM06",
+      "label": "Excessive Agency",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM06",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM06",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM07",
+      "label": "System Prompt Leakage",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM07",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM07",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM08",
+      "label": "Vector and Embedding Weaknesses",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM08",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM08",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM09",
+      "label": "Misinformation",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM09",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM09",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owasp:LLM10",
+      "label": "Unbounded Consumption",
+      "def": "OWASP Top 10 for LLM Applications 2025 · LLM10",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "LLM10",
+          "label": "OWASP LLM Top 10 (2025)",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T1",
+      "label": "Memory Poisoning",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T1",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T1",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T10",
+      "label": "Overwhelming Human-in-the-Loop",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T10",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T10",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T11",
+      "label": "Unexpected RCE and Code Attacks",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T11",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T11",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T12",
+      "label": "Agent Communication Poisoning",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T12",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T12",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T13",
+      "label": "Rogue Agents in Multi-Agent Systems",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T13",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T13",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T14",
+      "label": "Human Attacks on Multi-Agent Systems",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T14",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T14",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T15",
+      "label": "Human Manipulation",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T15",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T15",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T2",
+      "label": "Tool Misuse",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T2",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T2",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T3",
+      "label": "Privilege Compromise",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T3",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T3",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T4",
+      "label": "Resource Overload",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T4",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T4",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T5",
+      "label": "Cascading Hallucination Attacks",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T5",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T5",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T6",
+      "label": "Intent Breaking & Goal Manipulation",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T6",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T6",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T7",
+      "label": "Misaligned & Deceptive Behaviours",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T7",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T7",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T8",
+      "label": "Repudiation & Untraceability",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T8",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T8",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    },
+    {
+      "id": "owaspa:T9",
+      "label": "Identity Spoofing & Impersonation",
+      "def": "OWASP Agentic AI — Threats and Mitigations · T9",
+      "group": "threat",
+      "src": [
+        {
+          "sys": "owasp",
+          "id": "Agentic T9",
+          "label": "OWASP Agentic AI threats",
+          "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "s": "atlas:AML.T0000",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0001",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0002",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0003",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0004",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0005",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0006",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0007",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0008",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0010",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0011",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0012",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0013",
+      "t": "ag:trace",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0014",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0015",
+      "t": "ag:trace",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0016",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0017",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0018",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0019",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0020",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0021",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0024",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0025",
+      "t": "ag:mcp",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0029",
+      "t": "ag:exec-ctx",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0031",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0034",
+      "t": "ag:exec-ctx",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0035",
+      "t": "ag:mcp",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0036",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0037",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0040",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0041",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0042",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0043",
+      "t": "ag:trace",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0044",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0046",
+      "t": "ag:trace",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0047",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0048",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0049",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0050",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0051",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0052",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0053",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0054",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0055",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0056",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0057",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0058",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0059",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0060",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0061",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0062",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0063",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0064",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0065",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0066",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0067",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0068",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0069",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0070",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0071",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0072",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0073",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0074",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0075",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0076",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0077",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0078",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0079",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0080",
+      "t": "ag:hitl",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0081",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0082",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0083",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0084",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0085",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0086",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0087",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0088",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0089",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0090",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "atlas:AML.T0091",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM01",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM02",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM03",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM04",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM05",
+      "t": "ag:exec-ctx",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM06",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM07",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM08",
+      "t": "ag:retriever",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM09",
+      "t": "ag:memory-st",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owasp:LLM10",
+      "t": "ag:exec-ctx",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T1",
+      "t": "ag:memory-lt",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T10",
+      "t": "ag:hitl",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T11",
+      "t": "ag:exec-ctx",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T12",
+      "t": "ag:subagent",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T13",
+      "t": "ag:subagent",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T14",
+      "t": "ag:subagent",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T15",
+      "t": "ag:hitl",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T2",
+      "t": "ag:tool-reg",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T3",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T4",
+      "t": "ag:exec-ctx",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T5",
+      "t": "ag:memory-st",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T6",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T7",
+      "t": "ag:planner",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T8",
+      "t": "ag:trace",
+      "pred": "THREATENS",
+      "src": "silex"
+    },
+    {
+      "s": "owaspa:T9",
+      "t": "ag:cred-store",
+      "pred": "THREATENS",
+      "src": "silex"
+    }
+  ]
+}

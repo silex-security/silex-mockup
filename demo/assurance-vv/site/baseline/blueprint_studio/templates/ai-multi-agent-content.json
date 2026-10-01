@@ -1,0 +1,339 @@
+{
+  "id": "bp-ai-multi-agent-content",
+  "name": "Multi-Agent Content Pipeline",
+  "domain": "Marketing",
+  "owner": "Content Ops",
+  "category": "AI",
+  "n8nPattern": "Research agent → writer → reviewer → CMS",
+  "amountMeaning": "Promotion budget $",
+  "customerMeaning": "the content campaign",
+  "orderMeaning": "the content piece",
+  "integrations": [
+    "OpenAI",
+    "WordPress CMS"
+  ],
+  "description": "Research → write → review → publish pipeline: a research agent, a writer agent and a reviewer agent feed the CMS in turn. The reviewer is an AI agent, not a human approval — the editor approval gate is the only human sign-off. amount = promotion budget $. The business constraint (approval above $500) is declared on the Publish Without Editor Approval monitor while the workflow only asks above $2,000. Modelled on a common n8n pattern; integrations are represented as steps, not live connections.",
+  "expectedFindings": [
+    {
+      "id": "unauth:below_threshold",
+      "why": "an amount in [$500, $2000) sits below the Budget > $2,000? autonomy (amount ≤ $2000) but above the monitor's $500 threshold, so it publishes without editor approval"
+    },
+    {
+      "id": "unauth:split",
+      "why": "a split request is divided into pieces each below the Budget > $2,000? autonomy, so every piece publishes without editor approval"
+    },
+    {
+      "id": "unauth:replay",
+      "why": "the second request presents the first request's approval and the customer-only binding lets the consumed editor approval be reused for a second publish"
+    },
+    {
+      "id": "unauth:benign",
+      "why": "a benign amount between $500 and $2000 bypasses the editor approval and publishes without it"
+    },
+    {
+      "id": "exposure:injection_exfil",
+      "why": "an injected request makes the reviewer echo the secret it read into the published output"
+    }
+  ],
+  "recommendation": "exists",
+  "graph": {
+    "nodes": [
+      {
+        "id": "trigger",
+        "type": "trigger",
+        "label": "Content Request",
+        "x": 0,
+        "y": 140,
+        "config": {
+          "channel": "api_event",
+          "trust": "untrusted"
+        }
+      },
+      {
+        "id": "researcher",
+        "type": "agent",
+        "label": "Research Agent",
+        "x": 200,
+        "y": 140,
+        "config": {
+          "candidate": "Research Agent v3",
+          "capabilities": [],
+          "canSplit": true,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "writer",
+        "type": "agent",
+        "label": "Writer Agent",
+        "x": 400,
+        "y": 140,
+        "config": {
+          "candidate": "Writer Agent v2",
+          "capabilities": [],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "gate",
+        "type": "decision",
+        "label": "Budget > $2,000?",
+        "x": 600,
+        "y": 140,
+        "config": {
+          "condition": "amount > 2000",
+          "join": "first"
+        }
+      },
+      {
+        "id": "approval",
+        "type": "control",
+        "label": "Editor Approval",
+        "x": 800,
+        "y": 140,
+        "config": {
+          "kind": "human_approval",
+          "appliesWhen": "",
+          "binding": [
+            "customer"
+          ],
+          "singleUse": false,
+          "slaMinutes": 15,
+          "rule": "",
+          "action": "block",
+          "redactAbove": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "declined",
+        "type": "outcome",
+        "label": "Publish Rejected",
+        "x": 1000,
+        "y": 276,
+        "config": {
+          "success": false,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "reviewer",
+        "type": "agent",
+        "label": "Reviewer Agent",
+        "x": 1200,
+        "y": 140,
+        "config": {
+          "candidate": "Reviewer Agent v4",
+          "capabilities": [
+            {
+              "cap": "cms.publish",
+              "limit": 5000
+            }
+          ],
+          "canSplit": false,
+          "outputCeiling": "internal",
+          "join": "first"
+        }
+      },
+      {
+        "id": "tool",
+        "type": "tool",
+        "label": "CMS Publish API",
+        "x": 1400,
+        "y": 140,
+        "config": {
+          "cap": "cms.publish",
+          "sideEffect": "write",
+          "idempotencyKey": false,
+          "join": "first"
+        }
+      },
+      {
+        "id": "done",
+        "type": "outcome",
+        "label": "Published",
+        "x": 1600,
+        "y": 140,
+        "config": {
+          "success": true,
+          "external": true,
+          "join": "first"
+        }
+      },
+      {
+        "id": "unauth",
+        "type": "prohibited",
+        "label": "Publish Without Editor Approval",
+        "x": 1240,
+        "y": 452,
+        "config": {
+          "monitor": "unauthorized_write",
+          "cap": "cms.publish",
+          "threshold": 500,
+          "scope": "request",
+          "minApprovers": 1,
+          "probeRange": [
+            500,
+            2000
+          ],
+          "severity": "critical",
+          "watches": [
+            "tool"
+          ]
+        }
+      },
+      {
+        "id": "secret",
+        "type": "data",
+        "label": "Editorial Credentials",
+        "x": 248,
+        "y": 4,
+        "config": {
+          "sensitivity": "secret"
+        }
+      },
+      {
+        "id": "exposure",
+        "type": "prohibited",
+        "label": "Credential in Published Output",
+        "x": 1736,
+        "y": 452,
+        "config": {
+          "monitor": "secret_exposure",
+          "severity": "high",
+          "watches": [
+            "done",
+            "declined"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "from": {
+          "node": "trigger",
+          "port": "out"
+        },
+        "to": {
+          "node": "researcher",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "from": {
+          "node": "researcher",
+          "port": "out"
+        },
+        "to": {
+          "node": "writer",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "from": {
+          "node": "writer",
+          "port": "out"
+        },
+        "to": {
+          "node": "gate",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e4",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "true"
+        },
+        "to": {
+          "node": "approval",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e5",
+        "kind": "flow",
+        "from": {
+          "node": "gate",
+          "port": "false"
+        },
+        "to": {
+          "node": "reviewer",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e6",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "approved"
+        },
+        "to": {
+          "node": "reviewer",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e7",
+        "kind": "flow",
+        "from": {
+          "node": "approval",
+          "port": "denied"
+        },
+        "to": {
+          "node": "declined",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e8",
+        "kind": "flow",
+        "from": {
+          "node": "reviewer",
+          "port": "out"
+        },
+        "to": {
+          "node": "tool",
+          "port": "in"
+        }
+      },
+      {
+        "id": "e9",
+        "kind": "flow",
+        "from": {
+          "node": "tool",
+          "port": "out"
+        },
+        "to": {
+          "node": "done",
+          "port": "in"
+        }
+      },
+      {
+        "id": "a1",
+        "kind": "access",
+        "mode": "read",
+        "from": {
+          "node": "reviewer",
+          "port": "acc"
+        },
+        "to": {
+          "node": "secret",
+          "port": "acc"
+        }
+      }
+    ]
+  }
+}

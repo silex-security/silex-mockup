@@ -1,0 +1,64 @@
+<!doctype html><meta charset=utf-8><title>VOWL spike</title>
+<style>
+body{margin:0;background:#10162b;font:12px system-ui;color:#eef0fb}
+#stage{position:relative;width:1200px;height:720px;background:radial-gradient(#26305a,#10162b)}
+svg{width:1200px;height:720px}
+.lk{stroke:#9aa4e8;stroke-opacity:.55;fill:none}.lk.sub{stroke-dasharray:4 3}
+.pl rect{fill:#cdbcff;stroke:#7f6fd6}.pl text{fill:#17191d;font-size:8px}
+.cl circle{stroke:#10162b;stroke-width:1.5}.cl text{fill:#17191d;font-size:9px;text-anchor:middle;pointer-events:none}
+.cl.ext circle{fill:#5a67d8}.cl.ext text{fill:#fff}
+#bar{position:absolute;left:300px;top:14px;width:600px;background:#1b2140;border-radius:6px;padding:6px 8px}
+#bar i{display:block;height:14px;background:#7f6fd6;border-radius:4px;width:0}
+#stats{position:absolute;right:10px;bottom:10px;background:#0009;padding:6px;font:11px monospace}
+</style>
+<div id=stage><svg><defs><marker id=a viewBox="0 -5 10 10" refX=10 markerWidth=7 markerHeight=7 orient=auto><path d="M0,-4L10,0L0,4" fill="#9aa4e8"/></marker><marker id=h viewBox="0 -5 10 10" refX=10 markerWidth=8 markerHeight=8 orient=auto><path d="M0,-4L10,0L0,4Z" fill="#10162b" stroke="#9aa4e8"/></marker></defs><g id=root></g></svg>
+<div id=bar><div>Laying out ontology … <b id=pct>0%</b></div><i id=fill></i></div><pre id=stats></pre></div>
+<script src=../../swm/vendor/d3.v7.min.js></script><script src=../../swm/data/ontology.js></script>
+<script>
+const P=new URLSearchParams(location.search),L=+(P.get('l')||2),compact=P.has('compact'),SNAP=+(P.get('snap')||0);
+const O=window.SILEX_SWM_ONTOLOGY,W=1200,H=720;
+const nodes=O.nodes.filter(n=>n.layer===L).map(n=>({...n,kind2:'class'}));const ids=new Set(nodes.map(n=>n.id));
+const links=O.links.filter(l=>ids.has(l.s)&&ids.has(l.t)).map(l=>({source:l.s,target:l.t,pred:l.pred}));
+
+const deg=new Map();links.forEach(l=>{deg.set(l.source,(deg.get(l.source)||0)+1);deg.set(l.target,(deg.get(l.target)||0)+1)});
+nodes.forEach(n=>n.r=n.anchor?30:Math.min(26,10+4*Math.sqrt(deg.get(n.id)||0)));
+const byId=new Map(nodes.map(n=>[n.id,n]));links.forEach(l=>{l.source=byId.get(l.source);l.target=byId.get(l.target)});
+// VOWL: each property label is its own force node between the two classes
+const labels=compact?[]:links.map((l,i)=>({id:'p'+i,lab:true,link:l,w:Math.min(92,l.pred.length*5.2+10)}));
+const parts=compact?links.map(l=>({source:l.source.id,target:l.target.id,d:90})):labels.flatMap(p=>[{source:p.link.source.id,target:p.id,d:55},{source:p.id,target:p.link.target.id,d:55}]);
+const simN=nodes.concat(labels);
+const rnd=d3.randomLcg(1729);simN.forEach(n=>{n.x=W/2+(rnd()-.5)*400;n.y=H/2+(rnd()-.5)*300});
+const sim=d3.forceSimulation(simN).randomSource(d3.randomLcg(7)).stop()
+ .force('link',d3.forceLink(parts).id(n=>n.id).distance(p=>p.d+(byId.get(p.source.id||p.source)?.r||0)).strength(.9))
+ .force('charge',d3.forceManyBody().strength(n=>n.lab?-120:-420).theta(.9).distanceMax(420))
+ .force('x',d3.forceX(W/2).strength(.025)).force('y',d3.forceY(H/2).strength(.035))
+ .force('collide',d3.forceCollide(n=>n.lab?n.w/2:n.r+3).iterations(1));
+const root=d3.select('#root'),z=d3.zoom().scaleExtent([.2,4]).on('zoom',e=>root.attr('transform',e.transform));d3.select('svg').call(z);
+const lk=root.append('g').selectAll('path').data(links).join('path').attr('class',l=>'lk'+(l.pred==='SUBCLASS_OF'||l.pred==='SPECIALIZES'?' sub':'')).attr('marker-end',l=>l.pred==='SUBCLASS_OF'?'url(#h)':'url(#a)');
+const pl=root.append('g').selectAll('g').data(labels).join('g').attr('class','pl');
+pl.append('rect').attr('x',p=>-p.w/2).attr('y',-6).attr('width',p=>p.w).attr('height',12);
+pl.append('text').attr('text-anchor','middle').attr('y',3).text(p=>p.link.pred==='SUBCLASS_OF'?'Subclass of':p.link.pred.toLowerCase().replace(/_/g,' '));
+const cl=root.append('g').selectAll('g').data(nodes).join('g').attr('class',n=>'cl'+(n.src&&n.src[0]&&n.src[0].sys!=='silex'?' ext':''));
+cl.append('circle').attr('r',n=>n.r).attr('fill','#cdbcff');
+cl.append('text').attr('y',3).text(n=>{const t=n.label;return t.length>n.r/2.6?t.slice(0,Math.max(3,n.r/2.6|0))+'…':t});
+function pos(){lk.attr('d',l=>{const a=l.source,b=l.target,p=labels.length?labels[links.indexOf(l)]:null;
+  const ex=b.x-(p?p.x:a.x),ey=b.y-(p?p.y:a.y),dd=Math.hypot(ex,ey)||1,tx=b.x-ex/dd*b.r,ty=b.y-ey/dd*b.r;
+  return p?`M${a.x},${a.y}Q${2*p.x-(a.x+b.x)/2},${2*p.y-(a.y+b.y)/2} ${tx},${ty}`:`M${a.x},${a.y}L${tx},${ty}`});
+ pl.attr('transform',p=>`translate(${p.x},${p.y})`);cl.attr('transform',n=>`translate(${n.x},${n.y})`);}
+// phase 1: hidden pre-layout in chunks with an honest progress bar
+root.style('opacity',0);const t0=performance.now();let pre=0,tt=[];
+const alphaReveal=.12;
+(function chunk(){const s=performance.now();while(sim.alpha()>alphaReveal&&performance.now()-s<12){sim.tick();pre++}
+ const pct=Math.round(100*Math.min(1,Math.log(sim.alpha())/Math.log(alphaReveal)));d3.select('#pct').text(pct+'%');d3.select('#fill').style('width',pct+'%');
+ if(sim.alpha()>alphaReveal)return setTimeout(chunk,0);
+ const tPre=performance.now()-t0;pos();fit(0);root.transition().duration(400).style('opacity',1);d3.select('#bar').transition().delay(250).duration(300).style('opacity',0);
+ // phase 2: visible settle, then stop
+ if(SNAP){root.interrupt().style('opacity',1);d3.select('#bar').interrupt().style('opacity',0);while(sim.alpha()>sim.alphaMin())sim.tick();pos();done(tPre,0);return}
+ let fr=0,last=performance.now();window.iv=[];const ot=sim.tick.bind(sim);sim.on('tick',()=>{const a=performance.now();pos();fr++;tt.push(performance.now()-a);iv.push(a-last);last=performance.now()}).on('end',()=>done(tPre,fr)).restart();
+})();
+function fit(t){const xs=simN.map(n=>n.x),ys=simN.map(n=>n.y),x0=d3.min(xs)-40,x1=d3.max(xs)+40,y0=d3.min(ys)-40,y1=d3.max(ys)+40,k=Math.min(4,W/(x1-x0),H/(y1-y0));d3.select('svg').transition().duration(t).call(z.transform,d3.zoomIdentity.translate(W/2,H/2).scale(k).translate(-(x0+x1)/2,-(y0+y1)/2));}
+function done(tPre,fr){fit(0);tt.sort((a,b)=>a-b);const r={L,nodes:nodes.length,links:links.length,simNodes:simN.length,preTicks:pre,preMs:Math.round(tPre),settleFrames:fr,renderP95:tt.length?tt[Math.floor(tt.length*.95)].toFixed(2):0,intervalP95:window.iv&&iv.length?iv.slice(2).sort((a,b)=>a-b)[Math.floor((iv.length-2)*.95)].toFixed(1):0,totalMs:Math.round(performance.now()-t0)};
+ document.getElementById('stats').textContent=JSON.stringify(r,null,1);document.title='DONE '+JSON.stringify(r);}
+// drag = reheat + pin (VOWL pick-and-pin)
+cl.call(d3.drag().on('start',(e,n)=>{if(!e.active)sim.alphaTarget(.3).restart();n.fx=n.x;n.fy=n.y}).on('drag',(e,n)=>{n.fx=e.x;n.fy=e.y}).on('end',e=>{if(!e.active)sim.alphaTarget(0)}));
+</script>

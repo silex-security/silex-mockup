@@ -1,0 +1,10 @@
+{
+  "name": "jev-observability-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/engine/*.test.js",
+    "fixture": "node tools/build-fixture.js",
+    "probe": "node tests/probe/run-probes.js"
+  }
+}
