@@ -2,6 +2,20 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-09-30 — Runtime Validation in System Validation (Jev runtime demo)
+
+[Plan, review record and deploy](2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md).
+
+- **Two tabs:** System Validation now has *Periodic · environment-wide* (unchanged) and *Runtime · every agent action*.
+- **The Runtime tab:**
+  - reference metrics and outcome chips computed from the simulated engine;
+  - a six-step orchestration that runs per scenario;
+  - scripted AP and SOC scenarios with **Run**;
+  - the Jev runtime demo, embedded.
+- **Vendored demo:** `jev-runtime/` is a byte-identical copy from jev-realtime-observability (`efce258`), with a sync tool and an integrity test.
+- **Honesty:** everything is labelled simulated, and the Evidence step is a preview only.
+- **Review:** three seats; plan r3 and code r2, unanimous. The probes go to S19; the live read-back passed 7/7.
+
 ## 2026-09-27 — Jev real-time observability demo (new standalone page)
 
 [Plan v0.2 and review record](2026-09-27_JEV_OBSERVABILITY_PLAN.md) · [Demo README](../jev-observability/README.md).

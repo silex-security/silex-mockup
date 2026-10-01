@@ -228,3 +228,11 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 
 - **Vendored copy:** all 26 files are byte-identical to upstream `efce258`, checked independently by Codex.
 - **Deploy:** pending the user's go-ahead. Merging `jev-runtime-validation` to `main` deploys `silex-mockup.vercel.app`.
+
+## Deploy record
+
+- **Go-ahead and push:** the user approved the deploy. `main` was fast-forwarded to `386a965` and pushed.
+- **Vercel:** served the new `index.html` within about 15 s. These files return `200`, the scripts with `application/javascript`:
+  - `js/jev-runtime-host.js`, `js/jev-runtime-model.js`;
+  - `jev-runtime/demo/index.html`, `jev-runtime/js/runs.js`, `jev-runtime/demo/js/engine/scenarios-soc.js`.
+- **Live read-back** (`node tests/site/run-site-probes.mjs --base https://silex-mockup.vercel.app`): 7/7 pass (S1, S3, S4, S5, S13, S14, S17).
