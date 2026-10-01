@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Validation S13–S18. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
- * S1, S3 (recommendation), S4 (registration/persistence), S5. Isolated Chrome profile;
+ * S1, S3 (recommendation), S4 (registration/persistence), S5, S13, S14, S17. Isolated Chrome profile;
  * browser-local demo data only. No server in --base mode; no production API writes.
  */
 import { createServer } from 'node:http';
@@ -18,7 +18,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
 function option(k) { const i = args.indexOf(k); if (i < 0) return null; if (!args[i + 1] || args[i + 1].startsWith('--')) throw Error(`${k} needs a value`); return args[i + 1]; }
 const BASE = option('--base'), ONLY = option('--only')?.split(','), SHOTS = option('--shots');
-const LIVE = new Set(['S1', 'S3', 'S4', 'S5']);
+const LIVE = new Set(['S1', 'S3', 'S4', 'S5', 'S13', 'S14', 'S17']);
 const wanted = id => (!ONLY || ONLY.includes(id)) && (!BASE || LIVE.has(id));
 const fixture = JSON.parse(await readFile(join(ROOT, 'tests/site/fixtures/storage.sample.json'), 'utf8'));
 const fixtureDocs = Object.entries(fixture).filter(([k]) => k.startsWith('bs.doc.')).map(([, v]) => JSON.parse(v));
@@ -242,6 +242,109 @@ try {
     await navigate(); await nav('library'); const list=await libraryRows(); assert.ok(list.some(x=>x.key.startsWith('race-a|'))&&list.some(x=>x.key.startsWith('race-b|')),JSON.stringify(list));
     const saved=await ev(`return Object.keys(localStorage).filter(k=>k.startsWith('bs.reg.')).map(k=>JSON.parse(localStorage[k]).docId)`); assert.ok(saved.includes('race-a')&&saved.includes('race-b')); return 'invalid/stale claims suppressed, deleted source removed; gated concurrent registrations survive immediate target closure + reload';
   });
+  async function rtClick(sel){
+    // Run scrolls smoothly to the frame; stop that transition before computing
+    // pointer coordinates for a control higher on the host page.
+    await ev(`const e=document.querySelector(${Q(sel)});if(!e)throw Error('Missing '+${Q(sel)});e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));`);
+    await sleep(150);await clickSel(sel);
+  }
+  const rt = code => ev('const w=globalThis.document.querySelector("#rtFrame").contentWindow;const document=w.document,window=w;'+code);
+  async function rtReady(){await until(()=>ev('return !!document.querySelector("#rtFrame")?.contentWindow?.__jevDemo?.ready'),'runtime iframe ready');}
+  async function rtOpen(){await load();await nav('long-term');await until(()=>ev('return !!window.__jevRuntime?.ready'),'runtime host ready');await rtClick('#ltTabRuntime');await rtReady();}
+  async function rtRun(id,checkSelection=true){await rtClick(`[data-rt-scenario="${id}"] [data-rt-run]`);await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),'runtime '+id+' complete');await rtReady();if(checkSelection)await until(()=>rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='${id}').at(-1);return !!last&&document.querySelector('.run-card[data-selected]')?.dataset.runId===last.trace_id`),'selected latest '+id);}
+  async function rtResult(id){
+    const state=await rt(`const all=window.__jevDemo.log();const last=all.filter(e=>e.scenario==='${id}').at(-1);if(!last)throw Error('no injected envelopes');return all.filter(e=>e.trace_id===last.trace_id);`);
+    assert.ok(state.length,'nonempty injected envelopes');
+    const expected=await ev(`const {describeRun}=await import('/js/jev-runtime-model.js');return describeRun(${Q(state)},{id:${Q(id)}});`);
+    assert.equal(await ev('return document.querySelector("#rtResult").textContent'),expected,'result from actual injected envelopes');
+    const pre=state.filter(e=>e.boundary==='pre_tool');assert.ok(pre.length);
+    const stopped=pre.filter(e=>['hold_for_review','hold_for_approval','deny','stop_and_handover'].includes(e.action));
+    if(stopped.length)assert.ok(expected.includes(`${pre.length-stopped.length} ran.`));
+    else if(pre.some(e=>e.mode==='monitor'&&e.would_have==='BLOCK'))assert.match(expected,/ran in monitor mode \(would have been blocked\)/);
+    return state;
+  }
+  function claims(text){assert.doesNotMatch(text,/\b(sent to|exported to|delivered to|forwarded to)\b|OTLP/i);assert.match(text,/preview only/);}
+  await probe('S13','periodic validation and independent World Model tabs',async()=>{
+    await load();await nav('security-model');const before=await ev(`return [...document.querySelectorAll('#security-model .wm-tab.active')].map(e=>e.id)`);assert.equal(before.length,1);
+    await nav('long-term');await until(()=>ev('return !!window.__jevRuntime?.ready'),'runtime host');
+    const old=await ev(`return {ids:['ltCadence','runEnvBtn','ltStatus','ltSteps','ltResult','ltHistory'].map(id=>!!document.getElementById(id)),steps:document.querySelectorAll('#ltSteps .run-step').length,history:document.querySelector('#ltHistory').textContent}`);
+    assert.deepEqual(old.ids,[true,true,true,true,true,true]);assert.equal(old.steps,6);assert.match(old.history,/Jul/);assert.match(old.history,/Aug/);
+    await rtClick('#ltTabRuntime');await rtClick('#ltTabPeriodic');
+    assert.equal(await ev('return !document.querySelector("#ltPeriodic").hidden&&document.querySelector("#ltRuntime").hidden'),true);
+    await rtClick('#runEnvBtn');await until(()=>ev('return document.querySelector("#ltStatus").textContent==="Complete"'),'periodic complete');
+    assert.equal(await ev('return document.querySelectorAll("#ltHistory [data-sep]").length'),1);
+    assert.match(await ev('return document.querySelector("#ltHistory [data-sep]").textContent'),/Sep.*24 workflows.*53 agents.*2,700.*3.*1/s);
+    await nav('security-model');assert.deepEqual(await ev(`return [...document.querySelectorAll('#security-model .wm-tab.active')].map(e=>e.id)`),before);
+    const next=await ev(`const tabs=[...document.querySelectorAll('#security-model .wm-tab')];const i=tabs.findIndex(e=>e.classList.contains('active'));return tabs[(i+1)%tabs.length].id`);
+    await ev(`document.querySelector('#security-model .wm-tab.active').focus()`);await page.send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight'});await page.send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight'});
+    assert.equal(await ev('return document.querySelector("#security-model .wm-tab.active").id'),next);
+    assert.equal(await ev(`const t=document.querySelector('#security-model .wm-tab.active');return document.getElementById(t.dataset.wmPanel).classList.contains('active')`),true);
+    return 'periodic ids, six steps, Sep history preserved; Runtime tabs do not affect World Model selection or keyboard group';
+  });
+  await probe('S14','computed reference metrics and scenario chips',async()=>{
+    await rtOpen();const expected=await ev(`const {scenariosFor,TENANT}=await import('/jev-runtime/demo/js/engine/scenarios.js');const {runStream}=await import('/jev-runtime/demo/js/engine/router.js');const {DEFAULT_POLICY}=await import('/jev-runtime/demo/js/engine/types.js');const all=[...scenariosFor('ap'),...scenariosFor('soc')];const pre=all.flatMap(t=>runStream(t.spans,{tenant:TENANT,policy:DEFAULT_POLICY,seed:7})).filter(e=>e.boundary==='pre_tool');return {scenarios:all.length,checked:pre.length,stopped:pre.filter(e=>['hold_for_review','hold_for_approval','deny','stop_and_handover'].includes(e.action)).length,rule:pre.filter(e=>e.decided_by==='rule').length};`);
+    assert.equal(expected.scenarios,12);
+    assert.deepEqual(await ev('return window.__jevRuntime.summary().metrics'),expected);
+    for(const [k,v] of Object.entries(expected))assert.equal(await ev(`return Number(document.querySelector('#rtMetrics [data-rt-metric="${k}"] .metric-value').textContent)`),v,k);
+    const table={S1:'all ran',S2:'review · judge',S3:'blocked · rule',S4:'held · rule',S5:'ran · flagged',S6:'blocked · rule',F1:'blocked · fallback',SOC1:'all ran',SOC2:'held · rule',SOC3:'held · rule',SOC4:'blocked · rule',SOC5:'review · judge'};
+    for(const [id,label] of Object.entries(table))assert.equal(await ev(`return document.querySelector('[data-rt-scenario="${id}"] [data-rt-outcome]').textContent`),label,id);
+    assert.match(await ev('return document.querySelector("#rtReference").textContent'),/seed 7.*policy-v1 reference set/);
+    return '12 pinned outcome chips; four metrics independently recomputed from default-policy pre_tool envelopes';
+  });
+  await probe('S15','SOC injection, actual results and latest-request-wins',async()=>{
+    await rtOpen();await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await until(()=>ev('return !!document.querySelector("#rtSteps .running")'),'animation visible');
+    await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"'),'SOC2 complete');await rtReady();
+    assert.equal(await rt('return window.__jevDemo.domain'),'soc');await until(()=>rt('return !!document.querySelector(".run-card[data-selected][data-scenario=SOC2]")'),'SOC2 selected');await rtResult('SOC2');
+    assert.ok((await rt('return document.querySelector(".run-card[data-selected]").textContent')).includes('Held for approval · did not run'));
+    await rt('window.__probeIdentity=123;return true');await rtRun('SOC3',false);await sleep(200);const socSelection=await rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='SOC3').at(-1);return {actual:document.querySelector('.run-card[data-selected]')?.dataset.runId,expected:last?.trace_id}`);assert.equal(await rt('return window.__probeIdentity'),123,'same-agent run did not reload');await rtResult('SOC3');
+    await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await sleep(100);await rtClick('[data-rt-scenario="S3"] [data-rt-run]');
+    await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"&&document.querySelector("#rtResult").textContent.startsWith("S3 ·")'),'latest S3 complete');await sleep(700);
+    assert.equal(await rt('return window.__jevDemo.domain'),'ap');await rtResult('S3');
+    assert.equal(await ev('return document.querySelectorAll("#rtSteps .done").length'),6);assert.equal(await ev('return document.querySelectorAll("#rtSteps .running").length'),0);
+    const abandoned=await ev('return document.querySelectorAll("#rtScenarios [data-rt-run]:disabled").length');
+    await rt(`document.querySelector('[data-tab=studio]').click();const e=document.querySelector('[data-tool-mode="payments.execute"]');e.value='monitor';e.dispatchEvent(new window.Event('change',{bubbles:true}));document.querySelector('[data-tab=live]').click();`);await rtRun('S3',false);await rtResult('S3');await sleep(200);const monitorSelection=await rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='S3').at(-1);return {actual:document.querySelector('.run-card[data-selected]')?.dataset.runId,expected:last?.trace_id}`);
+    assert.match(await ev('return document.querySelector("#rtResult").textContent'),/ran in monitor mode \(would have been blocked\)/);
+    assert.equal(await ev('return document.querySelector("[data-rt-scenario=S3] [data-rt-outcome]").textContent'),'blocked · rule');
+    assert.match(await ev('return document.querySelector("[data-rt-scenario=S3] [data-rt-outcome]").title'),/reference/i);
+    claims(await ev('return document.querySelector("#rtSteps").textContent+document.querySelector("#rtResult").textContent'));
+    await rtClick('#ltTabPeriodic');await rtClick('#ltTabRuntime');assert.equal(await rt('return window.__jevDemo.policy().tools["payments.execute"].mode'),'monitor');
+    assert.equal(abandoned,0,'no abandoned Run buttons');
+    assert.equal(socSelection.actual,socSelection.expected,'same-agent Run selects newly injected SOC3');
+    assert.equal(monitorSelection.actual,monitorSelection.expected,'monitor Run selects newly injected S3');
+    return 'animation, SOC2 hold, same-agent reuse, rapid switch, six step states/button cleanup, monitor result from actual envelopes, reference unchanged, return state preserved';
+  });
+  await probe('S16','AP switch and blocked run',async()=>{
+    await rtOpen();await rtRun('SOC2');await rtRun('S3');assert.equal(await rt('return window.__jevDemo.domain'),'ap');await rtResult('S3');
+    assert.ok((await rt('return document.querySelector(".run-card[data-selected][data-scenario=S3]").textContent')).includes('Blocked · did not run'));return 'SOC→AP switch, selected S3, hard-rule non-execution';
+  });
+  await probe('S17','Runtime deep link and full-page/back round trip',async()=>{
+    await load({path:'/index.html#view=long-term&tab=runtime'});await until(()=>ev('return !!window.__jevRuntime?.ready'),'deep-linked runtime');await rtReady();
+    assert.equal(await ev('return document.querySelector("#long-term").classList.contains("active")&&!document.querySelector("#ltRuntime").hidden'),true);
+    for(const [id,domain] of [['S3','ap'],['SOC2','soc']]){
+      await rtRun(id);const seed=await rt('return window.__jevDemo.seed');
+      await ev(`document.querySelector('#rtOpenFull').addEventListener('click',e=>e.preventDefault(),{once:true})`);await rtClick('#rtOpenFull');
+      const href=await ev('return document.querySelector("#rtOpenFull").href');const u=new URL(href);
+      assert.equal(u.searchParams.get('domain'),domain);assert.equal(u.searchParams.get('seed'),String(seed));assert.ok(!u.searchParams.has('embed'));assert.equal(u.searchParams.get('back'),'../../index.html#view=long-term&tab=runtime');
+      await page.send('Page.navigate',{url:href});await until(()=>ev('return !!window.__jevDemo?.ready'),'full demo');
+      assert.equal(await ev('return document.querySelector(".jv-back").textContent.trim()'),'← Back');await rtClick('.jv-back');
+      await until(()=>ev('return !!window.__jevRuntime?.ready&&!document.querySelector("#ltRuntime").hidden&&document.querySelector("#long-term").classList.contains("active")'),'Back to runtime');await rtReady();
+    }
+    await navigate('/index.html#studio');await frameReady();assert.equal(await ev('return document.querySelector("#blueprint").classList.contains("active")'),true);
+    return 'cold Runtime route; AP/SOC full-page domain+seed retained, embed off, encoded Back returns to Runtime; Studio route intact';
+  });
+  await probe('S18','Runtime/iframe claims, visible simulated labels and responsive layout',async()=>{
+    await rtOpen();await rtRun('SOC5');await rtResult('SOC5');
+    claims(await ev('return document.querySelector("#rtSteps").textContent+document.querySelector("#rtResult").textContent'));
+    for(const width of [1440,390]){
+      await viewport(width);await sleep(250);
+      assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host '+width+'px overflow');
+      assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'frame '+width+'px overflow');
+      assert.equal(await ev(`return [...document.querySelectorAll('#ltRuntime .rt-lead .pill')].some(e=>e.getBoundingClientRect().width>0&&/simulated/i.test(e.textContent))`),true,'host simulation label visible');
+      assert.equal(await rt(`const e=document.querySelector('[data-simulated-badge]');const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'&&/SIMULATED/.test(e.textContent)`),true,'frame badge visible');
+    }
+    return 'host/iframe responsive at 1440/390, visible simulation labels, no affirmative delivery claim or JS errors';
+  });
+
 } finally {
   for(const c of clients) c.ws.close(); chrome?.kill(); if(server) await new Promise(r=>server.close(r));
 }

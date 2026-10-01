@@ -11,7 +11,7 @@ const READY_MS = 10000;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-let summary = null, frame = null, frameDomain = null, token = 0;
+let summary = null, frame = null, frameDomain = null, token = 0, cancelPrevious = null;
 
 function renderReference() {
   try { summary = summarize(); } catch (e) {
@@ -65,6 +65,12 @@ function setResult(text, ok) {
 async function run(id) {
   const sc = summary?.scenarios.find(x => x.id === id); if (!sc) return null;
   const mine = ++token, isCurrent = () => mine === token;
+  // A newer Run cancels this one at once. Its guarded step animation stops without calling onDone, so waiting on it
+  // alone would never settle and would leave this Run's button disabled (code review / probe P2).
+  cancelPrevious?.();
+  let cancel; const cancelled = new Promise((_, rej) => { cancel = () => rej(new Error('stale')); });
+  cancelled.catch(() => {});
+  cancelPrevious = cancel;
   const btn = document.querySelector(`[data-rt-run="${id}"]`);
   if (btn) { btn.disabled = true; btn.textContent = 'Running…'; }
   const status = $('rtStatus'); status.textContent = 'Running'; status.className = 'status running'; status.style.cssText = '';
@@ -72,7 +78,7 @@ async function run(id) {
   try {
     const animated = new Promise(res => window.__siteRunSteps($('rtSteps'), { ms: 260, isCurrent, onDone: res }));
     const ready = frameOn(sc.domain, isCurrent);
-    const [, demo] = await Promise.all([animated, ready]);
+    const [, demo] = await Promise.race([Promise.all([animated, ready]), cancelled]);
     if (!isCurrent()) return null;
     const envs = demo.inject(id);
     const line = describeRun(envs, { id });
@@ -87,6 +93,7 @@ async function run(id) {
     return null;
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Run'; }
+    if (cancelPrevious === cancel) cancelPrevious = null;
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "source": "https://github.com/silex-ai-lab/jev-realtime-observability",
-  "commit": "dfb7b7a81fef52fae71061dd11d906781674dcf2",
+  "commit": "c8be5f2cacf921b2b99262c054559c4f403d013f",
   "synced_at": "2026-09-30",
   "files": {
     "demo/css/app.css": "1a1736e67317e80f5074924ae22b8295fe1b9f0c908597f1a65893a32fa56849",
@@ -19,7 +19,7 @@
     "demo/js/engine/state.js": "453db328fa6b8eb2e3baf569c10e3dcf146961c73acb6a4e08872e22326cc536",
     "demo/js/engine/trace.js": "ff9fc8ad2988f3975cf2bb83076c0aafe0018e8d24d9d366964719313d969242",
     "demo/js/engine/types.js": "d6df57eb0be4c85d42a6b319b2ea3ec0a53f025552febbcfeb24a1d0419e2585",
-    "demo/js/ui/app.js": "f5857db948a091226a355089589b5f7c1ef1472e2588dc43904b76f7430f1c77",
+    "demo/js/ui/app.js": "7dc8d05b1ffb4c02f6c54556396350adfbdfb86cb4e47e3b9fc034f55df90ec2",
     "demo/js/ui/embed.js": "d8720c0311d36cbf864acc2ebf696afd423b82e0507b68efa8cc81b18541cb74",
     "demo/js/ui/inspector.js": "3eed6bfac51d4d0e29e75f996b25a92d3b27f1db6ca2ce8d82483c19e1a1aa93",
     "demo/js/ui/replay.js": "46603b6f6f01fcabad63caf2a4feb4cfc79404102f7c7247c51d461a37ce4bee",
