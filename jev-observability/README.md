@@ -1,5 +1,7 @@
 # Real-time Agent Risk Signals (Jev observability demo)
 
+> **Superseded** by [`../jev-runtime/`](../jev-runtime/README.md) (the current demo with the Runs view and the SOC agent), shown in System Validation → Runtime. This page stays live, unchanged.
+
 A standalone, clickable demo of the POC in the report *Jev 驱动的实时 Agent 可观测性* (2026-09): a **decision plane over an
 agent's trace stream**, not another trace viewer. An AP / Procurement agent's spans pass **hard rules → a Jev judgment
 battery → a policy in code**; the page shows each decision, why it was made, how long it took, and what a customer
