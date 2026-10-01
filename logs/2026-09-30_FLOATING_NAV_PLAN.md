@@ -261,3 +261,26 @@ Acceptance: unit 20/20; probes 20/20.
   - keeps r2's coverage, with outside-click and iframe auto-hide tested on a hover peek;
   - adds Enter and Space for both icons, and labels and expanded state in the closed, peek and docked states.
 - **Acceptance:** three consecutive complete runs on the runner's own server and three with `SITE_BASE`, each checked by exit code. Keep the diagnostics for any remaining failure.
+
+## Build and code gate
+
+**Build (Codex):**
+- `c9b91b4`: r2.
+- `3f65794`: r3, the click toggle.
+
+**Results:** `node --test tests/site/*.test.mjs` 20/20; `run-site-probes.mjs` 20/20, three consecutive runs on its own server and three with `SITE_BASE=http://127.0.0.1:8797`, all exit 0. The r2 keyboard-peek flake was retired with that path.
+
+| Round | Revision | coder-deepseek | reviewer-codex | planner |
+|---|---|---|---|---|
+| r1 | `3f65794` | IMPL-APPROVED | IMPL-APPROVED | IMPL-APPROVED |
+
+**Non-blocking follow-ups** (probe strength, not feature defects):
+- assert "not open" at about 90 ms while still on the edge;
+- after hiding, repeat the Studio width, height and document checks;
+- assert that a pass-through outside tap also performed its action;
+- force the `localStorage` failure path;
+- note that the Studio height check is not evidence of remeasurement.
+
+**Planner check:** screenshots of the hidden state with full-width content, docked, peek over the content, and 390 px with the phone strip unchanged.
+
+**Deploy:** pending the user's go-ahead.

@@ -2,6 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-09-30 — Floating left navigation
+
+- Desktop: the dark sidebar starts hidden; content fills the window.
+- A sidebar icon (topbar, top left) docks it; the same icon in the sidebar header hides it (ChatGPT-style). The choice persists per browser (`silex.nav.pinned`).
+- Hovering the far-left edge peeks it over the content; it hides when the pointer leaves, on Esc or an outside click.
+- Phones (≤ 760 px) are unchanged. Probes: new S20; `nav()` docks through the real icon. Plan and reviews: [`2026-09-30_FLOATING_NAV_PLAN.md`](2026-09-30_FLOATING_NAV_PLAN.md).
+
 ## 2026-09-30 — Runtime Observation becomes its own view
 
 [Plan and review record](2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md).
