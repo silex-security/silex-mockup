@@ -1,0 +1,33 @@
+{
+  "source": "https://github.com/silex-ai-lab/jev-realtime-observability",
+  "commit": "dfb7b7a81fef52fae71061dd11d906781674dcf2",
+  "synced_at": "2026-09-30",
+  "files": {
+    "demo/css/app.css": "1a1736e67317e80f5074924ae22b8295fe1b9f0c908597f1a65893a32fa56849",
+    "demo/index.html": "5b1867dc6022209de17a8cc9ad3ad9db6388adf280b782965c9c8a8ccc953e15",
+    "demo/js/engine/domains.js": "2a78782c86d483ebfe67a86d4c255f6a8c29cef0ecd1de5c7ef157358cc9dd33",
+    "demo/js/engine/jev-sim.js": "4edd00a8d40460fa96f3baa4fefc8f5158b190431ca94e3e2839a357b1ceabbe",
+    "demo/js/engine/kpi.js": "d39e41072e3640260d145a719002c23644c72a19d06cc7e1d6f5989850d9a6b6",
+    "demo/js/engine/llm-sim.js": "8a8c1127be0c355adac6b41fdda49b09d385d24f2be49ea4cadea39b600bb27d",
+    "demo/js/engine/policy.js": "b62c70a3413c60e23d17fff20543883fdca108c2bb4b33a2e72601b1013538a1",
+    "demo/js/engine/rng.js": "19a9b5b0be11ee0f333c2d2216cb7576255e00945e728bb809c623201425f6a8",
+    "demo/js/engine/router.js": "8b88e067979173f95206af1a680ddb030e5b103aec039b0cefcda917f69eb3fd",
+    "demo/js/engine/rules.js": "77dc9ea2f4e47cdb1892159d9d6dc89e0a40508c1f2882b12eb60f2c24a8788c",
+    "demo/js/engine/scenarios-soc.js": "2304c50cff058d44ed8b90d9233347202b15ae6990009b213b60c342a5bd670b",
+    "demo/js/engine/scenarios.js": "c232681a766e261a837b4e5bc845763a676a29a184ad7de961861eab2ee74f77",
+    "demo/js/engine/siem.js": "677f120a1d2ca479aca815acff8934319fff1fb12218d643b1a820ca2917f438",
+    "demo/js/engine/state.js": "453db328fa6b8eb2e3baf569c10e3dcf146961c73acb6a4e08872e22326cc536",
+    "demo/js/engine/trace.js": "ff9fc8ad2988f3975cf2bb83076c0aafe0018e8d24d9d366964719313d969242",
+    "demo/js/engine/types.js": "d6df57eb0be4c85d42a6b319b2ea3ec0a53f025552febbcfeb24a1d0419e2585",
+    "demo/js/ui/app.js": "f5857db948a091226a355089589b5f7c1ef1472e2588dc43904b76f7430f1c77",
+    "demo/js/ui/embed.js": "d8720c0311d36cbf864acc2ebf696afd423b82e0507b68efa8cc81b18541cb74",
+    "demo/js/ui/inspector.js": "3eed6bfac51d4d0e29e75f996b25a92d3b27f1db6ca2ce8d82483c19e1a1aa93",
+    "demo/js/ui/replay.js": "46603b6f6f01fcabad63caf2a4feb4cfc79404102f7c7247c51d461a37ce4bee",
+    "demo/js/ui/runs-adapter.js": "bf9ea5be3af25f3a18347fc22e32dd38aefc66b81b884678a9f9532a4197d461",
+    "demo/js/ui/studio.js": "6149e0c74b2c02c52b2dc906a973c977c15c632fdabe55c014823bcf0187ce9f",
+    "demo/js/ui/util.js": "b2424875367bcf0ec6fe940a9d21555f537b1d765f79e697256199e316ffa530",
+    "js/runs.js": "1a746d4bf281b4809219c5e833133706b224e5731ff14a0368c044e5353d6613",
+    "js/verdict.js": "0320fdf09a5fa7572e7f75944b683f14114ff6756813342780be2f8371c3567d",
+    "css/runs.css": "ac06cb065be235758fe93624aaf213b98a37988b3b54e94becb8740ba3bc15e4"
+  }
+}
