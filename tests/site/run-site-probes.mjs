@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
- * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order). Isolated Chrome profile;
+ * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation). Isolated Chrome profile;
  * browser-local demo data only. No server in --base mode; no production API writes.
  */
 import { createServer } from 'node:http';
@@ -18,7 +18,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
 function option(k) { const i = args.indexOf(k); if (i < 0) return null; if (!args[i + 1] || args[i + 1].startsWith('--')) throw Error(`${k} needs a value`); return args[i + 1]; }
 const BASE = option('--base'), ONLY = option('--only')?.split(','), SHOTS = option('--shots');
-const LIVE = new Set(['S1', 'S3', 'S4', 'S5', 'S13', 'S14', 'S17']);
+const LIVE = new Set(['S1', 'S3', 'S4', 'S5', 'S13', 'S14', 'S17', 'S20']);
 const wanted = id => (!ONLY || ONLY.includes(id)) && (!BASE || LIVE.has(id));
 const fixture = JSON.parse(await readFile(join(ROOT, 'tests/site/fixtures/storage.sample.json'), 'utf8'));
 const fixtureDocs = Object.entries(fixture).filter(([k]) => k.startsWith('bs.doc.')).map(([, v]) => JSON.parse(v));
@@ -30,7 +30,7 @@ const results = [], clients = new Set();
 const profile = await mkdtemp(join(tmpdir(), 'studio-site-probes-'));
 const downloadDir = join(profile, 'downloads'); await mkdir(downloadDir);
 let origin;
-if (BASE) origin = BASE.replace(/\/$/, '');
+if (BASE || process.env.SITE_BASE) origin = (BASE || process.env.SITE_BASE).replace(/\/$/, '');
 else {
   const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
   server = createServer(async (req, res) => {
@@ -84,14 +84,25 @@ const S = 'const b=__bs2, st=b.store, ctl=b.ctl;';
 async function frameReady() { await until(() => ev('return !!document.querySelector("#studioFrame")?.contentWindow?.__bs2?.store.doc'), 'iframe ready', 30000); await sleep(150); }
 async function open(cmd = 'resume', params = {}) { await ev(`openStudio(${Q(cmd)},${Q(params)});`); await frameReady(); }
 async function clickSel(sel, frame = false) {
-  const code = `const e=document.querySelector(${Q(sel)}); if(!e) throw Error('Missing selector '+${Q(sel)}); e.scrollIntoView({block:'center',inline:'center'}); const r=e.getBoundingClientRect(); if(!r.width||!r.height||e.disabled) throw Error('Hidden/disabled '+${Q(sel)}); return {x:r.x+r.width/2,y:r.y+r.height/2};`;
+  const code = `const e=document.querySelector(${Q(sel)}); if(!e) throw Error('Missing selector '+${Q(sel)}); e.scrollIntoView({block:'center',inline:'center'}); const r=e.getBoundingClientRect(); if(!r.width||!r.height||e.disabled) throw Error('Hidden/disabled '+${Q(sel)}); const x=r.x+r.width/2,y=r.y+r.height/2; const hit=document.elementFromPoint(x,y);if(!hit||!e.contains(hit))throw Error('Not hit-testable '+${Q(sel)}); return {x,y};`;
+  if(await ev('return !!window.__siteNav&&window.__siteNav.state().desktop&&window.__siteNav.state().mode==="auto"&&window.__siteNav.state().open&&!document.querySelector(".modal-backdrop.open")') && (frame || !sel.startsWith('.nav ') && !['#navToggle','#navPin'].includes(sel))){
+    await page.send('Input.dispatchMouseEvent',{type:'mouseMoved',x:await ev('return innerWidth-10'),y:await ev('return innerHeight-10')});
+    await until(()=>ev('return !window.__siteNav.state().open&&window.__siteNav.state().settled'),'drawer leaves content accessible');
+  }
   const p = frame ? await fe(code) : await ev(code);
   if (frame) { const r = await ev('const r=document.querySelector("#studioFrame").getBoundingClientRect(); return {x:r.x,y:r.y};'); p.x += r.x; p.y += r.y; }
   for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) await page.send('Input.dispatchMouseEvent', { type, ...p, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1 });
   await sleep(180);
 }
 async function keyEscape() { for (const type of ['keyDown', 'keyUp']) await page.send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await sleep(100); }
-async function nav(view) { await clickSel(`.nav [data-view="${view}"]`); }
+async function nav(view) {
+  const floating=await ev('return !!window.__siteNav&&window.__siteNav.state().desktop');
+  if(floating){
+    if(!await ev('return window.__siteNav.state().open')) await clickSel('#navToggle');
+    await until(()=>ev(`const s=window.__siteNav.state(),e=document.querySelector('.nav [data-view="${view}"]');e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return s.open&&s.settled&&r.x>=0&&e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))`),'nav revealed '+view);
+  }
+  await clickSel(`.nav [data-view="${view}"]`);
+}
 async function shot(name) { if (!SHOTS) return; await mkdir(resolve(SHOTS), { recursive: true }); const r = await page.send('Page.captureScreenshot', { format: 'png' }); await writeFile(join(resolve(SHOTS), name + '.png'), Buffer.from(r.data, 'base64')); }
 async function active() { return fe(`${S} return {id:st.doc.id,rev:st.active().rev,hash:st.active().hash,route:ctl.getRoute()};`); }
 async function rows(container, attr) { return ev(`return [...document.querySelectorAll(${Q(container + ' [' + attr + ']')})].map(e=>({key:e.getAttribute(${Q(attr)}),text:e.textContent,state:e.dataset.state,disabled:!!e.querySelector('[data-studio-open]')?.disabled,replaced:e.hasAttribute('data-source-replaced')||!!e.querySelector('[data-source-replaced]')}));`); }
@@ -366,7 +377,7 @@ try {
       await viewport(width);await sleep(250);
       assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host '+width+'px overflow');
       assert.equal(await ev(`return document.querySelector('.view.active')?.id==='runtime-observation'&&document.querySelectorAll('.view.active').length===1&&document.querySelector('.nav button.active')?.dataset.view==='runtime-observation'`),true,'nav and view hygiene '+width+'px');
-      assert.equal(await ev(`const e=document.querySelector('.nav [data-view="runtime-observation"]'),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'`),true,'runtime nav visible '+width+'px');
+      assert.equal(await ev(`const e=document.querySelector(innerWidth>760?'#navToggle':'.nav [data-view="runtime-observation"]'),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'`),true,'runtime nav reachable '+width+'px');
       assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'frame '+width+'px overflow');
       assert.equal(await ev(`return [...document.querySelectorAll('#runtime-observation .rt-lead .pill')].some(e=>e.getBoundingClientRect().width>0&&/simulated/i.test(e.textContent))`),true,'host simulation label visible');
       assert.equal(await rt(`const e=document.querySelector('[data-simulated-badge]');const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'&&/SIMULATED/.test(e.textContent)`),true,'frame badge visible');
@@ -410,6 +421,88 @@ try {
       assert.equal(await ev('return document.querySelectorAll("#rtSteps .running").length'),0);
     }finally{await page.send('Fetch.disable');page.ws.removeEventListener('message',onPause);}
     return 'older-card pin overridden by Run; repeated monitor injection shows new receipt; delayed AP→SOC→AP ends with AP result/card, no stale injection or abandoned buttons';
+  });
+
+  await probe('S20','floating navigation input, persistence and responsive docking',async()=>{
+    const move=(x,y)=>page.send('Input.dispatchMouseEvent',{type:'mouseMoved',x,y});
+    async function tap(x,y){await move(x,y);for(const type of ['mousePressed','mouseReleased'])await page.send('Input.dispatchMouseEvent',{type,x,y,button:'left',buttons:type==='mousePressed'?1:0,clickCount:1});}
+    async function key(key,shift=false){for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key,code:key===' '?'Space':key,modifiers:shift?8:0,text:type==='keyDown'?(key==='Enter'?'\r':key===' '?' ':''):'',windowsVirtualKeyCode:key==='Tab'?9:key==='Escape'?27:key==='Enter'?13:32});}
+    let phase='edge',openCount=0,closeCount=0; const st=()=>ev('return window.__siteNav.state()');
+    async function closed(){closeCount++;try{await until(async()=>{const s=await st();return !s.open&&s.settled},'drawer closed '+phase+' '+closeCount);}catch(e){throw Error(e.message+' '+JSON.stringify(await ev('return {state:window.__siteNav.state(),focus:document.activeElement.id}')))}}
+    async function opened(){openCount++;try{await until(async()=>{const s=await st();return s.open&&s.settled},'drawer open '+phase+' '+openCount);}catch(e){throw Error(e.message+' '+JSON.stringify(await ev('return {state:window.__siteNav.state(),focus:document.activeElement.id,view:document.activeElement.dataset.view}')))}}
+    async function toggle(){await clickSel('#navToggle');await opened();}
+    async function geometry(left){const g=await ev('const r=document.querySelector(".main").getBoundingClientRect();return {x:r.x,w:r.width,v:innerWidth}');assert.ok(Math.abs(g.x-left)<2,phase+' expected left '+left+' '+JSON.stringify(g));assert.ok(Math.abs(g.w-(g.v-left))<2,phase+' width '+JSON.stringify(g));}
+    try{
+      await load();await closed();await geometry(0);
+      assert.equal(await ev('return document.querySelector("#sidebar").inert'),true);
+      assert.ok(await ev('return document.querySelector("#sidebar").getBoundingClientRect().right<=1'));
+      await move(2,450);await sleep(40);await move(600,450);await sleep(300);await closed();
+      await move(2,450);await sleep(40);await key('Escape');await sleep(300);await closed();
+      await move(600,450);await move(2,450);await opened();await geometry(0);
+      await move(600,450);await sleep(100);await move(150,450);await sleep(450);assert.equal((await st()).open,true,'re-entry cancels hide');
+      await nav('overview');await move(600,450);await closed();assert.equal(await ev('return document.querySelector(".view.active").id'),'overview');
+      phase='outside toggle';await toggle();assert.equal(await ev('return document.querySelector("#navToggle").getAttribute("aria-expanded")'),'true');
+      await tap(700,80);await closed();
+      phase='keyboard';
+      // Closed navigation cannot receive Tab. Keyboard activation focuses the active item.
+      await ev('document.querySelector("#navToggle").focus()');await key('Tab');assert.equal(await ev('return document.querySelector("#sidebar").contains(document.activeElement)'),false);
+      await ev('document.querySelector("#navToggle").focus()');await key('Enter');await opened();assert.equal(await ev('return document.activeElement.dataset.view'),'overview');
+      await move(600,450);await sleep(450);assert.equal((await st()).open,true,'keyboard focus retains peek');
+      await key('Escape');await closed();assert.equal(await ev('return document.activeElement.id'),'navToggle');
+      await ev('document.querySelector("#navToggle").focus()');await key('Enter');await opened();
+      await key('Tab');await key('Tab');await closed();
+      await ev('document.querySelector("#navToggle").focus()');await key('Enter');await opened();
+      for(let i=0;i<15&&(await st()).open;i++)await key('Tab',true);await closed();
+      await ev('document.querySelector("#navToggle").focus()');await key('Enter');await opened();await key('Enter');await closed();assert.equal(await ev('return document.activeElement.id'),'main','keyboard selection moves focus to main');
+      await toggle();await tap(700,80);await closed();await ev('document.querySelector("#main").focus()');await key('Escape');assert.equal(await ev('return document.activeElement.id'),'main','outside focus not stolen by Esc');
+      phase='Studio';await nav('blueprint');await frameReady();await move(900,700);await closed();
+      await toggle();await move(900,700);await closed();await clickSel('#arrangeMenuBtn',true);await keyEscape();assert.equal(await fe('return !!document.querySelector("[data-dir=TB]")'),false,'Studio Esc remains local');
+      const frameBefore=await ev('window.__navFrameDocument=document.querySelector("#studioFrame").contentDocument;return document.querySelector("#studioFrame").getBoundingClientRect().width');
+      await toggle();await clickSel('#navPin');await opened();await sleep(450);await geometry(244);
+      const pinnedWidth=await ev('return document.querySelector("#studioFrame").getBoundingClientRect().width');assert.ok(pinnedWidth<frameBefore-200);
+      assert.equal(await ev('return document.querySelector("#studioFrame").contentDocument===window.__navFrameDocument'),true);
+      assert.equal(await ev(`const w=document.querySelector('#studioFrameWrap'),top=w.getBoundingClientRect().top+scrollY;return Math.abs(w.getBoundingClientRect().height-Math.max(560,420,innerHeight-top-16))<2`),true,'Studio height remeasured after docking');
+      assert.equal(await ev('return localStorage.getItem("silex.nav.pinned")'),'true');
+      await key('Escape');await tap(900,80);assert.equal((await st()).mode,'pinned');
+      await navigate();await opened();assert.equal((await st()).mode,'pinned');await geometry(244);
+      await viewport(390);assert.equal((await st()).desktop,false);assert.equal(await ev('return document.querySelector("#sidebar").inert'),false);
+      await viewport();await opened();await geometry(244);
+      await clickSel('#navPin');await closed();await geometry(0);
+      await toggle();await ev(`window.__navResizeCount=0;window.addEventListener('resize',()=>window.__navResizeCount++)`);
+      const pinPoint=await ev(`const r=document.querySelector('#navPin').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);
+      await tap(pinPoint.x,pinPoint.y);await tap(pinPoint.x,pinPoint.y);await closed();await sleep(350);await geometry(0);
+      assert.equal(await ev('return window.__navResizeCount'),1,'rapid pin changes notify only the settled dock');
+      phase='Runtime';await nav('runtime-observation');await rtReady();await move(900,700);await closed();
+      await ev(`document.querySelector('#rtFrame').scrollIntoView({block:'center',behavior:'instant'})`);
+      await toggle();await move(900,700);await closed();
+      await ev(`document.querySelector('#rtFrame').scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`);
+      const replayPoint=await rt(`const r=document.querySelector('[data-tab=replay]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);
+      const runtimeRect=await ev(`const r=document.querySelector('#rtFrame').getBoundingClientRect();return {x:r.x,y:r.y}`);
+      await tap(runtimeRect.x+replayPoint.x,runtimeRect.y+replayPoint.y);assert.equal(await rt('return document.querySelector("[data-tab=replay]").getAttribute("aria-selected")'),'true','Runtime control works after peek');
+      await viewport(760);assert.equal((await st()).desktop,false);
+      assert.equal(await ev('return getComputedStyle(document.querySelector("#navToggle")).display'),'none');assert.equal(await ev('return getComputedStyle(document.querySelector("#navEdge")).display'),'none');
+      await viewport(761);await closed();await geometry(0);
+      await viewport();await move(2,450);await sleep(40);await viewport(390);await sleep(250);assert.equal(await ev('return document.querySelector("#sidebar").inert'),false);
+      await viewport();await closed();
+      await nav('security-model');await move(900,700);await closed();await sleep(350);
+      await until(()=>ev('return !!document.querySelector("#swmSvg")?.getAttribute("viewBox")'),'World Model rendered');
+      const worldBefore=await ev('return document.querySelector("#swmSvg").getAttribute("viewBox")');
+      await toggle();await clickSel('#navPin');await sleep(500);await geometry(244);
+      const worldAfter=await ev('return document.querySelector("#swmSvg").getAttribute("viewBox")');
+      assert.ok(Number(worldBefore.split(' ')[2])>Number(worldAfter.split(' ')[2]),'World Model remeasures after docking');
+      await clickSel('#navPin');await closed();await sleep(500);
+      await viewport(1440,600);await toggle();
+      for(const id of ['assurance','blueprint','short-term','policies','incidents','security-model','runtime-observation','long-term','overview','library'])await nav(id);
+      await clickSel('#navPin');await opened();await clickSel('#navPin');await closed();
+      await viewport();await toggle();await ev('document.querySelector("#defsModal").classList.add("open")');
+      await key('Escape');assert.equal((await st()).open,true,'host modal blocks nav Esc');
+      assert.equal(await ev('return !!document.elementFromPoint(100,100).closest(".modal-backdrop")'),true,'modal above drawer');
+      await clickSel('[data-close="defsModal"]');await move(100,450);await move(900,700);await closed();
+      await page.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+      await toggle();assert.equal(await ev('return getComputedStyle(document.querySelector("#sidebar")).transitionDuration'),'0s');await clickSel('#navPin');await geometry(244);await clickSel('#navPin');await closed();
+      for(const w of [761,768,1024,1440]){await viewport(w);await closed();assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'auto overflow '+w);await toggle();await clickSel('#navPin');await geometry(244);assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'pinned overflow '+w);await clickSel('#navPin');await closed();}
+      return 'real edge/toggle/keyboard input, timer cancellation, iframe controls, persistent docking, breakpoint restoration, short-screen reach, modal priority and reduced motion';
+    }finally{await page.send('Emulation.setEmulatedMedia',{features:[]});await ev('localStorage.removeItem("silex.nav.pinned")');await viewport();await navigate();}
   });
 
 } finally {

@@ -340,6 +340,33 @@
   @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
   @media(max-width:560px){.rt-row{grid-template-columns:44px minmax(0,1fr) auto}.rt-row .rt-chip{grid-column:2;grid-row:2;justify-self:start}.rt-row .btn{grid-column:3;grid-row:1/span 2}.rt-frame-wrap{height:680px}}
   .studio-frame-wrap{height:calc(100vh - 150px);min-height:560px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.studio-frame-wrap iframe{display:block;width:100%;height:100%;border:0}.studio-frame-loading{display:grid;place-items:center;height:100%;color:var(--muted);font-size:13px}.studio-pending .muted,.studio-pcp .muted,.studio-lib-rows .muted,.studio-empty{color:var(--muted)}.studio-pending .row{display:grid;grid-template-columns:1fr auto;gap:3px 12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:12px;text-align:left}.studio-pending .row b{font-size:13px}.studio-pending .row>*:not(button){grid-column:1}.studio-pending .row>button{grid-column:2;grid-row:1/span 3}.studio-pending small,.studio-pcp small{font-size:11px}.studio-empty{font-size:12px;padding:6px 2px 10px}.studio-pcp{display:contents}.studio-card{padding:16px}.studio-card ul{margin:8px 0;padding-left:18px;font-size:12px}.studio-card .row-actions,.studio-lib-rows .row-actions{display:flex;gap:8px;margin-top:10px}.studio-lib-rows{padding:0 20px 18px}.studio-lib-rows .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border-top:1px solid var(--line);padding:12px 0;font-size:12px}.studio-lib-rows .row .row-actions{margin:0 0 0 auto}.studio-lib-rows .warn{color:var(--amber)}.studio-pending .btn.sm,.studio-pcp .btn.sm,.studio-lib-rows .btn.sm{padding:7px 11px;font-size:12px;background:#fff;color:var(--ink);border:1px solid var(--line)}.studio-lib-rows .btn.sm:disabled{opacity:.45;cursor:not-allowed}#blueprint.view.active{display:block}@media(max-width:760px){.studio-frame-wrap{height:calc(100vh - 120px);border-radius:10px}}
+
+  /* Floating navigation: phones retain the original strip. */
+  .nav-toggle,.nav-pin,.nav-edge{display:none}
+  .top-left{display:flex;align-items:center;gap:12px;min-width:0}
+  .brand .brand-word{color:inherit}
+  @media not all and (max-width:760px){
+    .app{grid-template-columns:minmax(0,1fr)}
+    .main{margin-left:0;transition:margin-left 200ms ease-out}
+    .sidebar{position:fixed;left:0;top:0;width:244px;height:100vh;overflow-y:auto;z-index:20;transform:translateX(-100%);transition:transform 200ms ease-out;box-shadow:8px 0 28px rgba(0,0,0,.18)}
+    .app[data-nav-open="true"] .sidebar,.app[data-nav-mode="pinned"] .sidebar{transform:translateX(0)}
+    .app[data-nav-mode="pinned"] .main{margin-left:244px}
+    .sidebar .brand{display:flex;align-items:center;justify-content:space-between;padding-right:0;flex-shrink:0}
+    .nav-pin{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;border:1px solid #545862;border-radius:7px;background:transparent;color:#fff;cursor:pointer;font-size:16px}
+    .brand-word{white-space:nowrap}
+    .sidebar .brand .brand-word{color:inherit}
+    .nav-toggle{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex-shrink:0;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink);font-size:18px}
+    .nav-edge{display:block;position:fixed;left:0;top:0;width:8px;height:100vh;z-index:19}
+    .nav-edge::after{content:"";position:absolute;left:0;top:calc(50% - 24px);height:48px;width:3px;border-radius:0 3px 3px 0;background:var(--blue);opacity:.4}
+    .nav-edge:hover::after{opacity:1}
+    .app[data-nav-open="true"]~.nav-edge,.app[data-nav-mode="pinned"]~.nav-edge{display:none}
+    .app[data-nav-mode="pinned"] .nav-toggle{display:none}
+    .nav-toggle:focus-visible,.nav-pin:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+    @media(max-width:1100px){.topbar{gap:10px;padding:0 16px}.top-left{gap:8px}.crumb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top-actions .pill:first-child{display:none}.top-actions{gap:8px}}
+    @media(max-width:900px){.top-actions .avatar{display:none}.app[data-nav-mode="pinned"] .topbar{flex-wrap:wrap;height:auto;min-height:68px;padding-top:8px;padding-bottom:8px}.app[data-nav-mode="pinned"] .top-left{flex:1 1 100%}}
+  }
+  @media(prefers-reduced-motion:reduce){.sidebar,.main{transition:none!important}}
+
 </style>
   <style>
     /* ===== 2026-09-21 artifact upgrade (scoped .rx-*; see logs/2026-09-21_ARTIFACT_UPGRADE_PLAN.md) ===== */
@@ -447,8 +474,8 @@
 </head>
 <body>
 <div class="app">
-<aside class="sidebar">
-<div class="brand">SILE<span>X</span></div>
+<aside class="sidebar" id="sidebar">
+<div class="brand"><span class="brand-word">SILE<span>X</span></span><button type="button" class="nav-pin" id="navPin" aria-label="Keep sidebar open" title="Keep sidebar open" aria-pressed="false">⌖</button></div>
 <div class="section-label">Assurance</div>
 <nav class="nav">
 <button class="active" data-view="assurance"><span class="ico">◆</span>Assurance</button>
@@ -477,9 +504,9 @@
 <div class="tenant">Acme Financial<small>Simulated tenant · V1 demo</small></div>
 </div>
 </aside>
-<main class="main">
+<main class="main" id="main" tabindex="-1">
 <header class="topbar">
-<div class="crumb">SILEX / <strong id="crumb">Assurance</strong></div>
+<div class="top-left"><button type="button" class="nav-toggle" id="navToggle" aria-label="Show navigation" aria-controls="sidebar" aria-expanded="false">☰</button><div class="crumb">SILEX / <strong id="crumb">Assurance</strong></div></div>
 <div class="reg-toggle" role="tablist" title="Switch register: Assurance (investor / technical) vs Operations (security team)">
 <button class="reg on" id="regAssurance" role="tab">◆ Assurance</button>
 <button class="reg" id="regOps" role="tab">▨ Operations</button>
@@ -1237,6 +1264,7 @@
 </div>
 
 <div class="toast" id="toast">Ready</div>
+<div class="nav-edge" id="navEdge" aria-hidden="true"></div>
 <script>
   
 const suiteData={
@@ -1621,6 +1649,7 @@ const incidentData={
   if(window.studioHostReady)window.studioHostReady();
 
 </script>
+<script src="js/floating-nav.js"></script>
 <script type="module" src="js/studio-host.js"></script>
 <script type="module" src="js/jev-runtime-host.js"></script>
 <script src="swm/js/swm-loader.js"></script>
