@@ -125,4 +125,4 @@ Screenshots to show before deploy: nav order, Runtime Observe top, a Run result,
 - **PLANNER (claude):** IMPL-APPROVED.
 - **Codex's doc suggestion, taken after approval:** `jev-runtime/README.md` now links this plan (docs only).
 - **Results:** `node --test tests/site/*.test.mjs` 20/20; `run-site-probes.mjs` 19/19.
-- **Deploy:** pending the user's go-ahead. Merging to `main` deploys the public site.
+- **Deploy:** 2026-09-30, on the user's go-ahead ("please deploy"), as `df267fa` (fast-forward of `runtime-observe-tab`, including the Runtime Observation rename). The rename delta was not re-sent to the fleet; it is a string and id change re-verified by unit 20/20 and probes 19/19. Live read-back `--base https://silex-mockup.vercel.app`: 7/7 PASS.
