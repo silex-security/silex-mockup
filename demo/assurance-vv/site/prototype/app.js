@@ -1,3 +1,4 @@
+import {renderLearningGate} from './learning.js';
 import {currentTrace,routeFromHash} from './state.js';
 import {describeRun} from '../baseline/js/jev-runtime-model.js';
 const $=id=>document.getElementById(id);
@@ -77,7 +78,7 @@ document.querySelectorAll('[data-run]').forEach(b=>b.addEventListener('click',()
 async function runtimeTab(tab,domain=runtimeDomain){
   navigate('runtime-observation');const mine=++runtimeToken;
   $('runtimeResult').textContent=tab==='learning'?'Opening the existing learning comparison. This does not train or promote a production judge.':'Opening the scripted live view.';
-  try{const d=await runtimeReady(domain,mine);if(mine===runtimeToken)d.openTab(tab)}catch(e){if(mine===runtimeToken)$('runtimeResult').textContent=e.message}
+  try{const d=await runtimeReady(domain,mine);if(mine===runtimeToken){d.openTab(tab);if(tab==='learning')$('runtimeFrame').scrollIntoView({block:'start',behavior:'smooth'})}}catch(e){if(mine===runtimeToken)$('runtimeResult').textContent=e.message}
 }
 $('openLearning').addEventListener('click',()=>runtimeTab('learning'));
 $('backToLive').addEventListener('click',()=>runtimeTab('live'));
@@ -119,3 +120,5 @@ document.querySelectorAll('[data-wm]').forEach(b=>b.addEventListener('click',()=
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('more').open){$('more').open=false;$('more').querySelector('summary').focus()}});
 document.addEventListener('click',e=>{if(!$('more').contains(e.target))$('more').open=false});
 applyRoute(false);
+
+renderLearningGate($('learningGateRows'));

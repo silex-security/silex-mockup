@@ -146,7 +146,6 @@ async function renderLearningEvidence() {
     if (!response.ok) throw new Error('Evidence unavailable');
     const e = await response.json();
     const a = e.models['kev-0.8b'], b = e.models['kev-0.8b-ft'];
-    const c = e.models['kev-4b'];
     const value = (path, digits = 2) => {
       const n = path.split('/').reduce((v, k) => v[k], e);
       return `<span data-evidence-value="${path}" data-digits="${digits}">${Number(n).toFixed(digits)}</span>`;
@@ -159,7 +158,18 @@ async function renderLearningEvidence() {
       ${tile('instruction_override AUROC', pair('instruction_override', 'auroc'), 'no fitted threshold')}
       ${tile('Local judge HTTP p50', pair('latency', 'p50_ms', 0) + ' ms', `similar local judge HTTP p50 in this run (n = ${value('models/kev-0.8b/latency/n', 0)} released, n = ${value('models/kev-0.8b-ft/latency/n', 0)} fine-tuned; ${esc(e.hardware)}).`)}
     </div>
-    <p id="rtLearningGate" class="rt-ref" style="margin-top:14px">Fine-tuned with the same recipe, ${esc(c.label)}'s goal_deviation AUROC rose (${value('models/kev-4b/goal_deviation/auroc', 3)} → ${value('models/kev-4b-ft/goal_deviation/auroc', 3)}), but its recall at the calibrated threshold fell (${value('models/kev-4b/goal_deviation/recall', 3)} → ${value('models/kev-4b-ft/goal_deviation/recall', 3)}), so a recall-first gate would reject it.</p>
+    <section id="rtLearningGate" aria-labelledby="rtLearningGateTitle">
+      <h3 id="rtLearningGateTitle">Would this gate promote it?</h3>
+      ${Object.entries(e.gate).map(([id, g]) => {
+        const detail = g.safetyOk
+          ? `Fixed ${g.fixed} · Broke ${g.broke} · ${g.evidenceOk ? 'evidence check passed' : 'needs more evidence'}`
+          : g.missed.after > g.missed.before
+            ? `Safety check failed: more missed cases (${g.missed.before} → ${g.missed.after})`
+            : `Safety check failed: more false alarms (${g.falseHolds.before} → ${g.falseHolds.after})`;
+        return `<p data-evidence-gate="${esc(id)}">${esc(e.models[id].label)}: <span class="rt-chip" data-evidence-verdict data-kind="${g.verdict === 'KEEP' ? 'ran' : g.verdict === 'NEAR-MISS' ? 'review' : 'blocked'}">${esc(g.verdict)}</span> · ${esc(detail)}</p>`;
+      }).join('')}
+      <p class="rt-ref">Question-level errors at each model’s own threshold, on one benchmark split; a retrospective check, not gateway outcomes.</p>
+    </section>
     <details><summary>Measured evidence details and caveats</summary>
       <p>${esc(a.label)} recall 95 % CI: ${a.goal_deviation.recall_ci.map((_, i) => value(`models/kev-0.8b/goal_deviation/recall_ci/${i}`, 3)).join('–')}; ${esc(b.label)}: ${b.goal_deviation.recall_ci.map((_, i) => value(`models/kev-0.8b-ft/goal_deviation/recall_ci/${i}`, 3)).join('–')}.</p>
       <p>Hardware: ${esc(e.hardware)}. Label provenance: ${e.label_provenance.map(esc).join(', ')}. Calibrations not activated.</p>

@@ -31,3 +31,24 @@ test('Intake caps file and graph size before processing',()=>{
  assert.equal(parseIntake(' '.repeat(1024*1024+1)).ok,false);
  const doc=fresh();doc.revisions[0].graph.nodes=Array.from({length:81},(_,i)=>({...doc.revisions[0].graph.nodes[0],id:'n'+i}));assert.equal(parseIntake(JSON.stringify(doc)).ok,false);
 });
+
+import {measuredGateRows} from '../site/prototype/learning.js';
+const measured=JSON.parse(await readFile(new URL('../site/baseline/jev-runtime/demo/data/learning-evidence.json',import.meta.url),'utf8'));
+test('Measured gate presentation preserves both benchmark outcomes and safety regression',()=>{
+ const rows=measuredGateRows(measured);assert.deepEqual(rows.map(r=>r.verdict),['KEEP','DISCARD']);
+ assert.match(rows[0].detail,/Fixed 17 · Broke 2/);assert.match(rows[1].detail,/more missed cases \(25 → 27\)/);
+ const changed=structuredClone(measured);changed.gate['kev-0.8b-ft'].fixed=19;assert.match(measuredGateRows(changed)[0].detail,/Fixed 19/);
+ assert.throws(()=>measuredGateRows({}));delete changed.gate['kev-4b-ft'];assert.throws(()=>measuredGateRows(changed));
+});
+
+import {createLearningSession} from '../site/baseline/jev-runtime/demo/js/learning/session.js';
+import {DEFAULT_POLICY} from '../site/baseline/jev-runtime/demo/js/engine/types.js';
+for(const domain of ['ap','soc'])test(`Synced ${domain} lineage promotes only KEEP and resets to v1`,()=>{
+ const session=createLearningSession(domain,()=>DEFAULT_POLICY,7);session.startScript();
+ const expected=['NEAR-MISS','KEEP','DISCARD'];
+ for(let round=1;round<=3;round++){
+  session.scriptRound(round);const s=session.state();assert.equal(s.history.at(-1).gate.verdict,expected[round-1]);assert.equal(s.champion.id,round===1?'v1':'v2');
+ }
+ const s=session.state();assert.equal(s.history[2].championBefore,'v2');assert.equal(s.history[2].gate.safetyOk,false);
+ session.reset();assert.equal(session.state().history.length,0);assert.equal(session.state().champion.id,'v1');
+});

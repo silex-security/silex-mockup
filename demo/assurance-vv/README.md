@@ -2,7 +2,7 @@
 
 Live: https://demo.opensilex.ai/ · Pages: https://opensilex-demo.pages.dev/
 
-This isolated demo lives on branch `demo/assurance-vv`. `site/` is the complete static upload directory. The repository root and GitHub main entry are unchanged. `site/baseline/` is a frozen dependency snapshot from commit fe51c441218008db1e9a982bae299dc03167b14c; the new UI is in `site/prototype/`.
+This isolated demo lives on branch `demo/assurance-vv`. `site/` is the complete static upload directory. The repository root and GitHub main entry are unchanged. `site/baseline/` started from commit fe51c441218008db1e9a982bae299dc03167b14c and now includes the complete Runtime Observation delta through 74ed19a (vendored JEV be8fda2); the new UI is in `site/prototype/`.
 
 ## Experience
 
@@ -23,3 +23,9 @@ Use the `silex-cloudflare-sync` skill at `skills/silex-cloudflare-sync/` in this
 After intentional site changes, regenerate `site.sha256.json` from all site files with SHA-256 and commit both together. The manifest records reviewed content; it is not a signature or a substitute for code review.
 
 The skill is invoked on request; no background GitHub Actions job is configured. Cloudflare authentication uses the local Wrangler OAuth login. No credentials belong in this repository.
+
+## Runtime design sync · 2026-10-01
+
+Read the upstream `skills/jev-work-plan/SKILL.md` and the final r2/build resolutions in `logs/2026-10-01_LINEAGE_GATE_PLAN.md`. Synced all 17 changed mockup files through 74ed19a into site/baseline without altering vendored bytes. New demo wrapper reads the two measured gate verdicts from the same generated JSON. The interactive engine now presents NEAR-MISS → KEEP → DISCARD model history in AP and SOC; only KEEP promotes inside the toy comparison. Live judge and production promotion are unchanged.
+
+Runtime sync verification: 10 prototype/lineage tests and 65 baseline tests pass; 15 browser checks pass. Codex and Claude independently APPROVE this sync with no blockers. The original prototype review remains historical. Browser regression runner: `QA_ORIGIN=https://demo.opensilex.ai node demo/assurance-vv/tests/runtime-browser.mjs` from a scratch working directory using its absolute script path if needed; it launches an isolated headless Chrome profile and writes screenshots locally.
