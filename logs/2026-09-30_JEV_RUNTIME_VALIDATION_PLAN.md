@@ -1,4 +1,4 @@
-# Plan: Runtime Validation in System Validation, backed by the Jev runtime demo — r1
+# Plan: Runtime Validation in System Validation, backed by the Jev runtime demo — r2
 
 Date 2026-09-30 · branch `jev-runtime-validation` in `silex-mockup` (from `main` `fbd598d`) and `demo-embed` in `jev-realtime-observability` (from `main` `eb9b8e4`) · roster: planner Claude, `coder-deepseek`, `reviewer-codex`; both gates unanimous.
 
@@ -26,7 +26,7 @@ Date 2026-09-30 · branch `jev-runtime-validation` in `silex-mockup` (from `main
 
 ## 1. What the user sees
 
-**System Validation gets two tabs under its title.** They use the site's own `.wm-tabs`/`.wm-tab` style, as on the Enterprise World Model:
+**System Validation gets two tabs under its title.** They look like the Enterprise World Model's tabs but use their own classes, `.lt-tabs`/`.lt-tab`. The World Model controller (`index.html:1515`) selects every `.wm-tab` and `.wm-panel` on the page, so reusing those classes would wire these tabs into it. The site CSS adds `.lt-tab` to the existing `.wm-tab` rules (a selector list, no new look). The World Model's JS is not touched.
 
 ```
 System Validation ?                                  [Monthly ▾] [⟳ Run System Validation]   ← only on the first tab
@@ -40,25 +40,31 @@ System-wise. Is the broader enterprise environment still safe …
      - A pill beside it: "Simulated judge · fictional tenant". This follows the site's "Simulated agents · illustrative data" pattern.
   2. **Four metric cards, computed and never typed.** They come from the vendored engine: every scripted scenario of both agents, default policy, seed 7.
      - `Scripted scenarios` (12: AP 7 + SOC 5);
-     - `Actions checked` (pre_tool decisions);
-     - `Stopped before running` (HOLD / BLOCK / REVIEW / STOP);
-     - `Decided by a hard rule`.
-     - Each card's footer says "simulated · seed 7 · policy-v1".
+     - `Actions checked`: the pre_tool envelopes;
+     - `Stopped before running`: those pre_tool envelopes whose gateway action does not execute (`hold_for_review`, `hold_for_approval`, `deny`, `stop_and_handover`). S5's post_tool ALERT, a finding after an executed payment, is not a stop, and neither is F1's lookup, which is allowed with an alert;
+     - `Decided by a hard rule`: the same pre_tool set, `decided_by: rule`.
+     - Each card's footer says "simulated · seed 7 · policy-v1 reference set". Policy Studio edits inside the frame do not change these cards; the frame's own KPIs follow the frame.
   3. **"How runtime validation works".** This is the same `run-steps` card as tab 1, with six steps:
-     1. Capture the action (OpenTelemetry boundary span)
+     1. Capture the action (an OpenTelemetry-shaped span; simulated input)
      2. Hard rules (veto; no model can override)
      3. Jev judgment battery (one call, atomic questions)
      4. Policy (thresholds; gate or monitor per tool)
      5. Gateway action (allow / hold / block)
-     6. Evidence (verdict envelope → SIEM / OTLP)
+     6. Evidence (a simulated verdict envelope and SIEM JSON preview; nothing is sent)
 
      Pressing a scenario's **Run** animates these steps with the site's `runSteps()`. The result line underneath is then **computed from that scenario's envelopes**. Example: "SOC2 · 3 actions: `firewall.allowlist_ip` held for approval by rule `allowlist_change_approval`; 2 ran."
   4. **"Scripted scenarios".** Two side-by-side lists, **AP payments agent** (S1–S6, F1) and **SOC triage agent** (SOC1–SOC5). They stack on phones.
      - Each row: id, title, an outcome chip computed from the engine (for example "held · rule", "blocked · rule", "review · judge", "all ran"), and a **Run** button.
   5. **"Decision plane (simulated)".** The Jev demo in an iframe (`.studio-frame-wrap` sizing), loaded on first visit to the tab.
-     - Its header has **Open full page ↗**.
-     - **Run** on a scenario reloads the frame on that scenario's agent (`?embed=1&domain=ap|soc&autoplay=0`), injects the scenario when the demo reports `ready`, and scrolls the frame into view. The injected run is then the selected card.
-- **Deep link:** `index.html#view=long-term&tab=runtime` opens tab 2. Only this pair is recognised; any other hash is ignored, as today.
+     - The mockup card's header (not the demo) has **Open full page ↗** (`#rtOpenFull`). It opens `jev-runtime/demo/index.html` without `embed` and keeps the frame's current `domain` and `seed`. It also passes `back` (§3) so the demo's back link returns to this tab.
+     - **Run** on a scenario:
+       - if the frame is already on that scenario's agent, it calls `__jevDemo.inject(id)` with no reload;
+       - otherwise it reloads the frame on that agent (`?embed=1&domain=ap|soc&autoplay=0`) and injects once `__jevDemo.ready`.
+       - Either way it then scrolls the frame into view, and the injected run is the selected card.
+     - **Run concurrency** is latest request wins. Each Run takes a request token, and every asynchronous step checks the token: the step animation's callback, the frame-ready wait and the inject. A stale step does nothing. While a run is starting, its Run button shows "Running…" and is disabled.
+     - If the frame is not ready within 10 s, `#rtResult` shows an error ("The simulated demo did not load; open it full page") instead of a result.
+- **Deep link:** `index.html#view=long-term&tab=runtime` (or `tab=periodic`) opens System Validation on that tab. The new handler acts only on a hash starting with `view=`. The Studio's existing `#studio` / `#studio=new` routes (`js/studio-host.js`) are left as they are, and any other hash is ignored.
+- **`runSteps` becomes an explicit hook.** The site exposes `window.__siteRunSteps = runSteps` next to `__siteShowView` (`index.html:1553`), so the host module does not rely on an implicit global.
 - **Definitions** gains `Runtime Validation`: "Action-wise and continuous: each agent action is checked before it runs (hard rules → judgment → policy). Shown here with a simulated engine."
 
 ## 2. New directories
@@ -75,8 +81,12 @@ jev-runtime/
   README.md
 ```
 
-- **Sync:** `tools/sync-jev-runtime.mjs <jev-checkout> <commit>` copies those paths with `git show <commit>:<path>`, never from a working tree, and rewrites `VENDORED.json`.
-- **Integrity test:** `tests/site/jev-runtime-vendored.test.mjs` fails if any file differs from its manifest hash, if a manifest file is missing, or if an unlisted file appears. Local edits cannot drift silently; a change has to go upstream and be re-synced.
+- **Sync:** `tools/sync-jev-runtime.mjs <jev-checkout> <commit>` copies those paths with `git show <commit>:<path>`, never from a working tree.
+  - It resolves `<commit>` to its full hash and records it.
+  - It copies runtime files only: `.d.ts` type stubs are skipped.
+  - It removes vendored paths that no longer exist upstream.
+  - It rewrites `VENDORED.json`.
+- **Integrity test:** `tests/site/jev-runtime-vendored.test.mjs` covers the vendored source files. It fails if any file differs from its manifest hash, if a manifest file is missing, or if an unlisted file appears under `demo/`, `js/` or `css/`. `README.md` and `VENDORED.json` are written locally and exempt. Local edits cannot drift silently; a change has to go upstream and be re-synced.
 - **The host module** is `js/jev-runtime-host.js`, a plain `.js` ES module (the lesson from the Studio cutover: no `.mjs` on static hosting). It:
   - builds tab 2;
   - computes the cards and chips by importing `jev-runtime/demo/js/engine/*.js`;
@@ -91,7 +101,8 @@ The demo needs two query options, added in the jev repo first and then vendored:
 - **`?embed=1`** hides the brand row's title and the back link. The SIMULATED badge, agent switch and tabs stay. Page padding is reduced.
   - The agent switch already keeps other query parameters, so `embed=1` survives a switch.
 - **`?back=<relative url>`** sets the back link's target and turns its label into "← Back".
-  - It is only accepted if it is a relative path (`^\.{1,2}/` and no `//` or scheme). Anything else keeps the default, `../index.html` "← Live console".
+  - It is only accepted if the **decoded** value (from `URLSearchParams`) is a relative path: it starts with `./` or `../`, has no `//` and no scheme. Anything else keeps the default, `../index.html` "← Live console".
+  - The unit test covers `javascript:`, `jav%61script:`, `//evil`, `%2F%2Fevil`, `https://x`, an empty value, a malformed value and a valid `../../index.html#view=long-term&tab=runtime`.
   - The mockup's full-page link passes `back=../../index.html%23view=long-term%26tab=runtime`.
 
 Both are covered by `tests/probe/demo-probes.ts`, which Codex extends. They must not change the default page: the existing 13 checks keep passing.
@@ -118,11 +129,15 @@ Acceptance: the vendored page opens at `/jev-runtime/demo/index.html` with no JS
 - READMEs and `logs/README.md`.
 
 **P2 (codex):** `tests/site/run-site-probes.mjs` gains **S13–S18**:
-- **S13:** tab 1 is unchanged. Run System Validation still works, and the ids and history row are the same as before.
+- **S13:** tab 1 is unchanged. Run System Validation still works, and the ids and history row are the same as before. After switching Periodic ↔ Runtime, the Enterprise World Model's tabs keep their active panel, and its arrow-key navigation still works.
 - **S14:** tab 2's four metrics equal the model recomputed in the probe.
-- **S15:** Run SOC2 animates the steps. The result line matches the envelopes. The frame shows the SOC agent (`__jevDemo.domain === 'soc'`) with the SOC2 run selected and "Held for approval · did not run".
+- **S15:** Run SOC2 animates the steps. The result line matches the envelopes. The frame shows the SOC agent (`__jevDemo.domain === 'soc'`) with the SOC2 run selected and "Held for approval · did not run". The same flow covers:
+  - a second SOC run, which injects without a reload;
+  - rapid SOC2 → S3 clicks, after which only S3's result and frame state remain;
+  - leaving the tab and coming back.
 - **S16:** Run S3 switches the frame to the AP agent. Its run reads "Blocked · did not run".
-- **S17:** the deep link opens tab 2. Open full page carries `embed` off and a valid `back`, and following back returns to tab 2.
+- **S17:** the deep link opens tab 2, and `#studio` still opens Blueprint Studio. Open full page, after an AP run and after a SOC run, keeps the domain and seed, has no `embed`, and carries a correctly encoded `back`; following back returns to tab 2.
+- **Claims check:** the finished steps and result text never claim telemetry delivery. No "sent", "exported" or "OTLP" appears in tab 2.
 - **S18:** no JS errors on the site or in the frame. No horizontal scroll at 1440 and 390 px. The simulated labels are visible.
 
 `--base` live mode later re-checks S13, S14 and S17.
@@ -131,7 +146,7 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 
 ## 5. DOM contract (tab 2)
 
-- `#long-term .wm-tabs [data-lt-tab="periodic"|"runtime"]`
+- `#long-term .lt-tabs [data-lt-tab="periodic"|"runtime"]` (role tab, `aria-selected`, arrow keys within this group only)
 - `#ltPeriodic` (today's content, wrapped)
 - `#ltRuntime`
 - `#rtMetrics [data-rt-metric="scenarios|checked|stopped|rule"]`
@@ -140,6 +155,7 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 - `#rtFrameWrap iframe#rtFrame`
 - `#rtOpenFull`
 - `window.__jevRuntime = { ready, run(id), summary() }`
+- `window.__siteRunSteps` (exposed by the site)
 
 ## 6. Deploy
 
@@ -148,6 +164,15 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 
 ## 7. Not in scope
 
-- No change to Blueprint Studio, the World Model, the other views, or the older `jev-observability/`, beyond one README line.
+- No change to Blueprint Studio, the World Model (its JS is not touched; its tab CSS gains `.lt-tab` in a selector list), the other views, or the older `jev-observability/`, beyond one README line.
 - No real model, no server and no persistence: the demo is in-browser and simulated.
 - No rewording of tab 1's illustrative figures.
+
+## Round 1 objections → changes (r2)
+
+| # | Objection (who) | Change |
+|---|---|---|
+| 1 | The `.wm-tab` reuse collides with the World Model controller (`index.html:1515`) (Codex #1) | Own `.lt-tabs`/`.lt-tab` classes, sharing only the CSS selector list. The World Model JS is untouched. S13 checks the World Model's tabs and keys after switching. |
+| 2 | The Evidence step implied an OTLP export the browser demo doesn't do; Capture implied live instrumentation (Codex #2) | Steps say "OpenTelemetry-shaped span; simulated input" and "simulated verdict envelope and SIEM JSON preview; nothing is sent". A claims check is added. |
+| s | Codex suggestions | Latest-request-wins tokens, disabled Run while starting, a 10 s ready timeout with an error; metrics over the pre_tool set with non-executing actions (S5/F1 not stops), labelled a fixed reference set; manifest exemptions, full commit hash, stale-file removal; tests for Open full page, `#studio` and `back`. |
+| s | DeepSeek suggestions | `window.__siteRunSteps`; same-agent Run injects without a reload; `back` validated after decoding, with encoded-scheme tests; the hash handler acts only on `view=` and leaves `#studio`; `.d.ts` not vendored; Open full page is the mockup card's link. |
