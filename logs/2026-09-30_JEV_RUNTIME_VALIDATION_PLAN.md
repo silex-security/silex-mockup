@@ -193,3 +193,38 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 - **r2:** `reviewer-codex` PLAN-REJECTED (1 objection, a self-contradicting claims check). `coder-deepseek` PLAN-APPROVED.
 - **r3:** approved by all three. `reviewer-codex`: PLAN-APPROVED. `coder-deepseek`: PLAN-APPROVED. PLANNER (claude): PLAN-APPROVED.
 - **The user** had asked to plan and then execute. Per the standing instruction, the build starts once the review passes, and screenshots are shown before any deploy.
+
+## Build and code gate
+
+**Slices:**
+- **F0 (planner):**
+  - upstream `?embed` and a validated `?back` (jev `dfb7b7a`);
+  - `tools/sync-jev-runtime.mjs`, the vendored `jev-runtime/` and its integrity test (`e8a26ed`).
+- **D1 (DeepSeek):** `js/jev-runtime-model.js` and its test. The planner later collapsed repeated clauses into "(×2)".
+- **P1 (planner):** the tabs, markup and CSS, hash handling, the `runSteps` guard, Definitions, `js/jev-runtime-host.js` and the READMEs (`a6e8ddd`).
+- **P2 (Codex):** S13–S18 and the upstream embed/back probes (`245a839`).
+
+**Defects the probes found, fixed before review:**
+- a superseded Run left its button disabled, because its guarded animation never called `onDone` (the host now cancels the older Run through a race);
+- injected traces with the clock paused had equal start times, so a longer earlier run stayed selected (upstream `c8be5f2`: strictly increasing inject times).
+
+| Round | Revisions (mockup / jev) | reviewer-codex | coder-deepseek | Changes |
+|---|---|---|---|---|
+| r1 | `245a839` / `c8be5f2` | IMPL-CHANGES (2) | IMPL-APPROVED | **(1) A Run during a pending iframe navigation could inject into the outgoing document.** The host now tags each navigation `&nav=<generation>`, accepts only the latest navigation's document, and re-checks right before injecting. **(2) After a manual pick of an older run, the injected run was not selected.** Upstream `runs.js` gains `select(runId)`, called by the demo's `inject()`; its first version rendered synchronously, which broke two demo probes, fixed in `efce258` by using the scheduled render. **Suggestions taken:** the Open full page link is kept current, and phones keep the outcome chip. |
+| r2 | `5f86ba7` / `efce258` | IMPL-APPROVED (adds S19) | IMPL-APPROVED | S19 covers both races (`95220c2`). |
+
+- **PLANNER (claude):** IMPL-APPROVED.
+- **Process slip, recorded:** commit `60b99da` (jev) was made while two demo probes were failing, because a `| tail -1` pipe masked the exit status. The very next commit fixed it, before any push or review. Checks now test exit codes directly.
+- **Results:**
+
+  | Suite | Result |
+  |---|---|
+  | mockup `node --test tests/site/*.test.mjs` | 20/20 |
+  | mockup `run-site-probes.mjs` | 19/19 |
+  | jev `npm test` | 280 tests, 276 pass, 0 fail, 4 skip |
+  | jev typecheck | clean |
+  | jev demo-probes | 15/15 |
+  | jev ui-runs-probes | 29/29 |
+
+- **Vendored copy:** all 26 files are byte-identical to upstream `efce258`, checked independently by Codex.
+- **Deploy:** pending the user's go-ahead. Merging `jev-runtime-validation` to `main` deploys `silex-mockup.vercel.app`.
