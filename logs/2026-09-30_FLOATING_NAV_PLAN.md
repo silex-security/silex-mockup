@@ -241,3 +241,23 @@ Acceptance: unit 20/20; probes 20/20.
      - `Esc` does not hide the docked sidebar.
    - **`nav()`:** when the button is not hit-testable, click the topbar icon (docks), navigate, then restore the prior state, so S1–S19 still run hidden by default.
    - **Fix the S20 flake** seen in the planner's run: `run-site-probes.mjs` on its own server, without `SITE_BASE`, failed "Timeout: drawer open keyboard 7 … open:false … focus:navToggle", while Codex's `SITE_BASE` run passed. The full suite must pass 3 times in a row in both modes.
+
+### Plan gate r3
+
+| Round | reviewer-codex | coder-deepseek | planner |
+|---|---|---|---|
+| r3 | PLAN-APPROVED | PLAN-APPROVED | PLAN-APPROVED |
+
+**Build notes:**
+- **Topbar icon handler:** it becomes `pin(true)`. Keyboard docking focuses the active item after access is restored.
+- **Topbar icon visibility:** shown only while the sidebar is hidden, in both the pinned and peek cases, using `data-nav-open` as well as `data-nav-mode`. On a hide, make it visible before focusing it.
+- **ARIA:** `aria-expanded` and `title` go on both icons; `aria-pressed` is dropped.
+- **Icon docking:** clears pending timers and never inherits an auto-hide timer.
+- **`nav()`:**
+  - snapshots the prior mode;
+  - restores only its own temporary docking, through the header icon (real input), waiting for settled geometry;
+  - leaves an already docked sidebar docked.
+- **S20:**
+  - keeps r2's coverage, with outside-click and iframe auto-hide tested on a hover peek;
+  - adds Enter and Space for both icons, and labels and expanded state in the closed, peek and docked states.
+- **Acceptance:** three consecutive complete runs on the runner's own server and three with `SITE_BASE`, each checked by exit code. Keep the diagnostics for any remaining failure.
