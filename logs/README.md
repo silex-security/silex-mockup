@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-01 — Learning loop on Runtime Observation
+
+- A new card, "The judge learns from your reviewers", sits after the six-step orchestration. It shows the six-stage loop, three measured tiles and the Kev-4B gate lesson. Every value is read from the vendored, generated `learning-evidence.json`, and each tile says these are benchmark labels, not customer reviewers yet.
+- **Try the loop** opens the embedded demo on its new Learning loop tab, a simulated toy model with an outcome-first summary and Play the loop.
+- The vendored demo is re-synced to jev `9ca7ffe`. Probes: new S21, also in the live subset. The plan and reviews are in the jev repo: `logs/2026-09-30_LEARNING_LOOP_SHOWCASE_PLAN.md`.
+
 ## 2026-09-30 — Floating left navigation
 
 - Desktop: the dark sidebar starts hidden; content fills the window.
