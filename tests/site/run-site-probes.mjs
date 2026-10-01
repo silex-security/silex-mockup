@@ -435,7 +435,7 @@ try {
     await until(()=>ev('return !!document.querySelector("#rtLearning [data-evidence-value]")'),'measured JSON rendered');
     const evidence=await ev(`return await (await fetch('/jev-runtime/demo/data/learning-evidence.json')).json()`);
     const values=await ev(`return [...document.querySelectorAll('#rtLearning [data-evidence-value]')].map(e=>({path:e.dataset.evidenceValue,digits:Number(e.dataset.digits),text:e.textContent}))`);
-    assert.ok(values.length>=20,'thresholds, sample sizes, gate and confidence intervals included');
+    assert.ok(values.length>=17,'thresholds, sample sizes and confidence intervals included');
     for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
     const text=await ev('return document.querySelector("#rtLearning").textContent');
     assert.match(text,/The judge learns from your reviewers/);
@@ -443,8 +443,16 @@ try {
     assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
     assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);
     assert.equal(await ev(`return [...document.querySelectorAll('#rtLearning .rt-learning-tiles .metric')].filter(e=>e.textContent.includes('measured on an open benchmark (AgentDojo held-out); benchmark labels, not yet customer reviewers')).length`),3);
-    const c=evidence.models['kev-4b'].goal_deviation,d=evidence.models['kev-4b-ft'].goal_deviation;
-    assert.equal(await ev('return document.querySelector("#rtLearningGate").textContent'),`Fine-tuned with the same recipe, ${evidence.models['kev-4b'].label}'s goal_deviation AUROC rose (${c.auroc.toFixed(3)} → ${d.auroc.toFixed(3)}), but its recall at the calibrated threshold fell (${c.recall.toFixed(3)} → ${d.recall.toFixed(3)}), so a recall-first gate would reject it.`);
+    const rows=await ev(`return [...document.querySelectorAll('#rtLearningGate [data-evidence-gate]')].map(e=>({id:e.dataset.evidenceGate,verdict:e.querySelector('[data-evidence-verdict]').textContent,text:e.textContent}))`);
+    assert.deepEqual(rows.map(r=>r.id),Object.keys(evidence.gate),'all JSON gate rows');
+    for(const row of rows){
+      const g=evidence.gate[row.id];
+      const detail=g.safetyOk?`Fixed ${g.fixed} · Broke ${g.broke} · ${g.evidenceOk?'evidence check passed':'needs more evidence'}`:g.missed.after>g.missed.before?`Safety check failed: more missed cases (${g.missed.before} → ${g.missed.after})`:`Safety check failed: more false alarms (${g.falseHolds.before} → ${g.falseHolds.after})`;
+      assert.equal(row.verdict,g.verdict,row.id+' verdict');
+      assert.equal(row.text,`${evidence.models[row.id].label}: ${g.verdict} · ${detail}`,row.id+' JSON row');
+    }
+    assert.match(text,/Question-level errors at each model’s own threshold, on one benchmark split; a retrospective check, not gateway outcomes/);
+    assert.doesNotMatch(text,/Fine-tuned with the same recipe|recall-first gate would reject|chance of luck/i);
     for(const caveat of evidence.caveats)assert.ok(text.includes(caveat),'JSON caveat');
     await ev('window.__learningDocument=document.querySelector("#rtFrame").contentDocument');
     await rtClick('#rtTryLoop');
