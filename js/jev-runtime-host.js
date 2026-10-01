@@ -172,7 +172,14 @@ async function renderLearningEvidence() {
 }
 
 $('rtTryLoop').addEventListener('click', () => {
+  // Cancels a Run in progress. Its stale path returns without settling the orchestration, so reset it here to Ready.
+  const cancelling = !!cancelPrevious;
   ++token; cancelPrevious?.();
+  if (cancelling) {
+    const status = $('rtStatus'); status.textContent = 'Ready'; status.className = 'status running'; status.style.cssText = '';
+    $('rtSteps').querySelectorAll('.run-step').forEach(s => s.classList.remove('running', 'done'));
+    $('rtResult').className = 'decision-state';
+  }
   const f = frameDoc();
   if (f.nav === String(nav) && f.demo) f.demo.openTab('learning');
   else loadFrame(frameDomain ?? 'ap', false, 'learning');

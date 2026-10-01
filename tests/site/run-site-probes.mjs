@@ -466,7 +466,14 @@ try {
     assert.equal(await ev(`return new URL(document.querySelector('#rtFrame').src).searchParams.get('tab')`),'learning');
     await ev(`document.querySelector('#rtOpenFull').dispatchEvent(new Event('focus'))`);
     assert.equal(new URL(await ev('return document.querySelector("#rtOpenFull").href')).searchParams.get('tab'),'learning');
-    return 'JSON-derived measurements, exact claims and caveats; ready/cold Learning tab, full-page link and scroll; 1440/390 layout and no JS errors';
+    // Try the loop during a Run cancels it and settles the orchestration (code gate r1, Codex reproduction).
+    await ev(`window.__tryRun=window.__jevRuntime.run('S1');`);
+    await sleep(350);
+    await ev(`document.querySelector('#rtTryLoop').click();await window.__tryRun;`);
+    await sleep(1800);
+    const cancelled=await ev(`return {status:document.querySelector('#rtStatus').textContent,running:document.querySelectorAll('#rtSteps .running').length,disabled:document.querySelectorAll('#rtScenarios [data-rt-run]:disabled').length,tab:document.querySelector('#rtFrame').contentDocument.querySelector('[data-tab=learning]').getAttribute('aria-selected')}`);
+    assert.deepEqual(cancelled,{status:'Ready',running:0,disabled:0,tab:'true'},'Try the loop settles a cancelled Run: '+JSON.stringify(cancelled));
+    return 'JSON-derived measurements, exact claims and caveats; ready/cold Learning tab, full-page link and scroll; 1440/390 layout no JS errors; Try during a Run settles it';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{
