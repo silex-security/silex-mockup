@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
- * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation). Isolated Chrome profile;
+ * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
  * browser-local demo data only. No server in --base mode; no production API writes.
  */
 import { createServer } from 'node:http';
@@ -18,7 +18,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
 function option(k) { const i = args.indexOf(k); if (i < 0) return null; if (!args[i + 1] || args[i + 1].startsWith('--')) throw Error(`${k} needs a value`); return args[i + 1]; }
 const BASE = option('--base'), ONLY = option('--only')?.split(','), SHOTS = option('--shots');
-const LIVE = new Set(['S1', 'S3', 'S4', 'S5', 'S13', 'S14', 'S17', 'S20']);
+const LIVE = new Set(['S1', 'S3', 'S4', 'S5', 'S13', 'S14', 'S17', 'S20', 'S21']);
 const wanted = id => (!ONLY || ONLY.includes(id)) && (!BASE || LIVE.has(id));
 const fixture = JSON.parse(await readFile(join(ROOT, 'tests/site/fixtures/storage.sample.json'), 'utf8'));
 const fixtureDocs = Object.entries(fixture).filter(([k]) => k.startsWith('bs.doc.')).map(([, v]) => JSON.parse(v));
@@ -428,6 +428,45 @@ try {
       assert.equal(await ev('return document.querySelectorAll("#rtSteps .running").length'),0);
     }finally{await page.send('Fetch.disable');page.ws.removeEventListener('message',onPause);}
     return 'older-card pin overridden by Run; repeated monitor injection shows new receipt; delayed AP→SOC→AP ends with AP result/card, no stale injection or abandoned buttons';
+  });
+
+  await probe('S21','Learning loop evidence and tab handoff',async()=>{
+    await rtOpen();
+    await until(()=>ev('return !!document.querySelector("#rtLearning [data-evidence-value]")'),'measured JSON rendered');
+    const evidence=await ev(`return await (await fetch('/jev-runtime/demo/data/learning-evidence.json')).json()`);
+    const values=await ev(`return [...document.querySelectorAll('#rtLearning [data-evidence-value]')].map(e=>({path:e.dataset.evidenceValue,digits:Number(e.dataset.digits),text:e.textContent}))`);
+    assert.ok(values.length>=20,'thresholds, sample sizes, gate and confidence intervals included');
+    for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
+    const text=await ev('return document.querySelector("#rtLearning").textContent');
+    assert.match(text,/The judge learns from your reviewers/);
+    assert.equal(await ev(`return document.querySelector('#rtLearning').previousElementSibling.querySelector('#rtSteps')!==null`),true,'after orchestration');
+    assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
+    assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);
+    assert.equal(await ev(`return [...document.querySelectorAll('#rtLearning .rt-learning-tiles .metric')].filter(e=>e.textContent.includes('measured on an open benchmark (AgentDojo held-out); benchmark labels, not yet customer reviewers')).length`),3);
+    const c=evidence.models['kev-4b'].goal_deviation,d=evidence.models['kev-4b-ft'].goal_deviation;
+    assert.equal(await ev('return document.querySelector("#rtLearningGate").textContent'),`Fine-tuned with the same recipe, ${evidence.models['kev-4b'].label}'s goal_deviation AUROC rose (${c.auroc.toFixed(3)} → ${d.auroc.toFixed(3)}), but its recall at the calibrated threshold fell (${c.recall.toFixed(3)} → ${d.recall.toFixed(3)}), so a recall-first gate would reject it.`);
+    for(const caveat of evidence.caveats)assert.ok(text.includes(caveat),'JSON caveat');
+    await ev('window.__learningDocument=document.querySelector("#rtFrame").contentDocument');
+    await rtClick('#rtTryLoop');
+    await until(()=>rt(`return document.querySelector('[data-tab=learning]').getAttribute('aria-selected')==='true'`),'Learning tab');
+    assert.equal(await ev('return window.__learningDocument===document.querySelector("#rtFrame").contentDocument'),true,'ready frame uses openTab');
+    await until(()=>ev('const r=document.querySelector("#rtFrameWrap").getBoundingClientRect();return scrollY>0&&r.top>=-1&&r.top<innerHeight/3'),'scroll to demo');
+    await ev(`document.querySelector('#rtOpenFull').dispatchEvent(new Event('pointerenter'))`);
+    assert.equal(new URL(await ev('return document.querySelector("#rtOpenFull").href')).searchParams.get('tab'),'learning');
+    for(const width of [1440,390]){
+      await viewport(width);await sleep(250);
+      assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host overflow '+width);
+      assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'learning frame overflow '+width);
+      assert.equal(await ev('return document.querySelectorAll(".rt-learning-loop li").length'),6);
+      if(width===390)assert.equal(await ev(`const a=[...document.querySelectorAll('.rt-learning-loop li')].map(e=>e.getBoundingClientRect().top);return new Set(a).size`),2,'two rows of three');
+    }
+    // A not-yet-ready navigation must carry the deep link itself.
+    await viewport();await ev(`const f=document.querySelector('#rtFrame');f.contentWindow.__jevDemo.ready=false;document.querySelector('#rtTryLoop').click()`);
+    await until(()=>rt(`return window.__jevDemo?.ready&&document.querySelector('[data-tab=learning]').getAttribute('aria-selected')==='true'`),'cold Learning tab');
+    assert.equal(await ev(`return new URL(document.querySelector('#rtFrame').src).searchParams.get('tab')`),'learning');
+    await ev(`document.querySelector('#rtOpenFull').dispatchEvent(new Event('focus'))`);
+    assert.equal(new URL(await ev('return document.querySelector("#rtOpenFull").href')).searchParams.get('tab'),'learning');
+    return 'JSON-derived measurements, exact claims and caveats; ready/cold Learning tab, full-page link and scroll; 1440/390 layout and no JS errors';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{

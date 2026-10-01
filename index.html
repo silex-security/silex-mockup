@@ -335,6 +335,12 @@
   .rt-chip[data-kind="held"],.rt-chip[data-kind="blocked"]{background:var(--red-bg);color:var(--red)}
   .rt-row .btn{padding:5px 10px;font-size:12px}
   .rt-ref{font-size:11px;color:var(--muted);margin:0 0 10px}
+  .rt-learning-loop{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0 0 16px;padding:0;list-style:none}
+  .rt-learning-loop li{border:1px solid var(--line);border-radius:9px;background:var(--soft);padding:12px 10px;font-size:12px;font-weight:600}
+  .rt-learning-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .rt-learning-tiles .metric-value{font-size:26px}.rt-learning-tiles .metric-foot{margin-top:8px}
+  #rtLearning .body{overflow-wrap:anywhere}#rtLearning details{font-size:12px;color:var(--muted);margin-top:12px}#rtLearning summary{cursor:pointer}
+  @media(max-width:760px){.rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}.rt-learning-tiles{grid-template-columns:1fr}#rtLearning .card-head{flex-wrap:wrap;gap:12px}}
   .rt-frame-wrap{height:780px;min-height:560px}
   #rtResult.error{background:var(--red-bg);color:var(--red)}
   @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
@@ -1100,6 +1106,16 @@
 <div class="run-step"><i></i><div>6 · Evidence</div><span>simulated verdict envelope and SIEM JSON line · preview only; nothing leaves the browser</span></div>
 </div>
 <div class="decision-state approved" id="rtResult" style="margin:12px 0 0"></div>
+</div>
+</div>
+<div class="card section-card" id="rtLearning">
+<div class="card-head"><div><h2>The judge learns from your reviewers</h2><p>Reviewer answers become labels for supervised LoRA fine-tuning.</p></div><button type="button" class="btn" id="rtTryLoop">Try the loop</button></div>
+<div class="body">
+<ol class="rt-learning-loop" aria-label="Proposed learning loop">
+<li>Held for review →</li><li>Reviewer answers →</li><li>Labels →</li><li>Train Kev →</li><li>Gate (held-out test) →</li><li>Promote</li>
+</ol>
+<div id="rtLearningEvidence"><p class="rt-ref">Loading measured benchmark evidence…</p></div>
+<p class="rt-ref">Training on reviewer labels and production promotion are future work. The demo illustrates a proposed promotion gate; production promotion is not implemented.</p>
 </div>
 </div>
 <div class="card section-card">
