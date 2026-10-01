@@ -1,4 +1,4 @@
-# Plan: Runtime Validation in System Validation, backed by the Jev runtime demo — r2
+# Plan: Runtime Validation in System Validation, backed by the Jev runtime demo — r3
 
 Date 2026-09-30 · branch `jev-runtime-validation` in `silex-mockup` (from `main` `fbd598d`) and `demo-embed` in `jev-realtime-observability` (from `main` `eb9b8e4`) · roster: planner Claude, `coder-deepseek`, `reviewer-codex`; both gates unanimous.
 
@@ -50,7 +50,7 @@ System-wise. Is the broader enterprise environment still safe …
      3. Jev judgment battery (one call, atomic questions)
      4. Policy (thresholds; gate or monitor per tool)
      5. Gateway action (allow / hold / block)
-     6. Evidence (a simulated verdict envelope and SIEM JSON preview; nothing is sent)
+     6. Evidence (a simulated verdict envelope and SIEM JSON line, preview only; nothing leaves the browser)
 
      Pressing a scenario's **Run** animates these steps with the site's `runSteps()`. The result line underneath is then **computed from that scenario's envelopes**. Example: "SOC2 · 3 actions: `firewall.allowlist_ip` held for approval by rule `allowlist_change_approval`; 2 ran."
   4. **"Scripted scenarios".** Two side-by-side lists, **AP payments agent** (S1–S6, F1) and **SOC triage agent** (SOC1–SOC5). They stack on phones.
@@ -61,10 +61,13 @@ System-wise. Is the broader enterprise environment still safe …
        - if the frame is already on that scenario's agent, it calls `__jevDemo.inject(id)` with no reload;
        - otherwise it reloads the frame on that agent (`?embed=1&domain=ap|soc&autoplay=0`) and injects once `__jevDemo.ready`.
        - Either way it then scrolls the frame into view, and the injected run is the selected card.
+     - **The result line comes from the envelopes that this Run's `__jevDemo.inject(id)` returned,** using their gateway action and recorded mode. The frame may carry Policy Studio edits, and an injected span's id seeds its jitter, so the reference model cannot describe a particular run. The scenario-list chips and the metric cards are the **default-policy reference** and are labelled so.
      - **Run concurrency** is latest request wins. Each Run takes a request token, and every asynchronous step checks the token: the step animation's callback, the frame-ready wait and the inject. A stale step does nothing. While a run is starting, its Run button shows "Running…" and is disabled.
      - If the frame is not ready within 10 s, `#rtResult` shows an error ("The simulated demo did not load; open it full page") instead of a result.
 - **Deep link:** `index.html#view=long-term&tab=runtime` (or `tab=periodic`) opens System Validation on that tab. The new handler acts only on a hash starting with `view=`. The Studio's existing `#studio` / `#studio=new` routes (`js/studio-host.js`) are left as they are, and any other hash is ignored.
 - **`runSteps` becomes an explicit hook.** The site exposes `window.__siteRunSteps = runSteps` next to `__siteShowView` (`index.html:1553`), so the host module does not rely on an implicit global.
+  - `runSteps(el, { ms, onDone, isCurrent })` gains an optional `isCurrent()` guard. Each scheduled timer checks it before touching a step's classes or calling `onDone`. A stale animation therefore cannot change a newer run's indicators.
+  - The existing System Validation call passes no guard and behaves exactly as today.
 - **Definitions** gains `Runtime Validation`: "Action-wise and continuous: each agent action is checked before it runs (hard rules → judgment → policy). Shown here with a simulated engine."
 
 ## 2. New directories
@@ -133,11 +136,12 @@ Acceptance: the vendored page opens at `/jev-runtime/demo/index.html` with no JS
 - **S14:** tab 2's four metrics equal the model recomputed in the probe.
 - **S15:** Run SOC2 animates the steps. The result line matches the envelopes. The frame shows the SOC agent (`__jevDemo.domain === 'soc'`) with the SOC2 run selected and "Held for approval · did not run". The same flow covers:
   - a second SOC run, which injects without a reload;
-  - rapid SOC2 → S3 clicks, after which only S3's result and frame state remain;
+  - rapid SOC2 → S3 clicks, after which only S3's result, frame state and six step classes remain, and no Run button is left disabled;
+  - in the same frame, setting `payments.execute` to monitor in the demo's Policy Studio and then running S3: the result line says the call ran (and would have been blocked), while the reference chip still reads its default-policy outcome and is labelled as the reference;
   - leaving the tab and coming back.
 - **S16:** Run S3 switches the frame to the AP agent. Its run reads "Blocked · did not run".
 - **S17:** the deep link opens tab 2, and `#studio` still opens Blueprint Studio. Open full page, after an AP run and after a SOC run, keeps the domain and seed, has no `embed`, and carries a correctly encoded `back`; following back returns to tab 2.
-- **Claims check:** the finished steps and result text never claim telemetry delivery. No "sent", "exported" or "OTLP" appears in tab 2.
+- **Claims check,** scoped to the host's `#rtSteps` and `#rtResult` (the unchanged iframe text is out of scope): no affirmative delivery claim. The text must not match `/\b(sent to|exported to|delivered to|forwarded to)\b|OTLP/i`, and it must contain "preview only".
 - **S18:** no JS errors on the site or in the frame. No horizontal scroll at 1440 and 390 px. The simulated labels are visible.
 
 `--base` live mode later re-checks S13, S14 and S17.
@@ -176,3 +180,10 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 | 2 | The Evidence step implied an OTLP export the browser demo doesn't do; Capture implied live instrumentation (Codex #2) | Steps say "OpenTelemetry-shaped span; simulated input" and "simulated verdict envelope and SIEM JSON preview; nothing is sent". A claims check is added. |
 | s | Codex suggestions | Latest-request-wins tokens, disabled Run while starting, a 10 s ready timeout with an error; metrics over the pre_tool set with non-executing actions (S5/F1 not stops), labelled a fixed reference set; manifest exemptions, full commit hash, stale-file removal; tests for Open full page, `#studio` and `back`. |
 | s | DeepSeek suggestions | `window.__siteRunSteps`; same-agent Run injects without a reload; `back` validated after decoding, with encoded-scheme tests; the hash handler acts only on `view=` and leaves `#studio`; `.d.ts` not vendored; Open full page is the mockup card's link. |
+
+## Round 2 objections → changes (r3)
+
+| # | Objection (who) | Change |
+|---|---|---|
+| 1 | The claims check (no "sent") contradicted the required wording "nothing is sent" (Codex #1) | The wording is now "preview only; nothing leaves the browser". The check is scoped to `#rtSteps`/`#rtResult`, bans affirmative delivery phrases and OTLP, and requires "preview only". |
+| s | Codex suggestions | The result line comes from that Run's inject envelopes; the chips and metrics are labelled default-policy reference; a monitor-edit test. `runSteps` gets an optional `isCurrent` guard, so a stale animation cannot touch a newer run's steps; the rapid-click test checks the six step classes and that no button is left disabled. |
