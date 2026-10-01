@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-01 — Promotion gate verdicts on Runtime Observation
+
+- The "The judge learns from your reviewers" card replaces the Kev-4B sentence with **Would this gate promote it?**: Kev-0.8B fine-tuned KEEP (fixed 17, broke 2), Kev-4B fine-tuned DISCARD (safety check: missed cases 25 → 27). Read from the vendored generated JSON.
+- The vendored demo is re-synced to jev `be8fda2`: the Learning loop tab now plays three rounds (NEAR-MISS, KEEP, DISCARD) into a model history. Guide §9 is updated in both repos.
+- The plan and reviews are in the jev repo: `logs/2026-10-01_LINEAGE_GATE_PLAN.md`.
+
 ## 2026-10-01 — Learning loop on Runtime Observation
 
 - A new card, "The judge learns from your reviewers", sits after the six-step orchestration. It shows the six-stage loop, three measured tiles and the Kev-4B gate lesson. Every value is read from the vendored, generated `learning-evidence.json`, and each tile says these are benchmark labels, not customer reviewers yet.
