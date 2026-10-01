@@ -185,3 +185,16 @@ r1 review: `reviewer-codex` PLAN-CHANGES (8 items), `coder-deepseek` PLAN-CHANGE
 - **DeepSeek:** review.
 
 Acceptance: unit 20/20; probes 20/20.
+
+### Plan gate
+
+| Round | reviewer-codex | coder-deepseek | planner |
+|---|---|---|---|
+| r1 | PLAN-CHANGES (8) | PLAN-CHANGES (9) | — |
+| r2 | PLAN-APPROVED | PLAN-APPROVED | PLAN-APPROVED |
+
+**Build notes from r2** (non-blocking):
+- **Timers:** keep the docking-settlement fallback separate from the interaction timer. Drop stale `transitionend` listeners on rapid pin changes, so each settled layout fires one `resize`.
+- **Host modal:** every auto open/close handler is ignored while a host modal is open.
+- **`elementFromPoint`** accepts the target or one of its descendants. Frame clicks are checked in that frame's document.
+- **`__siteNav.state()`** keeps one shape across desktop, pinned and phone.
