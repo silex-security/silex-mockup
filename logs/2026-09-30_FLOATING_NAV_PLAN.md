@@ -1,4 +1,4 @@
-# Plan: floating left nav — r1
+# Plan: floating left nav — r2
 
 Date 2026-09-30 · branch `floating-nav` from `main` `bbf3a7d` · roster: planner Claude, `reviewer-codex`, `coder-deepseek`; both gates unanimous.
 
@@ -77,3 +77,111 @@ Date 2026-09-30 · branch `floating-nav` from `main` `bbf3a7d` · roster: planne
 - 390 px.
 
 **Deploy:** a push to `main` is public. Show the screenshots and ask first, then run the live read-back.
+
+## r2: resolutions of plan review r1 (these supersede §1–§3 where they differ)
+
+r1 review: `reviewer-codex` PLAN-CHANGES (8 items), `coder-deepseek` PLAN-CHANGES (9 items). Every item is taken; where the two differ, the choice is stated.
+
+**A. Geometry and layers** (DS 1, 3, 4; Codex 6).
+- **Drawer:** full height, as today (`position:fixed; top:0; left:0; width:244px; height:100vh; overflow-y:auto`), so the brand stays at the top.
+- **When the drawer is open it covers `☰`; that is fine:**
+  - `☰` only opens the drawer;
+  - closing is pointer leave, `Esc`, an outside click, or choosing an item;
+  - `☰`'s `aria-expanded` still tracks the state.
+- **Pinned** uses DeepSeek's mechanism (b): the drawer stays fixed and is never transformed, and `.main` gets `margin-left:244px`. `.app` is one column in both modes.
+- **Stacking:** content < topbar 5 < edge strip 19 < drawer 20 < host modal 30 < help tooltip 40 < toast 50.
+- **Edge strip:** shown only when the drawer is closed and not pinned, never under the open drawer.
+- **Short screens:** the drawer scrolls (`overflow-y:auto`); a probe at 1440 × 600 reaches every item and the pin.
+
+**B. Modes and precedence** (Codex 3, 5).
+- **State:** `mode` is `auto` or `pinned` (the stored preference, `silex.nav.pinned`); `open` is a boolean that only means something in `auto`.
+- **When pinned:**
+  - `Esc`, outside click and pointer leave do nothing;
+  - `☰` and the strip are hidden;
+  - only the pin button unpins.
+- **Desktop vs phone:**
+  - Desktop rules live under `@media not all and (max-width:760px)`, the exact complement of the existing phone query, so there is no fractional gap. JS uses `matchMedia('(max-width:760px)')`.
+  - **Entering phone width:** cancel timers, remove `inert` and transforms, keep the stored preference.
+  - **Back to desktop:** restore the pinned dock, or auto with the drawer closed.
+- **Timers:** one timer slot.
+  - Every explicit action (toggle, `Esc`, outside close, pin change, breakpoint change, nav choice) clears it.
+  - Callbacks re-check mode, the breakpoint, hover state and keyboard focus before acting.
+  - The 120 ms reveal is cancelled if the pointer leaves the strip first.
+  - Re-entering the drawer cancels the 350 ms close.
+
+**C. Focus and keyboard** (Codex 1, 2).
+- **Closed in auto mode (desktop):** the drawer is `inert`, so it is out of the tab order and the accessibility tree.
+- **`☰`:** a real `<button aria-label="Show navigation" aria-controls="sidebar" aria-expanded>`, grouped with the breadcrumb in a new `.top-left` flex cluster.
+- **Input modality:** the last input is `keyboard` after keydown, otherwise `pointer` after pointerdown.
+  - **Keyboard focus inside the open drawer** keeps it open.
+  - **Pointer focus** (a clicked nav button) does not stop the leave timer.
+- **Opening:**
+  - from the keyboard (`☰` with Enter or Space): remove `inert` and focus the active nav item;
+  - by pointer: no focus move.
+- **Choosing a nav item:**
+  - by pointer: the view switches, and the drawer closes 350 ms after the pointer leaves;
+  - by keyboard or touch: the view switches and the drawer closes at once.
+
+  Before `inert` is applied, focus moves to `<main id="main" tabindex="-1">` for the keyboard case; in the pointer case it is blurred.
+- **Esc:**
+  - closes the drawer;
+  - focus returns to `☰` if it was inside the drawer;
+  - ignored while a host modal is open;
+  - never listened for inside iframes, so Studio's own Esc is untouched.
+- **Focus leaving the drawer** (`focusout` whose new target is outside the drawer, checked on the next tick, including focus entering an iframe) closes it in auto mode.
+- **No focus trap:** the drawer is non-modal.
+
+**D. Iframes and outside clicks** (Codex 4; DS 7).
+- **"Outside click"** means a host-document `pointerdown` outside the drawer and `☰`.
+  - It **passes through**: the peek has no scrim, so the click also reaches its target, which is the least surprising behaviour.
+- **Iframes:**
+  - nothing is attached inside them;
+  - the drawer's own `pointerleave` covers a pointer moving into an iframe;
+  - `focusout` covers keyboard focus entering one.
+- **S20 checks:**
+  - open by toggle, move into and click inside the Runtime and Studio iframes, and the drawer closes;
+  - the frame's control still works (the Runtime frame's tab switch, Studio's Esc-closable menu).
+
+**E. Resize after pin changes** (DS 8; Codex 5, 7).
+- After a pin change, exactly one `window` `resize` event is dispatched once the dock settles: on `transitionend` of `.main`'s `margin-left`, or a 260 ms fallback, whichever comes first.
+- Under `prefers-reduced-motion` it fires on the next frame.
+- Nothing listens to `resize` to change docking, so there is no loop.
+- **S20 checks**, after the 180 ms World Model debounce:
+  - the Studio iframe's width and height follow pin and unpin, with the same frame document;
+  - an active World Model panel re-measures.
+
+**F. Probes** (DS 2; Codex 1, 8).
+- **`nav(view)` on desktop:**
+  - if the target button is not hit-testable (drawer closed), it clicks `☰` with a real CDP click;
+  - waits for `__siteNav.state()` to report `{open:true, settled:true}` and the button's rect inside the viewport, checked with `elementFromPoint`;
+  - then clicks the button.
+- **Phone:** unchanged.
+- **Audit:** every other direct `.nav` click is audited and moved to `nav()`.
+- **`clickSel`:** asserts `elementFromPoint` hits the target, so an off-screen click fails loudly instead of no-op'ing.
+- **S18:** the nav-visibility claim becomes "desktop: reachable through the toggle; 390 px: visible strip".
+- **S20** uses real input events only; `__siteNav` is read-only state for waits.
+  - It clears `silex.nav.pinned` at start and end, so S1–S19 and the live subset run in auto mode.
+  - **Coverage:**
+    - edge reveal, and reveal cancelled before 120 ms;
+    - leave, and re-entry before 350 ms;
+    - an explicit close during a pending reveal;
+    - pointer nav choice, then leaving without clicking elsewhere, closes;
+    - keyboard open, Tab, Shift+Tab across the boundary, and Esc with focus inside and outside;
+    - Tab while closed never focuses a nav item;
+    - outside click; iframe interaction;
+    - pin persists across reload, with Esc and outside click doing nothing while pinned;
+    - rapid pin and unpin;
+    - 760 / 761 px, and desktop → 390 → desktop in both modes, including crossing with a pending timer;
+    - 1440 × 600 scroll reach;
+    - modal over the drawer;
+    - reduced motion;
+    - no horizontal overflow at 761, 768, 1024 and 1440;
+    - no JS errors.
+- **`assurance.html`:** its own nav is out of scope and unchanged.
+
+**G. Ownership** (unchanged from §2):
+- **Codex:** `index.html` (CSS, markup), `js/floating-nav.js`, `tests/site/run-site-probes.mjs`.
+- **Planner:** docs and screenshots.
+- **DeepSeek:** review.
+
+Acceptance: unit 20/20; probes 20/20.
