@@ -187,3 +187,9 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
 |---|---|---|
 | 1 | The claims check (no "sent") contradicted the required wording "nothing is sent" (Codex #1) | The wording is now "preview only; nothing leaves the browser". The check is scoped to `#rtSteps`/`#rtResult`, bans affirmative delivery phrases and OTLP, and requires "preview only". |
 | s | Codex suggestions | The result line comes from that Run's inject envelopes; the chips and metrics are labelled default-policy reference; a monitor-edit test. `runSteps` gets an optional `isCurrent` guard, so a stale animation cannot touch a newer run's steps; the rapid-click test checks the six step classes and that no button is left disabled. |
+
+### Plan gate outcome
+- **r1:** `reviewer-codex` PLAN-REJECTED (2 objections). `coder-deepseek` PLAN-APPROVED (5 suggestions).
+- **r2:** `reviewer-codex` PLAN-REJECTED (1 objection, a self-contradicting claims check). `coder-deepseek` PLAN-APPROVED.
+- **r3:** approved by all three. `reviewer-codex`: PLAN-APPROVED. `coder-deepseek`: PLAN-APPROVED. PLANNER (claude): PLAN-APPROVED.
+- **The user** had asked to plan and then execute. Per the standing instruction, the build starts once the review passes, and screenshots are shown before any deploy.
