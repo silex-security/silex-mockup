@@ -283,4 +283,4 @@ Acceptance: unit 20/20; probes 20/20.
 
 **Planner check:** screenshots of the hidden state with full-width content, docked, peek over the content, and 390 px with the phone strip unchanged.
 
-**Deploy:** pending the user's go-ahead.
+**Deploy:** 2026-09-30, on the user's go-ahead, as `84585d5` (fast-forward of `floating-nav`). Live read-back `--base https://silex-mockup.vercel.app`: 8/8 PASS (now including S20).
