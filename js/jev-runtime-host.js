@@ -11,7 +11,7 @@ const READY_MS = 10000;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-let summary = null, frame = null, frameDomain = null, token = 0, cancelPrevious = null;
+let summary = null, frame = null, frameDomain = null, nav = 0, token = 0, cancelPrevious = null;
 
 function renderReference() {
   try { summary = summarize(); } catch (e) {
@@ -29,26 +29,47 @@ function renderReference() {
 }
 
 const demoWin = () => { try { return frame?.contentWindow ?? null; } catch { return null; } };
-const demoReady = () => { const w = demoWin(); try { return w?.__jevDemo?.ready ? w.__jevDemo : null; } catch { return null; } };
+/* The frame's current document: which host navigation produced it (&nav=), and its demo API once ready. While a
+   navigation is pending, contentWindow is still the outgoing document, so the nav marker tells the two apart. */
+function frameDoc() {
+  const w = demoWin();
+  try {
+    const n = new URLSearchParams(w.location.search).get('nav');
+    const d = w.__jevDemo?.ready ? w.__jevDemo : null;
+    return { nav: n, demo: d, domain: d?.domain ?? null };
+  } catch { return { nav: null, demo: null, domain: null }; }
+}
+/* The demo API, only if the frame shows the latest navigation's document on `domain`. */
+function currentDemo(domain) {
+  const f = frameDoc();
+  return f.nav === String(nav) && f.demo && f.domain === domain ? f.demo : null;
+}
 
 function loadFrame(domain, autoplay) {
   const wrap = $('rtFrameWrap');
-  if (!frame) { frame = document.createElement('iframe'); frame.id = 'rtFrame'; frame.title = 'Jev runtime demo (simulated)'; wrap.textContent = ''; wrap.appendChild(frame); }
+  if (!frame) {
+    frame = document.createElement('iframe'); frame.id = 'rtFrame'; frame.title = 'Jev runtime demo (simulated)';
+    frame.addEventListener('load', refreshOpenFull);
+    wrap.textContent = ''; wrap.appendChild(frame);
+  }
   frameDomain = domain;
-  frame.src = `${DEMO}?embed=1&domain=${domain}&autoplay=${autoplay ? 1 : 0}`;
+  frame.src = `${DEMO}?embed=1&domain=${domain}&autoplay=${autoplay ? 1 : 0}&nav=${++nav}`;   // a newer navigation replaces a pending one
 }
 
-/* Resolves with the demo's API once the frame shows `domain`; rejects after READY_MS. */
+/* Resolves with the demo's API once the frame shows `domain` from the latest navigation; rejects after READY_MS. */
 function frameOn(domain, isCurrent) {
-  const d = demoReady();
-  if (d && d.domain === domain) return Promise.resolve(d);
-  if (!(frame && !d && frameDomain === domain)) loadFrame(domain, false);   // a frame still loading this agent is awaited, not reloaded
+  const d = currentDemo(domain);
+  if (d) return Promise.resolve(d);
+  const f = frameDoc();
+  // Await the pending navigation only if it targets this agent and the viewer has not switched the agent inside it.
+  const awaitPending = frame && frameDomain === domain && !(f.nav === String(nav) && f.demo && f.domain !== domain);
+  if (!awaitPending) loadFrame(domain, false);
   const t0 = Date.now();
   return new Promise((resolve, reject) => {
     const poll = () => {
       if (!isCurrent()) return reject(new Error('stale'));
-      const r = demoReady();
-      if (r && r.domain === domain) return resolve(r);
+      const r = currentDemo(domain);
+      if (r) return resolve(r);
       if (Date.now() - t0 > READY_MS) return reject(new Error('timeout'));
       setTimeout(poll, 100);
     };
@@ -78,9 +99,13 @@ async function run(id) {
   try {
     const animated = new Promise(res => window.__siteRunSteps($('rtSteps'), { ms: 260, isCurrent, onDone: res }));
     const ready = frameOn(sc.domain, isCurrent);
-    const [, demo] = await Promise.race([Promise.all([animated, ready]), cancelled]);
+    let [, demo] = await Promise.race([Promise.all([animated, ready]), cancelled]);
+    if (!isCurrent()) return null;
+    // Re-check right before injecting: the frame may have navigated (or been switched to another agent) since.
+    if (currentDemo(sc.domain) !== demo) demo = await Promise.race([frameOn(sc.domain, isCurrent), cancelled]);
     if (!isCurrent()) return null;
     const envs = demo.inject(id);
+    refreshOpenFull();
     const line = describeRun(envs, { id });
     setResult(line, true);
     status.textContent = 'Complete'; status.className = 'status'; status.style.cssText = 'background:var(--green-bg);color:var(--green)';
@@ -102,16 +127,19 @@ function shown() {
 }
 
 $('rtScenarios').addEventListener('click', e => { const b = e.target.closest('[data-rt-run]'); if (b && !b.disabled) run(b.dataset.rtRun); });
-// Open full page: the frame's current agent and seed, no embed, and a back link to this tab.
-$('rtOpenFull').addEventListener('click', () => {
-  const d = demoReady();
-  const q = new URLSearchParams({ domain: d?.domain ?? frameDomain ?? 'ap' });
-  if (d?.seed != null) q.set('seed', String(d.seed));
+// Open full page: the frame's current agent and seed, no embed, and a back link to this tab. The href is kept current
+// (frame load, each Run, pointer/focus), so copying the link or opening it in a new tab gets the same target.
+function refreshOpenFull() {
+  const f = frameDoc();
+  const q = new URLSearchParams({ domain: f.domain ?? frameDomain ?? 'ap' });
+  if (f.demo?.seed != null) q.set('seed', String(f.demo.seed));
   q.set('back', BACK);
   $('rtOpenFull').href = `${DEMO}?${q}`;
-});
+}
+for (const ev of ['click', 'pointerenter', 'focus', 'contextmenu']) $('rtOpenFull').addEventListener(ev, refreshOpenFull);
 
 renderReference();
+refreshOpenFull();
 window.__jevRuntimeShown = shown;
 window.__jevRuntime = { ready: true, run, summary: () => summary };
 if (!$('ltRuntime').hidden) shown();

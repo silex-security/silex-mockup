@@ -340,7 +340,7 @@
   .rt-frame-wrap{height:780px;min-height:560px}
   #rtResult.error{background:var(--red-bg);color:var(--red)}
   @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
-  @media(max-width:560px){.rt-row{grid-template-columns:44px minmax(0,1fr) auto}.rt-row .rt-chip{display:none}.rt-frame-wrap{height:680px}}
+  @media(max-width:560px){.rt-row{grid-template-columns:44px minmax(0,1fr) auto}.rt-row .rt-chip{grid-column:2;grid-row:2;justify-self:start}.rt-row .btn{grid-column:3;grid-row:1/span 2}.rt-frame-wrap{height:680px}}
   .studio-frame-wrap{height:calc(100vh - 150px);min-height:560px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.studio-frame-wrap iframe{display:block;width:100%;height:100%;border:0}.studio-frame-loading{display:grid;place-items:center;height:100%;color:var(--muted);font-size:13px}.studio-pending .muted,.studio-pcp .muted,.studio-lib-rows .muted,.studio-empty{color:var(--muted)}.studio-pending .row{display:grid;grid-template-columns:1fr auto;gap:3px 12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:12px;text-align:left}.studio-pending .row b{font-size:13px}.studio-pending .row>*:not(button){grid-column:1}.studio-pending .row>button{grid-column:2;grid-row:1/span 3}.studio-pending small,.studio-pcp small{font-size:11px}.studio-empty{font-size:12px;padding:6px 2px 10px}.studio-pcp{display:contents}.studio-card{padding:16px}.studio-card ul{margin:8px 0;padding-left:18px;font-size:12px}.studio-card .row-actions,.studio-lib-rows .row-actions{display:flex;gap:8px;margin-top:10px}.studio-lib-rows{padding:0 20px 18px}.studio-lib-rows .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border-top:1px solid var(--line);padding:12px 0;font-size:12px}.studio-lib-rows .row .row-actions{margin:0 0 0 auto}.studio-lib-rows .warn{color:var(--amber)}.studio-pending .btn.sm,.studio-pcp .btn.sm,.studio-lib-rows .btn.sm{padding:7px 11px;font-size:12px;background:#fff;color:var(--ink);border:1px solid var(--line)}.studio-lib-rows .btn.sm:disabled{opacity:.45;cursor:not-allowed}#blueprint.view.active{display:block}@media(max-width:760px){.studio-frame-wrap{height:calc(100vh - 120px);border-radius:10px}}
 </style>
   <style>
@@ -1117,7 +1117,7 @@
 <div class="body"><div class="rt-scen-grid" id="rtScenarios"><p class="rt-ref">Loading the simulated engine…</p></div></div>
 </div>
 <div class="card section-card">
-<div class="card-head"><div><h2>Decision plane (simulated)</h2><p>The Jev runtime demo, embedded: switch agents, open a run's details, try Replay and Policy Studio.</p></div><a class="btn secondary" id="rtOpenFull" href="jev-runtime/demo/index.html">Open full page ↗</a></div>
+<div class="card-head"><div><h2>Decision plane (simulated)</h2><p>The Jev runtime demo, embedded: switch agents, open a run's details, try Replay and Policy Studio.</p></div><a class="btn secondary" id="rtOpenFull" href="jev-runtime/demo/index.html">Open full page →</a></div>
 <div class="body"><div class="studio-frame-wrap rt-frame-wrap" id="rtFrameWrap"><div class="studio-frame-loading">The simulated demo loads when you open this tab.</div></div></div>
 </div>
 </div>
