@@ -76,3 +76,32 @@ The demo lives inside System Validation as its second tab. `logs/2026-09-30_JEV_
 Screenshots to show before deploy: nav order, Runtime Observe top, a Run result, the embedded demo, System Validation restored, and 390 px.
 
 **Deploy:** a push to `main` is a public deploy. The user's request names the change on the live site, but per the standing rule I show screenshots and ask before pushing `main`. After deploy, re-check the live site with `--base` (S1, S3, S4, S5, S13, S14, S17).
+
+### Plan gate outcome and build notes
+
+- **r1 approved by all three seats.** `reviewer-codex`: PLAN-APPROVED. `coder-deepseek`: PLAN-APPROVED. PLANNER (claude): PLAN-APPROVED.
+- **Build notes** (non-blocking suggestions the build follows):
+  1. **`showView` hook:** guarded, `if(id==='runtime-observe'&&window.__jevRuntimeShown)…`. The host keeps its own load-time check, now `#runtime-observe.classList.contains('active')`. Both paths are needed: a cold deep link runs before the deferred module, and later nav clicks go through `showView`.
+  2. **`applyViewHash`:**
+     - an allowlist of `runtime-observe` and `long-term`;
+     - the legacy `view=long-term&tab=runtime` is checked first: `replaceState` to `#view=runtime-observe`, then `showView` in the same call, because `replaceState` fires no `hashchange`;
+     - `long-term` with any other tab opens System Validation;
+     - other `view=` values are ignored, as today;
+     - `#studio` and `#studio=new` stay with `js/studio-host.js`.
+     - **No URL synchronization is promised:** nav clicks still don't change the hash.
+  3. **Clean-up:**
+     - the `role=tabpanel`, `aria-labelledby` and `hidden` attributes leave with the wrappers;
+     - "loads when you open this tab" becomes "this view";
+     - `#ltSub` becomes a plain static `<p>`, without the id and `data-*` attributes.
+  4. **Definition:** it keeps the anchor `def-runtimeval`. Its term becomes **Runtime Observe**, with wording that fits observing: "Watch each agent action as it happens and see what runtime validation decides before it runs (hard rules → judgment → policy). Shown with a simulated engine."
+  5. **Probes:**
+     - `back` expects `../../index.html#view=runtime-observe`;
+     - "leave and return" becomes Runtime Observe → System Validation → Runtime Observe, keeping the same frame document, edited policy, selected run, result and steps;
+     - lazy loading: no iframe until Runtime Observe is first opened, then exactly one;
+     - System Validation shows no tabs or wrappers, and its controls are visible;
+     - legacy-redirect checks for both a cold load and a hash change in an already loaded page;
+     - the `--base` comment notes the nav-order check.
+  6. **Docs, by path:**
+     - `README.md`, `logs/README.md`, `jev-runtime/README.md`;
+     - `docs/jev-runtime-guide/README.md` §8 and `jev-runtime-observability/docs/demo/guide/README.md` §8, identical, with screenshots 08–10 replaced;
+     - `jev-runtime-observability/skills/jev-work-plan/SKILL.md`.
