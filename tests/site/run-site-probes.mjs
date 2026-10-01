@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Validation S13–S18. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Validation S13–S19. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13, S14, S17. Isolated Chrome profile;
@@ -343,6 +343,44 @@ try {
       assert.equal(await rt(`const e=document.querySelector('[data-simulated-badge]');const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'&&/SIMULATED/.test(e.textContent)`),true,'frame badge visible');
     }
     return 'host/iframe responsive at 1440/390, visible simulation labels, no affirmative delivery claim or JS errors';
+  });
+
+  await probe('S19','manual selection handoff and delayed navigation supersession',async()=>{
+    await rtOpen();await rtRun('SOC2');await rtRun('SOC3');
+    const older=await rt(`return window.__jevDemo.log().find(e=>e.scenario==='SOC2').trace_id`);
+    await rt(`document.querySelector('.run-row[data-run-row="${older}"]').click()`);
+    assert.equal(await rt('return document.querySelector(".run-card[data-selected]").dataset.runId'),older);
+    await rtRun('SOC1');await rtResult('SOC1');
+    assert.notEqual(await rt('return document.querySelector(".run-card[data-selected]").dataset.runId'),older,'Run overrides manual pin');
+    await rtRun('S3');const gateRun=await rt('return window.__jevDemo.log().at(-1).trace_id');await rtRun('S1');
+    await rt(`document.querySelector('.run-row[data-run-row="${gateRun}"]').click();document.querySelector('[data-tab=studio]').click();const e=document.querySelector('[data-tool-mode="payments.execute"]');e.value='monitor';e.dispatchEvent(new window.Event('change',{bubbles:true}));document.querySelector('[data-tab=live]').click()`);
+    await rtRun('S3');await rtResult('S3');
+    assert.notEqual(await rt('return document.querySelector(".run-card[data-selected]").dataset.runId'),gateRun,'repeated Run selects new trace, not old gate receipt');
+    assert.match(await rt('return document.querySelector(".run-card[data-selected]").textContent'),/Would block · ran/);
+    // Keep an outgoing AP document alive while its SOC navigation is paused.
+    // A new AP Run must replace that pending navigation, not inject into the
+    // outgoing AP API object and subsequently display the old SOC request.
+    await rtOpen();assert.equal(await rt('return window.__jevDemo.domain'),'ap');
+    let paused=null;
+    const onPause=e=>{const m=JSON.parse(e.data);if(m.method==='Fetch.requestPaused')paused=m.params;};
+    page.ws.addEventListener('message',onPause);
+    try{
+      await page.send('Fetch.enable',{patterns:[{urlPattern:'*domain=soc*',requestStage:'Request'}]});
+      await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await until(()=>paused,'SOC navigation held');
+      assert.equal(await rt('return window.__jevDemo.domain'),'ap','outgoing AP document remains during delayed SOC navigation');
+      await rtClick('[data-rt-scenario="S3"] [data-rt-run]');
+      try{await page.send('Fetch.continueRequest',{requestId:paused.requestId});}
+      catch(e){if(!/Invalid InterceptionId|Invalid interception|Invalid RequestId|Invalid request/i.test(e.message))throw e;}
+      await page.send('Fetch.disable');
+      await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"&&document.querySelector("#rtResult").textContent.startsWith("S3 ·")'),'superseding AP Run completes');
+      await until(()=>rt('const last=window.__jevDemo.log().filter(e=>e.scenario==="S3").at(-1);return window.__jevDemo.domain==="ap"&&last&&document.querySelector(".run-card[data-selected]")?.dataset.runId===last.trace_id'),'latest AP document and selected S3');
+      await sleep(500);assert.equal(await rt('return window.__jevDemo.domain'),'ap','released old navigation cannot replace AP');await rtResult('S3');
+      assert.equal(await rt('return window.__jevDemo.log().some(e=>e.scenario==="SOC2")'),false,'superseded scenario was not injected');
+      assert.equal(await ev('return document.querySelectorAll("#rtScenarios [data-rt-run]:disabled").length'),0);
+      assert.equal(await ev('return document.querySelectorAll("#rtSteps .done").length'),6);
+      assert.equal(await ev('return document.querySelectorAll("#rtSteps .running").length'),0);
+    }finally{await page.send('Fetch.disable');page.ws.removeEventListener('message',onPause);}
+    return 'older-card pin overridden by Run; repeated monitor injection shows new receipt; delayed AP→SOC→AP ends with AP result/card, no stale injection or abandoned buttons';
   });
 
 } finally {
