@@ -18,6 +18,7 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
   - What was built and why: [`SECURITY_WORLD_MODEL.md`](SECURITY_WORLD_MODEL.md). Code and data pipeline: [`swm/`](swm/README.md).
 - **Runtime Validation (Jev runtime demo):** System Validation has two tabs. *Periodic · environment-wide* is the existing system validation; *Runtime · every agent action* shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.
   - The demo is vendored byte-for-byte in [`jev-runtime/`](jev-runtime/README.md) from jev-realtime-observability, and it is simulated end to end.
+  - Plain-language guide (Chinese, screenshots of every page): [`docs/jev-runtime-guide/`](docs/jev-runtime-guide/README.md).
   - Deep link: `index.html#view=long-term&tab=runtime`. Plan: [`logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md).
 - **Older Jev observability demo:** [`jev-observability/`](jev-observability/README.md) is the first, AP-only standalone page. It stays live, unchanged, and `jev-runtime/` supersedes it.
 - **Figures are illustrative, except in Blueprint Studio.**
