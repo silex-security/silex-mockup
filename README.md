@@ -16,10 +16,10 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
   - They are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists.
   - The Ontology Graph opens on the animated **Network** view (WebVOWL-style).
   - What was built and why: [`SECURITY_WORLD_MODEL.md`](SECURITY_WORLD_MODEL.md). Code and data pipeline: [`swm/`](swm/README.md).
-- **Runtime Validation (Jev runtime demo):** System Validation has two tabs. *Periodic · environment-wide* is the existing system validation; *Runtime · every agent action* shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.
+- **Runtime Observe (Jev runtime demo):** its own entry in the left nav's Environment group, between Enterprise World Model and System Validation. It shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.
   - The demo is vendored byte-for-byte in [`jev-runtime/`](jev-runtime/README.md) from jev-runtime-observability, and it is simulated end to end.
   - Plain-language guide (Chinese, screenshots of every page): [`docs/jev-runtime-guide/`](docs/jev-runtime-guide/README.md).
-  - Deep link: `index.html#view=long-term&tab=runtime`. Plan: [`logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md).
+  - Deep link: `index.html#view=runtime-observe`; the old `#view=long-term&tab=runtime` redirects there. Plans: [`logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md) (built as a System Validation tab), then [`logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md`](logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md) (moved to its own view).
 - **Older Jev observability demo:** [`jev-observability/`](jev-observability/README.md) is the first, AP-only standalone page. It stays live, unchanged, and `jev-runtime/` supersedes it.
 - **Figures are illustrative, except in Blueprint Studio.**
   - Blueprint Studio runs a deterministic engine on the declared graph: simulated outcomes under a declared adversary model, with no real agents or tools.
@@ -52,5 +52,6 @@ Every change to this demo, newest first, with the reasoning behind each one: [`l
 | [`2026-09-22_SPARSE_OBSERVABILITY_IMPLEMENTATION.md`](logs/2026-09-22_SPARSE_OBSERVABILITY_IMPLEMENTATION.md) | Implementation rounds r1–r4, the evidence and the deploy record |
 | [`2026-09-27_JEV_OBSERVABILITY_PLAN.md`](logs/2026-09-27_JEV_OBSERVABILITY_PLAN.md) | Jev real-time observability demo (`jev-observability/`): plan v0.2, plan and code review rounds, outcome |
 | [`2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md) | Runtime Validation tab in System Validation, backed by the vendored Jev runtime demo (`jev-runtime/`): plan r3, review rounds, outcome |
+| [`2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md`](logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md) | Runtime Observe moved out of System Validation into its own nav view; plan, reviews, outcome |
 
 Each document is dated and kept as written; `logs/` also holds the design frames, review records and probe evidence for the bigger changes.

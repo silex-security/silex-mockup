@@ -6,7 +6,7 @@ A byte-identical copy of the simulated Jev runtime demo from
 [`VENDORED.json`](VENDORED.json).
 
 - **Page:** `/jev-runtime/demo/index.html`, with `?domain=ap|soc`, `?embed=1` (inside a host iframe) and `?back=<relative url>`.
-- **In the site:** System Validation → **Runtime · every agent action** embeds it and drives it (`js/jev-runtime-host.js`).
+- **In the site:** the **Runtime Observe** view (left nav, Environment) embeds it and drives it (`js/jev-runtime-host.js`).
   Plan: [`../logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](../logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md).
 - **Guide:** every page explained in plain language (Chinese), with screenshots: [`../docs/jev-runtime-guide/`](../docs/jev-runtime-guide/README.md).
 - **Everything is simulated:** the judge, latencies and tenant. No model is called and nothing leaves the browser.

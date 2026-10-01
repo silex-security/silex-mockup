@@ -236,3 +236,5 @@ Upstream, Codex extends `demo-probes.ts` for `embed` and `back` (a bad `back` is
   - `js/jev-runtime-host.js`, `js/jev-runtime-model.js`;
   - `jev-runtime/demo/index.html`, `jev-runtime/js/runs.js`, `jev-runtime/demo/js/engine/scenarios-soc.js`.
 - **Live read-back** (`node tests/site/run-site-probes.mjs --base https://silex-mockup.vercel.app`): 7/7 pass (S1, S3, S4, S5, S13, S14, S17).
+
+> **2026-09-30 later:** the Runtime tab moved into its own left-nav view, **Runtime Observe**. See [`2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md`](2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md). The text above is kept as written.
