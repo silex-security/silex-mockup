@@ -7,7 +7,7 @@ A byte-identical copy of the simulated Jev runtime demo from
 
 - **Page:** `/jev-runtime/demo/index.html`, with `?domain=ap|soc`, `?embed=1` (inside a host iframe) and `?back=<relative url>`.
 - **In the site:** the **Runtime Observe** view (left nav, Environment) embeds it and drives it (`js/jev-runtime-host.js`).
-  Plan: [`../logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](../logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md).
+  Plans: [`../logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](../logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md) (built), then [`../logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md`](../logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md) (moved to its own view).
 - **Guide:** every page explained in plain language (Chinese), with screenshots: [`../docs/jev-runtime-guide/`](../docs/jev-runtime-guide/README.md).
 - **Everything is simulated:** the judge, latencies and tenant. No model is called and nothing leaves the browser.
 - **Do not edit these files here.** `tests/site/jev-runtime-vendored.test.mjs` fails on any local change. Change the demo

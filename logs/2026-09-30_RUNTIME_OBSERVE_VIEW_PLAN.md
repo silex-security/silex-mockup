@@ -105,3 +105,22 @@ Screenshots to show before deploy: nav order, Runtime Observe top, a Run result,
      - `README.md`, `logs/README.md`, `jev-runtime/README.md`;
      - `docs/jev-runtime-guide/README.md` §8 and `jev-runtime-observability/docs/demo/guide/README.md` §8, identical, with screenshots 08–10 replaced;
      - `jev-runtime-observability/skills/jev-work-plan/SKILL.md`.
+
+## Build and code gate
+
+**Build:**
+- **P1 (planner):** `3e4e3c5`. The System Validation section is byte-identical to `fbd598d`, checked by the planner and independently by both reviewers.
+- **P2 (Codex):** S13–S19 updated. Docs and the guide's §8 in both repos (identical, screenshots 08–10 replaced): `4e90667`.
+
+**Restarts during this run:**
+- the fleet panes were restarted after the repo-folder rename;
+- Codex's startup self-update pulled the revoked bnpm build (`ENOENT`), so it was reinstalled from public npm (0.159.3) before review.
+
+| Round | Revision | reviewer-codex | coder-deepseek |
+|---|---|---|---|
+| r1 | `4e90667` | IMPL-APPROVED | IMPL-APPROVED |
+
+- **PLANNER (claude):** IMPL-APPROVED.
+- **Codex's doc suggestion, taken after approval:** `jev-runtime/README.md` now links this plan (docs only).
+- **Results:** `node --test tests/site/*.test.mjs` 20/20; `run-site-probes.mjs` 19/19.
+- **Deploy:** pending the user's go-ahead. Merging to `main` deploys the public site.
