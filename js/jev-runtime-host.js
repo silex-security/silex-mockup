@@ -1,4 +1,4 @@
-/* System Validation → Runtime tab (logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md §1, §5).
+/* Runtime Observe view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md; built in logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md §1, §5).
    - Fills the reference metrics and scenario chips from js/jev-runtime-model.js (the vendored simulated engine).
    - Owns the iframe with the vendored demo (jev-runtime/demo/), loaded on the first visit to the tab.
    - Run: animates the six steps, then injects the scenario into the frame and describes that run from the
@@ -6,7 +6,7 @@
 import { summarize, describeRun } from './jev-runtime-model.js';
 
 const DEMO = 'jev-runtime/demo/index.html';
-const BACK = '../../index.html#view=long-term&tab=runtime';     // relative to the demo page
+const BACK = '../../index.html#view=runtime-observe';     // relative to the demo page
 const READY_MS = 10000;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -142,4 +142,5 @@ renderReference();
 refreshOpenFull();
 window.__jevRuntimeShown = shown;
 window.__jevRuntime = { ready: true, run, summary: () => summary };
-if (!$('ltRuntime').hidden) shown();
+// A cold #view=runtime-observe deep link shows the view before this deferred module runs; later visits go through showView.
+if (document.getElementById('runtime-observe')?.classList.contains('active')) shown();
