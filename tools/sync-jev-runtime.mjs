@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* Vendors the Jev runtime demo into jev-runtime/ (logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md §2).
- *   node tools/sync-jev-runtime.mjs <jev-realtime-observability checkout> <commit>
+ *   node tools/sync-jev-runtime.mjs <jev-runtime-observability checkout> <commit>
  * Files are read with `git show <commit>:<path>`, never from a working tree. Runtime files only (no .d.ts).
  * Vendored paths that no longer exist upstream are removed. jev-runtime/README.md is local and untouched. */
 import { execFileSync } from 'node:child_process';
@@ -20,7 +20,7 @@ const commit = git('rev-parse', '--verify', `${ref}^{commit}`).toString().trim()
 const listed = git('ls-tree', '-r', '--name-only', commit, 'web/demo').toString().trim().split('\n')
   .filter(p => p && !p.endsWith('.d.ts'));
 const files = [...listed, 'web/js/runs.js', 'web/js/verdict.js', 'web/css/runs.css'];
-const manifest = { source: 'https://github.com/silex-ai-lab/jev-realtime-observability', commit, synced_at: new Date().toLocaleDateString('sv'), files: {} };
+const manifest = { source: 'https://github.com/silex-ai-lab/jev-runtime-observability', commit, synced_at: new Date().toLocaleDateString('sv'), files: {} };
 const wanted = new Set();
 for (const up of files) {
   const rel = up.replace(/^web\//, '');
