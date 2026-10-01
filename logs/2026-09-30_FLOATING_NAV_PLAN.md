@@ -1,4 +1,4 @@
-# Plan: floating left nav — r2
+# Plan: floating left nav — r3
 
 Date 2026-09-30 · branch `floating-nav` from `main` `bbf3a7d` · roster: planner Claude, `reviewer-codex`, `coder-deepseek`; both gates unanimous.
 
@@ -198,3 +198,46 @@ Acceptance: unit 20/20; probes 20/20.
 - **Host modal:** every auto open/close handler is ignored while a host modal is open.
 - **`elementFromPoint`** accepts the target or one of its descendants. Frame clicks are checked in that frame's document.
 - **`__siteNav.state()`** keeps one shape across desktop, pinned and phone.
+
+## r3: click toggle like chatgpt.com (user, during the r2 build)
+
+**User:** "上面的方案实现完毕后，instead of 依赖鼠标悬浮，也可以参考chatgpt.com 上的toggle sidebar 功能，给一个小图标，click toggle sidebar, click again show it back". In English: rather than depending on hover, add a small sidebar icon. One click hides the sidebar; another click shows it again.
+
+**The r2 build** (`c9b91b4`, Codex) is the base. r3 changes only the following; everything else in r2 stands.
+
+1. **One sidebar-panel icon, two places** (an inline SVG: a rounded rectangle with a left pane, the familiar "toggle sidebar" glyph, 20 px, inheriting `currentColor`).
+   - **In the drawer header**, right of the SILEX brand (replacing r2's pin):
+     - when the sidebar is shown docked, `aria-label` "Hide sidebar"; a click hides it, and the content widens to the full window;
+     - during a hover peek, "Keep sidebar open"; a click docks it.
+   - **In the topbar's left cluster** (replacing r2's `☰`), visible only while the sidebar is hidden. `aria-label` "Show sidebar"; a click docks the sidebar (content narrows), the same as clicking again in ChatGPT.
+   - Both are real `<button>`s with `aria-controls="sidebar"` and `aria-expanded`, plus a tooltip (`title`) carrying the label.
+2. **States** (reuse r2's names):
+   - `pinned` is the shown, docked sidebar.
+   - `auto` is the hidden sidebar. It is closed, or `open` during a hover peek.
+   - The topbar icon now goes `auto → pinned` directly; it no longer opens the overlay.
+   - The overlay peek exists only through the left-edge hover, which stays as a bonus shortcut (the user's first request), with r2's timers.
+3. **Default and memory:**
+   - The first visit is hidden (`auto`), per the user's first request.
+   - The choice persists in `silex.nav.pinned`, as in r2.
+4. **Keyboard:**
+   - The topbar icon (Enter or Space) docks the sidebar and focuses the active nav item.
+   - The header icon hides it and moves focus to the topbar icon.
+   - Hidden means `inert`, as in r2.
+   - `Esc` and outside click only close a peek. They never hide the docked sidebar; only the icon does.
+5. **Motion:**
+   - Docking and hiding animate `.main`'s `margin-left` and the drawer's transform together (200 ms; instant under reduced motion).
+   - One settled `resize`, as in r2.
+6. **Phones (≤ 760 px):** unchanged, with neither icon shown.
+7. **Probes:**
+   - S20 drops r2's keyboard overlay-open path, which is replaced by the topbar icon docking.
+   - **It adds:**
+     - topbar icon docks;
+     - header icon hides;
+     - repeat;
+     - `aria-expanded` and labels in each state;
+     - focus moves;
+     - persistence across reload;
+     - peek, then header icon docks;
+     - `Esc` does not hide the docked sidebar.
+   - **`nav()`:** when the button is not hit-testable, click the topbar icon (docks), navigate, then restore the prior state, so S1–S19 still run hidden by default.
+   - **Fix the S20 flake** seen in the planner's run: `run-site-probes.mjs` on its own server, without `SITE_BASE`, failed "Timeout: drawer open keyboard 7 … open:false … focus:navToggle", while Codex's `SITE_BASE` run passed. The full suite must pass 3 times in a row in both modes.
