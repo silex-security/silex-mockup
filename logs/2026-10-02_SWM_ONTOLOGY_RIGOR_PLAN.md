@@ -423,3 +423,15 @@ Commit `6b9cff1`, diff revision `da2ca1d`.
 | DeepSeek NB2, NB3, NB5: stale numbers and wording in this log | Planner: corrected in the round-1 table |
 | DeepSeek NB6 (T8 note wording), NB7 (order-splitting alignment) | DeepSeek, if cheap |
 | DeepSeek NB4: `core-tool` has no subclasses now | Kept as a general concept with its public match; no change |
+
+### Round 3 — both IMPL-REJECTED, one shared defect
+
+Commit `cb4b86d`.
+
+Both seats found that the commit shipped the stale pre-round-2 bundle. The seed and the copy were correct; the generated `swm/data/*` was not. That left the two round-2 subsumption errors in the graph the UI loads, and the copy contradicted the data.
+
+Cause: a race. The planner built the corrected bundle and ran the checks. DeepSeek, still finishing its round-2 task, then ran its acceptance step (`build`, then `git checkout -- swm/data`), which restored the old bundle just before the planner's commit.
+
+Fix: commit `d47fb7d` regenerates the bundle with both other seats idle. Every check now runs against a clean `git archive HEAD` export, not the working tree: validate-seed, verify-bundle, competency, check-copy, the fixture runner, and probe-swm `--root <export>` (8/8).
+
+Lesson: verify committed artifacts from an export of the commit, and never commit generated files while another seat may rebuild.
