@@ -405,9 +405,21 @@ Review base `74ed19a`. The round-1 candidate is `924cc99`, diff revision `3342ae
 | Offboarding modelled as granting authority (Codex 2) | DeepSeek: revocation or removal action and effect |
 | Unrelated `CHARACTERIZES` targets (Codex 3) | DeepSeek: replaced, and every alignment audited against the target's definition |
 | Dual Approval not a kind of Human Approval, so CQ2 was misleading (Codex 4) | DeepSeek: `SUBCLASS_OF human-approval`; CQ2's answer changes accordingly |
-| `COUNTER_MAP` rationales exceed what the control does (Codex 5) | DeepSeek: unsupported `COUNTERS` removed and the rest audited; counts recomputed |
+| `COUNTER_MAP` rationales exceed what the control does (Codex 5) | DeepSeek: entries remapped to controls whose definitions cover the claim (new rate-limit and review-throttle controls); count stays 45/105 |
 | About notes and README still call all L1, and domain inheritance, public (Codex 6) | Planner: `index.html`, `assurance.html` and README distinguish published from curated |
 | Worked example does not validate; validator forbids a sixth outcome (Codex 7; DeepSeek NB3) | DeepSeek: id fixed, validator relaxed to "the five remain", recipe proven |
-| Both: accept the `assurance.html` scope extension; accept the budget as the browser `.js` payload | Accepted; `SECURITY_WORLD_MODEL.md` states 564 KB `ontology.js` against the 700 KB verifier budget |
+| Both: accept the `assurance.html` scope extension; accept the budget as the browser `.js` payload | Accepted; `SECURITY_WORLD_MODEL.md` states the `ontology.js` size against the 700 KB verifier budget |
 | DeepSeek NB4: cross-pack `MAY_LEAD_TO`; NB6: candidate rows in `ontologyCompleteness` | DeepSeek owns NB4; NB6 is documented in the README |
-| DeepSeek NB1: 69 core concepts against "about 40–50" | Accepted deviation. The 15 extra are the generic anchors the frozen `SUBCLASS_COMPAT` requires |
+| DeepSeek NB1: core concepts exceed "about 40–50" | Accepted deviation. The extra classes are the generic anchors the frozen `SUBCLASS_COMPAT` requires plus the supertypes added in the round-1 fixes; the final count is in the Outcome |
+
+### Round 2 — DeepSeek IMPL-APPROVED · Codex IMPL-REJECTED (2 blocking)
+
+Commit `6b9cff1`, diff revision `da2ca1d`.
+
+| Defect (who) | Change |
+|---|---|
+| `ag:subagent` (a hand-off) `SUBCLASS_OF` core Agent, an actor (Codex 1; DeepSeek NB1, which also questions Planner) | DeepSeek: a general hand-off class; Planner re-tested under the same rule |
+| Unverified Bank Change ⊑ record alteration, but an accurate update can still be unverified (Codex 2) | DeepSeek: re-parented to a data-write / state-change effect; the missing-verification condition stays in its definition |
+| DeepSeek NB2, NB3, NB5: stale numbers and wording in this log | Planner: corrected in the round-1 table |
+| DeepSeek NB6 (T8 note wording), NB7 (order-splitting alignment) | DeepSeek, if cheap |
+| DeepSeek NB4: `core-tool` has no subclasses now | Kept as a general concept with its public match; no change |

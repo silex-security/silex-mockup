@@ -57,8 +57,8 @@ the shape is what matters):
 
 ```
   sources : d3fend 213 · atlas 96 · attack 61 · uco 72 · owasp 25
-  graph   : 764 nodes (L1 448 · L2 167 · L3 125 · L4 24) · 1387 links
-  bundles : ontology 569KB · coverage 15KB
+  graph   : 766 nodes (L1 450 · L2 167 · L3 125 · L4 24) · 1389 links
+  bundles : ontology 570KB · coverage 15KB
   layers  : L1↔L2 278 · L2↔L3 36 · L3↔L4 22 · skipping 205
   threats : 45 countered · 60 uncountered
   contract: signatures, review grades, display tree and SUBCLASS_OF acyclicity verified

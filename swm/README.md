@@ -23,11 +23,11 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 | **UCO(Unified Cyber Ontology)** | 网络安全的统一上层本体 | **72** | Apache-2.0 | L1 **顶层类**(Agent / Identity / Tool / Action…) |
 | **OWASP GenAI** | LLM Top 10 (2025) + Agentic 威胁清单 T1–T15 | **25** | CC BY-SA 4.0 | 挂到对应的 agentic 组件上 |
 
-这 5 个来源约 **467 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。整张图共 **764 nodes · 1387 typed relations**(SUBCLASS_OF 404 · GROUPED_UNDER 212 · ACHIEVES 126 · PART_OF_DOMAIN 107 · THREATENS 105 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从上述 URL 实时抓取 + 蒸馏生成,画图用 D3.js(pinned 7.9.0,可离线)。
+这 5 个来源约 **467 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。整张图共 **766 nodes · 1389 typed relations**(SUBCLASS_OF 404 · GROUPED_UNDER 214 · ACHIEVES 126 · PART_OF_DOMAIN 107 · THREATENS 105 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从上述 URL 实时抓取 + 蒸馏生成,画图用 D3.js(pinned 7.9.0,可离线)。
 
 ### 怎么拼成一个四层世界模型(L1→L2→L3→L4)
 
-**L1 通用**(448)· **L2 行业包**(167)· **L3 agentic 系统**(125)· **L4 运行时实例**(24)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
+**L1 通用**(450)· **L2 行业包**(167)· **L3 agentic 系统**(125)· **L4 运行时实例**(24)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
 
 ### ⚠️ 哪些是真的、哪些是示例(与下面 "What is real and what is mock" 一致)
 
@@ -43,7 +43,7 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 ### 每张图具体吃哪块数据
 
 - **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数、相邻层之间的 typed relations,以及跨层跳过的 `skips`)。
-- **Security Ontology**(graph / hierarchy / relation matrix)→ `ontology.json` 的 **764 nodes · 1387 typed relations**,每个节点/关系按 review 等级标注。
+- **Security Ontology**(graph / hierarchy / relation matrix)→ `ontology.json` 的 **766 nodes · 1389 typed relations**,每个节点/关系按 review 等级标注。
 - **World Model Coverage**(可缩放 sunburst + 雷达)→ `coverage.json`(coverage tree / gaps / KPIs)。其中 **weighted coverage 82% · 29.4K entities · 8 blind spots · sim-vs-observed 94%** 等数字**均为 illustrative,非实测**。
 
 完整来源与许可见 [`data/SOURCES.md`](data/SOURCES.md)。
@@ -72,7 +72,7 @@ swm/
   js/swm-ontology.js       Ontology Explorer  (graph / hierarchy / relation matrix)
   js/swm-coverage.js       Coverage Observatory (zoomable sunburst + contextual radar)
   js/swm-layers.js         Ontology Layers     (the four tiers, bands + ribbons)
-  data/ontology.json|.js   generated graph: 764 nodes · 1387 typed relations, schema, chain summary
+  data/ontology.json|.js   generated graph: 766 nodes · 1389 typed relations, schema, chain summary
   data/coverage.json|.js   generated coverage tree, gaps and KPIs
   data/SOURCES.md          where every public node came from, and its licence
   tools/build-ontology.mjs fetch + distil + contract-check pipeline (node, no dependencies)

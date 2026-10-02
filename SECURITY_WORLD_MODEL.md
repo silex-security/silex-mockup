@@ -37,7 +37,7 @@ written as a kind of *Workflow*, and each agentic component hung under one arbit
 ontology-rigor run ([plan](logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md)) replaced it:
 
 ```
-L1 General Agent Ontology Graph        448 nodes · avg coverage 74%
+L1 General Agent Ontology Graph        450 nodes · avg coverage 74%
       ↕  278 relations with L2 (SUBCLASS_OF, GROUPED_UNDER, MAY_CAUSE, hazard links)
 L2 Domain Ontology Packs               167 nodes · 78%
       ↕  36 relations with L3 (DEPLOYED_IN, CHARACTERIZES)
@@ -80,7 +80,7 @@ which is git-ignored; only the distilled bundles are committed, so Vercel needs 
 | [UCO](https://unifiedcyberontology.org/) | 72 | Upper classes from `core`, `identity`, `action`, `tool`, `pattern`, `observable` |
 | [OWASP GenAI](https://genai.owasp.org/) | 25 | LLM Top 10 (2025) and the Agentic AI threat taxonomy T1–T15 |
 
-**Total: 764 nodes · 1387 typed relations; the browser payload `ontology.js` is about 569 KB (the 700 KB budget `verify-bundle.mjs` enforces).** 297 of those nodes are Silex-authored:
+**Total: 766 nodes · 1389 typed relations; the browser payload `ontology.js` is about 570 KB (the 700 KB budget `verify-bundle.mjs` enforces).** 299 of those nodes are Silex-authored:
 - the L1 core concepts, the L2 domain packs (two of them, CRM and Legal, are candidate packs outside
   the coverage figures), the L3 component list and record schemas — all graded `curated`;
 - registered workflows and the whole L4 runtime graph, graded `illustrative`.

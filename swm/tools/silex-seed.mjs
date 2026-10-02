@@ -342,6 +342,11 @@ export const CORE_L1 = [
     def:'A maintained index of the tools, capabilities or assets available to a system.' },
   { id:'core-connector', label:'Connector', group:'tool', kind:'core', parent:'grp:tool',
     def:'A transport or adapter that exposes an external system\'s capabilities to an agent.' },
+  /* a planner reasons and a hand-off carries authority, but neither is itself the acting agent */
+  { id:'core-reasoning-component', label:'Reasoning component', group:'agent', kind:'core', parent:'grp:agent',
+    def:'A component that decomposes a goal and selects the next action, without acting on the environment itself.' },
+  { id:'core-handoff-channel', label:'Agent hand-off channel', group:'agent', kind:'core', parent:'grp:agent',
+    def:'A mechanism through which one agent passes a task and its authority to another.' },
   { id:'core-resource', label:'Resource', group:'resource', kind:'core', parent:'grp:resource',
     def:'A thing of enterprise value, data or capability — including stored records, obligations and holdings — that actions read or change.' },
   { id:'core-record', label:'Business Record', group:'resource', kind:'core', parent:'core-resource',
@@ -506,8 +511,8 @@ export const ENTITY_ISA = {
 /* COMPONENT_ISA[componentId] = core id (kind 'core') — the L1 class each of the 13 L3
    AGENTIC_COMPONENTS specialises; it becomes the component's display parent */
 export const COMPONENT_ISA = {
-  'planner':'core-agent', 'memory-st':'core-memory', 'memory-lt':'core-memory', 'retriever':'core-retrieval',
-  'tool-reg':'core-registry', 'mcp':'core-connector', 'subagent':'core-agent', 'cred-store':'core-identity-provider',
+  'planner':'core-reasoning-component', 'memory-st':'core-memory', 'memory-lt':'core-memory', 'retriever':'core-retrieval',
+  'tool-reg':'core-registry', 'mcp':'core-connector', 'subagent':'core-handoff-channel', 'cred-store':'core-identity-provider',
   'exec-ctx':'core-execution-context', 'guardrail':'core-guardrail', 'hitl':'core-human-gate',
   'trace':'core-telemetry', 'harness':'core-outcome-harness'
 };
@@ -622,8 +627,8 @@ export const PROHIBITED = {
   ],
   procurement: [
     { id:'proh-proc-unverified-bank-change', label:'Unverified Bank Change', kind:'effect',
-      isA:'core-effect-record-alteration',
-      def:'An effect of a supplier record change that no independent evidence supported, not an entity type.' }
+      isA:'core-effect-data-write',
+      def:'An effect of a supplier bank-detail field being updated without the independent evidence the change requires; the write is real, only its verification is missing, so it is not record corruption.' }
   ]
 };
 
@@ -795,7 +800,7 @@ export const COUNTER_MAP = [
   { threat:'owaspa:T5', control:'human-approval', note:'A person breaks the chain when generated content starts to compound.' },
   { threat:'owaspa:T6', control:'core-control-policy-gate', note:'Each proposed step is checked against the stated purpose.' },
   { threat:'owaspa:T7', control:'core-control-monitoring', note:'Behaviour that departs from the intended trajectory raises a signal.' },
-  { threat:'owaspa:T8', control:'core-control-monitoring', note:'Activity is continuously observed, raising a signal when it cannot be attributed.' },
+  { threat:'owaspa:T8', control:'core-control-monitoring', note:'Activity is continuously observed, so unusual or unattributable behaviour raises a signal.' },
   { threat:'owaspa:T9', control:'core-control-credential-binding', note:'An identity cannot be replayed under another actor context.' },
   { threat:'owaspa:T10', control:'core-control-review-throttle', note:'The number of items reaching a human reviewer is capped or batched so the queue cannot be flooded.' },
   { threat:'owaspa:T11', control:'d3f:d3f:SystemCallFiltering', note:'A D3FEND technique blocks the system calls an unexpected code path needs.' },
