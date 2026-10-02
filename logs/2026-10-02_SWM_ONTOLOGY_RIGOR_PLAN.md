@@ -435,3 +435,42 @@ Cause: a race. The planner built the corrected bundle and ran the checks. DeepSe
 Fix: commit `d47fb7d` regenerates the bundle with both other seats idle. Every check now runs against a clean `git archive HEAD` export, not the working tree: validate-seed, verify-bundle, competency, check-copy, the fixture runner, and probe-swm `--root <export>` (8/8).
 
 Lesson: verify committed artifacts from an export of the commit, and never commit generated files while another seat may rebuild.
+
+### Round 4 — code gate passed
+
+Commit `515e525`, diff revision `34261e2`, base `74ed19a`.
+
+| Seat | Verdict |
+|---|---|
+| coder-deepseek (DeepSeek V4.1 Flash) | IMPL-APPROVED. It also rebuilt from the seed outside the repo; the output is byte-identical to the committed bundle apart from `generated` |
+| reviewer-codex (Codex) | IMPL-APPROVED. Rounds 1–2 ran on GPT-6.1-Sol high. Round 3 was resent after a swallowed prompt; rounds 3–4 ran on GPT-6-Luna medium after the weekly limit fell to 10% |
+| PLANNER (claude) | IMPL-APPROVED. Verified from a clean `git archive` export of `d47fb7d`: all scripts exit 0 and probe-swm passes 8/8 |
+
+## Outcome
+
+- **Gates:** plan gate unanimous after 3 rounds (v1 → v3); code gate unanimous after 4 rounds.
+- **Result** (all numbers computed from the bundle):
+
+  | Measure | BASE | Now |
+  |---|---|---|
+  | Nodes | 598 | 766 |
+  | Typed relations | 800 | 1,389 |
+  | Public IDs | 467 | 467 (unchanged) |
+  | L1 Silex core concepts | — | 80 (accepted deviation from "about 40–50") |
+  | Domain packs | 5 | 5 + 2 candidates (CRM, Legal) |
+  | Hazards | — | 25, each with a complete chain |
+  | Prohibited outcomes | 5 entities | 5, retyped as effects or states |
+  | Record schemas | — | 7 |
+  | L3 threats countered | 32 of 105 | 45 of 105 (60 listed as uncountered) |
+  | `SPECIALIZES` links, signature violations, display or `SUBCLASS_OF` cycles | — | 0 |
+  | `ontology.js` | — | 570 KB, against the 700 KB budget |
+- **What each seat caught:**
+  - *Codex:* false subsumptions throughout the authored taxonomy (rounds 1–2); misaligned hazard → threat links and countermeasure rationales; dual approval missing from human approval, which made CQ2 misleading; copy still calling curated L1 public; a broken worked example; the shipped stale bundle (round 3).
+  - *DeepSeek:* frozen-KPI and ownership contradictions in plan v1; candidate entities and CQ4; the `RECORDED_BY` coverage rule; signature-table drift; the one-anchor-per-group UI assumption; label-collision follow-ups; stale numbers in this log; the stale bundle (round 3).
+  - *Planner:* the missing `COMPONENT_ISA` contract gap; label collisions found in screenshots; the I2 probe's `innerText` bug; the upstream no-drift check; the S20 failure shown to be pre-existing at BASE.
+- **Unchanged:**
+  - views outside the Security World Model: site probes 20/21, the same as at BASE, with S20 environmental;
+  - coverage `tree`, `gaps` and `dimensions`;
+  - public node IDs;
+  - the Refund example (R1, exact IDs).
+- **Not merged or pushed:** `main` auto-deploys to Vercel and needs the user's go-ahead.

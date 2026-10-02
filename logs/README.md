@@ -2,6 +2,20 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-02 — Security World Model: ontology rigor and wider coverage
+
+- **Tiers are presentation groups, not taxonomic ranks.** Only `SUBCLASS_OF` asserts subsumption. Domain membership (`PART_OF_DOMAIN`), deployment (`DEPLOYED_IN`) and grouping (`GROUPED_UNDER`) are separate predicates. No domain is a "kind of Workflow", and no component sits under one arbitrary domain.
+- **A frozen contract, `swm/tools/schema.mjs`,** gives every predicate its node-kind pairs and review grades. The build refuses a bundle that breaks it or has a display-tree or `SUBCLASS_OF` cycle.
+- **New semantics:**
+  - 80 Silex core concepts: authority, intent, provenance, action, effect, state, control, evidence;
+  - domain actions and hazards, each closing a chain: threat, control, evidence, record schema;
+  - prohibited outcomes as effects or states;
+  - CRM and Legal as candidate packs, outside the coverage figures.
+- **Every node and relation carries a review grade** (`published`, `curated`, `heuristic`, `illustrative`), shown in the inspector. Components with no runtime instance are marked unobserved, and threats without a mapped countermeasure are listed.
+- **New checks:** `verify-bundle.mjs` (independent signatures), `competency.mjs` (CQ1–CQ6), negative fixtures, `check-copy.mjs` (every printed count against the bundle) and `probe-swm.mjs` (8 UI probes).
+- **Deliberately unchanged:** coverage tree, gaps and KPI values, public node IDs, the Refund example (probe R1 against BASE), and every other view (site probes as at BASE).
+- Plan, all review rounds and the outcome: [`2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md`](2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md).
+
 ## 2026-10-01 — Promotion gate verdicts on Runtime Observation
 
 - The "The judge learns from your reviewers" card replaces the Kev-4B sentence with **Would this gate promote it?**: Kev-0.8B fine-tuned KEEP (fixed 17, broke 2), Kev-4B fine-tuned DISCARD (safety check: missed cases 25 → 27). Read from the vendored generated JSON.
