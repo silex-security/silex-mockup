@@ -38,7 +38,10 @@ jev-simplified 在 10 月 2 日把 silex-mockup 的 World Model（本体优化�
 对应关系**按站点事件来定，不按编号对应**：World Model 示例数据里的 `rt-inc-1042` 是另一条记录（“退款循环”）。
 
 - **I-1042**（外部邮件触发修改供应商银行账户，已被拦截）：
-  - 显示三个可以点击的芯片：hazard “Bank Detail Change From Unverified Instruction”（curated）→ CHARACTERIZES → ATLAS AML.T0052 Phishing（published）→ MITIGATED_BY → Dual Approval（curated）。
+  - 显示三个可以点击的芯片：先是 hazard “Bank Detail Change From Unverified Instruction”（curated）；下面分两行，各写一条从这个 hazard 出发的关系：
+    - hazard CHARACTERIZES（curated）→ ATLAS AML.T0052 Phishing（published）；
+    - hazard MITIGATED_BY（curated）→ Dual Approval（curated）。
+  - Phishing 和 Dual Approval 之间没有关系，所以不画成一条直线（代码评审第 2 轮纠正）。
   - 点芯片会跳进 World Model，并定位到对应节点。
   - 页面上写明了这几点：
     - 这是模型里相关的**潜在**风险，不是观测到的结果，因为这次尝试被拦下了；

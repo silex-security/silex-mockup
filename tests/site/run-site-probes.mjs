@@ -849,6 +849,22 @@ try {
     order.forEach((id,i)=>{ const n=byId.get(id); assert.ok(n,'node '+id+' exists in the bundle');
       assert.ok(row.text[i].includes(n.label),'chip '+id+' shows its label');
       assert.match(row.grades[i],/published|curated|heuristic|illustrative/i,'chip '+id+' shows a review grade'); });
+    /* each relation is one complete, correctly directed assertion; both branch from the hazard */
+    const asserts = await ev(`return (() => { const c=document.getElementById('incOntology'); if(!c) return null;
+      return [...c.querySelectorAll('.inc-onto-assert')].map(a => ({ s:a.getAttribute('data-s'), p:a.getAttribute('data-p'), t:a.getAttribute('data-t'),
+        grade:(a.querySelector('.inc-onto-rel small')||{}).textContent||null })); })()`);
+    const linkOf = (s,p,t) => onto.links.find(l => l.s===s && l.pred===p && l.t===t);
+    assert.ok(Array.isArray(asserts) && asserts.length===2,'exactly two ontology assertions: '+JSON.stringify(asserts));
+    for (const a of asserts) {
+      const l = linkOf(a.s,a.p,a.t);
+      assert.ok(l, a.s+' '+a.p+' '+a.t+' exists in the bundle');
+      assert.equal(String(a.grade||'').trim().toLowerCase(), String(l.review||'').toLowerCase(), a.s+' '+a.p+' '+a.t+' shows that link\'s grade');
+      assert.notEqual(a.s,'atlas:AML.T0052','no assertion starts at Atlas AML.T0052');
+    }
+    assert.deepEqual(asserts.map(a=>a.s+'|'+a.p+'|'+a.t).sort(), [
+      'hz:haz-proc-bank-detail-unverified|CHARACTERIZES|atlas:AML.T0052',
+      'hz:haz-proc-bank-detail-unverified|MITIGATED_BY|core:core-control-dual-approval'].sort(),
+      'both assertions branch from the hazard');
     await load({ path: '/index.html#view=incident&incident=I-1038' });
     await until(()=>ev('return document.getElementById("incId").textContent==="I-1038"'),'I-1038',10000);
     const gap = await ev(`return (() => { const c=document.getElementById('incOntology'); return { hidden:c?c.offsetParent===null:true, gap:!!document.querySelector('.inc-onto-gap'), chips:c?c.querySelectorAll('[data-wm-route]').length:0 }; })()`);
@@ -858,7 +874,7 @@ try {
     await load({ path: '/index.html#view=incident&incident=I-1031' });
     await until(()=>ev('return document.getElementById("incId").textContent==="I-1031"'),'I-1031',10000);
     assert.equal(await ev('return (()=>{const c=document.getElementById("incOntology");return c?c.offsetParent===null:true})()'),true,'other incidents hide the row');
-    return 'I-1042 chips match the bundle (order/labels/grades); I-1038 gap; other incidents hidden';
+    return 'I-1042 chips match the bundle (order/labels/grades) and both hazard-sourced assertions match the link predicate/target/grade; I-1038 gap; other incidents hidden';
   });
 
   await probe('S36','an unknown incident= falls back to the queue with the notice',async()=>{

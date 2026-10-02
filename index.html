@@ -388,6 +388,7 @@
     .inc-onto-chip .g.published{color:#22603e;background:#eaf3ee}
     .inc-onto-rel{font:600 9px var(--mono);color:#50339c;display:inline-flex;flex-direction:column;align-items:center}
     .inc-onto-rel small{font-weight:500;color:var(--muted)}
+    .inc-onto-assert{margin-top:8px;padding-left:14px;border-left:2px solid #e4def8}.inc-onto-from{font-size:10px;color:var(--muted)}
     .inc-onto p.n{font-size:10px;color:var(--muted);margin:9px 0 0;line-height:1.5}
     .inc-onto-gap strong{font-size:12px}
 </style>
@@ -1485,20 +1486,19 @@ const incidentData={
      World Model's runtime fixtures by number: the bundle's rt-inc-1042 "Refund loop" is a different record (swm-core.js relabels it).
      Labels and grades mirror swm/data/ontology.json; the site probes check them against the bundle. */
   const INCIDENT_ONTOLOGY={
-    'I-1042':{chain:[
-      {id:'hz:haz-proc-bank-detail-unverified',role:'Related model hazard',label:'Bank Detail Change From Unverified Instruction',grade:'curated'},
-      {rel:'CHARACTERIZES',grade:'curated'},
-      {id:'atlas:AML.T0052',role:'Closest public characterization',label:'ATLAS AML.T0052 · Phishing',grade:'published'},
-      {rel:'MITIGATED_BY',grade:'curated'},
-      {id:'core:core-control-dual-approval',role:'Ontology control',label:'Dual Approval',grade:'curated'}],
+    'I-1042':{hazard:{id:'hz:haz-proc-bank-detail-unverified',role:'Related model hazard',label:'Bank Detail Change From Unverified Instruction',grade:'curated'},
+     rels:[  /* both relations start at the hazard; neither target relates to the other */
+      {pred:'CHARACTERIZES',grade:'curated',to:{id:'atlas:AML.T0052',role:'Closest public characterization',label:'ATLAS AML.T0052 · Phishing',grade:'published'}},
+      {pred:'MITIGATED_BY',grade:'curated',to:{id:'core:core-control-dual-approval',role:'Ontology control',label:'Dual Approval',grade:'curated'}}],
      note:'A related potential hazard in the model (Silex-curated pairing), not an observed outcome: this attempt was blocked. Phishing is the closest public characterization of an unverified external instruction, not a claim that this prompt-injection case is phishing. Dual Approval is the ontology’s control, not PAY-042 or the candidate remedy, and is not shown as proof of mitigation. The hazard sits in the Procurement pack; this incident is filed under Finance.'},
     'I-1038':{gap:true,note:'The model has no hazard yet for individually allowed actions, across agents, composing into a prohibited value. The nearest hazards (a single payment above its ceiling, purchase-order splitting, a refund retried after partial failure) describe different mechanisms.'}};
   const escHtml=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   function renderIncOntology(id){const box=$id('incOntology'),m=INCIDENT_ONTOLOGY[id];if(!box)return;if(!m){box.hidden=true;box.innerHTML='';return}box.hidden=false;
     if(m.gap){box.innerHTML='<small class="k">Ontology · blind spot</small><div class="inc-onto-gap"><strong>No modelled hazard yet</strong></div><p class="n">'+escHtml(m.note)+'</p>';return}
-    box.innerHTML='<small class="k">Ontology · related model hazard</small><div class="inc-onto-chain">'+m.chain.map(c=>c.rel
-      ?'<span class="inc-onto-rel">'+c.rel+' →<small>'+c.grade+'</small></span>'
-      :'<button type="button" class="inc-onto-chip" data-wm-route="#view=security-model&amp;node='+encodeURIComponent(c.id)+'" data-node-id="'+escHtml(c.id)+'" title="Open in the World Model"><span class="r">'+escHtml(c.role)+'</span><b>'+escHtml(c.label)+'</b><span class="g '+c.grade+'">'+escHtml(c.grade)+'</span></button>').join('')+'</div><p class="n">'+escHtml(m.note)+'</p>'}
+    const chip=c=>'<button type="button" class="inc-onto-chip" data-wm-route="#view=security-model&amp;node='+encodeURIComponent(c.id)+'" data-node-id="'+escHtml(c.id)+'" title="Open in the World Model"><span class="r">'+escHtml(c.role)+'</span><b>'+escHtml(c.label)+'</b><span class="g '+c.grade+'">'+escHtml(c.grade)+'</span></button>';
+    /* one row per relation, each a complete directed assertion: hazard PREDICATE target, with the relation's own grade */
+    box.innerHTML='<small class="k">Ontology · related model hazard</small><div class="inc-onto-chain">'+chip(m.hazard)+'</div>'+m.rels.map(r=>
+      '<div class="inc-onto-chain inc-onto-assert" data-s="'+escHtml(m.hazard.id)+'" data-p="'+r.pred+'" data-t="'+escHtml(r.to.id)+'"><span class="inc-onto-from">this hazard</span><span class="inc-onto-rel">'+r.pred+' →<small>'+r.grade+'</small></span>'+chip(r.to)+'</div>').join('')+'<p class="n">'+escHtml(m.note)+'</p>'}
   function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;renderIncOntology(id);const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
     setText('incId',id);setText('incTitle',d.title);setText('incMeta',d.workflow+' · '+(INC_WF[id]||'')+' · '+(closed?'Closed':'Production'));setText('incEvidence',d.evidence);setText('incSummary',d.summary);setText('incControl',d.control);setText('incMechanism',d.mechanism);setText('incMechanismDesc',d.mechanismDesc);
     setText('obsInput',d.input);setText('obsAgent',d.agent);setText('obsAction',d.action);setText('obsOutcome',d.outcome);setText('obsControl','Blocked or observed by '+d.control);setText('incOutcomeTarget',d.outcome);

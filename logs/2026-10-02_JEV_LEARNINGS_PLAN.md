@@ -188,3 +188,14 @@ Commit `1e9b168`.
 | `assurance.html`'s own explorer button still uses `data-jump` | Out of scope: `assurance.html` is a separate snapshot |
 
 Three consecutive runs at round 2: `probe-swm` 15/15 each run; site probes 37/38 each run (S20 environmental, the same failure as at BASE).
+
+### Round 2 — DeepSeek IMPL-APPROVED · Codex IMPL-REJECTED (1 blocking)
+
+Commit `b076a27`.
+
+| Defect (who) | Change |
+|---|---|
+| The I-1042 row drew hazard → `CHARACTERIZES` → Phishing → `MITIGATED_BY` → Dual Approval as one line. That implies a nonexistent "Phishing `MITIGATED_BY` Dual Approval" (Codex 1) | The hazard chip comes first, then one row per relation: `.inc-onto-assert` with `data-s`, `data-p` and `data-t`, each with its own grade. Both rows start from the hazard. Chinese summary and changelog updated. S35 is extended to check both assertions and their grades against the bundle, and that no assertion starts at Phishing; it fails on `b076a27` |
+| DeepSeek NB: loader indentation; `assurance.html`'s own explorer button | Cosmetic. `assurance.html` is out of scope (a separate snapshot) |
+
+Three consecutive runs at round 3: `probe-swm` 15/15 each run; site probes 37/38 each run (S20 environmental, the same failure as at BASE).

@@ -16,7 +16,7 @@ Newest first, with what changed and why. The plans, review records and audits ar
   - Focusing a node clears the degree and subclass filters.
   - Panels boot only when visible (`SWM.isShown`); `assurance.html` is unaffected.
 - **Incident Detail Ontology row,** keyed by the site incident and never by number:
-  - I-1042 → bank-detail hazard → ATLAS AML.T0052 → Dual Approval, as chips into the World Model, with the agreed caveats.
+  - I-1042 → the bank-detail hazard, then two separate relations from it: `CHARACTERIZES` ATLAS AML.T0052 and `MITIGATED_BY` Dual Approval. They are chips into the World Model, shown with the agreed caveats.
   - I-1038 → "No modelled hazard yet", shown as a blind spot.
 - **Inspector chain text for L4 nodes:** each line is one complete, directed assertion (instance `INSTANCE_OF` component; threat `THREATENS` component; countermeasure `COUNTERS` threat), each with its grade.
 - **New probes:** P1–P6 in `probe-swm.mjs` and S22–S38 in `run-site-probes.mjs` (local only). S22 fails on the base code, and P6 (chain direction, added after code review round 1) fails on the first candidate; both pass now.
