@@ -225,3 +225,14 @@ Commit `8b6f2ae`, diff revision `54c48e1`, base `df79519`.
   - *DeepSeek:* the cold-load mechanism (`SWMLoad` undefined when the router runs); the shared-loader risk to `assurance.html`; the B3/F mismatch; probe placement.
   - *Planner:* the facts F1–F9, `SWM_PENDING_COVERAGE_FOCUS` as precedent, and the stale-origin rewrite (accepted by both).
 - **User's instruction:** "feel free to push when code review and final round passes". The deploy is recorded below.
+
+## Deploy record
+
+`main` was fast-forwarded `7a6f216..f9431a1`, and Vercel deployed it.
+
+Live read-back:
+- `index.html`, `swm-loader.js`, `swm-core.js`, `swm-ontology.js`, `swm.css` and the Chinese summary are byte-identical to `f9431a1`. The first loader fetch returned a stale edge copy; it matched on recheck.
+- Rendered on production:
+  - `#view=incident&incident=I-1042` shows the two hazard-sourced assertions (`CHARACTERIZES` `atlas:AML.T0052`, `MITIGATED_BY` `core:core-control-dual-approval`);
+  - a cold `#view=security-model&node=owasp%3ALLM01` selects "Prompt Injection".
+- `run-site-probes --base` live subset: 8 of 9 pass. S20 is environmental, as at BASE.
