@@ -57,15 +57,17 @@ the shape is what matters):
 
 ```
   sources : d3fend 213 · atlas 96 · attack 61 · uco 72 · owasp 25
-  graph   : 598 nodes (L1 370 · L2 86 · L3 118 · L4 24) · 800 links
-  bundles : ontology 334KB · coverage 14KB
-  chain   : L1→L2 43 · L2→L3 21 · L3→L4 22
-  chain   : L1 → L2 → L3 → L4 verified, no layer skipped
+  graph   : 755 nodes (L1 439 · L2 167 · L3 125 · L4 24) · 1377 links
+  bundles : ontology 564KB · coverage 15KB
+  layers  : L1↔L2 279 · L2↔L3 35 · L3↔L4 22 · skipping 205
+  threats : 45 countered · 60 uncountered
+  contract: signatures, review grades, display tree and SUBCLASS_OF acyclicity verified
 ```
 
-**The build fails loudly on purpose.** If any node's parent sits more than one layer above it, the
-script prints the offending nodes and exits non-zero rather than publishing a bundle whose layer
-chain is a lie. Treat a non-zero exit as a stop, not a warning.
+**The build fails loudly on purpose.** If a relation breaks its predicate signature or review
+grades (`swm/tools/schema.mjs`), if the display tree or the `SUBCLASS_OF` graph has a cycle, if a
+node hangs under a lower tier, or if a seed reference does not resolve, the script prints the
+violations, writes nothing and exits non-zero. Treat a non-zero exit as a stop, not a warning.
 
 Sizes are controlled by four caps in the last third of `build-ontology.mjs`:
 `artifactCap: 170` and `techniqueCap: 54` (D3FEND), `cap: 80` (ATLAS techniques), `cap: 46` with a

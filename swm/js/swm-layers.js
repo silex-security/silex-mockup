@@ -37,16 +37,16 @@
         '<div class="swm-shell coverage">' +
           '<div class="swm-stage" id="swmLayersStage">' +
             '<div class="swm-stage-bar">' +
-              '<div class="swm-crumbs"><button data-reset="1">One hierarchy, four tiers</button><i>›</i><b id="swmChainFocus">L1 General</b></div>' +
+              '<div class="swm-crumbs"><button data-reset="1">Four presentation tiers</button><i>›</i><b id="swmChainFocus">L1 General</b></div>' +
               '<div class="swm-views" id="swmChainAction"><button data-open="1">Open this layer in the Explorer ↗</button></div>' +
             '</div>' +
             '<svg id="swmChainSvg"></svg>' +
-            '<div class="swm-legend"><h6>One chain, four tiers</h6>' +
+            '<div class="swm-legend"><h6>Four tiers · presentation groups, not ranks</h6>' +
               '<div class="swm-legend-items">' +
                 '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:linear-gradient(90deg,#ece5ff,#9b82ef);display:inline-block"></span>plane = abstraction tier</span>' +
                 '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:#b7a3ff;display:inline-block"></span>ribbon width = relations crossing the hop</span>' +
               '</div>' +
-              '<div class="swm-caption" style="margin-top:7px">Plane size is layout only · ribbon width is proportional to the cross-tier relation count · counts are bundle counts, Silex-authored mappings labelled. L1–L3 supply Schema; L4 shows illustrative World State instances. This view does not implement Laws, Objectives or Calibration.</div></div>' +
+              '<div class="swm-caption" style="margin-top:7px">Plane size is layout only · ribbon width is proportional to the cross-tier relation count · counts are bundle counts, Silex-authored mappings labelled. Only SUBCLASS_OF asserts subsumption; tiers group the model for reading. L1–L3 supply Schema; L4 shows illustrative World State instances. This view does not implement Laws, Objectives or Calibration.</div></div>' +
             '<div class="swm-hint">Click a plane to set the abstraction level · inspect a hop for its true predicate direction</div>' +
           '</div>' +
           '<div class="swm-side">' +
@@ -189,8 +189,8 @@
     function directedSample(hop) {
       var bucket = hopLinks[hop.from + ':' + hop.to] || { fwd: [], rev: [] };
       var dirs = [];
-      bucket.fwd.slice(0, 1).forEach(function (l) { dirs.push([byId[l.s], byId[l.t], l.pred, l.src, 'specific → general']); });
-      bucket.rev.slice(0, 1).forEach(function (l) { dirs.push([byId[l.s], byId[l.t], l.pred, l.src, 'general → specific']); });
+      bucket.fwd.slice(0, 1).forEach(function (l) { dirs.push([byId[l.s], byId[l.t], l.pred, l.src, 'points up a tier']); });
+      bucket.rev.slice(0, 1).forEach(function (l) { dirs.push([byId[l.s], byId[l.t], l.pred, l.src, 'points down a tier']); });
       return dirs;
     }
 
@@ -206,8 +206,8 @@
         '<div class="swm-fact"><small>Nodes at this tier</small><b>' + layer.count + '</b></div>' +
         '<div class="swm-fact"><small>Coverage (illustrative)</small><b>' + SWM.pct(layer.coverage) + '</b>' +
           '<div class="swm-meter"><i style="width:' + Math.round(layer.coverage * 100) + '%;background:' + SWM.coverageColor(layer.coverage, 'paper') + '"></i></div></div>' +
-        '<div class="swm-fact"><small>Specialises</small><b>' + (up ? 'L' + up.from + ' · ' + up.count + ' links' : '— root tier') + '</b></div>' +
-        '<div class="swm-fact"><small>Specialised by</small><b>' + (down ? 'L' + down.to + ' · ' + down.count + ' links' : '— runtime') + '</b></div>';
+        '<div class="swm-fact"><small>' + (up ? 'Relations with L' + up.from : 'Tier above') + '</small><b>' + (up ? up.count + ' links' : '— top tier') + '</b></div>' +
+        '<div class="swm-fact"><small>' + (down ? 'Relations with L' + down.to : 'Tier below') + '</small><b>' + (down ? down.count + ' links' : '— runtime') + '</b></div>';
 
       document.getElementById('swmLayerList').innerHTML = chain.layers.map(function (l) {
         return '<button data-layer="' + l.id + '"' + (l.id === focus ? ' style="background:#f2edfd;font-weight:650"' : '') + '>' +
@@ -231,14 +231,24 @@
         var ex = dirs.map(function (x) {
           return 'e.g. <b>' + SWM.esc(x[0].label) + ' → ' + SWM.esc(x[1].label) + '</b> ' + x[2] +
             (srcTag(x[3]) ? ' · <span style="opacity:.85">' + SWM.esc(srcTag(x[3])) + '</span>' : '') +
-            (x[4] === 'general → specific' ? ' · <span style="opacity:.7">general → specific</span>' : ' · <span style="opacity:.7">specific → general</span>');
+            ' · <span style="opacity:.7">' + x[4] + '</span>';
         }).join('<br>');
         return '<div class="swm-gap" style="' + (on ? 'border-color:' + SWM.layerColor(hop.to) : '') + '">' +
           '<strong>L' + hop.from + ' ↔ L' + hop.to + ' · ' + hop.count + ' relations</strong>' +
           '<small>' + preds.map(function (p) { return p + ' ×' + hop.preds[p]; }).join(' · ') + '</small>' +
           '<small style="opacity:.9">' + ex + '</small>' +
           '</div>';
-      }).join('');
+      }).join('') + skipsHtml();
+    }
+
+    /* relations that join non-adjacent tiers (e.g. an L3 component SUBCLASS_OF an L1 core class) */
+    function skipsHtml() {
+      var sk = chain.skips;
+      if (!sk || !sk.count) return '';
+      var pairs = Object.keys(sk.pairs).sort().map(function (k) { return k + ' ×' + sk.pairs[k]; }).join(' · ');
+      var preds = Object.keys(sk.preds).sort(function (a, b) { return sk.preds[b] - sk.preds[a]; }).slice(0, 3)
+        .map(function (p) { return p + ' ×' + sk.preds[p]; }).join(' · ');
+      return '<p class="swm-note" id="swmChainSkips">' + sk.count + ' further relations skip a tier (' + pairs + '): ' + preds + '.</p>';
     }
 
     function setFocus(l) { focus = l; draw(); renderSide(); }

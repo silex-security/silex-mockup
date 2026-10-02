@@ -362,3 +362,33 @@ Review base: `BASE=74ed19a`.
 - `schema.mjs` encodes the signatures as kind pairs, plus a `SUBCLASS_COMPAT` table so a child may only specialise a parent of a compatible kind. Both are frozen at T0.
 - `CHARACTERIZES` targets published threats (ATT&CK/ATLAS techniques and tactics, OWASP risks). No core threat kind is introduced.
 - Source cache populated by a full online build at BASE. The result was identical to the committed bundle except `generated`, so there is no upstream drift.
+
+### Progress checkpoint (planner, mid-implementation, usage limit reached)
+
+**Done:**
+- T0, the frozen contract.
+- T1–T4, delivered by DeepSeek: `validate-seed` passes and fails on a broken copy.
+- T5, the builder: 755 nodes, 1,377 links. Contract checks pass, and the bundle is not written on any violation.
+- T6, most of it:
+  - UI: review chips, candidate packs, unobserved deployment, uncountered threats, skips caption, VOWL `SUBCLASS_OF` only.
+  - `probe-swm.mjs`: N1, I1, I2, I3, H1, L1, R1 and E1 all pass. N1 is proven to fail with `GROUPED_UNDER` injected. R1 is equal to BASE by exact IDs.
+  - The `preview-panels` selector fix.
+  - Copy: `index.html` Assurance lines and both About blocks, `assurance.html` count lines, `SECURITY_WORLD_MODEL.md`, `swm/README.md`, rebuild `SKILL.md`.
+- Post-conditions computed:
+  - no `SPECIALIZES` links and no "(prohibited)" entities;
+  - deployment equality holds;
+  - public ID set equal to BASE;
+  - `coverage.json` differs only in `kpis[entities].delta`;
+  - `ontology.js` is 577 KB;
+  - 45 of 105 threats countered.
+
+**Still open:**
+- DeepSeek follow-up on label collisions, which was sent: tautological core labels such as Execution Context ⊑ Execution Context, plus a validate-seed rule.
+- `assurance.html`'s own `#wm-architecture` About block (around line 948) still has the old "single chain" copy.
+- `check-copy.mjs` is not written yet.
+- `swm/data/*` needs regenerating after DeepSeek's fix.
+- `run-site-probes.mjs` has not been run.
+- Codex T7 is in progress: `verify-bundle.mjs` and `competency.mjs`.
+- The rebuild `SKILL.md` line about verify-bundle (around line 83) waits on T7.
+- Step 7 code review, both seats, has not started.
+- Not merged, not pushed.

@@ -293,3 +293,9 @@
 
 #swmStage .swm-legend,#swmStage .swm-stage-foot,#swmLayersStage .swm-legend,#swmLayersStage .swm-hint{position:static;margin:8px 12px;max-width:none}
 #swmStage .swm-stage-foot{padding:0 6px 10px}
+/* review grade (plan 2026-10-02): how far each node or relation can be trusted */
+.swm-review{font:600 10px/1 var(--swm-mono);border-radius:5px;padding:3px 6px;border:1px solid;white-space:nowrap}
+.swm-review.published{background:#eaf3ee;color:#22603e;border-color:rgba(34,96,62,.3)}
+.swm-review.curated{background:#f2edfd;color:#3f2787;border-color:rgba(111,80,201,.3)}
+.swm-review.heuristic{background:#fff4e0;color:#8a5a00;border-color:rgba(176,120,0,.35)}
+.swm-review.illustrative{background:#f1f2f4;color:#4f5864;border-color:rgba(79,88,100,.3)}

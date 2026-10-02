@@ -2,7 +2,8 @@
    Notation adapted from VOWL; interaction inspired by WebVOWL (MIT). A separate D3 v7 implementation. */
 window.SWM_VOWL = function (SWM, d3) {
   'use strict';
-  var SUB = { SUBCLASS_OF: 1, SPECIALIZES: 1 }, REVEAL = .12, WATCHDOG = 6000;
+  /* inheritance only (schema INHERITANCE_PREDS): grouping, membership and instantiation are plain properties */
+  var SUB = { SUBCLASS_OF: 1 }, REVEAL = .12, WATCHDOG = 6000;
   var ev = {}, gen = 0, phase = null, prev = null, ctx = null, sim = null, timers = [], wd = null, cache = new Map();
   var nodes = [], props = [], links = [], selN, selL, selP, gFocus, root, paused = false, hidden = false, dragging = false, k = 1, pending = null;
   var api = { _ticks: 0 };

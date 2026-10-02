@@ -98,7 +98,7 @@ await send('Emulation.setDeviceMetricsOverride', { width: 1680, height: 1100, de
 
 const PANELS = [
   ['wm-overview',     'World Model Coverage', 'coverage.png',  'document.querySelectorAll("#swmCovSvg path").length'],
-  ['wm-ontology',     'Security Ontology',    'ontology.png',  'document.querySelectorAll("#swmSvg g.swm-node").length'],
+  ['wm-ontology',     'Security Ontology',    'ontology.png',  'document.querySelectorAll("#swmSvg g.swm-node, #swmSvg g.vw-node").length'],
   ['wm-architecture', 'Ontology Layers',      'layers.png',    'document.querySelectorAll("#swmChainSvg path").length']
 ];
 

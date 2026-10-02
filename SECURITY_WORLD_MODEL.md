@@ -24,37 +24,47 @@ as drawn was wrong.
 |---|---|
 | **World Model Coverage** | Zoomable sunburst over Enterprise → Domain → Capability → Workflow. A six-dimension radar beside it **re-reads at whichever level is in focus**, KPIs come from the bundle, and the gap list cross-filters to the selected subtree while keeping its jumps into the Workflow Library, a workflow or an incident. A second mode recolours the ring by unmodelled share instead of coverage. |
 | **Ontology Graph** | Four-layer explorer with three renderings of one graph: force layout (rings = distance from the group anchor), radial hierarchy, and a group × group relation matrix. Rail carries the layer selector, search, group filters and a *colour by* switch (layer / coverage / status). The inspector gives each node's definition, its real public identifier with a link, its coverage and its typed relations. |
-| **Ontology Layers** | The L1 → L2 → L3 → L4 chain drawn from the data: four bands with real counts, average coverage and group mix, and ribbons as thick as the typed relations crossing each hop. Clicking a band sets the shared abstraction level. |
+| **Ontology Layers** | The four tiers drawn from the data: four bands with real counts, average coverage and group mix, ribbons as thick as the typed relations between adjacent tiers, and a caption for the relations that skip a tier. Clicking a band sets the shared abstraction level. |
 
 All three share one abstraction level (`SWM.setLevel` / `SWM.onLevel`), so picking L3 in the Layers
 tab leaves the Explorer already at L3, and vice versa.
 
-## 3. The layer chain, and why it is a rule rather than a drawing
+## 3. Tiers, the display tree and subsumption (updated 2026-10-02)
 
-The corrected relationship is a single chain — **an agentic system is a specialisation of the domain
-it runs in**, not a parallel taxonomy:
+The four tiers are **presentation groups, not taxonomic ranks**. The 2026-09-17 version enforced a
+single chain, with every node's parent at most one tier up. That forced category errors: a domain pack was
+written as a kind of *Workflow*, and each agentic component hung under one arbitrary domain. The
+ontology-rigor run ([plan](logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md)) replaced it:
 
 ```
-L1 General Agent Ontology Graph        370 types · avg coverage 74%
-      │  43 typed relations (SPECIALIZES)
-L2 Domain Ontology Packs                86 types · 78%
-      │  21 typed relations (DEPLOYED_IN)
-L3 Agentic-System Ontology             118 types · 60%
-      │  22 typed relations (INSTANCE_OF)
+L1 General Agent Ontology Graph        439 nodes · avg coverage 74%
+      ↕  279 relations with L2 (SUBCLASS_OF, GROUPED_UNDER, MAY_CAUSE, hazard links)
+L2 Domain Ontology Packs               167 nodes · 78%
+      ↕  35 relations with L3 (DEPLOYED_IN, CHARACTERIZES)
+L3 Agentic-System Ontology             125 nodes · 60%
+      ↕  22 relations with L4 (INSTANCE_OF)
 L4 Runtime Knowledge Graph              24 nodes · 81%
+      + 205 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
 ```
 
-Every node carries an explicit `parent`, and `swm/tools/build-ontology.mjs` **exits non-zero if any
-parent sits more than one layer above its child**. Concretely:
-
-- an L3 component hangs under the domain pack its runtime instances are actually deployed in
-  (derived from the L4 seed), with the other domains kept as extra `DEPLOYED_IN` edges;
-- components used everywhere land in a *Cross-domain & Horizontal* pack — the same bucket the
-  "horizontal agents unassigned to a domain" coverage gap describes;
-- a published ATLAS technique or OWASP risk hangs under the component it threatens, so expanding
-  *Long-term Memory* shows Memory Poisoning, RAG Poisoning and Data and Model Poisoning;
-- a runtime node hangs under the component it instantiates; incidents hang under the runtime
-  workflow they occurred in.
+- **Only `SUBCLASS_OF` asserts subsumption.** Domain membership is `PART_OF_DOMAIN`, deployment is
+  `DEPLOYED_IN`, and the eight L1 groups are navigation (`GROUPED_UNDER`).
+- **Every predicate has a signature** (allowed node-kind pairs and review grades) in
+  `swm/tools/schema.mjs`. The build refuses to write a bundle that breaks one, that has a cycle in
+  the display tree or in the `SUBCLASS_OF` graph, or that hangs a node under a lower tier.
+- **A domain pack is an L2 root.** Its entities, actions, hazards and prohibited outcomes hang under
+  it with `PART_OF_DOMAIN`, and each also `SUBCLASS_OF` an L1 core class.
+- **An agentic component is a kind of an L1 core class.** It is `DEPLOYED_IN` exactly the domains
+  where the illustrative runtime graph has an instance of it. Short-term memory, sub-agent
+  delegation and execution context have none, so they claim no deployment and are marked
+  *unobserved*.
+- **Hazards close a chain.** An L2 hazard is `HAZARD_FOR` an entity or action. It `CHARACTERIZES` a
+  published threat, is `MITIGATED_BY` a control, `REQUIRES_EVIDENCE` of an evidence type, and that
+  evidence is `RECORDED_BY` a telemetry record schema. Prohibited outcomes are effects or states that
+  a hazard `MAY_LEAD_TO`, not business entities.
+- **Every node and relation carries a review grade:** `published`, `curated` (Silex-authored
+  assertion), `heuristic` (keyword-mapped) or `illustrative` (mock runtime and coverage). The
+  inspector shows it.
 
 ## 4. Where the data comes from
 
@@ -70,9 +80,12 @@ which is git-ignored; only the distilled bundles are committed, so Vercel needs 
 | [UCO](https://unifiedcyberontology.org/) | 72 | Upper classes from `core`, `identity`, `action`, `tool`, `pattern`, `observable` |
 | [OWASP GenAI](https://genai.owasp.org/) | 25 | LLM Top 10 (2025) and the Agentic AI threat taxonomy T1–T15 |
 
-**Total: 598 types, 800 typed relations, 336KB.** 131 of those nodes are Silex mock content — the L2
-domain packs, the L3 component list, the whole L4 runtime graph, every percentage, and the
-threat → component and countermeasure → threat mappings. The inspector labels them `Silex mock`;
+**Total: 755 nodes · 1377 typed relations, about 577KB.** 288 of those nodes are Silex-authored:
+- the L1 core concepts, the L2 domain packs (two of them, CRM and Legal, are candidate packs outside
+  the coverage figures), the L3 component list and record schemas — all graded `curated`;
+- registered workflows and the whole L4 runtime graph, graded `illustrative`.
+
+Every percentage is illustrative. The inspector shows each node's and relation's review grade;
 public nodes keep their real identifiers so they can be checked. Provenance and licences:
 [`swm/data/SOURCES.md`](swm/data/SOURCES.md).
 
@@ -159,11 +172,11 @@ the demo keeps its original weight.
 
 ## 9. Known limits and obvious next steps
 
-- **Naming is still pending technical alignment.** The chain and the counts are settled; the final
+- **Naming is still pending technical alignment.** The tiers and the counts are settled; the final
   names of the four layers are not, and the tab keeps its TBD marker.
-- **L2 domain packs hang under the `Workflow` L1 anchor**, which is the closest of the eight groups
-  to "business process semantics" but reads oddly in the breadcrumb (`Workflow › Customer Service`).
-  A dedicated L1 anchor for domain semantics would fix it.
+- **The Hierarchy view still files the L2 domain packs under the Workflow heading**, because the
+  view arranges every tier by the eight L1 groups. The packs themselves are L2 roots, not kinds of
+  Workflow (see §3).
 - **Coverage percentages are authored, not computed.** The formula is TBD per the PRD; the panel is
   built so that swapping in real numbers is a data change, not a code change.
 - Possible additions: overlaying the causal path of a chosen incident on the graph, a diff view

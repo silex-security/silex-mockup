@@ -23,37 +23,46 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 | **UCO(Unified Cyber Ontology)** | 网络安全的统一上层本体 | **72** | Apache-2.0 | L1 **顶层类**(Agent / Identity / Tool / Action…) |
 | **OWASP GenAI** | LLM Top 10 (2025) + Agentic 威胁清单 T1–T15 | **25** | CC BY-SA 4.0 | 挂到对应的 agentic 组件上 |
 
-这 5 个来源约 **467 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。整张图共 **598 节点 + 800 条带类型的关系**(SUBCLASS_OF 274 · ACHIEVES 126 · THREATENS 105 · SPECIALIZES 85 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从上述 URL 实时抓取 + 蒸馏生成,画图用 D3.js(pinned 7.9.0,可离线)。
+这 5 个来源约 **467 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。整张图共 **755 nodes · 1377 typed relations**(SUBCLASS_OF 406 · GROUPED_UNDER 201 · ACHIEVES 126 · PART_OF_DOMAIN 107 · THREATENS 105 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从上述 URL 实时抓取 + 蒸馏生成,画图用 D3.js(pinned 7.9.0,可离线)。
 
 ### 怎么拼成一个四层世界模型(L1→L2→L3→L4)
 
-**L1 通用**(370)· **L2 行业包**(86)· **L3 agentic 系统**(118)· **L4 运行时实例**(24)。关键:每个节点都有一个明确的 `parent`,构建脚本会**强制校验** parent 必须同层、或恰好高一层,否则构建直接失败 —— 所以这四层是一条**真实的链,不是随手画的层次图**。
+**L1 通用**(439)· **L2 行业包**(167)· **L3 agentic 系统**(125)· **L4 运行时实例**(24)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
 
 ### ⚠️ 哪些是真的、哪些是示例(与下面 "What is real and what is mock" 一致)
 
-- **真实**:上面 5 个公开标准的节点、官方 ID、以及类之间的继承结构。
-- **示例 mock(节点标 `src: silex`)**:L2 各行业 domain pack 的业务实体、L3 组件清单、**整个 L4 运行时图**、**所有 coverage 百分比**、以及 threat→component / countermeasure→threat 的映射。
+每个节点和每条关系都带 `review` 评审等级,inspector 里可见:
+
+- **published**:上面 5 个公开标准的节点、官方 ID、以及类之间的继承结构。
+- **curated**(Silex 自编的语义断言):L1 核心概念、L2 domain pack 的实体/动作/hazard/禁止结果、L3 组件和记录 schema、威胁→缓解措施映射、OWASP→组件映射。CRM 和 Legal 是**候选**领域包,只在本体里,不进 coverage。
+- **heuristic**(关键词推断):ATLAS 技术打到哪个 L3 组件。
+- **illustrative**(示例 mock):注册工作流、**整个 L4 运行时图**及由它推出的部署/实例关系、**所有 coverage 百分比**。
 
 > **"某领域有哪些概念、怎么继承" 是真的公开标准;"某公司覆盖了 82%、还有 8 个盲点" 是编的示例占位。** 这正好对上 positioning 的 evidence-grade 原则:真的标 real,示例的标 illustrative,不混。
 
 ### 每张图具体吃哪块数据
 
-- **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数 + 跨层 typed relations),**结构真实**。
-- **Security Ontology**(graph / hierarchy / relation matrix)→ `ontology.json` 的 **598 nodes + 800 links**,公开标准部分真实、Silex 叠加部分示例。
+- **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数、相邻层之间的 typed relations,以及跨层跳过的 `skips`)。
+- **Security Ontology**(graph / hierarchy / relation matrix)→ `ontology.json` 的 **755 nodes · 1377 typed relations**,每个节点/关系按 review 等级标注。
 - **World Model Coverage**(可缩放 sunburst + 雷达)→ `coverage.json`(coverage tree / gaps / KPIs)。其中 **weighted coverage 82% · 29.4K entities · 8 blind spots · sim-vs-observed 94%** 等数字**均为 illustrative,非实测**。
 
 完整来源与许可见 [`data/SOURCES.md`](data/SOURCES.md)。
 
 ---
 
-## The chain is a hard rule, not a drawing
+## Tiers are presentation groups; only SUBCLASS_OF is subsumption
 
-Every node in the bundle names one `parent`, and `build-ontology.mjs` exits non-zero if any parent
-sits more than one layer above its child. So the layers are a real chain rather than a picture of
-one: an agentic component hangs under the domain pack it is actually deployed in (derived from the
-runtime instances), a published ATLAS or OWASP threat hangs under the component it targets, and a
-runtime node hangs under the component it instantiates. The Ontology Layers panel draws exactly that
-— band counts and ribbon widths come from `ontology.chain`.
+L1 → L2 → L3 → L4 group the model for reading; they are not taxonomic ranks. Every node names one
+display `parent` (with its `parentPred`) for the Hierarchy view, but only `SUBCLASS_OF` says that
+one concept is a kind of another. A domain pack is an L2 root, and its entities, actions, hazards and
+prohibited outcomes are `PART_OF_DOMAIN` it and `SUBCLASS_OF` an L1 core class. An agentic component
+is `SUBCLASS_OF` an L1 core class and `DEPLOYED_IN` the domains where the illustrative runtime graph
+has an instance of it. A published ATLAS technique hangs under its ATLAS tactic and `THREATENS` its
+component as a heuristic edge. `swm/tools/schema.mjs` gives every predicate its allowed node-kind
+pairs and review grades; `build-ontology.mjs` refuses to write a bundle that breaks one, that has a
+cycle in the display tree or the `SUBCLASS_OF` graph, or that hangs a node under a lower tier. The
+Ontology Layers panel draws `ontology.chain`: band counts, ribbons between adjacent tiers, and a
+caption for the relations that skip a tier.
 
 ```
 swm/
@@ -62,11 +71,12 @@ swm/
   js/swm-loader.js         lazy-loads d3 + bundles the first time a panel is opened
   js/swm-ontology.js       Ontology Explorer  (graph / hierarchy / relation matrix)
   js/swm-coverage.js       Coverage Observatory (zoomable sunburst + contextual radar)
-  js/swm-layers.js         Ontology Layers     (the L1→L2→L3→L4 chain, bands + ribbons)
-  data/ontology.json|.js   generated graph: 598 nodes, 800 typed relations, plus a chain summary
+  js/swm-layers.js         Ontology Layers     (the four tiers, bands + ribbons)
+  data/ontology.json|.js   generated graph: 755 nodes · 1377 typed relations, schema, chain summary
   data/coverage.json|.js   generated coverage tree, gaps and KPIs
   data/SOURCES.md          where every public node came from, and its licence
-  tools/build-ontology.mjs fetch + distil pipeline (node, no dependencies)
+  tools/build-ontology.mjs fetch + distil + contract-check pipeline (node, no dependencies)
+  tools/schema.mjs         the contract: kinds, predicate signatures, review grades
   tools/silex-seed.mjs     Silex's own L2/L3/L4 mock content
   skills/                  agent skills + scripts for rebuilding on another host
   vendor/d3.v7.min.js      pinned D3 7.9.0, so the demo also runs offline
@@ -122,10 +132,11 @@ node swm/skills/swm-simulation-data/scripts/validate-seed.mjs [path/to/candidate
 |---|---|---|
 | L1 | Upper classes, digital-artifact tree, defensive techniques, enterprise tactics | UCO, MITRE D3FEND, MITRE ATT&CK — real identifiers, real definitions |
 | L3 threats | AI/agent attack techniques and risk catalogues | MITRE ATLAS, OWASP LLM Top 10 (2025), OWASP Agentic AI T1–T15 |
-| L2 / L3 components / L4 | Domain packs, agentic components, runtime graph, every percentage | **Silex mock content** — illustrative, marked `silex` in the inspector |
+| L1 core / L2 / L3 components | Core concepts, domain packs (CRM and Legal as candidates), actions, hazards, prohibited outcomes, components, record schemas | **Silex-authored**, graded `curated` in the inspector |
+| Workflows / L4 / every percentage | Registered workflows, the runtime graph and what is derived from it | **Silex mock content**, graded `illustrative` |
 
-The threat → component and countermeasure → threat edges are Silex-authored mappings over
-public data; they are labelled as such. See [`data/SOURCES.md`](data/SOURCES.md).
+The threat → component edges (heuristic for ATLAS, curated for OWASP) and countermeasure → threat
+edges (curated) are Silex-authored mappings over public data, and their review grades say so. See [`data/SOURCES.md`](data/SOURCES.md).
 
 ## Encoding decisions
 

@@ -4,8 +4,9 @@
   var d3 = global.d3, SWM = global.SWM;
 
   /* predicates that draw a type hierarchy — styled lighter, used for layout */
-  var HIER = { SUBCLASS_OF:1, SPECIALIZES:1, PART_OF:1, DEFINED_IN:1, INSTANCE_OF:1,
-               ACHIEVES:1, DEPLOYED_IN:1, THREATENS:1, OCCURRED_IN:1 };
+  /* predicates drawn as structure (lighter, used for layout): the bundle's display-tree
+     predicates plus deployment and threat placement. Layout only — inheritance is SUBCLASS_OF alone. */
+  var HIER = { DEPLOYED_IN:1, THREATENS:1 };
   var MAX_VISIBLE = 240;
 
   /* the documented example neighbourhood (plan P3, exact IDs) */
@@ -20,6 +21,12 @@
     var mount = document.getElementById('swmOntology');
     if (!mount) return;
     var data = SWM.ontology();
+    ((data.schema && data.schema.tree) || []).forEach(function (p) { HIER[p] = 1; });
+    var uncountered = new Set(data.uncountered || []);
+    var REVIEW_TEXT = { published: 'Published · public source', curated: 'Curated · Silex-authored assertion',
+                        heuristic: 'Heuristic · keyword-mapped', illustrative: 'Illustrative · mock content' };
+    var reviewHtml = (g) => g ? '<span class="swm-review ' + SWM.esc(g) + '">' + SWM.esc(REVIEW_TEXT[g] || g) + '</span>' : '—';
+    var linkReview = (e) => { var l = links.find((x) => x.s === e.s && x.t === e.t && x.pred === e.pred); return l ? l.review : null; };
 
     var byId = new Map(), children = new Map(), parentOf = new Map(), rel = new Map();
     data.nodes.forEach(function (n) { byId.set(n.id, n); children.set(n.id, []); rel.set(n.id, []); });
@@ -437,12 +444,12 @@
       node.filter((n) => !n.data.heading).append('path').attr('class', 'glyph')
         .attr('d', (n) => SWM.symbol(n.data.node.group, n.depth === 1 ? 150 : 46))
         .call(SWM.paintGlyph, (n) => n.data.node.group, (n) => n.depth === 1 ? '#eef0fb' : colorOf(n.data.node), 1.6);
-      node.filter((n) => n.depth === 1 || !many || n.data.id === state.selected).append('text')
+      node.filter((n) => n.depth === 1 || !many || n.data.id === state.selected || (n.data.node && n.data.node.root)).append('text')
         .attr('class', (n) => n.depth === 1 ? 'grp' : null)
         .attr('dy', '.32em').attr('x', (n) => n.x < Math.PI ? 10 : -10)
         .attr('text-anchor', (n) => n.x < Math.PI ? 'start' : 'end')
         .attr('transform', (n) => n.x < Math.PI ? null : 'rotate(180)')
-        .text(function (n) { var t = SWM.fixtureText(n.data.heading ? n.data.label : n.depth === 1 ? (groupName[n.data.node.group] || n.data.node.label) : n.data.node.label); return t.length > 22 ? t.slice(0, 21) + '…' : t; });
+        .text(function (n) { var t = SWM.fixtureText(n.data.heading ? n.data.label : n.depth === 1 ? (groupName[n.data.node.group] || n.data.node.label) : (n.data.node.candidate ? 'Candidate · ' : '') + n.data.node.label); return t.length > 22 ? t.slice(0, 21) + '…' : t; });
       current = { nodes: vis, links: [] };
       applyQueryStyles();
     }
@@ -626,14 +633,14 @@
       } else {
         lg.hidden = false;
         var scale = state.colorBy === 'source'
-          ? SRC_FILL.map((c, i) => '<span class="swm-legend-item"><span style="width:11px;height:11px;border-radius:50%;background:' + c + ';display:inline-block"></span>' + (i ? 'Silex-authored · illustrative' : 'Public source') + '</span>').join('')
+          ? SRC_FILL.map((c, i) => '<span class="swm-legend-item"><span style="width:11px;height:11px;border-radius:50%;background:' + c + ';display:inline-block"></span>' + (i ? 'Silex-authored · see review grade' : 'Public source') + '</span>').join('')
           : state.colorBy === 'layer'
           ? '<span class="swm-legend-item"><span style="width:11px;height:11px;border-radius:3px;background:' + SWM.layerColor(state.layer) + ';display:inline-block"></span>L' + state.layer + ' ' + SWM.esc((layerName[state.layer] || '').split(' ')[0]) + '</span>'
           : state.colorBy === 'coverage'
           ? '<span class="swm-ramp"><span>≤40%</span><span class="bar"></span><span>100%</span></span><span class="swm-legend-item">authored coverage · ends are clamped bounds</span>'
           : Object.keys(SWM.status).map((k) => '<span class="swm-legend-item">' + SWM.statusHtml(k) + '</span>').join('');
         lg.innerHTML = '<h6>Colour = ' + ({ source: 'source', layer: 'tier', coverage: 'authored coverage' }[state.colorBy] || 'coverage status') + ' · shape = ontology group' +
-          (current.network ? ' · box = relation · dashed ▷ = subclass / specializes' : '') + '</h6>' +
+          (current.network ? ' · box = relation · dashed ▷ = subclass of' : '') + '</h6>' +
           '<div class="swm-legend-items">' + scale + '</div>';
       }
       var foot = state.example
@@ -702,9 +709,9 @@
       if (!state.example) state.edge = null;
       render();
     }
-    function selectEdge(l) { state.edge = { s: l.s, t: l.t, pred: l.pred, src: l.src }; render(); }
+    function selectEdge(l) { state.edge = { s: l.s, t: l.t, pred: l.pred, src: l.src }; state.edge.review = l.review || linkReview(state.edge); render(); }
 
-    function nodeAria(n) { return SWM.fixtureText(n.label) + ', ' + (groupName[n.group] || n.group) + ', L' + n.layer + (isSilex(n) ? ', Silex-authored, illustrative' : ', public source'); }
+    function nodeAria(n) { return SWM.fixtureText(n.label) + (n.candidate ? ', candidate domain pack' : '') + ', ' + (groupName[n.group] || n.group) + ', L' + n.layer + ', ' + (REVIEW_TEXT[n.review] || (isSilex(n) ? 'Silex-authored' : 'public source')); }
     function tipHtml(n) {
       var kids = (children.get(n.id) || []).length;
       return '<b>' + SWM.esc(SWM.fixtureText(n.label)) + '</b><small>' + SWM.esc(groupName[n.group] || n.group) + ' · L' + n.layer + ' ' + SWM.esc(n.kind || '') + '</small>' +
@@ -727,6 +734,7 @@
         return '<p class="swm-insp-kicker">Selected relation</p><p class="big" style="color:#50339c;font-family:var(--swm-mono);font-size:13px">' + SWM.esc(state.edge.pred) + '</p>' +
           row(SWM.esc(SWM.fixtureText(a.label)) + ' → ' + SWM.esc(SWM.fixtureText(b.label))) +
           row('Provenance', SWM.esc(srcProv(state.edge.src))) +
+          row('Review grade', reviewHtml(state.edge.review || linkReview(state.edge))) +
           '<p class="note">No event timestamp or execution evidence is supplied by this relationship.</p>';
       };
       if (!n && state.edge) html = edgeHtml() + '<div class="actions"><button class="swm-btn" data-act="clear">Clear selection</button></div>';
@@ -737,7 +745,7 @@
           '<p class="big">' + publicCount + ' public-source nodes</p><p class="big">' + silexCount + ' Silex-authored nodes</p>' +
           '<p class="note" style="margin-top:2px">Counts across all four tiers. They are an inventory, not evidence or confidence scores.</p>' +
           '<h4>Nodes carrying each public identifier</h4>' + srcRows +
-          '<p class="note">Published IDs remain inspectable. Silex instances, mappings and coverage are illustrative, not measured outcomes.</p>' +
+          '<p class="note">Published IDs remain inspectable. Every Silex-authored node and relation carries a review grade: curated concepts and mappings, heuristic keyword placements, illustrative instances and coverage. None are measured outcomes.</p>' +
           '<div class="actions"><button class="swm-btn accent" data-act="example">Try the Refund workflow example →</button></div>';
       } else {
         var p = parentOf.get(n.id) ? byId.get(parentOf.get(n.id)) : null;
@@ -750,7 +758,12 @@
           (/WF-021/.test(n.def || '') ? '<p class="note" style="margin-top:-6px">SWM fixture · no linked workflow page in this demo.</p>' : '') +
           '<h4>Record</h4>' + row('ID', '<span style="font:600 11px var(--swm-mono)">' + SWM.esc(n.id) + '</span>') +
           row('Group', SWM.esc(groupName[n.group] || n.group)) +
-          (p ? row('Parent', SWM.esc(SWM.fixtureText(p.label))) : '') +
+          (p ? row('Parent', SWM.esc(SWM.fixtureText(p.label)) + (n.parentPred ? ' <small style="font:600 10px var(--swm-mono);color:#68707c">' + SWM.esc(n.parentPred) + '</small>' : '')) : '') +
+          row('Review grade', reviewHtml(n.review)) +
+          (n.candidate ? row('Status', 'Candidate domain pack · ontology only, outside the coverage figures') : '') +
+          (n.prohibited ? row('Prohibited outcome', SWM.esc(n.kind === 'state' ? 'A state that must not be reached' : 'An effect that must not occur')) : '') +
+          (n.deployment === 'unobserved' ? row('Deployment', 'No runtime instance in the illustrative graph') : '') +
+          (uncountered.has(n.id) ? row('Countermeasure', 'No mapped countermeasure') : '') +
           row('Authored model coverage', SWM.pct(n.coverage)) +
           '<div class="swm-meter"><i style="width:' + Math.round((n.coverage || 0) * 100) + '%;background:' + SWM.coverageColor(n.coverage, 'paper') + '"></i></div>';
         if (state.edge) html += '<hr>' + edgeHtml();

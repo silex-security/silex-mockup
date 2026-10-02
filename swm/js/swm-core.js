@@ -55,7 +55,7 @@
 
   var SRC_LABEL = {
     d3fend: 'D3FEND', atlas: 'ATLAS', attack: 'ATT&CK', uco: 'UCO',
-    owasp: 'OWASP', silex: 'Silex-authored · illustrative'
+    owasp: 'OWASP', silex: 'Silex-authored'
   };
 
   /* fixture IDs that mean something else elsewhere on the site are never shown bare (plan P2) */
@@ -81,7 +81,16 @@
     darkText: DARK_TEXT,
     glyphs: GLYPHS,
 
-    ontology: () => global.SILEX_SWM_ONTOLOGY || null,
+    /* the views treat `anchor` as an L1 group hub; L2 domain packs are anchors in the bundle
+       (roots of the display tree, not hubs), so they are surfaced to the views as `root` */
+    ontology: function () {
+      var o = global.SILEX_SWM_ONTOLOGY || null;
+      if (o && !o._viewReady) {
+        o.nodes.forEach(function (n) { if (n.anchor && n.kind !== 'group') { n.root = true; n.anchor = false; } });
+        o._viewReady = true;
+      }
+      return o;
+    },
     coverage: () => global.SILEX_SWM_COVERAGE || null,
     ready: () => !!(global.SILEX_SWM_ONTOLOGY && global.SILEX_SWM_COVERAGE && global.d3),
 

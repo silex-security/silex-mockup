@@ -150,205 +150,320 @@ function parseUco(modules, cap = 56){
 }
 
 /* ---- assembly ------------------------------------------------------------ */
+/* Layers are presentation groups, not taxonomic ranks (plan 2026-10-02). Every node
+   keeps one display `parent` for the Hierarchy view, reached by a `parentPred` from
+   SCHEMA.TREE_PREDS; only SUBCLASS_OF asserts subsumption. Every node and link
+   carries a `review` grade, and every link must fit SCHEMA.PRED_SIGNATURES. */
 function assemble({ d3fend, atlas, attack, uco }){
-  const nodes = [], links = [], index = new Map();
+  const nodes = [], links = [], index = new Map(), seenLink = new Set(), problems = [];
   const add = n => { if (index.has(n.id)) return index.get(n.id); index.set(n.id, n); nodes.push(n); return n };
-  const link = (s, t, pred, src='silex') => { if (index.has(s) && index.has(t) && s !== t) links.push({ s, t, pred, src }) };
-
-  /* The layer chain is explicit: L1 → L2 → L3 → L4, every node names one parent,
-     and that parent sits in the same layer or exactly one layer above. A second
-     call for the same child only adds a typed edge, never a second parent. */
-  const setParent = (child, parent, pred, src='silex') => {
-    const c = index.get(child), p = index.get(parent);
-    if (!c || !p || child === parent) return false;
-    link(child, parent, pred, src);
-    if (c.parent) return false;
-    c.parent = parent;
-    return true;
+  const link = (s, t, pred, src, review) => {
+    if (!index.has(s) || !index.has(t) || s === t) { problems.push(`${pred}: ${s} → ${t} does not resolve`); return }
+    const key = `${s}|${t}|${pred}`;
+    if (seenLink.has(key)) return;
+    seenLink.add(key); links.push({ s, t, pred, src, review });
   };
+  const setParent = (child, parent, pred, src, review) => {
+    link(child, parent, pred, src, review);
+    const c = index.get(child);
+    if (c && index.has(parent) && !c.parent) { c.parent = parent; c.parentPred = pred }
+  };
+  const SILEX = (id, label) => [{ sys:'silex', id, label }];
+
+  /* seed references are bare Silex ids; resolve them against the namespaces a field may point into */
+  const resolve = (ref, spaces, where) => {
+    if (index.has(ref)) return ref;
+    for (const ns of spaces) if (index.has(`${ns}${ref}`)) return `${ns}${ref}`;
+    problems.push(`${where}: "${ref}" does not resolve (tried ${spaces.join(', ') || 'bundle ids'})`);
+    return null;
+  };
+  const entitySlug = (domain, label) => `ent:${domain}:${label.replace(/\W+/g,'-').toLowerCase()}`;
 
   /* --- L1 group anchors (Silex's eight semantic groups) ------------------- */
   for (const g of SEED.GROUPS)
-    add({ id:`grp:${g.id}`, label:g.name, group:g.id, layer:1, kind:'group', def:g.blurb,
-          src:[{ sys:'silex', id:'SILEX-L1', label:'Silex L1 anchor' }], instances:0, coverage:null, anchor:true, parent:null });
+    add({ id:`grp:${g.id}`, label:g.name, group:g.id, layer:1, kind:'group', def:g.blurb, review:'curated',
+          src:SILEX('SILEX-L1', 'Silex L1 anchor'), instances:0, coverage:null, anchor:true, parent:null });
 
   /* --- L1 from UCO -------------------------------------------------------- */
   for (const n of uco){
     const group = groupFor(`${n.label} ${n.def} ${n.module}`, 'resource');
-    add({ id:`uco:${n.id}`, label:n.label, group, layer:1, kind:'class', def:n.def || `UCO ${n.module} class.`,
+    add({ id:`uco:${n.id}`, label:n.label, group, layer:1, kind:'class', def:n.def || `UCO ${n.module} class.`, review:'published',
           src:[{ sys:'uco', id:n.id, label:`UCO ${n.module}`, url:`https://ontology.unifiedcyberontology.org/uco/${n.module}/${n.id.split(':')[1]}` }],
           instances:Math.round(pick(n.id,0,900)), coverage:pick(n.id,.55,.97) });
   }
   for (const n of uco){
     const id = `uco:${n.id}`;
     const parent = n.parents.map(p => `uco:${p}`).find(p => index.has(p));
-    setParent(id, parent || `grp:${index.get(id).group}`, parent ? 'SUBCLASS_OF' : 'SPECIALIZES', parent ? 'uco' : 'silex');
+    if (parent) setParent(id, parent, 'SUBCLASS_OF', 'uco', 'published');
+    else setParent(id, `grp:${index.get(id).group}`, 'GROUPED_UNDER', 'silex', 'curated');
   }
 
   /* --- L1 from D3FEND digital artifacts (the deep inheritance tree) ------- */
   for (const n of d3fend.artifacts){
     const group = groupFor(`${n.label} ${n.def}`, 'resource');
-    add({ id:`d3f:${n.id}`, label:n.label, group, layer:1, kind:'class', def:n.def || 'D3FEND digital artifact.',
+    add({ id:`d3f:${n.id}`, label:n.label, group, layer:1, kind:'class', def:n.def || 'D3FEND digital artifact.', review:'published',
           src:[{ sys:'d3fend', id:n.d3id || n.id.slice(4), label:'D3FEND artifact', url:`https://d3fend.mitre.org/dao/artifact/${n.id.replace(':','/')}/` }],
           instances:Math.round(pick(n.id,0,1400)), coverage:pick(n.id,.5,.96), depth:n.depth });
   }
   for (const n of d3fend.artifacts){
     const id = `d3f:${n.id}`;
-    const parent = n.parent && index.has(`d3f:${n.parent}`) ? `d3f:${n.parent}` : null;
-    setParent(id, parent || `grp:${index.get(id).group}`, parent ? 'SUBCLASS_OF' : 'SPECIALIZES', parent ? 'd3fend' : 'silex');
+    if (n.parent && index.has(`d3f:${n.parent}`)) setParent(id, `d3f:${n.parent}`, 'SUBCLASS_OF', 'd3fend', 'published');
+    else setParent(id, `grp:${index.get(id).group}`, 'GROUPED_UNDER', 'silex', 'curated');
   }
 
   /* --- L1 defensive techniques (policy & control semantics) --------------- */
   for (const n of d3fend.techniques){
-    add({ id:`d3f:${n.id}`, label:n.label, group:'policy', layer:1, kind:'countermeasure',
+    add({ id:`d3f:${n.id}`, label:n.label, group:'policy', layer:1, kind:'countermeasure', review:'published',
           def:n.def || 'D3FEND defensive technique.',
           src:[{ sys:'d3fend', id:n.d3id || n.id.slice(4), label:'D3FEND technique', url:`https://d3fend.mitre.org/technique/${n.id.replace(':','/')}/` }],
           instances:Math.round(pick(n.id,0,140)), coverage:pick(n.id,.45,.95), depth:n.depth });
   }
   for (const n of d3fend.techniques){
-    const parent = n.parent && index.has(`d3f:${n.parent}`) ? `d3f:${n.parent}` : null;
-    setParent(`d3f:${n.id}`, parent || 'grp:policy', parent ? 'SUBCLASS_OF' : 'SPECIALIZES', parent ? 'd3fend' : 'silex');
+    if (n.parent && index.has(`d3f:${n.parent}`)) setParent(`d3f:${n.id}`, `d3f:${n.parent}`, 'SUBCLASS_OF', 'd3fend', 'published');
+    else setParent(`d3f:${n.id}`, 'grp:policy', 'GROUPED_UNDER', 'silex', 'curated');
   }
 
   /* --- L1 threat semantics: ATT&CK enterprise + ATLAS AI tactics ---------- */
   for (const t of attack.tactics){
     /* Impact is about what the business loses, so it anchors the outcome group */
     const group = /^impact$/i.test(t.label) ? 'outcome' : 'threat';
-    add({ id:`attack:${t.id}`, label:t.label, group, layer:1, kind:'tactic', def:t.def,
+    add({ id:`attack:${t.id}`, label:t.label, group, layer:1, kind:'tactic', def:t.def, review:'published',
           src:[{ sys:'attack', id:t.id, label:'ATT&CK tactic', url:t.url }],
           instances:Math.round(pick(t.id,0,60)), coverage:pick(t.id,.6,.95) });
-    setParent(`attack:${t.id}`, `grp:${group}`, 'SPECIALIZES');
+    setParent(`attack:${t.id}`, `grp:${group}`, 'GROUPED_UNDER', 'silex', 'curated');
   }
   for (const t of attack.techniques){
-    add({ id:`attack:${t.id}`, label:t.label, group:'threat', layer:1, kind:'technique', def:t.def,
+    add({ id:`attack:${t.id}`, label:t.label, group:'threat', layer:1, kind:'technique', def:t.def, review:'published',
           src:[{ sys:'attack', id:t.id, label:'ATT&CK technique', url:t.url }],
           instances:Math.round(pick(t.id,0,40)), coverage:pick(t.id,.4,.93) });
     const tac = attack.tactics.find(x => t.phases.includes(x.shortname));
-    setParent(`attack:${t.id}`, tac ? `attack:${tac.id}` : 'grp:threat', tac ? 'ACHIEVES' : 'SPECIALIZES', tac ? 'attack' : 'silex');
+    if (tac) setParent(`attack:${t.id}`, `attack:${tac.id}`, 'ACHIEVES', 'attack', 'published');
+    else setParent(`attack:${t.id}`, 'grp:threat', 'GROUPED_UNDER', 'silex', 'curated');
   }
   for (const t of atlas.tactics){
-    add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:1, kind:'tactic', def:t.def,
+    add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:1, kind:'tactic', def:t.def, review:'published',
           src:[{ sys:'atlas', id:t.id, label:'ATLAS tactic', url:t.url }],
           instances:Math.round(pick(t.id,0,22)), coverage:pick(t.id,.5,.9) });
-    setParent(`atlas:${t.id}`, 'grp:threat', 'SPECIALIZES');
+    setParent(`atlas:${t.id}`, 'grp:threat', 'GROUPED_UNDER', 'silex', 'curated');
   }
 
-  /* --- L2 domain packs ---------------------------------------------------- */
-  for (const d of SEED.DOMAINS){
-    add({ id:`dom:${d.id}`, label:d.name, group:'workflow', layer:2, kind:'domain', def:`${d.pack} · ${d.owner}`,
-          src:[{ sys:'silex', id:d.pack, label:'Silex domain pack' }],
-          instances:d.workflows, coverage:d.coverage, dims:d.dims });
-    setParent(`dom:${d.id}`, 'grp:workflow', 'SPECIALIZES');
+  /* --- L1 Silex core concepts (curated) ----------------------------------- */
+  for (const c of SEED.CORE_L1)
+    add({ id:`core:${c.id}`, label:c.label, group:c.group, layer:1, kind:c.kind, def:c.def, review:'curated',
+          src:SILEX(c.id, 'Silex core concept'), instances:0, coverage:null });
+  for (const c of SEED.CORE_L1){
+    const id = `core:${c.id}`;
+    if (String(c.parent).startsWith('grp:')) setParent(id, c.parent, 'GROUPED_UNDER', 'silex', 'curated');
+    else { const p = resolve(c.parent, ['core:'], `CORE_L1 ${c.id}.parent`); if (p) setParent(id, p, 'SUBCLASS_OF', 'silex', 'curated') }
+  }
+
+  /* --- L2 domain packs: anchors of their own (membership is not subsumption) */
+  const packs = [...SEED.DOMAINS.map(d => ({ ...d, candidate:false })),
+                 ...SEED.CANDIDATE_DOMAINS.map(d => ({ ...d, candidate:true }))];
+  const prohibitedLabels = new Set(Object.values(SEED.PROHIBITED).flat().map(p => p.label));
+  for (const d of packs){
+    add({ id:`dom:${d.id}`, label:d.name, group:'workflow', layer:2, kind:'domain', review:'curated',
+          def: d.candidate ? `Candidate domain pack · ${d.pack} · ${d.owner}. Ontology only; not part of the coverage figures.` : `${d.pack} · ${d.owner}`,
+          src:SILEX(d.pack, d.candidate ? 'Silex candidate domain pack' : 'Silex domain pack'),
+          instances: d.candidate ? 0 : d.workflows, coverage: d.candidate ? null : d.coverage, dims: d.candidate ? undefined : d.dims,
+          candidate: d.candidate || undefined, anchor:true, parent:null });
     for (const c of d.capabilities){
-      add({ id:`cap:${c.id}`, label:c.name, group:'workflow', layer:2, kind:'capability',
-            def:`${d.name} capability · ${c.entities.toLocaleString()} runtime entities`,
-            src:[{ sys:'silex', id:c.id, label:'Silex capability' }], instances:c.entities, coverage:c.coverage, dims:c.dims });
-      setParent(`cap:${c.id}`, `dom:${d.id}`, 'PART_OF');
+      add({ id:`cap:${c.id}`, label:c.name, group:'workflow', layer:2, kind:'capability', review:'curated',
+            def: d.candidate ? `${d.name} capability (candidate pack)` : `${d.name} capability · ${c.entities.toLocaleString()} runtime entities`,
+            src:SILEX(c.id, 'Silex capability'), instances: d.candidate ? 0 : c.entities,
+            coverage: d.candidate ? null : c.coverage, dims: d.candidate ? undefined : c.dims });
+      setParent(`cap:${c.id}`, `dom:${d.id}`, 'PART_OF', 'silex', 'curated');
       for (const w of c.workflows){
-        add({ id:`wf:${w.id}`, label:`${w.id} ${w.name}`, group:'workflow', layer:2, kind:'workflow',
+        add({ id:`wf:${w.id}`, label:`${w.id} ${w.name}`, group:'workflow', layer:2, kind:'workflow', review:'illustrative',
               def:`Registered workflow in ${d.name} · ${c.name}`,
-              src:[{ sys:'silex', id:w.id, label:'Silex workflow' }], instances:w.entities, coverage:w.coverage });
-        setParent(`wf:${w.id}`, `cap:${c.id}`, 'PART_OF');
+              src:SILEX(w.id, 'Silex workflow'), instances: d.candidate ? 0 : w.entities, coverage: d.candidate ? null : w.coverage });
+        setParent(`wf:${w.id}`, `cap:${c.id}`, 'PART_OF', 'silex', 'illustrative');
       }
     }
     for (const e of d.entities){
-      const id = `ent:${d.id}:${e.replace(/\W+/g,'-').toLowerCase()}`;
-      const group = groupFor(e, 'resource');
-      add({ id, label:e, group, layer:2, kind:'entity', def:`${d.name} domain entity type.`,
-            src:[{ sys:'silex', id:d.pack, label:'Silex domain pack' }],
-            instances:Math.round(pick(id,120,4200)), coverage:pick(id, d.coverage-.18, Math.min(.99,d.coverage+.1)) });
-      setParent(id, `dom:${d.id}`, 'DEFINED_IN');
-      link(id, `grp:${group}`, 'SPECIALIZES');
+      if (prohibitedLabels.has(e)) continue;   // retyped as a prohibited effect or state below
+      const id = entitySlug(d.id, e), group = groupFor(e, 'resource');
+      add({ id, label:e, group, layer:2, kind:'entity', def:`${d.name} domain entity type.`, review:'curated',
+            src:SILEX(d.pack, d.candidate ? 'Silex candidate domain pack' : 'Silex domain pack'),
+            instances: d.candidate ? 0 : Math.round(pick(id,120,4200)),
+            coverage: d.candidate ? null : pick(id, d.coverage-.18, Math.min(.99,d.coverage+.1)) });
+      setParent(id, `dom:${d.id}`, 'PART_OF_DOMAIN', 'silex', 'curated');
+      const isa = (SEED.ENTITY_ISA[d.id] || {})[e];
+      if (isa) { const p = resolve(isa, ['core:'], `ENTITY_ISA ${d.id}/${e}`); if (p) link(id, p, 'SUBCLASS_OF', 'silex', 'curated') }
+      else problems.push(`ENTITY_ISA ${d.id}/${e}: missing`);
+      link(id, `grp:${group}`, 'GROUPED_UNDER', 'silex', 'curated');
+    }
+    for (const p of SEED.PROHIBITED[d.id] || []){
+      add({ id:`po:${p.id}`, label:p.label, group:'outcome', layer:2, kind:p.kind, prohibited:true, def:p.def, review:'curated',
+            src:SILEX(p.id, 'Silex prohibited outcome'), instances:0, coverage:null });
+      setParent(`po:${p.id}`, `dom:${d.id}`, 'PART_OF_DOMAIN', 'silex', 'curated');
+    }
+    for (const a of SEED.DOMAIN_ACTIONS[d.id] || []){
+      add({ id:`act:${a.id}`, label:a.label, group:'tool', layer:2, kind:'action', def:a.def || `${d.name} action.`, review:'curated',
+            src:SILEX(a.id, 'Silex domain action'), instances:0, coverage:null });
+      setParent(`act:${a.id}`, `dom:${d.id}`, 'PART_OF_DOMAIN', 'silex', 'curated');
+    }
+    for (const h of SEED.DOMAIN_HAZARDS[d.id] || []){
+      add({ id:`hz:${h.id}`, label:h.label, group:'threat', layer:2, kind:'hazard', def:h.def, review:'curated',
+            src:SILEX(h.id, 'Silex domain hazard'), instances:0, coverage:null });
+      setParent(`hz:${h.id}`, `dom:${d.id}`, 'PART_OF_DOMAIN', 'silex', 'curated');
     }
   }
-  /* components used by every domain need somewhere to live — the same bucket the
-     "horizontal agents unassigned to a domain" coverage gap talks about */
-  add({ id:'dom:horizontal', label:'Cross-domain & Horizontal', group:'workflow', layer:2, kind:'domain',
-        def:'Agentic capability used by every domain; the domain taxonomy for it is still open (see the coverage gaps).',
-        src:[{ sys:'silex', id:'SILEX-L2', label:'Silex domain pack' }], instances:0, coverage:.62 });
-  setParent('dom:horizontal', 'grp:workflow', 'SPECIALIZES');
 
-  /* --- L3 agentic-system ontology, specialised inside a domain pack ------- */
-  const deployment = new Map();
+  /* --- L3 agentic-system components: a kind of an L1 core class ----------- */
+  const runtimeDomains = new Map();
   for (const n of SEED.RUNTIME.nodes){
     if (!n.type || !n.domain) continue;
-    if (!deployment.has(n.type)) deployment.set(n.type, new Map());
-    const m = deployment.get(n.type);
-    m.set(n.domain, (m.get(n.domain) || 0) + 1);
+    if (!runtimeDomains.has(n.type)) runtimeDomains.set(n.type, new Set());
+    runtimeDomains.get(n.type).add(n.domain);
   }
   for (const c of SEED.AGENTIC_COMPONENTS){
-    add({ id:`ag:${c.id}`, label:c.name, group:c.group, layer:3, kind:'component', def:c.blurb,
-          src:[{ sys:'silex', id:'SILEX-L3', label:'Silex agentic ontology' }], instances:c.instances, coverage:c.coverage });
-    const seen = deployment.get(c.id);
-    const ranked = seen ? [...seen.entries()].sort((a,b) => b[1] - a[1]).map(x => x[0]) : [];
-    const primary = ranked.length ? `dom:${ranked[0]}` : 'dom:horizontal';
-    setParent(`ag:${c.id}`, primary, 'DEPLOYED_IN');
-    ranked.slice(1).forEach(d => link(`ag:${c.id}`, `dom:${d}`, 'DEPLOYED_IN'));
+    const doms = [...(runtimeDomains.get(c.id) || [])].sort();
+    add({ id:`ag:${c.id}`, label:c.name, group:c.group, layer:3, kind:'component', def:c.blurb, review:'curated',
+          src:SILEX('SILEX-L3', 'Silex agentic ontology'), instances:c.instances, coverage:c.coverage,
+          deployment: doms.length ? undefined : 'unobserved' });
+    const isa = SEED.COMPONENT_ISA[c.id];
+    if (isa) { const p = resolve(isa, ['core:'], `COMPONENT_ISA ${c.id}`); if (p) setParent(`ag:${c.id}`, p, 'SUBCLASS_OF', 'silex', 'curated') }
+    else problems.push(`COMPONENT_ISA ${c.id}: missing`);
+    /* deployment is claimed only where the (illustrative) runtime graph shows an instance */
+    doms.forEach(dm => link(`ag:${c.id}`, `dom:${dm}`, 'DEPLOYED_IN', 'silex', 'illustrative'));
+  }
+
+  /* --- L3 telemetry record schemas, part of Trace & Telemetry -------------- */
+  for (const r of SEED.RECORD_SCHEMAS){
+    add({ id:`rec:${r.id}`, label:r.label, group:'workflow', layer:3, kind:'record', def:r.def, review:'curated',
+          src:SILEX(r.id, 'Silex record schema'), instances:0, coverage:null });
+    setParent(`rec:${r.id}`, 'ag:trace', 'PART_OF', 'silex', 'curated');
   }
 
   /* --- L3 threat overlay: ATLAS techniques + OWASP catalogues ------------- */
   for (const t of atlas.techniques){
-    add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:3, kind:'technique', def:t.def,
+    add({ id:`atlas:${t.id}`, label:t.label, group:'threat', layer:3, kind:'technique', def:t.def, review:'published',
           src:[{ sys:'atlas', id:t.id, label:'ATLAS technique', url:t.url }],
           instances:Math.round(pick(t.id,0,14)), coverage:pick(t.id,.35,.88) });
-    /* which agentic component this technique lands on — Silex-authored mapping */
-    setParent(`atlas:${t.id}`, `ag:${mapThreatToComponent(`${t.label} ${t.def}`)}`, 'THREATENS');
     const tac = atlas.tactics.find(x => t.phases.includes(x.shortname));
-    if (tac) link(`atlas:${t.id}`, `atlas:${tac.id}`, 'ACHIEVES', 'atlas');
+    if (tac) setParent(`atlas:${t.id}`, `atlas:${tac.id}`, 'ACHIEVES', 'atlas', 'published');
+    else setParent(`atlas:${t.id}`, 'grp:threat', 'GROUPED_UNDER', 'silex', 'curated');
+    /* which agentic component this technique lands on — a keyword heuristic, graded as one */
+    link(`atlas:${t.id}`, `ag:${mapThreatToComponent(`${t.label} ${t.def}`)}`, 'THREATENS', 'silex', 'heuristic');
   }
   for (const [id, label, target] of SEED.OWASP_LLM){
-    add({ id:`owasp:${id}`, label, group:'threat', layer:3, kind:'risk', def:`OWASP Top 10 for LLM Applications 2025 · ${id}`,
+    add({ id:`owasp:${id}`, label, group:'threat', layer:3, kind:'risk', def:`OWASP Top 10 for LLM Applications 2025 · ${id}`, review:'published',
           src:[{ sys:'owasp', id, label:'OWASP LLM Top 10 (2025)', url:'https://genai.owasp.org/llm-top-10/' }],
           instances:Math.round(pick(id,1,26)), coverage:pick(id,.45,.92) });
-    setParent(`owasp:${id}`, `ag:${target}`, 'THREATENS');
+    setParent(`owasp:${id}`, 'grp:threat', 'GROUPED_UNDER', 'silex', 'curated');
+    link(`owasp:${id}`, `ag:${target}`, 'THREATENS', 'silex', 'curated');
   }
   for (const [id, label, target] of SEED.OWASP_AGENTIC){
-    add({ id:`owaspa:${id}`, label, group:'threat', layer:3, kind:'risk', def:`OWASP Agentic AI — Threats and Mitigations · ${id}`,
+    add({ id:`owaspa:${id}`, label, group:'threat', layer:3, kind:'risk', def:`OWASP Agentic AI — Threats and Mitigations · ${id}`, review:'published',
           src:[{ sys:'owasp', id:`Agentic ${id}`, label:'OWASP Agentic AI threats', url:'https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/' }],
           instances:Math.round(pick(id+label,1,19)), coverage:pick(id+label,.4,.9) });
-    setParent(`owaspa:${id}`, `ag:${target}`, 'THREATENS');
-  }
-  /* countermeasure coverage: D3FEND technique ↔ threat, keyword-matched (Silex mapping) */
-  const counters = d3fend.techniques.filter(t => t.d3id);
-  for (const th of nodes.filter(n => n.layer === 3 && n.group === 'threat')){
-    const words = th.label.toLowerCase().split(/\W+/).filter(w => w.length > 4);
-    const hit = counters.find(c => words.some(w => c.label.toLowerCase().includes(w)));
-    if (hit) link(`d3f:${hit.id}`, th.id, 'COUNTERS');
+    setParent(`owaspa:${id}`, 'grp:threat', 'GROUPED_UNDER', 'silex', 'curated');
+    link(`owaspa:${id}`, `ag:${target}`, 'THREATENS', 'silex', 'curated');
   }
 
   /* --- L4 runtime graph, instantiating the agentic layer ------------------ */
   for (const n of SEED.RUNTIME.nodes){
-    add({ id:n.id, label:n.name, group:n.group, layer:4, kind:n.type, def:n.blurb, domain:n.domain,
+    add({ id:n.id, label:n.name, group:n.group, layer:4, kind:n.type, def:n.blurb, domain:n.domain, review:'illustrative',
           severity:n.severity, outcome:n.outcome,
-          src:[{ sys:'silex', id:'RUNTIME', label:'Silex runtime graph' }],
-          instances:1, coverage:n.coverage });
+          src:SILEX('RUNTIME', 'Silex runtime graph'), instances:1, coverage:n.coverage });
   }
   for (const n of SEED.RUNTIME.nodes){
-    if (n.parent && index.has(n.parent)) setParent(n.id, n.parent, 'OCCURRED_IN');
-    else if (index.has(`ag:${n.type}`)) setParent(n.id, `ag:${n.type}`, 'INSTANCE_OF');
-    if (n.domain && index.has(`dom:${n.domain}`)) link(n.id, `dom:${n.domain}`, 'BELONGS_TO');
+    if (n.parent && index.has(n.parent)) setParent(n.id, n.parent, 'OCCURRED_IN', 'silex', 'illustrative');
+    else if (index.has(`ag:${n.type}`)) setParent(n.id, `ag:${n.type}`, 'INSTANCE_OF', 'silex', 'illustrative');
+    if (n.domain && index.has(`dom:${n.domain}`)) link(n.id, `dom:${n.domain}`, 'BELONGS_TO', 'silex', 'illustrative');
     if (/^rt-wf-(\d+)$/.test(n.id)){
       const wf = `wf:WF-${n.id.slice(6)}`;
-      if (index.has(wf)) link(n.id, wf, 'REALISES');
+      if (index.has(wf)) link(n.id, wf, 'REALISES', 'silex', 'illustrative');
     }
   }
-  for (const [s,t,pred] of SEED.RUNTIME.links) link(s, t, pred);
+  for (const [s,t,pred] of SEED.RUNTIME.links) link(s, t, pred, 'silex', 'illustrative');
 
-  /* --- chain validation --------------------------------------------------- */
-  const problems = [];
-  for (const n of nodes){
-    if (n.anchor) continue;
-    if (!n.parent) { problems.push(`${n.id} (L${n.layer}) has no parent`); continue; }
-    const p = index.get(n.parent);
-    if (p.layer !== n.layer && p.layer !== n.layer - 1)
-      problems.push(`${n.id} (L${n.layer}) → ${p.id} (L${p.layer}) skips a layer`);
+  /* --- action, hazard and evidence chain (all nodes exist by now) ---------- */
+  const hazardRoot = SEED.CORE_L1.find(c => c.kind === 'hazard');
+  for (const d of packs){
+    const ent = r => index.has(r) ? r : (index.has(entitySlug(d.id, r)) ? entitySlug(d.id, r) : null);
+    for (const p of SEED.PROHIBITED[d.id] || []){
+      const isa = resolve(p.isA, ['core:'], `PROHIBITED ${p.id}.isA`); if (isa) link(`po:${p.id}`, isa, 'SUBCLASS_OF', 'silex', 'curated');
+    }
+    for (const a of SEED.DOMAIN_ACTIONS[d.id] || []){
+      const id = `act:${a.id}`;
+      const isa = resolve(a.isA, ['core:'], `DOMAIN_ACTIONS ${a.id}.isA`); if (isa) link(id, isa, 'SUBCLASS_OF', 'silex', 'curated');
+      for (const e of a.mayCause || []) { const t = resolve(e, ['core:'], `DOMAIN_ACTIONS ${a.id}.mayCause`); if (t) link(id, t, 'MAY_CAUSE', 'silex', 'curated') }
+      for (const w of a.workflows || []) { const t = resolve(w, ['wf:'], `DOMAIN_ACTIONS ${a.id}.workflows`); if (t) link(id, t, 'USED_IN', 'silex', 'curated') }
+      for (const r of a.implementedBy || []) { const t = resolve(r, [], `DOMAIN_ACTIONS ${a.id}.implementedBy`); if (t) link(t, id, 'IMPLEMENTS', 'silex', 'illustrative') }
+      link(id, 'grp:tool', 'GROUPED_UNDER', 'silex', 'curated');
+    }
+    for (const h of SEED.DOMAIN_HAZARDS[d.id] || []){
+      const id = `hz:${h.id}`;
+      if (hazardRoot) link(id, `core:${hazardRoot.id}`, 'SUBCLASS_OF', 'silex', 'curated');
+      for (const r of h.hazardFor || []){
+        const t = index.has(`act:${r}`) ? `act:${r}` : ent(r);
+        if (t) link(id, t, 'HAZARD_FOR', 'silex', 'curated'); else problems.push(`DOMAIN_HAZARDS ${h.id}.hazardFor: "${r}" does not resolve`);
+      }
+      for (const r of h.mayLeadTo || []) { const t = resolve(r, ['po:'], `DOMAIN_HAZARDS ${h.id}.mayLeadTo`); if (t) link(id, t, 'MAY_LEAD_TO', 'silex', 'curated') }
+      for (const r of h.characterizes || []) { const t = resolve(r, [], `DOMAIN_HAZARDS ${h.id}.characterizes`); if (t) link(id, t, 'CHARACTERIZES', 'silex', 'curated') }
+      for (const r of h.mitigatedBy || []) { const t = resolve(r, ['core:'], `DOMAIN_HAZARDS ${h.id}.mitigatedBy`); if (t) link(id, t, 'MITIGATED_BY', 'silex', 'curated') }
+      for (const r of h.requiresEvidence || []) { const t = resolve(r, ['core:'], `DOMAIN_HAZARDS ${h.id}.requiresEvidence`); if (t) link(id, t, 'REQUIRES_EVIDENCE', 'silex', 'curated') }
+    }
+  }
+  for (const c of SEED.CORE_L1)
+    for (const r of c.relatedMatch || []) { const t = resolve(r, [], `CORE_L1 ${c.id}.relatedMatch`); if (t) link(`core:${c.id}`, t, 'RELATED_MATCH', 'silex', 'curated') }
+  for (const r of SEED.RECORD_SCHEMAS)
+    for (const e of r.records || []) { const s = resolve(e, ['core:'], `RECORD_SCHEMAS ${r.id}.records`); if (s) link(s, `rec:${r.id}`, 'RECORDED_BY', 'silex', 'curated') }
+  for (const m of SEED.COUNTER_MAP){
+    const th = resolve(m.threat, [], `COUNTER_MAP threat`), ct = resolve(m.control, ['core:'], `COUNTER_MAP ${m.threat}.control`);
+    if (th && ct) link(ct, th, 'COUNTERS', 'silex', 'curated');
+  }
+  for (const m of SEED.INCIDENT_HAZARDS){
+    const h = resolve(m.hazard, ['hz:'], `INCIDENT_HAZARDS ${m.incident}`);
+    if (h) link(m.incident, h, 'EXHIBITS', 'silex', 'illustrative');
   }
 
-  return { nodes, links, problems };
+  /* --- contract checks ---------------------------------------------------- */
+  const kindOf = id => index.get(id).kind;
+  for (const n of nodes){
+    if (!SCHEMA.KINDS.includes(n.kind)) problems.push(`${n.id}: kind "${n.kind}" is not in the contract`);
+    if (!SCHEMA.REVIEW.includes(n.review)) problems.push(`${n.id}: review "${n.review}" is not a grade`);
+    if (n.anchor) continue;
+    if (!n.parent) { problems.push(`${n.id} (L${n.layer}) has no display parent`); continue }
+    if (!SCHEMA.TREE_PREDS.includes(n.parentPred)) problems.push(`${n.id}: parentPred ${n.parentPred} is not a tree predicate`);
+    if (index.get(n.parent).layer > n.layer) problems.push(`${n.id} (L${n.layer}) hangs under ${n.parent} (L${index.get(n.parent).layer}), a lower layer`);
+  }
+  for (const l of links){
+    const sig = SCHEMA.PRED_SIGNATURES[l.pred];
+    if (!sig) { problems.push(`${l.pred} is not in the contract (${l.s} → ${l.t})`); continue }
+    if (!sig.pairs.some(([a,b]) => a === kindOf(l.s) && b === kindOf(l.t)))
+      problems.push(`${l.pred}: ${l.s} (${kindOf(l.s)}) → ${l.t} (${kindOf(l.t)}) breaks its signature`);
+    if (!sig.review.includes(l.review)) problems.push(`${l.pred}: review "${l.review}" not allowed (${l.s} → ${l.t})`);
+  }
+  const cycles = (edges, what) => {
+    const out = new Map(); edges.forEach(([a,b]) => { if (!out.has(a)) out.set(a, []); out.get(a).push(b) });
+    const state = new Map();
+    const visit = v => {
+      state.set(v, 1);
+      for (const w of out.get(v) || []){
+        if (state.get(w) === 1) { problems.push(`${what} cycle through ${v} → ${w}`); continue }
+        if (!state.get(w)) visit(w);
+      }
+      state.set(v, 2);
+    };
+    [...out.keys()].forEach(v => { if (!state.get(v)) visit(v) });
+  };
+  cycles(nodes.filter(n => n.parent).map(n => [n.id, n.parent]), 'display-parent');
+  cycles(links.filter(l => l.pred === 'SUBCLASS_OF').map(l => [l.s, l.t]), 'SUBCLASS_OF');
+  const degree = new Map(); links.forEach(l => { degree.set(l.s, (degree.get(l.s)||0)+1); degree.set(l.t, (degree.get(l.t)||0)+1) });
+  nodes.filter(n => !n.anchor && !degree.get(n.id)).forEach(n => problems.push(`${n.id}: orphan, no relation at all`));
+
+  const threats = nodes.filter(n => n.layer === 3 && n.group === 'threat').map(n => n.id);
+  const countered = new Set(links.filter(l => l.pred === 'COUNTERS').map(l => l.t));
+  const uncountered = threats.filter(id => !countered.has(id));
+
+  return { nodes, links, problems, uncountered };
 }
 
 /* per-hop summary the Ontology Layers panel draws: node counts, group mix and
-   every typed relation that crosses from one layer into the next */
+   every typed relation between adjacent layers, plus the relations that skip one */
 function summariseChain(graph){
   const byId = new Map(graph.nodes.map(n => [n.id, n]));
   const layers = SEED.LAYERS.map(l => {
@@ -376,7 +491,17 @@ function summariseChain(graph){
     });
     return { from, to, count, preds, examples };
   });
-  return { layers, hops };
+  /* relations joining layers that are not adjacent (e.g. an L3 component SUBCLASS_OF an L1 core class) */
+  const skips = { count:0, preds:{}, pairs:{} };
+  graph.links.forEach(l => {
+    const a = byId.get(l.s), b = byId.get(l.t);
+    if (!a || !b || Math.abs(a.layer - b.layer) < 2) return;
+    skips.count++;
+    skips.preds[l.pred] = (skips.preds[l.pred] || 0) + 1;
+    const k = `L${Math.min(a.layer,b.layer)}–L${Math.max(a.layer,b.layer)}`;
+    skips.pairs[k] = (skips.pairs[k] || 0) + 1;
+  });
+  return { layers, hops, skips };
 }
 
 function mapThreatToComponent(text){
@@ -418,7 +543,24 @@ function buildCoverage(graph){
     { id:'blind',    label:'Known blind spots', value:String(SEED.GAPS.length), note:'Open coverage gaps across all domains', delta:`${SEED.GAPS.filter(g=>g.severity==='critical').length} critical`, dir:'down' },
     { id:'calib',    label:'Last calibration', value:'6h ago', note:'Simulation vs observed behaviour agreement 94%', delta:'drift 1.2%', dir:'flat' }
   ];
-  return { generated:new Date().toISOString(), dimensions:SEED.DIMENSIONS, tree, gaps:SEED.GAPS, kpis };
+  return { generated:new Date().toISOString(), dimensions:SEED.DIMENSIONS, tree, gaps:SEED.GAPS, kpis,
+           ontologyCompleteness: structuralCompleteness(graph) };
+}
+
+/* Structural completeness, not observed coverage: per domain pack, the share of its L2
+   hazards whose principle-3 chain is closed (a characterized threat, a mitigating
+   control, required evidence, and a record schema for every piece of that evidence). */
+function structuralCompleteness(graph){
+  const out = (id, pred) => graph.links.filter(l => l.s === id && l.pred === pred).map(l => l.t);
+  const domains = {};
+  for (const d of graph.nodes.filter(n => n.kind === 'domain')){
+    const hazards = graph.nodes.filter(n => n.kind === 'hazard' && n.parent === d.id);
+    const complete = hazards.filter(h => out(h.id,'CHARACTERIZES').length && out(h.id,'MITIGATED_BY').length &&
+      out(h.id,'REQUIRES_EVIDENCE').length && out(h.id,'REQUIRES_EVIDENCE').every(e => out(e,'RECORDED_BY').length));
+    domains[d.id.slice(4)] = { hazards:hazards.length, complete:complete.length,
+      share: hazards.length ? +(complete.length / hazards.length).toFixed(3) : null, candidate: !!d.candidate };
+  }
+  return { label:'Structural completeness', note:'Share of each pack\'s hazards whose threat, control, evidence and record-schema chain is closed in the ontology. Not observed coverage.', domains };
 }
 const scaleDims = (dims, delta) => Object.fromEntries(Object.entries(dims).map(([k,v]) => [k, +Math.max(.25, Math.min(.99, v + delta)).toFixed(3)]));
 function mergeDims(rows){
@@ -465,20 +607,29 @@ ${rows}
 - **OWASP** — the LLM Top 10 (2025) and the Agentic AI threat taxonomy (T1–T15) are carried as
   published lists and attached to the agentic components they target.
 
-## The layer chain
+## Layers, the display tree and subsumption
 
-Every node carries an explicit \`parent\`, and the build fails if a node's parent is not in the same
-layer or exactly one layer above it. The chain is **L1 general → L2 domain pack → L3 agentic system
-as deployed in that domain → L4 runtime instance**; \`ontology.json\` also ships a \`chain\` summary with
-per-layer counts and the typed relations crossing each hop, which is what the Ontology Layers panel
-draws.
+L1 general → L2 domain pack → L3 agentic system → L4 runtime instance are **presentation groups, not
+taxonomic ranks**. Only \`SUBCLASS_OF\` asserts subsumption. Domain membership is \`PART_OF_DOMAIN\`,
+deployment is \`DEPLOYED_IN\` and the eight L1 groups are navigation (\`GROUPED_UNDER\`). Every node
+keeps one display \`parent\` (its \`parentPred\` is a tree predicate) for the Hierarchy view. The build
+refuses to write a bundle if a link breaks its predicate signature or review grades
+(\`swm/tools/schema.mjs\`), if the display tree or the \`SUBCLASS_OF\` graph has a cycle, or if a
+display parent sits in a lower layer. \`ontology.json\` ships a \`chain\` summary with per-layer counts,
+the relations between adjacent layers and the relations that skip a layer.
 
 ## Honesty note
 
-Nodes carry a \`src\` array naming where each one came from. Anything marked \`silex\` — the L2 domain
-packs, the L3 component list, the whole L4 runtime graph, coverage percentages, and the
-threat → component and countermeasure → threat mappings — is **illustrative mockup content**, not
-published data. Public-ontology nodes keep their real identifiers so they can be checked.
+Every node and link carries a \`review\` grade:
+
+- \`published\`: structure from a public source; the node keeps its real identifier.
+- \`curated\`: a Silex-authored semantic assertion. This covers the core L1 concepts, domain packs,
+  actions, hazards, prohibited outcomes, record schemas, countermeasure mappings and OWASP targets.
+- \`heuristic\`: keyword-mapped, i.e. which component an ATLAS technique threatens.
+- \`illustrative\`: mock content. This covers registered workflows, the whole L4 runtime graph,
+  everything derived from it (deployment, instances, incidents) and every coverage percentage.
+
+CRM and Legal are candidate packs. They are ontology only and not part of the coverage figures.
 `);
 }
 
@@ -518,11 +669,19 @@ const stats = {
 
 const ontology = {
   generated:new Date().toISOString(),
-  version:'swm-1.0',
+  version:'swm-2.0',
   groups:SEED.GROUPS, layers:SEED.LAYERS, sources:SOURCES, stats, chain,
+  schema:SCHEMA.compactSchema(), uncountered:graph.uncountered,
   nodes:graph.nodes, links:graph.links
 };
 
+/* a bundle that breaks the contract is never written */
+if (graph.problems.length){
+  log(`\n  ✗ ${graph.problems.length} contract violations — nothing written:`);
+  graph.problems.slice(0, +(process.env.SWM_MAX_PROBLEMS || 40)).forEach(p => log(`      ${p}`));
+  if (graph.problems.length > 40) log(`      … ${graph.problems.length - 40} more`);
+  process.exit(1);
+}
 const a = await writeBundle('ontology', 'SILEX_SWM_ONTOLOGY', ontology);
 const b = await writeBundle('coverage', 'SILEX_SWM_COVERAGE', coverage);
 await writeSources(stats);
@@ -531,10 +690,7 @@ const byLayer = [1,2,3,4].map(l => `L${l} ${graph.nodes.filter(n=>n.layer===l).l
 log(`\n  sources : ${Object.entries(stats).map(([k,v])=>`${k} ${v}`).join(' · ')}`);
 log(`  graph   : ${graph.nodes.length} nodes (${byLayer}) · ${graph.links.length} links`);
 log(`  bundles : ontology ${(a/1024).toFixed(0)}KB · coverage ${(b/1024).toFixed(0)}KB`);
-log(`  chain   : ${chain.hops.map(h => `L${h.from}→L${h.to} ${h.count}`).join(' · ')}`);
-if (graph.problems.length){
-  log(`\n  ⚠ ${graph.problems.length} chain violations:`);
-  graph.problems.slice(0, 12).forEach(p => log(`      ${p}`));
-  process.exitCode = 1;
-} else log('  chain   : L1 → L2 → L3 → L4 verified, no layer skipped');
+log(`  layers  : ${chain.hops.map(h => `L${h.from}↔L${h.to} ${h.count}`).join(' · ')} · skipping ${chain.skips.count}`);
+log(`  threats : ${graph.nodes.filter(n => n.layer === 3 && n.group === 'threat').length - graph.uncountered.length} countered · ${graph.uncountered.length} uncountered`);
+log('  contract: signatures, review grades, display tree and SUBCLASS_OF acyclicity verified');
 log(`  done in ${((Date.now()-t0)/1000).toFixed(1)}s\n`);
