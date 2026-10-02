@@ -168,3 +168,23 @@ DeepSeek approved v4. v5 changes approved text, so both seats confirm it.
 - **Do:** A (deep links with the history, focus and cancellation contract), B1–B3 (back-ported robustness fixes), C (the I-1042 Ontology row and the I-1038 blind spot), E (chain text), F (probes, three consecutive runs).
 - **Cut:** D (runtime-check overlay).
 - **Not started.** Implementation waits for the user's go-ahead.
+
+## Code review
+
+Base `df79519`.
+
+### Round 1 — DeepSeek IMPL-APPROVED · Codex IMPL-REJECTED (1 blocking)
+
+Commit `1e9b168`.
+
+| Defect (who) | Change |
+|---|---|
+| The L4 chain text rendered "threat THREATENS → countermeasure COUNTERS" without the object, which reads as a reversed relation (Codex 1) | Each line is now one complete, directed assertion, `<span class="swm-assert" data-s data-p data-t>`, with its own grade. New probe P6 checks subjects, predicates and objects against the bundle, and fails on `1e9b168` |
+| The loader duplicates `SWM.isShown` (both, NB) | The loader calls `SWM.isShown` |
+| No probe covers the Assurance deep-link button (DeepSeek NB) | New probe S38: Assurance → Ontology Graph, and Back/Forward |
+| Dead `[data-wm-target]` listener (DeepSeek NB) | Removed |
+| Summary wording on the three runs (DeepSeek NB) | Reworded with exact counts |
+| The stale-origin rewrite in `openRoute`, beyond the plan's blank-origin rule | Accepted by both (DeepSeek: an improvement) |
+| `assurance.html`'s own explorer button still uses `data-jump` | Out of scope: `assurance.html` is a separate snapshot |
+
+Three consecutive runs at round 2: `probe-swm` 15/15 each run; site probes 37/38 each run (S20 environmental, the same failure as at BASE).
