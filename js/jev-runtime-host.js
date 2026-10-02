@@ -11,6 +11,9 @@ const READY_MS = 10000;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+// Foundation stub with the js/rt-pipeline.js API (plan §2.1); replaced by mountPipeline in task 3.
+const pipeline = { idle() {}, replay: async () => 'done', skip() {}, stop() {}, reset() {}, error() {} };
+
 let summary = null, frame = null, frameDomain = null, nav = 0, token = 0, cancelPrevious = null;
 
 function renderReference() {
@@ -97,9 +100,7 @@ async function run(id) {
   const status = $('rtStatus'); status.textContent = 'Running'; status.className = 'status running'; status.style.cssText = '';
   $('rtResult').className = 'decision-state';
   try {
-    const animated = new Promise(res => window.__siteRunSteps($('rtSteps'), { ms: 260, isCurrent, onDone: res }));
-    const ready = frameOn(sc.domain, isCurrent);
-    let [, demo] = await Promise.race([Promise.all([animated, ready]), cancelled]);
+    let demo = await Promise.race([frameOn(sc.domain, isCurrent), cancelled]);
     if (!isCurrent()) return null;
     // Re-check right before injecting: the frame may have navigated (or been switched to another agent) since.
     if (currentDemo(sc.domain) !== demo) demo = await Promise.race([frameOn(sc.domain, isCurrent), cancelled]);
@@ -187,7 +188,7 @@ $('rtTryLoop').addEventListener('click', () => {
   ++token; cancelPrevious?.();
   if (cancelling) {
     const status = $('rtStatus'); status.textContent = 'Ready'; status.className = 'status running'; status.style.cssText = '';
-    $('rtSteps').querySelectorAll('.run-step').forEach(s => s.classList.remove('running', 'done'));
+    pipeline.reset();
     $('rtResult').className = 'decision-state';
   }
   const f = frameDoc();
