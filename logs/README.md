@@ -2,6 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-02 — Ontology Layers is the default World Model sub-tab
+
+- Entering **Enterprise World Model** now opens **Ontology Layers**, which is moved to the first sub-tab, left of **Ontology Graph**. The page subtitle follows it.
+- `assurance.html` is a separate older snapshot and keeps its own tab order.
+- New probe **D1** in `probe-swm.mjs` checks the order, the active tab and panel, and that the layers render. It fails on the previous version, as expected.
+- All other SWM probes still pass. Site probes are 20/21, the same as before; S20 is environmental.
+
 ## 2026-10-02 — Security World Model: ontology rigor and wider coverage
 
 - **Tiers are presentation groups, not taxonomic ranks.** Only `SUBCLASS_OF` asserts subsumption. Domain membership (`PART_OF_DOMAIN`), deployment (`DEPLOYED_IN`) and grouping (`GROUPED_UNDER`) are separate predicates. No domain is a "kind of Workflow", and no component sits under one arbitrary domain.

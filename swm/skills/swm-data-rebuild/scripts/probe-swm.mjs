@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* Interaction probes for the Security World Model panels (plan
-   logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md, T6): H1 N1 I1 I2 I3 L1 R1 E1.
+   logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md, T6): H1 N1 I1 I2 I3 L1 R1 E1,
+   plus D1 (2026-10-02: Ontology Layers is the first, default World Model sub-tab).
    Same headless harness as preview-panels.mjs.
 
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs                 # all probes, this checkout
@@ -122,6 +123,20 @@ const pick = id => evaluate(`(async () => {
   await new Promise(r => setTimeout(r, 500));
   const b = document.querySelector('#swmResults [data-id="' + ${JSON.stringify(id)} + '"]');
   if (!b) return false; b.click(); await new Promise(r => setTimeout(r, 1200)); return true; })()`);
+
+if (want('D1')) {
+  /* entering Enterprise World Model lands on Ontology Layers, the first sub-tab, rendered */
+  await send('Page.navigate', { url: base }); await sleep(1500);
+  await evaluate(`document.querySelector('.nav button[data-view="security-model"]').click(); true`); await sleep(3000);
+  const res = await evaluate(`({ tabs: [...document.querySelectorAll('#security-model .wm-tab')].map(t => t.textContent.trim()),
+    active: document.querySelector('#security-model .wm-tab.active').id,
+    panel: (document.querySelector('#security-model .wm-panel.active') || {}).id,
+    bands: document.querySelectorAll('#swmChainSvg path').length,
+    subtitle: document.getElementById('swmSubtitle').textContent })`);
+  record('D1', res.tabs[0] === 'Ontology Layers' && res.tabs[1] === 'Ontology Graph' && res.active === 'wmtab-architecture' && res.panel === 'wm-architecture' && res.bands > 0 && /four ontology tiers/.test(res.subtitle),
+    `tabs ${JSON.stringify(res.tabs.slice(0, 3))} · active ${res.active} · panel ${res.panel} · ${res.bands} marks`);
+  await shot('probe-default-tab.png');
+}
 
 if (want('I1') || want('I2') || want('I3') || want('N1')) {
   await openPanel('wm-ontology');
