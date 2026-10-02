@@ -142,7 +142,14 @@ it points at a public node, which keeps its bundle id (`attack:T1078`, `d3f:d3f:
 | `relatedMatch` | string[]? | public bundle ids; the target kind must be one `RELATED_MATCH` allows |
 
 The id `financial-value-transfer` (effect) and `human-approval` (control) are looked up by name by
-the competency questions, so keep them exactly.
+the competency questions, so keep them exactly. `core-control-dual-approval` is a `SUBCLASS_OF`
+`human-approval` because it is two independent humans, so CQ2 treats it as a human-approval control.
+
+`parent` asserts **definitional** subsumption: every instance of the child must necessarily be an
+instance of the parent given the two definitions. A scope is not an authority, a purpose is not a
+request, a registry is not a callable tool, and a compensation change is not a value transfer, so
+those hang under `grp:<group>` instead. Add a general L1 class when several nodes need a shared
+supertype (as `core-registry` and `core-connector` do for the tool-registry and MCP components).
 
 ### `ENTITY_ISA` — L2 entity → L1 class
 
@@ -191,7 +198,10 @@ evidence id referenced by any hazard must appear in some `records` list.
 
 `[{ threat, control, note }]`. `threat` is an L3 threat id (kind `technique` or `risk`); `control` is
 a core control id or a public D3FEND technique id. All 25 OWASP risks must be covered, plus every
-ATLAS technique that can be justified honestly; `note` says why.
+ATLAS technique that can be justified honestly; `note` says why. The note must describe protection
+the referenced control's `def` actually provides — a value ceiling bounds money moved, not resource
+overload, so rate/volume threats use `core-control-rate-limit` and review-queue flooding uses
+`core-control-review-throttle`.
 
 ### `INCIDENT_HAZARDS` — incident → hazard
 

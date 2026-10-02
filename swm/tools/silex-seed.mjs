@@ -267,7 +267,11 @@ export const GROUP_HINTS = [
    - Public references always carry their bundle id. */
 
 /* L1 Silex core concepts: [{ id, label, group, kind, def, parent, relatedMatch? }]
-   kind ∈ CORE_KINDS; parent is another core id (subsumption) or 'grp:<group>' (navigation). */
+   kind ∈ CORE_KINDS; parent is another core id (subsumption) or 'grp:<group>' (navigation).
+   SUBCLASS_OF is a definitional test: every instance of the child must necessarily be an
+   instance of the parent given both defs. If that does not hold (a scope is not an authority,
+   a purpose is not a request, a registry is not a tool), hang the child under grp:<group> and
+   add a general L1 class when other nodes need a shared supertype. */
 export const CORE_L1 = [
   /* identity and authority */
   { id:'core-principal', label:'Principal', group:'identity', kind:'core', parent:'grp:identity',
@@ -290,15 +294,17 @@ export const CORE_L1 = [
     relatedMatch:['d3f:d3f:Credential'] },
   { id:'core-authority', label:'Authority', group:'identity', kind:'core', parent:'grp:identity',
     def:'The right to make a particular decision or cause a particular state change on behalf of the enterprise.' },
-  { id:'core-authorization-scope', label:'Authorization Scope', group:'identity', kind:'core', parent:'core-authority',
+  /* a scope bounds an authority and a delegation passes it, but neither is itself an authority */
+  { id:'core-authorization-scope', label:'Authorization Scope', group:'identity', kind:'core', parent:'grp:identity',
     def:'The boundary of what an authority permits: which resources, actions and amounts it covers.' },
-  { id:'core-delegation', label:'Delegation', group:'identity', kind:'core', parent:'core-authority',
+  { id:'core-delegation', label:'Delegation', group:'identity', kind:'core', parent:'grp:identity',
     def:'The act of passing authority to another actor, and the record of how far that authority travelled.' },
 
   /* intent and provenance */
   { id:'core-request', label:'Request', group:'workflow', kind:'core', parent:'grp:workflow',
     def:'An instruction or demand that starts a unit of work and should stay attached to its outcome.' },
-  { id:'core-purpose', label:'Purpose', group:'workflow', kind:'core', parent:'core-request',
+  /* a purpose is the reason attached to a request, not a kind of request */
+  { id:'core-purpose', label:'Purpose', group:'workflow', kind:'core', parent:'grp:workflow',
     def:'The stated reason a request is made, which an action must remain consistent with.' },
   { id:'core-provenance', label:'Provenance', group:'workflow', kind:'core', parent:'grp:workflow',
     def:'The origin and chain of custody of a request, datum or instruction.' },
@@ -329,8 +335,15 @@ export const CORE_L1 = [
     def:'The business constraints and completion conditions an agent process must respect.' },
   { id:'core-execution-context', label:'Runtime environment', group:'agent', kind:'core', parent:'grp:agent',
     def:'The sandbox, runtime permissions and resource limits a single run executes inside.' },
+  { id:'core-identity-provider', label:'Identity Provider', group:'identity', kind:'core', parent:'grp:identity',
+    def:'A service that issues or brokers the identities and credentials an actor uses.' },
+  /* a registry and a connector are infrastructure, not themselves callable tools */
+  { id:'core-registry', label:'Registry', group:'tool', kind:'core', parent:'grp:tool',
+    def:'A maintained index of the tools, capabilities or assets available to a system.' },
+  { id:'core-connector', label:'Connector', group:'tool', kind:'core', parent:'grp:tool',
+    def:'A transport or adapter that exposes an external system\'s capabilities to an agent.' },
   { id:'core-resource', label:'Resource', group:'resource', kind:'core', parent:'grp:resource',
-    def:'A thing of enterprise value, data or capability that actions read or change.' },
+    def:'A thing of enterprise value, data or capability — including stored records, obligations and holdings — that actions read or change.' },
   { id:'core-record', label:'Business Record', group:'resource', kind:'core', parent:'core-resource',
     def:'A stored statement of business fact, such as an invoice, ticket or review.' },
   { id:'core-party', label:'Party', group:'identity', kind:'core', parent:'grp:identity',
@@ -342,6 +355,11 @@ export const CORE_L1 = [
   { id:'core-account', label:'Account (value or access holding)', group:'resource', kind:'core', parent:'core-resource',
     def:'A named holding of value or access, such as a bank account or a user account.',
     relatedMatch:['uco:observable:Account'] },
+  /* a prospect is pursued but not yet an obligation; an initiative is an effort, not a payment */
+  { id:'core-prospect', label:'Prospect', group:'resource', kind:'core', parent:'grp:resource',
+    def:'A potential counterparty, sale or engagement the enterprise is pursuing but has not yet committed to.' },
+  { id:'core-initiative', label:'Initiative', group:'workflow', kind:'core', parent:'grp:workflow',
+    def:'A planned or running enterprise effort with an intended business result.' },
 
   /* action taxonomy */
   { id:'core-action-read', label:'Read Action', group:'tool', kind:'action', parent:'grp:tool',
@@ -356,6 +374,8 @@ export const CORE_L1 = [
     def:'An action that formally accepts a request and releases it to proceed.' },
   { id:'core-action-delegate', label:'Delegation Action', group:'tool', kind:'action', parent:'grp:tool',
     def:'An action that grants or passes authority to another actor.' },
+  { id:'core-action-revoke', label:'Authority revocation action', group:'tool', kind:'action', parent:'grp:tool',
+    def:'An action that removes or cancels an authority, credential or access that previously existed.' },
 
   /* effect taxonomy */
   { id:'core-effect-data-read', label:'Data Read Effect', group:'outcome', kind:'effect', parent:'grp:outcome',
@@ -369,6 +389,8 @@ export const CORE_L1 = [
     def:'Money or equivalent value leaves the enterprise or moves between accounts.' },
   { id:'core-effect-authority-grant', label:'Authority Grant Effect', group:'outcome', kind:'effect', parent:'grp:outcome',
     def:'An identity gains a right it did not previously hold.' },
+  { id:'core-effect-authority-removal', label:'Authority removal', group:'outcome', kind:'effect', parent:'grp:outcome',
+    def:'An authority, credential or access an identity held is removed or cancelled.' },
   { id:'core-effect-configuration-change', label:'Configuration Change Effect', group:'outcome', kind:'effect', parent:'grp:outcome',
     def:'A setting, permission or integration is altered from its approved state.' },
   { id:'core-effect-service-disruption', label:'Service Disruption Effect', group:'outcome', kind:'effect', parent:'grp:outcome',
@@ -402,8 +424,9 @@ export const CORE_L1 = [
   { id:'human-approval', label:'Human approval', group:'policy', kind:'control', parent:'grp:policy',
     def:'A person must explicitly accept an action before it runs.',
     relatedMatch:['d3f:d3f:AccessMediation'] },
-  { id:'core-control-dual-approval', label:'Dual Approval', group:'policy', kind:'control', parent:'grp:policy',
-    def:'Two independent people or roles must accept a high-impact action.' },
+  /* two independent humans: a stronger form of human approval, not a machine rule */
+  { id:'core-control-dual-approval', label:'Dual Approval', group:'policy', kind:'control', parent:'human-approval',
+    def:'Two independent humans must each accept a high-impact action before it runs.' },
   { id:'core-control-policy-gate', label:'Policy Gate', group:'policy', kind:'control', parent:'grp:policy',
     def:'An automated rule evaluates a proposed action and can block or redact it.' },
   { id:'core-control-scope-limit', label:'Scope Limit', group:'policy', kind:'control', parent:'grp:policy',
@@ -416,6 +439,10 @@ export const CORE_L1 = [
   { id:'core-control-monitoring', label:'Continuous Monitoring', group:'policy', kind:'control', parent:'grp:policy',
     def:'Ongoing observation that raises a signal when behaviour departs from the expected pattern.',
     relatedMatch:['d3f:d3f:PlatformMonitoring'] },
+  { id:'core-control-rate-limit', label:'Rate Limit', group:'policy', kind:'control', parent:'grp:policy',
+    def:'A cap on the rate or total volume of requests, items or resources a process may consume in a period.' },
+  { id:'core-control-review-throttle', label:'Review Throttle', group:'policy', kind:'control', parent:'grp:policy',
+    def:'A limit on how many items may reach a human reviewer in a period, or an aggregation that batches them, so the review queue cannot be flooded.' },
 
   /* evidence taxonomy */
   { id:'core-evidence-identity-assertion', label:'Identity Assertion', group:'threat', kind:'evidence', parent:'grp:threat',
@@ -466,8 +493,9 @@ export const ENTITY_ISA = {
     'Sourcing Event':'core-record', 'Goods Receipt':'core-record', 'Spend Category':'core-record'
   },
   crm: {
-    'Lead':'core-party', 'Opportunity':'core-commitment', 'Account':'core-account', 'Contact':'core-party',
-    'Campaign':'core-commitment', 'Case':'core-record'
+    /* leads and opportunities are prospects, not yet obligations; a campaign is an initiative */
+    'Lead':'core-prospect', 'Opportunity':'core-prospect', 'Account':'core-account', 'Contact':'core-party',
+    'Campaign':'core-initiative', 'Case':'core-record'
   },
   legal: {
     'Contract':'core-record', 'Clause Library':'core-record', 'Matter':'core-record',
@@ -479,7 +507,7 @@ export const ENTITY_ISA = {
    AGENTIC_COMPONENTS specialises; it becomes the component's display parent */
 export const COMPONENT_ISA = {
   'planner':'core-agent', 'memory-st':'core-memory', 'memory-lt':'core-memory', 'retriever':'core-retrieval',
-  'tool-reg':'core-tool', 'mcp':'core-tool', 'subagent':'core-agent', 'cred-store':'core-credential',
+  'tool-reg':'core-registry', 'mcp':'core-connector', 'subagent':'core-agent', 'cred-store':'core-identity-provider',
   'exec-ctx':'core-execution-context', 'guardrail':'core-guardrail', 'hitl':'core-human-gate',
   'trace':'core-telemetry', 'harness':'core-outcome-harness'
 };
@@ -521,8 +549,8 @@ export const DOMAIN_ACTIONS = {
       mayCause:['core-effect-authority-grant'], workflows:['WF-031'] },
     { id:'act-it-review-access', label:'Access Review', isA:'core-action-read',
       mayCause:['core-effect-data-read'], workflows:['WF-032'] },
-    { id:'act-it-offboard', label:'Offboarding', isA:'core-action-delegate',
-      mayCause:['core-effect-authority-grant'], workflows:['WF-033'] },
+    { id:'act-it-offboard', label:'Offboarding', isA:'core-action-revoke',
+      mayCause:['core-effect-authority-removal'], workflows:['WF-033'] },
     { id:'act-it-rotate-secret', label:'Secret Rotation', isA:'core-action-write',
       mayCause:['core-effect-configuration-change'], workflows:['WF-034'] },
     { id:'act-it-issue-credential', label:'Agent Credential Issuance', isA:'core-action-delegate',
@@ -589,8 +617,8 @@ export const PROHIBITED = {
   ],
   hr: [
     { id:'proh-hr-unauthorised-pay-change', label:'Unauthorised Pay Change', kind:'effect',
-      isA:'financial-value-transfer',
-      def:'An effect of an unapproved compensation action on the value already committed to an employee.' }
+      isA:'core-effect-record-alteration',
+      def:'An effect of a compensation record being changed without the approval the change requires, so the stored fact no longer matches the authorised instruction.' }
   ],
   procurement: [
     { id:'proh-proc-unverified-bank-change', label:'Unverified Bank Change', kind:'effect',
@@ -613,7 +641,7 @@ export const DOMAIN_HAZARDS = {
       hazardFor:['act-finance-payment-release'], mayLeadTo:['proh-finance-unrecoverable-payout'],
       characterizes:['owasp:LLM06'], mitigatedBy:['core-control-value-ceiling'], requiresEvidence:['core-evidence-value-transfer-record'] },
     { id:'haz-finance-duplicate-invoice', label:'Duplicate Invoice Submission',
-      def:'The same invoice is entered twice and paid as if it were two obligations.',
+      def:'The invoice-approval tool is invoked twice for the same invoice, so it is paid as if it were two obligations.',
       hazardFor:['Invoice','act-finance-invoice-approve'], mayLeadTo:['proh-finance-unrecoverable-payout'],
       characterizes:['atlas:AML.T0053'], mitigatedBy:['core-control-monitoring'], requiresEvidence:['core-evidence-observation'] },
     { id:'haz-finance-journal-adjust', label:'Journal Adjustment Without Second Review',
@@ -622,6 +650,8 @@ export const DOMAIN_HAZARDS = {
       characterizes:['attack:TA0005'], mitigatedBy:['core-control-dual-approval'], requiresEvidence:['core-evidence-configuration-change'] }
   ],
   support: [
+    /* the payout effect is shared across packs: an unrecoverable payout is the same enterprise outcome
+       whether the refund originates in support or a payment run originates in finance. */
     { id:'haz-support-refund-loop', label:'Repeated Refund After Partial Failure',
       def:'A partially failed refund is retried and the value leaves more than once.',
       hazardFor:['act-support-refund-issue','Refund'], mayLeadTo:['proh-finance-unrecoverable-payout'],
@@ -659,13 +689,13 @@ export const DOMAIN_HAZARDS = {
   ],
   hr: [
     { id:'haz-hr-pay-change', label:'Pay Change Without Approval',
-      def:'A compensation adjustment is applied before an independent approver sees it.',
+      def:'The payroll-adjustment tool is invoked before an independent approver has seen the change.',
       hazardFor:['Compensation Record','act-hr-payroll-adjust'], mayLeadTo:['proh-hr-unauthorised-pay-change'],
       characterizes:['atlas:AML.T0053'], mitigatedBy:['human-approval'], requiresEvidence:['core-evidence-approval-record'] },
     { id:'haz-hr-offer-altered', label:'Offer Terms Altered After Approval',
-      def:'Offer terms are edited after sign-off so what was approved is not what is issued.',
+      def:'The agent context holding an approved offer is altered after sign-off, so the terms it issues are not the ones that were approved.',
       hazardFor:['Candidate','act-hr-offer'],
-      characterizes:['attack:T1098'], mitigatedBy:['core-control-dual-approval'], requiresEvidence:['core-evidence-configuration-change'] },
+      characterizes:['atlas:AML.T0080'], mitigatedBy:['core-control-dual-approval'], requiresEvidence:['core-evidence-configuration-change'] },
     { id:'haz-hr-day1-excess', label:'Excessive Access Granted On Day One',
       def:'A new joiner receives more access than the role needs at the moment of onboarding.',
       hazardFor:['Employee','act-hr-day1-access'],
@@ -677,7 +707,7 @@ export const DOMAIN_HAZARDS = {
       hazardFor:['Supplier','act-proc-vendor-bank-change'], mayLeadTo:['proh-proc-unverified-bank-change'],
       characterizes:['atlas:AML.T0052'], mitigatedBy:['core-control-dual-approval'], requiresEvidence:['core-evidence-approval-record'] },
     { id:'haz-proc-supplier-collusion', label:'Supplier Details Confirmed By Same Requester',
-      def:'The person who requested the change is also the one who confirms it.',
+      def:'The requester acts as the independent confirmer of a supplier change, impersonating the second party the control expects.',
       hazardFor:['Supplier','act-proc-supplier-onboard'], mayLeadTo:['proh-proc-unverified-bank-change'],
       characterizes:['atlas:AML.T0073'], mitigatedBy:['human-approval'], requiresEvidence:['core-evidence-identity-assertion'] },
     { id:'haz-proc-order-splitting', label:'Purchase Order Split Below Approval Threshold',
@@ -685,15 +715,15 @@ export const DOMAIN_HAZARDS = {
       hazardFor:['Purchase Order','act-proc-po-create'],
       characterizes:['owasp:LLM06'], mitigatedBy:['core-control-value-ceiling'], requiresEvidence:['core-evidence-observation'] },
     { id:'haz-proc-match-bypass', label:'Three-way Match Bypassed',
-      def:'A payment proceeds although goods receipt, order and invoice do not agree.',
+      def:'The payment tool is invoked although goods receipt, order and invoice do not agree.',
       hazardFor:['Goods Receipt','act-proc-three-way-match'],
       characterizes:['atlas:AML.T0053'], mitigatedBy:['core-control-policy-gate'], requiresEvidence:['core-evidence-observation'] }
   ],
   crm: [
     { id:'haz-crm-lead-enrichment', label:'Lead Data Taken From An Unverified Source',
-      def:'Contact enrichment pulls from a source the enterprise has not vetted.',
+      def:'Lead enrichment ingests records from a third-party source the enterprise has not vetted, so data from a compromised supply chain can enter the pipeline.',
       hazardFor:['Lead','act-crm-lead-qualify'],
-      characterizes:['atlas:AML.T0003'], mitigatedBy:['core-control-monitoring'], requiresEvidence:['core-evidence-observation'] },
+      characterizes:['atlas:AML.T0010'], mitigatedBy:['core-control-monitoring'], requiresEvidence:['core-evidence-observation'] },
     { id:'haz-crm-discount-beyond-authority', label:'Discount Approved Beyond Authority',
       def:'A quote discount is released above the level the approver may grant.',
       hazardFor:['Opportunity','act-crm-quote-price'],
@@ -709,9 +739,9 @@ export const DOMAIN_HAZARDS = {
       hazardFor:['Matter','act-legal-clause-review'],
       characterizes:['atlas:AML.T0057'], mitigatedBy:['core-control-policy-gate'], requiresEvidence:['core-evidence-data-access-record'] },
     { id:'haz-legal-filing-unreviewed', label:'Filing Sent With Unreviewed Change',
-      def:'A regulatory filing is submitted before the final change has been reviewed.',
+      def:'The filing tool is invoked to submit a regulatory filing while a change to it is still unreviewed.',
       hazardFor:['Regulatory Filing','act-legal-file-regulator'],
-      characterizes:['atlas:AML.T0077'], mitigatedBy:['human-approval'], requiresEvidence:['core-evidence-approval-record'] },
+      characterizes:['atlas:AML.T0053'], mitigatedBy:['human-approval'], requiresEvidence:['core-evidence-approval-record'] },
     { id:'haz-legal-counsel-overreach', label:'Outside Counsel Receives Excess Material',
       def:'Material beyond the scope of the engagement is shared with outside counsel.',
       hazardFor:['Outside Counsel','act-legal-redline'],
@@ -748,34 +778,34 @@ export const RECORD_SCHEMAS = [
 /* L3 threat → countermeasure: [{ threat, control, note }].
    All 25 OWASP risks, plus the ATLAS techniques that can be justified honestly. */
 export const COUNTER_MAP = [
-  { threat:'owasp:LLM01', control:'core-control-policy-gate', note:'A rule gate inspects untrusted input before it can steer the planner.' },
+  { threat:'owasp:LLM01', control:'core-control-policy-gate', note:'A rule gate evaluates the action a crafted prompt tries to trigger and can block it.' },
   { threat:'owasp:LLM02', control:'core-control-scope-limit', note:'Limiting what the agent may read reduces what can be disclosed.' },
   { threat:'owasp:LLM03', control:'core-control-monitoring', note:'Continuous review of models and dependencies tracks supply-chain change.' },
   { threat:'owasp:LLM04', control:'core-control-monitoring', note:'Monitoring training and memory sources flags poisoning before it is trusted.' },
   { threat:'owasp:LLM05', control:'core-control-policy-gate', note:'Output is validated against policy before it is acted on or rendered.' },
   { threat:'owasp:LLM06', control:'core-control-scope-limit', note:'Authority and target scope are bounded so the agent cannot overreach.' },
-  { threat:'owasp:LLM07', control:'core-control-scope-limit', note:'System instructions are kept out of any content the agent can emit.' },
+  { threat:'owasp:LLM07', control:'core-control-policy-gate', note:'Output is inspected and system instructions are redacted before release.' },
   { threat:'owasp:LLM08', control:'core-control-monitoring', note:'Index integrity is watched because embedding stores can be altered.' },
   { threat:'owasp:LLM09', control:'human-approval', note:'A person confirms material claims before they are relied on.' },
-  { threat:'owasp:LLM10', control:'core-control-value-ceiling', note:'A hard resource or value ceiling bounds consumption.' },
+  { threat:'owasp:LLM10', control:'core-control-rate-limit', note:'A cap on the rate and volume of requests bounds consumption.' },
   { threat:'owaspa:T1', control:'core-control-monitoring', note:'Memory writes are observed so poisoning is visible.' },
   { threat:'owaspa:T2', control:'core-control-scope-limit', note:'Tools are callable only within the scope declared for the run.' },
   { threat:'owaspa:T3', control:'core-control-credential-binding', note:'Credentials are bound to one identity and use.' },
-  { threat:'owaspa:T4', control:'core-control-value-ceiling', note:'Resource use is capped so overload cannot compound.' },
+  { threat:'owaspa:T4', control:'core-control-rate-limit', note:'A cap on request rate and volume keeps resource use from overwhelming the service.' },
   { threat:'owaspa:T5', control:'human-approval', note:'A person breaks the chain when generated content starts to compound.' },
   { threat:'owaspa:T6', control:'core-control-policy-gate', note:'Each proposed step is checked against the stated purpose.' },
   { threat:'owaspa:T7', control:'core-control-monitoring', note:'Behaviour that departs from the intended trajectory raises a signal.' },
-  { threat:'owaspa:T8', control:'core-control-monitoring', note:'Tamper-evident telemetry keeps actions attributable.' },
+  { threat:'owaspa:T8', control:'core-control-monitoring', note:'Activity is continuously observed, raising a signal when it cannot be attributed.' },
   { threat:'owaspa:T9', control:'core-control-credential-binding', note:'An identity cannot be replayed under another actor context.' },
-  { threat:'owaspa:T10', control:'core-control-value-ceiling', note:'Thresholds keep the review queue from being flooded by small items.' },
+  { threat:'owaspa:T10', control:'core-control-review-throttle', note:'The number of items reaching a human reviewer is capped or batched so the queue cannot be flooded.' },
   { threat:'owaspa:T11', control:'d3f:d3f:SystemCallFiltering', note:'A D3FEND technique blocks the system calls an unexpected code path needs.' },
   { threat:'owaspa:T12', control:'core-control-monitoring', note:'Inter-agent messages are observed for injected content.' },
   { threat:'owaspa:T13', control:'core-control-scope-limit', note:'Each agent is confined to its own authority so a rogue one cannot spread it.' },
-  { threat:'owaspa:T14', control:'human-approval', note:'Human demands on the system are reviewed before they change behaviour.' },
-  { threat:'owaspa:T15', control:'human-approval', note:'A person validates high-impact decisions a manipulator is pushing.' },
-  { threat:'atlas:AML.T0051', control:'core-control-policy-gate', note:'Prompt content is screened where it enters the context.' },
-  { threat:'atlas:AML.T0054', control:'core-control-policy-gate', note:'Jailbreak style instructions are blocked by policy, not by model goodwill.' },
-  { threat:'atlas:AML.T0056', control:'core-control-scope-limit', note:'System prompt text is excluded from anything the agent may reveal.' },
+  { threat:'owaspa:T14', control:'core-control-monitoring', note:'Requests that change agent behaviour are observed and flagged.' },
+  { threat:'owaspa:T15', control:'core-control-dual-approval', note:'Two independent humans must accept a high-impact decision, so one manipulated person cannot release it alone.' },
+  { threat:'atlas:AML.T0051', control:'core-control-policy-gate', note:'The action a crafted prompt tries to trigger is evaluated against policy and can be blocked.' },
+  { threat:'atlas:AML.T0054', control:'core-control-policy-gate', note:'A jailbreak attempt is caught by a rule that blocks the resulting action, not by model goodwill.' },
+  { threat:'atlas:AML.T0056', control:'core-control-policy-gate', note:'System instructions are redacted from output before it leaves the agent.' },
   { threat:'atlas:AML.T0057', control:'core-control-scope-limit', note:'Data access is bounded to what the task needs.' },
   { threat:'atlas:AML.T0070', control:'core-control-monitoring', note:'Retrieval indexes are watched for entries that were not authored.' },
   { threat:'atlas:AML.T0071', control:'core-control-monitoring', note:'Unexpected index entries are surfaced for review.' },
@@ -790,8 +820,8 @@ export const COUNTER_MAP = [
   { threat:'atlas:AML.T0053', control:'core-control-scope-limit', note:'Agent tool invocation is limited to scopes the run was granted.' },
   { threat:'atlas:AML.T0082', control:'core-control-credential-binding', note:'Credentials reachable through retrieval are bound and not reusable.' },
   { threat:'atlas:AML.T0043', control:'core-control-monitoring', note:'Adversarial inputs are watched for rather than assumed absent.' },
-  { threat:'atlas:AML.T0034', control:'core-control-value-ceiling', note:'Cost is capped so harvesting cannot run unbounded.' },
-  { threat:'atlas:AML.T0029', control:'core-control-value-ceiling', note:'A capacity ceiling keeps a denial attempt from consuming the service.' },
+  { threat:'atlas:AML.T0034', control:'core-control-rate-limit', note:'A cap on request rate and volume keeps cost harvesting from running unbounded.' },
+  { threat:'atlas:AML.T0029', control:'core-control-rate-limit', note:'A cap on request rate and volume keeps a flood from degrading the service.' },
   { threat:'atlas:AML.T0040', control:'core-control-credential-binding', note:'Inference access requires a bound, attributable credential.' }
 ];
 

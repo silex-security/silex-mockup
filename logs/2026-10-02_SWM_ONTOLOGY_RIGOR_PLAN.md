@@ -392,3 +392,22 @@ Review base: `BASE=74ed19a`.
 - The rebuild `SKILL.md` line about verify-bundle (around line 83) waits on T7.
 - Step 7 code review, both seats, has not started.
 - Not merged, not pushed.
+
+## Code review
+
+Review base `74ed19a`. The round-1 candidate is `924cc99`, diff revision `3342aee`. The generated `ontology.json`, `ontology.js` and `coverage.js` are excluded from the text diff because of size; they are reproducible from the offline build.
+
+### Round 1 — DeepSeek IMPL-APPROVED · Codex IMPL-REJECTED (7 blocking)
+
+| Defect (who) | Change |
+|---|---|
+| False `SUBCLASS_OF` assertions in CORE_L1, ENTITY_ISA, COMPONENT_ISA and PROHIBITED: Scope or Delegation ⊑ Authority, Purpose ⊑ Request, Credential Broker ⊑ credential, Tool Registry ⊑ tool, Opportunity or Campaign ⊑ obligation, compensation change ⊑ transfer (Codex 1) | DeepSeek: each subtype re-checked against both definitions; new general classes where needed |
+| Offboarding modelled as granting authority (Codex 2) | DeepSeek: revocation or removal action and effect |
+| Unrelated `CHARACTERIZES` targets (Codex 3) | DeepSeek: replaced, and every alignment audited against the target's definition |
+| Dual Approval not a kind of Human Approval, so CQ2 was misleading (Codex 4) | DeepSeek: `SUBCLASS_OF human-approval`; CQ2's answer changes accordingly |
+| `COUNTER_MAP` rationales exceed what the control does (Codex 5) | DeepSeek: unsupported `COUNTERS` removed and the rest audited; counts recomputed |
+| About notes and README still call all L1, and domain inheritance, public (Codex 6) | Planner: `index.html`, `assurance.html` and README distinguish published from curated |
+| Worked example does not validate; validator forbids a sixth outcome (Codex 7; DeepSeek NB3) | DeepSeek: id fixed, validator relaxed to "the five remain", recipe proven |
+| Both: accept the `assurance.html` scope extension; accept the budget as the browser `.js` payload | Accepted; `SECURITY_WORLD_MODEL.md` states 564 KB `ontology.js` against the 700 KB verifier budget |
+| DeepSeek NB4: cross-pack `MAY_LEAD_TO`; NB6: candidate rows in `ontologyCompleteness` | DeepSeek owns NB4; NB6 is documented in the README |
+| DeepSeek NB1: 69 core concepts against "about 40–50" | Accepted deviation. The 15 extra are the generic anchors the frozen `SUBCLASS_COMPAT` requires |

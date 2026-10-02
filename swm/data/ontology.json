@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T10:59:32.073Z",
+ "generated": "2026-10-02T11:16:17.774Z",
  "version": "swm-2.0",
  "groups": [
   {
@@ -124,16 +124,16 @@
     "key": "general",
     "name": "General Agent Ontology Graph",
     "blurb": "Reusable semantics shared by every domain and every agentic system",
-    "count": 439,
+    "count": 448,
     "groups": {
-     "identity": 60,
+     "identity": 61,
      "agent": 24,
-     "tool": 71,
-     "resource": 103,
-     "workflow": 8,
-     "policy": 70,
+     "tool": 74,
+     "resource": 104,
+     "workflow": 9,
+     "policy": 72,
      "threat": 86,
-     "outcome": 17
+     "outcome": 18
     },
     "coverage": 0.74
    },
@@ -195,12 +195,12 @@
    {
     "from": 1,
     "to": 2,
-    "count": 279,
+    "count": 278,
     "preds": {
      "SUBCLASS_OF": 107,
      "GROUPED_UNDER": 77,
      "MAY_CAUSE": 37,
-     "CHARACTERIZES": 8,
+     "CHARACTERIZES": 7,
      "MITIGATED_BY": 25,
      "REQUIRES_EVIDENCE": 25
     },
@@ -630,10 +630,10 @@
    {
     "from": 2,
     "to": 3,
-    "count": 35,
+    "count": 36,
     "preds": {
      "DEPLOYED_IN": 18,
-     "CHARACTERIZES": 17
+     "CHARACTERIZES": 18
     },
     "examples": [
      {
@@ -813,6 +813,13 @@
      },
      {
       "pred": "CHARACTERIZES",
+      "from": "hz:haz-hr-offer-altered",
+      "fromLabel": "Offer Terms Altered After Approval",
+      "to": "atlas:AML.T0080",
+      "toLabel": "AI Agent Context Poisoning"
+     },
+     {
+      "pred": "CHARACTERIZES",
       "from": "hz:haz-proc-bank-detail-unverified",
       "fromLabel": "Bank Detail Change From Unverified Instruction",
       "to": "atlas:AML.T0052",
@@ -843,8 +850,8 @@
       "pred": "CHARACTERIZES",
       "from": "hz:haz-crm-lead-enrichment",
       "fromLabel": "Lead Data Taken From An Unverified Source",
-      "to": "atlas:AML.T0003",
-      "toLabel": "Search Victim-Owned Websites"
+      "to": "atlas:AML.T0010",
+      "toLabel": "AI Supply Chain Compromise"
      },
      {
       "pred": "CHARACTERIZES",
@@ -871,8 +878,8 @@
       "pred": "CHARACTERIZES",
       "from": "hz:haz-legal-filing-unreviewed",
       "fromLabel": "Filing Sent With Unreviewed Change",
-      "to": "atlas:AML.T0077",
-      "toLabel": "LLM Response Rendering"
+      "to": "atlas:AML.T0053",
+      "toLabel": "AI Agent Tool Invocation"
      },
      {
       "pred": "CHARACTERIZES",
@@ -12642,8 +12649,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "parent": "core:core-authority",
-   "parentPred": "SUBCLASS_OF"
+   "parent": "grp:identity",
+   "parentPred": "GROUPED_UNDER"
   },
   {
    "id": "core:core-delegation",
@@ -12662,8 +12669,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "parent": "core:core-authority",
-   "parentPred": "SUBCLASS_OF"
+   "parent": "grp:identity",
+   "parentPred": "GROUPED_UNDER"
   },
   {
    "id": "core:core-request",
@@ -12702,8 +12709,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "parent": "core:core-request",
-   "parentPred": "SUBCLASS_OF"
+   "parent": "grp:workflow",
+   "parentPred": "GROUPED_UNDER"
   },
   {
    "id": "core:core-provenance",
@@ -12966,12 +12973,72 @@
    "parentPred": "GROUPED_UNDER"
   },
   {
+   "id": "core:core-identity-provider",
+   "label": "Identity Provider",
+   "group": "identity",
+   "layer": 1,
+   "kind": "core",
+   "def": "A service that issues or brokers the identities and credentials an actor uses.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-identity-provider",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:identity",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-registry",
+   "label": "Registry",
+   "group": "tool",
+   "layer": 1,
+   "kind": "core",
+   "def": "A maintained index of the tools, capabilities or assets available to a system.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-registry",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:tool",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-connector",
+   "label": "Connector",
+   "group": "tool",
+   "layer": 1,
+   "kind": "core",
+   "def": "A transport or adapter that exposes an external system's capabilities to an agent.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-connector",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:tool",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
    "id": "core:core-resource",
    "label": "Resource",
    "group": "resource",
    "layer": 1,
    "kind": "core",
-   "def": "A thing of enterprise value, data or capability that actions read or change.",
+   "def": "A thing of enterprise value, data or capability — including stored records, obligations and holdings — that actions read or change.",
    "review": "curated",
    "src": [
     {
@@ -13084,6 +13151,46 @@
    "coverage": null,
    "parent": "core:core-resource",
    "parentPred": "SUBCLASS_OF"
+  },
+  {
+   "id": "core:core-prospect",
+   "label": "Prospect",
+   "group": "resource",
+   "layer": 1,
+   "kind": "core",
+   "def": "A potential counterparty, sale or engagement the enterprise is pursuing but has not yet committed to.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-prospect",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:resource",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-initiative",
+   "label": "Initiative",
+   "group": "workflow",
+   "layer": 1,
+   "kind": "core",
+   "def": "A planned or running enterprise effort with an intended business result.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-initiative",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:workflow",
+   "parentPred": "GROUPED_UNDER"
   },
   {
    "id": "core:core-action-read",
@@ -13206,6 +13313,26 @@
    "parentPred": "GROUPED_UNDER"
   },
   {
+   "id": "core:core-action-revoke",
+   "label": "Authority revocation action",
+   "group": "tool",
+   "layer": 1,
+   "kind": "action",
+   "def": "An action that removes or cancels an authority, credential or access that previously existed.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-action-revoke",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:tool",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
    "id": "core:core-effect-data-read",
    "label": "Data Read Effect",
    "group": "outcome",
@@ -13297,6 +13424,26 @@
     {
      "sys": "silex",
      "id": "core-effect-authority-grant",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:outcome",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-effect-authority-removal",
+   "label": "Authority removal",
+   "group": "outcome",
+   "layer": 1,
+   "kind": "effect",
+   "def": "An authority, credential or access an identity held is removed or cancelled.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-effect-authority-removal",
      "label": "Silex core concept"
     }
    ],
@@ -13551,7 +13698,7 @@
    "group": "policy",
    "layer": 1,
    "kind": "control",
-   "def": "Two independent people or roles must accept a high-impact action.",
+   "def": "Two independent humans must each accept a high-impact action before it runs.",
    "review": "curated",
    "src": [
     {
@@ -13562,8 +13709,8 @@
    ],
    "instances": 0,
    "coverage": null,
-   "parent": "grp:policy",
-   "parentPred": "GROUPED_UNDER"
+   "parent": "core:human-approval",
+   "parentPred": "SUBCLASS_OF"
   },
   {
    "id": "core:core-control-policy-gate",
@@ -13657,6 +13804,46 @@
     {
      "sys": "silex",
      "id": "core-control-monitoring",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:policy",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-control-rate-limit",
+   "label": "Rate Limit",
+   "group": "policy",
+   "layer": 1,
+   "kind": "control",
+   "def": "A cap on the rate or total volume of requests, items or resources a process may consume in a period.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-control-rate-limit",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:policy",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-control-review-throttle",
+   "label": "Review Throttle",
+   "group": "policy",
+   "layer": 1,
+   "kind": "control",
+   "def": "A limit on how many items may reach a human reviewer in a period, or an aggregation that batches them, so the review queue cannot be flooded.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-control-review-throttle",
      "label": "Silex core concept"
     }
    ],
@@ -14464,7 +14651,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "The same invoice is entered twice and paid as if it were two obligations.",
+   "def": "The invoice-approval tool is invoked twice for the same invoice, so it is paid as if it were two obligations.",
    "review": "curated",
    "src": [
     {
@@ -15947,7 +16134,7 @@
    "layer": 2,
    "kind": "effect",
    "prohibited": true,
-   "def": "An effect of an unapproved compensation action on the value already committed to an employee.",
+   "def": "An effect of a compensation record being changed without the approval the change requires, so the stored fact no longer matches the authorised instruction.",
    "review": "curated",
    "src": [
     {
@@ -16047,7 +16234,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "A compensation adjustment is applied before an independent approver sees it.",
+   "def": "The payroll-adjustment tool is invoked before an independent approver has seen the change.",
    "review": "curated",
    "src": [
     {
@@ -16067,7 +16254,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "Offer terms are edited after sign-off so what was approved is not what is issued.",
+   "def": "The agent context holding an approved offer is altered after sign-off, so the terms it issues are not the ones that were approved.",
    "review": "curated",
    "src": [
     {
@@ -16552,7 +16739,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "The person who requested the change is also the one who confirms it.",
+   "def": "The requester acts as the independent confirmer of a supplier change, impersonating the second party the control expects.",
    "review": "curated",
    "src": [
     {
@@ -16592,7 +16779,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "A payment proceeds although goods receipt, order and invoice do not agree.",
+   "def": "The payment tool is invoked although goods receipt, order and invoice do not agree.",
    "review": "curated",
    "src": [
     {
@@ -16933,7 +17120,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "Contact enrichment pulls from a source the enterprise has not vetted.",
+   "def": "Lead enrichment ingests records from a third-party source the enterprise has not vetted, so data from a compromised supply chain can enter the pipeline.",
    "review": "curated",
    "src": [
     {
@@ -17294,7 +17481,7 @@
    "group": "threat",
    "layer": 2,
    "kind": "hazard",
-   "def": "A regulatory filing is submitted before the final change has been reviewed.",
+   "def": "The filing tool is invoked to submit a regulatory filing while a change to it is still unreviewed.",
    "review": "curated",
    "src": [
     {
@@ -17426,7 +17613,7 @@
    ],
    "instances": 186,
    "coverage": 0.88,
-   "parent": "core:core-tool",
+   "parent": "core:core-registry",
    "parentPred": "SUBCLASS_OF"
   },
   {
@@ -17446,7 +17633,7 @@
    ],
    "instances": 64,
    "coverage": 0.81,
-   "parent": "core:core-tool",
+   "parent": "core:core-connector",
    "parentPred": "SUBCLASS_OF"
   },
   {
@@ -17487,7 +17674,7 @@
    ],
    "instances": 42,
    "coverage": 0.9,
-   "parent": "core:core-credential",
+   "parent": "core:core-identity-provider",
    "parentPred": "SUBCLASS_OF"
   },
   {
@@ -23039,15 +23226,15 @@
   },
   {
    "s": "core:core-authorization-scope",
-   "t": "core:core-authority",
-   "pred": "SUBCLASS_OF",
+   "t": "grp:identity",
+   "pred": "GROUPED_UNDER",
    "src": "silex",
    "review": "curated"
   },
   {
    "s": "core:core-delegation",
-   "t": "core:core-authority",
-   "pred": "SUBCLASS_OF",
+   "t": "grp:identity",
+   "pred": "GROUPED_UNDER",
    "src": "silex",
    "review": "curated"
   },
@@ -23060,8 +23247,8 @@
   },
   {
    "s": "core:core-purpose",
-   "t": "core:core-request",
-   "pred": "SUBCLASS_OF",
+   "t": "grp:workflow",
+   "pred": "GROUPED_UNDER",
    "src": "silex",
    "review": "curated"
   },
@@ -23157,6 +23344,27 @@
    "review": "curated"
   },
   {
+   "s": "core:core-identity-provider",
+   "t": "grp:identity",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-registry",
+   "t": "grp:tool",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-connector",
+   "t": "grp:tool",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
    "s": "core:core-resource",
    "t": "grp:resource",
    "pred": "GROUPED_UNDER",
@@ -23195,6 +23403,20 @@
    "s": "core:core-account",
    "t": "core:core-resource",
    "pred": "SUBCLASS_OF",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-prospect",
+   "t": "grp:resource",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-initiative",
+   "t": "grp:workflow",
+   "pred": "GROUPED_UNDER",
    "src": "silex",
    "review": "curated"
   },
@@ -23241,6 +23463,13 @@
    "review": "curated"
   },
   {
+   "s": "core:core-action-revoke",
+   "t": "grp:tool",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
    "s": "core:core-effect-data-read",
    "t": "grp:outcome",
    "pred": "GROUPED_UNDER",
@@ -23270,6 +23499,13 @@
   },
   {
    "s": "core:core-effect-authority-grant",
+   "t": "grp:outcome",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-effect-authority-removal",
    "t": "grp:outcome",
    "pred": "GROUPED_UNDER",
    "src": "silex",
@@ -23361,8 +23597,8 @@
   },
   {
    "s": "core:core-control-dual-approval",
-   "t": "grp:policy",
-   "pred": "GROUPED_UNDER",
+   "t": "core:human-approval",
+   "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
   },
@@ -23396,6 +23632,20 @@
   },
   {
    "s": "core:core-control-monitoring",
+   "t": "grp:policy",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-control-rate-limit",
+   "t": "grp:policy",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-control-review-throttle",
    "t": "grp:policy",
    "pred": "GROUPED_UNDER",
    "src": "silex",
@@ -24845,7 +25095,7 @@
   },
   {
    "s": "ent:crm:lead",
-   "t": "core:core-party",
+   "t": "core:core-prospect",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -24866,7 +25116,7 @@
   },
   {
    "s": "ent:crm:opportunity",
-   "t": "core:core-commitment",
+   "t": "core:core-prospect",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -24929,7 +25179,7 @@
   },
   {
    "s": "ent:crm:campaign",
-   "t": "core:core-commitment",
+   "t": "core:core-initiative",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -25258,7 +25508,7 @@
   },
   {
    "s": "ag:tool-reg",
-   "t": "core:core-tool",
+   "t": "core:core-registry",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -25286,7 +25536,7 @@
   },
   {
    "s": "ag:mcp",
-   "t": "core:core-tool",
+   "t": "core:core-connector",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -25314,7 +25564,7 @@
   },
   {
    "s": "ag:cred-store",
-   "t": "core:core-credential",
+   "t": "core:core-identity-provider",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -28310,14 +28560,14 @@
   },
   {
    "s": "act:act-it-offboard",
-   "t": "core:core-action-delegate",
+   "t": "core:core-action-revoke",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
   },
   {
    "s": "act:act-it-offboard",
-   "t": "core:core-effect-authority-grant",
+   "t": "core:core-effect-authority-removal",
    "pred": "MAY_CAUSE",
    "src": "silex",
    "review": "curated"
@@ -28583,7 +28833,7 @@
   },
   {
    "s": "po:proh-hr-unauthorised-pay-change",
-   "t": "core:financial-value-transfer",
+   "t": "core:core-effect-record-alteration",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -28779,7 +29029,7 @@
   },
   {
    "s": "hz:haz-hr-offer-altered",
-   "t": "attack:T1098",
+   "t": "atlas:AML.T0080",
    "pred": "CHARACTERIZES",
    "src": "silex",
    "review": "curated"
@@ -29304,7 +29554,7 @@
   },
   {
    "s": "hz:haz-crm-lead-enrichment",
-   "t": "atlas:AML.T0003",
+   "t": "atlas:AML.T0010",
    "pred": "CHARACTERIZES",
    "src": "silex",
    "review": "curated"
@@ -29556,7 +29806,7 @@
   },
   {
    "s": "hz:haz-legal-filing-unreviewed",
-   "t": "atlas:AML.T0077",
+   "t": "atlas:AML.T0053",
    "pred": "CHARACTERIZES",
    "src": "silex",
    "review": "curated"
@@ -29807,7 +30057,7 @@
    "review": "curated"
   },
   {
-   "s": "core:core-control-scope-limit",
+   "s": "core:core-control-policy-gate",
    "t": "owasp:LLM07",
    "pred": "COUNTERS",
    "src": "silex",
@@ -29828,7 +30078,7 @@
    "review": "curated"
   },
   {
-   "s": "core:core-control-value-ceiling",
+   "s": "core:core-control-rate-limit",
    "t": "owasp:LLM10",
    "pred": "COUNTERS",
    "src": "silex",
@@ -29856,7 +30106,7 @@
    "review": "curated"
   },
   {
-   "s": "core:core-control-value-ceiling",
+   "s": "core:core-control-rate-limit",
    "t": "owaspa:T4",
    "pred": "COUNTERS",
    "src": "silex",
@@ -29898,7 +30148,7 @@
    "review": "curated"
   },
   {
-   "s": "core:core-control-value-ceiling",
+   "s": "core:core-control-review-throttle",
    "t": "owaspa:T10",
    "pred": "COUNTERS",
    "src": "silex",
@@ -29926,14 +30176,14 @@
    "review": "curated"
   },
   {
-   "s": "core:human-approval",
+   "s": "core:core-control-monitoring",
    "t": "owaspa:T14",
    "pred": "COUNTERS",
    "src": "silex",
    "review": "curated"
   },
   {
-   "s": "core:human-approval",
+   "s": "core:core-control-dual-approval",
    "t": "owaspa:T15",
    "pred": "COUNTERS",
    "src": "silex",
@@ -29954,7 +30204,7 @@
    "review": "curated"
   },
   {
-   "s": "core:core-control-scope-limit",
+   "s": "core:core-control-policy-gate",
    "t": "atlas:AML.T0056",
    "pred": "COUNTERS",
    "src": "silex",
@@ -30059,14 +30309,14 @@
    "review": "curated"
   },
   {
-   "s": "core:core-control-value-ceiling",
+   "s": "core:core-control-rate-limit",
    "t": "atlas:AML.T0034",
    "pred": "COUNTERS",
    "src": "silex",
    "review": "curated"
   },
   {
-   "s": "core:core-control-value-ceiling",
+   "s": "core:core-control-rate-limit",
    "t": "atlas:AML.T0029",
    "pred": "COUNTERS",
    "src": "silex",

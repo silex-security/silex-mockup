@@ -312,10 +312,9 @@ for (const [domainId, entries] of Object.entries(S.PROHIBITED || {})) {
     if (!p.def) fail(`PROHIBITED ${p.id}: def (the retype justification) is required`);
   }
 }
+/* the five migrated entities must stay retyped, but a re-skin may add more valid outcomes */
 for (const label of PROHIBITED_EXPECTED)
   if (!prohibitedLabels.includes(label)) fail(`PROHIBITED: former entity "${label}" was not retyped as effect/state`);
-if (prohibitedById.size !== PROHIBITED_EXPECTED.length)
-  fail(`PROHIBITED: expected exactly ${PROHIBITED_EXPECTED.length} entries, got ${prohibitedById.size}`);
 for (const d of S.DOMAINS) for (const e of d.entities || [])
   if (PROHIBITED_EXPECTED.includes(e) || /prohibited/i.test(e))
     fail(`DOMAINS.${d.id}: entity "${e}" still reads as a prohibited outcome — it belongs in PROHIBITED`);

@@ -64,7 +64,7 @@ logistics: [
   { id:'haz-lo-carrier-unvetted', label:'Carrier Selected Without Vetting',
     def:'A carrier is chosen on cost alone before its identity is checked.',
     hazardFor:['Carrier','act-lo-carrier-pick'],
-    characterizes:['atlas:AML.T0073'], mitigatedBy:['core-control-human-approval'], requiresEvidence:['core-evidence-identity-assertion'] },
+    characterizes:['atlas:AML.T0073'], mitigatedBy:['human-approval'], requiresEvidence:['core-evidence-identity-assertion'] },
   { id:'haz-lo-dispatch-orphan', label:'Dispatch Released With No Carrier',
     def:'A dispatch order goes out before a carrier is committed to it.',
     hazardFor:['Dispatch Order','act-lo-dispatch'],
