@@ -694,6 +694,11 @@
       var n = byId.get(id); if (!n) return;
       exitExample(true);
       state.groups.add(n.group); syncGroupChips();
+      /* a filter must never hide the node being focused (plan JEV_LEARNINGS B2) */
+      if (state.net.minDegree || !state.net.subclass) {
+        state.net.minDegree = 0; $('swmMinDeg').value = 0; $('swmMinDegV').textContent = 0;
+        state.net.subclass = true; $('swmSubcl').setAttribute('aria-pressed', 'true');
+      }
       state.pinned = new Set([id]);
       state.selected = id; state.edge = null;
       $('swmResults').hidden = true; $('swmQuery').setAttribute('aria-expanded', 'false');
@@ -701,6 +706,34 @@
       if (state.view === 'matrix') setView('graph');
       render();
       if (vw && netOn()) vw.locate(id);
+    }
+
+    /* L4 chain in words (plan JEV_LEARNINGS E), read from the stored relations with their grades.
+       Edge directions as stored: instance INSTANCE_OF component; threat THREATENS component;
+       countermeasure COUNTERS threat; incident EXHIBITS hazard. */
+    function chainHtml(n) {
+      if (n.layer !== 4) return '';
+      var out = (id, p) => links.filter((l) => l.s === id && l.pred === p);
+      var inc = (id, p) => links.filter((l) => l.t === id && l.pred === p);
+      var lbl = (id) => SWM.esc(SWM.fixtureText(byId.get(id).label));
+      var pr = (l) => '<span class="swm-chain-p">' + SWM.esc(l.pred) + '</span><small class="swm-chain-g">' + SWM.esc(l.review || '') + '</small>';
+      var parts = [];
+      out(n.id, 'INSTANCE_OF').forEach(function (inst) {
+        var th = inc(inst.t, 'THREATENS').sort((a, b) => (inc(b.s, 'COUNTERS').length > 0) - (inc(a.s, 'COUNTERS').length > 0) || (byId.get(a.s).label < byId.get(b.s).label ? -1 : 1));   /* countered first */
+        parts.push('<p>' + lbl(n.id) + ' ' + pr(inst) + ' ' + lbl(inst.t) + '</p>' + (th.length
+          ? '<p class="swm-note">' + th.length + ' threat' + (th.length === 1 ? '' : 's') + ' point at this component (threat → component):</p><ul>' +
+            th.slice(0, 6).map(function (l) {
+              var c = inc(l.s, 'COUNTERS');
+              return '<li>' + lbl(l.s) + ' ' + pr(l) + ' → ' + (c.length ? c.map((x) => lbl(x.s) + ' ' + pr(x)).join(', ') : '<em>no mapped countermeasure</em>') + '</li>';
+            }).join('') + '</ul>' + (th.length > 6 ? '<p class="swm-note">+' + (th.length - 6) + ' more on the component itself</p>' : '')
+          : '<p class="swm-note">No threat in the graph points at this component.</p>'));
+      });
+      out(n.id, 'EXHIBITS').forEach(function (e) {
+        parts.push('<p>' + lbl(n.id) + ' ' + pr(e) + ' ' + lbl(e.t) + '</p><ul>' +
+          out(e.t, 'CHARACTERIZES').map((x) => '<li>' + pr(x) + ' ' + lbl(x.t) + '</li>').join('') +
+          out(e.t, 'MITIGATED_BY').map((x) => '<li>' + pr(x) + ' ' + lbl(x.t) + '</li>').join('') + '</ul>');
+      });
+      return parts.length ? '<div class="swm-chain"><h6>Chain · read from the stored relations</h6>' + parts.join('') + '</div>' : '';
     }
 
     function select(id) {
@@ -764,6 +797,7 @@
           (n.prohibited ? row('Prohibited outcome', SWM.esc(n.kind === 'state' ? 'A state that must not be reached' : 'An effect that must not occur')) : '') +
           (n.deployment === 'unobserved' ? row('Deployment', 'No runtime instance in the illustrative graph') : '') +
           (uncountered.has(n.id) ? row('Countermeasure', 'No mapped countermeasure') : '') +
+          chainHtml(n) +
           row('Authored model coverage', SWM.pct(n.coverage)) +
           '<div class="swm-meter"><i style="width:' + Math.round((n.coverage || 0) * 100) + '%;background:' + SWM.coverageColor(n.coverage, 'paper') + '"></i></div>';
         if (state.edge) html += '<hr>' + edgeHtml();
@@ -925,6 +959,14 @@
     syncViewButtons(); syncColorButtons(); syncGroupChips();
     render();
     mount._swmState = state;   /* for probes only */
+
+    /* explorer hooks for deep links (plan JEV_LEARNINGS §A) */
+    SWM.currentNode = function () { return state.selected || null; };
+    SWM.focusNode = function (id) {
+      if (!byId.has(id)) return false;
+      goToNode(id);
+      return (current.nodes || []).some((x) => x.id === id);
+    };
   }
 
   SWM.register('wm-ontology', init);

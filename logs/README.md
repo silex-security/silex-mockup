@@ -2,6 +2,26 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-02 — Deep links, incident ontology row and robustness fixes taken from jev-simplified
+
+- **World Model and incident deep links:**
+  - Routes: `#view=security-model&tab=…&node=…`, `#view=incident&incident=…`, `#view=workflow&workflow=…`.
+  - A cold link waits for the lazy bundle via `swm:loader-ready`.
+  - Back/Forward keep the full origin, and Studio routes are kept.
+  - An abandoned request is cancelled through a route generation.
+  - An unknown node, tab or incident shows a notice and falls back.
+  - The Assurance explorer button uses a deep link.
+- **Robustness:**
+  - The loader shows Retry, which re-requests only failed files.
+  - Focusing a node clears the degree and subclass filters.
+  - Panels boot only when visible (`SWM.isShown`); `assurance.html` is unaffected.
+- **Incident Detail Ontology row,** keyed by the site incident and never by number:
+  - I-1042 → bank-detail hazard → ATLAS AML.T0052 → Dual Approval, as chips into the World Model, with the agreed caveats.
+  - I-1038 → "No modelled hazard yet", shown as a blind spot.
+- **Inspector chain text for L4 nodes** (instance → component → threats → countermeasures), with relation directions and grades.
+- **New probes:** P1–P5 in `probe-swm.mjs` and S22–S37 in `run-site-probes.mjs` (local only). S22 fails on the base code and passes now.
+- **Plan and reviews:** [`2026-10-02_JEV_LEARNINGS_PLAN.md`](2026-10-02_JEV_LEARNINGS_PLAN.md). Chinese summary: [`2026-10-02_JEV_LEARNINGS_SUMMARY_ZH.md`](2026-10-02_JEV_LEARNINGS_SUMMARY_ZH.md).
+
 ## 2026-10-02 — Ontology Layers is the default World Model sub-tab
 
 - Entering **Enterprise World Model** now opens **Ontology Layers**, which is moved to the first sub-tab, left of **Ontology Graph**. The page subtitle follows it.

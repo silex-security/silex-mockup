@@ -375,6 +375,21 @@
   }
   @media(prefers-reduced-motion:reduce){.sidebar,.main{transition:none!important}}
 
+
+    /* Incident Detail · Ontology row (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md, C) */
+    .inc-onto{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:18px;background:#fbfbfe}
+    .inc-onto small.k{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:9px;margin-bottom:8px}
+    .inc-onto-chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+    .inc-onto-chip{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid #c9c2ee;background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;font:inherit;text-align:left}
+    .inc-onto-chip:hover,.inc-onto-chip:focus-visible{border-color:#6f50c9;background:#f6f3ff}
+    .inc-onto-chip .r{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .inc-onto-chip b{font-size:12px;color:var(--ink)}
+    .inc-onto-chip .g{font:600 9px var(--mono);color:#3f2787;background:#f2edfd;border-radius:4px;padding:1px 5px}
+    .inc-onto-chip .g.published{color:#22603e;background:#eaf3ee}
+    .inc-onto-rel{font:600 9px var(--mono);color:#50339c;display:inline-flex;flex-direction:column;align-items:center}
+    .inc-onto-rel small{font-weight:500;color:var(--muted)}
+    .inc-onto p.n{font-size:10px;color:var(--muted);margin:9px 0 0;line-height:1.5}
+    .inc-onto-gap strong{font-size:12px}
 </style>
   <style>
     /* ===== 2026-09-21 artifact upgrade (scoped .rx-*; see logs/2026-09-21_ARTIFACT_UPGRADE_PLAN.md) ===== */
@@ -570,7 +585,7 @@
 <div class="as-layer"><div class="ln"><b>L4 · Runtime graph</b><small>Deployed &amp; observed now</small></div><div class="as-b"><i style="width:81%"></i></div><div class="pc"><b>24</b> · 81%</div></div>
 <div class="as-srcs"><span class="as-src">D3FEND <b>213</b></span><span class="as-src">ATLAS <b>96</b></span><span class="as-src">ATT&amp;CK <b>61</b></span><span class="as-src">UCO <b>72</b></span><span class="as-src">OWASP <b>25</b></span></div>
 <div class="as-glegend"><b style="color:var(--muted)">Path grades →</b><span><span class="grade g-obs">Observed</span> in the graph</span><span><span class="grade g-lat">Latent</span> possible by type</span><span><span class="grade g-dec">Declared</span> from config</span></div>
-<button class="as-open" data-jump="security-model" data-wm-target="wm-ontology">◎ Open the full World Model explorer — 766 nodes, all four layers →</button>
+<button class="as-open" data-wm-route="#view=security-model&amp;tab=wm-ontology">◎ Open the full World Model explorer — 766 nodes, all four layers →</button>
 </div>
 <p class="as-quote recon-assurance-link"><a href="#" data-open-incident="I-1042">See how the I-1042 picture was reconstructed →</a></p>
 <div class="as-card">
@@ -772,6 +787,7 @@
 <div class="onto-item"><small>Existing controls · what blocked it</small><strong id="incControl">PAY-042</strong><p>Stopped the observed execution only.</p></div>
 <div class="onto-item"><small>Failure mechanism</small><strong id="incMechanism">Intent–approval binding failure</strong><p id="incMechanismDesc">Approval is not bound to the original identity, intent and exact mutation.</p></div>
 </div>
+<div class="inc-onto chg" data-chg="10/2: ontology row, keyed by the site incident" id="incOntology" hidden></div>
 <div class="path-label">Known attack / failure path</div>
 <div class="path">
 <div class="node"><strong id="obsInput">External email</strong><span>Observed input</span></div><div class="arrow">→</div>
@@ -1309,7 +1325,11 @@ const incidentData={
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
   const viewNames={assurance:'Assurance',overview:'Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','short-term':'Pre-release','runtime-observation':'Runtime Observation','long-term':'System Validation','security-model':'Enterprise World Model'};
-  function showView(id){views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
+  /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
+     that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
+     destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */
+  let routeGen=0,routing=false;window.__wmRouteGen=()=>routeGen;
+  function showView(id){if(!routing)routeGen++;views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const _ra=document.getElementById('regAssurance'),_ro=document.getElementById('regOps');if(_ra&&_ro){_ra.classList.toggle('on',id==='assurance');_ro.classList.toggle('on',id!=='assurance')}if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
   document.getElementById('regAssurance').addEventListener('click',()=>showView('assurance'));
   document.getElementById('regOps').addEventListener('click',()=>showView('overview'));
@@ -1460,7 +1480,26 @@ const incidentData={
   document.querySelectorAll('[data-recon-tier]').forEach(b=>{b.addEventListener('click',()=>reconApply(+b.dataset.reconTier));b.addEventListener('keydown',e=>{const bs=[...document.querySelectorAll('[data-recon-tier]')],i=bs.indexOf(b);let j=i;if(e.key==='ArrowRight'||e.key==='ArrowDown')j=(i+1)%bs.length;else if(e.key==='ArrowLeft'||e.key==='ArrowUp')j=(i+bs.length-1)%bs.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=bs.length-1;else return;e.preventDefault();bs[j].focus();reconApply(+bs[j].dataset.reconTier)})});
   // Six-objective scorecard (risk reduction · coverage · business friction · compliance · cost · performance)
   const sixObj=(risk,best)=>`<div class="six-obj"><div><span class="ov ok">−${risk}%</span><span class="ol">risk reduction</span></div><div><span class="ov ${best?'ok':''}">all paths</span><span class="ol">coverage</span></div><div><span class="ov ${best?'':'bad'}">${best?'low':'high'}</span><span class="ol">biz friction</span></div><div><span class="ov ok">pass</span><span class="ol">compliance</span></div><div><span class="ov">${best?'low':'med'}</span><span class="ol">cost</span></div><div><span class="ov">${best?'−420 ms':'−600 ms'}</span><span class="ol">performance</span></div></div>`;
-  function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
+
+  /* Incident Detail · Ontology row (plan §C). Keyed by the SITE incident and reviewed per scenario, never joined to the
+     World Model's runtime fixtures by number: the bundle's rt-inc-1042 "Refund loop" is a different record (swm-core.js relabels it).
+     Labels and grades mirror swm/data/ontology.json; the site probes check them against the bundle. */
+  const INCIDENT_ONTOLOGY={
+    'I-1042':{chain:[
+      {id:'hz:haz-proc-bank-detail-unverified',role:'Related model hazard',label:'Bank Detail Change From Unverified Instruction',grade:'curated'},
+      {rel:'CHARACTERIZES',grade:'curated'},
+      {id:'atlas:AML.T0052',role:'Closest public characterization',label:'ATLAS AML.T0052 · Phishing',grade:'published'},
+      {rel:'MITIGATED_BY',grade:'curated'},
+      {id:'core:core-control-dual-approval',role:'Ontology control',label:'Dual Approval',grade:'curated'}],
+     note:'A related potential hazard in the model (Silex-curated pairing), not an observed outcome: this attempt was blocked. Phishing is the closest public characterization of an unverified external instruction, not a claim that this prompt-injection case is phishing. Dual Approval is the ontology’s control, not PAY-042 or the candidate remedy, and is not shown as proof of mitigation. The hazard sits in the Procurement pack; this incident is filed under Finance.'},
+    'I-1038':{gap:true,note:'The model has no hazard yet for individually allowed actions, across agents, composing into a prohibited value. The nearest hazards (a single payment above its ceiling, purchase-order splitting, a refund retried after partial failure) describe different mechanisms.'}};
+  const escHtml=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function renderIncOntology(id){const box=$id('incOntology'),m=INCIDENT_ONTOLOGY[id];if(!box)return;if(!m){box.hidden=true;box.innerHTML='';return}box.hidden=false;
+    if(m.gap){box.innerHTML='<small class="k">Ontology · blind spot</small><div class="inc-onto-gap"><strong>No modelled hazard yet</strong></div><p class="n">'+escHtml(m.note)+'</p>';return}
+    box.innerHTML='<small class="k">Ontology · related model hazard</small><div class="inc-onto-chain">'+m.chain.map(c=>c.rel
+      ?'<span class="inc-onto-rel">'+c.rel+' →<small>'+c.grade+'</small></span>'
+      :'<button type="button" class="inc-onto-chip" data-wm-route="#view=security-model&amp;node='+encodeURIComponent(c.id)+'" data-node-id="'+escHtml(c.id)+'" title="Open in the World Model"><span class="r">'+escHtml(c.role)+'</span><b>'+escHtml(c.label)+'</b><span class="g '+c.grade+'">'+escHtml(c.grade)+'</span></button>').join('')+'</div><p class="n">'+escHtml(m.note)+'</p>'}
+  function renderIncident(id,show){const d=incidentData[id]||incidentData['I-1042'];currentIncident=id;renderIncOntology(id);const r=INC_REC[id]||INC_REC['I-1042'],closed=incDecision[id]==='closed';
     setText('incId',id);setText('incTitle',d.title);setText('incMeta',d.workflow+' · '+(INC_WF[id]||'')+' · '+(closed?'Closed':'Production'));setText('incEvidence',d.evidence);setText('incSummary',d.summary);setText('incControl',d.control);setText('incMechanism',d.mechanism);setText('incMechanismDesc',d.mechanismDesc);
     setText('obsInput',d.input);setText('obsAgent',d.agent);setText('obsAction',d.action);setText('obsOutcome',d.outcome);setText('obsControl','Blocked or observed by '+d.control);setText('incOutcomeTarget',d.outcome);
     const sev=$id('incSeverity');sev.textContent=closed?'Closed':d.severity.replace(' evidence','');sev.className='status '+(closed?'':d.severityClass);sev.style.cssText=closed?'background:var(--green-bg);color:var(--green)':'';
@@ -1617,7 +1656,7 @@ const incidentData={
   /* Enterprise World Model subtabs (2026-09-21): Ontology is first and default; ARIA tabs with roving tabindex and arrow keys.
      Ordinary returns to the view keep the current subtab; only explicit actions (Assurance explorer link, gap focus, Layers → Explorer) switch it. */
   const wmTabs=[...document.querySelectorAll('.wm-tab')];
-  function wmSelect(tab,focus,noLoad){wmTabs.forEach(t=>{const on=t===tab;t.classList.toggle('active',on);t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1});document.querySelectorAll('.wm-panel').forEach(p=>p.classList.toggle('active',p.id===tab.dataset.wmPanel));const sub=document.getElementById('swmSubtitle');if(sub&&tab.dataset.subtitle)sub.textContent=tab.dataset.subtitle;const secOn=document.getElementById('security-model').classList.contains('active');window.SWM_ACTIVE_PANEL=secOn?tab.dataset.wmPanel:null;if(window.SWM&&SWM._panelShown)SWM._panelShown(window.SWM_ACTIVE_PANEL);if(!noLoad&&window.SWMLoad)SWMLoad(tab.dataset.wmPanel);if(focus)tab.focus()}
+  function wmSelect(tab,focus,noLoad){if(!routing)routeGen++;wmTabs.forEach(t=>{const on=t===tab;t.classList.toggle('active',on);t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1});document.querySelectorAll('.wm-panel').forEach(p=>p.classList.toggle('active',p.id===tab.dataset.wmPanel));const sub=document.getElementById('swmSubtitle');if(sub&&tab.dataset.subtitle)sub.textContent=tab.dataset.subtitle;const secOn=document.getElementById('security-model').classList.contains('active');window.SWM_ACTIVE_PANEL=secOn?tab.dataset.wmPanel:null;if(window.SWM&&SWM._panelShown)SWM._panelShown(window.SWM_ACTIVE_PANEL);if(!noLoad&&window.SWMLoad)SWMLoad(tab.dataset.wmPanel);if(focus)tab.focus()}
   /* whole-section visibility: leaving Enterprise World Model notifies onPanel(null) so hidden transitions stop; re-entering notifies the current subtab.
      One observer, scoped to #security-model's class attribute. */
   (function(){const sec=document.getElementById('security-model');let was=sec.classList.contains('active');const cur=()=>{const t=wmTabs.find(x=>x.classList.contains('active'));return t?t.dataset.wmPanel:null};
@@ -1657,12 +1696,53 @@ const incidentData={
   window.__siteShowView=showView;window.__siteRefreshPending=refreshPending;window.__siteNotify=notify;
   /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md). js/jev-runtime-host.js uses this hook. */
   window.__siteRunSteps=runSteps;
-  /* Deep links: #view=runtime-observation and #view=long-term. The old #view=long-term&tab=runtime (from the earlier tab) is
-     rewritten to #view=runtime-observation; replaceState fires no hashchange, so the view is shown in the same call.
-     Other view= values are ignored, and #studio routes stay with js/studio-host.js. Nav clicks do not change the hash. */
+  /* Deep links (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A).
+     #view=<nav view>, #view=incident&incident=<id>, #view=workflow&workflow=<id>,
+     #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
+     The old #view=long-term&tab=runtime is rewritten to #view=runtime-observation. Non-view hashes (#studio, #studio=new)
+     stay with js/studio-host.js. Ordinary nav clicks do not write the hash, so Back returns to the last recorded route. */
+  const WM_TABS=['wm-architecture','wm-ontology','wm-overview','wm-landscape','wm-gaps'];
+  function routed(fn){routing=true;try{fn()}finally{routing=false}}
   function applyViewHash(){const h=location.hash.slice(1);if(!h.startsWith('view='))return;const q=new URLSearchParams(h),v=q.get('view');
     if(v==='long-term'&&q.get('tab')==='runtime'){history.replaceState(null,'','#view=runtime-observation');showView('runtime-observation');return}
-    if(v==='runtime-observation'||v==='long-term')showView(v)}
+    if(v==='incident'){const id=q.get('incident');if(!incidentData[id]){notify('Unknown incident — showing the Incident Queue.');showView('incidents');return}renderIncident(id);return}
+    if(v==='workflow'&&q.get('workflow')){const id=q.get('workflow');if(workflowData[id]){openWorkflow(id);return}notify('Unknown workflow — showing the Workflow Library.');showView('library');return}
+    if(v==='security-model'){routeWorldModel(q);return}
+    if(viewNames[v])showView(v)}
+  function routeWorldModel(q){let tab=q.get('tab'),node=q.get('node'),warn=null;
+    if(tab!==null&&!WM_TABS.includes(tab)){warn='Unknown World Model view — showing Ontology Layers.';tab=null}
+    if(node!==null&&!/^[\w:.\-]+$/.test(node)){warn='Unknown node — showing Ontology Layers.';node=null;tab=null}
+    if(node&&tab&&tab!=='wm-ontology')warn='A node opens in the Ontology Graph.';
+    tab=node?'wm-ontology':(tab||'wm-architecture');
+    routed(()=>{window.selectWmTab(tab,true);showView('security-model')});
+    window.SWM_PENDING_NODE={node:node||null,tab:tab,route:location.hash,gen:routeGen};   /* recorded after the router's own navigation */
+    if(warn)notify(warn);
+    resumePending()}
+  /* Resume an existing, uncancelled request only; never re-derive navigation from the hash and never touch history. */
+  function resumePending(){const r=window.SWM_PENDING_NODE;if(!r)return;
+    if(r.gen!==routeGen||location.hash!==r.route){window.SWM_PENDING_NODE=null;return}
+    if(!window.SWMLoad)return;                      /* cold load: the swm:loader-ready listener below resumes it */
+    SWMLoad(r.tab,function(){
+      if(window.SWM_PENDING_NODE!==r)return;
+      if(r.gen!==routeGen||location.hash!==r.route){window.SWM_PENDING_NODE=null;return}
+      const panel=document.getElementById(r.tab);if(!(window.SWM&&SWM.isShown(panel)))return;   /* not visible: stays pending */
+      window.SWM_PENDING_NODE=null;
+      if(r.node&&!SWM.focusNode(r.node)){notify('Unknown node — showing Ontology Layers.');routed(()=>window.selectWmTab('wm-architecture'))}})}
+  /* the loader is a later classic script, so this listener (registered first, by document order) receives its ready event */
+  window.addEventListener('swm:loader-ready',resumePending);window.addEventListener('load',resumePending);
+  /* explicit in-page navigation to a route: keep a meaningful origin, then push the new route */
+  function stateHash(){const v=[...views].find(x=>x.classList.contains('active')),id=v?v.id:'overview';
+    if(id==='incident')return '#view=incident&incident='+encodeURIComponent(currentIncident);
+    if(id==='workflow'&&typeof currentWorkflow!=='undefined'&&currentWorkflow)return '#view=workflow&workflow='+encodeURIComponent(currentWorkflow);
+    if(id==='security-model'){const t=wmTabs.find(x=>x.classList.contains('active')),tab=t?t.dataset.wmPanel:'wm-architecture',n=window.SWM&&SWM.currentNode();
+      return '#view=security-model&tab='+tab+(tab==='wm-ontology'&&n?'&node='+encodeURIComponent(n):'')}
+    return '#view='+id}
+  function openRoute(hash){const h=location.hash;
+    /* a blank origin, or a view= hash that no longer describes the visible state, is rewritten to the full current state;
+       any other hash (#studio, #studio=new) is kept as the return destination */
+    if(!h||(h.startsWith('#view=')&&h!==stateHash()))history.replaceState(null,'',stateHash());
+    if(location.hash===hash){routeGen++;applyViewHash()}else location.hash=hash}
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-wm-route]');if(!b)return;e.preventDefault();openRoute(b.getAttribute('data-wm-route'))});
   window.addEventListener('hashchange',applyViewHash);applyViewHash();
   if(window.studioHostReady)window.studioHostReady();
 

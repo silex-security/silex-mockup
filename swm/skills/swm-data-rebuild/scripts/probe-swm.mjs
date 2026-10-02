@@ -210,6 +210,134 @@ if (want('R1')) {
   await shot('probe-refund-example.png');
 }
 
+/* ---- P probes: plan item F for the World Model panels (T2, logs/2026-10-02_JEV_LEARNINGS_PLAN.md item F).
+   Each runs alone with --only P1..P5. */
+const pFetch = [], pReq = new Map();
+ws.addEventListener('message', ev => {
+  const m = JSON.parse(ev.data);
+  if (m.method === 'Fetch.requestPaused') pFetch.push(m.params);
+  if (m.method === 'Network.requestWillBeSent') { const u = m.params.request.url; pReq.set(u, (pReq.get(u) || 0) + 1); }
+});
+const pWaitPaused = async (match, timeout = 10000) => {
+  const end = Date.now() + timeout;
+  while (Date.now() < end) { const i = pFetch.findIndex(p => p.request.url.includes(match)); if (i >= 0) return pFetch.splice(i, 1)[0]; await sleep(50); }
+  return null;
+};
+const LAZY = ['swm/vendor/d3.v7.min.js', 'swm/data/ontology.js', 'swm/data/coverage.js', 'swm/js/swm-core.js',
+  'swm/js/swm-ontology.js', 'swm/js/swm-coverage.js', 'swm/js/swm-layers.js'];
+const pCounts = () => Object.fromEntries(LAZY.map(f => [f, [...pReq.entries()].filter(([u]) => u.includes(f)).reduce((n, [, c]) => n + c, 0)]));
+
+if (want('P1')) {
+  /* 390px: no horizontal overflow on each of the three lazily-loaded panels */
+  const bad = [];
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: false });
+  for (const p of ['wm-overview', 'wm-ontology', 'wm-architecture']) {
+    await openPanel(p);
+    const r = await evaluate(`(() => { const panel = document.querySelector('#security-model .wm-panel.active'); if (!panel) return null;
+      const b = panel.getBoundingClientRect();
+      return { id: panel.id, ps: panel.scrollWidth, pc: panel.clientWidth, right: b.right, win: innerWidth, doc: document.documentElement.scrollWidth }; })()`);
+    if (!r || r.ps > r.pc + 1 || r.right > r.win + 1 || r.doc > r.win + 1) bad.push(p + ' ' + JSON.stringify(r));
+  }
+  await send('Emulation.setDeviceMetricsOverride', { width: 1680, height: 1100, deviceScaleFactor: 1, mobile: false });
+  record('P1', bad.length === 0, bad.length ? bad.join(' | ') : 'three panels fit 390px (panel, document and right edge)');
+  await shot('probe-390.png');
+}
+
+if (want('P2')) {
+  /* keyboard: type a query, arrow down, Enter selects through the real combobox */
+  await openPanel('wm-ontology');
+  const id = 'ag:exec-ctx';
+  const res = await evaluate(`(async () => {
+    const q = document.getElementById('swmQuery');
+    const n = window.SILEX_SWM_ONTOLOGY.nodes.find(x => x.id === ${JSON.stringify(id)});
+    q.focus(); q.value = n.label.slice(0, 6); q.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 700));
+    const first = document.querySelector('#swmResults [data-id]');
+    const expected = first ? first.getAttribute('data-id') : null;
+    q.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    q.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await new Promise(r => setTimeout(r, 1500));
+    return { expected, boxHidden: document.getElementById('swmResults').hidden,
+             inspector: document.getElementById('swmInspector').innerText,
+             current: (window.SWM && typeof SWM.currentNode === 'function') ? SWM.currentNode() : null }; })()`);
+  record('P2', !!res.expected && res.boxHidden && (res.current === res.expected || res.inspector.includes(res.expected)),
+    `keyboard picked ${res.expected} · results hidden ${res.boxHidden} · inspector has the id ${res.inspector.includes(res.expected)}`);
+  await shot('probe-keyboard-select.png');
+}
+
+if (want('P3')) {
+  /* B2: focusNode clears the Network minimum-degree and subclass filters and reports rendered */
+  await openPanel('wm-ontology');
+  const id = 'ag:exec-ctx';
+  const res = await evaluate(`(async () => {
+    const range = document.getElementById('swmMinDeg');
+    range.value = '100'; range.dispatchEvent(new Event('input', { bubbles: true }));
+    const sub = document.getElementById('swmSubcl');
+    if (sub.getAttribute('aria-pressed') === 'true') sub.click();
+    await new Promise(r => setTimeout(r, 1300));
+    const before = { deg: range.value, sub: sub.getAttribute('aria-pressed'), nodes: document.querySelectorAll('#swmSvg g.swm-node').length };
+    const ok = (window.SWM && typeof SWM.focusNode === 'function') ? SWM.focusNode(${JSON.stringify(id)}) : null;
+    await new Promise(r => setTimeout(r, 1500));
+    return { before, ok, deg: range.value, sub: sub.getAttribute('aria-pressed'),
+             current: (window.SWM && typeof SWM.currentNode === 'function') ? SWM.currentNode() : null,
+             inspector: document.getElementById('swmInspector').innerText }; })()`);
+  record('P3', res.ok === true && res.deg === '0' && res.sub === 'true' && (res.current === id || res.inspector.includes(id)),
+    `before ${JSON.stringify(res.before)} · focusNode ${res.ok} · after minDegree ${res.deg} subclass ${res.sub} current ${res.current}`);
+  await shot('probe-focus-filter.png');
+}
+
+if (want('P4')) {
+  /* B1: block one lazy file once, assert the Retry button appears and only failed/remaining files re-load */
+  pReq.clear();
+  await send('Fetch.enable', { patterns: [{ urlPattern: '*swm/js/swm-layers.js*', requestStage: 'Request' }] });
+  let failed = false;
+  const onPause = async e => {
+    const m = JSON.parse(e.data); if (m.method !== 'Fetch.requestPaused') return;
+    try {
+      if (!failed && m.params.request.url.includes('swm-layers.js')) { failed = true; await send('Fetch.failRequest', { requestId: m.params.requestId, errorReason: 'Failed' }); }
+      else await send('Fetch.continueRequest', { requestId: m.params.requestId });
+    } catch {}
+  };
+  ws.addEventListener('message', onPause);
+  try {
+    await send('Page.navigate', { url: base }); await sleep(1500);
+    await evaluate(`document.querySelector('.nav button[data-view="security-model"]').click(); true`);
+    await sleep(3000);
+    const hasRetry = await evaluate(`!!document.querySelector('[data-swm-retry]')`);
+    const before = pCounts();
+    if (hasRetry) { await evaluate(`document.querySelector('[data-swm-retry]').click(); true`); await sleep(3500); }
+    const after = pCounts();
+    const reloaded = LAZY.filter(f => !f.includes('swm-layers.js') && (after[f] || 0) > 1);
+    const layers = after['swm/js/swm-layers.js'] || 0;
+    record('P4', hasRetry && layers === 2 && reloaded.length === 0,
+      `retry button ${hasRetry} · swm-layers requests ${layers} (expect 2) · re-requested non-failed: ${reloaded.join(', ') || 'none'} · before ${JSON.stringify(before)} · after ${JSON.stringify(after)}`);
+  } finally { ws.removeEventListener('message', onPause); try { await send('Fetch.disable'); } catch {} consoleErrors.length = 0; }
+}
+
+if (want('P5')) {
+  /* B3: a load that finishes after leaving the panel neither mounts the panel nor ticks the simulation */
+  await send('Fetch.enable', { patterns: [{ urlPattern: '*swm/data/ontology.js*', requestStage: 'Request' }] });
+  let held = null;
+  const onPause = e => { const m = JSON.parse(e.data); if (m.method === 'Fetch.requestPaused' && !held) held = m.params; };
+  ws.addEventListener('message', onPause);
+  try {
+    await send('Page.navigate', { url: base }); await sleep(1500);
+    await evaluate(`document.querySelector('.nav button[data-view="security-model"]').click();
+                    document.querySelector('[data-wm-panel="wm-ontology"]').click(); true`);
+    const t0 = Date.now(); while (!held && Date.now() - t0 < 9000) await sleep(50);
+    await evaluate(`document.querySelector('.nav button[data-view="overview"]').click(); true`);
+    await sleep(300);
+    if (held) await send('Fetch.continueRequest', { requestId: held.requestId });
+    await sleep(3500);
+    const res = await evaluate(`({ booted: !!(window.SWM && SWM._booted && SWM._booted['wm-ontology']),
+      view: (document.querySelector('.view.active') || {}).id, vowl: !!(window.SWM && SWM.vowl) })`);
+    await sleep(800);
+    const ticks = await evaluate(`(window.SWM && SWM.vowl) ? SWM.vowl._ticks : null`);
+    record('P5', !!held && res.view === 'overview' && !res.booted && !res.vowl,
+      `held ${!!held} · view ${res.view} · wm-ontology mounted ${res.booted} · vowl ${res.vowl} · ticks ${ticks}`);
+  } finally { ws.removeEventListener('message', onPause); try { await send('Fetch.disable'); } catch {} consoleErrors.length = 0; }
+}
+
 ws.close(); proc.kill(); server.close();
 if (want('E1')) record('E1', !consoleErrors.length, consoleErrors.length ? [...new Set(consoleErrors)].slice(0, 4).map(e => String(e).split('\n')[0]).join(' | ') : 'no console errors');
 

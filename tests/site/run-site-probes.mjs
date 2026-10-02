@@ -591,6 +591,309 @@ try {
     }finally{await page.send('Emulation.setEmulatedMedia',{features:[]});await ev('localStorage.removeItem("silex.nav.pinned")');await viewport();await navigate();}
   });
 
+  /* ---- T2 (logs/2026-10-02_JEV_LEARNINGS_PLAN.md item F): local-only World Model deep-link probes.
+     These are NOT in the LIVE --base set; each runs alone with --only Sxx. ---- */
+  const wmActive = () => ev('return (document.querySelector(".view.active")||{}).id==="security-model"');
+  const wmPanel = () => ev('return (document.querySelector("#security-model .wm-panel.active")||{}).id');
+  const wmTab = () => ev('return (document.querySelector("#security-model .wm-tab.active")||{}).id');
+  const wmNode = () => ev('return (window.SWM&&typeof SWM.currentNode==="function")?SWM.currentNode():null');
+  const wmBooted = id => ev(`return !!(window.SWM&&SWM._booted&&SWM._booted[${Q(id)}])`);
+  const toastSeen = () => ev('return !!window.__toastSeen');
+  async function withNoticeObserver(fn) {
+    const { identifier } = await page.send('Page.addScriptToEvaluateOnNewDocument', { source:
+      'window.__toastSeen=false;(function w(){var t=document.getElementById("toast");if(!t){setTimeout(w,0);return}' +
+      'new MutationObserver(function(){if(t.classList.contains("show"))window.__toastSeen=true;}).observe(t,{attributes:true,attributeFilter:["class"]});' +
+      'if(t.classList.contains("show"))window.__toastSeen=true;})();' });
+    try { return await fn(); } finally { await page.send('Page.removeScriptToEvaluateOnNewDocument', { identifier }); }
+  }
+  async function holdBundle(match) {
+    await page.send('Fetch.enable', { patterns: [{ urlPattern: match, requestStage: 'Request' }] });
+    const state = { held: [], onPause: null };
+    state.onPause = e => { const m = JSON.parse(e.data); if (m.method === 'Fetch.requestPaused') state.held.push(m.params); };
+    page.ws.addEventListener('message', state.onPause);
+    const drain = async () => { while (state.held.length) { try { await page.send('Fetch.continueRequest', { requestId: state.held.shift().requestId }); } catch {} } };
+    return { held: () => state.held, release: drain,
+      async disable() { await drain(); page.ws.removeEventListener('message', state.onPause); try { await page.send('Fetch.disable'); } catch {} } };
+  }
+  const waitHeld = (h, label, timeout = 15000) => until(() => h.held().length > 0, label, timeout);
+  const setDeepLink = route => ev(`history.replaceState(null,'','#view=overview'); location.hash=${Q(route)}; true`);
+
+  await probe('S22','cold World Model deep link focuses the node (loader-not-ready path)',async()=>{
+    await load({ path: '/index.html#view=security-model&node=owasp:LLM01' });
+    await until(wmActive,'security-model active',12000);
+    assert.equal(await wmTab(),'wmtab-ontology','node= selects the Ontology Graph sub-tab');
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','node focused',15000);
+    assert.equal(await wmNode(),'owasp:LLM01','SWM.currentNode()');
+    return `active ${await ev('return (document.querySelector(".view.active")||{}).id')} · tab ${await wmTab()} · node ${await wmNode()}`;
+  });
+
+  await probe('S23','tab routes: default and explicit sub-tabs',async()=>{
+    await load({ path: '/index.html#view=security-model' });
+    await until(wmActive,'World Model active',12000);
+    assert.equal(await wmTab(),'wmtab-architecture','#view=security-model defaults to Ontology Layers');
+    assert.equal(await wmPanel(),'wm-architecture','default panel');
+    await load({ path: '/index.html#view=security-model&tab=wm-overview' });
+    await until(async()=> (await wmPanel()) === 'wm-overview','wm-overview',12000);
+    assert.equal(await wmTab(),'wmtab-overview','explicit wm-overview');
+    await load({ path: '/index.html#view=security-model&tab=wm-gaps' });
+    await until(async()=> (await wmPanel()) === 'wm-gaps','wm-gaps',12000);
+    return 'default wm-architecture; explicit wm-overview; static wm-gaps';
+  });
+
+  await probe('S24','cold node= with the default tab and with a static tab',async()=>{
+    await load({ path: '/index.html#view=security-model&node=owasp:LLM01' });
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','default-tab node',15000);
+    assert.equal(await wmTab(),'wmtab-ontology','node= implies wm-ontology');
+    await withNoticeObserver(async()=>{
+      await load({ path: '/index.html#view=security-model&tab=wm-gaps&node=owasp:LLM01' });
+      await until(async()=> (await wmNode()) === 'owasp:LLM01','static-tab node',15000);
+      assert.equal(await wmTab(),'wmtab-ontology','node= overrides an incompatible tab');
+      assert.ok(await toastSeen(),'notice for node= with an incompatible tab');
+    });
+    return 'default tab and static tab both focus through wm-ontology; the static tab also shows the notice';
+  });
+
+  await probe('S25','unknown tab/node and a malformed hash fall back with the notice',async()=>{
+    await withNoticeObserver(async()=>{
+      await load({ path: '/index.html#view=security-model&tab=nope' });
+      await until(async()=> (await wmPanel()) === 'wm-architecture','unknown tab fallback',12000);
+      assert.ok(await toastSeen(),'notice for an unknown tab');
+      await load({ path: '/index.html#view=security-model&node=no:such:node' });
+      await until(async()=> (await wmPanel()) === 'wm-architecture','unknown node fallback',12000);
+      assert.ok(await toastSeen(),'notice for an unknown node');
+      await load({ path: '/index.html#view=security-model&tab' });
+      await until(wmActive,'malformed hash still opens the World Model',12000);
+      assert.ok(await toastSeen(),'notice for a malformed hash');
+    });
+    return 'unknown tab, unknown node and malformed hash all fall back with the notice';
+  });
+
+  await probe('S26','Back while the bundle is loading: no mount, no focus',async()=>{
+    const h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held');
+      await ev('history.back(); true');
+      await sleep(300);
+      await h.release();
+      await sleep(3500);
+      assert.ok(!(await wmNode()),'no stale focus after Back');
+      assert.equal(await wmBooted('wm-ontology'),false,'no hidden mount after Back');
+    } finally { await h.disable(); }
+    return 'Back during a delayed load leaves no mount and no focus';
+  });
+
+  await probe('S27','navigating to another view during a delayed load cancels mount and focus',async()=>{
+    const h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held');
+      await nav('overview');
+      await h.release();
+      await sleep(3500);
+      assert.ok(!(await wmNode()),'no focus after navigating away');
+      assert.equal(await wmBooted('wm-ontology'),false,'no hidden mount after navigating away');
+    } finally { await h.disable(); }
+    return 'nav-away during a delayed load cancels the mount and the focus';
+  });
+
+  await probe('S28','switching World Model sub-tab during a delayed load cancels the focus',async()=>{
+    const h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held');
+      await clickSel('[data-wm-panel="wm-overview"]');
+      await h.release();
+      await sleep(3500);
+      assert.ok(!(await wmNode()),'no focus after the sub-tab switch');
+      assert.equal(await wmBooted('wm-ontology'),false,'the abandoned panel is not mounted');
+      assert.equal(await wmPanel(),'wm-overview','the switched-to panel is active');
+    } finally { await h.disable(); }
+    return 'sub-tab switch during a delayed load cancels the abandoned focus';
+  });
+
+  await probe('S29','cancellation: leave then return, before and after the load finishes',async()=>{
+    let h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held (before)');
+      await nav('overview'); await nav('security-model');
+      await h.release();
+      await sleep(3500);
+      assert.ok(!(await wmNode()),'no focus after leave -> return before the load finished');
+    } finally { await h.disable(); }
+    h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held (after)');
+      await nav('overview');
+      await h.release();
+      await sleep(3500);
+      await nav('security-model');
+      await sleep(1500);
+      assert.ok(!(await wmNode()),'no focus after the load finished while away');
+    } finally { await h.disable(); }
+    return 'leave/return cancels the pending focus both before and after the delayed load';
+  });
+
+  await probe('S30','a late loader-ready or load event after cancellation does not focus',async()=>{
+    const h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held');
+      await nav('overview');
+      await ev("window.dispatchEvent(new Event('swm:loader-ready')); window.dispatchEvent(new Event('load')); true");
+      await h.release();
+      await sleep(3000);
+      await ev("window.dispatchEvent(new Event('swm:loader-ready')); window.dispatchEvent(new Event('load')); true");
+      await sleep(1200);
+      assert.ok(!(await wmNode()),'a synthetic late event after cancellation does not focus');
+    } finally { await h.disable(); }
+    return 'late swm:loader-ready/load after cancellation does not focus';
+  });
+
+  await probe('S31','a newer route landing on #studio cancels the pending focus',async()=>{
+    const h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/index.html' });
+      await setDeepLink('view=security-model&node=owasp:LLM01');
+      await waitHeld(h,'bundle held');
+      await ev("location.hash='studio'; true");
+      await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="blueprint"'),'#studio route',12000);
+      await h.release();
+      await sleep(3000);
+      assert.ok(!(await wmNode()),'no focus after a newer #studio route');
+      assert.equal(await wmBooted('wm-ontology'),false,'no hidden mount after a newer #studio route');
+    } finally { await h.disable(); }
+    return 'a newer #studio route cancels the focus and the hidden mount';
+  });
+
+  await probe('S32','blank-hash origin -> chip -> Back -> Forward',async()=>{
+    await load({ path: '/index.html' });
+    await nav('incidents');
+    await clickSel('#incidentCards [data-incident="I-1042"]');
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="incident"'),'incident view',8000);
+    await clickSel('#incOntology [data-wm-route]');
+    await until(async()=> (await wmNode()) !== null,'chip focused a node',15000);
+    const node = await wmNode();
+    await ev('history.back(); true');
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="incident"'),'back to the incident',10000);
+    assert.equal(await ev('return document.getElementById("incId").textContent'),'I-1042','Back restored the incident');
+    await ev('history.forward(); true');
+    await until(wmActive,'forward to the World Model',10000);
+    assert.equal(await wmNode(),node,'Forward restores the focused node');
+    return `blank origin restored I-1042; Forward restored ${node}`;
+  });
+
+  await probe('S33','Back/Forward across incident and node routes',async()=>{
+    await load({ path: '/index.html#view=incident&incident=I-1042' });
+    await until(()=>ev('return document.getElementById("incId").textContent==="I-1042"'),'I-1042',10000);
+    await ev("location.hash='view=security-model&node=owasp:LLM01'");
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','node',15000);
+    await ev('history.back(); true');
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="incident" && document.getElementById("incId").textContent==="I-1042"'),'back to I-1042',10000);
+    await ev("location.hash='view=incident&incident=I-1038'");
+    await until(()=>ev('return document.getElementById("incId").textContent==="I-1038"'),'I-1038',10000);
+    await ev("location.hash='view=security-model&node=owasp:LLM06'");
+    await until(async()=> (await wmNode()) === 'owasp:LLM06','LLM06',15000);
+    await ev('history.back(); true');
+    await until(()=>ev('return document.getElementById("incId").textContent==="I-1038"'),'back to I-1038',10000);
+    await ev("location.hash='view=security-model&node=owasp:LLM01'");
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','node A',15000);
+    await ev("location.hash='view=security-model&node=owasp:LLM02'");
+    await until(async()=> (await wmNode()) === 'owasp:LLM02','node B',15000);
+    await ev('history.back(); true');
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','back to node A',10000);
+    await ev('history.forward(); true');
+    await until(async()=> (await wmNode()) === 'owasp:LLM02','forward to node B',10000);
+    return 'Back/Forward from I-1042, from I-1038 and node -> node';
+  });
+
+  await probe('S34','#studio and #studio=new as return destinations',async()=>{
+    await load({ path: '/index.html#view=security-model&node=owasp:LLM01' });
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','node',15000);
+    await ev("location.hash='studio'");
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="blueprint"'),'#studio',10000);
+    await ev('history.back(); true');
+    await until(wmActive,'back to the node',10000);
+    assert.equal(await wmNode(),'owasp:LLM01','Back returns to the focused node (studio)');
+    await load({ path: '/index.html#view=security-model&node=owasp:LLM01' });
+    await until(async()=> (await wmNode()) === 'owasp:LLM01','node after a fresh load',15000);
+    await ev("location.hash='studio=new'");
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="blueprint"'),'#studio=new',10000);
+    await ev('history.back(); true');
+    await until(wmActive,'back to the node again',10000);
+    assert.equal(await wmNode(),'owasp:LLM01','Back returns to the focused node (studio=new)');
+    return '#studio and #studio=new return to the focused node route';
+  });
+
+  await probe('S35','I-1042 Ontology row matches the bundle; I-1038 gap; others hidden',async()=>{
+    const onto = JSON.parse(await readFile(join(ROOT, 'swm/data/ontology.json'), 'utf8'));
+    const byId = new Map(onto.nodes.map(n => [n.id, n]));
+    const order = ['hz:haz-proc-bank-detail-unverified','atlas:AML.T0052','core:core-control-dual-approval'];
+    await load({ path: '/index.html#view=incident&incident=I-1042' });
+    await until(()=>ev('return document.getElementById("incId").textContent==="I-1042"'),'I-1042',10000);
+    const row = await ev(`return (() => { const c=document.getElementById('incOntology'); if(!c) return {missing:true};
+      const chips=[...c.querySelectorAll('[data-wm-route]')];
+      return { hidden:c.offsetParent===null, ids:chips.map(b=>b.getAttribute('data-node-id')), text:chips.map(b=>b.textContent),
+               grades:chips.map(b=>{const g=b.querySelector('.swm-review,[class*="review"],.grade,[data-grade]');return g?g.textContent:b.textContent;}) }; })()`);
+    assert.ok(!row.missing,'#incOntology exists');
+    assert.equal(row.hidden,false,'the I-1042 row is visible');
+    assert.deepEqual(row.ids,order,'chip ids and order');
+    order.forEach((id,i)=>{ const n=byId.get(id); assert.ok(n,'node '+id+' exists in the bundle');
+      assert.ok(row.text[i].includes(n.label),'chip '+id+' shows its label');
+      assert.match(row.grades[i],/published|curated|heuristic|illustrative/i,'chip '+id+' shows a review grade'); });
+    await load({ path: '/index.html#view=incident&incident=I-1038' });
+    await until(()=>ev('return document.getElementById("incId").textContent==="I-1038"'),'I-1038',10000);
+    const gap = await ev(`return (() => { const c=document.getElementById('incOntology'); return { hidden:c?c.offsetParent===null:true, gap:!!document.querySelector('.inc-onto-gap'), chips:c?c.querySelectorAll('[data-wm-route]').length:0 }; })()`);
+    assert.equal(gap.hidden,false,'the I-1038 row is visible');
+    assert.equal(gap.gap,true,'I-1038 shows the blind-spot element');
+    assert.equal(gap.chips,0,'I-1038 has no chips');
+    await load({ path: '/index.html#view=incident&incident=I-1031' });
+    await until(()=>ev('return document.getElementById("incId").textContent==="I-1031"'),'I-1031',10000);
+    assert.equal(await ev('return (()=>{const c=document.getElementById("incOntology");return c?c.offsetParent===null:true})()'),true,'other incidents hide the row');
+    return 'I-1042 chips match the bundle (order/labels/grades); I-1038 gap; other incidents hidden';
+  });
+
+  await probe('S36','an unknown incident= falls back to the queue with the notice',async()=>{
+    await withNoticeObserver(async()=>{
+      await load({ path: '/index.html#view=incident&incident=I-9999' });
+      await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="incidents"'),'Incident Queue fallback',12000);
+      assert.ok(await toastSeen(),'notice for an unknown incident');
+    });
+    return 'unknown incident= shows the notice and the Incident Queue';
+  });
+
+  await probe('S37','assurance.html World Model renders after a hidden late load, no not-booted warning',async()=>{
+    const warns = [];
+    const onMsg = e => { const m = JSON.parse(e.data); if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'warning')
+      warns.push(m.params.args.map(a => a.value ?? a.description ?? '').join(' ')); };
+    page.ws.addEventListener('message', onMsg);
+    const h = await holdBundle('*swm/data/ontology.js*');
+    try {
+      await load({ path: '/assurance.html' });
+      await nav('security-model');
+      await clickSel('[data-wm-panel="wm-ontology"]');
+      await waitHeld(h,'assurance bundle held');
+      await nav('overview');
+      await h.release();
+      await sleep(3500);
+      await nav('security-model');
+      await until(()=>ev('return document.querySelector("#swmOntology #swmSvg")!==null'),'assurance ontology panel rendered',12000);
+      await clickSel('[data-wm-panel="wm-architecture"]');
+      await until(()=>ev('return document.querySelector("#swmLayers") && !document.querySelector("#swmLayers .swm-loading")'),'assurance Layers panel rendered',12000);
+      const bad = warns.filter(w => /\[SWM\].*not booted/.test(w));
+      assert.equal(bad.length,0,'no [SWM] ... not booted warning for the deferred panel: '+JSON.stringify(bad));
+    } finally { page.ws.removeEventListener('message', onMsg); await h.disable(); }
+    return 'assurance.html wm-ontology and wm-architecture render after a hidden late load; no not-booted warning';
+  });
+
 } finally {
   for(const c of clients) c.ws.close(); chrome?.kill(); if(server) await new Promise(r=>server.close(r));
 }

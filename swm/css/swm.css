@@ -299,3 +299,9 @@
 .swm-review.curated{background:#f2edfd;color:#3f2787;border-color:rgba(111,80,201,.3)}
 .swm-review.heuristic{background:#fff4e0;color:#8a5a00;border-color:rgba(176,120,0,.35)}
 .swm-review.illustrative{background:#f1f2f4;color:#4f5864;border-color:rgba(79,88,100,.3)}
+/* L4 chain in words (plan 2026-10-02 JEV_LEARNINGS E) */
+.swm-chain{margin-top:12px;border-top:1px solid #eceef3;padding-top:10px;font-size:12px;line-height:1.5}
+.swm-chain h6{margin:0 0 6px;font:600 10px/1.2 var(--swm-mono);letter-spacing:.06em;text-transform:uppercase;color:#68707c}
+.swm-chain p{margin:4px 0}.swm-chain ul{margin:4px 0 6px;padding-left:16px}.swm-chain li{margin:2px 0}
+.swm-chain-p{font:600 10px var(--swm-mono);color:#50339c;margin:0 3px}
+.swm-chain-g{font:500 9px var(--swm-mono);color:#68707c;margin-right:3px}

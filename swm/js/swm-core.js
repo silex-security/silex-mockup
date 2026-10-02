@@ -247,6 +247,10 @@
     },
     onLevel: (fn) => SWM._levelSubs.push(fn),
 
+    /* explorer hooks (plan 2026-10-02 JEV_LEARNINGS §A): the Ontology Graph replaces these once it boots */
+    focusNode: () => false,
+    currentNode: () => null,
+
     _panels: {},
     _booted: {},
     register: (id, init) => (SWM._panels[id] = init),
