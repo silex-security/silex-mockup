@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T11:16:17.774Z",
+ "generated": "2026-10-02T11:31:54.557Z",
  "version": "swm-2.0",
  "groups": [
   {
@@ -124,10 +124,10 @@
     "key": "general",
     "name": "General Agent Ontology Graph",
     "blurb": "Reusable semantics shared by every domain and every agentic system",
-    "count": 448,
+    "count": 450,
     "groups": {
      "identity": 61,
-     "agent": 24,
+     "agent": 26,
      "tool": 74,
      "resource": 104,
      "workflow": 9,
@@ -13033,6 +13033,46 @@
    "parentPred": "GROUPED_UNDER"
   },
   {
+   "id": "core:core-reasoning-component",
+   "label": "Reasoning component",
+   "group": "agent",
+   "layer": 1,
+   "kind": "core",
+   "def": "A component that decomposes a goal and selects the next action, without acting on the environment itself.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-reasoning-component",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:agent",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
+   "id": "core:core-handoff-channel",
+   "label": "Agent hand-off channel",
+   "group": "agent",
+   "layer": 1,
+   "kind": "core",
+   "def": "A mechanism through which one agent passes a task and its authority to another.",
+   "review": "curated",
+   "src": [
+    {
+     "sys": "silex",
+     "id": "core-handoff-channel",
+     "label": "Silex core concept"
+    }
+   ],
+   "instances": 0,
+   "coverage": null,
+   "parent": "grp:agent",
+   "parentPred": "GROUPED_UNDER"
+  },
+  {
    "id": "core:core-resource",
    "label": "Resource",
    "group": "resource",
@@ -16599,7 +16639,7 @@
    "layer": 2,
    "kind": "effect",
    "prohibited": true,
-   "def": "An effect of a supplier record change that no independent evidence supported, not an entity type.",
+   "def": "An effect of a supplier bank-detail field being updated without the independent evidence the change requires; the write is real, only its verification is missing, so it is not record corruption.",
    "review": "curated",
    "src": [
     {
@@ -17532,7 +17572,7 @@
    ],
    "instances": 53,
    "coverage": 0.84,
-   "parent": "core:core-agent",
+   "parent": "core:core-reasoning-component",
    "parentPred": "SUBCLASS_OF"
   },
   {
@@ -17654,7 +17694,7 @@
    "instances": 19,
    "coverage": 0.61,
    "deployment": "unobserved",
-   "parent": "core:core-agent",
+   "parent": "core:core-handoff-channel",
    "parentPred": "SUBCLASS_OF"
   },
   {
@@ -23365,6 +23405,20 @@
    "review": "curated"
   },
   {
+   "s": "core:core-reasoning-component",
+   "t": "grp:agent",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
+   "s": "core:core-handoff-channel",
+   "t": "grp:agent",
+   "pred": "GROUPED_UNDER",
+   "src": "silex",
+   "review": "curated"
+  },
+  {
    "s": "core:core-resource",
    "t": "grp:resource",
    "pred": "GROUPED_UNDER",
@@ -25452,7 +25506,7 @@
   },
   {
    "s": "ag:planner",
-   "t": "core:core-agent",
+   "t": "core:core-reasoning-component",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -25557,7 +25611,7 @@
   },
   {
    "s": "ag:subagent",
-   "t": "core:core-agent",
+   "t": "core:core-handoff-channel",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"
@@ -29092,7 +29146,7 @@
   },
   {
    "s": "po:proh-proc-unverified-bank-change",
-   "t": "core:core-effect-record-alteration",
+   "t": "core:core-effect-data-write",
    "pred": "SUBCLASS_OF",
    "src": "silex",
    "review": "curated"

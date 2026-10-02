@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T11:16:17.772Z",
+ "generated": "2026-10-02T11:31:54.555Z",
  "dimensions": [
   {
    "id": "identity",
@@ -999,7 +999,7 @@
    "label": "Entities understood",
    "value": "29.4K",
    "note": "Typed and linked in the runtime graph",
-   "delta": "764 ontology types",
+   "delta": "766 ontology types",
    "dir": "flat"
   },
   {
