@@ -474,3 +474,13 @@ Commit `515e525`, diff revision `34261e2`, base `74ed19a`.
   - public node IDs;
   - the Refund example (R1, exact IDs).
 - **Not merged or pushed:** `main` auto-deploys to Vercel and needs the user's go-ahead.
+
+## Deploy record
+
+The user said "push to main", which is the deploy go-ahead. `main` was fast-forwarded `74ed19a..89c3ef5`, and Vercel deployed it.
+
+Live read-back:
+- `swm/data/ontology.js` reports `swm-2.0` (HTTP 200, `application/javascript`).
+- The page shows "766 types · 1389 relations" and the presentation-groups wording.
+- Nine key files are byte-identical to `89c3ef5`: `index.html`, `assurance.html`, `ontology.js`, `coverage.js`, four SWM scripts and `swm.css`.
+- `run-site-probes --base` live subset: 8 of 9 pass. S20 fails from this machine's headless Chrome exactly as it does at BASE (scrollbar geometry).
