@@ -80,7 +80,7 @@ which is git-ignored; only the distilled bundles are committed, so Vercel needs 
 | [UCO](https://unifiedcyberontology.org/) | 72 | Upper classes from `core`, `identity`, `action`, `tool`, `pattern`, `observable` |
 | [OWASP GenAI](https://genai.owasp.org/) | 25 | LLM Top 10 (2025) and the Agentic AI threat taxonomy T1–T15 |
 
-**Total: 755 nodes · 1377 typed relations, about 577KB.** 288 of those nodes are Silex-authored:
+**Total: 755 nodes · 1378 typed relations, about 577KB.** 288 of those nodes are Silex-authored:
 - the L1 core concepts, the L2 domain packs (two of them, CRM and Legal, are candidate packs outside
   the coverage figures), the L3 component list and record schemas — all graded `curated`;
 - registered workflows and the whole L4 runtime graph, graded `illustrative`.

@@ -1,6 +1,6 @@
 # Security World Model — data sources
 
-Generated 2026-09-17 by `swm/tools/build-ontology.mjs`.
+Generated 2026-10-02 by `swm/tools/build-ontology.mjs`.
 Raw downloads are cached in `swm/.cache/` (git-ignored); only the distilled bundles are committed.
 
 | Source | Fetched from | Licence / terms | Nodes kept |
@@ -24,17 +24,26 @@ Raw downloads are cached in `swm/.cache/` (git-ignored); only the distilled bund
 - **OWASP** — the LLM Top 10 (2025) and the Agentic AI threat taxonomy (T1–T15) are carried as
   published lists and attached to the agentic components they target.
 
-## The layer chain
+## Layers, the display tree and subsumption
 
-Every node carries an explicit `parent`, and the build fails if a node's parent is not in the same
-layer or exactly one layer above it. The chain is **L1 general → L2 domain pack → L3 agentic system
-as deployed in that domain → L4 runtime instance**; `ontology.json` also ships a `chain` summary with
-per-layer counts and the typed relations crossing each hop, which is what the Ontology Layers panel
-draws.
+L1 general → L2 domain pack → L3 agentic system → L4 runtime instance are **presentation groups, not
+taxonomic ranks**. Only `SUBCLASS_OF` asserts subsumption. Domain membership is `PART_OF_DOMAIN`,
+deployment is `DEPLOYED_IN` and the eight L1 groups are navigation (`GROUPED_UNDER`). Every node
+keeps one display `parent` (its `parentPred` is a tree predicate) for the Hierarchy view. The build
+refuses to write a bundle if a link breaks its predicate signature or review grades
+(`swm/tools/schema.mjs`), if the display tree or the `SUBCLASS_OF` graph has a cycle, or if a
+display parent sits in a lower layer. `ontology.json` ships a `chain` summary with per-layer counts,
+the relations between adjacent layers and the relations that skip a layer.
 
 ## Honesty note
 
-Nodes carry a `src` array naming where each one came from. Anything marked `silex` — the L2 domain
-packs, the L3 component list, the whole L4 runtime graph, coverage percentages, and the
-threat → component and countermeasure → threat mappings — is **illustrative mockup content**, not
-published data. Public-ontology nodes keep their real identifiers so they can be checked.
+Every node and link carries a `review` grade:
+
+- `published`: structure from a public source; the node keeps its real identifier.
+- `curated`: a Silex-authored semantic assertion. This covers the core L1 concepts, domain packs,
+  actions, hazards, prohibited outcomes, record schemas, countermeasure mappings and OWASP targets.
+- `heuristic`: keyword-mapped, i.e. which component an ATLAS technique threatens.
+- `illustrative`: mock content. This covers registered workflows, the whole L4 runtime graph,
+  everything derived from it (deployment, instances, incidents) and every coverage percentage.
+
+CRM and Legal are candidate packs. They are ontology only and not part of the coverage figures.

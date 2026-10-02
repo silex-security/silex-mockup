@@ -70,8 +70,10 @@ cross-links workflows by id, and the sunburst labels the outer ring with the id 
 | `instances` | number | node size, "Runtime instances" |
 | `blurb` | string | inspector definition |
 
-A component's parent is computed, not authored: it is the domain pack where most of its runtime
-instances live, or `dom:horizontal` when it has none.
+A component's parent is computed, not authored: it is the L1 core class named by `COMPONENT_ISA`, and
+its `DEPLOYED_IN` edges go to the domains of its runtime instances. A component with no runtime
+instance gets no `DEPLOYED_IN` edge and a `deployment:'unobserved'` attribute instead (the inspector
+shows it as "no runtime instance in the illustrative graph").
 
 ## `RUNTIME` — L4
 
@@ -117,3 +119,95 @@ Ordered `[groupId, RegExp]` pairs; **first match wins**. Used for every public c
 entity type that does not carry an explicit group. Order matters: `threat` before `outcome` would
 swallow "Impact", which is why the outcome pattern lists `prohibited` first and the ATT&CK Impact
 tactic is special-cased in the build.
+
+---
+
+## Ontology-rigour exports
+
+These were added by the 2026-10-02 ontology rigor plan. Their shapes and the predicate signatures
+they must satisfy are frozen in `swm/tools/schema.mjs`; `validate-seed.mjs` checks every reference
+and kind pair against that file. **Every id below is a bare Silex id** (no namespace prefix) unless
+it points at a public node, which keeps its bundle id (`attack:T1078`, `d3f:d3f:Credential`,
+`owasp:LLM06`, `atlas:AML.T0051`).
+
+### `CORE_L1` — L1 Silex concepts
+
+`[{ id, label, group, kind, def, parent, relatedMatch? }]`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | the bare id every other export references |
+| `kind` | `CORE_KINDS` | `core` / `action` / `effect` / `state` / `control` / `evidence` / `objective` / `hazard` |
+| `parent` | string | another core id (subsumption) or `grp:<group>` (navigation only) |
+| `relatedMatch` | string[]? | public bundle ids; the target kind must be one `RELATED_MATCH` allows |
+
+The id `financial-value-transfer` (effect) and `human-approval` (control) are looked up by name by
+the competency questions, so keep them exactly.
+
+### `ENTITY_ISA` — L2 entity → L1 class
+
+`ENTITY_ISA[domainId][entityLabel] = coreId`, for **every** entity in `DOMAINS` and
+`CANDIDATE_DOMAINS`. The key is the entity **label**, spelled exactly as in that pack's `entities`
+array; the target must be a `core`-kind concept.
+
+### `COMPONENT_ISA` — L3 component → L1 class
+
+`COMPONENT_ISA[componentId] = coreId`, for all thirteen `AGENTIC_COMPONENTS`. The target must be a
+`core`-kind concept; it becomes the component's display parent.
+
+### `DOMAIN_ACTIONS` — per-domain actions
+
+`DOMAIN_ACTIONS[domainId] = [{ id, label, isA, mayCause:[effect id], workflows:[WF id], implementedBy?:[rt id] }]`.
+`isA` is a core action; `mayCause` are core effects; `workflows` must exist. `implementedBy` may only
+name a real `tool-reg` runtime node (`rt-tool-refund`, `rt-tool-vendor`, `rt-db-vendor`, `rt-ledger`)
+and only where it truly applies.
+
+### `PROHIBITED` — prohibited outcomes and states
+
+`PROHIBITED[domainId] = [{ id, label, kind:'effect'|'state', isA, def }]`. Holds the five former
+`"(prohibited)"` entities (which are removed from `DOMAINS[].entities`). `isA` must be a core concept
+of the same kind, and `def` explains the retype. No hazard label may equal or contain a prohibited
+label.
+
+### `DOMAIN_HAZARDS` — conditions that close a chain
+
+`DOMAIN_HAZARDS[domainId] = [{ id, label, def, hazardFor, mayLeadTo?, characterizes, mitigatedBy, requiresEvidence }]`.
+
+- `hazardFor`: entity labels of that domain, or action ids of that domain.
+- `characterizes`: public threat ids of kind `technique`, `tactic` or `risk`.
+- `mitigatedBy`: core control ids (kind `control`) or public D3FEND technique ids (kind `countermeasure`).
+- `requiresEvidence`: core evidence ids (kind `evidence`).
+- `mayLeadTo` (optional): prohibited ids; every prohibited outcome must be reached by at least one hazard.
+
+All three of `characterizes`, `mitigatedBy` and `requiresEvidence` are required, so every L2 hazard
+closes the principle-3 chain.
+
+### `RECORD_SCHEMAS` — telemetry schemas
+
+`[{ id, label, def, records:[evidence id] }]`, six to eight of them, hanging under `ag:trace`. Every
+evidence id referenced by any hazard must appear in some `records` list.
+
+### `COUNTER_MAP` — threat → countermeasure
+
+`[{ threat, control, note }]`. `threat` is an L3 threat id (kind `technique` or `risk`); `control` is
+a core control id or a public D3FEND technique id. All 25 OWASP risks must be covered, plus every
+ATLAS technique that can be justified honestly; `note` says why.
+
+### `INCIDENT_HAZARDS` — incident → hazard
+
+`[{ incident, hazard }]`, both existing ids. Becomes an `EXHIBITS` edge graded `illustrative`.
+
+### `CANDIDATE_DOMAINS` — ontology-only packs
+
+`[{ id, name, code, pack, owner, entities, capabilities:[{ id, name, workflows:[{ id, name }] }] }]`.
+No coverage figures. Their entities still need `ENTITY_ISA`, and their actions and hazards are
+authored exactly like the existing packs'.
+
+### Validation
+
+```bash
+node swm/skills/swm-simulation-data/scripts/validate-seed.mjs [seed.mjs]
+```
+
+It resolves every id, checks every kind pair against `schema.mjs`, proves the hazard chain complete,
+checks the anti-relabel rule and evidence coverage, and rejects duplicate or colliding ids.

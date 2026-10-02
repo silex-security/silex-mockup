@@ -5,9 +5,9 @@ description: "Author or regenerate the simulated (Silex-invented) content behind
 
 # The simulated half of the Security World Model
 
-The bundle is two things welded together. Roughly 470 nodes come from public ontologies (MITRE
-D3FEND, ATT&CK, ATLAS, UCO, OWASP) and keep their real identifiers. The other ~131 are **invented for
-the demo**, and they all come from one file:
+The bundle is two things welded together. The public nodes come from public ontologies (MITRE
+D3FEND, ATT&CK, ATLAS, UCO, OWASP) and keep their real identifiers. Everything else is **invented
+for the demo**, and it all comes from one file:
 
 ```
 swm/tools/silex-seed.mjs
@@ -39,11 +39,20 @@ there is no reason to re-download 60MB. Drop it for the final build.
 | `LAYERS` | L1–L4 names and blurbs | level rail, layer bands, breadcrumbs |
 | `DIMENSIONS` | the six radar axes | Coverage radar |
 | `DOMAINS` | L2 packs → capabilities → workflows, plus entity types | sunburst rings, Explorer L2, Domain Suites copy |
-| `AGENTIC_COMPONENTS` | L3 components, each under the domain it is deployed in | Explorer L3, layer band L3 |
+| `AGENTIC_COMPONENTS` | L3 components, each specialising the L1 core class in `COMPONENT_ISA` | Explorer L3, layer band L3 |
 | `RUNTIME` | L4 nodes and their typed edges | Explorer L4, inspector relations |
 | `GAPS` | the gap list and its cross-filter | Coverage side panel |
 | `OWASP_LLM`, `OWASP_AGENTIC` | published risks attached to the component they threaten | Explorer, expand a component |
 | `GROUP_HINTS` | keyword → group for public and domain entities | which glyph a node gets |
+| `CORE_L1` | the Silex L1 core: identity/authority, intent/provenance, actions, effects, states, objectives, controls, evidence, hazard root | Explorer L1, hierarchy, inspector |
+| `ENTITY_ISA` / `COMPONENT_ISA` | the L1 class every L2 entity and every L3 component specialises | Explorer hierarchy parent |
+| `DOMAIN_ACTIONS` | actions per pack, their effects (`MAY_CAUSE`) and workflows (`USED_IN`) | Explorer L2, competency checks |
+| `PROHIBITED` | the prohibited outcomes and states, retyped effect/state | Explorer L2, outcome group |
+| `DOMAIN_HAZARDS` | conditions joining entity/action, threat, control and evidence | Explorer L2, inspector |
+| `RECORD_SCHEMAS` | telemetry schemas that record the evidence a hazard requires | Explorer L3 under `ag:trace` |
+| `COUNTER_MAP` | threat → countermeasure mappings | Explorer, `COUNTERS` edges, uncountered list |
+| `INCIDENT_HAZARDS` | incident → hazard fixtures | Explorer L4, competency check CQ5 |
+| `CANDIDATE_DOMAINS` | CRM and Legal, ontology only, no coverage figures | Explorer L2 anchors |
 
 Numbers matter beyond their labels:
 
@@ -68,6 +77,16 @@ Numbers matter beyond their labels:
   delegated click handler in `index.html`;
 - every OWASP entry targets a component that exists.
 
+For the ontology-rigour exports it also enforces:
+
+- every id resolves, and every predicate's source/target kinds fit `swm/tools/schema.mjs`;
+- `ENTITY_ISA` covers every entity in all seven packs and `COMPONENT_ISA` all thirteen components;
+- every L2 hazard has `characterizes`, `mitigatedBy` and `requiresEvidence`, every prohibited outcome
+  is reached by a hazard, and no hazard relabels a prohibited outcome;
+- every evidence a hazard requires is recorded by some `RECORD_SCHEMAS` entry;
+- all 25 OWASP risks are in `COUNTER_MAP`, and the public ids it names exist in the built bundle;
+- the core `SUBCLASS_OF` graph is acyclic.
+
 ## Recipes
 
 **Add a workflow.** Append `{ id:'WF-0xx', name:…, coverage:…, entities:… }` to a capability's
@@ -79,13 +98,39 @@ its id to that gap's `scope`.
 recompute themselves.
 
 **Add a domain pack.** Append to `DOMAINS`. Needed: `id`, `name`, `code` (two letters), `coverage`,
-`agents`, `workflows`, `incidents`, `pack`, `owner`, `dims`, `entities[]`, `capabilities[]`. Include
-one prohibited-outcome entity (e.g. `'Unverified Bank Change (prohibited)'`) so the *Outcome* group
-exists at L2 for that domain. See `references/worked-example.md` for a full one.
+`agents`, `workflows`, `incidents`, `pack`, `owner`, `dims`, `entities[]`, `capabilities[]`. Do **not**
+put prohibited outcomes in `entities`: author them in `PROHIBITED` (retyped effect/state) instead. Add
+an `ENTITY_ISA` entry for every entity, actions in `DOMAIN_ACTIONS`, and 3–5 `DOMAIN_HAZARDS`. See
+`references/worked-example.md` for a full one, and `CANDIDATE_DOMAINS` for an ontology-only pack.
 
 **Add an agentic component.** Append to `AGENTIC_COMPONENTS` with `id`, `name`, `group`, `coverage`,
-`instances`, `blurb`. Give it at least one runtime instance, otherwise it lands in the
-*Cross-domain & Horizontal* pack — which is correct behaviour, not a bug, but say so deliberately.
+`instances`, `blurb`, and add its `COMPONENT_ISA` entry naming the L1 `core` class it specialises.
+Give it at least one runtime instance; a component with none gets no `DEPLOYED_IN` edge and is
+labelled `deployment:'unobserved'` — correct behaviour, not a bug, but say so deliberately.
+
+**Add a core concept.** Append to `CORE_L1` with `id` (bare), `label`, `group`, `kind` (a
+`CORE_KINDS` value), `def` in your own words, and `parent` (another core id of a compatible kind, or
+`grp:<group>` for a root). `relatedMatch` may point at public bundle ids.
+
+**Add an action.** Append to `DOMAIN_ACTIONS[domainId]` with `isA` a core action, `mayCause` core
+effects, `workflows` that exist, and `implementedBy` only a real `tool-reg` runtime node that truly
+runs it.
+
+**Add a hazard.** Append to `DOMAIN_HAZARDS[domainId]` with `hazardFor` (entity labels of that domain
+or action ids), `characterizes` (a public technique/tactic/risk), `mitigatedBy` (a core control or a
+D3FEND technique) and `requiresEvidence` (a core evidence). Add `mayLeadTo` a `PROHIBITED` id so the
+prohibited outcome stays reachable, and make sure the label does not relabel that outcome.
+
+**Add a prohibited outcome.** Append to `PROHIBITED[domainId]` with `kind` `effect` or `state`, `isA`
+a core class of that kind, and a `def` justifying the retype. Its label must not appear in a hazard
+label, and some hazard must reach it via `mayLeadTo`.
+
+**Add a record schema.** Append to `RECORD_SCHEMAS` with `records` naming core evidence ids. Every
+evidence a hazard requires must appear in some schema, so add a schema whenever you add new evidence.
+
+**Add a counter-mapping.** Append to `COUNTER_MAP` with a `threat` L3 id (kind `technique` or `risk`),
+a `control` (core control id or D3FEND technique id) and a short `note`. All 25 OWASP risks must stay
+covered.
 
 **Add runtime nodes.** Append to `RUNTIME.nodes`; set `type` to the component it instantiates, or
 `parent` to another runtime node for incidents and outcomes. Wire behaviour with `RUNTIME.links`
@@ -123,4 +168,4 @@ number before assuming the seed is the only place it lives.
 ## References
 
 - `references/seed-schema.md` — every field of every export, with types and what it drives.
-- `references/worked-example.md` — adding a Legal domain end to end, and re-skinning the demo.
+- `references/worked-example.md` — adding a Logistics domain end to end, and re-skinning the demo.

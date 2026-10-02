@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-17T23:20:50.477Z",
+ "generated": "2026-10-02T10:59:32.071Z",
  "dimensions": [
   {
    "id": "identity",
@@ -999,7 +999,7 @@
    "label": "Entities understood",
    "value": "29.4K",
    "note": "Typed and linked in the runtime graph",
-   "delta": "598 ontology types",
+   "delta": "755 ontology types",
    "dir": "flat"
   },
   {
@@ -1018,5 +1018,53 @@
    "delta": "drift 1.2%",
    "dir": "flat"
   }
- ]
+ ],
+ "ontologyCompleteness": {
+  "label": "Structural completeness",
+  "note": "Share of each pack's hazards whose threat, control, evidence and record-schema chain is closed in the ontology. Not observed coverage.",
+  "domains": {
+   "finance": {
+    "hazards": 4,
+    "complete": 4,
+    "share": 1,
+    "candidate": false
+   },
+   "support": {
+    "hazards": 4,
+    "complete": 4,
+    "share": 1,
+    "candidate": false
+   },
+   "identity-it": {
+    "hazards": 4,
+    "complete": 4,
+    "share": 1,
+    "candidate": false
+   },
+   "hr": {
+    "hazards": 3,
+    "complete": 3,
+    "share": 1,
+    "candidate": false
+   },
+   "procurement": {
+    "hazards": 4,
+    "complete": 4,
+    "share": 1,
+    "candidate": false
+   },
+   "crm": {
+    "hazards": 3,
+    "complete": 3,
+    "share": 1,
+    "candidate": true
+   },
+   "legal": {
+    "hazards": 3,
+    "complete": 3,
+    "share": 1,
+    "candidate": true
+   }
+  }
+ }
 }
