@@ -18,8 +18,8 @@ Newest first, with what changed and why. The plans, review records and audits ar
 - **Incident Detail Ontology row,** keyed by the site incident and never by number:
   - I-1042 → bank-detail hazard → ATLAS AML.T0052 → Dual Approval, as chips into the World Model, with the agreed caveats.
   - I-1038 → "No modelled hazard yet", shown as a blind spot.
-- **Inspector chain text for L4 nodes** (instance → component → threats → countermeasures), with relation directions and grades.
-- **New probes:** P1–P5 in `probe-swm.mjs` and S22–S37 in `run-site-probes.mjs` (local only). S22 fails on the base code and passes now.
+- **Inspector chain text for L4 nodes:** each line is one complete, directed assertion (instance `INSTANCE_OF` component; threat `THREATENS` component; countermeasure `COUNTERS` threat), each with its grade.
+- **New probes:** P1–P6 in `probe-swm.mjs` and S22–S38 in `run-site-probes.mjs` (local only). S22 fails on the base code, and P6 (chain direction, added after code review round 1) fails on the first candidate; both pass now.
 - **Plan and reviews:** [`2026-10-02_JEV_LEARNINGS_PLAN.md`](2026-10-02_JEV_LEARNINGS_PLAN.md). Chinese summary: [`2026-10-02_JEV_LEARNINGS_SUMMARY_ZH.md`](2026-10-02_JEV_LEARNINGS_SUMMARY_ZH.md).
 
 ## 2026-10-02 — Ontology Layers is the default World Model sub-tab

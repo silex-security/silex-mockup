@@ -1667,8 +1667,7 @@ const incidentData={
   /* cold-load gap hand-off: write the latest request, select Coverage (boots it if needed), then let a warm module consume what is left.
      Coverage.init also consumes the slot, so a request is applied exactly once. Shape: {leaf:'WF-021', gap:'g-refund'|'g-memory'} */
   document.getElementById('security-model').addEventListener('click',e=>{const b=e.target.closest('[data-swm-cov-focus]');if(!b)return;e.preventDefault();window.SWM_PENDING_COVERAGE_FOCUS={leaf:b.dataset.swmCovFocus,gap:b.dataset.swmCovGap||null};window.selectWmTab('wm-overview');if(window.SWM&&typeof SWM.focusCoverage==='function')SWM.focusCoverage()});
-  /* the one explicitly labelled explorer link on Assurance always opens the Ontology subtab (it only selects the tab; example state is preserved) */
-  document.querySelectorAll('[data-wm-target]').forEach(b=>b.addEventListener('click',()=>window.selectWmTab(b.dataset.wmTarget,true)));  /* the document-level router then runs showView, which boots the now-active panel at full size */
+  /* the Assurance explorer link is now a deep link ([data-wm-route], plan JEV_LEARNINGS §A) */
 
   const defsModal=$id('defsModal'),changesModal=$id('changesModal'),toggleHighlights=$id('toggleHighlights');
   function setHighlights(on){document.body.classList.toggle('show-changes',on);toggleHighlights.textContent=on?'Hide highlights':'Show highlights'}

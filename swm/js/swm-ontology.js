@@ -716,22 +716,27 @@
       var out = (id, p) => links.filter((l) => l.s === id && l.pred === p);
       var inc = (id, p) => links.filter((l) => l.t === id && l.pred === p);
       var lbl = (id) => SWM.esc(SWM.fixtureText(byId.get(id).label));
-      var pr = (l) => '<span class="swm-chain-p">' + SWM.esc(l.pred) + '</span><small class="swm-chain-g">' + SWM.esc(l.review || '') + '</small>';
+      /* one complete, correctly directed assertion: subject PREDICATE object, with that relation's own grade */
+      var said = (l) => '<span class="swm-assert" data-s="' + SWM.esc(l.s) + '" data-p="' + SWM.esc(l.pred) + '" data-t="' + SWM.esc(l.t) + '">' +
+        lbl(l.s) + ' <span class="swm-chain-p">' + SWM.esc(l.pred) + '</span> ' + lbl(l.t) +
+        ' <small class="swm-chain-g">' + SWM.esc(l.review || '') + '</small></span>';
       var parts = [];
       out(n.id, 'INSTANCE_OF').forEach(function (inst) {
         var th = inc(inst.t, 'THREATENS').sort((a, b) => (inc(b.s, 'COUNTERS').length > 0) - (inc(a.s, 'COUNTERS').length > 0) || (byId.get(a.s).label < byId.get(b.s).label ? -1 : 1));   /* countered first */
-        parts.push('<p>' + lbl(n.id) + ' ' + pr(inst) + ' ' + lbl(inst.t) + '</p>' + (th.length
-          ? '<p class="swm-note">' + th.length + ' threat' + (th.length === 1 ? '' : 's') + ' point at this component (threat → component):</p><ul>' +
+        parts.push('<p>' + said(inst) + '</p>' + (th.length
+          ? '<p class="swm-note">' + th.length + ' threat' + (th.length === 1 ? '' : 's') + ' in the graph point at this component:</p><ul>' +
             th.slice(0, 6).map(function (l) {
               var c = inc(l.s, 'COUNTERS');
-              return '<li>' + lbl(l.s) + ' ' + pr(l) + ' → ' + (c.length ? c.map((x) => lbl(x.s) + ' ' + pr(x)).join(', ') : '<em>no mapped countermeasure</em>') + '</li>';
+              return '<li>' + said(l) + (c.length
+                ? '<ul>' + c.map((x) => '<li>' + said(x) + '</li>').join('') + '</ul>'
+                : '<ul><li><em>No mapped countermeasure for ' + lbl(l.s) + '</em></li></ul>') + '</li>';
             }).join('') + '</ul>' + (th.length > 6 ? '<p class="swm-note">+' + (th.length - 6) + ' more on the component itself</p>' : '')
           : '<p class="swm-note">No threat in the graph points at this component.</p>'));
       });
       out(n.id, 'EXHIBITS').forEach(function (e) {
-        parts.push('<p>' + lbl(n.id) + ' ' + pr(e) + ' ' + lbl(e.t) + '</p><ul>' +
-          out(e.t, 'CHARACTERIZES').map((x) => '<li>' + pr(x) + ' ' + lbl(x.t) + '</li>').join('') +
-          out(e.t, 'MITIGATED_BY').map((x) => '<li>' + pr(x) + ' ' + lbl(x.t) + '</li>').join('') + '</ul>');
+        parts.push('<p>' + said(e) + '</p><ul>' +
+          out(e.t, 'CHARACTERIZES').map((x) => '<li>' + said(x) + '</li>').join('') +
+          out(e.t, 'MITIGATED_BY').map((x) => '<li>' + said(x) + '</li>').join('') + '</ul>');
       });
       return parts.length ? '<div class="swm-chain"><h6>Chain · read from the stored relations</h6>' + parts.join('') + '</div>' : '';
     }

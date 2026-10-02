@@ -29,9 +29,7 @@
   var state = 'idle', waiting = [], callbacks = [], loaded = {};
 
   function mountOf(panelId) { return document.getElementById(PANELS[panelId]); }
-  /* visible = laid out on screen; defined from the DOM so it holds on every page */
-  function shown(el) { return !!(el && el.offsetParent !== null && el.getClientRects().length); }
-  function bootIfShown(panelId) { if (shown(mountOf(panelId))) global.SWM.boot(panelId); }
+    function bootIfShown(panelId) { if (global.SWM.isShown(mountOf(panelId))) global.SWM.boot(panelId); }   /* the one visibility test, SWM.isShown */
 
   function fail(msg) {
     Object.keys(PANELS).forEach(function (p) {

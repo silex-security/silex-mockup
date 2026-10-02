@@ -338,6 +338,34 @@ if (want('P5')) {
   } finally { ws.removeEventListener('message', onPause); try { await send('Fetch.disable'); } catch {} consoleErrors.length = 0; }
 }
 
+if (want('P6')) {
+  /* E: every chain line is a complete, correctly directed assertion with data-s/data-p/data-t.
+     Ids are read from the bundle (bundle above): rt-refund-agent INSTANCE_OF ag:planner,
+     THREATENS into ag:planner, atlas:AML.T0051 countered by core:core-control-policy-gate,
+     and rt-inc-1042 EXHIBITS hz:haz-support-refund-loop. */
+  await openPanel('wm-ontology');
+  const focus = id => evaluate(`(window.SWM && typeof SWM.focusNode === 'function') ? SWM.focusNode(${JSON.stringify(id)}) : null`);
+  const asserts = () => evaluate(`(() => { const c = document.querySelector('#swmInspector .swm-chain'); if (!c) return null;
+    return [...c.querySelectorAll('.swm-assert')].map(a => ({ s: a.getAttribute('data-s'), p: a.getAttribute('data-p'), t: a.getAttribute('data-t') })); })()`);
+  const okAgent = await focus('rt-refund-agent'); await sleep(1300);
+  const a1 = await asserts();
+  const okInc = await focus('rt-inc-1042'); await sleep(1300);
+  const a2 = await asserts();
+  const has = (arr, s, p, t) => !!arr && arr.some(x => (s == null || x.s === s) && x.p === p && x.t === t);
+  const countersTo = (arr, t) => (arr || []).filter(x => x.p === 'COUNTERS' && x.t === t);
+  const counterSources = t => bundle.links.filter(l => l.pred === 'COUNTERS' && l.t === t).map(l => l.s);
+  const aml = countersTo(a1, 'atlas:AML.T0051');
+  const amlOk = aml.length > 0 && aml.every(x => counterSources('atlas:AML.T0051').includes(x.s));
+  const reversed = countersTo(a1, 'ag:planner').length > 0;
+  record('P6', okAgent === true && okInc === true
+      && has(a1, 'rt-refund-agent', 'INSTANCE_OF', 'ag:planner')
+      && has(a1, null, 'THREATENS', 'ag:planner')
+      && amlOk && !reversed
+      && has(a2, 'rt-inc-1042', 'EXHIBITS', 'hz:haz-support-refund-loop'),
+    `agent ${JSON.stringify(a1)} · incident ${JSON.stringify(a2)} · aml counters ${JSON.stringify(aml)} · reversed ${reversed}`);
+  await shot('probe-chain-asserts.png');
+}
+
 ws.close(); proc.kill(); server.close();
 if (want('E1')) record('E1', !consoleErrors.length, consoleErrors.length ? [...new Set(consoleErrors)].slice(0, 4).map(e => String(e).split('\n')[0]).join(' | ') : 'no console errors');
 

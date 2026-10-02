@@ -52,9 +52,10 @@ jev-simplified 在 10 月 2 日把 silex-mockup 的 World Model（本体优化�
 
 选中 L4 节点时，详情面板会用文字写出链条，并标明每条关系的方向和评审等级：
 
+- 每一行都是完整的一句：主语 关系 宾语；
 - 实例 INSTANCE_OF 组件；
 - 指向这个组件的威胁（THREATENS，方向是威胁 → 组件），有缓解措施的排在前面；
-- 每个威胁的缓解措施（COUNTERS），或者写 “no mapped countermeasure”；
+- 缓解措施 COUNTERS 威胁（每条缓解措施单独一句），或者写 “No mapped countermeasure”；
 - 示例事件还会显示 EXHIBITS 的 hazard。
 
 图本身不变，L4 节点仍然不显示它和 L3 的连线。
@@ -65,13 +66,14 @@ jev-simplified 在 10 月 2 日把 silex-mockup 的 World Model（本体优化�
 
 ## 自动检查
 
-- **`probe-swm.mjs` 新增 P1–P5**：
+- **`probe-swm.mjs` 新增 P1–P6**：
   - P1：390px 宽度下没有横向溢出；
   - P2：键盘搜索后能选中；
   - P3：定位节点时会清掉筛选；
   - P4：加载失败后重试，而且不会重复执行已加载的文件；
-  - P5：离开后，晚到的加载不会挂载。
-- **`run-site-probes.mjs` 新增 S22–S37**（只在本地跑，不在线上子集里）：
+  - P5：离开后，晚到的加载不会挂载；
+  - P6：链条文字里每一句的主语、关系和宾语方向都正确。代码评审第 1 轮发现 COUNTERS 写反了，修好后加了这项；它在修复前的代码上会失败。
+- **`run-site-probes.mjs` 新增 S22–S38**（只在本地跑，不在线上子集里）：
   - 冷启动深链接；
   - 默认子页和静态子页；
   - 坏链接；
@@ -80,9 +82,10 @@ jev-simplified 在 10 月 2 日把 silex-mockup 的 World Model（本体优化�
   - 前进/后退；
   - Studio 路由；
   - I-1042 和 I-1038 的 Ontology 行；
-  - `assurance.html`。
+  - `assurance.html`；
+  - Assurance 页的“Open the full World Model explorer”按钮（S38）。
 - **证明检查真的能抓到问题**：S22（冷启动链接）在改动前的代码（`df79519`）上失败，在新代码上通过。
-- **最终结果**：两套检查连跑三遍都通过。站点检查里唯一的失败是 S20，它在改动前的 BASE 上也同样失败，是本机无头浏览器的环境问题。
+- **最终结果**：两套检查各连跑三遍。`probe-swm.mjs` 每遍 15/15 通过；站点检查每遍 37/38，唯一失败的是 S20，它在改动前的 BASE 上也同样失败，是本机无头浏览器的环境问题。
 
 ## 不变的部分
 
