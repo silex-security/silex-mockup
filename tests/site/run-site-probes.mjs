@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S42. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -314,7 +314,7 @@ try {
     return '12 pinned outcome chips; four metrics independently recomputed from default-policy pre_tool envelopes';
   });
   await probe('S15','SOC injection, actual results and latest-request-wins',async()=>{
-    await rtOpen();await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await until(()=>ev('return !!document.querySelector("#rtSteps .running")'),'animation visible');
+    await rtOpen();await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="replay"'),'pipeline replay visible');
     await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"'),'SOC2 complete');await rtReady();
     assert.equal(await rt('return window.__jevDemo.domain'),'soc');await until(()=>rt('return !!document.querySelector(".run-card[data-selected][data-scenario=SOC2]")'),'SOC2 selected');await rtResult('SOC2');
     assert.ok((await rt('return document.querySelector(".run-card[data-selected]").textContent')).includes('Held for approval · did not run'));
@@ -322,25 +322,26 @@ try {
     await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await sleep(100);await rtClick('[data-rt-scenario="S3"] [data-rt-run]');
     await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"&&document.querySelector("#rtResult").textContent.startsWith("S3 ·")'),'latest S3 complete');await sleep(700);
     assert.equal(await rt('return window.__jevDemo.domain'),'ap');await rtResult('S3');
-    assert.equal(await ev('return document.querySelectorAll("#rtSteps .done").length'),6);assert.equal(await ev('return document.querySelectorAll("#rtSteps .running").length'),0);
+    assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.source,p.dataset.actionCount,document.querySelector("#rtToken").dataset.tool]'),['done','run','1','payments.execute'],'pipeline shows the latest S3 run');
     const abandoned=await ev('return document.querySelectorAll("#rtScenarios [data-rt-run]:disabled").length');
     await rt(`document.querySelector('[data-tab=studio]').click();const e=document.querySelector('[data-tool-mode="payments.execute"]');e.value='monitor';e.dispatchEvent(new window.Event('change',{bubbles:true}));document.querySelector('[data-tab=live]').click();`);await rtRun('S3',false);await rtResult('S3');await sleep(200);const monitorSelection=await rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='S3').at(-1);return {actual:document.querySelector('.run-card[data-selected]')?.dataset.runId,expected:last?.trace_id}`);
     assert.match(await ev('return document.querySelector("#rtResult").textContent'),/ran in monitor mode \(would have been blocked\)/);
     assert.equal(await ev('return document.querySelector("[data-rt-scenario=S3] [data-rt-outcome]").textContent'),'blocked · rule');
     assert.match(await ev('return document.querySelector("[data-rt-scenario=S3] [data-rt-outcome]").title'),/reference/i);
-    claims(await ev('return document.querySelector("#rtSteps").textContent+document.querySelector("#rtResult").textContent'));
-    const retained=await ev(`window.__probeRuntimeDocument=document.querySelector('#rtFrame').contentDocument;return {result:document.querySelector('#rtResult').textContent,steps:[...document.querySelectorAll('#rtSteps .run-step')].map(e=>e.className)}`);
+    claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
+    const retained=await ev(`window.__probeRuntimeDocument=document.querySelector('#rtFrame').contentDocument;return {result:document.querySelector('#rtResult').textContent}`);
     const selected=await rt('return document.querySelector(".run-card[data-selected]").dataset.runId');
     await nav('long-term');await nav('runtime-observation');await rtReady();
     assert.equal(await ev('return document.querySelector("#rtFrame").contentDocument===window.__probeRuntimeDocument'),true,'frame document preserved on return');
     assert.equal(await ev('return document.querySelectorAll("#rtFrame").length'),1,'return reuses single iframe');
     assert.equal(await rt('return window.__jevDemo.policy().tools["payments.execute"].mode'),'monitor');
     assert.equal(await rt('return document.querySelector(".run-card[data-selected]").dataset.runId'),selected,'selected run preserved');
-    assert.deepEqual(await ev(`return {result:document.querySelector('#rtResult').textContent,steps:[...document.querySelectorAll('#rtSteps .run-step')].map(e=>e.className)}`),retained,'result and steps preserved');
+    assert.deepEqual(await ev(`return {result:document.querySelector('#rtResult').textContent}`),retained,'result preserved');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.source==="reference"'),'re-entering the view shows the reference examples again (plan §1.3)');
     assert.equal(abandoned,0,'no abandoned Run buttons');
     assert.equal(socSelection.actual,socSelection.expected,'same-agent Run selects newly injected SOC3');
     assert.equal(monitorSelection.actual,monitorSelection.expected,'monitor Run selects newly injected S3');
-    return 'animation, SOC2 hold, same-agent reuse, rapid switch, six step states/button cleanup, monitor result from actual envelopes, reference unchanged, return state preserved';
+    return 'pipeline replay, SOC2 hold, same-agent reuse, rapid switch, pipeline state/button cleanup, monitor result from actual envelopes, reference unchanged, return state preserved';
   });
   await probe('S16','AP switch and blocked run',async()=>{
     await rtOpen();await rtRun('SOC2');await rtRun('S3');assert.equal(await rt('return window.__jevDemo.domain'),'ap');await rtResult('S3');
@@ -379,7 +380,7 @@ try {
   });
   await probe('S18','Runtime/iframe claims, visible simulated labels and responsive layout',async()=>{
     await rtOpen();await rtRun('SOC5');await rtResult('SOC5');
-    claims(await ev('return document.querySelector("#rtSteps").textContent+document.querySelector("#rtResult").textContent'));
+    claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
     for(const width of [1440,390]){
       await viewport(width);await sleep(250);
       assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host '+width+'px overflow');
@@ -424,8 +425,7 @@ try {
       await sleep(500);assert.equal(await rt('return window.__jevDemo.domain'),'ap','released old navigation cannot replace AP');await rtResult('S3');
       assert.equal(await rt('return window.__jevDemo.log().some(e=>e.scenario==="SOC2")'),false,'superseded scenario was not injected');
       assert.equal(await ev('return document.querySelectorAll("#rtScenarios [data-rt-run]:disabled").length'),0);
-      assert.equal(await ev('return document.querySelectorAll("#rtSteps .done").length'),6);
-      assert.equal(await ev('return document.querySelectorAll("#rtSteps .running").length'),0);
+      assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.source,p.dataset.actionCount,document.querySelectorAll("#rtPipeDots [data-exit]").length]'),['done','run','1',1],'pipeline shows only the superseding S3 run');
     }finally{await page.send('Fetch.disable');page.ws.removeEventListener('message',onPause);}
     return 'older-card pin overridden by Run; repeated monitor injection shows new receipt; delayed AP→SOC→AP ends with AP result/card, no stale injection or abandoned buttons';
   });
@@ -439,7 +439,7 @@ try {
     for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
     const text=await ev('return document.querySelector("#rtLearning").textContent');
     assert.match(text,/The judge learns from your reviewers/);
-    assert.equal(await ev(`return document.querySelector('#rtLearning').previousElementSibling.querySelector('#rtSteps')!==null`),true,'after orchestration');
+    assert.equal(await ev(`return document.querySelector('#rtLearning').previousElementSibling.id`),'rtScenarioCard','after the scenarios card');
     assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
     assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);
     assert.equal(await ev(`return [...document.querySelectorAll('#rtLearning .rt-learning-tiles .metric')].filter(e=>e.textContent.includes('measured on an open benchmark (AgentDojo held-out); benchmark labels, not yet customer reviewers')).length`),3);
@@ -479,9 +479,137 @@ try {
     await sleep(350);
     await ev(`document.querySelector('#rtTryLoop').click();await window.__tryRun;`);
     await sleep(1800);
-    const cancelled=await ev(`return {status:document.querySelector('#rtStatus').textContent,running:document.querySelectorAll('#rtSteps .running').length,disabled:document.querySelectorAll('#rtScenarios [data-rt-run]:disabled').length,tab:document.querySelector('#rtFrame').contentDocument.querySelector('[data-tab=learning]').getAttribute('aria-selected')}`);
+    const cancelled=await ev(`return {status:document.querySelector('#rtStatus').textContent,running:document.querySelector('#rtPipeline').dataset.mode==='replay'?1:0,disabled:document.querySelectorAll('#rtScenarios [data-rt-run]:disabled').length,tab:document.querySelector('#rtFrame').contentDocument.querySelector('[data-tab=learning]').getAttribute('aria-selected')}`);
     assert.deepEqual(cancelled,{status:'Ready',running:0,disabled:0,tab:'true'},'Try the loop settles a cancelled Run: '+JSON.stringify(cancelled));
     return 'JSON-derived measurements, exact claims and caveats; ready/cold Learning tab, full-page link and scroll; 1440/390 layout no JS errors; Try during a Run settles it';
+  });
+
+  // Runtime pipeline picture, R1–R9 of logs/2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md §4.
+  const PIPE_REC=`window.__pipeRec=[];const p=document.querySelector('#rtPipeline');const snap=()=>{const st=k=>p.querySelector('[data-stage="'+k+'"]')?.dataset.state;return {source:p.dataset.source,mode:p.dataset.mode,i:p.dataset.actionIndex,n:p.dataset.actionCount,tool:document.querySelector('#rtToken')?.dataset.tool,exit:[...p.querySelectorAll('[data-exit][data-lit]')].filter(e=>e.dataset.lit!=='false').map(e=>e.dataset.exit).join(','),states:[st('rules'),st('judge'),st('policy')],caption:document.querySelector('#rtPipeCaption')?.textContent,count:p.querySelector('.rt-evidence-count')?.textContent}};window.__pipeObs?.disconnect();window.__pipeObs=new MutationObserver(()=>window.__pipeRec.push(snap()));window.__pipeObs.observe(p,{subtree:true,attributes:true,characterData:true,childList:true});return true;`;
+  // The last snapshot per action index: that action's final frame.
+  const finals=rec=>{const m=new Map();for(const r of rec)if(r.i)m.set(r.source+'#'+r.i,r);return [...m.values()];};
+  const expectTrace=async envs=>ev(`const {traceOf}=await import('/js/rt-pipeline.js');return ${Q(envs)}.filter(e=>e.boundary==='pre_tool').map(e=>{const t=traceOf(e);return {tool:t.tool,exit:t.exit,states:[t.stages.rules,t.stages.judge,t.stages.policy]};});`);
+  const runEnvs=id=>rt(`const all=window.__jevDemo.log();const last=all.filter(e=>e.scenario==='${id}').at(-1);return all.filter(e=>e.trace_id===last.trace_id);`);
+  async function tapNoScroll(sel){const p=await ev(`const e=document.querySelector(${Q(sel)});const r=e.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)throw Error('off screen '+${Q(sel)});return {x:r.x+r.width/2,y:r.y+r.height/2}`);for(const type of ['mouseMoved','mousePressed','mouseReleased'])await page.send('Input.dispatchMouseEvent',{type,...p,button:'left',buttons:type==='mouseReleased'?0:1,clickCount:1});}
+  const inView=sel=>`(()=>{const r=document.querySelector(${Q(sel)}).getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.height>0})()`;
+  await probe('S39','pipeline: reference idle loop, replay of the frame envelopes, monitor mode (R1–R3)',async()=>{
+    await rtOpen();await ev(PIPE_REC);
+    // R1: idle cycles the three reference examples; S3's frame is a rule block with the judge ran-not-deciding.
+    // Wait for the loop to come back to the first example after S3, so S3's final frame is recorded.
+    await until(()=>ev(`const r=window.__pipeRec,k=r.findIndex(x=>x.source==='reference'&&/^Example · S3 ·/.test(x.caption||''));return k>=0&&r.slice(k).some(x=>x.i==='1')`),'idle passes S3',30000);
+    const ids=[...new Set((await ev('return window.__pipeRec')).filter(r=>r.source==='reference').map(r=>(r.caption||'').match(/^Example · (\w+) ·/)?.[1]).filter(Boolean))];
+    assert.deepEqual(ids.slice(0,3).sort(),['S1','S2','S3'],'reference examples '+ids);
+    const s3=(await ev('return window.__pipeRec')).filter(r=>r.i==='3'&&/^Example · S3/.test(r.caption||'')).at(-1);
+    assert.deepEqual([s3.states,s3.exit,s3.count],[['hit','ran-not-deciding','bypassed'],'block','1 record'],'S3 example frame '+JSON.stringify(s3));
+    await nav('long-term');await ev('window.__pipeRec=[]');await sleep(3000);
+    assert.equal((await ev('return window.__pipeRec')).filter(r=>r.i).length,0,'loop paused while the view is hidden');
+    await nav('runtime-observation');await rtReady();
+    // R2: the replay equals traceOf of the envelopes the frame returned, action by action.
+    for(const id of ['S3','SOC2','SOC5','F1']){
+      await ev(PIPE_REC);await rtRun(id,false);
+      const got=finals((await ev('return window.__pipeRec')).filter(r=>r.source==='run')).map(r=>({tool:r.tool,exit:r.exit,states:r.states}));
+      const want=await expectTrace(await runEnvs(id));
+      assert.deepEqual(got,want,id+' replay');
+      assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.actionCount'),String(want.length),id+' count');
+      assert.equal(await ev('return document.querySelectorAll("#rtPipeDots [data-exit]").length'),want.length,id+' dots');
+      await rtResult(id);
+    }
+    // R3: monitor mode in Policy Studio → allow exit with the would-have badge.
+    await rt(`document.querySelector('[data-tab=studio]').click();const e=document.querySelector('[data-tool-mode="payments.execute"]');e.value='monitor';e.dispatchEvent(new window.Event('change',{bubbles:true}));document.querySelector('[data-tab=live]').click();`);
+    await rtRun('S3',false);
+    assert.equal(await ev('return [...document.querySelectorAll("#rtPipeline [data-exit][data-lit]")].filter(e=>e.dataset.lit!=="false").map(e=>e.dataset.exit).join()'),'allow');
+    assert.match(await ev('return document.querySelector("#rtPipeline").textContent'),/would have been blocked/);
+    // The deciding box keeps the would-have colour and carries the monitor outline; a fallback shows it on Policy.
+    assert.deepEqual(await ev('const r=document.querySelector("#rtPipeline [data-stage=rules]");return [r.dataset.state,r.classList.contains("is-block"),r.hasAttribute("data-monitor"),r.textContent.includes("monitor")]'),['hit',true,true,true],'S3 monitor: red rules box, outlined');
+    await rtRun('F1',false);
+    assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline"),q=p.querySelector("[data-stage=policy]");return [document.querySelector("#rtToken").dataset.tool,q.dataset.state,q.hasAttribute("data-monitor"),[...p.querySelectorAll("[data-monitor]")].length,[...p.querySelectorAll("[data-exit][data-lit]")].map(e=>e.dataset.exit).join()]'),['payments.execute','fallback',true,1,'allow'],'F1 monitor: fallback outlined on Policy');
+    return 'idle S1/S2/S3 reference loop, paused off view; S3, SOC2, SOC5, F1 replays equal traceOf of the frame envelopes; monitor S3 exits allow with the would-have badge and a red outlined rules box; monitor F1 outlines the fallback on Policy';
+  });
+  await probe('S40','pipeline visible while running; Run does not scroll; See this run (R4, R9)',async()=>{
+    await rtOpen();
+    const ids=await ev('return [...document.querySelectorAll("[data-rt-run]")].map(e=>e.dataset.rtRun)');assert.equal(ids.length,12);
+    for(const id of ids){
+      await ev(`document.querySelector('#rtScenarioCard').scrollIntoView({block:'start',behavior:'instant'});scrollBy(0,-80)`);await sleep(120);
+      await tapNoScroll(`[data-rt-run="${id}"]`);
+      await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),id+' replay starts');
+      assert.equal(await ev(`return ${inView('#rtPipeline')}&&${inView(`[data-rt-run="${id}"]`)}`),true,id+' pipeline and button on screen at 1440');
+      await ev('document.querySelector("#rtPipeSkip").click()');
+      await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),id+' complete');
+    }
+    await viewport(390,844);await sleep(300);
+    for(const id of ['S1','SOC5']){
+      await ev(`document.querySelector('[data-rt-run="${id}"]').scrollIntoView({block:'end',behavior:'instant'})`);await sleep(150);
+      await tapNoScroll(`[data-rt-run="${id}"]`);
+      await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),id+' replay starts 390');await sleep(150);
+      if(id==='S1')assert.equal(await ev(`return ${inView('#rtPipeline')}&&${inView('[data-rt-run="S1"]')}`),true,'S1 pipeline and button on screen at 390');
+      else assert.equal(await ev('const r=document.querySelector("#rtPipeline").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight'),true,'SOC5 pipeline fully on screen at 390');
+      await ev('document.querySelector("#rtPipeSkip").click()');
+      await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),id+' complete 390');
+    }
+    assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');
+    // R9
+    await viewport();await sleep(300);
+    await ev(`document.querySelector('#rtScenarioCard').scrollIntoView({block:'start',behavior:'instant'});scrollBy(0,-80)`);await sleep(120);
+    await tapNoScroll('[data-rt-run="S3"]');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="replay"'),'S3 replay');const y0=await ev('return scrollY');
+    await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S3 ·')`),'S3 complete');await sleep(600);
+    assert.ok(Math.abs(await ev('return scrollY')-y0)<=2,'Run did not scroll');
+    assert.equal(await ev('return document.querySelector("#rtFrameWrap").getBoundingClientRect().top>innerHeight'),true,'frame below the viewport');
+    assert.equal(await ev(`return !document.querySelector('#rtSeeRun').hidden&&${inView('#rtSeeRun')}`),true,'See this run visible');
+    await tapNoScroll('#rtSeeRun');
+    await until(()=>ev('const r=document.querySelector("#rtFrameWrap").getBoundingClientRect();return r.top>=-1&&r.top<innerHeight/3'),'See this run scrolls to the frame');
+    return 'all 12 Run buttons with the pipeline on screen at 1440; S1 and SOC5 at 390; no Run scroll; See this run reaches the frame';
+  });
+  await probe('S41','pipeline: supersede, skip, reduced motion (R5–R7)',async()=>{
+    await rtOpen();
+    // R5
+    await ev(`document.querySelector('[data-rt-run="SOC5"]').click();setTimeout(()=>document.querySelector('[data-rt-run="S3"]').click(),200)`);
+    await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S3 ·')`),'superseding S3 complete',25000);await sleep(800);
+    assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.source,p.dataset.actionCount,document.querySelector("#rtToken").dataset.tool,[...p.querySelectorAll("#rtPipeDots [data-exit]")].map(e=>e.dataset.exit).join()]'),['done','run','1','payments.execute','block']);
+    // R5, second phase: supersede during SOC5's replay, not only while its frame loads.
+    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"&&p.dataset.actionCount==="4"'),'SOC5 replaying');
+    // Clicking S3 clears SOC5's frame and dots at once, before the AP frame is ready.
+    assert.deepEqual(await ev(`document.querySelector('[data-rt-run="S3"]').click();const p=document.querySelector('#rtPipeline');return [p.dataset.mode,document.querySelectorAll('#rtPipeDots [data-exit]').length,document.querySelector('#rtPipeCaption').textContent,document.querySelector('#rtToken').dataset.tool,[...p.querySelectorAll('[data-exit][data-lit]')].length]`),['idle',0,'','',0],'old replay cleared on supersede');
+    await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S3 ·')`),'S3 supersedes a replay',25000);await sleep(7000);
+    assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.actionCount,document.querySelector("#rtToken").dataset.tool,[...p.querySelectorAll("#rtPipeDots [data-exit]")].map(e=>e.dataset.exit).join(),document.querySelector("#rtPipeCaption").textContent.startsWith("Action 1 of 1 ·")]'),['done','1','payments.execute','block',true],'no SOC5 action continues after S3');
+    // R7
+    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),'SOC5 replay');
+    const t0=Date.now();await ev('document.querySelector("#rtPipeSkip").click()');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="done"'),'skip to done',500);assert.ok(Date.now()-t0<=600);
+    await until(()=>ev(`return document.querySelector('#rtResult').textContent.startsWith('SOC5 ·')`),'SOC5 result');
+    assert.equal(await ev('return document.querySelectorAll("#rtPipeDots [data-exit]").length'),4);
+    // R6
+    await page.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+    try{
+      await rtOpen();await ev(PIPE_REC);await sleep(2500);
+      assert.equal((await ev('return window.__pipeRec')).filter(r=>r.i).length,0,'no idle loop under reduced motion');
+      assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.mode'),'idle');
+      assert.equal(await ev('return document.querySelector("#rtPipeline .rt-evidence-count").textContent'),'1 record','static example shows its one record');
+      const t1=Date.now();await ev('document.querySelector(\'[data-rt-run="S1"]\').click()');
+      await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S1 ·')`),'S1 complete reduced',2000);
+      assert.ok(Date.now()-t1<1000,'reduced-motion run completes at once ('+(Date.now()-t1)+' ms)');
+      assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.mode'),'done');
+      assert.equal(await ev('return getComputedStyle(document.querySelector("#rtToken")).transitionDuration.split(",").every(x=>parseFloat(x)===0)'),true,'no token transition');
+    }finally{await page.send('Emulation.setEmulatedMedia',{features:[]});}
+    return 'SOC5→S3 within 200 ms and during SOC5\'s replay both end on S3 only; Skip reaches done with 4 dots; reduced motion: no loop, instant done, no transition';
+  });
+  await probe('S42','pipeline hygiene, claims and the error state (R8)',async()=>{
+    await rtOpen();
+    assert.equal(await ev('return document.querySelector("#rtSteps")'),null,'#rtSteps removed');
+    claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
+    await rtRun('S2');claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
+    await viewport(390,844);await sleep(300);assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');await viewport();
+    await rt('window.__jevDemo.ready=false;return true');
+    await ev('document.querySelector(\'[data-rt-run="S1"]\').click()');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="error"'),'error state',14000);
+    assert.equal(await ev('return document.querySelector("#rtPipeCaption").textContent'),'The simulated demo did not load; open it full page.');
+    assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [document.querySelectorAll("#rtPipeDots [data-exit]").length,p.dataset.source,p.dataset.actionCount,p.dataset.actionIndex,p.querySelector(".rt-evidence-count").textContent]'),[0,'','','','0 records'],'no previous-run dots or metadata in the error state');
+    assert.equal(await ev('return document.querySelector("#rtStatus").textContent'),'Error');
+    await nav('long-term');await ev('document.querySelector("#runEnvBtn").click()');
+    await until(()=>ev('return !!document.querySelector("#ltSteps .running")'),'System Validation steps still animate');
+    return '#rtSteps gone; claims on pipeline and result; 390 px no overflow; frame timeout → error state; System Validation steps unaffected';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{

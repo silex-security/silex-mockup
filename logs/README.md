@@ -2,6 +2,25 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-02 — Runtime Observation: the six text steps become a live pipeline picture
+
+- **Why:** the *How runtime validation works* card sat ~700 px above the Run buttons, with the learning card between them, so you could not see it while a scenario ran. Its six text steps ("OpenTelemetry-shaped span", "atomic questions"…) were hard to follow.
+- **Placement:** the card is gone. An animated pipeline now sits at the top of **Scripted scenarios**, directly above the Run buttons, with `#rtStatus` and `#rtResult` moved alongside it. Card order: scenarios, then the learning card, then the decision plane.
+- **The picture** (`js/rt-pipeline.js`, `css/rt-pipeline.css`): a tool-name token passes Agent action → Hard rules → Judge (Jev) → Policy, leaves by Allow / Hold / Block, and lands in Evidence ("preview only; nothing leaves the browser"). Each box has one plain-language caption. Everything shown comes from the envelopes:
+  - a rule decision shows the judge as "ran · not deciding" (it does run, off the critical path);
+  - F1 shows "timed out" and fallback fail-open / fail-closed;
+  - monitor mode shows "would have been …".
+- **States:**
+  - Idle loops three real default-policy reference envelopes (S1 allow, S2 hold, S3 block), labelled "Example ·", and pauses off screen.
+  - Run replays the envelopes the embedded demo returned, so Policy Studio edits show up, with per-action dots and Skip.
+  - Under reduced motion it renders in one synchronous pass.
+  - A newer Run supersedes the old one; a frame timeout shows an error state.
+- **Run no longer scrolls to the frame.** **See this run in the decision plane ↓** does that instead. Try the loop still scrolls.
+- **Untouched:** the vendored demo (`jev-runtime-vendored.test.mjs`), System Validation's six steps (S42 checks they still animate), and the learning card's content.
+- **Probes:** S15/S18/S19/S21 repointed from `#rtSteps` to the pipeline hooks. New S39–S42 cover R1–R9. R2 fails when the host replays the reference envelopes instead of the frame's. R5 fails when all three supersede guards are removed. Site probes 41/42: S20 also fails on the base commit `200f5f4` (environmental). Unit tests 29/29; SWM probes all pass.
+- **Guide:** `docs/jev-runtime-guide/README.md` §8.1–8.3 and screenshots 08/09 updated.
+- **Plan and reviews:** [`2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md`](2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md).
+
 ## 2026-10-02 — Deep links, incident ontology row and robustness fixes taken from jev-simplified
 
 - **World Model and incident deep links:**

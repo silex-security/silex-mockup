@@ -212,3 +212,19 @@ Verdicts r2: DeepSeek PLAN-APPROVED, Codex PLAN-APPROVED. r3 folds in non-blocki
 
 Two r3 nits are left to implementation (no plan change): the fallback bullet in §1.2 also covers `down`, as §2.1 says; R4 resets the scroll to the card head before each click.
 
+## Code gate record
+
+Diff revisions are `git hash-object` of `git diff 200f5f4 -- . ':!*.png'`.
+
+| Round | Revision | DeepSeek | Codex | Defects → fixes |
+|---|---|---|---|---|
+| r1 | `73d41a9a` | IMPL-APPROVED | IMPL-REJECTED (3) | (1) a new Run left the previous run's frame and dots up while the frame loaded → host calls `pipeline.reset()`; (2) `error()` kept stale dots and metadata → cleared; (3) idle Evidence said "0 records" after an example passed it → "1 record" per example. Each got an assertion (S41, S42, S39/S41), shown to fail with its fix reverted. Also the Google Fonts link indentation (DeepSeek nit). |
+| r2 | `83b65879` | IMPL-APPROVED | IMPL-REJECTED (1) | Monitor styling took the deciding box's colour from the enforced allow exit, and a fallback had no monitor outline → colour from `would_have`, fallback outlined on Policy; S39 asserts both (S3, F1), each shown to fail with its half reverted. |
+| r3 | `f2922fdd` | **pending**: the DeepSeek API returned "Insufficient Balance" (request `31422cbd-3b27-4764-b362-1676b47158f2`) before it could reply | IMPL-APPROVED | — |
+
+The planner's fixes to `js/rt-pipeline.js` after DeepSeek reported Task 2 done, before r1: missing note spans on the Evidence box (crash); the example caption separator; clearing the previous action's stages at the start of each action; re-placing the token on resize; pausing the idle loop immediately when off screen; placing the token on a box's top edge (above the exits column at the fork), so it never covers text.
+
+Contract wording governs where the plan's prose differs: §1.3 says the replay caption prefix is "This run"; §2.1 and the code use "Action i of n · " (noted by both reviewers, non-blocking). `data-action-count` counts the three examples during the idle loop. Reduced motion is read once at load.
+
+PLANNER (claude): IMPL-APPROVED on `f2922fdd`, base `200f5f4`.
+

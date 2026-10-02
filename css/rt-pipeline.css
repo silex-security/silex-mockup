@@ -1,1 +1,254 @@
-/* Runtime Observation pipeline picture (logs/2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md §2.4). Built in task 2. */
+/* Runtime Observation live pipeline picture (logs/2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md §1.2, §2.4).
+   Scoped entirely under #rtPipeline; only the listed site tokens and the inherited Inter font. */
+
+#rtPipeline {
+  position: relative;
+  padding: 16px 12px 12px;
+  margin-bottom: 14px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+#rtPipeline .rt-pipe-sim {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+#rtPipeline .rt-pipe-lane {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  max-width: 100%;
+  padding-top: 12px;   /* room for the token, which sits on a box's top edge */
+}
+
+/* Stage boxes (HTML, CSS flex; SVG only for the icons). */
+#rtPipeline .rt-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1 1 0;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--soft);
+  padding: 14px 8px 8px;
+  text-align: center;
+  transition: border-color .2s ease, background .2s ease, opacity .2s ease;
+}
+#rtPipeline .rt-stage svg { width: 18px; height: 18px; color: var(--muted); flex: 0 0 auto; }
+#rtPipeline .rt-stage .rt-stage-name { font-weight: 700; font-size: 12px; line-height: 1.2; }
+#rtPipeline .rt-stage .rt-stage-cap { font-size: 10px; color: var(--muted); line-height: 1.3; }
+#rtPipeline .rt-stage .rt-stage-note {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  margin-top: 2px;
+  line-height: 1.25;
+  word-break: break-word;
+  color: var(--ink);
+}
+#rtPipeline .rt-stage .rt-stage-note:empty { display: none; }
+#rtPipeline .rt-stage .rt-stage-monitor {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--amber);
+}
+#rtPipeline .rt-stage .rt-stage-monitor:empty { display: none; }
+
+/* Connectors (arrows). */
+#rtPipeline .rt-conn {
+  flex: 0 0 14px;
+  align-self: center;
+  position: relative;
+  height: 2px;
+  background: var(--line);
+  margin: 0 2px;
+}
+#rtPipeline .rt-conn::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 5px solid var(--muted);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+/* The fork: three exits stacked after Policy. */
+#rtPipeline .rt-exits {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+#rtPipeline .rt-exit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 5px 9px;
+  font-size: 10.5px;
+  white-space: nowrap;
+  color: var(--muted);
+  transition: border-color .2s ease, background .2s ease, color .2s ease;
+}
+#rtPipeline .rt-exit b { color: var(--ink); font-size: 11px; }
+
+/* Evidence box extras. */
+#rtPipeline .rt-evidence-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--blue2);
+  margin-top: 3px;
+}
+
+/* The travelling token: a pill with the tool name. */
+#rtPipeline #rtToken {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--soft);
+  background: var(--ink);
+  border-radius: 999px;
+  padding: 3px 9px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .26s ease, opacity .18s ease;
+}
+
+/* Stage state colouring. */
+#rtPipeline .rt-stage[data-state="active"] { border-color: var(--blue); background: var(--soft); }
+#rtPipeline .rt-stage[data-state="pass"] { border-color: var(--green); background: var(--green-bg); }
+#rtPipeline .rt-stage[data-state="pass"] .rt-stage-name { color: var(--green); }
+#rtPipeline .rt-stage[data-state="pass"] svg { color: var(--green); }
+
+#rtPipeline .rt-stage[data-state="hit"].is-hold { border-color: var(--amber); background: var(--amber-bg); }
+#rtPipeline .rt-stage[data-state="hit"].is-hold .rt-stage-name { color: var(--amber); }
+#rtPipeline .rt-stage[data-state="hit"].is-hold svg { color: var(--amber); }
+#rtPipeline .rt-stage[data-state="hit"].is-block { border-color: var(--red); background: var(--red-bg); }
+#rtPipeline .rt-stage[data-state="hit"].is-block .rt-stage-name { color: var(--red); }
+#rtPipeline .rt-stage[data-state="hit"].is-block svg { color: var(--red); }
+
+#rtPipeline .rt-stage[data-state="ran-not-deciding"] { border-style: dashed; border-color: var(--muted); background: var(--soft); opacity: .9; }
+#rtPipeline .rt-stage[data-state="ran-not-deciding"] .rt-stage-name { color: var(--muted); }
+
+#rtPipeline .rt-stage[data-state="timeout"],
+#rtPipeline .rt-stage[data-state="down"] {
+  border-color: var(--amber);
+  background: repeating-linear-gradient(45deg, var(--amber-bg), var(--amber-bg) 6px, var(--soft) 6px, var(--soft) 12px);
+}
+#rtPipeline .rt-stage[data-state="bypassed"] { opacity: .45; }
+#rtPipeline .rt-stage[data-state="fallback"] { border-color: var(--amber); background: var(--amber-bg); }
+#rtPipeline .rt-stage[data-state="fallback"] .rt-stage-name { color: var(--amber); }
+
+/* Monitor: the deciding box keeps its colour but is outlined dashed. */
+#rtPipeline .rt-stage[data-monitor] { outline: 2px dashed var(--amber); outline-offset: 2px; }
+
+/* Exit states. */
+#rtPipeline .rt-exit[data-lit] { border-color: var(--green); background: var(--green-bg); color: var(--green); }
+#rtPipeline .rt-exit[data-lit] b { color: var(--green); }
+#rtPipeline .rt-exit[data-exit="hold"][data-lit] { border-color: var(--amber); background: var(--amber-bg); color: var(--amber); }
+#rtPipeline .rt-exit[data-exit="hold"][data-lit] b { color: var(--amber); }
+#rtPipeline .rt-exit[data-exit="block"][data-lit] { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+#rtPipeline .rt-exit[data-exit="block"][data-lit] b { color: var(--red); }
+
+/* Caption / badges / skip. */
+#rtPipeline .rt-pipe-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  min-height: 24px;
+}
+#rtPipeline #rtPipeCaption { font-size: 11.5px; margin: 0; flex: 1 1 auto; min-width: 0; line-height: 1.4; }
+#rtPipeline .rt-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+#rtPipeline .rt-badge { font-size: 10px; font-weight: 700; border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+#rtPipeline .rt-badge-alert { background: var(--amber-bg); color: var(--amber); }
+#rtPipeline .rt-badge-monitor { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber); }
+#rtPipeline #rtPipeSkip {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#rtPipeline #rtPipeSkip:hover { border-color: var(--blue); color: var(--blue2); }
+
+/* Per-action dots. */
+#rtPipeline #rtPipeDots { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+#rtPipeline .rt-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--line); background: var(--soft); outline: none; }
+#rtPipeline .rt-dot[data-exit="allow"] { background: var(--green); border-color: var(--green); }
+#rtPipeline .rt-dot[data-exit="hold"] { background: var(--amber); border-color: var(--amber); }
+#rtPipeline .rt-dot[data-exit="block"] { background: var(--red); border-color: var(--red); }
+#rtPipeline .rt-dot:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+
+/* Vertical layout on narrow screens: the token travels down. */
+@media (max-width: 639px) {
+  #rtPipeline .rt-pipe-lane { flex-direction: column; align-items: stretch; }
+  #rtPipeline .rt-stage { flex: none; width: 100%; }
+  #rtPipeline .rt-conn {
+    flex: 0 0 12px;
+    height: 14px;
+    width: 2px;
+    margin: 0 auto;
+  }
+  #rtPipeline .rt-conn::after {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: -1px;
+    transform: translateX(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--muted);
+    border-bottom: 0;
+  }
+  #rtPipeline .rt-exits { flex-direction: column; }
+}
+
+/* Reduced motion: no transitions/animations. */
+@media (prefers-reduced-motion: reduce) {
+  #rtPipeline #rtToken,
+  #rtPipeline .rt-stage,
+  #rtPipeline .rt-exit { transition: none !important; animation: none !important; }
+}
+#rtPipeline[data-reduced] #rtToken,
+#rtPipeline[data-reduced] .rt-stage,
+#rtPipeline[data-reduced] .rt-exit { transition: none !important; animation: none !important; }

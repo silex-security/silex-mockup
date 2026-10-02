@@ -2,7 +2,7 @@
 // Recomputed independently through runStream, so a model bug cannot be masked by the same code it uses.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { describeRun, summarize } from '../../js/jev-runtime-model.js';
+import { describeRun, summarize, referenceExamples } from '../../js/jev-runtime-model.js';
 import { runStream } from '../../jev-runtime/demo/js/engine/router.js';
 import { TENANT, scenariosFor } from '../../jev-runtime/demo/js/engine/scenarios.js';
 import { DEFAULT_POLICY } from '../../jev-runtime/demo/js/engine/types.js';
@@ -66,4 +66,14 @@ test('no result line claims delivery', () => {
   monitor.tools['payments.execute'].mode = 'monitor';
   const s3 = scenariosFor('ap').find(t => t.scenario === 'S3');
   assert.doesNotMatch(describeRun(runStream(s3.spans, { tenant: TENANT, policy: monitor, seed: 7 }), { id: 'S3' }), /sent to|exported to|delivered to|forwarded to|OTLP/i);
+});
+
+test('referenceExamples returns the S1/S2/S3 payments.execute pre_tool envelopes', () => {
+  const ex = referenceExamples();
+  assert.deepEqual(ex.map(x => x.id), ['S1', 'S2', 'S3']);
+  for (const { id, env } of ex) {
+    assert.equal(env.boundary, 'pre_tool', id);
+    assert.equal(env.tool.name, 'payments.execute', id);
+  }
+  assert.deepEqual(ex.map(x => x.env.decided_by), ['policy', 'jev', 'rule']);
 });

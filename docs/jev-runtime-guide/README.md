@@ -174,13 +174,11 @@ Silex 主站左侧导航的 **Environment** 组里，**Runtime Observation** 是
 Runtime Observation 页上方：
 
 - **四个参考数字**，由模拟引擎在默认策略下算出：12 个脚本场景、检查 24 个动作、10 个在执行前被拦下或暂停、6 个由硬规则决定。旁边注明了这是参考值：在下面嵌入的 demo 里改策略，不会改变这几个数。
-- **How runtime validation works**：六步流程。
-  1. 抓取动作（模拟的 OpenTelemetry 格式输入）
-  2. 硬规则
-  3. Jev 判官
-  4. 策略
-  5. 网关执行或拦截
-  6. 留证据（**只是预览，什么都不会发出浏览器**）
+- **Scripted scenarios 卡片顶部的流程动画**（2026-10-02 起，取代原来的六步文字清单 “How runtime validation works”）：一个写着工具名的小标签，依次经过 **Agent action → Hard rules → Judge (Jev) → Policy**，从 **Allow / Hold / Block** 三个出口之一离开，最后落进 **Evidence**（证据记录，**只是预览，什么都不会发出浏览器**）。
+  - 每个框下有一行白话说明；决定结果的那个框会变色并写出原因，比如规则 id `amount_limit`。
+  - 硬规则做决定时，判官其实也跑了，只是不参与决定，所以显示 “ran · not deciding”，而不是 “跳过”。
+  - 判官超时（F1）时显示 “timed out”，Policy 框显示 fallback 是 fail-open 还是 fail-closed。
+  - 还没点 Run 时，动画循环播放默认策略参考集里的三个真实例子：S1 放行、S2 转人工、S3 拦截，标题以 “Example ·” 开头。离开页面或切到后台时暂停。系统设置了 “减少动态效果” 时不播放，只显示静态画面。
 
 ### 8.2 点 Run 跑一个场景
 
@@ -188,7 +186,7 @@ Runtime Observation 页上方：
 
 在 **Scripted scenarios** 里找到任一场景，点 **Run**：
 
-- 六步流程依次打勾；
+- 卡片顶部的动画就在 Run 按钮正上方，把**这次运行**里的每个动作按顺序播一遍（“Action 2 of 3 · …”）。动画用的是嵌入 demo 实际返回的结果，所以在 Policy Studio 里改了策略，动画也会跟着变。动画下面一排小圆点，每个点代表一个动作，颜色就是它的出口；鼠标悬停可以看说明。**Skip** 可以直接跳到结尾；
 - 下方绿色结果行用一句话说明这次运行，比如 “SOC5 · 4 actions: identity.suspend_user held for review by the judge threshold (×2); 2 ran.”，意思是 4 个动作里有 2 次停用被转人工审核，2 个已执行；
 - 每个场景右边的小标签（all ran、held · rule、blocked · rule、review · judge…）是默认策略下的参考结果。
 
@@ -196,7 +194,7 @@ Runtime Observation 页上方：
 
 ![嵌入的 demo](10-runtime-embedded.png)
 
-点 Run 后，页面会滚到下方嵌入的 demo：它自动切到对应的 agent，并选中刚跑的那次运行。在这里可以做第 1–7 节介绍的所有事。右上角 **Open full page →** 用整页打开，左上角的返回链接回到 Runtime Observation。
+点 Run 后页面不再自动滚走，免得错过动画。跑完后点结果行旁边的 **See this run in the decision plane ↓**，就会滚到下方嵌入的 demo：它自动切到对应的 agent，并选中刚跑的那次运行。在这里可以做第 1–7 节介绍的所有事。右上角 **Open full page →** 用整页打开，左上角的返回链接回到 Runtime Observation。
 
 ---
 

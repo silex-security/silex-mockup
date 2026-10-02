@@ -1,9 +1,11 @@
 /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md; built in logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md §1, §5).
    - Fills the reference metrics and scenario chips from js/jev-runtime-model.js (the vendored simulated engine).
    - Owns the iframe with the vendored demo (jev-runtime/demo/), loaded on the first visit to the tab.
-   - Run: animates the six steps, then injects the scenario into the frame and describes that run from the
-     envelopes the frame returned. Latest request wins: every asynchronous step checks its request token. */
-import { summarize, describeRun } from './jev-runtime-model.js';
+   - Run: injects the scenario into the frame, replays the envelopes the frame returned through the pipeline picture
+     (js/rt-pipeline.js; logs/2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md), then describes that run from the same
+     envelopes. Latest request wins: every asynchronous step checks its request token. */
+import { summarize, describeRun, referenceExamples } from './jev-runtime-model.js';
+import { mountPipeline } from './rt-pipeline.js';
 
 const DEMO = 'jev-runtime/demo/index.html';
 const BACK = '../../index.html#view=runtime-observation';     // relative to the demo page
@@ -11,8 +13,9 @@ const READY_MS = 10000;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-// Foundation stub with the js/rt-pipeline.js API (plan §2.1); replaced by mountPipeline in task 3.
-const pipeline = { idle() {}, replay: async () => 'done', skip() {}, stop() {}, reset() {}, error() {} };
+const NARROW = 900;   // below this the scenario lists stack, so a lower Run button can sit below the pipeline
+const pipeline = mountPipeline($('rtPipeline'), { reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches });
+let examples = null;
 
 let summary = null, frame = null, frameDomain = null, nav = 0, token = 0, cancelPrevious = null;
 
@@ -98,7 +101,8 @@ async function run(id) {
   const btn = document.querySelector(`[data-rt-run="${id}"]`);
   if (btn) { btn.disabled = true; btn.textContent = 'Running…'; }
   const status = $('rtStatus'); status.textContent = 'Running'; status.className = 'status running'; status.style.cssText = '';
-  $('rtResult').className = 'decision-state';
+  $('rtResult').className = 'decision-state'; $('rtSeeRun').hidden = true;
+  pipeline.reset();   // the previous run's frame and dots must not show while this scenario's frame loads
   try {
     let demo = await Promise.race([frameOn(sc.domain, isCurrent), cancelled]);
     if (!isCurrent()) return null;
@@ -107,14 +111,20 @@ async function run(id) {
     if (!isCurrent()) return null;
     const envs = demo.inject(id);
     refreshOpenFull();
+    // No scroll to the frame: the picture of this run is what the viewer just asked to see (#rtSeeRun goes there).
+    if (innerWidth < NARROW) $('rtPipeline').scrollIntoView({ behavior: 'instant', block: 'nearest' });
+    const played = await Promise.race([pipeline.replay(envs, { isCurrent }), cancelled]);
+    if (played !== 'done' || !isCurrent()) return null;
     const line = describeRun(envs, { id });
     setResult(line, true);
     status.textContent = 'Complete'; status.className = 'status'; status.style.cssText = 'background:var(--green-bg);color:var(--green)';
-    $('rtFrameWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('rtSeeRun').hidden = false;
     return line;
   } catch (e) {
     if (!isCurrent() || e.message === 'stale') return null;
-    setResult('The simulated demo did not load; open it full page.', false);
+    const message = 'The simulated demo did not load; open it full page.';
+    pipeline.error(message);
+    setResult(message, false);
     status.textContent = 'Error'; status.className = 'status blocked'; status.style.cssText = '';
     return null;
   } finally {
@@ -125,8 +135,14 @@ async function run(id) {
 
 function shown() {
   if (!frame) loadFrame('ap', true);
+  // Entering the view shows the reference examples again, unless a Run is in flight.
+  if (!cancelPrevious) {
+    try { examples ??= referenceExamples(); } catch { examples = []; }
+    if (examples.length) pipeline.idle(examples);
+  }
 }
 
+$('rtSeeRun').addEventListener('click', e => { e.preventDefault(); $('rtFrameWrap').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 $('rtScenarios').addEventListener('click', e => { const b = e.target.closest('[data-rt-run]'); if (b && !b.disabled) run(b.dataset.rtRun); });
 // Open full page: the frame's current agent and seed, no embed, and a back link to this tab. The href is kept current
 // (frame load, each Run, pointer/focus), so copying the link or opening it in a new tab gets the same target.

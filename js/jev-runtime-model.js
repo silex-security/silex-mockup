@@ -90,3 +90,13 @@ export function summarize({ seed = 7 } = {}) {
   }
   return { reference: `simulated · seed ${seed} · policy-v1 reference set`, metrics, scenarios };
 }
+
+/** The three idle-loop reference envelopes: each scenario's `payments.execute` pre_tool envelope. */
+export function referenceExamples({ seed = 7 } = {}) {
+  return ['S1', 'S2', 'S3'].map(id => {
+    const t = scenariosFor('ap').find(x => x.scenario === id);
+    const env = runStream(t.spans, { tenant: TENANT, policy: DEFAULT_POLICY, seed })
+      .filter(e => e.boundary === 'pre_tool' && e.tool?.name === 'payments.execute')[0];
+    return { id, env };
+  });
+}
