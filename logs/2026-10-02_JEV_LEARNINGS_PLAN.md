@@ -199,3 +199,29 @@ Commit `b076a27`.
 | DeepSeek NB: loader indentation; `assurance.html`'s own explorer button | Cosmetic. `assurance.html` is out of scope (a separate snapshot) |
 
 Three consecutive runs at round 3: `probe-swm` 15/15 each run; site probes 37/38 each run (S20 environmental, the same failure as at BASE).
+
+### Round 3 — code gate passed
+
+Commit `8b6f2ae`, diff revision `54c48e1`, base `df79519`.
+
+| Seat | Verdict |
+|---|---|
+| coder-deepseek (DeepSeek V4.1 Flash) | IMPL-APPROVED |
+| reviewer-codex (Codex, GPT-6-Luna medium) | IMPL-APPROVED (no non-blocking suggestions) |
+| PLANNER (claude) | IMPL-APPROVED. Three consecutive runs: `probe-swm` 15/15, site probes 37/38 (S20 environmental, as at BASE) |
+
+## Outcome
+
+- **Gates:** plan unanimous after 5 rounds (v1 → v5); code unanimous after 3 rounds.
+- **Shipped:**
+  - A: deep links, with the history, focus and cancellation contract;
+  - B1–B3;
+  - C: the I-1042 row, as two hazard-sourced assertions, and the I-1038 blind spot;
+  - E: chain text, as directed assertions.
+- **Cut:** D.
+- **New probes:** P1–P6 and S22–S38. Each one added for a fix was shown to fail on the code it guards against (S22 on `df79519`, P6 on `1e9b168`, S35 on `b076a27`).
+- **What each seat caught:**
+  - *Codex:* the plan's number-joined incidents (with DeepSeek); the history contract, the route-check and cancellation gaps; the reversed `COUNTERS` chain; the linear I-1042 row implying a false relation.
+  - *DeepSeek:* the cold-load mechanism (`SWMLoad` undefined when the router runs); the shared-loader risk to `assurance.html`; the B3/F mismatch; probe placement.
+  - *Planner:* the facts F1–F9, `SWM_PENDING_COVERAGE_FOCUS` as precedent, and the stale-origin rewrite (accepted by both).
+- **User's instruction:** "feel free to push when code review and final round passes". The deploy is recorded below.
