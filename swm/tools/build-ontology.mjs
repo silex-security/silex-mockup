@@ -19,6 +19,7 @@ import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import * as SEED from './silex-seed.mjs';
+import * as SCHEMA from './schema.mjs';
 
 const ROOT   = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE  = join(ROOT, '.cache');

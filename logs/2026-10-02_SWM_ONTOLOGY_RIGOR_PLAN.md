@@ -355,3 +355,10 @@ DeepSeek's round-3 non-blocking notes are not plan changes. They are handled as 
 - The independent signature table is written from the frozen T0 contract, and the drift check keeps it consistent.
 
 Review base: `BASE=74ed19a`.
+
+### T0 contract clarifications (before dispatch; no change to approved semantics)
+
+- **`COMPONENT_ISA[componentId] = coreId`** is added to the seed exports, owned by DeepSeek under T1. The approved rule "L3 component: display parent is an L1 core class (`SUBCLASS_OF`)" needs a source for that mapping, and none of the approved exports supplied one.
+- `schema.mjs` encodes the signatures as kind pairs, plus a `SUBCLASS_COMPAT` table so a child may only specialise a parent of a compatible kind. Both are frozen at T0.
+- `CHARACTERIZES` targets published threats (ATT&CK/ATLAS techniques and tactics, OWASP risks). No core threat kind is introduced.
+- Source cache populated by a full online build at BASE. The result was identical to the committed bundle except `generated`, so there is no upstream drift.

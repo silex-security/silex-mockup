@@ -253,3 +253,41 @@ export const GROUP_HINTS = [
   ['workflow', /workflow|sequence|orchestrat|pipeline|chain|procedure|plan|schedul/i],
   ['outcome',  /prohibited|legitimate completion|outcome|result|loss|damage|availability|integrity|confidential|business/i]
 ];
+
+/* ==== ontology rigor exports (plan 2026-10-02, contract: ./schema.mjs) =====
+   Shapes are fixed by the plan's Contract section. Every id below is a Silex id
+   (no namespace prefix) unless it points at a public node, which keeps its
+   bundle id (e.g. 'attack:T1078', 'd3f:MultiFactorAuthentication', 'owasp:LLM06'). */
+
+/* L1 Silex core concepts: [{ id, label, group, kind, def, parent, relatedMatch? }]
+   kind ∈ CORE_KINDS; parent is another core id or 'grp:<group>' */
+export const CORE_L1 = [];
+
+/* ENTITY_ISA[domainId][entityLabel] = core id — required for every L2 entity */
+export const ENTITY_ISA = {};
+
+/* COMPONENT_ISA[componentId] = core id (kind 'core') — the L1 class each of the 13 L3
+   AGENTIC_COMPONENTS specialises; it becomes the component's display parent */
+export const COMPONENT_ISA = {};
+
+/* DOMAIN_ACTIONS[domainId] = [{ id, label, isA, mayCause:[effect id], workflows:[WF id], implementedBy?:[rt id] }] */
+export const DOMAIN_ACTIONS = {};
+
+/* PROHIBITED[domainId] = [{ id, label, kind:'effect'|'state', isA, def }] */
+export const PROHIBITED = {};
+
+/* DOMAIN_HAZARDS[domainId] = [{ id, label, def, hazardFor:[entity|action id], mayLeadTo?:[prohibited id],
+                                characterizes:[threat id], mitigatedBy:[control id], requiresEvidence:[evidence id] }] */
+export const DOMAIN_HAZARDS = {};
+
+/* L3 telemetry record schemas, under ag:trace: [{ id, label, def, records:[evidence id] }] */
+export const RECORD_SCHEMAS = [];
+
+/* L3 threat → countermeasure: [{ threat, control, note }] */
+export const COUNTER_MAP = [];
+
+/* L4 incident → L2 hazard (illustrative): [{ incident, hazard }] */
+export const INCIDENT_HAZARDS = [];
+
+/* Candidate domain packs (ontology only, no coverage figures): DOMAINS shape minus coverage/dims/agents/incidents */
+export const CANDIDATE_DOMAINS = [];
