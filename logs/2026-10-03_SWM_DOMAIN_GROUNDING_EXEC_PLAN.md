@@ -513,6 +513,33 @@ fixed for curated parent edges and uncut quotes; refund loop `HAZARD_FOR Order` 
 | CX-NB: retained/omitted totals not asserted | `test-sources.mjs` recomputes the ATLAS and ATT&CK `COUNTERS` and the case `DEMONSTRATES` totals independently from the raw files |
 | DS-NB: screenshots predated the CS0026 fix; record #4 as a post-T0 change; note `swm.css` | Screenshots regenerated; #4 and #6 are listed under departures above |
 
+## Outcome
+
+Code gate passed in round 2 on revision `f1932727beeeeee6acd6813bc30d46b54f3b9af9` (git hash-object of
+`git diff --binary 350362a 1625b07` over the 40 implementation paths), commit `1625b07`, base `350362a`.
+
+| Seat | Plan gate (E5) | T0 gate | Code gate r1 | Code gate r2 (final) |
+|---|---|---|---|---|
+| coder-deepseek (`deepseek/deepseek-v4-pro`) | `PLAN-APPROVED` | `T0-APPROVED` | `IMPL-APPROVED` | `IMPL-APPROVED` |
+| reviewer-codex (Codex) | `PLAN-APPROVED` | `T0-APPROVED` (r2) | `IMPL-REJECTED` (2) | `IMPL-APPROVED` |
+| planner (Claude Opus 5.5) | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): T0-APPROVED` | — | `PLANNER (claude): IMPL-APPROVED` |
+
+Rounds: plan 5, T0 2, code 2. What each seat caught:
+- **DeepSeek**: the ATLAS incident/exercise split and the unpinned ATLAS STIX (plan r1); CQ7 unsatisfiable
+  after T0 (P1); D13 techniques left uncited; validate-seed count bounds.
+- **Codex**: the AgentDojo v1.2 task registry, preamble anchors, refund tool and derived/related grading
+  (plan r1); coverage freeze and `generated` (plan r2); the nine T0 modelling objections (alignment,
+  records, case pairs, T1484, action typing, workflows, contract); the AgentDojo quote leak and the NIST
+  definitions (code r1).
+- **Planner**: source verification at the pins, case-study endpoints, the cache-matching pins for all
+  baseline inputs, the ATLAS citation residue and the validate-seed public-node test.
+
+Open follow-up (non-blocking, Codex code r2): `test-sources.mjs` asserts retained `COUNTERS` and ATLAS
+`DEMONSTRATES` totals; omitted-reference totals and campaign `DEMONSTRATES` totals are not yet asserted.
+
+Not done in this run: merge to `main` and push. Pushing `main` deploys the site, so it waits for the
+product owner.
+
 ## Appendix: verification commands
 
 ```bash

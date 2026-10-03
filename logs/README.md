@@ -2,6 +2,20 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-03 — Enterprise World Model: Finance, Customer Service and Identity & IT grounded in public sources
+
+- **Why:** external feedback said the ontology was generic MITRE/OWASP with no domain grounding. The L2 packs existed but every node was Silex-authored.
+- **Sources (all pinned, sha256 in `swm/tools/sources/MANIFEST.json`):** FIBO, Microsoft Common Data Model, OCSF 1.9.0 (domain standards); AgentDojo, τ²-bench, Agent Security Bench, ToolEmu (benchmarks); ATLAS case studies, ATT&CK campaigns and mitigations, ATLAS mitigations, NIST SP 800-53 Rev. 5. Licence texts and attributions: `swm/data/NOTICES.md`.
+- **Model:**
+  - Entities are **aligned to** public classes with `CLOSE_MATCH` (13); entities with no equivalent class (*Customer*, *Refund*, *Role*, …) are listed as unmatched with the reason.
+  - 21 hazards and 16 actions cite 63 benchmark sources, each graded **derived** or **related**; 11 new hazards, 15 new actions, 3 OCSF-defined record schemas.
+  - 57 ATLAS cases (17 incidents, 40 exercises) and 2 campaigns are L3 `case` nodes; 4 reviewed hazard→case pairs.
+  - 68 published mitigations raise countered L3 threats from 45 to 73 of 105.
+  - Bundle 766 → 961 nodes, 1389 → 2339 relations; `ontology.js` 865 KB. Bundle cap raised to 10 MB, guarded by a cold-load probe (Layers 528 ms, Graph 426 ms).
+- **Untouched (checked against BASE `350362a`):** every existing node id, label, kind, layer, parent and review grade; all 1389 existing relations with their grades; the coverage tree, gaps, percentages and runtime figures (verifier `--base` check); `index.html` structure and routes (site probes 41/42, same as BASE).
+- **Inspector:** public sources with derived/related grade, definition version and full quote; case type; OCSF deprecation; alignment or no-match reason; collapsed attributes.
+- **Reviews:** plan 5 rounds, T0 2, code 2; unanimous. Plan and run record: [`2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md`](2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md); scope document [`swm/2026-10-03_SWM_DOMAIN_GROUNDING_PLAN.md`](../swm/2026-10-03_SWM_DOMAIN_GROUNDING_PLAN.md).
+
 ## 2026-10-02 — Runtime Observation: the six text steps become a live pipeline picture
 
 - **Why:** the *How runtime validation works* card sat ~700 px above the Run buttons, with the learning card between them, so you could not see it while a scenario ran. Its six text steps ("OpenTelemetry-shaped span", "atomic questions"…) were hard to follow.

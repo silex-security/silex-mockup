@@ -56,5 +56,6 @@ Every change to this demo, newest first, with the reasoning behind each one: [`l
 | [`2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md) | Runtime Validation tab in System Validation, backed by the vendored Jev runtime demo (`jev-runtime/`): plan r3, review rounds, outcome |
 | [`2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md`](logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md) | Runtime Observation moved out of System Validation into its own nav view; plan, reviews, outcome |
 | [`2026-09-30_FLOATING_NAV_PLAN.md`](logs/2026-09-30_FLOATING_NAV_PLAN.md) | Floating left nav: hidden by default, click toggle to dock (ChatGPT-style), edge-hover peek; plan r1–r3, reviews, outcome |
+| [`2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md`](logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md) | Domain grounding of Finance, Customer Service and Identity & IT in public standards, benchmarks and cases; plan E1–E5, T0 gate, code gate, outcome (scope: [`swm/2026-10-03_SWM_DOMAIN_GROUNDING_PLAN.md`](swm/2026-10-03_SWM_DOMAIN_GROUNDING_PLAN.md)) |
 
 Each document is dated and kept as written; `logs/` also holds the design frames, review records and probe evidence for the bigger changes.
