@@ -499,6 +499,20 @@ fixed for curated parent edges and uncut quotes; refund loop `HAZARD_FOR Order` 
 11. The DeepSeek seat ran `deepseek/deepseek-v4-pro` (`deepseek-reasoner` is no longer offered).
 12. The T0 round-1 prompt lost the repo prefix on the plan path; every other path was absolute.
 
+### Code gate round 1 → round 2
+
+| Seat | Round 1 verdict |
+|---|---|
+| coder-deepseek | `IMPL-APPROVED` (3 notes) |
+| reviewer-codex | `IMPL-REJECTED` (2 defects) |
+
+| Defect (who) | Change |
+|---|---|
+| CX1: `agentdojo.mjs` parenthesized GOAL scanned the whole class, so the workspace task 4 quote ended with strings from `ground_truth()` | Extraction stops at the assignment's closing parenthesis; regression compares the quote with the GOAL alone; all 19 task quotes re-checked (DeepSeek) |
+| CX2: `nist-800-53.mjs` read only the first statement item, so AC-2(3) read "Have expired;" and AC-6, IA-5(7), IA-9 showed titles only | Statement prose first, then labelled items, `[Assignment: …]` parameters, then the 200-char cut; regressions for AC-2(3) and AC-6 (DeepSeek) |
+| CX-NB: retained/omitted totals not asserted | `test-sources.mjs` recomputes the ATLAS and ATT&CK `COUNTERS` and the case `DEMONSTRATES` totals independently from the raw files |
+| DS-NB: screenshots predated the CS0026 fix; record #4 as a post-T0 change; note `swm.css` | Screenshots regenerated; #4 and #6 are listed under departures above |
+
 ## Appendix: verification commands
 
 ```bash
