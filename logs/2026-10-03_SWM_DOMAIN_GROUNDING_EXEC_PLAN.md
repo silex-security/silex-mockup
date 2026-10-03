@@ -7,7 +7,7 @@ disagree, E2 wins. It adds what v3 lacked: a verified dataset decision, owners, 
 work and review stops.
 
 Base: `main` at `350362a`. Branch `swm-domain-grounding`, cut from that commit when the plan gate passes.
-Status: **E5 approved unanimously (round 5, 2026-10-03)**, covering Finance, Customer Service and Identity & IT. Nothing is implemented. Part C is new; other E4 edits are listed in the round-4 table. This run ends at the plan gate; implementation starts
+Status: **E5 approved unanimously (round 5, 2026-10-03)**, covering Finance, Customer Service and Identity & IT. Implemented on branch `swm-domain-grounding`; see the implementation record. Part C is new; other E4 edits are listed in the round-4 table. This run ends at the plan gate; implementation starts
 only when the product owner says go.
 
 Roster: **planner** Claude (Opus 5.5, calling pane) · **coder-deepseek** OpenCode `deepseek/deepseek-v4-pro`
@@ -432,6 +432,72 @@ C15 `caseType: 'campaign'` and allow-list".
 Rounds in total: 5 (E1 rejected by both; E2 one Codex blocker; E3 approved; E4 scope extension approved
 with suggestions; E5 confirmation approved). Implementation (P0a onward) starts only on the product
 owner's go.
+
+## Implementation record (P0–P2)
+
+Branch `swm-domain-grounding`, cut from `main` at `4f8a9e3` (= BASE `350362a` plus the v3 scope document
+only). Review diffs are taken against `BASE=350362a` over the implementation paths. Checkpoints:
+`d40a08b` (P0), `80435e3` (T0 round 1 fixes), `b3aeea6` (P1–P2).
+
+### T0 gate (passed, round 2)
+
+| Seat | Round 1 | Round 2 |
+|---|---|---|
+| coder-deepseek | `T0-APPROVED` (3 notes) | `T0-APPROVED` |
+| reviewer-codex | `T0-REJECTED` (9 objections) | `T0-APPROVED` |
+| planner | — | `PLANNER (claude): T0-APPROVED` |
+
+Round 1 objections and changes: Journal Entry and Customer made unmatched; the three broad records
+unaligned and three OCSF-defined records added; case pairs cut from 11 to 4 and campaigns to C0014 and
+C0049; new hazard *Access Granted To An Unintended Party* carries the three derived access sources;
+*Security Policy Loosened* characterizes TA0112 instead of T1484; Schedule Transaction and Return
+Delivered Items retyped as Write Actions; three actions have no workflow and a stated reason; contract
+fixed for curated parent edges and uncut quotes; refund loop `HAZARD_FOR Order` (CQ8 path).
+
+### Measured results (P2, offline acceptance)
+
+- Bundle: **961 nodes · 2339 links** (L1 547 · L2 203 · L3 187 · L4 24); `ontology.js` 865 KB.
+  Countered L3 threats 45 → **73** of 105 (published ATLAS/ATT&CK mitigations).
+- New content: 57 ATLAS cases (17 incidents, 40 exercises), 2 campaigns, 35 ATLAS + 33 ATT&CK
+  mitigations, 7 D13 techniques, 4 FIBO + 6 CDM + 11 OCSF classes, 11 NIST controls, 15 actions,
+  11 hazards, 3 records; 63 benchmark citations on 21 hazards and 16 actions; 13 `CLOSE_MATCH`;
+  4 `EXEMPLIFIED_BY`.
+- All offline acceptance commands pass: `test-sources`, `validate-seed`, build, `verify-bundle --base`
+  (coverage freeze), `competency` (CQ1–CQ9), negative fixtures, `check-copy` (84 numbers),
+  `probe-swm` (incl. cold load: Layers 528 ms, Graph 426 ms on Chrome 154, Apple M4 Pro; the 6 s
+  delayed-bundle fixture fails as required), `preview-panels`.
+- Reproducibility: two `--offline` builds and `swm/data` are identical after removing only the declared
+  generation fields.
+- Online: `check-sources.sh --full`: all 83 inputs reachable and sha256-ok.
+- Site probes: 41/42 on the branch and 41/42 on BASE (S20 fails on both; environmental, as recorded on
+  2026-10-02).
+
+### Departures from the approved text (for the code gate)
+
+1. P0b and P0c were dispatched once `schema.mjs` and `CONTRACT.md` existed, in parallel with the T0
+   lists. No file overlapped.
+2. All baseline inputs are URL-pinned (D3FEND 1.6.0, UCO, ATLAS STIX, ATT&CK), none hash-only.
+3. CDM imports the base `applicationCommon` documents (refines F3); only KnowledgeArticle needed it.
+4. **After the T0 gate**, to make CQ7 satisfiable: *Payment From Unverified Instruction* is also
+   `HAZARD_FOR` *Bank Account* (the hazard is about which account receives the money) and also
+   `CHARACTERIZES atlas:AML.T0051` (its derived AgentDojo source is a prompt-injection task, as for the
+   two other AgentDojo-derived hazards). Found by DeepSeek; needs the reviewers' judgment.
+5. Planner fixes in DeepSeek-owned files after it reported done: `atlas-cases.mjs` strips ATLAS
+   reference-style citations (`[\[1\]][1]`, one case); `validate-seed.mjs` treats a node as public when
+   its first `src` is public, since enrichment appends citations to Silex nodes.
+6. `swm/css/swm.css` (chip colours, citation and attribute styles) was edited by the planner; it is not in
+   the B2 list. No other seat touched it.
+7. `stats`: ATLAS and ATT&CK mitigations count under `atlas` and `attack` (their `src.sys`), so the page's
+   source counts read ATLAS 131 and ATT&CK 101; `attack-campaign` counts campaigns only.
+8. AgentDojo tool citations carry `ver: '1.0.0'` (tools are never re-versioned) so every AgentDojo `src`
+   has `ver`.
+9. The seven D13 techniques are imported as approved, but after the T0 corrections no hazard cites them;
+   they carry ATT&CK mitigations. Copy does not claim they characterize hazards.
+10. Codex's sandbox allowed its file writes without per-file prompts; scope was held by instruction and
+    checked with `git status`. Its five localhost/headless-Chrome probe runs were each approved once,
+    after reading the script (localhost only, temporary profile, output in scratch).
+11. The DeepSeek seat ran `deepseek/deepseek-v4-pro` (`deepseek-reasoner` is no longer offered).
+12. The T0 round-1 prompt lost the repo prefix on the plan path; every other path was absolute.
 
 ## Appendix: verification commands
 
