@@ -1,4 +1,4 @@
-# Security World Model — data sources
+# Enterprise World Model — data sources
 
 Generated 2026-10-02 by `swm/tools/build-ontology.mjs`.
 Raw downloads are cached in `swm/.cache/` (git-ignored); only the distilled bundles are committed.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ============================================================================
-   Build the Security World Model data bundle.
+   Build the Enterprise World Model data bundle.
 
      node swm/tools/build-ontology.mjs [--offline]
 
@@ -585,7 +585,7 @@ async function writeBundle(name, global, payload){
 async function writeSources(stats){
   const rows = Object.entries(SOURCES).map(([k,s]) =>
     `| [${s.name}](${s.home}) | \`${s.url}\` | ${s.licence} | ${stats[k] ?? '—'} |`).join('\n');
-  await writeFile(join(OUT,'SOURCES.md'), `# Security World Model — data sources
+  await writeFile(join(OUT,'SOURCES.md'), `# Enterprise World Model — data sources
 
 Generated ${new Date().toISOString().slice(0,10)} by \`swm/tools/build-ontology.mjs\`.
 Raw downloads are cached in \`swm/.cache/\` (git-ignored); only the distilled bundles are committed.
@@ -635,7 +635,7 @@ CRM and Legal are candidate packs. They are ontology only and not part of the co
 
 /* ---- main ---------------------------------------------------------------- */
 const t0 = Date.now();
-log('SILEX Security World Model — building data bundle');
+log('SILEX Enterprise World Model — building data bundle');
 
 const [d3fendRaw, atlasRaw, attackRaw] = await Promise.all([
   grab('d3fend.json', SOURCES.d3fend.url),
