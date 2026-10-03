@@ -220,11 +220,24 @@ Diff revisions are `git hash-object` of `git diff 200f5f4 -- . ':!*.png'`.
 |---|---|---|---|---|
 | r1 | `73d41a9a` | IMPL-APPROVED | IMPL-REJECTED (3) | (1) a new Run left the previous run's frame and dots up while the frame loaded → host calls `pipeline.reset()`; (2) `error()` kept stale dots and metadata → cleared; (3) idle Evidence said "0 records" after an example passed it → "1 record" per example. Each got an assertion (S41, S42, S39/S41), shown to fail with its fix reverted. Also the Google Fonts link indentation (DeepSeek nit). |
 | r2 | `83b65879` | IMPL-APPROVED | IMPL-REJECTED (1) | Monitor styling took the deciding box's colour from the enforced allow exit, and a fallback had no monitor outline → colour from `would_have`, fallback outlined on Policy; S39 asserts both (S3, F1), each shown to fail with its half reverted. |
-| r3 | `f2922fdd` | **pending**: the DeepSeek API returned "Insufficient Balance" (request `31422cbd-3b27-4764-b362-1676b47158f2`) before it could reply | IMPL-APPROVED | — |
+| r3 | `f2922fdd` (Codex) / `48c57722` (LongCat; same code, diff taken without the plan file) | DeepSeek: no reply, the API returned "Insufficient Balance" (request `31422cbd-3b27-4764-b362-1676b47158f2`). Replacement seat `reviewer-longcat`: **IMPL-APPROVED** | IMPL-APPROVED | — |
 
 The planner's fixes to `js/rt-pipeline.js` after DeepSeek reported Task 2 done, before r1: missing note spans on the Evidence box (crash); the example caption separator; clearing the previous action's stages at the start of each action; re-placing the token on resize; pausing the idle loop immediately when off screen; placing the token on a box's top edge (above the exits column at the fork), so it never covers text.
 
 Contract wording governs where the plan's prose differs: §1.3 says the replay caption prefix is "This run"; §2.1 and the code use "Action i of n · " (noted by both reviewers, non-blocking). `data-action-count` counts the three examples during the idle loop. Reduced motion is read once at load.
 
-PLANNER (claude): IMPL-APPROVED on `f2922fdd`, base `200f5f4`.
+**Roster change (user-authorized, 2026-10-02):** with DeepSeek out of balance, the user chose "Swap in another model". The DeepSeek seat for the r3 confirmation is taken by `reviewer-longcat` (OpenCode, `opencode/longcat-2.5-preview-free`, a free OpenCode Zen model). This is allowed because the repo is public (`silex-security/silex-mockup`); free endpoints may train on prompts. LongCat did not see earlier rounds, so it reviews the plan and the whole diff. Deploy: the user chose to keep the change on the branch (no merge or push).
+
+PLANNER (claude): IMPL-APPROVED on `f2922fdd` / `48c57722` (identical code, commit `888eabc`), base `200f5f4`.
+
+## Outcome
+
+- **Rounds:** plan 3 (r1 rejected by both, r2 approved by both, r3 confirmation of folded nits); code 3 (r1 and r2 rejected by Codex, r3 unanimous).
+- **Final verdicts:** `reviewer-codex` IMPL-APPROVED (r3) · `reviewer-longcat` IMPL-APPROVED (r3, user-authorized replacement for `coder-deepseek`, which approved r1 and r2) · PLANNER (claude) IMPL-APPROVED.
+- **What each seat caught:**
+  - **DeepSeek:** grounded the plan in the engine and probes. It found the lost "preview only" claim that `claims()` requires, F1's fail-open first action, wrong probe line citations (461 is Try the loop) and the missing 482–483. Then it built the component and its unit tests.
+  - **Codex:** state and flow. It found that the foundation checkpoint couldn't run (host still read `#rtSteps`) and that there was no error API. In code review: the old run's frame stayed visible during supersede, the error state was stale, the idle "0 records" overclaimed, and monitor mode coloured the deciding box from the enforced exit.
+  - **LongCat:** confirmed r3 independently and re-derived the monitor semantics from `policy.js`/`router.js`. Its nits are left for later: a promise from a cleared timer is never settled, `--blue2` is not in the §2.4 token list, and Skip is visible but does nothing outside a replay.
+  - **Planner:** integration smoke tests and screenshots, which found the Evidence crash, the stale stages between examples, the token covering text and the overflow after a resize.
+- **Deploy:** none. At the user's choice the change stays on branch `runtime-pipeline-visual`; `main` and the live site are unchanged.
 
