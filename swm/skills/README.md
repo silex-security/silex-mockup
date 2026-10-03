@@ -1,7 +1,7 @@
-# Security World Model skills
+# Enterprise World Model skills
 
-Two agent skills that carry the operational knowledge for the data behind the Security World Model
-panels. They are written to be run by Claude Code on a host that has never seen this repo, but each
+Two agent skills that carry the operational knowledge for the data behind the Enterprise World Model
+panels (formerly *Security World Model*, hence the `swm` prefix). They are written to be run by Claude Code on a host that has never seen this repo, but each
 `SKILL.md` also reads as a plain runbook for a person.
 
 | Skill | Use it when |
@@ -39,7 +39,10 @@ node swm/skills/swm-simulation-data/scripts/validate-seed.mjs     # is the inven
 node swm/tools/build-ontology.mjs [--offline]                     # build the bundles
 node swm/skills/swm-data-rebuild/scripts/verify-bundle.mjs        # is the built bundle sound
 node swm/skills/swm-data-rebuild/scripts/preview-panels.mjs [dir] # headless screenshots of all three panels
+node swm/skills/swm-data-rebuild/scripts/competency.mjs [dataDir] # six competency questions over the bundle
+node swm/skills/swm-data-rebuild/scripts/check-copy.mjs [root]    # counts printed in the docs match the bundle
+node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs            # browser interaction probes (node >= 22)
 ```
 
 `validate-seed.mjs` takes an optional path, so a candidate seed can be checked before it replaces the
-real one. All four exit non-zero on failure, which makes them usable in CI.
+real one. Every script exits non-zero on failure, which makes them usable in CI.

@@ -1,8 +1,20 @@
-# Security World Model — Observatory
+# Enterprise World Model — Observatory
 
-D3-based replacement for the **World Model Coverage**, **Security Ontology** and
-**Ontology Layers** panels under *Security World Model* in [`../index.html`](../index.html).
-Three panels, one shared abstraction level (`SWM.level`, `SWM.setLevel`, `SWM.onLevel`):
+The D3 panels behind the **Enterprise World Model** view of [`../index.html`](../index.html)
+(formerly *Security World Model*, hence the `swm` prefix). The view has five sub-tabs; this module
+draws three of them:
+
+| Sub-tab (in page order) | Panel id | Drawn by |
+|---|---|---|
+| **Ontology Layers** (default) | `wm-architecture` | `js/swm-layers.js` |
+| **Ontology Graph** (Network / Graph / Hierarchy / Relations views; opens on Network) | `wm-ontology` | `js/swm-ontology.js`, with `js/swm-vowl.js` + `js/swm-vowl-ui.js` for Network |
+| **World Model Coverage** | `wm-overview` | `js/swm-coverage.js` |
+| Domain Suites | `wm-landscape` | static markup and inline script in `index.html`, not this module |
+| Coverage Gaps | `wm-gaps` | static markup in `index.html`, not this module |
+
+The view shell (header, sub-tab bar, panel containers), sub-tab switching, the
+`#view=security-model&tab=…&node=…` deep links and the tab-bar styles also live in `index.html`.
+The three D3 panels share one abstraction level (`SWM.level`, `SWM.setLevel`, `SWM.onLevel`):
 **L1 general → L2 domain → L3 agentic-system → L4 runtime**.
 
 Build history of the 2026-09-21 visual upgrade and Network view, and why it took the time it did (not the data): [`BUILD_HISTORY.md`](BUILD_HISTORY.md).
@@ -43,7 +55,7 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 ### 每张图具体吃哪块数据
 
 - **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数、相邻层之间的 typed relations,以及跨层跳过的 `skips`)。
-- **Security Ontology**(graph / hierarchy / relation matrix)→ `ontology.json` 的 **766 nodes · 1389 typed relations**,每个节点/关系按 review 等级标注。
+- **Ontology Graph**(Network / Graph / Hierarchy / Relations 四种视图)→ `ontology.json` 的 **766 nodes · 1389 typed relations**,每个节点/关系按 review 等级标注。
 - **World Model Coverage**(可缩放 sunburst + 雷达)→ `coverage.json`(coverage tree / gaps / KPIs)。其中 **weighted coverage 82% · 29.4K entities · 8 blind spots · sim-vs-observed 94%** 等数字**均为 illustrative,非实测**。
 
 完整来源与许可见 [`data/SOURCES.md`](data/SOURCES.md)。
@@ -66,10 +78,13 @@ caption for the relations that skip a tier.
 
 ```
 swm/
-  css/swm.css              dark observatory canvas + light inspector chrome
+  css/swm.css              dark chart stages + white inspector "paper"
+  css/swm-vowl.css         Network view styles
   js/swm-core.js           colour scales, glyphs, tooltip, provenance chips, panel registry
-  js/swm-loader.js         lazy-loads d3 + bundles the first time a panel is opened
-  js/swm-ontology.js       Ontology Explorer  (graph / hierarchy / relation matrix)
+  js/swm-loader.js         lazy-loads d3 + bundles + panel scripts the first time a panel is opened
+  js/swm-ontology.js       Ontology Graph      (network / graph / hierarchy / relation matrix)
+  js/swm-vowl.js           Network view engine (VOWL notation, WebVOWL-style interaction) ┐ loaded by index.html
+  js/swm-vowl-ui.js        Network view controls                                          ┘ (defer), not the loader
   js/swm-coverage.js       Coverage Observatory (zoomable sunburst + contextual radar)
   js/swm-layers.js         Ontology Layers     (the four tiers, bands + ribbons)
   data/ontology.json|.js   generated graph: 766 nodes · 1389 typed relations, schema, chain summary
@@ -106,6 +121,15 @@ node swm/skills/swm-data-rebuild/scripts/verify-bundle.mjs     # 4. verify what 
 node swm/skills/swm-data-rebuild/scripts/preview-panels.mjs    # 5. headless screenshots of all three panels
 ```
 
+Three more checks from the 2026-10-02 ontology-rigor run
+([plan](../logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md)):
+
+```bash
+node swm/skills/swm-data-rebuild/scripts/competency.mjs   # six competency questions answered from the bundle
+node swm/skills/swm-data-rebuild/scripts/check-copy.mjs   # every count printed in the docs matches the bundle
+node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs    # browser interaction probes (node >= 22, Chrome)
+```
+
 Requirements: node ≥ 18 (global `fetch`; node ≥ 22 only for the screenshot step), ~70MB of disk for
 the cache, outbound HTTPS to `d3fend.mitre.org` and `raw.githubusercontent.com`, and a Chrome or
 Chromium binary if you want step 5. No npm install, ever — there is no `package.json` by design.
@@ -140,32 +164,30 @@ edges (curated) are Silex-authored mappings over public data, and their review g
 
 ## Encoding decisions
 
-The panels sit on a **white canvas**, and every ramp was re-validated with the dataviz palette
-validator against `#ffffff`:
+Since the 2026-09-21 visual upgrade, charts draw on a **dark stage** (`#10162b → #26305a`) and
+inspectors stay on white **paper**. Each ordinal ramp therefore has two variants, defined in
+`js/swm-core.js` and copied as CSS tokens in `css/swm.css` (keep the two in step); the contrast
+figures in the `swm-core.js` comments are measured against `#26305a` or `#ffffff`.
 
-- **Abstraction layer** is ordinal, so it gets a single-hue violet ramp
-  (`#b8a3ee → #50339c`, light end 2.21:1 on white) — passes monotone lightness, step gaps and
-  surface contrast. Violet is the section's primary colour: the ontology graph, the hierarchy, the
-  layer bands and the ribbons are all drawn from it.
-- **Coverage** gets a plum ramp (`#dfa0d5 → #54254f`, light end 2.07:1), same checks. Layer and
-  coverage are two sequential encodings the Explorer switches between, so they stay in the purple
-  family but a hue apart — otherwise flipping "colour by" would repaint the graph in the same
-  colours. Every step of both ramps leaves a text colour with at least 4.8:1 against it, which the
-  earlier teal ramp's middle steps did not.
+| Encoding | On the stage | On paper |
+|---|---|---|
+| Abstraction layer (ordinal, violet, L1 brightest) | `#ece5ff → #9b82ef` | `#50339c → #8e70d9` |
+| Coverage (ordinal, plum/pink, 40–100 %) | `#e0569f → #f8e2ef` | `#b0529c → #471d43` |
+| Status (reserved) | `#0ca30c / #fab219 / #ec835a / #d03b3b` | same |
+
+- **Layer and coverage stay a hue apart.** They are two sequential encodings behind the same
+  "colour by" switch; sharing one hue would make both modes repaint the graph identically.
 - **Text on a filled mark** is never guessed: `SWM.textOn()` returns whichever of white and ink has
   the higher measured contrast against that exact fill, and `SWM.haloOn()` adds a thin
   opposite-colour halo so a label survives landing on a boundary. Marks are drawn fully opaque so
   the measured colour is the colour on screen.
 - **A CSS rule beats an SVG `fill` attribute**, so the stage's fallback text colour is scoped
-  `text:not([fill])`. Without that, every contrast-picked label was silently repainted grey — which
-  is exactly how the labels became unreadable in the first place.
+  `text:not([fill])`. Without that, every contrast-picked label was silently repainted.
 - **Status never tints body text.** `SWM.statusHtml()` renders a tinted icon beside a word on the
-  normal ink token, which is what the reserved palette's sub-3:1 steps require.
+  normal ink token, and status always ships with an icon and a word, never colour alone.
 - **Ontology group is carried by glyph shape, not colour.** Eight simultaneous hues cannot
   clear the all-pairs CVD floor in a node-link view, so the eight groups use eight D3
   symbols, listed with their shapes in the rail and in the legend.
-- Status (critical / serious / warning / healthy) is a reserved palette and always ships
-  with an icon and a word, never colour alone.
 
 ## Extending it
 
@@ -173,5 +195,6 @@ validator against `#ffffff`:
   `tools/silex-seed.mjs` and rebuild.
 - New public source → add a fetcher + parser in `tools/build-ontology.mjs`, give its nodes
   a `src` entry, and record it in `SOURCES.md`.
-- The two panels are registered by id (`wm-overview`, `wm-ontology`) through
-  `SWM.register()`; a third panel only needs a mount point and one more `register` call.
+- The three panels are registered by id (`wm-architecture`, `wm-ontology`, `wm-overview`) through
+  `SWM.register()`; another panel needs a mount point and sub-tab in `index.html`, one more
+  `register` call, and its script and mount id added to `FILES` and `PANELS` in `js/swm-loader.js`.

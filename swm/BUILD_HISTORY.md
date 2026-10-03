@@ -2,6 +2,8 @@
 
 This note records how the 2026-09-21 SWM **visual upgrade** and **Network view** were built, and answers a question the team asked: *did the rebuild take long because it processes a lot of real data?* The short answer is no. Almost all of the time went into the review process, not into data.
 
+This is a record of 2026-09-21; the counts below are of that date. The bundle has since been rebuilt (2026-10-02 ontology-rigor run: 766 nodes / 1389 relations, `ontology.js` about 570 KB), and the section is now named *Enterprise World Model*. Current figures: [`README.md`](README.md).
+
 Detailed plans, review verdicts and probe evidence: [`../logs/`](../logs/README.md). Change summary: the repository [README](../README.md#whats-changed).
 
 ## 1. The data is small and did not change

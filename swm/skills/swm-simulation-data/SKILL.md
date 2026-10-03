@@ -3,7 +3,7 @@ name: swm-simulation-data
 description: "Author or regenerate the simulated (Silex-invented) content behind the SILEX Security World Model — domain packs, capabilities, workflows, agentic components, the runtime knowledge graph, coverage percentages and coverage gaps in swm/tools/silex-seed.mjs. Use when adding or renaming a domain, capability, workflow, component, runtime node or gap; when re-skinning the demo for another industry or customer; when coverage numbers or the radar need to tell a different story; or when a rebuild reports chain violations after a seed edit."
 ---
 
-# The simulated half of the Security World Model
+# The simulated half of the Enterprise World Model
 
 The bundle is two things welded together. The public nodes come from public ontologies (MITRE
 D3FEND, ATT&CK, ATLAS, UCO, OWASP) and keep their real identifiers. Everything else is **invented

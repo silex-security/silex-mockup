@@ -5,6 +5,13 @@ Coverage*, *Ontology Graph* and *Ontology Layers* tabs. Everything below is live
 [silex-mockup.vercel.app](https://silex-mockup.vercel.app/); the code lives in
 [`swm/`](swm/README.md), and the page keeps its single-file shell in `index.html`.
 
+> **Current state (2026-10-03).** This record starts with the 2026-09-17 build; later changes are
+> summarised here and in §8. The view now has five sub-tabs: *Ontology Layers* (the default since
+> 2026-10-02), *Ontology Graph*, *World Model Coverage*, and two static tabs, *Domain Suites* and
+> *Coverage Gaps*, which are plain markup in `index.html`. Since the 2026-09-21 visual upgrade the
+> charts draw on a dark stage with white inspectors (§5), and the Ontology Graph opens on a
+> WebVOWL-style **Network** view. How those were built: [`swm/BUILD_HISTORY.md`](swm/BUILD_HISTORY.md).
+
 Planning and audit documents are archived in [`logs/`](logs/) — the step plan for this work is
 [`logs/2026-09-17_SWM_OBSERVATORY_PLAN.md`](logs/2026-09-17_SWM_OBSERVATORY_PLAN.md).
 
@@ -93,14 +100,16 @@ Rebuild with `node swm/tools/build-ontology.mjs` (add `--offline` to rebuild fro
 
 ## 5. The visual system
 
-The section is **purple-dominant**, on a white canvas, with every ramp run through the dataviz
-palette validator against `#ffffff`:
+The section is **purple-dominant**. The 2026-09-17 build drew on a white canvas; since the
+2026-09-21 visual upgrade the charts draw on a **dark stage** (`#10162b → #26305a`) and inspectors
+stay on white paper, so each ramp has a stage and a paper variant (`swm/js/swm-core.js`, mirrored in
+`swm/css/swm.css`):
 
-| Encoding | Ramp | Notes |
-|---|---|---|
-| Abstraction layer (ordinal) | violet `#b8a3ee → #50339c` | graph nodes, hierarchy, layer bands, ribbons, rail badges |
-| Coverage (ordinal) | plum `#dfa0d5 → #54254f` | sunburst, radar, meters, relation-density matrix |
-| Status (reserved) | `#0ca30c / #fab219 / #ec835a / #d03b3b` | always an icon **and** a word, never colour alone, never tinting body text |
+| Encoding | On the stage | On paper | Notes |
+|---|---|---|---|
+| Abstraction layer (ordinal) | violet `#ece5ff → #9b82ef` | `#50339c → #8e70d9` | graph nodes, hierarchy, layer bands, ribbons, rail badges |
+| Coverage (ordinal) | pink `#e0569f → #f8e2ef` | plum `#b0529c → #471d43` | sunburst, radar, meters, relation-density matrix |
+| Status (reserved) | `#0ca30c / #fab219 / #ec835a / #d03b3b` | same | always an icon **and** a word, never colour alone, never tinting body text |
 
 Two decisions worth keeping:
 
@@ -113,8 +122,8 @@ Two decisions worth keeping:
 
 Text on a filled mark is never guessed: `SWM.textOn()` returns whichever of white and ink has the
 higher measured contrast against that exact fill, and `SWM.haloOn()` adds a thin opposite-colour
-halo. Every step of both ramps leaves its chosen text colour at **≥ 4.8:1**, and marks are drawn
-opaque so the measured colour is the colour on screen.
+halo. Marks are drawn opaque so the measured colour is the colour on screen; the measured contrast
+of each ramp step is noted beside it in `swm-core.js`.
 
 ## 6. Bugs found and fixed along the way
 
@@ -130,13 +139,18 @@ opaque so the measured colour is the colour on screen.
 ## 7. File map
 
 ```
-index.html                     unchanged shell; the three panels are mount points + a lazy loader
+index.html                     view shell, sub-tabs, deep links, Domain Suites and Coverage Gaps;
+                               the three D3 panels are mount points + a lazy loader
 swm/README.md                  module documentation and how to extend it
-swm/css/swm.css                white canvas, purple tokens, contrast rules
+swm/BUILD_HISTORY.md           how the 2026-09-21 visual upgrade and Network view were built
+swm/css/swm.css                dark stages, white inspectors, purple tokens, contrast rules
+swm/css/swm-vowl.css           Network view styles
 swm/js/swm-core.js             ramps, glyphs, contrast helpers, shared level bus, panel registry
 swm/js/swm-loader.js           loads D3 + bundles the first time a panel is opened
 swm/js/swm-coverage.js         Coverage Observatory
-swm/js/swm-ontology.js         Ontology Explorer
+swm/js/swm-ontology.js         Ontology Graph (network / graph / hierarchy / relations)
+swm/js/swm-vowl.js             Network view engine (loaded by index.html, not the loader)
+swm/js/swm-vowl-ui.js          Network view controls
 swm/js/swm-layers.js           Ontology Layers chain
 swm/data/ontology.json|.js     generated graph + chain summary
 swm/data/coverage.json|.js     generated coverage tree, gaps, KPIs
@@ -153,12 +167,14 @@ swm/vendor/d3.v7.min.js        pinned D3 7.9.0 so the demo runs offline
 without reverse-engineering the pipeline. `swm-data-rebuild` covers prerequisites, the five-step
 run, what a healthy build prints and what to do when an upstream URL moves; `swm-simulation-data`
 covers the invented half of the bundle, with a field-by-field schema and a worked "add a domain"
-example. Four dependency-free scripts back them: `check-sources.sh`, `validate-seed.mjs`,
+example. Dependency-free scripts back them: `check-sources.sh`, `validate-seed.mjs`,
 `verify-bundle.mjs` and `preview-panels.mjs`, which renders all three panels in headless Chrome and
-fails on a console error. All four exit non-zero on failure, so the sequence doubles as a CI job.
+fails on a console error; the 2026-10-02 ontology-rigor run added `competency.mjs`,
+`check-copy.mjs` and `probe-swm.mjs`. Each exits non-zero on failure, so the sequence doubles as a
+CI job.
 
-D3 and the ~350KB of bundles load only when one of the three panels is first opened, so the rest of
-the demo keeps its original weight.
+D3 and the ~585KB of bundles (`ontology.js` ~570KB, `coverage.js` ~15KB) load only when one of the
+three panels is first opened, so the rest of the demo keeps its original weight.
 
 ## 8. Commits
 
@@ -169,6 +185,8 @@ the demo keeps its original weight.
 | `1511568` | Put the three panels on a white canvas |
 | `bccc95a` | Fixed the CSS rule that was greying every chart label; coverage to violet |
 | `09d619c` | Ontology graph and layer chain to violet, coverage to plum |
+| `16409f1` … `cb3e9b8` | 2026-09-21: dark-stage visual upgrade and the Network view ([build history](swm/BUILD_HISTORY.md)) |
+| `f3ec706` … `d47fb7d` | 2026-10-02: ontology rigor — tiers as presentation groups, predicate signatures, hazards, review grades, regenerated bundle ([plan](logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md)) |
 
 ## 9. Known limits and obvious next steps
 

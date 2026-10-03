@@ -12,8 +12,8 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
   - It includes the editor, templates, Ask AI, Validate → Optimize → Decide → Register, and the Decision Trace.
   - Its pending decisions, PCP cards and registrations appear on Overview, PCP · Policy and the Workflow Library, stored in this browser.
   - How it is wired: [`js/STUDIO_BRIDGE_CONTRACT.md`](js/STUDIO_BRIDGE_CONTRACT.md), plan [`logs/2026-09-24_STUDIO_CUTOVER_PLAN.md`](logs/2026-09-24_STUDIO_CUTOVER_PLAN.md).
-- **Enterprise World Model:** the sub-tabs are *Ontology Graph* (default), *Ontology Layers*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
-  - They are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists.
+- **Enterprise World Model:** the sub-tabs are *Ontology Layers* (default), *Ontology Graph*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
+  - The first three are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists; *Domain Suites* and *Coverage Gaps* are static, illustrative markup.
   - The Ontology Graph opens on the animated **Network** view (WebVOWL-style).
   - What was built and why: [`SECURITY_WORLD_MODEL.md`](SECURITY_WORLD_MODEL.md). Code and data pipeline: [`swm/`](swm/README.md).
 - **Runtime Observation (Jev runtime demo):** its own entry in the left nav's Environment group, between Enterprise World Model and System Validation. It shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.

@@ -3,10 +3,10 @@ name: swm-data-rebuild
 description: "Rebuild the SILEX Security World Model data bundle (swm/data/ontology.* and coverage.*) from the public ontologies on any host — check the upstream sources, validate the simulated seed, run the distillation pipeline, verify the produced bundle, and screenshot the three panels headlessly. Use when moving the silex-mockup repo to a new machine, when a rebuild fails or a source URL moved, when the bundle looks stale or inconsistent with the page, or before committing regenerated data."
 ---
 
-# Rebuilding the Security World Model data
+# Rebuilding the Enterprise World Model data
 
-The three *Security World Model* panels in `index.html` render from two generated bundles,
-`swm/data/ontology.js` and `swm/data/coverage.js`. This skill rebuilds them from scratch on a host
+The three D3 panels of the *Enterprise World Model* view in `index.html` (formerly *Security World
+Model*) render from two generated bundles, `swm/data/ontology.js` and `swm/data/coverage.js`. This skill rebuilds them from scratch on a host
 that has never run the pipeline.
 
 Run everything from the repository root.
@@ -112,7 +112,7 @@ that changes node counts is a content change, not a no-op.
 **The build is reproducible**: given the same upstream data and the same seed, a cold rebuild on a
 fresh clone produces byte-identical bundles apart from the `generated` timestamp. So if `git diff
 --stat swm/data/` shows five files with one changed line each, nothing actually changed — run
-`git checkout swm/data/` and skip the commit rather than push a 350KB diff of a new timestamp. To
+`git checkout swm/data/` and skip the commit rather than push a ~570KB diff of a new timestamp. To
 confirm before deciding:
 
 ```bash
@@ -139,4 +139,8 @@ node -e 'const a=require("./swm/data/ontology.json");const b=JSON.parse(require(
 | `scripts/check-sources.sh` | probe the nine upstream URLs |
 | `scripts/verify-bundle.mjs` | independent check of the built bundles |
 | `scripts/preview-panels.mjs` | headless render of the three panels |
+| `scripts/competency.mjs` | the six competency questions, answered from the bundle |
+| `scripts/check-copy.mjs` | every count printed in the docs re-derived from the bundle; retired claims rejected |
+| `scripts/probe-swm.mjs` | browser interaction probes for the panels (node >= 22, Chrome) |
+| `scripts/fixtures/t7-negative-fixtures.mjs` | broken bundles that `verify-bundle.mjs` and `competency.mjs` must reject |
 | `references/troubleshooting.md` | per-source failure modes and fallbacks |
