@@ -241,3 +241,12 @@ PLANNER (claude): IMPL-APPROVED on `f2922fdd` / `48c57722` (identical code, comm
   - **Planner:** integration smoke tests and screenshots, which found the Evidence crash, the stale stages between examples, the token covering text and the overflow after a resize.
 - **Deploy:** none. At the user's choice the change stays on branch `runtime-pipeline-visual`; `main` and the live site are unchanged.
 
+
+## Deploy record
+
+- The user reviewed the Vercel preview of the branch (`silex-mockup-l46aasag7-silex-ai.vercel.app`), then asked to merge into `main` and deploy ("合并进 main 上线").
+- `main` fast-forwarded `200f5f4` → `f41159b` and pushed; Vercel deployed silex-mockup.vercel.app.
+- **Live read-back:**
+  - `js/rt-pipeline.js` 200 `application/javascript`; `css/rt-pipeline.css` 200 `text/css`; `index.html` has `#rtPipeline`. One transient 404 on the JS during the CDN switchover, then 200.
+  - Live probe subset `--base https://silex-mockup.vercel.app`: S1, S3, S4, S5, S13, S14, S17, S21 PASS. S20 FAIL, the same environmental failure as locally and on the base commit.
+  - A live Run of S3: result "S3 · 1 action: payments.execute blocked by rule amount_limit; 0 ran.", pipeline `done`/`run`, rules `hit`, judge `ran-not-deciding`, exit `block`, status Complete, See this run shown, `#rtSteps` absent.
