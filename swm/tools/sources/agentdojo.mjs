@@ -28,24 +28,61 @@ function decoratorVersion(method, args, fv) {
   throw new Error(`agentdojo: cannot resolve version from ${args}`);
 }
 
+/* skip one string literal starting at text[i] (a quote); return index just past the closing quote */
+function skipString(text, i) {
+  const quote = text[i];
+  i++;
+  while (i < text.length) {
+    if (text[i] === '\\') { i += 2; continue; }
+    if (text[i] === quote) return i + 1;
+    i++;
+  }
+  throw new Error('agentdojo: unterminated string literal');
+}
+
+/* concatenate the adjacent string literals (f-strings and plain) in `text`; placeholders kept verbatim */
+function stringLiteralsIn(text) {
+  const parts = [];
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (ch === '"' || ch === "'") {
+      const end = skipString(text, i);
+      parts.push(text.slice(i + 1, end - 1));
+      i = end;
+    } else i++;
+  }
+  return parts;
+}
+
 function extractGoal(body, taskN, file) {
   const gi = body.indexOf('GOAL');
   if (gi < 0) throw new Error(`agentdojo: no GOAL in InjectionTask${taskN} (${file})`);
-  let s = body.slice(gi + 4);
+  const s = body.slice(gi + 4);
   const eq = s.indexOf('=');
   if (eq < 0) throw new Error(`agentdojo: GOAL has no '=' in InjectionTask${taskN} (${file})`);
-  s = s.slice(eq + 1).trim();
-  const parts = [];
-  if (s.startsWith('(')) {
-    const re = /\bf"((?:[^"\\]|\\.)*)"/g;
-    let m;
-    while ((m = re.exec(s))) parts.push(m[1]);
-    if (!parts.length) throw new Error(`agentdojo: no f-string in GOAL for InjectionTask${taskN} (${file})`);
+  const rest = s.slice(eq + 1).trim();
+
+  if (rest.startsWith('(')) {
+    /* stop at the assignment's closing parenthesis; skip string literals so a paren inside
+       a goal string cannot affect the depth */
+    let depth = 0, open = 0, close = -1, i = 0;
+    while (i < rest.length) {
+      const ch = rest[i];
+      if (ch === '"' || ch === "'") { i = skipString(rest, i); continue; }
+      if (ch === '(') { depth++; if (depth === 1) open = i; }
+      else if (ch === ')') { depth--; if (depth === 0) { close = i; break; } }
+      i++;
+    }
+    if (close < 0) throw new Error(`agentdojo: unbalanced parenthesized GOAL in InjectionTask${taskN} (${file})`);
+    const parts = stringLiteralsIn(rest.slice(open + 1, close));
+    if (!parts.length) throw new Error(`agentdojo: no string literal in GOAL for InjectionTask${taskN} (${file})`);
     return parts.join('');
   }
-  const m = s.match(/^\bf"((?:[^"\\]|\\.)*)"/);
-  if (!m) throw new Error(`agentdojo: GOAL not a single f-string in InjectionTask${taskN} (${file})`);
-  return m[1];
+
+  const parts = stringLiteralsIn(rest);
+  if (!parts.length) throw new Error(`agentdojo: no string literal in GOAL for InjectionTask${taskN} (${file})`);
+  return parts[0];
 }
 
 export function parse(raws, selection) {
