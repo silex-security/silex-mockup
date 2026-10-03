@@ -33,13 +33,20 @@ which calls these modules.
 - **URLs**: `https://github.com/<repo>/blob/<pin>/<path>`, with `#L<n>` where a line is known
   (Python classes, policy sentences). For D3FEND-style sites use the source's own page if the
   selection gives one.
-- **Text**: `def` and quotes are taken verbatim from the source, whitespace collapsed, HTML tags
-  stripped, then cut to `SCHEMA.ATTR_DEF_MAX` (200) characters at a word boundary with `…` appended
-  when cut. `label` keeps the source's own label.
-- `attrs` (C9): `[{ name, def }]`, only attributes with a non-empty description; `def` cut as
-  above; source order.
-- `review` is `'published'` for nodes and links taken from the source; modules never emit
-  `curated` links (those are Silex judgments and come from the seed via the build).
+- **Text**: whitespace collapsed and HTML tags stripped everywhere.
+  - **Quotes are never cut.** `sources[*].quote` keeps the full task goal, policy sentence, document
+    sentence, risky outcome or action string, exactly as in the source (AgentDojo goals keep their
+    f-string placeholders, e.g. `{_ATTACKER_IBAN}`). Provenance must be complete.
+  - Node `def` and `attrs[].def` are display text: cut to at most `SCHEMA.ATTR_DEF_MAX` (200)
+    characters **including** the trailing `…`, at a word boundary, only when longer.
+  - `label` keeps the source's own label.
+- `attrs` (C9): `[{ name, def }]`, only attributes with a non-empty description; source order.
+- **Review grades.** Nodes and the edges the source itself asserts (`SUBCLASS_OF` between imported
+  classes, `DEMONSTRATES`, `COUNTERS`) are `'published'` with `src` = the source's `sys`. The
+  navigation and domain-membership parent edges in the placement table below (`GROUPED_UNDER`,
+  `PART_OF_DOMAIN`) are Silex placement, so they are `'curated'` with `src: 'silex'`. Modules emit
+  no other curated edge; Silex judgments (alignment, case links, hazard sources) come from the seed
+  through the build.
 
 ## Node id formats, kinds and placement
 
@@ -65,7 +72,7 @@ which calls these modules.
 | `agentdojo` | `<suite>/injection_task_<n>` and `<suite>/tool/<name>` | same as key | version of the task definition in effect at benchmark v1.2.2 (`1.0.0`, `1.1.2`, `1.2.0`, `1.2.1`), resolved from the `update_injection_task` decorators across the files given | the task `GOAL` string, f-string placeholders kept as written (e.g. `{_ATTACKER_IBAN}`) |
 | `tau2` | rule keys from `selection.rules` and `retail/tool/<name>` | key | — | the verbatim sentence; must be found inside its `section` (`preamble` = before the first `## `) |
 | `banking-kb` | document ids from `selection.docs` | doc id | — | the verbatim sentence given in the selection, found in the doc's `content` |
-| `asb` | `<agent>/<Attacker Tool>` | key | — | `Attack goal`; row must have `Aggressive === "True"` (string), else throw |
+| `asb` | `<agent>/<Attacker Tool>` | key | — | `Attack goal`; row must have `Aggressive === "True"` (string), else throw. `label` = `ASB <agent> · <Attacker Tool> (generated scenario)`, since goals are often framed benignly |
 | `toolemu` | case `name` and `<Toolkit>/<ToolName>` | key | — | for cases: the risky outcome or action string the selection names (verbatim) |
 
 ## Tests (`test-sources.mjs`, owner coder-deepseek)

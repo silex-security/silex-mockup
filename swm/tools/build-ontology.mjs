@@ -318,7 +318,7 @@ function assemble({ d3fend, atlas, attack, uco, grounding }){
     }
     for (const a of SEED.DOMAIN_ACTIONS[d.id] || []){
       add({ id:`act:${a.id}`, label:a.label, group:'tool', layer:2, kind:'action', def:a.def || `${d.name} action.`, review:'curated',
-            src:SILEX(a.id, 'Silex domain action'), instances:0, coverage:null });
+            src:SILEX(a.id, 'Silex domain action'), instances:0, coverage:null, noWorkflow:a.noWorkflow });
       setParent(`act:${a.id}`, `dom:${d.id}`, 'PART_OF_DOMAIN', 'silex', 'curated');
     }
     for (const h of SEED.DOMAIN_HAZARDS[d.id] || []){

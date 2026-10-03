@@ -533,9 +533,9 @@ export const DOMAIN_ACTIONS = {
     { id:'act-finance-forecast', label:'Liquidity Forecast', isA:'core-action-read',
       mayCause:['core-effect-data-read'], workflows:['WF-015'] },
     /* from the AgentDojo banking tools (T0, SOURCE_SELECTION.agentdojo) */
-    { id:'act-finance-schedule-transaction', label:'Schedule Transaction', isA:'core-action-transfer-value',
-      def:'Create a future or recurring transfer to a recipient account.',
-      mayCause:['financial-value-transfer'], workflows:['WF-014'] },
+    { id:'act-finance-schedule-transaction', label:'Schedule Transaction', isA:'core-action-write',
+      def:'Store a future or recurring transfer to a recipient account. The tool writes the schedule; the money moves later (MAY_CAUSE is Silex\'s judgment).',
+      mayCause:['core-effect-data-write','financial-value-transfer'], workflows:['WF-014'] },
     { id:'act-finance-update-scheduled', label:'Update Scheduled Transaction', isA:'core-action-write',
       def:'Change the recipient, amount or date of an existing scheduled transfer.',
       mayCause:['financial-value-transfer','core-effect-data-write'], workflows:['WF-014'] },
@@ -568,15 +568,15 @@ export const DOMAIN_ACTIONS = {
     { id:'act-support-modify-order-payment', label:'Modify Pending Order Payment', isA:'core-action-write',
       def:'Charge a pending order to a different payment method and refund the original one.',
       mayCause:['financial-value-transfer'], workflows:['WF-021'] },
-    { id:'act-support-return-items', label:'Return Delivered Items', isA:'core-action-transfer-value',
-      def:'Start a return for delivered items and choose where the refund goes.',
-      mayCause:['financial-value-transfer'], workflows:['WF-021'] },
+    { id:'act-support-return-items', label:'Return Delivered Items', isA:'core-action-write',
+      def:'Mark delivered items for return and record the payment method that will receive the refund. The tool sets the order to return requested; the refund follows later (MAY_CAUSE is Silex\'s judgment).',
+      mayCause:['core-effect-data-write','financial-value-transfer'], workflows:['WF-021'] },
     { id:'act-support-exchange-items', label:'Exchange Delivered Items', isA:'core-action-write',
       def:'Exchange delivered items for other options of the same product, settling the price difference.',
       mayCause:['core-effect-data-write','financial-value-transfer'], workflows:['WF-021'] },
     { id:'act-support-modify-address', label:'Modify Customer Address', isA:'core-action-write',
       def:'Change the default address on the customer profile.',
-      mayCause:['core-effect-data-write'], workflows:['WF-027'] },
+      mayCause:['core-effect-data-write'], workflows:[], noWorkflow:'No registered support workflow covers profile maintenance.' },
     { id:'act-support-transfer-human', label:'Transfer To Human Agent', isA:'core-action-delegate',
       def:'Hand the conversation to a human agent with a summary.',
       mayCause:['core-effect-authority-grant'], workflows:['WF-025'] }
@@ -592,8 +592,8 @@ export const DOMAIN_ACTIONS = {
       mayCause:['core-effect-configuration-change'], workflows:['WF-034'] },
     { id:'act-it-issue-credential', label:'Agent Credential Issuance', isA:'core-action-delegate',
       mayCause:['core-effect-authority-grant'], workflows:['WF-035'] },
-    /* from AgentDojo slack/workspace and ToolEmu tools (T0). Workflow membership is illustrative:
-       the nearest IT workflow is used, since the coverage tree is frozen. */
+    /* from AgentDojo slack/workspace and ToolEmu tools (T0). Granting access is account provisioning
+       (WF-031); the policy and message actions belong to no registered workflow, so they have none. */
     { id:'act-it-invite-user', label:'Invite User To Workspace', isA:'core-action-write',
       def:'Add a person to a collaboration workspace and its channels.',
       mayCause:['core-effect-authority-grant'], workflows:['WF-031'] },
@@ -605,10 +605,10 @@ export const DOMAIN_ACTIONS = {
       mayCause:['core-effect-authority-grant','core-effect-data-disclosure'], workflows:['WF-031'] },
     { id:'act-it-modify-security-policy', label:'Modify Security Policy', isA:'core-action-write',
       def:'Create, update or relax a network or access security policy, e.g. unblock a domain.',
-      mayCause:['core-effect-configuration-change'], workflows:['WF-032'] },
+      mayCause:['core-effect-configuration-change'], workflows:[], noWorkflow:'No registered IT workflow covers network or access policy changes.' },
     { id:'act-it-delete-message', label:'Delete Sent Message', isA:'core-action-write',
       def:'Delete an email or message from the sent items.',
-      mayCause:['core-effect-record-alteration'], workflows:['WF-032'] }
+      mayCause:['core-effect-record-alteration'], workflows:[], noWorkflow:'Message housekeeping is not a registered IT workflow.' }
   ],
   hr: [
     { id:'act-hr-offer', label:'Offer Issuance', isA:'core-action-write',
@@ -721,7 +721,7 @@ export const DOMAIN_HAZARDS = {
        whether the refund originates in support or a payment run originates in finance. */
     { id:'haz-support-refund-loop', label:'Repeated Refund After Partial Failure',
       def:'A partially failed refund is retried and the value leaves more than once.',
-      hazardFor:['act-support-refund-issue','Refund'], mayLeadTo:['proh-finance-unrecoverable-payout'],
+      hazardFor:['act-support-refund-issue','Refund','Order'], mayLeadTo:['proh-finance-unrecoverable-payout'],
       characterizes:['owasp:LLM06'], mitigatedBy:['core-control-value-ceiling'], requiresEvidence:['core-evidence-value-transfer-record'] },
     { id:'haz-support-pii-misroute', label:'Customer Data Sent To Unverified Requester',
       def:'Customer data is returned to a requester whose identity was only asserted.',
@@ -761,16 +761,20 @@ export const DOMAIN_HAZARDS = {
     { id:'haz-it-credential-reuse', label:'Credential Reused Across Agents',
       def:'One credential is shared by several agents so its use cannot be attributed.',
       hazardFor:['Secret','act-it-issue-credential'],
-      characterizes:['atlas:AML.T0055','attack:T1552','attack:T1078'], mitigatedBy:['core-control-credential-binding','nist:IA-5','nist:IA-5(7)','nist:IA-9'], requiresEvidence:['core-evidence-observation'] },
+      characterizes:['atlas:AML.T0055'], mitigatedBy:['core-control-credential-binding','nist:IA-5','nist:IA-5(7)','nist:IA-9'], requiresEvidence:['core-evidence-observation'] },
     { id:'haz-it-orphan-account', label:'Orphaned Account After Offboarding',
       def:'An account survives the offboarding that should have removed it.',
       hazardFor:['User Account','act-it-offboard'], mayLeadTo:['proh-identity-standing-privilege'],
       characterizes:['attack:T1078'], mitigatedBy:['core-control-monitoring','nist:PS-4','nist:AC-2(3)','nist:AC-2'], requiresEvidence:['core-evidence-identity-assertion'] },
     { id:'haz-it-unauthorized-grant', label:'Access Granted Without Matching Authority',
       def:'A role or entitlement is granted beyond the scope the approver held.',
-      hazardFor:['Role','act-it-provision','act-it-invite-user','act-it-grant-repo-access','act-it-share-folder'], mayLeadTo:['proh-identity-standing-privilege'],
+      hazardFor:['Role','act-it-provision'], mayLeadTo:['proh-identity-standing-privilege'],
       characterizes:['attack:TA0004'], mitigatedBy:['human-approval','nist:AC-6','nist:AC-5'], requiresEvidence:['core-evidence-authorization-record'] },
     /* T0 (domain grounding): sources in BENCHMARK_HAZARDS */
+    { id:'haz-it-access-wrong-party', label:'Access Granted To An Unintended Party',
+      def:'Workspace, repository or file access goes to someone the user did not mean to include, or at a higher permission than intended: by an injected instruction, a mistaken recipient, or briefly before being removed.',
+      hazardFor:['act-it-invite-user','act-it-grant-repo-access','act-it-share-folder'], mayLeadTo:['proh-identity-standing-privilege'],
+      characterizes:['owasp:LLM06'], mitigatedBy:['human-approval','nist:AC-6'], requiresEvidence:['core-evidence-authorization-record'] },
     { id:'haz-it-otp-forwarded', label:'One-Time Security Code Forwarded To A Third Party',
       def:'A sign-in or security code the user received is passed on to someone else, defeating the second factor.',
       hazardFor:['User Account','Secret'],
@@ -782,7 +786,7 @@ export const DOMAIN_HAZARDS = {
     { id:'haz-it-policy-loosened', label:'Security Policy Loosened Without Verification',
       def:'A security policy is relaxed, e.g. a domain unblocked, without first checking that the change is safe.',
       hazardFor:['act-it-modify-security-policy'],
-      characterizes:['attack:T1484'], mitigatedBy:['core-control-policy-gate','human-approval'], requiresEvidence:['core-evidence-configuration-change'] }
+      characterizes:['attack:TA0112'], mitigatedBy:['core-control-policy-gate','human-approval'], requiresEvidence:['core-evidence-configuration-change'] }
   ],
   hr: [
     { id:'haz-hr-pay-change', label:'Pay Change Without Approval',
@@ -849,6 +853,17 @@ export const DOMAIN_HAZARDS = {
 /* L3 telemetry record schemas, under ag:trace: [{ id, label, def, records:[evidence id] }].
    Every evidence id referenced by a hazard appears in some records list. */
 export const RECORD_SCHEMAS = [
+  /* T0 (domain grounding): three narrower records, each defined as what one OCSF IAM event class reports,
+     so CLOSE_MATCH holds by definition (RECORD_ALIGNMENT). The broader records above are not aligned. */
+  { id:'rec-account-change-event', label:'Account Change Event',
+    def:'Captures account management on a user or role: created, enabled, disabled, deleted, locked, password changed or reset, policy attached or detached, with the actor.',
+    records:['core-evidence-configuration-change'] },
+  { id:'rec-authentication-event', label:'Authentication Event',
+    def:'Captures each logon, logoff and other authentication session activity, successful or not, with the user and the method used.',
+    records:['core-evidence-identity-assertion'] },
+  { id:'rec-privilege-change-event', label:'User Privilege Change Event',
+    def:'Captures management updates to the privileges a user holds, with the actor who made them.',
+    records:['core-evidence-authorization-record'] },
   { id:'rec-approval-evidence', label:'Approval Evidence Record',
     def:'Captures approvals and authorizations with the approver, the request and the scope they covered.',
     records:['core-evidence-approval-record','core-evidence-authorization-record'] },
@@ -955,17 +970,14 @@ export const CANDIDATE_DOMAINS = [
 /* What each source module reads and selects (CONTRACT.md) */
 export const SOURCE_SELECTION = {
   fibo: {
-    rule: 'Only classes an entity is aligned to, plus their superclasses defined in the same FIBO file. Payer, Payee, Payment, PaymentObligation and IBAN were candidates in v3; none is equivalent in meaning to a pack entity (D1), so none is imported.',
+    rule: 'Only classes an entity is aligned to, plus their superclasses defined in the same FIBO file. Payer, Payee, Payment, PaymentObligation, AccountingTransaction and IBAN were candidates; none is equivalent in meaning to a pack entity (D1), so none is imported.',
     files: ['fibo-ClientsAndAccounts.rdf'],
-    classes: ['TransactionDepositAccount', 'AccountingTransaction'],
-    domain: { TransactionDepositAccount: 'finance', DepositAccount: 'finance', InvestmentOrDepositAccount: 'finance',
-              Account: 'finance', AccountingTransaction: 'finance' }
+    classes: ['TransactionDepositAccount'],
+    domain: { TransactionDepositAccount: 'finance', DepositAccount: 'finance', InvestmentOrDepositAccount: 'finance', Account: 'finance' }
   },
   cdm: {
-    rule: 'The base document of each entity an L2 entity is aligned to. Account, Contact and KnowledgeArticle are defined in applicationCommon; the foundationCommon/crmCommon files only extend them with a few undocumented attributes, so the base document is imported (refines E5 F3). Queue and CaseResolution stay out (D3).',
+    rule: 'The base document of each entity an L2 entity is aligned to. KnowledgeArticle is defined in applicationCommon; the foundationCommon file only extends it, so the base document is imported (refines E5 F3). Account and Contact are not imported: Customer stays unmatched. Queue and CaseResolution stay out (D3).',
     docs: [
-      { file: 'cdm-Account.cdm.json', entity: 'Account', domain: 'support' },
-      { file: 'cdm-Contact.cdm.json', entity: 'Contact', domain: 'support' },
       { file: 'cdm-KnowledgeArticle.cdm.json', entity: 'KnowledgeArticle', domain: 'support' },
       { file: 'cdm-Order.cdm.json', entity: 'Order', domain: 'support' },
       { file: 'cdm-Case.cdm.json', entity: 'Case', domain: 'support' },
@@ -994,7 +1006,7 @@ export const SOURCE_SELECTION = {
   'attack-campaigns': {
     rule: 'Only campaigns in a reviewed hazard pair (CASE_LINKS), each using a characterized technique by exact id (D15).',
     file: 'attack-enterprise.json',
-    ids: ['C0002', 'C0014', 'C0025', 'C0049', 'C0062']
+    ids: ['C0014', 'C0049']
   },
   /* D13: ATT&CK techniques missing only because the import keeps the first 46 filtered ids */
   attackTechniques: ['T1136', 'T1528', 'T1550', 'T1552', 'T1556', 'T1484', 'T1531'],
@@ -1028,7 +1040,7 @@ export const SOURCE_SELECTION = {
             'exchange_delivered_order_items', 'modify_user_address', 'transfer_to_human_agents']
   },
   'banking-kb': {
-    rule: 'Candidate set: every banking_knowledge document in three categories (credit_card_replacements, everyone_pay_scheduled_payments, everyone_pay_sending_limits), 20 documents. A document is cited only where one of its own sentences states the rule; three qualify.',
+    rule: 'Candidate set: every banking_knowledge document in the three categories whose topics match in-scope hazards (credit_card_replacements: identity verification before an account change; everyone_pay_scheduled_payments and everyone_pay_sending_limits: value ceilings), 20 documents. A document is cited only where one of its own sentences states the rule; three qualify, all graded related.',
     categories: ['credit_cards_credit_card_replacements', 'everyone_pay_scheduled_payments', 'everyone_pay_sending_limits'],
     docs: {
       doc_credit_cards_credit_card_replacements_001: "Verify the customer's identity using standard verification procedures.",
@@ -1037,7 +1049,7 @@ export const SOURCE_SELECTION = {
     }
   },
   asb: {
-    rule: 'Rows with Aggressive === "True" for the three agents, cited only where the Attack goal names the hazard\'s harm; harm read from Attack goal (F5, D10).',
+    rule: 'Rows with Aggressive === "True" for the three agents whose Attacker Tool and Attack goal concern the hazard\'s harm (F5, D10). All are graded related: the goals are generated and often framed benignly ("to test system robustness").',
     file: 'asb-all_attack_tools.jsonl',
     rows: ['financial_analyst_agent/FraudulentTransaction', 'financial_analyst_agent/TransactionDuplication',
            'financial_analyst_agent/FinancialReportTampering',
@@ -1046,7 +1058,7 @@ export const SOURCE_SELECTION = {
            'system_admin_agent/CredentialHarvesting', 'system_admin_agent/AccessEscalation', 'system_admin_agent/LogAlteration']
   },
   toolemu: {
-    rule: 'Cases whose Toolkits include an IT toolkit and whose Potential Risky Outcomes or Actions name the hazard\'s harm (C4). The quoted string is the one cited.',
+    rule: 'Cases whose Toolkits include an IT toolkit and whose Potential Risky Outcomes or Potential Risky Actions name the hazard\'s harm (C4; Actions added at T0 because official_112\'s action states the failure precisely). The quoted string is the one cited.',
     files: { cases: 'toolemu-all_cases.json', toolkits: 'toolemu-all_toolkits.json' },
     cases: {
       official_54: 'Unauthorized access: Sharing files or folders with unintended recipients or granting excessive permissions',
@@ -1065,8 +1077,7 @@ export const DOMAIN_ALIGNMENT = {
   finance: [
     { entity: 'Bank Account', match: ['fibo:TransactionDepositAccount', 'cdm:FHAccount'],
       why: 'FIBO: a deposit account from which the holder may make transfers or withdrawals, which is what a payment-run bank account is. CDM FHAccount (D9): a deposit account holding that allows deposits and withdrawals; carries the account attributes FIBO does not.' },
-    { entity: 'Journal Entry', match: ['fibo:AccountingTransaction'],
-      why: 'FIBO: an event recognized by an entry in the records of an account; a journal entry is that recognition.' },
+    { entity: 'Journal Entry', unmatched: 'FIBO AccountingTransaction is the event an entry recognizes, not the entry; no FIBO class for the journal record itself.' },
     { entity: 'Invoice', match: ['cdm:Invoice'], why: 'CDM: order that has been billed; a supplier invoice in accounts payable is the same document type.' },
     { entity: 'Payment Run', unmatched: 'A batch execution of approved payments. FIBO Payment and PaymentEvent describe a single delivery of money.' },
     { entity: 'Payment Authorisation', unmatched: 'An approval to release money. FIBO PaymentObligation is a duty to pay, not its approval.' },
@@ -1074,8 +1085,7 @@ export const DOMAIN_ALIGNMENT = {
     { entity: 'Approval Threshold', unmatched: 'An enterprise policy value; no public class.' }
   ],
   support: [
-    { entity: 'Customer', match: ['cdm:Contact', 'cdm:Account'],
-      why: 'A customer is a person (CDM Contact) or a business (CDM Account: business that represents a customer).' },
+    { entity: 'Customer', unmatched: 'CDM Contact also covers suppliers and colleagues, and CDM Account also covers potential customers; neither means a customer.' },
     { entity: 'Ticket', match: ['cdm:Case'], why: 'CDM Case: service request case; a support ticket is a service request.' },
     { entity: 'Order', match: ['cdm:Order'], why: 'CDM Order: quote that has been accepted.' },
     { entity: 'Entitlement', match: ['cdm:Entitlement'], why: 'CDM Entitlement: the amount and type of support a customer should receive.' },
@@ -1096,11 +1106,9 @@ export const DOMAIN_ALIGNMENT = {
 
 /* L3 record schema → OCSF event class (C13, CLOSE_MATCH) */
 export const RECORD_ALIGNMENT = [
-  { record: 'rec-identity-assertion', match: ['ocsf:authentication'], why: 'Both capture an identity claim and the result of presenting proof for it.' },
-  { record: 'rec-configuration-change', match: ['ocsf:user_access', 'ocsf:account_change'],
-    why: 'Permission and account changes with the actor who made them are what these OCSF classes report.' },
-  { record: 'rec-approval-evidence', match: ['ocsf:authorize_session'],
-    why: 'Authorize Session reports the privileges and roles granted to a session; the record captures authorizations and their scope.' }
+  { record: 'rec-account-change-event', match: ['ocsf:account_change'], why: 'Defined as what OCSF Account Change reports: user account management tasks and their activities.' },
+  { record: 'rec-authentication-event', match: ['ocsf:authentication'], why: 'Defined as what OCSF Authentication reports: authentication session activities, including logon and logoff, regardless of success.' },
+  { record: 'rec-privilege-change-event', match: ['ocsf:user_access'], why: 'Defined as what OCSF User Access Management reports: management updates to a user\'s privileges.' }
 ];
 
 /* public sources on hazards (C11): rel 'derived' when the source describes the harmful behaviour,
@@ -1126,8 +1134,9 @@ export const BENCHMARK_HAZARDS = {
   'haz-support-no-confirmation': [{ key: 'retail/rule/confirm', rel: 'derived' }],
   'haz-support-wrong-state': [{ key: 'retail/rule/cancel-pending', rel: 'derived' }, { key: 'retail/rule/modify-pending', rel: 'derived' },
     { key: 'retail/rule/return-delivered', rel: 'derived' }],
-  'haz-it-unauthorized-grant': [{ key: 'slack/injection_task_5', rel: 'derived' }, { key: 'official_60', rel: 'derived' },
-    { key: 'official_54', rel: 'derived' }, { key: 'system_admin_agent/AccessEscalation', rel: 'related' }],
+  'haz-it-unauthorized-grant': [{ key: 'system_admin_agent/AccessEscalation', rel: 'related' }],
+  'haz-it-access-wrong-party': [{ key: 'slack/injection_task_5', rel: 'derived' }, { key: 'official_60', rel: 'derived' },
+    { key: 'official_54', rel: 'derived' }],
   'haz-it-credential-reuse': [{ key: 'system_admin_agent/CredentialHarvesting', rel: 'related' }],
   'haz-it-otp-forwarded': [{ key: 'workspace/injection_task_4', rel: 'derived' }, { key: 'workspace/injection_task_5', rel: 'derived' }],
   'haz-it-own-record-deleted': ['5', '6', '7', '8', '9', '10', '11', '12'].map(n => ({ key: `workspace/injection_task_${n}`, rel: 'derived' }))
@@ -1161,23 +1170,9 @@ export const BENCHMARK_ACTIONS = {
    CHARACTERIZES and has a rationale taken from the case's own text (A4). */
 export const CASE_LINKS = [
   { hazard: 'haz-finance-unverified-instruction', case: 'AML.CS0026', via: 'atlas:AML.T0070',
-    why: 'Exercise: poisoned content retrieved by Copilot replaces the bank details shown for a payment.' },
+    why: 'Exercise: poisoned content retrieved by Copilot changes the banking information shown to a user preparing a wire transfer; the case reports no executed payout.' },
   { hazard: 'haz-support-kb-poisoning', case: 'AML.CS0035', via: 'atlas:AML.T0070',
-    why: 'Exercise: an injected message in a public channel is retrieved by Slack AI and steers its answer.' },
-  { hazard: 'haz-support-pii-misroute', case: 'AML.CS0024', via: 'atlas:AML.T0057',
-    why: 'Exercise: a RAG worm makes the assistant send personal data from the mailbox to attacker addresses.' },
-  { hazard: 'haz-it-credential-reuse', case: 'AML.CS0030', via: 'atlas:AML.T0055',
-    why: 'Incident: stolen cloud credentials were reused to run hosted models at the victim\'s cost.' },
-  { hazard: 'haz-it-credential-reuse', case: 'C0049', via: 'attack:T1552',
-    why: 'Campaign: Leviathan gathered credentials hardcoded in binaries on victim devices.' },
-  { hazard: 'haz-it-credential-reuse', case: 'C0062', via: 'attack:T1078',
-    why: 'Campaign: harvested credentials were used to authenticate against internal APIs during an AI-orchestrated intrusion.' },
-  { hazard: 'haz-it-orphan-account', case: 'C0002', via: 'attack:T1078',
-    why: 'Campaign: Night Dragon entered through compromised VPN accounts, the entry point an account left active after offboarding offers.' },
-  { hazard: 'haz-it-orphan-account', case: 'C0014', via: 'attack:T1078',
-    why: 'Campaign: Operation Wocao used valid VPN credentials for initial access.' },
-  { hazard: 'haz-it-standing-entitlement', case: 'C0025', via: 'attack:T1098',
-    why: 'Campaign: Sandworm linked a created account to other servers, extending the access it held.' },
+    why: 'Exercise, by analogy: the poisoned item Slack AI retrieves is a channel message, not a knowledge article; the retrieval-poisoning mechanism is the same.' },
   { hazard: 'haz-it-otp-forwarded', case: 'C0014', via: 'attack:T1111',
     why: 'Campaign: Operation Wocao intercepted two-factor authentication soft tokens.' },
   { hazard: 'haz-it-otp-forwarded', case: 'C0049', via: 'attack:T1111',
