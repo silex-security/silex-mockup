@@ -19,7 +19,7 @@ Newest first, with what changed and why. The plans, review records and audits ar
 - **Untouched:** the vendored demo (`jev-runtime-vendored.test.mjs`), System Validation's six steps (S42 checks they still animate), and the learning card's content.
 - **Probes:** S15/S18/S19/S21 repointed from `#rtSteps` to the pipeline hooks. New S39–S42 cover R1–R9. R2 fails when the host replays the reference envelopes instead of the frame's. R5 fails when all three supersede guards are removed. Site probes 41/42: S20 also fails on the base commit `200f5f4` (environmental). Unit tests 29/29; SWM probes all pass.
 - **Guide:** `docs/jev-runtime-guide/README.md` §8.1–8.3 and screenshots 08/09 updated.
-- **Plan and reviews:** [`2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md`](2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md).
+- **Plan and reviews:** [`2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md`](2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md). Chinese summary: [`2026-10-02_RUNTIME_PIPELINE_SUMMARY_ZH.md`](2026-10-02_RUNTIME_PIPELINE_SUMMARY_ZH.md).
 
 ## 2026-10-02 — Deep links, incident ontology row and robustness fixes taken from jev-simplified
 
