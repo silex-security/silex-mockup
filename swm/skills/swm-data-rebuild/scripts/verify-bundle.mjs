@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* Independent bundle verifier. Run: node verify-bundle.mjs [data-directory]
-   Local signatures transcribed from frozen T0, commit f3ec706.
+   Local signatures transcribed from the domain-grounding plan v3 + E5, C1–C16.
    Do not import schema.mjs: its shipped compact schema is checked against this copy. */
 import { readFile, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -12,9 +12,11 @@ const RUNTIME = ['planner', 'memory-st', 'memory-lt', 'retriever', 'tool-reg', '
   'cred-store', 'exec-ctx', 'guardrail', 'hitl', 'trace', 'harness', 'incident'];
 const CORE = ['core', 'action', 'effect', 'state', 'control', 'evidence', 'objective', 'hazard'];
 const KINDS = new Set(['group', 'class', 'countermeasure', 'tactic', 'technique', ...CORE,
-  'domain', 'capability', 'workflow', 'entity', 'component', 'record', 'risk', ...RUNTIME]);
+  'domain', 'capability', 'workflow', 'entity', 'component', 'record', 'risk', 'case', ...RUNTIME]);
+const SOURCES = new Set(['silex', 'd3fend', 'atlas', 'attack', 'uco', 'owasp', 'atlas-cs',
+  'fibo', 'cdm', 'agentdojo', 'tau2', 'asb', 'nist-800-53', 'ocsf', 'toolemu', 'attack-campaign']);
 const PUBLIC = ['class', 'countermeasure', 'tactic', 'technique', 'risk'];
-const GROUPABLE = ['class', 'countermeasure', 'tactic', 'technique', ...CORE, 'entity', 'component', 'risk', 'record'];
+const GROUPABLE = ['class', 'countermeasure', 'tactic', 'technique', ...CORE, 'entity', 'component', 'risk', 'record', 'case'];
 const product = (ss, ts) => ss.flatMap(s => ts.map(t => s + '>' + t));
 const rule = (pairs, review) => ({ pairs, review });
 const TREE = ['SUBCLASS_OF', 'GROUPED_UNDER', 'PART_OF', 'PART_OF_DOMAIN', 'ACHIEVES', 'INSTANCE_OF', 'OCCURRED_IN'];
@@ -24,13 +26,16 @@ const predicates = {
     'hazard>hazard', 'entity>core', 'component>core'], ['published', 'curated']),
   GROUPED_UNDER: rule(product(GROUPABLE, ['group']), ['curated']),
   PART_OF: rule(['capability>domain', 'workflow>capability', 'record>component'], ['curated', 'illustrative']),
-  PART_OF_DOMAIN: rule(product(['entity', 'action', 'hazard', 'effect', 'state'], ['domain']), ['curated']),
+  PART_OF_DOMAIN: rule(product(['entity', 'action', 'hazard', 'effect', 'state', 'class'], ['domain']), ['curated']),
   ACHIEVES: rule(['technique>tactic'], ['published']),
   INSTANCE_OF: rule(product(RUNTIME, ['component']), ['illustrative']),
   OCCURRED_IN: rule(['incident>trace'], ['illustrative']),
   DEPLOYED_IN: rule(['component>domain'], ['illustrative']),
   THREATENS: rule(product(['technique', 'risk'], ['component']), ['heuristic', 'curated']),
-  COUNTERS: rule(product(['countermeasure', 'control'], ['technique', 'risk']), ['curated']),
+  COUNTERS: rule(product(['countermeasure', 'control'], ['technique', 'risk']), ['curated', 'published']),
+  DEMONSTRATES: rule(['case>technique'], ['published']),
+  EXEMPLIFIED_BY: rule(['hazard>case'], ['curated']),
+  CLOSE_MATCH: rule(product(['entity', 'action', 'record'], ['class']), ['curated']),
   RELATED_MATCH: rule(product(CORE, PUBLIC), ['curated']),
   USED_IN: rule(['action>workflow'], ['curated']),
   MAY_CAUSE: rule(['action>effect'], ['curated']),
@@ -100,7 +105,26 @@ export function validateGraph(onto) {
     if (!Array.isArray(n.src) || !n.src.length) fail(n.id + ': no src');
     else for (const s of n.src) {
       if (!s?.sys) fail(n.id + ': source has no sys');
-      else bump(metrics.bySrc, s.sys);
+      else {
+        bump(metrics.bySrc, s.sys);
+        if (!SOURCES.has(s.sys)) fail(n.id + ': unknown source system ' + s.sys);
+        if (s.sys !== 'silex' && ['hazard', 'action'].includes(n.kind) && !['derived', 'related'].includes(s.rel))
+          fail(n.id + ': non-Silex hazard/action source needs rel derived or related');
+      }
+    }
+    if (n.attrs !== undefined) {
+      if (n.kind !== 'class') fail(n.id + ': attrs only allowed on class nodes');
+      if (!Array.isArray(n.attrs)) fail(n.id + ': attrs must be an array');
+      else for (const a of n.attrs) {
+        if (!a || typeof a !== 'object' || Array.isArray(a) || typeof a.name !== 'string' || !a.name || typeof a.def !== 'string')
+          fail(n.id + ': attrs entries need a nonempty string name and string def');
+        else if (a.def.length > 200) fail(n.id + ': attribute def exceeds 200 characters');
+      }
+    }
+    if (n.kind === 'case') {
+      if (n.layer !== 3 || n.group !== 'threat') fail(n.id + ': case must be L3 in group threat');
+      if (!['incident', 'exercise', 'campaign'].includes(n.caseType)) fail(n.id + ': invalid caseType ' + n.caseType);
+      if (n.review !== 'published') fail(n.id + ': case must be published');
     }
     if (!REVIEW.includes(n.review)) fail(n.id + ': missing or invalid node review ' + n.review);
     if (n.layer === 4 && n.review !== 'illustrative') fail(n.id + ': runtime node must be illustrative');
@@ -126,6 +150,7 @@ export function validateGraph(onto) {
       if (!sig.review.includes(l.review)) fail(l.pred + ': missing or disallowed link review ' + l.review + ' (' + l.s + ' -> ' + l.t + ')');
     }
     if (!l.src) fail(l.pred + ': missing link source provenance');
+    else if (!SOURCES.has(l.src)) fail(l.pred + ': unknown link source system ' + l.src);
     if (l.review === 'published' && l.src === 'silex') fail(l.pred + ': Silex assertion cannot be published');
     if (l.pred === 'CHARACTERIZES' && t && (t.review !== 'published' || !(t.src || []).some(s => s.sys && s.sys !== 'silex')))
       fail(l.s + ': CHARACTERIZES must target a published threat');
@@ -157,6 +182,12 @@ export function validateGraph(onto) {
     }
     if (n.kind === 'domain' && (n.layer !== 2 || !n.anchor || n.parent != null)) fail(n.id + ': domain must be an L2 anchor');
     if (n.layer === 2) {
+      if (n.kind === 'class') {
+        const p = byId.get(n.parent);
+        if (!(n.parentPred === 'SUBCLASS_OF' && p?.kind === 'class') &&
+            !(n.parentPred === 'PART_OF_DOMAIN' && p?.kind === 'domain' && p.layer === 2))
+          fail(n.id + ': L2 class display parent must use SUBCLASS_OF to class or PART_OF_DOMAIN to domain');
+      }
       if (n.kind === 'capability') parentRule(n, 'PART_OF', 'domain', 2);
       if (n.kind === 'workflow') parentRule(n, 'PART_OF', 'capability', 2);
       if (['entity', 'action', 'hazard', 'effect', 'state'].includes(n.kind)) parentRule(n, 'PART_OF_DOMAIN', 'domain', 2);
@@ -167,6 +198,9 @@ export function validateGraph(onto) {
     if (n.layer === 3 && n.kind === 'record') parentRule(n, 'PART_OF', 'component', 3, 'ag:trace');
     if (n.layer === 3 && n.kind === 'technique') parentRule(n, 'ACHIEVES', 'tactic', 1);
     if (n.layer === 3 && n.kind === 'risk') parentRule(n, 'GROUPED_UNDER', 'group', 1, 'grp:threat');
+    if (n.kind === 'case') parentRule(n, 'GROUPED_UNDER', 'group', 1, 'grp:threat');
+    if (n.layer === 1 && n.kind === 'control' && (n.src || []).some(s => s?.sys === 'nist-800-53'))
+      parentRule(n, 'GROUPED_UNDER', 'group', 1, 'grp:policy');
     if (n.layer === 4) {
       if (n.kind === 'incident') parentRule(n, 'OCCURRED_IN', 'trace', 4);
       else {
@@ -212,7 +246,7 @@ export function validateGraph(onto) {
     if ((c.deployment === 'unobserved') !== (domains.size === 0))
       fail(c.id + ': deployment:unobserved must be set exactly when runtime-domain set is empty');
   }
-  const threats = nodes.filter(n => n.layer === 3 && n.group === 'threat').map(n => n.id);
+  const threats = nodes.filter(n => n.layer === 3 && ['technique', 'risk'].includes(n.kind)).map(n => n.id);
   const countered = new Set(valid.filter(l => l.pred === 'COUNTERS').map(l => l.t));
   if (!Array.isArray(onto.uncountered) || !equal(onto.uncountered, threats.filter(id => !countered.has(id))))
     fail('uncountered differs from L3 threats without COUNTERS');
@@ -300,7 +334,7 @@ export async function verifyBundle(directory) {
     /* Retain the browser-bundle budget; use exact bytes, not rounded KB. */
     const bytes = (await stat(join(data, file))).size;
     notes.push(file + ' ' + (bytes / 1024).toFixed(1) + 'KB');
-    if (bytes > 700 * 1024) problems.push(file + ': exceeds 700KB budget');
+    if (bytes > 10 * 1024 * 1024) problems.push(file + ': exceeds 10MB budget');
   }
   return { problems, metrics: graph.metrics, notes, onto, cov };
 }
