@@ -48,7 +48,28 @@ const SOURCES = {
   uco:    { name:'Unified Cyber Ontology (UCO)', url:'https://github.com/ucoProject/UCO/tree/7ebb3957e9e9a2e1bb9c66cd1ede8c912a726344',
             home:'https://unifiedcyberontology.org/', licence:'Apache-2.0' },
   owasp:  { name:'OWASP GenAI Security Project', url:'https://genai.owasp.org/llm-top-10/',
-            home:'https://genai.owasp.org/', licence:'CC BY-SA 4.0' }
+            home:'https://genai.owasp.org/', licence:'CC BY-SA 4.0' },
+  /* domain grounding (plan 2026-10-03, E5): every url is a pinned commit; files in MANIFEST.json */
+  'atlas-cs':        { name:'MITRE ATLAS case studies (ATLAS 5.6.0)', url:'https://github.com/mitre-atlas/atlas-data/blob/3259f388d19cbcca11bacf12a0ef97f4198f711b/dist/ATLAS.yaml',
+                       home:'https://atlas.mitre.org/studies', licence:'Apache-2.0' },
+  'attack-campaign': { name:'MITRE ATT&CK campaigns and mitigations (Enterprise 19.2)', url:'https://github.com/mitre-attack/attack-stix-data/tree/6cda5ad8462c79e14fbb872f4e09059b18e0cfc4',
+                       home:'https://attack.mitre.org/campaigns/', licence:'MITRE ATT&CK Terms of Use (free, attribution)' },
+  fibo:              { name:'EDM Council FIBO', url:'https://github.com/edmcouncil/fibo/tree/9a7b90ccc64e',
+                       home:'https://spec.edmcouncil.org/fibo/', licence:'MIT' },
+  cdm:               { name:'Microsoft Common Data Model', url:'https://github.com/microsoft/CDM/tree/dd21d715e05e',
+                       home:'https://github.com/microsoft/CDM', licence:'CC-BY-4.0 (extracted and truncated)' },
+  ocsf:              { name:'Open Cybersecurity Schema Framework 1.9.0', url:'https://github.com/ocsf/ocsf-schema/tree/1.9.0',
+                       home:'https://schema.ocsf.io/', licence:'Apache-2.0 (with NOTICE)' },
+  'nist-800-53':     { name:'NIST SP 800-53 Rev. 5 (OSCAL catalog 5.2.0)', url:'https://github.com/usnistgov/oscal-content/tree/78650f02ad93',
+                       home:'https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final', licence:'US public domain + CC0 1.0' },
+  agentdojo:         { name:'AgentDojo (banking, slack, workspace)', url:'https://github.com/ethz-spylab/agentdojo/tree/089ed468cf3e',
+                       home:'https://agentdojo.spylab.ai/', licence:'MIT' },
+  tau2:              { name:'τ²-bench (retail, banking_knowledge)', url:'https://github.com/sierra-research/tau2-bench/tree/5bfa7e37b366',
+                       home:'https://github.com/sierra-research/tau2-bench', licence:'MIT' },
+  asb:               { name:'Agent Security Bench (ASB)', url:'https://github.com/agiresearch/ASB/tree/544540ff0788',
+                       home:'https://github.com/agiresearch/ASB', licence:'MIT' },
+  toolemu:           { name:'ToolEmu', url:'https://github.com/ryoungj/ToolEmu/tree/ac4a7ab7ed8c',
+                       home:'https://toolemu.com/', licence:'Apache-2.0' }
 };
 const UCO_MODULES = ['core','action','identity','observable','tool','pattern'];
 
@@ -655,6 +676,45 @@ async function writeBundle(name, global, payload){
   return json.length;
 }
 
+/* licence and attribution notices for every redistributed extract (plan E5 B4/T6, C4) */
+const NOTICE_GROUPS = [
+  ['MITRE ATT&CK (techniques, mitigations, campaigns)', ['attack-LICENSE.txt'], 'Copyright © The MITRE Corporation. ATT&CK® is a registered trademark of The MITRE Corporation. This bundle reproduces extracts under the licence below; it is not endorsed by MITRE.'],
+  ['MITRE ATLAS (techniques, mitigations)', ['atlas-navigator-LICENSE'], null],
+  ['MITRE ATLAS case studies', ['atlas-data-LICENSE'], null],
+  ['Unified Cyber Ontology (UCO)', ['uco-LICENSE'], null],
+  ['EDM Council FIBO', ['fibo-LICENSE'], null],
+  ['Microsoft Common Data Model', ['cdm-LICENSE'], 'Entity names, descriptions and attribute descriptions from the Common Data Model, © Microsoft Corporation, licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: extracted from the pinned schema documents and truncated to 200 characters per description.'],
+  ['Open Cybersecurity Schema Framework (OCSF)', ['ocsf-NOTICE', 'ocsf-LICENSE'], 'The OCSF NOTICE file is reproduced verbatim, as Apache-2.0 section 4(d) requires.'],
+  ['NIST SP 800-53 Rev. 5 (OSCAL content)', ['nist-LICENSE.md'], 'Control text from NIST SP 800-53 Rev. 5, a work of the US government. NIST does not endorse this product.'],
+  ['AgentDojo', ['agentdojo-LICENSE'], null],
+  ['τ²-bench', ['tau2-LICENSE'], null],
+  ['Agent Security Bench (ASB)', ['asb-LICENSE'], null],
+  ['ToolEmu', ['toolemu-LICENSE'], null]
+];
+async function writeNotices(){
+  const parts = [];
+  for (const [title, files, note] of NOTICE_GROUPS){
+    parts.push(`## ${title}\n`);
+    if (note) parts.push(`${note}\n`);
+    for (const f of files){
+      const e = pinned(f);
+      parts.push(`Source: \`${e.url}\`\n\n\`\`\`text\n${(await grab(f)).replace(/^\uFEFF/, '').trimEnd()}\n\`\`\`\n`);
+    }
+  }
+  await writeFile(join(OUT,'NOTICES.md'), `# Enterprise World Model — notices
+
+Generated ${new Date().toISOString().slice(0,10)} by \`swm/tools/build-ontology.mjs\` from the licence files pinned in
+\`swm/tools/sources/MANIFEST.json\`. The bundle redistributes extracts (names, definitions, task goals,
+policy sentences) from the sources below.
+
+Pre-existing inclusions not changed by the 2026-10-03 grounding work: MITRE D3FEND (D3FEND Terms of Use,
+attribution: © The MITRE Corporation) and the OWASP GenAI Security Project lists (CC BY-SA 4.0,
+https://genai.owasp.org/, © OWASP Foundation). Their attribution is given here; their share-alike terms
+apply to the 25 OWASP risk names and identifiers only.
+
+${parts.join('\n')}`);
+}
+
 async function writeSources(stats){
   const rows = Object.entries(SOURCES).map(([k,s]) =>
     `| [${s.name}](${s.home}) | \`${s.url}\` | ${s.licence} | ${stats[k] ?? '—'} |`).join('\n');
@@ -679,6 +739,32 @@ ${rows}
   \`owl:Class\` declarations with labels and definitions; they seed the L1 upper classes.
 - **OWASP** — the LLM Top 10 (2025) and the Agentic AI threat taxonomy (T1–T15) are carried as
   published lists and attached to the agentic components they target.
+
+## Domain grounding (Finance, Customer Service, Identity & IT)
+
+Plan \`logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md\`. Every input below is pinned to a commit or a
+versioned URL in \`swm/tools/sources/MANIFEST.json\` with its sha256; the build refuses changed bytes.
+Licence texts and attributions are in \`NOTICES.md\`.
+
+- **Domain standards.** Finance entities are **aligned to** FIBO and the Common Data Model, Customer
+  Service entities to the Common Data Model, Identity & IT entities to OCSF, with \`CLOSE_MATCH\`
+  (skos:closeMatch: similar meaning, no subclass claim). Entities with no equivalent public class are
+  listed as unmatched with the reason, not hidden.
+- **Benchmarks.** Hazards and actions cite AgentDojo injection tasks, τ²-bench policy rules and
+  documents, Agent Security Bench scenarios and ToolEmu cases. Each citation is graded **derived** (the
+  source describes the harmful behaviour) or **related** (a neighbouring rule or behaviour; the
+  mechanism is Silex-modelled). Benchmarks are research environments, not observed enterprise
+  behaviour. ASB scenarios are generated descriptions without an executable check; ToolEmu cases are
+  potential failure scenarios for LLM-emulated tools.
+- **Public cases.** ATLAS case studies (incidents and exercises, typed as such) and a reviewed set of
+  ATT&CK campaigns are L3 \`case\` nodes that \`DEMONSTRATES\` the techniques they used. They are events
+  elsewhere: never L4, never counted in coverage. A hazard is \`EXEMPLIFIED_BY\` a case only for a
+  reviewed pair with a written rationale.
+- **Published mitigations.** ATLAS and ATT&CK mitigations enter as L1 countermeasures with the
+  publisher's own \`COUNTERS\` edges, graded published. NIST SP 800-53 controls enter as L1 controls;
+  which hazard a control mitigates is a curated mapping, not a compliance claim.
+- **Endpoint rule.** A published case or mitigation edge is linked only to a technique id that is in
+  the bundle; other references stay on the node as \`refs\`.
 
 ## Layers, the display tree and subsumption
 
@@ -751,10 +837,13 @@ const coverage = buildCoverage(graph);
 
 const stats = {
   d3fend: d3fend.artifacts.length + d3fend.techniques.length,
-  atlas:  atlas.tactics.length + atlas.techniques.length,
-  attack: attack.tactics.length + attack.techniques.length,
+  atlas:  atlas.tactics.length + atlas.techniques.length + (groundingStats['atlas-mitigations'] ?? 0),
+  attack: attack.tactics.length + attack.techniques.length + (groundingStats['attack-mitigations'] ?? 0),
   uco:    uco.length,
-  owasp:  SEED.OWASP_LLM.length + SEED.OWASP_AGENTIC.length
+  owasp:  SEED.OWASP_LLM.length + SEED.OWASP_AGENTIC.length,
+  ...Object.fromEntries(Object.entries({ 'atlas-cs':'atlas-cases', fibo:'fibo', cdm:'cdm', ocsf:'ocsf', 'nist-800-53':'nist-800-53',
+    agentdojo:'agentdojo', tau2:'tau2', asb:'asb', toolemu:'toolemu' }).map(([k, m]) => [k, groundingStats[m] ?? 0])),
+  'attack-campaign': groundingStats['attack-campaigns'] ?? 0
 };
 
 const ontology = {
@@ -775,6 +864,7 @@ if (graph.problems.length){
 const a = await writeBundle('ontology', 'SILEX_SWM_ONTOLOGY', ontology);
 const b = await writeBundle('coverage', 'SILEX_SWM_COVERAGE', coverage);
 await writeSources(stats);
+await writeNotices();
 
 const byLayer = [1,2,3,4].map(l => `L${l} ${graph.nodes.filter(n=>n.layer===l).length}`).join(' · ');
 log(`\n  sources : ${Object.entries(stats).map(([k,v])=>`${k} ${v}`).join(' · ')}`);

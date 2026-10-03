@@ -2,9 +2,38 @@
    Plan: logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md (E5), Part A S11.
    Contract: swm/tools/sources/CONTRACT.md — "Node id formats, kinds and placement" row `nist-800-53.mjs`.
 
-   STUB (P0c). Emits controls in `selection.controls` as L1 `control` nodes.
-   Parsing is implemented in P1, after the T0 gate. */
+   Emits controls in `selection.controls` as L1 `control` nodes. */
+
+import * as SCHEMA from '../schema.mjs';
+
+const collapse = s => String(s ?? '').replace(/\s+/g, ' ').trim();
+const stripTags = s => String(s ?? '').replace(/<[^>]*>/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+const clean = s => stripTags(collapse(s));
+const cut = s => { const t = clean(s); return t.length > SCHEMA.ATTR_DEF_MAX ? t.slice(0, SCHEMA.ATTR_DEF_MAX - 1).replace(/[\s,;:.!?]+\S*$/, '') + '…' : t; };
+const blobUrl = (manifest, name) => { const e = manifest[name]; if (!e) throw new Error(`nist-800-53: ${name} not in manifest`); return `https://github.com/${e.repo}/blob/${e.pin}/${e.path}`; };
+const nistId = cid => { const p = cid.split('.'); const base = p[0].toUpperCase(); return p.length > 1 ? `${base}(${p.slice(1).join('')})` : base; };
 
 export function parse(raws, selection) {
-  return { nodes: [], links: [], sources: {}, omitted: [] };
+  const raw = raws[selection.file];
+  if (raw == null) throw new Error(`nist-800-53: missing raw ${selection.file}`);
+  const catalog = JSON.parse(raw).catalog;
+  const controls = new Map();
+  const walk = cs => { for (const c of cs) { controls.set(c.id, c); walk(c.controls || []); } };
+  for (const g of catalog.groups || []) walk(g.controls || []);
+  const nodes = [];
+  for (const cid of selection.controls) {
+    const c = controls.get(cid);
+    if (!c) throw new Error(`nist-800-53: control ${cid} not found in ${selection.file}`);
+    const id = nistId(cid);
+    const stmt = (c.parts || []).find(p => p.name === 'statement');
+    const item = (stmt?.parts || []).find(p => p.prose != null);
+    let prose = item?.prose || '';
+    const labels = new Map((c.params || []).map(p => [p.id, p.label || p.id]));
+    prose = prose.replace(/\{\{\s*insert:\s*param,\s*([^}\s]+)\s*\}\}/g, (_, pid) => labels.get(pid) || `[assignment: ${pid}]`);
+    nodes.push({ id: `nist:${id}`, label: c.title, group: 'policy', layer: 1, kind: 'control', def: cut(prose || c.title), review: 'published',
+      src: [{ sys: 'nist-800-53', id, label: `NIST SP 800-53 ${id}`, url: blobUrl(selection.manifest, selection.file) }],
+      parentLink: { t: 'grp:policy', pred: 'GROUPED_UNDER', src: 'silex', review: 'curated' } });
+  }
+  nodes.sort((a, b) => a.id.localeCompare(b.id));
+  return { nodes, links: [], sources: {}, omitted: [] };
 }

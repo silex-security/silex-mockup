@@ -25,6 +25,17 @@
     var uncountered = new Set(data.uncountered || []);
     var REVIEW_TEXT = { published: 'Published · public source', curated: 'Curated · Silex-authored assertion',
                         heuristic: 'Heuristic · keyword-mapped', illustrative: 'Illustrative · mock content' };
+    /* domain grounding (plan 2026-10-03, E5): how strongly a public source supports a hazard or action (A3, C11) */
+    var REL_TEXT = { derived: 'Derived · the source describes this behaviour', related: 'Related · a neighbouring rule or behaviour; the mechanism is Silex-modelled' };
+    var SRC_NOTE = {
+      agentdojo: 'AgentDojo is a research benchmark of prompt-injection tasks, not observed enterprise behaviour.',
+      tau2: 'τ²-bench is a research benchmark of written business policies; a rule violation there is a policy breach, not an attack.',
+      asb: 'Agent Security Bench scenarios are LLM-generated descriptions without an executable check, and their goals are often framed benignly.',
+      toolemu: 'ToolEmu cases list potential failure scenarios for LLM-emulated tool execution; they do not record failures that occurred.'
+    };
+    var CASE_TEXT = { incident: 'Published incident, elsewhere. Not this enterprise\'s incident and not counted in coverage.',
+      exercise: 'Published security exercise (red team or research), not a real-world incident.',
+      campaign: 'Intrusion campaign as published by MITRE ATT&CK, elsewhere. Not this enterprise\'s incident.' };
     var reviewHtml = (g) => g ? '<span class="swm-review ' + SWM.esc(g) + '">' + SWM.esc(REVIEW_TEXT[g] || g) + '</span>' : '—';
     var linkReview = (e) => { var l = links.find((x) => x.s === e.s && x.t === e.t && x.pred === e.pred); return l ? l.review : null; };
 
@@ -711,6 +722,42 @@
     /* L4 chain in words (plan JEV_LEARNINGS E), read from the stored relations with their grades.
        Edge directions as stored: instance INSTANCE_OF component; threat THREATENS component;
        countermeasure COUNTERS threat; incident EXHIBITS hazard. */
+    /* public grounding of a node: alignment, case type, cited sources with their strength, attributes */
+    function groundingHtml(n) {
+      var h = '', esc = SWM.esc;
+      if (n.caseType) h += row('Case type', esc(n.caseType)) + '<p class="note">' + esc(CASE_TEXT[n.caseType] || '') + '</p>';
+      if (n.deprecated) h += row('OCSF status', 'Deprecated since ' + esc(n.deprecated.since || '') + (n.deprecated.superseded_by ? ' · use ' + esc(n.deprecated.superseded_by.join(', ')) : ''));
+      if (n.alignment) {
+        var m = links.filter((l) => l.s === n.id && l.pred === 'CLOSE_MATCH').map((l) => esc(byId.get(l.t).label) + ' <small style="color:#68707c">' + esc(SWM.srcLabel(((byId.get(l.t).src || [])[0] || {}).sys)) + '</small>');
+        h += row('Aligned to', m.join(', ') || '—') + '<p class="note">closeMatch: similar meaning, no subclass claim. ' + esc(n.alignment) + '</p>';
+      }
+      if (n.unmatched) h += row('Public match', 'None · Silex-authored') + '<p class="note">' + esc(n.unmatched) + '</p>';
+      if (n.noWorkflow) h += row('Workflow', 'None registered') + '<p class="note">' + esc(n.noWorkflow) + '</p>';
+      if (n.refs && n.refs.length) h += row('References outside this model', n.refs.length) ;
+      var pub = (n.src || []).filter((s) => s.sys !== 'silex' && (s.rel || s.quote));
+      if (pub.length && (n.kind === 'hazard' || n.kind === 'action')) {
+        var only = n.kind === 'hazard' && pub.every((s) => s.sys === 'asb');
+        var notes = {}; pub.forEach((s) => { if (SRC_NOTE[s.sys]) notes[s.sys] = SRC_NOTE[s.sys]; });
+        h += '<h4>Public sources · ' + pub.length + (only ? ' · ASB only' : '') + '</h4>' + pub.map(function (s) {
+          return '<details class="swm-cite"><summary>' + (s.url ? '<a class="swm-src ' + esc(s.sys) + '" href="' + esc(s.url) + '" target="_blank" rel="noopener">' : '<span class="swm-src ' + esc(s.sys) + '">') +
+            esc(SWM.srcLabel(s.sys)) + ' · ' + esc(s.id) + (s.url ? ' ↗</a>' : '</span>') +
+            (s.rel ? '<span class="swm-relg ' + esc(s.rel) + '" title="' + esc(REL_TEXT[s.rel]) + '">' + esc(s.rel) + '</span>' : '') +
+            (s.ver ? '<small style="color:#68707c">definition v' + esc(s.ver) + '</small>' : '') + '</summary>' +
+            (s.label ? '<p class="note">' + esc(s.label) + '</p>' : '') +
+            (s.quote ? '<blockquote>' + esc(s.quote) + '</blockquote>' : '') + '</details>';
+        }).join('') + Object.keys(notes).map((k) => '<p class="note">' + esc(notes[k]) + '</p>').join('') +
+          '<p class="note">' + esc(REL_TEXT.derived) + '. ' + esc(REL_TEXT.related) + '.</p>';
+      }
+      var ex = links.filter((l) => l.s === n.id && l.pred === 'EXEMPLIFIED_BY');
+      if (ex.length) h += '<h4>Public examples · ' + ex.length + '</h4>' + ex.map(function (l) {
+        var c = byId.get(l.t);
+        return '<p class="note"><b>' + esc(c.label) + '</b> · ' + esc(c.caseType || '') + ' · ' + esc(((n.caseWhy || {})[l.t]) || '') + '</p>';
+      }).join('');
+      if (n.attrs && n.attrs.length) h += '<details class="swm-attrs"><summary><h4 style="display:inline">Attributes · ' + n.attrs.length + '</h4></summary><dl>' +
+        n.attrs.map((a) => '<dt>' + esc(a.name) + '</dt><dd>' + esc(a.def) + '</dd>').join('') + '</dl></details>';
+      return h;
+    }
+
     function chainHtml(n) {
       if (n.layer !== 4) return '';
       var out = (id, p) => links.filter((l) => l.s === id && l.pred === p);
@@ -802,6 +849,7 @@
           (n.prohibited ? row('Prohibited outcome', SWM.esc(n.kind === 'state' ? 'A state that must not be reached' : 'An effect that must not occur')) : '') +
           (n.deployment === 'unobserved' ? row('Deployment', 'No runtime instance in the illustrative graph') : '') +
           (uncountered.has(n.id) ? row('Countermeasure', 'No mapped countermeasure') : '') +
+          groundingHtml(n) +
           chainHtml(n) +
           row('Authored model coverage', SWM.pct(n.coverage)) +
           '<div class="swm-meter"><i style="width:' + Math.round((n.coverage || 0) * 100) + '%;background:' + SWM.coverageColor(n.coverage, 'paper') + '"></i></div>';

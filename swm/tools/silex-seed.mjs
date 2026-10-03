@@ -688,8 +688,8 @@ export const DOMAIN_HAZARDS = {
   finance: [
     { id:'haz-finance-unverified-instruction', label:'Payment From Unverified Instruction',
       def:'A payment instruction reaches release without independent proof of who sent it.',
-      hazardFor:['act-finance-payment-release','Vendor Master Record'], mayLeadTo:['proh-finance-unrecoverable-payout'],
-      characterizes:['attack:T1078','atlas:AML.T0070'], mitigatedBy:['core-control-dual-approval'], requiresEvidence:['core-evidence-approval-record'] },
+      hazardFor:['act-finance-payment-release','Vendor Master Record','Bank Account'], mayLeadTo:['proh-finance-unrecoverable-payout'],
+      characterizes:['attack:T1078','atlas:AML.T0070','atlas:AML.T0051'], mitigatedBy:['core-control-dual-approval'], requiresEvidence:['core-evidence-approval-record'] },
     { id:'haz-finance-excessive-payment', label:'Payment Above Approved Ceiling',
       def:'A value transfer exceeds the amount the workflow is authorised to release automatically.',
       hazardFor:['act-finance-payment-release'], mayLeadTo:['proh-finance-unrecoverable-payout'],
@@ -856,7 +856,7 @@ export const RECORD_SCHEMAS = [
   /* T0 (domain grounding): three narrower records, each defined as what one OCSF IAM event class reports,
      so CLOSE_MATCH holds by definition (RECORD_ALIGNMENT). The broader records above are not aligned. */
   { id:'rec-account-change-event', label:'Account Change Event',
-    def:'Captures account management on a user or role: created, enabled, disabled, deleted, locked, password changed or reset, policy attached or detached, with the actor.',
+    def:'Captures account management on a user or role: created, enabled, disabled, deleted, locked, password change or reset attempts, policy attached or detached, with the actor.',
     records:['core-evidence-configuration-change'] },
   { id:'rec-authentication-event', label:'Authentication Event',
     def:'Captures each logon, logoff and other authentication session activity, successful or not, with the user and the method used.',

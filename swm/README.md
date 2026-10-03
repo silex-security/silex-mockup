@@ -30,16 +30,27 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 | 来源 | 是什么 | 抓取节点 | 许可 | 在图里的作用 |
 |---|---|---|---|---|
 | **MITRE D3FEND** | 防御技术 / 数字工件(digital artifact)官方本体 | **213** | D3FEND Terms(免费,署名) | L1 **继承骨架** + policy/control 语义 |
-| **MITRE ATLAS** | 专门针对 AI/ML 系统的攻击战术技术 | **96** | Apache-2.0 / ATLAS Terms | agentic 威胁语义,挂到它攻击的组件上 |
-| **MITRE ATT&CK Enterprise** | 企业级攻击战术技术(14 tactics) | **61** | ATT&CK Terms(免费,署名) | L1 通用威胁语义 |
+| **MITRE ATLAS** | 专门针对 AI/ML 系统的攻击战术技术 | **131** | Apache-2.0 / ATLAS Terms | agentic 威胁语义,挂到它攻击的组件上;含 35 条官方缓解措施(mitigation)及其 `COUNTERS` 关系 |
+| **MITRE ATT&CK Enterprise** | 企业级攻击战术技术(15 tactics) | **101** | ATT&CK Terms(免费,署名) | L1 通用威胁语义;为 Identity & IT 包补 7 个身份类技术,含 33 条官方缓解措施 |
 | **UCO(Unified Cyber Ontology)** | 网络安全的统一上层本体 | **72** | Apache-2.0 | L1 **顶层类**(Agent / Identity / Tool / Action…) |
 | **OWASP GenAI** | LLM Top 10 (2025) + Agentic 威胁清单 T1–T15 | **25** | CC BY-SA 4.0 | 挂到对应的 agentic 组件上 |
 
-这 5 个来源约 **467 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。整张图共 **766 nodes · 1389 typed relations**(SUBCLASS_OF 404 · GROUPED_UNDER 214 · ACHIEVES 126 · PART_OF_DOMAIN 107 · THREATENS 105 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从上述 URL 实时抓取 + 蒸馏生成,画图用 D3.js(pinned 7.9.0,可离线)。
+这 5 个来源共 **542 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。2026-10-03 起,Finance、Customer Service、Identity & IT 三个行业包另外接入了领域标准和 benchmark(见下节)。整张图共 **961 nodes · 2339 typed relations**(SUBCLASS_OF 441 · GROUPED_UNDER 370 · ACHIEVES 133 · PART_OF_DOMAIN 140 · THREATENS 105 · COUNTERS 343 · DEMONSTRATES 278 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从钉死版本的 URL 抓取 + 蒸馏生成(每个输入的 commit 和 sha256 记录在 [`tools/sources/MANIFEST.json`](tools/sources/MANIFEST.json),字节不符即拒绝构建),画图用 D3.js(pinned 7.9.0,可离线)。
+
+### 领域接地(2026-10-03)
+
+[计划](../logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md)。三个行业包的实体、动作和危害现在能指向公开来源:
+
+- **领域标准**:Finance **对齐到** FIBO 和 Common Data Model,Customer Service 对齐到 Common Data Model,Identity & IT 对齐到 OCSF 1.9.0。对齐用 `CLOSE_MATCH`(含义相近,不声称子类)。找不到等义公开类的实体(如 *Customer*、*Refund*、*Role*)列为未匹配并写明原因。
+- **Benchmark**:21 个危害引用 AgentDojo 注入任务、τ²-bench 政策条款与文档、Agent Security Bench 场景或 ToolEmu 案例。每条引用标 **derived**(来源直接描述该有害行为)或 **related**(只是相邻规则,机制由 Silex 建模)。Benchmark 是研究环境,不是企业实测行为。
+- **公开案例**:ATLAS 57 个案例(17 个真实事件、40 个演练)和 2 个 ATT&CK campaign 作为 L3 `case` 节点。危害只在经评审、写明理由的配对上 `EXEMPLIFIED_BY` 案例(4 对)。案例发生在别处,不进 L4,不计入覆盖率。
+- **缓解措施**:ATLAS 与 ATT&CK 官方缓解措施使 L3 威胁中有映射的从 45 个增至 73 个(共 105)。NIST SP 800-53 控制项是人工映射,不代表合规声明。
+
+许可证与署名见 [`data/NOTICES.md`](data/NOTICES.md)。
 
 ### 怎么拼成一个四层世界模型(L1→L2→L3→L4)
 
-**L1 通用**(450)· **L2 行业包**(167)· **L3 agentic 系统**(125)· **L4 运行时实例**(24)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
+**L1 通用**(547)· **L2 行业包**(203)· **L3 agentic 系统**(187)· **L4 运行时实例**(24)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
 
 ### ⚠️ 哪些是真的、哪些是示例(与下面 "What is real and what is mock" 一致)
 
@@ -55,7 +66,7 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 ### 每张图具体吃哪块数据
 
 - **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数、相邻层之间的 typed relations,以及跨层跳过的 `skips`)。
-- **Ontology Graph**(Network / Graph / Hierarchy / Relations 四种视图)→ `ontology.json` 的 **766 nodes · 1389 typed relations**,每个节点/关系按 review 等级标注。
+- **Ontology Graph**(Network / Graph / Hierarchy / Relations 四种视图)→ `ontology.json` 的 **961 nodes · 2339 typed relations**,每个节点/关系按 review 等级标注。
 - **World Model Coverage**(可缩放 sunburst + 雷达)→ `coverage.json`(coverage tree / gaps / KPIs)。其中 **weighted coverage 82% · 29.4K entities · 8 blind spots · sim-vs-observed 94%** 等数字**均为 illustrative,非实测**。
 
 完整来源与许可见 [`data/SOURCES.md`](data/SOURCES.md)。
@@ -87,7 +98,7 @@ swm/
   js/swm-vowl-ui.js        Network view controls                                          ┘ (defer), not the loader
   js/swm-coverage.js       Coverage Observatory (zoomable sunburst + contextual radar)
   js/swm-layers.js         Ontology Layers     (the four tiers, bands + ribbons)
-  data/ontology.json|.js   generated graph: 766 nodes · 1389 typed relations, schema, chain summary
+  data/ontology.json|.js   generated graph: 961 nodes · 2339 typed relations, schema, chain summary
   data/coverage.json|.js   generated coverage tree, gaps and KPIs
   data/SOURCES.md          where every public node came from, and its licence
   tools/build-ontology.mjs fetch + distil + contract-check pipeline (node, no dependencies)

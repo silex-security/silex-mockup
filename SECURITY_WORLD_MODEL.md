@@ -44,14 +44,14 @@ written as a kind of *Workflow*, and each agentic component hung under one arbit
 ontology-rigor run ([plan](logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md)) replaced it:
 
 ```
-L1 General Agent Ontology Graph        450 nodes · avg coverage 74%
-      ↕  278 relations with L2 (SUBCLASS_OF, GROUPED_UNDER, MAY_CAUSE, hazard links)
-L2 Domain Ontology Packs               167 nodes · 78%
-      ↕  36 relations with L3 (DEPLOYED_IN, CHARACTERIZES)
-L3 Agentic-System Ontology             125 nodes · 60%
+L1 General Agent Ontology Graph        547 nodes · avg coverage 74%
+      ↕  385 relations with L2 (SUBCLASS_OF, GROUPED_UNDER, MAY_CAUSE, hazard links)
+L2 Domain Ontology Packs               203 nodes · 78%
+      ↕  51 relations with L3 (DEPLOYED_IN, CHARACTERIZES, EXEMPLIFIED_BY)
+L3 Agentic-System Ontology             187 nodes · 60%
       ↕  22 relations with L4 (INSTANCE_OF)
 L4 Runtime Knowledge Graph              24 nodes · 81%
-      + 205 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
+      + 433 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
 ```
 
 - **Only `SUBCLASS_OF` asserts subsumption.** Domain membership is `PART_OF_DOMAIN`, deployment is
@@ -75,19 +75,46 @@ L4 Runtime Knowledge Graph              24 nodes · 81%
 
 ## 4. Where the data comes from
 
-`swm/tools/build-ontology.mjs` fetches five public sources, distils them, merges Silex's own seed
-content and writes the bundles. Raw downloads (~60MB, mostly ATT&CK) are cached in `swm/.cache/`,
+`swm/tools/build-ontology.mjs` reads five public sources, plus the domain-grounding sources below,
+distils them, merges Silex's own seed content and writes the bundles. Every input is pinned to a
+commit or versioned URL with its sha256 in `swm/tools/sources/MANIFEST.json`; the build refuses
+changed bytes. Raw downloads (~60MB, mostly ATT&CK) are cached in `swm/.cache/`,
 which is git-ignored; only the distilled bundles are committed, so Vercel needs no build step.
 
 | Source | Kept | Role |
 |---|---|---|
 | [MITRE D3FEND](https://d3fend.mitre.org/) | 213 | The `d3f:DigitalArtifact` subclass tree gives L1 its inheritance backbone; `DefensiveTechnique` gives policy/control semantics |
-| [MITRE ATLAS](https://atlas.mitre.org/) | 96 | Tactics join L1 as general agentic threat semantics; techniques sit at L3 on the component they target |
-| [MITRE ATT&CK Enterprise](https://attack.mitre.org/) | 61 | 14 tactics plus agent-relevant techniques as L1 threat semantics |
+| [MITRE ATLAS](https://atlas.mitre.org/) | 131 | Tactics join L1 as general agentic threat semantics; techniques sit at L3 on the component they target; 35 mitigations with ATLAS's own `COUNTERS` edges |
+| [MITRE ATT&CK Enterprise](https://attack.mitre.org/) | 101 | 15 tactics plus agent-relevant techniques as L1 threat semantics, 7 identity techniques added for the Identity & IT pack, and 33 mitigations with ATT&CK's own `COUNTERS` edges |
 | [UCO](https://unifiedcyberontology.org/) | 72 | Upper classes from `core`, `identity`, `action`, `tool`, `pattern`, `observable` |
 | [OWASP GenAI](https://genai.owasp.org/) | 25 | LLM Top 10 (2025) and the Agentic AI threat taxonomy T1–T15 |
+| [ATLAS case studies](https://atlas.mitre.org/studies) | 57 | Published cases (17 incidents, 40 exercises) as L3 `case` nodes that `DEMONSTRATES` the techniques they used |
+| [ATT&CK campaigns](https://attack.mitre.org/campaigns/) | 2 | Reviewed campaigns (Operation Wocao, Leviathan) for the security-code hazard |
+| [FIBO](https://spec.edmcouncil.org/fibo/), [Common Data Model](https://github.com/microsoft/CDM), [OCSF 1.9.0](https://schema.ocsf.io/) | 4 · 6 · 11 | Domain classes the Finance, Customer Service and Identity & IT entities are **aligned to** (`CLOSE_MATCH`), with CDM and OCSF attributes |
+| [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) | 11 | Controls the Identity & IT hazards are mapped to (curated, no compliance claim) |
+| AgentDojo, τ²-bench, Agent Security Bench, ToolEmu | 60 citations | Benchmark tasks, policy rules and scenarios cited on hazards and actions, each graded **derived** or **related** |
 
-**Total: 766 nodes · 1389 typed relations; the browser payload `ontology.js` is about 570 KB (the 700 KB budget `verify-bundle.mjs` enforces).** 299 of those nodes are Silex-authored:
+### Domain grounding (2026-10-03)
+
+The Finance, Customer Service and Identity & IT packs are grounded in public sources
+([plan](logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md)):
+
+- **Standards.** Finance is **aligned to** FIBO and the Common Data Model, Customer Service to the
+  Common Data Model, Identity & IT to OCSF. Alignment is `CLOSE_MATCH` (similar meaning, no subclass
+  claim). Entities with no equivalent public class, such as *Customer*, *Refund* and *Role*, are
+  listed as unmatched with the reason.
+- **Benchmarks.** 21 hazards cite AgentDojo injection tasks, τ²-bench policy rules, Agent Security
+  Bench scenarios or ToolEmu cases. A citation is **derived** when the source describes the harmful
+  behaviour and **related** when it describes a neighbouring rule; then the mechanism is
+  Silex-modelled. Benchmarks are research environments, not observed enterprise behaviour.
+- **Public cases.** A hazard is `EXEMPLIFIED_BY` a case only for a reviewed pair with a written
+  rationale (4 pairs). Cases are events elsewhere: never L4, never counted in coverage.
+- **Mitigations.** Published ATLAS and ATT&CK mitigations raise the countered L3 threats from 45 to 73
+  of 105. NIST controls are curated mappings.
+
+Licence texts and attributions are in [`swm/data/NOTICES.md`](swm/data/NOTICES.md).
+
+**Total: 961 nodes · 2339 typed relations; the browser payload `ontology.js` is about 865 KB, served compressed. `verify-bundle.mjs` caps each browser bundle at 10 MB, and a cold-load timing probe guards load time.** 291 of those nodes are Silex-authored with no public source:
 - the L1 core concepts, the L2 domain packs (two of them, CRM and Legal, are candidate packs outside
   the coverage figures), the L3 component list and record schemas — all graded `curated`;
 - registered workflows and the whole L4 runtime graph, graded `illustrative`.

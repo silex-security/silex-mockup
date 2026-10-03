@@ -5,6 +5,8 @@
    Same headless harness as preview-panels.mjs.
 
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs                 # all probes, this checkout
+     node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only COLD --data <bundle-dir>
+     node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only COLD --delay-bundle 6000 # must exit 1
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --root <dir> --only R1,E1
                                                     # serve another checkout (e.g. BASE) instead
 
@@ -16,12 +18,16 @@ import { spawn, execSync } from 'node:child_process';
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve, extname, normalize } from 'node:path';
-import { tmpdir } from 'node:os';
+import { tmpdir, hostname, platform, arch, cpus } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2), opt = k => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : null };
 const ROOT = resolve(opt('--root') || join(HERE, '..', '..', '..', '..'));   /* repo root to serve */
 const ONLY = opt('--only') ? new Set(opt('--only').split(',')) : null;
+const DATA = resolve(opt('--data') || join(ROOT, 'swm', 'data'));
+const requestedBundleDelay = Number(opt('--delay-bundle') || 0);
+if (!Number.isFinite(requestedBundleDelay) || requestedBundleDelay < 0 || requestedBundleDelay > 60000) throw new Error('--delay-bundle needs 0..60000 milliseconds');
+let bundleDelayMs = 0, delayedBundles = 0;
 const OUT  = resolve(opt('--out') || join(tmpdir(), 'swm-probe'));
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.svg':'image/svg+xml' };
 
@@ -33,9 +39,11 @@ if (typeof WebSocket !== 'function') {
 /* ---- a tiny static server over the repo --------------------------------- */
 const server = createServer(async (req, res) => {
   const rel = normalize(decodeURIComponent(req.url.split('?')[0])).replace(/^(\.\.[/\\])+/, '');
-  const file = join(ROOT, rel === '/' ? 'index.html' : rel);
+  const bundleName = rel.replace(/^\//, '').match(/^swm\/data\/(ontology|coverage)\.(js|json)$/);
+  const file = bundleName ? join(DATA, bundleName[1] + '.' + bundleName[2]) : join(ROOT, rel === '/' ? 'index.html' : rel);
   try {
     const body = await readFile(file);
+    if (bundleName && bundleDelayMs) { delayedBundles++; await new Promise(r => setTimeout(r, bundleDelayMs)); }
     res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
     res.end(body);
   } catch { res.writeHead(404).end('not found'); }
@@ -75,6 +83,7 @@ async function waitForChrome() {
   }
   throw new Error('Chrome did not expose its debugging port in 15s');
 }
+process.on('exit', () => { proc.kill(); server.close(); });
 const version = await waitForChrome();
 
 /* ---- CDP client ---------------------------------------------------------- */
@@ -112,7 +121,7 @@ async function openPanel(panel){
                   document.querySelector('[data-wm-panel="${panel}"]').click(); true`);
   await sleep(3000);
 }
-const bundle = JSON.parse(await readFile(join(ROOT, 'swm', 'data', 'ontology.json'), 'utf8'));
+const bundle = JSON.parse(await readFile(join(DATA, 'ontology.json'), 'utf8'));
 await mkdir(OUT, { recursive: true });
 const shot = async file => { const s = await send('Page.captureScreenshot', { format: 'png' }); await writeFile(join(OUT, file), Buffer.from(s.result.data, 'base64')); };
 
@@ -123,6 +132,99 @@ const pick = id => evaluate(`(async () => {
   await new Promise(r => setTimeout(r, 500));
   const b = document.querySelector('#swmResults [data-id="' + ${JSON.stringify(id)} + '"]');
   if (!b) return false; b.click(); await new Promise(r => setTimeout(r, 1200)); return true; })()`);
+
+/* E5 D6: an isolated context and pre-navigation listener for each cold view. */
+let browserSocket, browserCall;
+async function browserCommand(method, params = {}) {
+  if (!browserCall) {
+    browserSocket = new WebSocket(version.webSocketDebuggerUrl);
+    const pending = new Map(); let sequence = 0;
+    browserSocket.addEventListener('message', event => {
+      const m = JSON.parse(event.data);
+      if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
+    });
+    await new Promise((r, reject) => { browserSocket.addEventListener('open', r); browserSocket.addEventListener('error', reject); });
+    browserCall = (method, params) => new Promise((r, reject) => {
+      const id = ++sequence;
+      const timer = setTimeout(() => { pending.delete(id); reject(new Error('Browser CDP timeout: ' + method)); }, 10000);
+      pending.set(id, m => { clearTimeout(timer); if (m.error) reject(new Error(m.error.message)); else r(m); });
+      browserSocket.send(JSON.stringify({ id, method, params }));
+    });
+  }
+  return browserCall(method, params);
+}
+async function coldLoad(panel, delay = 0) {
+  const context = await browserCommand('Target.createBrowserContext');
+  const contextId = context.result?.browserContextId;
+  if (!contextId) throw new Error('Chrome failed to create a fresh browser context');
+  let coldSocket;
+  const errors = [];
+  const limit = panel === 'wm-architecture' ? 3000 : 5000;
+  bundleDelayMs = delay;
+  const previousDelayed = delayedBundles;
+  try {
+    const targetResult = await browserCommand('Target.createTarget', { url: 'about:blank', browserContextId: contextId });
+    const targetId = targetResult.result?.targetId;
+    const pages = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+    const target = pages.find(p => p.id === targetId);
+    if (!target) throw new Error('Fresh Chrome target not found');
+    coldSocket = new WebSocket(target.webSocketDebuggerUrl);
+    const pendingCold = new Map(); let sequence = 0;
+    coldSocket.addEventListener('message', e => {
+      const m = JSON.parse(e.data);
+      if (m.id && pendingCold.has(m.id)) { pendingCold.get(m.id)(m); pendingCold.delete(m.id); }
+      if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails?.exception?.description || 'exception');
+      if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') errors.push(m.params.args.map(a => a.value ?? a.description ?? '').join(' '));
+    });
+    await new Promise((r, reject) => { coldSocket.addEventListener('open', r); coldSocket.addEventListener('error', reject); });
+    const call = (method, params = {}) => new Promise((r, reject) => {
+      const id = ++sequence;
+      const timeout = setTimeout(() => { pendingCold.delete(id); reject(new Error('CDP timeout: ' + method)); }, 10000);
+      pendingCold.set(id, result => { clearTimeout(timeout); if (result.error) reject(new Error(result.error.message)); else r(result.result); });
+      coldSocket.send(JSON.stringify({ id, method, params }));
+    });
+    await call('Page.enable'); await call('Runtime.enable'); await call('Network.enable');
+    await call('Network.setCacheDisabled', { cacheDisabled: true });
+    await call('Emulation.setDeviceMetricsOverride', { width: 1680, height: 1100, deviceScaleFactor: 1, mobile: false });
+    await call('Page.addScriptToEvaluateOnNewDocument', { source:
+      "window.__swmColdReady = false; window.addEventListener('swm:loader-ready', () => { window.__swmColdReady = true; });" });
+    const start = performance.now();
+    await call('Page.navigate', { url: base + '#view=security-model&tab=' + panel });
+    let state;
+    do {
+      const r = await call('Runtime.evaluate', { returnByValue: true, expression: `(() => {
+        const panel = document.getElementById(${JSON.stringify(panel)});
+        const selector = ${JSON.stringify(panel === 'wm-architecture' ? '#swmChainSvg g[role="button"]' : '#swmSvg g.swm-node, #swmSvg g.vw-node')};
+        const visible = element => !!element && element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().height > 0 && getComputedStyle(element).visibility !== 'hidden';
+        return { event: window.__swmColdReady === true, content: !!panel && panel.classList.contains('active') &&
+          [...panel.querySelectorAll(selector)].some(visible) && ![...panel.querySelectorAll('.swm-loading')].some(visible) };
+      })()` });
+      if (r?.exceptionDetails) throw new Error('Cold readiness evaluation failed: ' + (r.exceptionDetails.exception?.description || r.exceptionDetails.text));
+      state = r?.result?.value || {};
+      if (state.event && state.content) break;
+      await sleep(25);
+    } while (performance.now() - start < limit);
+    const elapsed = performance.now() - start;
+    return { ok: state.event && state.content && elapsed <= limit && !errors.length,
+      elapsed: Math.round(elapsed), limit, event: !!state.event, content: !!state.content,
+      delayedRequests: delayedBundles - previousDelayed, errors, reason: errors.length ? 'browser exception' : (state.event && state.content ? 'ready' : 'readiness deadline exceeded') };
+  } finally {
+    bundleDelayMs = 0;
+    coldSocket?.close();
+    await browserCommand('Target.disposeBrowserContext', { browserContextId: contextId });
+  }
+}
+if (want('COLD')) {
+  console.log('Cold-load machine: ' + JSON.stringify({ chrome: version.Browser, host: hostname(), platform: platform(), arch: arch(), cpu: cpus()[0]?.model, logicalCPUs: cpus().length, data: DATA }));
+  for (const panel of ['wm-architecture', 'wm-ontology']) {
+    const r = await coldLoad(panel, requestedBundleDelay);
+    record(panel === 'wm-architecture' ? 'COLD-L' : 'COLD-G', r.ok, JSON.stringify(r));
+  }
+  // The fixture is accepted only because the real timed probe rejects an actual delayed response.
+  const delayed = await coldLoad('wm-ontology', 6000);
+  record('COLD-6', !delayed.ok && delayed.delayedRequests > 0 && delayed.reason === 'readiness deadline exceeded',
+    '6 s delayed-bundle negative: ' + JSON.stringify(delayed));
+}
 
 if (want('D1')) {
   /* entering Enterprise World Model lands on Ontology Layers, the first sub-tab, rendered */
@@ -354,22 +456,29 @@ if (want('P6')) {
   const has = (arr, s, p, t) => !!arr && arr.some(x => (s == null || x.s === s) && x.p === p && x.t === t);
   const countersTo = (arr, t) => (arr || []).filter(x => x.p === 'COUNTERS' && x.t === t);
   const counterSources = t => bundle.links.filter(l => l.pred === 'COUNTERS' && l.t === t).map(l => l.s);
-  const aml = countersTo(a1, 'atlas:AML.T0051');
-  const amlOk = aml.length > 0 && aml.every(x => counterSources('atlas:AML.T0051').includes(x.s));
+  // The inspector shows at most six threats, countered first. New published
+  // mitigations can change that subset; validate every rendered COUNTERS edge.
+  const displayedThreats = (a1 || []).filter(x => x.p === 'THREATENS' && x.t === 'ag:planner').map(x => x.s);
+  const displayedCounters = (a1 || []).filter(x => x.p === 'COUNTERS');
+  const countersOk = displayedCounters.length > 0 && displayedCounters.every(x =>
+    displayedThreats.includes(x.t) && counterSources(x.t).includes(x.s) &&
+    ['control', 'countermeasure'].includes(bundle.nodes.find(n => n.id === x.s)?.kind));
+  const amlStored = counterSources('atlas:AML.T0051').includes('core:core-control-policy-gate');
   const reversed = countersTo(a1, 'ag:planner').length > 0;
   record('P6', okAgent === true && okInc === true
       && has(a1, 'rt-refund-agent', 'INSTANCE_OF', 'ag:planner')
       && has(a1, null, 'THREATENS', 'ag:planner')
-      && amlOk && !reversed
+      && countersOk && amlStored && !reversed
       && has(a2, 'rt-inc-1042', 'EXHIBITS', 'hz:haz-support-refund-loop'),
-    `agent ${JSON.stringify(a1)} · incident ${JSON.stringify(a2)} · aml counters ${JSON.stringify(aml)} · reversed ${reversed}`);
+    `agent ${JSON.stringify(a1)} · incident ${JSON.stringify(a2)} · rendered counters valid ${countersOk} · stored AML.T0051 control ${amlStored} · reversed ${reversed}`);
   await shot('probe-chain-asserts.png');
 }
 
-ws.close(); proc.kill(); server.close();
+browserSocket?.close(); ws.close(); proc.kill(); server.close();
 if (want('E1')) record('E1', !consoleErrors.length, consoleErrors.length ? [...new Set(consoleErrors)].slice(0, 4).map(e => String(e).split('\n')[0]).join(' | ') : 'no console errors');
 
 console.log(`\n${version.Browser} · serving ${ROOT}`);
 for (const r of results) console.log(`  ${r.ok ? '✓' : '✗'} ${r.id.padEnd(3)} ${r.detail}`);
-console.log(`  screenshots → ${OUT}\n`);
+await writeFile(join(OUT, 'results.json'), JSON.stringify({ chrome: version.Browser, root: ROOT, data: DATA, results }, null, 2));
+console.log(`  screenshots and results → ${OUT}\n`);
 process.exit(results.every(r => r.ok) ? 0 : 1);

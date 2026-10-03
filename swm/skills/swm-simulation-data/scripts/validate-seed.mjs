@@ -39,7 +39,20 @@ try {
   warn('swm/data/ontology.json not readable — public-id and kind checks were skipped');
 }
 const isPublic = id => publicById.get(id);
-const publicKind = id => (isPublic(id) || {}).kind;
+const nistId = cid => { const p = cid.split('.'); const base = p[0].toUpperCase(); return p.length > 1 ? `${base}(${p.slice(1).join('')})` : base; };
+/* ids the build imports from the grounding source modules, known before the bundle is rebuilt */
+const sourceKindById = new Map();
+for (const cid of (S.SOURCE_SELECTION['nist-800-53'] || {}).controls || []) sourceKindById.set(`nist:${nistId(cid)}`, 'control');
+for (const t of S.SOURCE_SELECTION.attackTechniques || []) sourceKindById.set(`attack:${t}`, 'technique');
+for (const o of (S.SOURCE_SELECTION.ocsf || {}).objects || []) sourceKindById.set(`ocsf:${o}`, 'class');
+for (const e of (S.SOURCE_SELECTION.ocsf || {}).events || []) sourceKindById.set(`ocsf:${e}`, 'class');
+for (const c of (S.SOURCE_SELECTION.fibo || {}).classes || []) sourceKindById.set(`fibo:${c}`, 'class');
+for (const k of Object.keys((S.SOURCE_SELECTION.fibo || {}).domain || {})) sourceKindById.set(`fibo:${k}`, 'class');
+for (const d of (S.SOURCE_SELECTION.cdm || {}).docs || []) sourceKindById.set(`cdm:${d.entity}`, 'class');
+for (const cid of (S.SOURCE_SELECTION['attack-campaigns'] || {}).ids || []) sourceKindById.set(`case:${cid}`, 'case');
+for (const cl of S.CASE_LINKS || []) sourceKindById.set(`case:${cl.case}`, 'case');
+const isKnown = id => !!publicById.get(id) || sourceKindById.has(id);
+const publicKind = id => (publicById.get(id) || {}).kind ?? sourceKindById.get(id);
 
 /* kind-pair signature check from the frozen contract */
 const pairOk = (pred, sKind, tKind) => {
@@ -266,7 +279,7 @@ const actionById = new Map();
 for (const [domainId, acts] of Object.entries(S.DOMAIN_ACTIONS || {})) {
   if (!domainIds.has(domainId)) fail(`DOMAIN_ACTIONS: unknown domain "${domainId}"`);
   const candidate = candidateIds.has(domainId);
-  const lo = candidate ? 3 : 4, hi = candidate ? 5 : 8;
+  const lo = candidate ? 3 : 4, hi = candidate ? 5 : 20;
   if (acts.length < lo || acts.length > hi) fail(`DOMAIN_ACTIONS[${domainId}]: ${acts.length} actions, expected ${lo}–${hi}`);
   for (const a of acts) {
     if (actionById.has(a.id)) fail(`DOMAIN_ACTIONS: duplicate action id "${a.id}"`);
@@ -279,7 +292,9 @@ for (const [domainId, acts] of Object.entries(S.DOMAIN_ACTIONS || {})) {
       if (coreKind(e) !== 'effect') fail(`DOMAIN_ACTIONS ${a.id}: mayCause "${e}" is not a core effect`);
       else checkPair('MAY_CAUSE', 'action', 'effect', `DOMAIN_ACTIONS ${a.id}.mayCause`);
     }
-    if (!Array.isArray(a.workflows) || !a.workflows.length) fail(`DOMAIN_ACTIONS ${a.id}: workflows must list at least one WF id`);
+    if (a.workflows === undefined) fail(`DOMAIN_ACTIONS ${a.id}: workflows field is required`);
+    else if (!Array.isArray(a.workflows)) fail(`DOMAIN_ACTIONS ${a.id}: workflows must be an array`);
+    else if (!a.workflows.length && !(typeof a.noWorkflow === 'string' && a.noWorkflow)) fail(`DOMAIN_ACTIONS ${a.id}: empty workflows requires a non-empty noWorkflow reason`);
     for (const w of a.workflows || []) {
       if (!workflowIds.has(w)) fail(`DOMAIN_ACTIONS ${a.id}: workflow "${w}" does not exist`);
       else checkPair('USED_IN', 'action', 'workflow', `DOMAIN_ACTIONS ${a.id}.workflows`);
@@ -325,7 +340,7 @@ const referencedEvidence = new Set();
 for (const [domainId, hazards] of Object.entries(S.DOMAIN_HAZARDS || {})) {
   if (!domainIds.has(domainId)) fail(`DOMAIN_HAZARDS: unknown domain "${domainId}"`);
   const candidate = candidateIds.has(domainId);
-  const lo = candidate ? 2 : 3, hi = candidate ? 3 : 5;
+  const lo = candidate ? 2 : 3, hi = candidate ? 3 : 12;
   if (hazards.length < lo || hazards.length > hi) fail(`DOMAIN_HAZARDS[${domainId}]: ${hazards.length} hazards, expected ${lo}–${hi}`);
   const entities = entitiesByDomain.get(domainId) || new Set();
   for (const h of hazards) {
@@ -340,14 +355,15 @@ for (const [domainId, hazards] of Object.entries(S.DOMAIN_HAZARDS || {})) {
     }
     if (!Array.isArray(h.characterizes) || !h.characterizes.length) fail(`DOMAIN_HAZARDS ${h.id}: characterizes must not be empty`);
     for (const t of h.characterizes || []) {
-      if (!isPublic(t)) fail(`DOMAIN_HAZARDS ${h.id}: characterizes "${t}" is not in the bundle`);
+      if (!isKnown(t)) fail(`DOMAIN_HAZARDS ${h.id}: characterizes "${t}" is not in the bundle`);
       else checkPair('CHARACTERIZES', 'hazard', publicKind(t), `DOMAIN_HAZARDS ${h.id}.characterizes`);
     }
     if (!Array.isArray(h.mitigatedBy) || !h.mitigatedBy.length) fail(`DOMAIN_HAZARDS ${h.id}: mitigatedBy must not be empty`);
     for (const c of h.mitigatedBy || []) {
-      if (coreKind(c) === 'control') checkPair('MITIGATED_BY', 'hazard', 'control', `DOMAIN_HAZARDS ${h.id}.mitigatedBy`);
-      else if (publicKind(c) === 'countermeasure') checkPair('MITIGATED_BY', 'hazard', 'countermeasure', `DOMAIN_HAZARDS ${h.id}.mitigatedBy`);
-      else fail(`DOMAIN_HAZARDS ${h.id}: mitigatedBy "${c}" is neither a core control nor a d3f countermeasure`);
+      const ck = coreKind(c) || publicKind(c);
+      if (ck === 'control') checkPair('MITIGATED_BY', 'hazard', 'control', `DOMAIN_HAZARDS ${h.id}.mitigatedBy`);
+      else if (ck === 'countermeasure') checkPair('MITIGATED_BY', 'hazard', 'countermeasure', `DOMAIN_HAZARDS ${h.id}.mitigatedBy`);
+      else fail(`DOMAIN_HAZARDS ${h.id}: mitigatedBy "${c}" is neither a core/nist control nor a countermeasure`);
     }
     if (!Array.isArray(h.requiresEvidence) || !h.requiresEvidence.length) fail(`DOMAIN_HAZARDS ${h.id}: requiresEvidence must not be empty`);
     for (const e of h.requiresEvidence || []) {
@@ -371,8 +387,8 @@ for (const p of prohibitedById.values()) {
 
 /* ---- RECORD_SCHEMAS: evidence is recorded ------------------------------- */
 const recordIds = new Set(), recordedEvidence = new Set();
-if (S.RECORD_SCHEMAS.length < 6 || S.RECORD_SCHEMAS.length > 8)
-  fail(`RECORD_SCHEMAS: ${S.RECORD_SCHEMAS.length} schemas, expected 6–8`);
+if (S.RECORD_SCHEMAS.length < 6 || S.RECORD_SCHEMAS.length > 14)
+  fail(`RECORD_SCHEMAS: ${S.RECORD_SCHEMAS.length} schemas, expected 6–14`);
 for (const r of S.RECORD_SCHEMAS) {
   if (recordIds.has(r.id)) fail(`RECORD_SCHEMAS: duplicate id "${r.id}"`);
   recordIds.add(r.id);
@@ -412,6 +428,51 @@ for (const ih of S.INCIDENT_HAZARDS || []) {
   else checkPair('EXHIBITS', 'incident', 'hazard', `INCIDENT_HAZARDS ${ih.incident}`);
 }
 
+/* ---- domain grounding T0 lists (plan E5) --------------------------------- */
+for (const [domainId, rows] of Object.entries(S.DOMAIN_ALIGNMENT || {})) {
+  if (!domainIds.has(domainId)) fail(`DOMAIN_ALIGNMENT: unknown domain "${domainId}"`);
+  const entities = entitiesByDomain.get(domainId) || new Set();
+  for (const r of rows) {
+    if (!entities.has(r.entity)) fail(`DOMAIN_ALIGNMENT ${domainId}: entity "${r.entity}" is not in the pack`);
+    if (r.unmatched) {
+      if (typeof r.unmatched !== 'string' || !r.unmatched) fail(`DOMAIN_ALIGNMENT ${domainId}/${r.entity}: unmatched needs a reason`);
+    } else {
+      if (!Array.isArray(r.match) || !r.match.length) fail(`DOMAIN_ALIGNMENT ${domainId}/${r.entity}: match must list ids`);
+      for (const c of r.match) {
+        if (!isKnown(c)) fail(`DOMAIN_ALIGNMENT ${domainId}/${r.entity}: match "${c}" is not a known source id`);
+        else checkPair('CLOSE_MATCH', 'entity', publicKind(c), `DOMAIN_ALIGNMENT ${domainId}/${r.entity}`);
+      }
+    }
+  }
+}
+for (const r of S.RECORD_ALIGNMENT || []) {
+  if (!recordIds.has(r.record)) fail(`RECORD_ALIGNMENT: record "${r.record}" is not a RECORD_SCHEMAS id`);
+  if (!Array.isArray(r.match) || !r.match.length) fail(`RECORD_ALIGNMENT ${r.record}: match must list ids`);
+  for (const c of r.match) {
+    if (!isKnown(c)) fail(`RECORD_ALIGNMENT ${r.record}: match "${c}" is not a known source id`);
+    else checkPair('CLOSE_MATCH', 'record', publicKind(c), `RECORD_ALIGNMENT ${r.record}`);
+  }
+}
+const RELS = new Set(['derived', 'related']);
+for (const [hid, rows] of Object.entries(S.BENCHMARK_HAZARDS || {})) {
+  if (!hazardById.has(hid)) fail(`BENCHMARK_HAZARDS: hazard "${hid}" does not exist`);
+  for (const r of rows) {
+    if (typeof r.key !== 'string' || !r.key) fail(`BENCHMARK_HAZARDS ${hid}: key is required`);
+    if (!RELS.has(r.rel)) fail(`BENCHMARK_HAZARDS ${hid}: rel "${r.rel}" is not derived|related`);
+  }
+}
+for (const [aid, keys] of Object.entries(S.BENCHMARK_ACTIONS || {})) {
+  if (!actionById.has(aid)) fail(`BENCHMARK_ACTIONS: action "${aid}" does not exist`);
+  for (const k of keys) if (typeof k !== 'string' || !k) fail(`BENCHMARK_ACTIONS ${aid}: key is required`);
+}
+for (const cl of S.CASE_LINKS || []) {
+  if (!hazardById.has(cl.hazard)) fail(`CASE_LINKS: hazard "${cl.hazard}" does not exist`);
+  else if (!(hazardById.get(cl.hazard).characterizes || []).includes(cl.via)) fail(`CASE_LINKS ${cl.hazard} → ${cl.case}: hazard does not characterize ${cl.via}`);
+  if (!/^(AML\.CS\d+|C\d+)$/.test(cl.case || '')) fail(`CASE_LINKS: case "${cl.case}" is not a well-formed case id`);
+  if (typeof cl.why !== 'string' || !cl.why) fail(`CASE_LINKS ${cl.hazard} → ${cl.case}: why is required`);
+  if (typeof cl.via !== 'string' || !cl.via) fail(`CASE_LINKS ${cl.hazard} → ${cl.case}: via is required`);
+}
+
 /* ---- label collisions (normalized: lowercase, non-alphanumerics removed) -- */
 {
   const norm = s => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -434,7 +495,8 @@ for (const ih of S.INCIDENT_HAZARDS || []) {
       fail(`label collision "${k}": ${list.map(e => `${e.group}:${e.id} ("${e.label}")`).join(' and ')}`);
 
   /* (a) public (non-silex) node labels in the bundle */
-  const isSilexNode = n => (n.src || []).every(s => s.sys === 'silex');
+  /* a Silex node keeps its own src first; benchmark citations appended by the build (C11) do not make it public */
+  const isSilexNode = n => ((n.src || [])[0] || {}).sys === 'silex';
   const publicByNorm = new Map();
   for (const n of publicById.values()) {
     if (isSilexNode(n)) continue;

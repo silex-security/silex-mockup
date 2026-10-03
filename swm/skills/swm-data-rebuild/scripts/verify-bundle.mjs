@@ -107,6 +107,8 @@ export function validateGraph(onto) {
       if (!s?.sys) fail(n.id + ': source has no sys');
       else {
         bump(metrics.bySrc, s.sys);
+        if (s.sys === 'agentdojo' && (typeof s.ver !== 'string' || !s.ver.trim()))
+          fail(n.id + ': AgentDojo source needs ver');
         if (!SOURCES.has(s.sys)) fail(n.id + ': unknown source system ' + s.sys);
         if (s.sys !== 'silex' && ['hazard', 'action'].includes(n.kind) && !['derived', 'related'].includes(s.rel))
           fail(n.id + ': non-Silex hazard/action source needs rel derived or related');
@@ -182,6 +184,10 @@ export function validateGraph(onto) {
     }
     if (n.kind === 'domain' && (n.layer !== 2 || !n.anchor || n.parent != null)) fail(n.id + ': domain must be an L2 anchor');
     if (n.layer === 2) {
+      if (n.kind === 'entity' && ['dom:finance', 'dom:support', 'dom:identity-it'].includes(n.parent) &&
+          !out(n.id, 'CLOSE_MATCH').some(t => t.kind === 'class') &&
+          !(typeof n.unmatched === 'string' && n.unmatched.trim()))
+        fail(n.id + ': in-scope entity needs CLOSE_MATCH or nonempty unmatched');
       if (n.kind === 'class') {
         const p = byId.get(n.parent);
         if (!(n.parentPred === 'SUBCLASS_OF' && p?.kind === 'class') &&
@@ -317,12 +323,66 @@ export function validateCoverage(cov, onto) {
   return problems;
 }
 
-export async function verifyBundle(directory) {
+/* Preserve array order: changing a frozen coverage sequence is a change too. */
+export function validateCoverageFreeze(candidate, baseline) {
+  const strip = value => {
+    const x = structuredClone(value);
+    delete x.generated;
+    delete x.ontologyCompleteness;
+    for (const k of x.kpis || []) if (k.id === 'entities') delete k.delta;
+    return x;
+  };
+  const differences = [];
+  const visit = (a, b, path) => {
+    if (JSON.stringify(a) === JSON.stringify(b)) return;
+    if (a && b && typeof a === 'object' && typeof b === 'object' && Array.isArray(a) === Array.isArray(b)) {
+      for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) visit(a[k], b[k], path + (Array.isArray(a) ? '[' + k + ']' : '.' + k));
+    } else differences.push('coverage freeze: forbidden change at ' + path);
+  };
+  visit(strip(candidate), strip(baseline), 'coverage');
+  return differences;
+}
+
+export function validateNotices(text, onto, ocsfNotice) {
+  const problems = [];
+  const systems = new Set(onto.nodes.flatMap(n => (n.src || []).map(s => s.sys)));
+  for (const l of onto.links) systems.add(l.src);
+  // Public source names are equivalent to their internal sys ids, but must identify
+  // the source unambiguously (ATLAS cases and ATT&CK campaigns need their own coverage).
+  const names = {
+    attack: /ATT(?:&amp;|&)CK/i,
+    'attack-campaign': /ATT(?:&amp;|&)CK[^\n]*campaign/i,
+    'atlas-cs': /ATLAS[^\n]*case stud/i,
+    'nist-800-53': /NIST\s+(?:SP\s+)?800[-–]53/i,
+    tau2: /(?:τ²|tau2|tau[- ]?2)[- ]bench/i,
+    cdm: /Microsoft Common Data Model/i
+  };
+  for (const sys of systems) if (sys && sys !== 'silex') {
+    const escaped = sys.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (!new RegExp('(^|[^a-z0-9-])' + escaped + '([^a-z0-9-]|$)', 'i').test(text) && !names[sys]?.test(text))
+      problems.push('NOTICES.md: missing source system ' + sys);
+  }
+  if (systems.has('ocsf')) {
+    const normalize = s => s.replace(/\r\n/g, '\n').trim();
+    if (!ocsfNotice || !normalize(text).includes(normalize(ocsfNotice)))
+      problems.push('NOTICES.md: missing complete pinned OCSF NOTICE text');
+  }
+  return problems;
+}
+
+export async function verifyBundle(directory, { base } = {}) {
   const data = resolve(directory), notes = [], problems = [];
   const onto = JSON.parse(await readFile(join(data, 'ontology.json'), 'utf8'));
   const cov = JSON.parse(await readFile(join(data, 'coverage.json'), 'utf8'));
   const graph = validateGraph(onto);
   problems.push(...graph.problems, ...validateCoverage(cov, onto));
+  if (base) problems.push(...validateCoverageFreeze(cov, JSON.parse(await readFile(resolve(base), 'utf8'))));
+  try {
+    const notices = await readFile(join(data, 'NOTICES.md'), 'utf8');
+    const needsOCSF = onto.nodes.some(n => (n.src || []).some(s => s.sys === 'ocsf')) || onto.links.some(l => l.src === 'ocsf');
+    const notice = needsOCSF ? await readFile(join(HERE, '..', '..', '..', '.cache', 'ocsf-NOTICE'), 'utf8') : '';
+    problems.push(...validateNotices(notices, onto, notice));
+  } catch (error) { problems.push('NOTICES.md: required notice or pinned OCSF reference unavailable (' + error.message + ')'); }
   for (const [file, global] of [['ontology.js', 'SILEX_SWM_ONTOLOGY'], ['coverage.js', 'SILEX_SWM_COVERAGE']]) {
     const text = await readFile(join(data, file), 'utf8');
     const match = text.match(new RegExp('window\\.' + global + '\\s*=\\s*([\\s\\S]*?)\\s*;?\\s*$'));
@@ -340,9 +400,13 @@ export async function verifyBundle(directory) {
 }
 
 async function main() {
-  const data = resolve(process.argv[2] || join(HERE, '..', '..', '..', 'data'));
+  const args = process.argv.slice(2), i = args.indexOf('--base');
+  if (i >= 0 && (!args[i + 1] || args[i + 1].startsWith('--'))) throw new Error('--base needs a coverage.json path');
+  const base = i >= 0 ? args.splice(i, 2)[1] : undefined;
+  if (args.length > 1 || args.some(a => a.startsWith('--'))) throw new Error('usage: verify-bundle.mjs [data-directory] [--base coverage.json]');
+  const data = resolve(args[0] || join(HERE, '..', '..', '..', 'data'));
   try {
-    const r = await verifyBundle(data), { problems, metrics: m, onto, cov } = r;
+    const r = await verifyBundle(data, { base }), { problems, metrics: m, onto, cov } = r;
     console.log('\nBundle: ' + data + '\n  ' + onto.nodes.length + ' nodes · ' + onto.links.length + ' links');
     console.log('  layers: ' + [1, 2, 3, 4].map(l => 'L' + l + ' ' + (m.layerCount[l] || 0)).join(' · '));
     console.log('  by source: ' + Object.entries(m.bySrc).map(([k, v]) => k + ' ' + v).join(' · '));

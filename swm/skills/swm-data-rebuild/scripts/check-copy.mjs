@@ -11,15 +11,20 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(process.argv[2] || join(HERE, '..', '..', '..', '..'));
-const onto = JSON.parse(await readFile(join(ROOT, 'swm/data/ontology.json'), 'utf8'));
+const args = process.argv.slice(2), dataIndex = args.indexOf('--data');
+if (dataIndex >= 0 && (!args[dataIndex + 1] || args[dataIndex + 1].startsWith('--'))) throw new Error('--data needs a directory');
+const suppliedData = dataIndex >= 0 ? args.splice(dataIndex, 2)[1] : undefined;
+if (args.length > 1 || args.some(a => a.startsWith('--'))) throw new Error('usage: check-copy.mjs [repoRoot] [--data directory]');
+const ROOT = resolve(args[0] || join(HERE, '..', '..', '..', '..'));
+const DATA = resolve(suppliedData || join(ROOT, 'swm/data'));
+const onto = JSON.parse(await readFile(join(DATA, 'ontology.json'), 'utf8'));
 
 const nodes = onto.nodes.length, links = onto.links.length;
 const layer = Object.fromEntries(onto.chain.layers.map(l => [l.id, l]));
 const hop = Object.fromEntries(onto.chain.hops.map(h => [h.from, h]));
 const predCount = {}; onto.links.forEach(l => { predCount[l.pred] = (predCount[l.pred] || 0) + 1 });
 const silex = onto.nodes.filter(n => (n.src || []).every(s => s.sys === 'silex')).length;
-const threats = onto.nodes.filter(n => n.layer === 3 && n.group === 'threat').length;
+const threats = onto.nodes.filter(n => n.layer === 3 && ['technique', 'risk'].includes(n.kind)).length;
 const SRC = { 'D3FEND': 'd3fend', 'ATLAS': 'atlas', 'ATT&amp;CK': 'attack', 'UCO': 'uco', 'OWASP': 'owasp' };
 const pct = v => Math.round(v * 100);
 

@@ -55,7 +55,10 @@
 
   var SRC_LABEL = {
     d3fend: 'D3FEND', atlas: 'ATLAS', attack: 'ATT&CK', uco: 'UCO',
-    owasp: 'OWASP', silex: 'Silex-authored'
+    owasp: 'OWASP', silex: 'Silex-authored',
+    /* domain grounding sources (plan 2026-10-03, E5) */
+    'atlas-cs': 'ATLAS case study', 'attack-campaign': 'ATT&CK campaign', fibo: 'FIBO', cdm: 'CDM', ocsf: 'OCSF',
+    'nist-800-53': 'NIST SP 800-53', agentdojo: 'AgentDojo', tau2: 'τ²-bench', asb: 'ASB', toolemu: 'ToolEmu'
   };
 
   /* fixture IDs that mean something else elsewhere on the site are never shown bare (plan P2) */

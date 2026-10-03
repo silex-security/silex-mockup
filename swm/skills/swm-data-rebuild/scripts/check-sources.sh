@@ -1,34 +1,57 @@
 #!/usr/bin/env bash
-# Probe every upstream the Security World Model bundle is built from.
-# Exit 0 when all reachable, 1 otherwise. Run before a rebuild on a new host.
+# Probe every input the Security World Model bundle is built from.
+# Reads swm/tools/sources/MANIFEST.json (no hard-coded URLs or pins).
+#   check-sources.sh          -> reachability only (HEAD, falling back to a ranged GET)
+#   check-sources.sh --full   -> also download each file and compare its sha256
+# Exit 0 when all inputs are reachable (and, with --full, byte-identical to the pin).
 set -uo pipefail
 
-SOURCES=(
-  "D3FEND|https://d3fend.mitre.org/ontologies/d3fend.json"
-  "ATLAS|https://raw.githubusercontent.com/mitre-atlas/atlas-navigator-data/main/dist/stix-atlas.json"
-  "ATT&CK|https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack.json"
-)
-for m in core action identity observable tool pattern; do
-  SOURCES+=("UCO/$m|https://raw.githubusercontent.com/ucoProject/UCO/master/ontology/uco/$m/$m.ttl")
-done
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MANIFEST="$SCRIPT_DIR/../../../tools/sources/MANIFEST.json"
+FULL=0
+[ "${1:-}" = "--full" ] && FULL=1
+
+[ -f "$MANIFEST" ] || { echo "MANIFEST.json not found at $MANIFEST"; exit 1; }
+
+entries="$(python3 - "$MANIFEST" <<'PY'
+import json, sys
+m = json.load(open(sys.argv[1]))
+for e in m.get('inputs', []):
+    print(f"{e['name']}\t{e['url']}\t{e.get('sha256','')}")
+PY
+)"
 
 fail=0
-printf "%-12s %-8s %-10s %s\n" "SOURCE" "STATUS" "SIZE" "URL"
-for entry in "${SOURCES[@]}"; do
-  name="${entry%%|*}"; url="${entry#*|}"
-  headers=$(curl -sIL --max-time 30 "$url" 2>/dev/null)
-  code=$(printf '%s' "$headers" | awk '/^HTTP/{c=$2} END{print c}')
-  len=$(printf '%s' "$headers" | awk 'BEGIN{IGNORECASE=1} /^content-length:/{l=$2} END{print l}' | tr -d '\r')
-  if [ -n "$len" ]; then size=$(( len / 1024 ))KB; else size="-"; fi
+checked=0
+printf "%-48s %-8s %s\n" "INPUT" "STATUS" "HASH/URL"
+while IFS=$'\t' read -r name url sha; do
+  [ -z "$name" ] && continue
+  checked=$((checked + 1))
+  code=$(curl -sIL --max-time 30 "$url" 2>/dev/null | awk '/^HTTP/{c=$2} END{print c}')
+  if [ "$code" != "200" ]; then
+    # some hosts reject HEAD; fall back to a ranged GET of the first byte
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -r 0-0 "$url" 2>/dev/null)
+  fi
+  hashok="-"
+  if [ "$FULL" = "1" ]; then
+    tmp="$(mktemp)"
+    if curl -sL --max-time 120 "$url" -o "$tmp" 2>/dev/null; then
+      got=$(shasum -a 256 "$tmp" | awk '{print $1}')
+      if [ "$got" = "$sha" ]; then hashok="sha256-ok"; else hashok="sha256-MISMATCH"; fail=1; fi
+    else
+      hashok="download-failed"; fail=1
+    fi
+    rm -f "$tmp"
+  fi
   [ "$code" = "200" ] || { fail=1; code="${code:-ERR}"; }
-  printf "%-12s %-8s %-10s %s\n" "$name" "$code" "$size" "$url"
-done
+  printf "%-48s %-8s %s\n" "$name" "$code" "$hashok"
+done <<< "$entries"
 
+echo
+echo "Checked $checked inputs from $MANIFEST."
 if [ "$fail" -ne 0 ]; then
-  echo
-  echo "At least one source is unreachable. Options:"
-  echo "  - rebuild from the cache:  node swm/tools/build-ontology.mjs --offline"
-  echo "  - find the new URL and update SOURCES in swm/tools/build-ontology.mjs"
-  echo "  - see references/troubleshooting.md in this skill"
+  echo "At least one input is unreachable or (with --full) does not match its pin. Options:"
+  echo "  - rebuild from the verified cache:  node swm/tools/build-ontology.mjs --offline"
+  echo "  - correct the URL/pin in swm/tools/sources/MANIFEST.json"
 fi
 exit $fail
