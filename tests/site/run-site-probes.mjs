@@ -698,9 +698,11 @@ try {
       await viewport();await move(2,450);await sleep(40);await viewport(390);await sleep(250);assert.equal(await ev('return document.querySelector("#sidebar").inert'),false);
       await viewport();await closed();
       phase='World Model';
-      await nav('security-model');await closed();await sleep(350);await until(()=>ev('return !!document.querySelector("#swmSvg")?.getAttribute("viewBox")'),'World Model rendered');
-      const worldBefore=await ev('return document.querySelector("#swmSvg").getAttribute("viewBox")');
-      await show();await sleep(500);const worldAfter=await ev('return document.querySelector("#swmSvg").getAttribute("viewBox")');
+      /* the default World Model sub-tab is Ontology Layers (#swmChainSvg) since 2026-10-02; #swmSvg is the Ontology Graph */
+      const worldSvg='#security-model .wm-panel.active :is(#swmChainSvg,#swmSvg,#swmCovSvg)[viewBox]';
+      await nav('security-model');await closed();await sleep(350);await until(()=>ev(`return !!document.querySelector('${worldSvg}')`),'World Model rendered');
+      const worldBefore=await ev(`return document.querySelector('${worldSvg}').getAttribute("viewBox")`);
+      await show();await sleep(500);const worldAfter=await ev(`return document.querySelector('${worldSvg}').getAttribute("viewBox")`);
       assert.ok(Number(worldBefore.split(' ')[2])>Number(worldAfter.split(' ')[2]),'World Model remeasures');await hide();await sleep(500);
       phase='short viewport';
       await viewport(1440,600);await show();
