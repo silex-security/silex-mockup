@@ -1,8 +1,8 @@
-# Raising precision and recall together: a two-stage, ontology-typed runtime monitor — plan (R2, for review)
+# Raising precision and recall together: a two-stage, ontology-typed runtime monitor — plan (R3, for review)
 
 Follows the E-AL result ([`2026-10-04_ONTOLOGY_AL_REPORT.md`](2026-10-04_ONTOLOGY_AL_REPORT.md)): ontology typing cut alerts 26 % and
 raised precision 0.29 → 0.38, but lost some recall (0.745 → 0.724; the 5-point bound was not established).
-Status: **R2, waiting for plan review. Nothing in this plan has been run.** Bases: `silex-mockup@6dafa08` (branch
+Status: **R3, waiting for plan review. Nothing in this plan has been run.** Bases: `silex-mockup@6dafa08` (branch
 `ontology-precision-recall`, from main `c1c7bd3`), `jev-runtime-observability@d16bdf1` (main). The user said "proceed": after a
 unanimous plan gate this executes, including a card update, merge and deploy, without further sign-off.
 
@@ -23,9 +23,12 @@ above, else *other* (unbound tools count as other). Per tier we report alerts ra
 
 ## Evidence (exploratory, E-AL data — motivates the design, never confirmatory)
 
-- 77 % of the 552 typed false alarms take their value from ordinary data the task uses (participants from an email, a payee from
-  history, a channel name); 23 % are attacked runs where the agent acted on injected content but the evaluator did not count success.
-- 308 of 338 true alerts carry a value from injected text: whether the **source passage instructs the agent** separates well.
+- Of the 552 typed false alarms, 423 (77 %) carry a flagged value that does **not** occur inside any marker-delimited injection block of an
+  earlier tool output, and 129 (23 %) are attacked runs whose flagged value does occur inside such a block while the evaluator did not count
+  success. Of 338 true alerts, 308 carry a value occurring inside such a block. These are overlap counts with marker-delimited text over any
+  earlier entry (not the monitor's selected source); they do not show that a passage instructs the agent, that the agent followed it, or
+  that non-overlapping values were authorised by the task. **Hypothesis motivating E-PR:** instruction-likeness of the source passage, judged
+  without markers, separates true from false alerts.
 - Untrusted values that are URLs: 84 in successful-attack runs vs 15 elsewhere; IBANs 136 vs 125; emails 154 vs 474. A lost alert
   carried a link in a message `body`, which the parameter binding typed `none`: typing by parameter name alone loses recall.
 - Derivation: `jev eval/ontology/diagnostics/eal-fp-breakdown.ts` → `runs/onto-diagnostics/eal-fp-breakdown.txt` (uses the benchmark's
@@ -35,10 +38,14 @@ above, else *other* (unbound tools count as other). Per tier we report alerts ra
 
 ### Inputs, sanitized (label-independent, identical for every arm)
 A new PR preprocessing step (`pr/sanitize.ts`) reads the sealed converter's `observations.jsonl` and writes `runs/onto-pr-input/
-observations.sanitized.jsonl`: in every `low_authority[].text` and in `task` it deletes the exact strings `<INFORMATION>` and
-`</INFORMATION>` (case-insensitive) and nothing else, keeping their contents. Earlier converter outputs are untouched. No monitor, judge
+observations.sanitized.jsonl` containing **only the whitelisted prediction-visible fields** (`obs_id`, `run_id`, `model`, `suite`,
+`user_task`, `injection_task`, `task`, `action.{tool,name,impact,args}`, `recent`, `low_authority[].{ref,text}`) and, in every string they
+contain — `task`, each `low_authority[].text`, and **every string inside `action.args` recursively (arrays and nested objects)** — deletes the
+exact strings `<INFORMATION>` and `</INFORMATION>` (case-insensitive) and nothing else, keeping their contents. Extraction, recognition and
+formatting all run on the sanitized fields; a final check asserts that neither wrapper string occurs anywhere in a built wire request. Earlier converter outputs are untouched. No monitor, judge
 item or feature reads the raw observations, the run's `injections` field, `security`, `utility` or any outcome. The secondary label is
-built on a separate label-only path (below). Fixtures prove no wrapper and no outcome/attack metadata reaches a judge request.
+built on a separate label-only path (below). Fixtures prove no wrapper and no outcome/attack metadata reaches a judge request, including a wrapper inside a nested argument array/object
+next to a qualifying URL.
 
 ### Values (shared by every arm)
 For each call and each top-level argument key k: (1) **whole values** = STATS_SPEC_V2 `values(args[k])`; (2) **recognised substrings** =
@@ -103,7 +110,9 @@ whose output is bound as external content, `pr/source-binding.json`, bound blind
 **What a pass may claim (run-level detection only):** "on 4 356 AgentDojo runs of six held-out agent models, the two-stage monitor with
 ontology-typed candidates caught more successful attacks than provenance alone with a higher share of true alerts; against the same two-stage
 pipeline without the ontology it had higher precision with at most 2 points lower recall, and it beat random typing". Not a validated
-tiered gate policy; not general runtime safety. The report says that stage 2's gain is largely the judge's and that route V is shared.
+tiered gate policy; not general runtime safety. The report states that route V and the judge filter are shared by M-2S and the untyped
+control and are not credited to the ontology; it reports the observed contrasts (M-2S vs B-prov, vs B-2S-untyped, vs random typing, and the
+ablations) as they come out, with ablation-based attribution labelled descriptive.
 
 ## The card (only after the code gate)
 
@@ -148,3 +157,12 @@ Verdicts R1: coder-deepseek `PLAN-APPROVED` (3 non-blocking); reviewer-codex `PL
 | 4 | Recognisers, route interaction, source selection, window not pinned | Unanchored regexes with order, overlaps, punctuation, TLD list; "any qualifying value, any source entry"; 2 400-char centred window; fixture list |
 | 5 | Tiering and claims over-reach | Tiering descriptive with a monitor-independent tier rule; secondary renamed injection-text-overlap proxy; claim scoped (incl. "≤ 2 points lower recall" vs the untyped control) |
 | NB | DeepSeek 1–3; Codex: publish the exploratory derivation | Report wording on shared route V and the judge's share of the gain; derivation script committed (`c81a4f2`) |
+
+### Round 2 objections → changes
+
+Verdicts R2: coder-deepseek `PLAN-APPROVED`; reviewer-codex `PLAN-REJECTED` (2).
+
+| # | Objection (Codex) | Change |
+|---|---|---|
+| 1 | Wrapper can reach the judge via `action.args` | Sanitizer whitelists prediction-visible fields and sanitizes every string in `args` recursively; final no-wrapper assertion on built wire requests; nested-argument fixture |
+| 2 | Exploratory evidence over-interpreted; report conclusion pre-judged | Evidence restated as the exact marker-overlap counts with their limits; instruction-likeness stated as the motivating hypothesis; report rules made conditional on observed contrasts |
