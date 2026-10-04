@@ -306,6 +306,30 @@ every call and result has a matching unique id; positional pairing only when non
 non-evidentiary; negatives for mixed call ids, mixed result ids and the contradictory case. The published data
 is unchanged (no selected trace has mixed ids).
 
+## Outcome
+
+Code gate passed in round 3 on revision `76da72ddafab4cae56b8ab0b9c877b3c4998fdb6` (git hash-object of
+`git diff --binary 75bba66 de0e6a9` over the implementation paths), commit `de0e6a9`, base `75bba66`.
+
+| Seat | Plan (R3) | T0 | Code r1 | Code r2 | Code r3 (final) |
+|---|---|---|---|---|---|
+| coder-deepseek (`deepseek/deepseek-v4-pro`) | `PLAN-APPROVED` | `T0-APPROVED` | `IMPL-APPROVED` | `IMPL-APPROVED` | `IMPL-APPROVED` |
+| reviewer-codex (Codex) | `PLAN-APPROVED` | `T0-APPROVED` (r2) | `IMPL-REJECTED` (5) | `IMPL-REJECTED` (1) | `IMPL-APPROVED` |
+| planner (Claude Opus 5.5) | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): T0-APPROVED` | — | — | `PLANNER (claude): IMPL-APPROVED` |
+
+Rounds: plan 3, T0 2, code 3. What each seat caught:
+- **Codex**: `pipeline_name` is "local"; evaluator success ≠ hazard (the "Bill payment" and single-$30 000
+  counterexamples; task 4 is a configuration change); substring identity matching; refusal records; the
+  renamed NIST ids, the Refund example, call pairing (twice), argument leakage and "[object Object]"
+  descriptions.
+- **DeepSeek**: the τ² refusal count (27 vs 28) and the missing cancellation string; agent/tool `src`; the
+  weak memo predicate; re-derived every count; built both parsers and the archive reader.
+- **Planner**: the source scan and selection; the AgentDojo evaluator precedence bug behind tasks 0/1/3;
+  the router-unsafe tool ids; the KPI and deployment exclusions.
+
+Follow-ups (not in this change): re-grade the shipped `haz-finance-unverified-instruction` task-4 citation to
+`related`; Splunk/OTRF telemetry as IT evidence samples. Merge to `main` and push wait for the product owner.
+
 ## Appendix: measurement commands
 
 ```bash

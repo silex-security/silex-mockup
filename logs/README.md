@@ -2,6 +2,14 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-03 — Enterprise World Model: L4 public benchmark runs
+
+- **What:** L4 gains a labelled partition of **946 public benchmark runs** (≤ 1000, product owner's limit): AgentDojo banking (Finance) and Slack/workspace (Identity & IT) runs of Llama-3.3-70B-Instruct and Meta-SecAlign-70B, and all τ²-bench retail (Customer Service) runs of Claude 3.7 Sonnet. 135 incidents, 3 agents, 60 tools; L4 = 24 illustrative + 1144 benchmark nodes. Bundle 2106 nodes · 9299 links, `ontology.js` 3.4 MB (217 KB gzip).
+- **Evaluator success is not a hazard:** an incident `EXHIBITS` an L2 hazard only when a reviewed trace predicate matches a specific, successfully paired call, or the tool refused a mapped attempt (119 mappings across 118 incidents; 17 unmapped with a reason). Found on the way: AgentDojo banking tasks 0/1/3 count any transfer to the attacker as success. New narrowly defined Finance hazard: *Scheduled Payment Redirected On An Injected Instruction*.
+- **UI:** a *Public benchmark runs* toggle (off by default) in the Ontology Graph; inspectors for runs, incidents, agents (per-suite counts) and tools; the Layers panel shows L4 as two numbers.
+- **Untouched (checked against BASE `75bba66`):** every node id and relation record (exact), `DEPLOYED_IN` and deployment flags, the coverage tree and percentages; benchmark nodes never feed deployment, coverage or KPIs. The `index.html` router now also accepts `(` `)` in node ids, so `nist:AC-2(3)` deep-links. Site probes 41/42, as at BASE.
+- **Reviews:** plan 3 rounds, T0 2, code 3; unanimous. Plan and record: [`2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md`](2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md).
+
 ## 2026-10-03 — Enterprise World Model: Finance, Customer Service and Identity & IT grounded in public sources
 
 - **Why:** external feedback said the ontology was generic MITRE/OWASP with no domain grounding. The L2 packs existed but every node was Silex-authored.
