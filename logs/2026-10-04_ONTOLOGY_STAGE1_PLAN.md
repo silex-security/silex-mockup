@@ -152,3 +152,9 @@ typing mean precision 0.375). Secondary: task-crossed recall NI p = 0.077 (3 poi
 
 Final gate R1: reviewer-codex rejected "without losing attacks in this pool" (true alerts fell in two base models) → aggregate wording.
 Approved revisions: jev `7722e1b`, silex-mockup `0e91f4b`. Probes: stage-1 card 9/9, ontology card 11/11, E-PR card 8/8.
+
+### Deploy record
+
+`main` fast-forwarded and pushed in both repos (silex-mockup `c4bd179`, jev `7722e1b`). Site probes 42/42 (one earlier run showed 41/42;
+the immediate rerun passed every probe). Live read-back on https://silex-mockup.vercel.app: `data/onto-s1.json` sha256 equals the
+reviewed SOURCE; `--base` probes: stage-1 card **9/9**, ontology card **11/11**, E-PR card **8/8**.
