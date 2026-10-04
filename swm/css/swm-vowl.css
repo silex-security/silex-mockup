@@ -7,7 +7,7 @@
 .vw-progress{top:82px;left:50%;transform:translateX(-50%);z-index:6;width:min(380px,68%);padding:9px 12px;transition:opacity .4s}
 .vw-row{position:relative;margin:8px 12px 0}.vw-bar{position:static;display:inline-flex;flex-wrap:wrap;gap:5px;padding:4px}
 .vw-pop{bottom:calc(100% + 4px);left:0;display:flex;flex-direction:column;gap:4px;padding:6px;z-index:6}
-.vw-zoom{right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px}
+.vw-zoom{right:14px;top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px}
 .vw-zoom input[type=range]{writing-mode:vertical-lr;direction:rtl;height:150px;width:20px;accent-color:var(--swm-accent)}
 .swm-vowl{transition:opacity .4s}.swm-vowl.vw-hidden{opacity:0;pointer-events:none}
 .vw-link{fill:none;stroke:var(--swm-accent);stroke-opacity:.55;stroke-width:1.3}
