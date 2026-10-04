@@ -67,6 +67,33 @@ function prBlock(r) {
     <p class="rt-ref">The judge check removed many true alerts, so recall fell. <b>Descriptive only:</b> the ontology-typed candidates without the judge check gave ${pct(r.stage1_only.precision)} precision at ${pct(r.stage1_only.recall)} recall, against ${pct(o.prov.precision)} at ${pct(o.prov.recall)} for provenance only. <a href="logs/2026-10-04_ONTOLOGY_PR_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_PRECISION_RECALL_PLAN.md">plan</a></p>
   </section>`;
 }
+function s1Block(r) {
+  if (!r) return '';
+  const [kind, badge] = VERDICT[r.verdict] ?? VERDICT.inconclusive;
+  const o = r.observed, c = r.constraint, n = Object.keys(r.per_base).length;
+  const tile = (k, before, after, foot) => `<div class="card metric"><div class="kicker">${k}</div><div class="metric-value">${before} → ${after}</div><div class="metric-foot">${foot}</div></div>`;
+  const row = (name, x) => `<tr><th scope="row">${esc(name)}</th><td>${x.s1.Pos}</td><td>${x.prov.F} → ${x.s1.F}</td><td>${pct(x.prov.precision)} → ${pct(x.s1.precision)}</td><td>${pct(x.prov.recall)} → ${pct(x.s1.recall)}</td></tr>`;
+  const held = ok => `<span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span>`;
+  return `<section class="rt-onto-s1" data-onto-s1 data-onto-s1-verdict="${esc(r.verdict)}">
+    <h3>Latest test: ontology types on the runtime provenance graph</h3>
+    <div class="rt-onto-verdict"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
+      <span>Same alert rule, with and without ontology types, pre-registered on ${r.counts.runs} never-opened AgentDojo runs (${r.counts.cohorts} agent pipelines and attack variants, ${r.counts.K} base models, ${r.counts.positives} successful attacks). No judge model.</span></div>
+    <div class="rt-learning-tiles" data-onto-s1-tiles>
+      ${tile('Alerts raised (runs)', `<span data-onto-s1-num="prov-F">${o.prov.F}</span>`, `<span data-onto-s1-num="s1-F">${o.s1.F}</span>`, `without → with ontology types · ${pct(1 - o.s1.F / o.prov.F)} fewer`)}
+      ${tile('Precision', pct(o.prov.precision), pct(o.s1.precision), 'share of alerts that are a successful attack')}
+      ${tile('Recall', pct(o.prov.recall), pct(o.s1.recall), 'share of successful attacks alerted')}
+    </div>
+    <ul class="rt-onto-parts">
+      ${part('a', 'Higher precision, generalising across tasks', r.p?.a, r.ci?.precision_vs_prov && `${pts(r.ci.precision_vs_prov[0])} to ${pts(r.ci.precision_vs_prov[1])} points`, 'data-onto-s1-part')}
+      <li data-onto-s1-part="b" data-onto-s1-part-ok="${!!c.holds}">${held(c.holds)} Recall at most ${(100 * r.margin).toFixed(0)} points lower in this pool <span class="rt-onto-k">(observed, not a guarantee: mean over base models ${pts(c.theta)}, all runs ${pts(c.pooled_d)} points)</span></li>
+      ${part('c', 'Better than random typing of the same size', r.p?.c, null, 'data-onto-s1-part')}
+    </ul>
+    <div class="rt-onto-table"><table><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
+      ${Object.entries(r.per_base).map(([k, v]) => row(k, v)).join('')}
+    </tbody></table></div>
+    <p class="rt-ref">Precision rose for all ${n} base models. The recall statement holds for AgentDojo's tasks and these models only; gpt-4o counts once although it contributes 13 defence and attack variants. <a href="logs/2026-10-04_ONTOLOGY_S1_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md">plan</a>. Earlier tests, which led to this one, follow below.</p>
+  </section>`;
+}
 function chain(x, typed) {
   if (!x) return '';
   const src = `<div class="rt-onto-src"><div class="rt-onto-src-ref">${esc(x.source.ref)}</div><div>${hl(x.source.excerpt, x.value)}</div></div>`;
@@ -118,9 +145,11 @@ async function init() {
     const r = await fetch('data/onto-observability.json');
     if (!r.ok) throw new Error('unavailable');
     data = await r.json();
-    let pr = null;
+    let pr = null, s1 = null;
     try { const rp = await fetch('data/onto-pr.json'); if (rp.ok) pr = await rp.json(); } catch {}
-    root.innerHTML = `${tiles(data)}
+    try { const rs = await fetch('data/onto-s1.json'); if (rs.ok) s1 = await rs.json(); } catch {}
+    root.innerHTML = `${s1Block(s1)}
+      ${tiles(data)}
       ${prBlock(pr)}
       <div class="rt-onto-controls">
         <div class="tabs" role="tablist" aria-label="Example">${CELLS.map(([id, label]) => `<button type="button" class="tab" data-onto-cell-btn="${id}">${label}</button>`).join('')}</div>

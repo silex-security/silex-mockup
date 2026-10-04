@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — Ontology typing alone: first pre-registered confirmation
+
+- **Test (stage 1, 12 195 never-opened AgentDojo runs; 18 pipelines and attack variants from six base models; no judge):** the same runtime provenance graph with and without ontology types. Alerts 5 015 → 4 000; precision 0.41 → 0.54 (p 0.0001, generalising across tasks); recall 0.84 → 0.87 (descriptive constraint: no more than 3 points lower, held for the mean over base models and for all runs); above random typing (p 0.020). **Confirmed (H15).** Precision rose for all six base models.
+- **Not claimed:** recall on new tasks or models (AgentDojo's task set only); production; runtime safety. The user's question on using L4's unsampled 2/3 is answered in the plan: not test data (seen cohort, or no injection attacks).
+- **Card:** Runtime Observation › *What the ontology adds* now opens with this result. Report: [`2026-10-04_ONTOLOGY_S1_REPORT.md`](2026-10-04_ONTOLOGY_S1_REPORT.md); plan and record: [`2026-10-04_ONTOLOGY_STAGE1_PLAN.md`](2026-10-04_ONTOLOGY_STAGE1_PLAN.md).
+
 ## 2026-10-04 — Precision and recall together: a pre-registered two-stage monitor (not confirmed)
 
 - **Test (E-PR, 4 356 runs of six more held-out agent models):** ontology-typed candidates, then a judge check that the value's source passage instructs the agent. Precision rose 0.51 → 0.76, but recall fell 0.80 → 0.55: the judge check rejected many real attacks. Against the same pipeline without the ontology, precision was higher (p 0.019); the recall bound and the random-typing control were not established. **Not confirmed.**
