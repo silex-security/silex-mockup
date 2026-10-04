@@ -572,6 +572,30 @@ if (want('P6')) {
   await shot('probe-chain-asserts.png');
 }
 
+if (want('ZOOM')) {
+  /* real mouse events at the button centre: element.click() skips hit testing, which is how the
+     covered Network zoom column went unnoticed (plan logs/2026-10-04_SWM_GRAPH_ZOOM_FIX_PLAN.md) */
+  await openPanel('wm-ontology'); await sleep(2500);
+  const scale = () => evaluate(`(() => { const t = document.querySelector('#swmSvg > g')?.getAttribute('transform') || '';
+    const k = parseFloat(t.split('scale(')[1]); return Number.isFinite(k) ? k : 1; })()`);
+  const press = async sel => {
+    const box = await evaluate(`(() => { const b = document.querySelector(${JSON.stringify(sel)}); if (!b) return null;
+      b.scrollIntoView({ block: 'center' }); const r = b.getBoundingClientRect(), x = r.x + r.width / 2, y = r.y + r.height / 2;
+      const top = document.elementFromPoint(x, y); return { x, y, hit: !!top && (top === b || b.contains(top)), top: top ? top.tagName + '#' + top.id : null }; })()`);
+    if (box) for (const type of ['mousePressed', 'mouseReleased'])
+      await send('Input.dispatchMouseEvent', { type, x: box.x, y: box.y, button: 'left', clickCount: 1 });
+    await sleep(700); return box;
+  };
+  const s0 = await scale(), zin = await press('[data-vw="zin"]'), s1 = await scale();
+  const zout = await press('[data-vw="zout"]'), s2 = await scale(), zout2 = await press('[data-vw="zout"]'), s3 = await scale();
+  const fit = await press('.vw-zoom [data-vw="fit"]'), s4 = await scale();
+  record('ZOOM-N', zin?.hit && zout?.hit && fit?.hit && s1 > s0 && s2 < s1 && s3 < s2 && s4 !== s3,
+    'Network zoom column, real clicks: ' + JSON.stringify({ hit: { zin: zin?.hit, zout: zout?.hit, fit: fit?.hit, top: zin?.top }, scale: [s0, s1, s2, s3, s4] }));
+  await evaluate(`document.querySelector('#swmViews [data-v="graph"]').click(); true`); await sleep(1500);
+  const g0 = await scale(), gin = await press('#swmZoom [data-z="in"]'), g1 = await scale();
+  record('ZOOM-G', gin?.hit && g1 > g0, 'Graph view top-bar zoom, real click: ' + JSON.stringify({ hit: gin?.hit, top: gin?.top, scale: [g0, g1] }));
+}
+
 browserSocket?.close(); ws.close(); proc.kill(); server.close();
 if (want('E1')) record('E1', !consoleErrors.length, consoleErrors.length ? [...new Set(consoleErrors)].slice(0, 4).map(e => String(e).split('\n')[0]).join(' | ') : 'no console errors');
 
