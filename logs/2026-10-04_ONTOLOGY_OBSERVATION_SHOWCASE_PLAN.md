@@ -189,3 +189,12 @@ with a without/with-ontology toggle, the "did not establish" line, and the reali
 
 Code gate revision `8bb60bcaec92d8fa718eef740e2d5c271548e402`. Probes: ontology card 11/11, existing site suite 42/42. Follow-up (DeepSeek nit, not applied
 after approval): the judge note cites the goal_deviation AUROC while the card's AUROC tile is instruction_override.
+
+### Deploy record
+
+`main` fast-forwarded to `231df22` (after merging the concurrent main commits 50a87f4 and c3ab000; the approved revision
+`8bb60bca…` is byte-identical against the new main, probes re-run: card 11/11, site 42/42) and pushed; jev `main` at `d16bdf1`.
+Live read-back on https://silex-mockup.vercel.app: `data/onto-observability.json` sha256 equals the reviewed
+`data/onto-observability.SOURCE.json`; `js/rt-ontology.js` served as `application/javascript`; `tests/site/ontology-card.test.mjs
+--base https://silex-mockup.vercel.app` → **11/11 PASS** (verdict badge, parts, tiles, the four examples in both modes, caveat
+wording, judge note, no JS errors on every view at 1400 and 390 px).
