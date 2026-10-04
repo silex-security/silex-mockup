@@ -169,3 +169,23 @@ Verdicts R2: coder-deepseek `PLAN-APPROVED`; reviewer-codex `PLAN-REJECTED` (1).
 ### Round 3: plan gate passed
 
 Reviewed text: git blob `0a951a753a76bf393e8dcdffba8c204183910a7b`. coder-deepseek `PLAN-APPROVED` · reviewer-codex `PLAN-APPROVED` · `PLANNER (claude): PLAN-APPROVED`. S-D1…S-D5 confirmed by both.
+
+## Outcome
+
+**E-AL (H13): not supported** — of its four parts, fewer alerts (1 200 → 890, p 0.0001), higher precision (0.29 → 0.38,
+p 0.0007) and better-than-random typing (p 0.009) held; recall within 5 points was not established (0.745 → 0.724; 95 % CI
+−10.1 to +4.9 points; p 0.19). Report: [`2026-10-04_ONTOLOGY_AL_REPORT.md`](2026-10-04_ONTOLOGY_AL_REPORT.md); freeze record
+[`2026-10-04_ONTOLOGY_AL_FREEZE_RECORD.md`](2026-10-04_ONTOLOGY_AL_FREEZE_RECORD.md).
+
+**Card:** Runtime Observation › *What the ontology adds* — "Not confirmed" badge, the four parts, tiles, the four fixed-rule examples
+with a without/with-ontology toggle, the "did not establish" line, and the realistic judge note in the learning card. Placed
+**below** the learning card (plan said above): the existing probe S21 requires the learning card to follow the scenarios card.
+
+| Seat | Plan (r1 → r3) | E-AL freeze (r1 → r3) | Code + page (r1, final) |
+|---|---|---|---|
+| coder-deepseek | `PLAN-APPROVED` ×3 | `FREEZE-APPROVED` ×3 | `IMPL-APPROVED` |
+| reviewer-codex | `PLAN-REJECTED` (4) → (1) → `PLAN-APPROVED` | `FREEZE-REJECTED` (2) → (1) → `FREEZE-APPROVED` | `IMPL-APPROVED` |
+| planner | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): FREEZE-APPROVED` | `PLANNER (claude): IMPL-APPROVED` |
+
+Code gate revision `8bb60bcaec92d8fa718eef740e2d5c271548e402`. Probes: ontology card 11/11, existing site suite 42/42. Follow-up (DeepSeek nit, not applied
+after approval): the judge note cites the goal_deviation AUROC while the card's AUROC tile is instruction_override.

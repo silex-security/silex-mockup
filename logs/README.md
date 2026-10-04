@@ -2,6 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — Runtime Observation: "What the ontology adds" card, and a held-out alert-load test (not confirmed)
+
+- **New card** in Runtime Observation: the same runtime provenance graph with and without ontology types on real AgentDojo runs of held-out agent models — four examples chosen by a fixed rule (caught by both, alert saved, alert lost, missed by both) with a without/with-ontology toggle and the ontology's explanation chain (effect → argument class → where the value came from).
+- **Pre-registered E-AL test** (3 630 runs of five further held-out models): ontology types cut alerts 1 200 → 890 and raised precision 0.29 → 0.38, beating random typing, but recall within 5 points was not established, so the claim is shown as **Not confirmed**, with each part. Report: [`2026-10-04_ONTOLOGY_AL_REPORT.md`](2026-10-04_ONTOLOGY_AL_REPORT.md).
+- **Judge figure corrected in context:** the learning card now notes that its numbers come from a format-separable split; on real held-out trajectories the fine-tuned judge scores 0.741 (run level).
+- **Untouched:** every other view, the vendored `jev-runtime/` files; site probes 42/42, card probes 11/11. Plan and record: [`2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md`](2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md).
+
 ## 2026-10-04 — Enterprise World Model: L4 benchmark runs sampled 1 in 3, shown by default
 
 - **Why:** with 1144 benchmark nodes, the L4 view was too dense to read, and the runs were two thirds of `ontology.js`.
