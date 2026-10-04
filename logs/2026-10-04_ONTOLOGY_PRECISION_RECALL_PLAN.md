@@ -170,3 +170,19 @@ Verdicts R2: coder-deepseek `PLAN-APPROVED`; reviewer-codex `PLAN-REJECTED` (2).
 ### Round 3: plan gate passed
 
 Reviewed text: git blob `39367a023a04b1c2bea771fae2b109876ad87254`. coder-deepseek `PLAN-APPROVED` · reviewer-codex `PLAN-APPROVED` · `PLANNER (claude): PLAN-APPROVED`. PR-D1…PR-D4 confirmed.
+
+## Outcome
+
+**E-PR (H14): not supported.** Recall fell 0.805 → 0.546 because the stage-2 judge check rejected many true alerts; precision rose
+0.511 → 0.759. Against the same two stages without the ontology, precision was higher (0.759 vs 0.691, p 0.019) but recall
+non-inferiority (p 0.12) and the random-typing control (p 0.19) were not established. Descriptive only: ontology-typed candidates without
+the judge gave precision 0.629 at recall 0.796 (baseline 0.511 / 0.805), the same direction as the v2 and E-AL cohorts. Report:
+[`2026-10-04_ONTOLOGY_PR_REPORT.md`](2026-10-04_ONTOLOGY_PR_REPORT.md).
+
+| Seat | Plan (r1 → r3) | Freeze (r1 → r2) | Code + report + page (r1, final) |
+|---|---|---|---|
+| coder-deepseek | `PLAN-APPROVED` ×3 | `FREEZE-APPROVED` ×2 | `IMPL-APPROVED` |
+| reviewer-codex | `PLAN-REJECTED` (5) → (2) → `PLAN-APPROVED` | `FREEZE-REJECTED` (1) → `FREEZE-APPROVED` | `IMPL-APPROVED` |
+| planner | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): FREEZE-APPROVED` | `PLANNER (claude): IMPL-APPROVED` |
+
+Code gate revision `7e2ac12be76a21775c28925d1dcaa069679fd3e4`. Probes: E-PR card 8/8, ontology card 11/11, site 42/42.

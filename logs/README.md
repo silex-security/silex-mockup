@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — Precision and recall together: a pre-registered two-stage monitor (not confirmed)
+
+- **Test (E-PR, 4 356 runs of six more held-out agent models):** ontology-typed candidates, then a judge check that the value's source passage instructs the agent. Precision rose 0.51 → 0.76, but recall fell 0.80 → 0.55: the judge check rejected many real attacks. Against the same pipeline without the ontology, precision was higher (p 0.019); the recall bound and the random-typing control were not established. **Not confirmed.**
+- **Descriptive pattern across three held-out cohorts:** ontology-typed candidates without the judge raise precision at about the same recall (here 0.63 at 0.80 vs 0.51 at 0.80). Not yet confirmed by a pre-registered test.
+- **Card:** Runtime Observation › *What the ontology adds* gains a follow-up block with its own badge, the three monitors and the five parts. Report: [`2026-10-04_ONTOLOGY_PR_REPORT.md`](2026-10-04_ONTOLOGY_PR_REPORT.md); plan and record: [`2026-10-04_ONTOLOGY_PRECISION_RECALL_PLAN.md`](2026-10-04_ONTOLOGY_PRECISION_RECALL_PLAN.md).
+
 ## 2026-10-04 — Runtime Observation: "What the ontology adds" card, and a held-out alert-load test (not confirmed)
 
 - **New card** in Runtime Observation: the same runtime provenance graph with and without ontology types on real AgentDojo runs of held-out agent models — four examples chosen by a fixed rule (caught by both, alert saved, alert lost, missed by both) with a without/with-ontology toggle and the ontology's explanation chain (effect → argument class → where the value came from).
