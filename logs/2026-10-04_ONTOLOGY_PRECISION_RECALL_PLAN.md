@@ -166,3 +166,7 @@ Verdicts R2: coder-deepseek `PLAN-APPROVED`; reviewer-codex `PLAN-REJECTED` (2).
 |---|---|---|
 | 1 | Wrapper can reach the judge via `action.args` | Sanitizer whitelists prediction-visible fields and sanitizes every string in `args` recursively; final no-wrapper assertion on built wire requests; nested-argument fixture |
 | 2 | Exploratory evidence over-interpreted; report conclusion pre-judged | Evidence restated as the exact marker-overlap counts with their limits; instruction-likeness stated as the motivating hypothesis; report rules made conditional on observed contrasts |
+
+### Round 3: plan gate passed
+
+Reviewed text: git blob `39367a023a04b1c2bea771fae2b109876ad87254`. coder-deepseek `PLAN-APPROVED` · reviewer-codex `PLAN-APPROVED` · `PLANNER (claude): PLAN-APPROVED`. PR-D1…PR-D4 confirmed.
