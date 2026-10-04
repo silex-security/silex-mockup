@@ -199,3 +199,13 @@ saturation figures and D7, so every Part A number is reproducible from committed
 *run-level detection* figure produced by the judge (labels are evaluator run outcomes, scores are maxima over calls) and does not
 treat 0.961 − 0.742 as a measure of the shortcut (different unit, endpoint and aggregation); R1 stays hypothetical; the same-model
 binding caveat and the v1-informed harm set and provenance proxy are restated in the report.
+
+## Target-free seal (2026-10-04)
+
+Before any held-out file was opened: every v2 algorithm, binding and fixture committed (`silex-mockup@f7160b3`,
+`jev-runtime-observability@beb9da1`) and hashed in [`2026-10-04_ONTOLOGY_V2_SEAL_HASHES.txt`](2026-10-04_ONTOLOGY_V2_SEAL_HASHES.txt).
+Checks at the seal: binding validator PASS on both bindings (primary sha256 `b40346ee…`; 28/74 tools eligible, 59/118 parameters
+hazard-relevant; secondary 28/74, 55/118; no collapse; agreement: effects 70/74, parameter classes 108/118); v2 firewall scan PASS;
+`stats-v2.ts` fixtures PASS; `recheck_v2.py` selftest PASS and exact agreement with `stats-v2.ts` on all four shared fixtures
+(after pinning the no-Kev reporting case in STATS_SPEC_V2); converter v1 byte identity PASS; Part A re-derived independently by
+DeepSeek (`rederive.py`, 52/52 values match).
