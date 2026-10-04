@@ -104,7 +104,7 @@ async function init() {
       <div id="rtOntoExample"></div>
       <p class="rt-ref">Examples are chosen by a fixed rule (first run by id in each case), including the cases where the ontology loses an alert or both rules miss. Outcomes are run level, from the benchmark's evaluator. Provenance here means: ${esc(data.provenance_note)}.</p>
       <p class="rt-ref" data-onto-not-established>Earlier pre-registered tests did not establish an improvement from ontology text in the judge's prompt (v1) or from ontology-typed ranking of runs (v2); no equivalence test was registered, so this is not evidence of no effect either.
-        <a href="logs/2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_REPORT.md">v1 report</a> · <a href="logs/2026-10-04_ONTOLOGY_V2_REPORT.md">v2 report</a> · <a href="logs/2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md">this test's plan</a></p>`;
+        <a href="logs/2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_REPORT.md">v1 report</a> · <a href="logs/2026-10-04_ONTOLOGY_V2_REPORT.md">v2 report</a> · <a href="logs/2026-10-04_ONTOLOGY_AL_REPORT.md">this test's report</a> · <a href="logs/2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md">its plan</a></p>`;
     root.addEventListener('click', e => {
       const c = e.target.closest('[data-onto-cell-btn]'), m = e.target.closest('[data-onto-mode-btn]');
       if (c) { cell = c.dataset.ontoCellBtn; render(); }
