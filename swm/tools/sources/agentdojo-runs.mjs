@@ -48,9 +48,10 @@ function readTar(data) {
 
 /* ---- call-result pairing and predicates ---------------------------------- */
 /* Pair each assistant message's tool calls with the tool-result block that immediately follows it.
-   Unique `id` ↔ `tool_call_id` when both are present and unique; otherwise, all-null ids pair in
-   order, one to one. A call with no paired result, an ambiguous id, or an out-of-order/partial id
-   set is never evidence (`ok: false`). Exported for the parser-level tests. */
+   Pair by unique `id` ↔ `tool_call_id` only when every call and every result has an id and the two id
+   sets match uniquely; pair in order only when every call id AND every result `tool_call_id` is
+   null/absent. Any mixed or otherwise ambiguous block is never evidence (every call stays `ok: false`).
+   A call with no paired result is also never evidence. Exported for the parser-level tests. */
 export function extractCalls(messages) {
   const calls = [];
   let i = 0;
@@ -63,9 +64,14 @@ export function extractCalls(messages) {
       while (j < messages.length && messages[j].role === 'tool') { block.push(messages[j]); j++; }
       const callsHaveIds = tcs.every(t => t.id != null);
       const resultsHaveIds = block.length > 0 && block.every(r => r.tool_call_id != null);
-      const idPairing = callsHaveIds && resultsHaveIds &&
-        new Set(tcs.map(t => t.id)).size === tcs.length && new Set(block.map(r => r.tool_call_id)).size === block.length;
-      const orderedPairing = !callsHaveIds && !resultsHaveIds;
+      const allCallIdsNull = tcs.every(t => t.id == null);
+      const allResultIdsNull = block.every(r => r.tool_call_id == null);
+      const callIds = new Set(tcs.map(t => t.id));
+      const resultIds = new Set(block.map(r => r.tool_call_id));
+      const setsMatch = callIds.size === tcs.length && resultIds.size === block.length &&
+        callIds.size === resultIds.size && [...callIds].every(id => resultIds.has(id));
+      const idPairing = callsHaveIds && resultsHaveIds && setsMatch;
+      const orderedPairing = allCallIdsNull && allResultIdsNull;
       for (let k = 0; k < tcs.length; k++) {
         const tc = tcs[k];
         const call = { name: tc.function, args: tc.args || {}, ok: false };

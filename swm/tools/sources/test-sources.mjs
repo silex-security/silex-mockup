@@ -259,6 +259,33 @@ async function main() {
       ]);
       if (c.length !== 2 || c[0].ok !== false || c[1].ok !== true) fail('pairing: out-of-order results must pair by id (A↔error, B↔ok)');
     }
+    /* mixed call ids: one call identified, one not — the whole block is non-evidentiary */
+    {
+      const c = pair([
+        { role: 'assistant', tool_calls: [{ function: 'A', args: {}, id: 'a' }, { function: 'B', args: {}, id: null }] },
+        { role: 'tool', tool_call_id: 'a', error: null },
+        { role: 'tool', tool_call_id: null, error: null },
+      ]);
+      if (c.length !== 2 || c.some(x => x.ok)) fail('pairing: mixed call ids must leave every call ok=false');
+    }
+    /* mixed result ids: one result identified, one not — the whole block is non-evidentiary */
+    {
+      const c = pair([
+        { role: 'assistant', tool_calls: [{ function: 'A', args: {}, id: null }, { function: 'B', args: {}, id: null }] },
+        { role: 'tool', tool_call_id: 'a', error: null },
+        { role: 'tool', tool_call_id: null, error: null },
+      ]);
+      if (c.length !== 2 || c.some(x => x.ok)) fail('pairing: mixed result ids must leave every call ok=false');
+    }
+    /* Codex contradictory case: identified failing call + unidentified call, null-id success then id failure */
+    {
+      const c = pair([
+        { role: 'assistant', tool_calls: [{ function: 'update_scheduled_transaction', args: { recipient: 'attacker@evil.com' }, id: 'a' }, { function: 'get_balance', args: {}, id: null }] },
+        { role: 'tool', tool_call_id: null, error: null },
+        { role: 'tool', tool_call_id: 'a', error: 'failed' },
+      ]);
+      if (c.length !== 2 || c[0].ok !== false || c[1].ok !== false) fail('pairing: contradictory mixed block must not mark the identified failing call ok');
+    }
     /* published run records are compact: no args/message bodies; def is real text */
     if (aj) {
       for (const n of aj.nodes) {
