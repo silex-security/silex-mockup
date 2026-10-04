@@ -223,3 +223,5 @@ Seal addendum (no algorithm changed): held-out input hashes `jev runs/onto-v2-IN
 `Qwen/Qwen3.5-0.8B-Base@dc7cdfe2`, served configuration), checked by `run-v2.sh` before judging and before analysis. Full list:
 [`2026-10-04_ONTOLOGY_V2_FREEZE_HASHES.txt`](2026-10-04_ONTOLOGY_V2_FREEZE_HASHES.txt) (56 files). Held-out counts: 3 544 runs,
 11 093 calls, 509 pooled positives (power gate met).
+
+_Freeze round 3 (2026-10-04): a run stopped before any judge call (v1 arm builder needed context for one held-out tool); A0-only builder `items-a0.ts`, byte-identical to the v1 A0 on 7 649 observations, replaced it. coder-deepseek `FREEZE-APPROVED`, reviewer-codex `FREEZE-APPROVED`, `PLANNER (claude): FREEZE-APPROVED`. 57 files in the hash list._
