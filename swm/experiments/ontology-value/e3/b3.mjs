@@ -48,31 +48,48 @@ export async function send(req) {
     },
     body: serializeRequest(req),
   });
-  if (!res.ok) throw new Error(`deepseek http ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`deepseek http ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   return await res.text();
 }
 
-function extractJSONArray(text) {
-  const start = text.indexOf('[');
-  if (start < 0) throw new Error('no JSON array in response');
-  let depth = 0;
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '[') depth++;
-    else if (ch === ']') { depth--; if (depth === 0) return text.slice(start, i + 1); }
-  }
-  throw new Error('unterminated JSON array in response');
+// String-aware JSON parse of the assistant content: a bare JSON array, or an array wrapped in a
+// single ```json fence. Throws if the content is not an array.
+function parseContentArray(content) {
+  let s = content.trim();
+  const m = s.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+  if (m) s = m[1].trim();
+  const parsed = JSON.parse(s);
+  if (!Array.isArray(parsed)) throw new Error('content is not an array');
+  return parsed;
 }
 
-// Parses the model's response into the common schema. Unknown tools/classes are dropped and counted.
+function malformed() {
+  return { status: 'malformed', predictions: [], dropped: { unknown_tool: 0, unknown_class: 0, malformed: 0 } };
+}
+
+// Parses a chat-completion envelope. Requires choices[0].message.content to be a string, then parses
+// that content as a JSON array (bare or fenced). Unknown tools/classes are dropped and counted.
 export function parseResponse(text, tools) {
+  let envelope;
+  try {
+    envelope = JSON.parse(text);
+  } catch {
+    return malformed();
+  }
+  const content = envelope?.choices?.[0]?.message?.content;
+  if (typeof content !== 'string') return malformed();
+
   let arr;
   try {
-    arr = JSON.parse(extractJSONArray(text));
-  } catch (e) {
-    throw new Error('parse failure: ' + e.message);
+    arr = parseContentArray(content);
+  } catch {
+    return malformed();
   }
-  if (!Array.isArray(arr)) throw new Error('response is not an array');
+
   const toolNames = new Set(tools.map(t => t.name));
   const classSet = new Set(CLASSES);
   const seen = new Set();
@@ -91,5 +108,5 @@ export function parseResponse(text, tools) {
     predictions.push({ tool, class: cls, rank: predictions.length + 1 });
     if (predictions.length >= 10) break;
   }
-  return { predictions, dropped };
+  return { status: 'ok', predictions, dropped };
 }

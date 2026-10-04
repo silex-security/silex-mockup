@@ -16,6 +16,17 @@ export function scoreFold(foldId, predictions, harm) {
   const blockedClasses = new Set((thisFold.pairs ?? []).map(([, c]) => c));
   const blockedSetStr = pairSet(thisFold.pairs ?? []);
 
+  // Observed pairs removed centrally: drop every prediction whose (tool,class) is in this fold's
+  // own annotated pair set, re-rank in order, and apply the <= 10 limit.
+  const observed = new Set((thisFold.pairs ?? []).map(([t, c]) => `${t}\u0000${c}`));
+  const cleaned = [];
+  for (const p of predictions ?? []) {
+    const key = `${p.tool}\u0000${p.class}`;
+    if (observed.has(key)) continue;
+    cleaned.push({ ...p, rank: cleaned.length + 1 });
+    if (cleaned.length >= 10) break;
+  }
+
   // All (tool,class) pairs recorded for this suite, across folds — used for "confirmed".
   const allPairs = new Set();
   for (const [id, h] of Object.entries(harm)) {
@@ -35,7 +46,7 @@ export function scoreFold(foldId, predictions, harm) {
     targets.push({ id, pairs: h.pairs ?? [] });
   }
 
-  const predPairs = (predictions ?? []).map(p => `${p.tool}\u0000${p.class}`);
+  const predPairs = cleaned.map(p => `${p.tool}\u0000${p.class}`);
   let matched = 0;
   for (const t of targets) if (t.pairs.some(([tool, cls]) => predPairs.includes(`${tool}\u0000${cls}`))) matched++;
 
@@ -53,6 +64,7 @@ export function scoreFold(foldId, predictions, harm) {
     targets: targets.length,
     matched,
     recall: targets.length ? matched / targets.length : null,
+    matched_at5: matchedAt5,
     recall_at5: targets.length ? matchedAt5 / targets.length : null,
     emitted: emittedPairs.length,
     confirmed: confirmedPairs.length,
@@ -61,18 +73,31 @@ export function scoreFold(foldId, predictions, harm) {
   };
 }
 
-export function scoreAll(predictionsByFold, harm) {
+export function scoreAll(predictionsByFold, harm, statuses = {}) {
   const folds = [];
+  let b3_missing = 0;
   for (const fid of Object.keys(predictionsByFold).sort()) {
+    const st = statuses[fid];
+    if (st !== undefined && st !== 'ok') { b3_missing++; continue; }
     folds.push(scoreFold(fid, predictionsByFold[fid], harm));
   }
-  const sum = (f, k) => folds.reduce((a, r) => a + (r[k] ?? 0), 0);
+  const sum = (rs, k) => rs.reduce((a, r) => a + (r[k] ?? 0), 0);
   const pool = (over) => {
     const rs = folds.filter(over);
-    const t = sum(rs, 'targets'), m = sum(rs, 'matched'), e = sum(rs, 'emitted'), c = sum(rs, 'confirmed');
-    return { folds: rs.length, targets: t, matched: m, recall: t ? m / t : null, emitted: e, confirmed: c, precision: e ? c / e : null };
+    const t = sum(rs, 'targets'), m = sum(rs, 'matched'), m5 = sum(rs, 'matched_at5'), e = sum(rs, 'emitted'), c = sum(rs, 'confirmed');
+    return {
+      folds: rs.length,
+      targets: t,
+      matched: m,
+      recall: t ? m / t : null,
+      matched_at5: m5,
+      recall_at5: t ? m5 / t : null,
+      emitted: e,
+      confirmed: c,
+      precision: e ? c / e : null,
+    };
   };
   const perSuite = {};
   for (const suite of [...new Set(folds.map(r => r.suite))].sort()) perSuite[suite] = pool(r => r.suite === suite);
-  return { pooled: pool(() => true), per_suite: perSuite, folds };
+  return { pooled: pool(() => true), per_suite: perSuite, folds, b3_missing };
 }

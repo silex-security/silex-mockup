@@ -32,14 +32,21 @@ if (arg('score')) {
   if (!harmPath) throw new Error('--score requires --harm');
   const harm = JSON.parse(readFileSync(harmPath, 'utf8'));
   const preds = { 'p-onto': {}, b1: {}, b2: {}, b3: {} };
+  const b3status = {};
   for (const name of Object.keys(preds)) {
     for (const fold of folds) {
       const p = join(outDir, name, `${fold.fold_id}.json`);
       try { preds[name][fold.fold_id] = JSON.parse(readFileSync(p, 'utf8')); } catch { preds[name][fold.fold_id] = []; }
+      if (name === 'b3') {
+        const sp = join(outDir, name, `${fold.fold_id}.status.json`);
+        try { b3status[fold.fold_id] = JSON.parse(readFileSync(sp, 'utf8')).status; } catch { b3status[fold.fold_id] = 'ok'; }
+      }
     }
   }
   const scores = {};
-  for (const name of Object.keys(preds)) scores[name] = scoreAll(preds[name], harm);
+  for (const name of Object.keys(preds)) {
+    scores[name] = name === 'b3' ? scoreAll(preds[name], harm, b3status) : scoreAll(preds[name], harm);
+  }
   writeFileSync(join(outDir, 'scores.json'), JSON.stringify(scores, null, 1) + '\n');
   console.log(`scores written to ${join(outDir, 'scores.json')}`);
   process.exit(0);
@@ -61,18 +68,40 @@ for (const [name, fn] of Object.entries(predictors)) {
 }
 
 if (arg('b3')) {
+  if (!process.env.DEEPSEEK_API_KEY) {
+    throw new Error('--b3 requires the DEEPSEEK_API_KEY environment variable to be set');
+  }
   mkdirSync(join(outDir, 'b3'), { recursive: true });
   for (const fold of folds) {
     const tools = manifest.tools.filter(t => t.source === 'agentdojo' && t.suite === fold.suite);
     const req = buildRequest(fold, tools, promptText);
     writeFileSync(join(outDir, 'b3', `${fold.fold_id}.request.json`), serializeRequest(req));
-    if (process.env.DEEPSEEK_API_KEY) {
-      const raw = await send(req);
-      writeFileSync(join(outDir, 'b3', `${fold.fold_id}.response.json`), raw);
-      const parsed = parseResponse(raw, tools);
-      writeFileSync(join(outDir, 'b3', `${fold.fold_id}.json`), JSON.stringify(parsed.predictions, null, 1) + '\n');
-      writeFileSync(join(outDir, 'b3', `${fold.fold_id}.dropped.json`), JSON.stringify(parsed.dropped, null, 1) + '\n');
+
+    let raw = null;
+    let httpStatus = null;
+    let attempts = 0;
+    try {
+      attempts = 1;
+      raw = await send(req);
+      httpStatus = 200;
+    } catch (e) {
+      try {
+        attempts = 2;
+        raw = await send(req);
+        httpStatus = 200;
+      } catch (e2) {
+        httpStatus = e2.status ?? null;
+        writeFileSync(join(outDir, 'b3', `${fold.fold_id}.status.json`),
+          JSON.stringify({ status: 'failed', http_status: httpStatus, attempts }, null, 1) + '\n');
+        continue;
+      }
     }
+    writeFileSync(join(outDir, 'b3', `${fold.fold_id}.response.json`), raw);
+    const parsed = parseResponse(raw, tools);
+    writeFileSync(join(outDir, 'b3', `${fold.fold_id}.json`), JSON.stringify(parsed.predictions, null, 1) + '\n');
+    writeFileSync(join(outDir, 'b3', `${fold.fold_id}.dropped.json`), JSON.stringify(parsed.dropped, null, 1) + '\n');
+    writeFileSync(join(outDir, 'b3', `${fold.fold_id}.status.json`),
+      JSON.stringify({ status: parsed.status, http_status: httpStatus, attempts }, null, 1) + '\n');
   }
 }
 

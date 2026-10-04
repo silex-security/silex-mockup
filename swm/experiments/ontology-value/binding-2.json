@@ -1,0 +1,375 @@
+{
+ "tools": {
+  "agentdojo:banking/get_balance": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads the account balance ('Get the balance of the account'); no layer-2 action describes a simple balance read, so core Read Action."
+  },
+  "agentdojo:banking/get_iban": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Retrieves the account IBAN ('Get the IBAN of the current bank account'); no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:banking/get_most_recent_transactions": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Lists recent transactions to summarize ('Get the list of the most recent transactions'); no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:banking/get_scheduled_transactions": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the list of scheduled transactions; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:banking/get_user_info": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets user information; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:banking/read_file": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads file contents at a path ('Reads the contents of the file at the given path'); no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:banking/schedule_transaction": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Schedules a future transaction ('Schedule a transaction'); no layer-2 action matches scheduling, so core Write Action."
+  },
+  "agentdojo:banking/send_money": {
+   "action": "act:act-finance-payment-release",
+   "core": "core:core-action-transfer-value",
+   "reason": "'Sends a transaction to the recipient' moves funds out, matching Payment Release (Finance action) which releases a payment."
+  },
+  "agentdojo:banking/update_password": {
+   "action": "act:act-it-rotate-secret",
+   "core": "core:core-action-write",
+   "reason": "'Update the user password' rotates a credential, matching Secret Rotation (Identity & IT action)."
+  },
+  "agentdojo:banking/update_scheduled_transaction": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Updates a scheduled transaction ('Update a scheduled transaction'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:banking/update_user_info": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Updates user information fields ('Update the user information'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:slack/add_user_to_channel": {
+   "action": "act:act-it-provision",
+   "core": "core:core-action-write",
+   "reason": "'Add a user to a given channel' grants the user access to a channel, matching Account Provisioning (Identity & IT action)."
+  },
+  "agentdojo:slack/get_channels": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the list of Slack channels; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:slack/get_users_in_channel": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the list of users in a channel; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:slack/get_webpage": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns the content of a webpage at a URL; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:slack/invite_user_to_slack": {
+   "action": "act:act-it-provision",
+   "core": "core:core-action-write",
+   "reason": "'Invites a user to the Slack workspace' provisions a new user, matching Account Provisioning (Identity & IT action)."
+  },
+  "agentdojo:slack/post_webpage": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Posts content to a webpage at a URL ('Posts a webpage at a given URL with the given content'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:slack/read_channel_messages": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads messages from a channel; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:slack/read_inbox": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads messages from a user's inbox; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:slack/remove_user_from_slack": {
+   "action": "act:act-it-offboard",
+   "core": "core:core-action-revoke",
+   "reason": "'Remove a user from the Slack workspace' revokes the user's access, matching Offboarding (Identity & IT action)."
+  },
+  "agentdojo:slack/send_channel_message": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends a message to a channel ('Send a channel message'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:slack/send_direct_message": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends a direct message ('Send a direct message'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:travel/cancel_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Cancels a calendar event (marks it canceled and emails participants); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:travel/check_restaurant_opening_hours": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant opening hours and checks if open; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/create_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Creates a new calendar event and emails participants; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:travel/get_all_car_rental_companies_in_city": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets all car rental companies in a city; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_all_hotels_in_city": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets all hotels in a city; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_all_restaurants_in_city": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets all restaurants in a city; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_car_fuel_options": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets fuel options of car rental companies; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_car_price_per_day": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the price per day of car rental companies; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_car_rental_address": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the address of car rental companies; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_car_types_available": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car types available from rental companies; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_contact_information_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets contact information of restaurants; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_cuisine_type_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the cuisine type of restaurants; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_day_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns appointments for a day; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_dietary_restrictions_for_all_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets dietary restrictions of restaurants; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_flight_information": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets flight information between cities; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_hotels_address": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the address of a hotel; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_hotels_prices": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets hotel prices within a budget range; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_price_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the price per person of restaurants; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_rating_reviews_for_car_rental": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets rating and reviews for car rental companies; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_rating_reviews_for_hotels": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets rating and reviews for hotels; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_rating_reviews_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets rating and reviews for restaurants; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_restaurants_address": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets the address of restaurants; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/get_user_information": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets user information used for booking; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/reserve_car_rental": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Makes a car rental reservation ('Makes a reservation for a car rental'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:travel/reserve_hotel": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Makes a hotel reservation ('Makes a reservation for a hotel'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:travel/reserve_restaurant": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Makes a restaurant reservation ('Makes a reservation for a restaurant'); no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:travel/search_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches calendar events by query and date; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:travel/send_email": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends an email with body and attachments; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/add_calendar_event_participants": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Adds participants to an event and emails them; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/append_to_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Appends content to a file in the cloud drive; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/cancel_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Cancels a calendar event and emails participants; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/create_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Creates a new calendar event and emails participants; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/create_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Creates a new file in the cloud drive; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/delete_email": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Deletes an email from the inbox; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/delete_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Deletes a file from the cloud drive; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/get_current_day": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns the current day in ISO format; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/get_day_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns appointments for a day; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/get_draft_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns all draft emails in the inbox; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/get_file_by_id": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets a file from the cloud drive by ID; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/get_received_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns all received emails in the inbox; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/get_sent_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns all sent emails in the inbox; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/get_unread_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns all unread emails in the inbox; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/list_files": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Retrieves all files in the cloud drive; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/reschedule_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Reschedules a calendar event and emails participants; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/search_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches calendar events by query and date; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/search_contacts_by_email": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Finds contacts by email; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/search_contacts_by_name": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Finds contacts by name; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/search_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches emails by subject or body; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/search_files": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches files in the cloud drive by content; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/search_files_by_filename": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets a file from the cloud drive by filename; no layer-2 action fits, so core Read Action."
+  },
+  "agentdojo:workspace/send_email": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends an email with body and attachments; no layer-2 action fits, so core Write Action."
+  },
+  "agentdojo:workspace/share_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Shares a file with a user at a permission level ('Share a file with a user'); no layer-2 action fits, so core Write Action."
+  }
+ },
+ "version": 1
+}

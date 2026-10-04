@@ -159,6 +159,51 @@ const sa = scoreAll({ f1: p, f2: [], f3: [], f4: [] }, harm);
 eq(sa.pooled.targets, 2, 'scoreAll pooled targets (f1 and f2 each have one target)');
 eq(sa.pooled.matched, 1, 'scoreAll pooled matched (f1 matches, f2 empty)');
 eq(sa.pooled.recall, 0.5, 'scoreAll pooled recall');
+eq(sa.pooled.recall_at5, 0.5, 'scoreAll pooled recall@5');
+
+// ---- defect 2: per-suite aggregation sums the selected subset ----
+{
+  const twoSuiteHarm = {
+    a1: { suite: 'acme', pairs: [['ta', 'value transfer']] },
+    a2: { suite: 'acme', pairs: [['tb', 'value transfer']] },
+    b1: { suite: 'beta', pairs: [['tc', 'data disclosure']] },
+  };
+  const twoSuite = scoreAll({ a1: [{ tool: 'tb', class: 'value transfer', rank: 1 }], a2: [], b1: [] }, twoSuiteHarm);
+  eq(twoSuite.pooled.targets, 2, 'two-suite pooled targets');
+  eq(twoSuite.pooled.recall, 0.5, 'two-suite pooled recall');
+  eq(twoSuite.pooled.recall_at5, 0.5, 'two-suite pooled recall@5');
+  eq(twoSuite.pooled.precision, 1, 'two-suite pooled precision');
+  eq(twoSuite.per_suite.acme.targets, 2, 'acme per-suite targets');
+  eq(twoSuite.per_suite.acme.recall, 0.5, 'acme per-suite recall');
+  eq(twoSuite.per_suite.acme.recall_at5, 0.5, 'acme per-suite recall@5');
+  eq(twoSuite.per_suite.acme.precision, 1, 'acme per-suite precision');
+  eq(twoSuite.per_suite.beta.targets, 0, 'beta per-suite targets (zero targets)');
+  eq(twoSuite.per_suite.beta.recall, null, 'beta per-suite recall null (zero targets)');
+  eq(twoSuite.per_suite.beta.recall_at5, null, 'beta per-suite recall@5 null');
+  eq(twoSuite.per_suite.beta.precision, null, 'beta per-suite precision null (no predictions)');
+}
+
+// ---- defect 3: observed pairs removed centrally ----
+{
+  const obsHarm = {
+    g1: { suite: 'acme', pairs: [['X', 'value transfer']] },
+    g2: { suite: 'acme', pairs: [['X', 'value transfer'], ['Y', 'value transfer']] },
+  };
+  const osf = scoreFold('g1', [{ tool: 'X', class: 'value transfer', rank: 1 }], obsHarm);
+  eq(osf.targets, 1, 'observed-pair fold still has a target');
+  eq(osf.matched, 0, 'observed-pair prediction earns no recall');
+  eq(osf.recall, 0, 'observed-pair recall is 0');
+  eq(osf.confirmed, 0, 'observed-pair prediction earns no confirmed precision');
+  eq(osf.precision, null, 'observed-pair precision is null (nothing emitted)');
+}
+
+// ---- b3 status: non-ok fold excluded and counted missing ----
+{
+  const sb = scoreAll({ f1: p, f2: [], f3: [], f4: [] }, harm, { f2: 'failed' });
+  eq(sb.b3_missing, 1, 'b3_missing counts non-ok fold');
+  eq(sb.pooled.targets, 1, 'b3 pooled excludes non-ok fold');
+  eq(sb.pooled.recall, 1, 'b3 pooled recall over ok folds only');
+}
 
 // ---- b3 ----
 eq(canonicalJSON({ b: 1, a: { c: 2, d: [3, { z: 9, y: 8 }] } }), '{"a":{"c":2,"d":[3,{"y":8,"z":9}]},"b":1}', 'canonicalJSON sorts keys');
@@ -167,9 +212,32 @@ eq(req.model, 'deepseek-v4-pro', 'buildRequest model');
 eq(req.messages[0], { role: 'system', content: 'PROMPT' }, 'buildRequest system');
 assert(!serializeRequest(req).includes('\n'), 'serializeRequest has no whitespace');
 eq(serializeRequest(req), serializeRequest(buildRequest(fold, [tools[2], tools[3]], 'PROMPT')), 'serializeRequest deterministic');
-const parsed = parseResponse('[{"tool":"get_balance","class":"value transfer"},{"tool":"nope","class":"value transfer"},{"tool":"get_balance","class":"bogus"}]', tools);
+const envelope = (content) => JSON.stringify({ id: 'x', choices: [{ message: { role: 'assistant', content } }] });
+let parsed = parseResponse(envelope('[{"tool":"get_balance","class":"value transfer"},{"tool":"nope","class":"value transfer"},{"tool":"get_balance","class":"bogus"}]'), tools);
+eq(parsed.status, 'ok', 'parseResponse envelope status ok');
 eq(parsed.predictions, [{ tool: 'get_balance', class: 'value transfer', rank: 1 }], 'parseResponse keeps valid only');
 eq(parsed.dropped, { unknown_tool: 1, unknown_class: 1, malformed: 0 }, 'parseResponse dropped counts');
+
+parsed = parseResponse(envelope('```json\n[{"tool":"get_balance","class":"value transfer"}]\n```'), tools);
+eq(parsed.status, 'ok', 'parseResponse fenced content ok');
+eq(parsed.predictions, [{ tool: 'get_balance', class: 'value transfer', rank: 1 }], 'parseResponse fenced content parses array');
+
+parsed = parseResponse(envelope('[]'), tools);
+eq(parsed.status, 'ok', 'parseResponse empty array is ok');
+eq(parsed.predictions, [], 'parseResponse empty array -> no predictions');
+
+parsed = parseResponse(envelope('{"tool":"get_balance"}'), tools);
+eq(parsed.status, 'malformed', 'parseResponse non-array content malformed');
+eq(parsed.predictions, [], 'parseResponse malformed -> empty predictions');
+
+parsed = parseResponse(JSON.stringify({ id: 'x' }), tools);
+eq(parsed.status, 'malformed', 'parseResponse missing choices malformed');
+
+parsed = parseResponse(JSON.stringify({ choices: [{ message: { content: 42 } }] }), tools);
+eq(parsed.status, 'malformed', 'parseResponse non-string content malformed');
+
+parsed = parseResponse('not json at all', tools);
+eq(parsed.status, 'malformed', 'parseResponse unparseable envelope malformed');
 
 // ---- determinism of the shared outputs (same inputs -> byte-identical) ----
 const a1 = JSON.stringify(buildToolMap(manifest, snapshot));
