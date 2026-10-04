@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* Reproducible negative fixtures, each cloned from a passing real v2 bundle.
    node swm/skills/swm-data-rebuild/scripts/fixtures/t7-negative-fixtures.mjs [data-directory]
+   Append --preservation-only to check exact BASE 75bba66 IDs and relations alone.
    Writes consistent JSON/JS twins only to a temporary directory, then exercises
    both public APIs and executable entrypoints. BASE is staged from git show. */
 import assert from 'node:assert/strict';
@@ -15,11 +16,48 @@ import { evaluateCompetencies } from '../competency.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url)), SCRIPTS = resolve(HERE, '..');
 const ROOT = resolve(HERE, '..', '..', '..', '..', '..');
 const DATA = resolve(process.argv[2] || join(ROOT, 'swm', 'data'));
-const temp = await mkdtemp(join(tmpdir(), 'codex-t7-fixtures-'));
 let onto = JSON.parse(await readFile(join(DATA, 'ontology.json'), 'utf8'));
 let cov = JSON.parse(await readFile(join(DATA, 'coverage.json'), 'utf8'));
 const SYNTHETIC = process.argv.includes('--synthetic');
 const BENCH_SYNTHETIC = process.argv.includes('--benchmark-synthetic');
+// Exact shipped identities and complete relation records: no ID normalization.
+function assertPreserved(base, current) {
+  const ids = new Set(current.nodes.map(n => n.id));
+  const missing = base.nodes.filter(n => !ids.has(n.id)).map(n => n.id);
+  assert.deepEqual(missing, [], 'BASE 75bba66 node IDs missing');
+  const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
+    ? Object.fromEntries(Object.keys(value).sort().map(k => [k, canonical(value[k])])) : value;
+  const key = l => JSON.stringify(canonical(l));
+  const counts = new Map();
+  for (const l of current.links) counts.set(key(l), (counts.get(key(l)) || 0) + 1);
+  const lost = [];
+  for (const l of base.links) {
+    const k = key(l), count = counts.get(k) || 0;
+    if (!count) lost.push(l); else counts.set(k, count - 1);
+  }
+  assert.deepEqual(lost, [], 'BASE 75bba66 exact relation records missing or changed');
+}
+if (!SYNTHETIC && !BENCH_SYNTHETIC) {
+  const baseline = JSON.parse(execFileSync('git', ['show', '75bba66:swm/data/ontology.json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }));
+  assertPreserved(baseline, onto);
+  const renamed = structuredClone(onto);
+  const original = baseline.nodes.find(n => n.id === 'nist:AC-2(3)');
+  assert.ok(original, 'preservation negative must use the shipped NIST ID');
+  renamed.nodes.find(n => n.id === original.id).id = 'nist:AC-2.3';
+  assert.throws(() => assertPreserved(baseline, renamed), /node IDs missing/);
+  const removed = structuredClone(onto);
+  const edge = baseline.links[0];
+  const edgeIndex = removed.links.findIndex(l => l.s === edge.s && l.t === edge.t && l.pred === edge.pred);
+  assert.ok(edgeIndex >= 0, 'preservation negative must remove a BASE relation');
+  removed.links.splice(edgeIndex, 1);
+  assert.throws(() => assertPreserved(baseline, removed), /relation records missing or changed/);
+  const changed = structuredClone(onto);
+  changed.links[edgeIndex].review = 'synthetic-changed-grade';
+  assert.throws(() => assertPreserved(baseline, changed), /relation records missing or changed/);
+  console.log(`PASS exact BASE 75bba66 preservation: ${baseline.nodes.length} IDs, ${baseline.links.length} relation records; rename, deletion and changed-grade negatives rejected`);
+}
+if (process.argv.includes('--preservation-only')) process.exit(0);
+const temp = await mkdtemp(join(tmpdir(), 'codex-t7-fixtures-'));
 const isBenchmark = n => !!n && Object.hasOwn(n, 'benchmark');
 const typeCount = x => x.nodes.filter(n => !isBenchmark(n)).length;
 const notice = await readFile(join(ROOT, 'swm/.cache/ocsf-NOTICE'), 'utf8');

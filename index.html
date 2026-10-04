@@ -1704,7 +1704,7 @@ const incidentData={
     if(viewNames[v])showView(v)}
   function routeWorldModel(q){let tab=q.get('tab'),node=q.get('node'),warn=null;
     if(tab!==null&&!WM_TABS.includes(tab)){warn='Unknown World Model view — showing Ontology Layers.';tab=null}
-    if(node!==null&&!/^[\w:.\-]+$/.test(node)){warn='Unknown node — showing Ontology Layers.';node=null;tab=null}
+    if(node!==null&&!/^[\w:.\-()]+$/.test(node)){warn='Unknown node — showing Ontology Layers.';node=null;tab=null}
     if(node&&tab&&tab!=='wm-ontology')warn='A node opens in the Ontology Graph.';
     tab=node?'wm-ontology':(tab||'wm-architecture');
     routed(()=>{window.selectWmTab(tab,true);showView('security-model')});

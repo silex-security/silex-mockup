@@ -50,7 +50,7 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 
 ### L4 公开 benchmark 运行(2026-10-03)
 
-[计划](../logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)。L4 新增 946 次公开运行、135 个事故、3 个模型、60 个工具,在 Ontology Graph 里用"Public benchmark runs"开关显示(默认关)。Finance、IT 来自 AgentDojo(Llama-3.3-70B 与加了防御的 Meta-SecAlign-70B),Customer Service 来自 τ²-bench 零售(Claude 3.7 Sonnet)。评测器判"得手"不等于出现危害:只有通过审定的轨迹规则才连到 L2 危害(119 个),其余 17 个写明原因。benchmark 节点不进部署关系、覆盖率和 KPI。
+[计划](../logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)。L4 新增 946 次公开运行、135 个事故、3 个模型、60 个工具,在 Ontology Graph 里用"Public benchmark runs"开关显示(默认关)。Finance、IT 来自 AgentDojo(Llama-3.3-70B 与加了防御的 Meta-SecAlign-70B),Customer Service 来自 τ²-bench 零售(Claude 3.7 Sonnet)。评测器判"得手"不等于出现危害:只有通过审定的轨迹规则才连到 L2 危害(118 个事故、119 条关联),其余 17 个写明原因。benchmark 节点不进部署关系、覆盖率和 KPI。
 
 ### 怎么拼成一个四层世界模型(L1→L2→L3→L4)
 

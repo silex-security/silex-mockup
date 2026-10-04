@@ -532,7 +532,8 @@
       var ex = exampleData();
       if (!ex) { state.example = false; return showEmpty(EX_MISSING[0], EX_MISSING[1]); }
       /* all 24 settle, then the 9 move into lanes */
-      var all = data.nodes.filter((n) => n.layer === 4).map(function (n) { return Object.assign({}, n); });
+      /* the Refund example is the illustrative runtime: public benchmark runs never enter its layout or context */
+      var all = data.nodes.filter((n) => n.layer === 4 && !isBench(n)).map(function (n) { return Object.assign({}, n); });
       var allIds = new Set(all.map((n) => n.id));
       var l4links = links.filter((l) => allIds.has(l.s) && allIds.has(l.t)).map(function (l) { return { source: l.s, target: l.t, pred: l.pred }; });
       layout(all, l4links, d);

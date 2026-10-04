@@ -120,7 +120,7 @@ async function main() {
   }
   {
     const byId = Object.fromEntries((imported['nist-800-53'](RAWS, sel('nist-800-53')).nodes || []).map(n => [n.id, n]));
-    if (!byId['nist:AC-2.3'] || !byId['nist:AC-2.3'].def.startsWith('Disable accounts')) fail('nist: AC-2(3) def does not start with "Disable accounts"');
+    if (!byId['nist:AC-2(3)'] || !byId['nist:AC-2(3)'].def.startsWith('Disable accounts')) fail('nist: AC-2(3) def does not start with "Disable accounts"');
     if (!byId['nist:AC-6'] || byId['nist:AC-6'].def === byId['nist:AC-6'].label) fail('nist: AC-6 def is only its title');
   }
   const stixExt = o => ((o.external_references || []).find(r => typeof r.external_id === 'string' && r.external_id.startsWith('AML.')) || {}).external_id;
@@ -220,6 +220,57 @@ async function main() {
       if (inc.benchmark.status !== 'attempt-refused') fail(`tau2 incident status: ${inc.id}`);
       if (!(inc.benchmark.refusals || []).length) fail(`tau2 incident missing refusals: ${inc.id}`);
       if (!t2.links.some(l => l.s === inc.id && l.pred === 'EXHIBITS')) fail(`tau2 incident missing EXHIBITS: ${inc.id}`);
+    }
+  }
+
+  /* --- L4 parser-level negatives: call-result pairing and compact/def records --- */
+  {
+    const extractCalls = (await import('./agentdojo-runs.mjs')).extractCalls;
+    const pair = msgs => extractCalls(msgs);
+    /* Codex A/B: unanswered A, a new assistant call B, a result for B must not make A ok */
+    {
+      const c = pair([
+        { role: 'assistant', tool_calls: [{ function: 'A', args: {}, id: null }] },
+        { role: 'assistant', tool_calls: [{ function: 'B', args: {}, id: null }] },
+        { role: 'tool', tool_call_id: null, error: null },
+      ]);
+      if (c.length !== 2 || c[0].ok !== false || c[1].ok !== true) fail('pairing A/B: unanswered A must stay unpaired and B pair with its result');
+    }
+    /* missing result */
+    {
+      const c = pair([{ role: 'assistant', tool_calls: [{ function: 'A', args: {}, id: null }] }]);
+      if (c.length !== 1 || c[0].ok !== false) fail('pairing: a call with no result must be ok=false');
+    }
+    /* ambiguous ids */
+    {
+      const c = pair([
+        { role: 'assistant', tool_calls: [{ function: 'A', args: {}, id: 'x' }, { function: 'B', args: {}, id: 'x' }] },
+        { role: 'tool', tool_call_id: 'x', error: null },
+        { role: 'tool', tool_call_id: 'x', error: null },
+      ]);
+      if (c.some(x => x.ok)) fail('pairing: ambiguous duplicate ids must be unpaired');
+    }
+    /* out-of-order results with unique ids: pair by id, not position */
+    {
+      const c = pair([
+        { role: 'assistant', tool_calls: [{ function: 'A', args: {}, id: 'a' }, { function: 'B', args: {}, id: 'b' }] },
+        { role: 'tool', tool_call_id: 'b', error: null },
+        { role: 'tool', tool_call_id: 'a', error: 'err' },
+      ]);
+      if (c.length !== 2 || c[0].ok !== false || c[1].ok !== true) fail('pairing: out-of-order results must pair by id (A↔error, B↔ok)');
+    }
+    /* published run records are compact: no args/message bodies; def is real text */
+    if (aj) {
+      for (const n of aj.nodes) {
+        if (n.kind === 'trace') {
+          for (const c of n.benchmark?.calls || []) {
+            if (c.args !== undefined || c.arguments !== undefined) fail(`run call record must be compact (no args): ${n.id}`);
+          }
+          if (n.def.includes('[object Object]')) fail(`run def is not extracted text: ${n.id}`);
+        }
+      }
+      const t4 = aj.nodes.find(n => n.id === 'bench:run:agentdojo:meta-llama_Llama-3.3-70B-Instruct:banking:user_task_0:injection_task_4');
+      if (!t4 || !/pay the bill/i.test(t4.def)) fail(`run def should carry the task text (got ${JSON.stringify(t4?.def)})`);
     }
   }
 

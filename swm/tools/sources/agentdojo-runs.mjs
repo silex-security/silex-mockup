@@ -14,6 +14,10 @@ const normEmail = s => collapse(s).toLowerCase();
 const normPlain = s => collapse(s);
 const normField = { recipient: normIBAN, user_email: normEmail, user: normPlain, password: normPlain };
 
+/* extract the text of a message `content` (a string, or an array of {type, content|text} parts) */
+const textContent = c => typeof c === 'string' ? c
+  : Array.isArray(c) ? c.map(p => typeof p === 'string' ? p : (p.content ?? p.text ?? '')).join(' ') : '';
+
 /* ---- minimal tar reader -------------------------------------------------- */
 function parseOctal(b) {
   const s = b.toString('utf8').split('\0')[0].trim();
@@ -43,17 +47,41 @@ function readTar(data) {
 }
 
 /* ---- call-result pairing and predicates ---------------------------------- */
-function extractCalls(messages) {
+/* Pair each assistant message's tool calls with the tool-result block that immediately follows it.
+   Unique `id` ↔ `tool_call_id` when both are present and unique; otherwise, all-null ids pair in
+   order, one to one. A call with no paired result, an ambiguous id, or an out-of-order/partial id
+   set is never evidence (`ok: false`). Exported for the parser-level tests. */
+export function extractCalls(messages) {
   const calls = [];
-  const queue = [];
-  for (const m of messages) {
-    if (m.role === 'assistant' && Array.isArray(m.tool_calls)) {
-      for (const tc of m.tool_calls) { calls.push({ name: tc.function, args: tc.args || {}, ok: false }); queue.push(calls.length - 1); }
-    } else if (m.role === 'tool') {
-      if (queue.length) {
-        const idx = queue.shift();
-        calls[idx].ok = (m.error == null || m.error === '');
+  let i = 0;
+  while (i < messages.length) {
+    const m = messages[i];
+    if (m.role === 'assistant' && Array.isArray(m.tool_calls) && m.tool_calls.length) {
+      const tcs = m.tool_calls;
+      let j = i + 1;
+      const block = [];
+      while (j < messages.length && messages[j].role === 'tool') { block.push(messages[j]); j++; }
+      const callsHaveIds = tcs.every(t => t.id != null);
+      const resultsHaveIds = block.length > 0 && block.every(r => r.tool_call_id != null);
+      const idPairing = callsHaveIds && resultsHaveIds &&
+        new Set(tcs.map(t => t.id)).size === tcs.length && new Set(block.map(r => r.tool_call_id)).size === block.length;
+      const orderedPairing = !callsHaveIds && !resultsHaveIds;
+      for (let k = 0; k < tcs.length; k++) {
+        const tc = tcs[k];
+        const call = { name: tc.function, args: tc.args || {}, ok: false };
+        let result = null;
+        if (idPairing) {
+          const matches = block.filter(r => r.tool_call_id === tc.id);
+          result = matches.length === 1 ? matches[0] : null;
+        } else if (orderedPairing) {
+          result = k < block.length ? block[k] : null;
+        }
+        if (result != null) call.ok = (result.error == null || result.error === '');
+        calls.push(call);
       }
+      i = j;
+    } else {
+      i++;
     }
   }
   return calls;
@@ -142,7 +170,6 @@ export function parse(raws, selection) {
   if (runs.length > selection.limit) throw new Error(`agentdojo-runs: ${runs.length} runs exceed limit ${selection.limit}`);
 
   const nodes = [], links = [], omitted = [];
-  const srcFor = id => [{ sys: 'agentdojo', id, label: `AgentDojo ${id}`, url: blob(repo, pin, `runs/${id}`) }];
 
   /* agents (one per model) */
   for (const model of selection.models) {
@@ -154,7 +181,8 @@ export function parse(raws, selection) {
       parentLink: { t: 'ag:planner', pred: 'INSTANCE_OF', src: 'silex', review: 'curated' } });
   }
 
-  /* calls + refusals per run, tool set */
+  /* calls + refusals per run, tool set. Internal calls keep `args` for predicates; the published
+     record carries only compact `{ name, ok }` (message bodies and injected text are not copied). */
   const toolSet = new Map();
   const runInfo = [];
   for (const r of runs) {
@@ -185,14 +213,14 @@ export function parse(raws, selection) {
     const label = `${selection.modelLabel[r.model] || r.model} · ${r.suite} · user_task_${r.userTask} · injection_task_${r.injectionTask}`;
     const benchmark = { source: 'agentdojo', model: r.model, suite: r.suite, userTask: r.userTask, injectionTask: r.injectionTask,
       attackType: r.data.attack_type ?? selection.attackType, benchmarkVersion: r.data.benchmark_version, pipelineName: r.data.pipeline_name,
-      outcome: r.outcome, utility: r.data.utility === true, calls: r.calls, refusals: [] };
-    const runNode = { id: rid, label, group: 'workflow', layer: 4, kind: 'trace', def: cut(firstUser?.content), review: 'published',
+      outcome: r.outcome, utility: r.data.utility === true,
+      calls: r.calls.map(c => ({ name: c.name, ok: c.ok })), refusals: [] };
+    const runNode = { id: rid, label, group: 'workflow', layer: 4, kind: 'trace', def: cut(textContent(firstUser?.content)), review: 'published',
       src: [{ sys: 'agentdojo', id: rid, label, ver: 'v1.2.1', url: blob(repo, pin, `runs/${r.model}/${r.suite}/user_task_${r.userTask}/important_instructions/injection_task_${r.injectionTask}.json`) }],
       benchmark, domain: r.domain, parentLink: { t: 'ag:trace', pred: 'INSTANCE_OF', src: 'silex', review: 'curated' } };
     nodes.push(runNode);
     links.push({ s: rid, t: `bench:agent:agentdojo:${r.model}`, pred: 'EXECUTED_BY', src: 'agentdojo', review: 'published' });
     for (const c of r.calls) {
-      const key = `${r.suite}/${c.name}`;
       const tid = `bench:tool:agentdojo:${r.suite}:${c.name}`;
       if (!links.some(l => l.s === rid && l.t === tid && l.pred === 'INVOKES')) links.push({ s: rid, t: tid, pred: 'INVOKES', src: 'agentdojo', review: 'published' });
     }

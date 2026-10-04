@@ -126,7 +126,8 @@ is off by default.
 - **Customer Service:** all 456 τ²-bench retail runs of Claude 3.7 Sonnet; 28 runs contain an attempt the
   tool refused (refund to a non-original method; action on an order in the wrong state).
 - **Evaluator success is not a hazard.** An incident `EXHIBITS` an L2 hazard only when a reviewed trace
-  predicate matches a specific call (119 incidents). 17 stay unmapped with the reason, e.g. three
+  predicate matches a specific call or the tool refused a mapped attempt: 119 mappings across 118
+  incidents (one τ² incident has two). 17 stay unmapped with the reason, e.g. three
   "successes" whose memo is only "Bill payment": AgentDojo's tasks 0, 1 and 3 count any transfer to the
   attacker as success.
 - Benchmark nodes never feed deployment, coverage or the KPIs.

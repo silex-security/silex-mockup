@@ -7,6 +7,7 @@
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs                 # all probes, this checkout
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only COLD --data <bundle-dir>
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only BENCH,COLD --data <bundle-dir>
+     node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only BENCH-R,NIST-LINK --data <rebuilt-bundle-dir>
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only COLD --delay-bundle 6000 # must exit 1
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --root <dir> --only R1,E1
                                                     # serve another checkout (e.g. BASE) instead
@@ -374,6 +375,40 @@ if (want('R1')) {
   const BASE_PREDS = ['AUTHORIZES','CALLS','DELEGATES_AUTHORITY','GATES','GOVERNS','MUTATES','READS_WRITES','RETRIEVES_FROM'];
   record('R1', res.nodes === 9 && res.rels === 8 && JSON.stringify(res.ids) === JSON.stringify(BASE_IDS) && JSON.stringify(res.preds) === JSON.stringify(BASE_PREDS), `${res.nodes} nodes · ${res.rels} relations · ${JSON.stringify(res.preds)} · ${JSON.stringify(res.ids)}`);
   await shot('probe-refund-example.png');
+}
+
+if (want('BENCH') || want('BENCH-R')) {
+  await openPanel('wm-ontology');
+  await evaluate(`const t = document.getElementById('swmBenchToggle'); if (t?.checked) t.click(); document.getElementById('swmExampleBtn').click(); true`);
+  await sleep(4000);
+  const res = await evaluate(`(() => {
+    const id = x => typeof x === 'string' ? x : x?.id || x?.raw?.id || '';
+    const nodes = [...document.querySelectorAll('#swmSvg g.swm-fcard, #swmSvg path.glyph')].map(el => id(d3.select(el).datum()));
+    const edges = [...document.querySelectorAll('#swmSvg line.swm-link.ctx, #swmSvg path.swm-link')].map(el => {
+      const l = d3.select(el).datum(); return [id(l?.s || l?.source), id(l?.t || l?.target)];
+    });
+    return { hook: !!document.getElementById('swmBenchToggle'), checked: !!document.getElementById('swmBenchToggle')?.checked,
+      focus: document.querySelectorAll('#swmSvg g.swm-fcard').length,
+      context: document.querySelectorAll('#swmSvg path.glyph').length,
+      benchmarkNodes: nodes.filter(n => n.startsWith('bench:')),
+      benchmarkEdges: edges.filter(pair => pair.some(n => n.startsWith('bench:'))) };
+  })()`);
+  record('BENCH-R', res.hook && !res.checked && res.focus === 9 && res.context > 0 && !res.benchmarkNodes.length && !res.benchmarkEdges.length,
+    'Refund example default-off focus / context / edges: ' + JSON.stringify(res));
+}
+
+if (want('NIST-LINK')) {
+  await send('Page.navigate', { url: base + '#view=security-model&tab=wm-ontology&node=nist%3AAC-2(3)' });
+  const deadline = Date.now() + 8000;
+  let res;
+  do {
+    await sleep(100);
+    res = await evaluate(`({ node: window.SWM?.currentNode?.(), panel: document.querySelector('#security-model .wm-panel.active')?.id,
+      inspector: document.getElementById('swmInspector')?.innerText || '' })`);
+  } while (res.node !== 'nist:AC-2(3)' && Date.now() < deadline);
+  const node = bundle.nodes.find(n => n.id === 'nist:AC-2(3)');
+  record('NIST-LINK', !!node && res.node === node.id && res.panel === 'wm-ontology' && res.inspector.includes(node.label),
+    'Original NIST ID deep link: ' + JSON.stringify(res));
 }
 
 /* ---- P probes: plan item F for the World Model panels (T2, logs/2026-10-02_JEV_LEARNINGS_PLAN.md item F).
