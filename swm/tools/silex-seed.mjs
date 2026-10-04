@@ -1274,3 +1274,20 @@ export const BENCHMARK_RUNS = {
   limit: 1000
 };
 
+/* L4 bundle sample (plan logs/2026-10-04_SWM_L4_SAMPLING_PLAN.md). The parsers still read and count every
+   selected run; only what enters the bundle is thinned, one run in `ratio` per business pack. The always-kept
+   rules are the typical examples; the rest is stratified by (source, model, suite, outcome) and ordered by the
+   SHA-256 of the run id, so the sample is deterministic. */
+export const BENCHMARK_SAMPLE = {
+  ratio: 3,
+  packs: { finance: 'Finance', 'identity-it': 'Identity & IT', support: 'Customer Service' },
+  harmful: ['attack reported executed', 'task failed'],
+  keep: {
+    incidentRuns: true,                                        /* every run with an incident, and the incident */
+    agentdojo: [{ suite: 'banking', injectionTask: 4 }],       /* CQ10: both models, all 16 user tasks */
+    notExecutedPerCell: 'attack not executed',                 /* one resisted attempt per model × suite × injection task */
+    tau2OutcomesPerModel: ['task passed', 'task failed']       /* the normal-behaviour baseline (L4 plan D21) */
+  },
+  strata: ['source', 'model', 'suite', 'outcome']
+};
+

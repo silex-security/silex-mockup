@@ -290,6 +290,49 @@ export function validateGraph(onto) {
     if (incidents.length !== (expected ? 1 : 0) || incidents.some(s => !isBenchmark(s)))
       fail(n.id + ': benchmark incident count must be ' + (expected ? 1 : 0) + ' for its recorded outcome/refusals');
   }
+  /* L4 bundle sample (plan 2026-10-04 L4 sampling): the record agrees with the bundle, every incident and every
+     banking task-4 run is kept, and agent population counts are never smaller than what is shown. */
+  const benchRuns = nodes.filter(n => isBenchmark(n) && n.kind === 'trace');
+  if (benchRuns.length) {
+    const rec = onto.benchmarkSample, srcOf = { 'agentdojo-runs': 'agentdojo', 'tau2-runs': 'tau2' };
+    if (!object(rec) || !object(rec.sources) || !Number.isInteger(rec.ratio) || rec.ratio < 1) fail('benchmarkSample: missing or malformed record');
+    else for (const [mod, source] of Object.entries(srcOf)) {
+      const r = rec.sources[mod], runs = benchRuns.filter(n => n.benchmark.source === source);
+      const incs = nodes.filter(n => isBenchmark(n) && n.kind === 'incident' && n.benchmark?.source === source);
+      if (!object(r)) { if (runs.length) fail('benchmarkSample: no record for ' + mod); continue; }
+      if (r.runs?.kept !== runs.length) fail(`benchmarkSample ${mod}: ${r.runs?.kept} runs recorded, ${runs.length} in the bundle`);
+      if (!(r.runs?.population >= r.runs?.kept)) fail(`benchmarkSample ${mod}: population below kept`);
+      if (r.incidents?.kept !== incs.length || r.incidents?.kept !== r.incidents?.population)
+        fail(`benchmarkSample ${mod}: every incident must be kept (${incs.length} of ${r.incidents?.population})`);
+      let packKept = 0;
+      for (const [pack, v] of Object.entries(r.packs || {})) {
+        packKept += v.kept;
+        const inPack = runs.filter(n => n.domain === pack).length;
+        if (v.kept !== inPack) fail(`benchmarkSample ${mod} ${pack}: ${v.kept} kept recorded, ${inPack} in the bundle`);
+        if (!(v.population >= v.kept) || v.kept < Math.min(v.population, Math.ceil(v.population / rec.ratio)))
+          fail(`benchmarkSample ${mod} ${pack}: kept ${v.kept} outside [ceil(${v.population}/${rec.ratio}), ${v.population}]`);
+      }
+      if (packKept !== runs.length) fail(`benchmarkSample ${mod}: packs sum to ${packKept}, bundle has ${runs.length}`);
+    }
+    for (const a of nodes.filter(n => isBenchmark(n) && n.kind === 'planner')) {
+      const pop = a.benchmark?.population, shown = a.benchmark?.shown;
+      if (!object(pop) || !object(shown)) { fail(a.id + ': benchmark agent needs population and shown counts'); continue; }
+      const mine = benchRuns.filter(r => (out(r.id, 'EXECUTED_BY')[0] || {}).id === a.id);
+      for (const [suite, p] of Object.entries(pop)) {
+        const inBundle = mine.filter(r => r.benchmark.suite === suite);
+        if (shown[suite] !== inBundle.length) fail(`${a.id} ${suite}: shown ${shown[suite]}, bundle has ${inBundle.length}`);
+        if (!(p.runs >= inBundle.length) || !(p.harmful <= p.runs)) fail(`${a.id} ${suite}: population counts inconsistent`);
+        if (a.benchmark.source === 'agentdojo' &&
+            inBundle.filter(r => r.benchmark.outcome === 'attack reported executed').length !== p.harmful)
+          fail(`${a.id} ${suite}: every reported execution must be kept (${p.harmful} in population)`);
+      }
+      if (a.benchmark.source === 'agentdojo') {
+        const t4 = new Set(mine.filter(r => r.benchmark.suite === 'banking' && String(r.benchmark.injectionTask).replace(/^injection_task_/, '') === '4')
+          .map(r => r.benchmark.userTask));
+        if (pop.banking && t4.size !== 16) fail(`${a.id}: all 16 banking injection-task-4 runs must be kept (${t4.size})`);
+      }
+    }
+  }
   if (byId.has('dom:horizontal')) fail('dom:horizontal is retired');
   for (const [name, pairs] of [
     ['display-parent', nodes.filter(n => n.parent).map(n => [n.id, n.parent])],

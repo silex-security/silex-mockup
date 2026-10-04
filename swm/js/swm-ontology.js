@@ -68,7 +68,7 @@
       net: { minDegree: 0, subclass: true, compact: { 1: true, 2: false, 3: false, 4: false }, pickPin: true, pins: new Set() },
       groups: new Set(groupOrder), pinned: new Set(),
       selected: null, edge: null, example: false, saved: null, animate: false, stale: false,
-      bench: false             /* L4 public benchmark runs partition (plan 2026-10-03 L4): hidden by default */
+      bench: true              /* L4 public benchmark runs partition: shown by default since the 1-in-3 bundle sample (plan 2026-10-04) */
     };
     var isBench = (n) => !!(n && n.benchmark);
     var benchCount = data.nodes.filter(isBench).length;
@@ -95,7 +95,7 @@
               '<input type="range" id="swmMinDeg" min="0" max="10" value="0"></label> <button class="swm-chip" id="swmSubcl" aria-pressed="true">Subclass relations</button></div>' +
           '</div></details>' +
           (benchCount ? '<label class="swm-chip swm-bench-toggle" title="Public benchmark runs of named models in a research environment; not this enterprise\'s runtime">' +
-            '<input type="checkbox" id="swmBenchToggle"> Public benchmark runs <small>(L4 · ' + benchCount + ' nodes)</small></label>' : '') +
+            '<input type="checkbox" id="swmBenchToggle" checked> Public benchmark runs <small>(L4 · ' + benchCount + ' nodes)</small></label>' : '') +
           '<button class="swm-btn" id="swmBackBtn" type="button" hidden>← Back to previous view</button>' +
           '<button class="swm-btn accent" id="swmExampleBtn" type="button">Example: Refund workflow →</button>' +
         '</div>' +
@@ -760,10 +760,17 @@
           ((b.refusals || []).length ? row('Refusal', esc(b.refusals.join('; '))) : '') +
           (b.unmapped ? '<p class="note">' + esc(b.unmapped) + '</p>' : '');
       } else if (n.kind === 'planner') {
-        var runs = runsOf(n.id), bySuite = {};
+        /* full counts come from benchmark.population (the bundle holds a 1-in-3 sample, plan 2026-10-04) */
+        var runs = runsOf(n.id), bySuite = {}, pop = b.population || null;
         runs.forEach(function (r) { var s = r.benchmark.suite, k = (bySuite[s] ||= { runs: 0, harm: 0 }); k.runs++;
           if (/reported executed|task failed/.test(r.benchmark.outcome)) k.harm++; });
-        h += row('Model', esc(b.label || b.model)) + Object.keys(bySuite).sort().map((s) => row(esc(s), esc(bySuite[s].harm + ' of ' + bySuite[s].runs + (b.source === 'tau2' ? ' tasks failed' : ' attacks reported executed')))).join('') +
+        var suites = Object.keys(pop || bySuite).sort(), shownTotal = runs.length;
+        h += row('Model', esc(b.label || b.model)) + suites.map(function (s) {
+            var full = pop ? { runs: pop[s].runs, harm: pop[s].harmful } : bySuite[s];
+            return row(esc(s), esc(full.harm + ' of ' + full.runs + (b.source === 'tau2' ? ' tasks failed' : ' attacks reported executed')));
+          }).join('') +
+          (pop ? '<p class="note">Counts are for every selected run. The graph shows a sample: ' + shownTotal + ' of ' +
+            suites.reduce(function (a, s) { return a + pop[s].runs; }, 0) + ' runs (every incident and every typical example kept).</p>' : '') +
           '<p class="note">Counts for this model, this benchmark and this attack type only; not a general robustness claim.</p>';
       } else if (n.kind === 'tool-reg') {
         var callers = links.filter((l) => l.pred === 'INVOKES' && l.t === n.id).length;

@@ -18,7 +18,7 @@
     var countText = (layer) => layer.benchmark ? (layer.count - layer.benchmark) + ' illustrative + ' + layer.benchmark + ' benchmark' : String(layer.count);
     /* L4 blurb claims live runtime; show honest fixture wording */
     function layerBlurb(layer) {
-      return layer.id === 4 ? 'Simulated runtime instances (illustrative)' + (layer.benchmark ? ' and public benchmark runs (research environment)' : '') + ' — not a live customer graph' : layer.blurb;
+      return layer.id === 4 ? 'Simulated runtime instances (illustrative)' + (layer.benchmark ? ' and public benchmark runs (research environment; a 1-in-3 sample, every incident kept)' : '') + ' — not a live customer graph' : layer.blurb;
     }
 
     /* actual directed links per hop — inspector reads true direction + source */

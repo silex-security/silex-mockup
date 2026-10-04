@@ -270,6 +270,12 @@ const one = (x, id) => by(x).get(id);
 const edgeFrom = (x, id, p) => x.links.find(l => l.s === id && l.pred === p);
 const removeNode = (x, id) => { x.nodes = x.nodes.filter(n => n.id !== id); x.links = x.links.filter(l => l.s !== id && l.t !== id); };
 graphFixtures.push(
+  /* L4 bundle sample (plan 2026-10-04 L4 sampling) */
+  ['sample-record-missing', x => { delete x.benchmarkSample; }, /benchmarkSample: missing or malformed record/],
+  ['sample-record-drift', x => { x.benchmarkSample.sources['agentdojo-runs'].runs.kept++; }, /runs recorded/],
+  ['sample-incident-dropped', x => { const run = edgeFrom(x, adInc, 'OCCURRED_IN').t; removeNode(x, adInc); removeNode(x, run); }, /runs recorded|every incident must be kept|every reported execution must be kept/],
+  ['sample-agent-shown', x => { const b = one(x, adAgent).benchmark; b.shown[Object.keys(b.shown)[0]]++; }, /shown \d+, bundle has/],
+  ['sample-agent-population', x => { delete one(x, adAgent).benchmark.population; }, /needs population and shown counts/],
   ['benchmark-review', x => { one(x, adAgent).review = 'curated'; }, /benchmark node must be published/],
   ['benchmark-source', x => { one(x, adAgent).benchmark.source = 'asb'; }, /benchmark source must/],
   ['benchmark-citation', x => { one(x, adAgent).src = [{ sys: 'silex' }]; }, /matching agentdojo or tau2/],

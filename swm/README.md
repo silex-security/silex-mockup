@@ -35,7 +35,7 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 | **UCO(Unified Cyber Ontology)** | 网络安全的统一上层本体 | **72** | Apache-2.0 | L1 **顶层类**(Agent / Identity / Tool / Action…) |
 | **OWASP GenAI** | LLM Top 10 (2025) + Agentic 威胁清单 T1–T15 | **25** | CC BY-SA 4.0 | 挂到对应的 agentic 组件上 |
 
-这 5 个来源共 **542 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。2026-10-03 起,Finance、Customer Service、Identity & IT 三个行业包另外接入了领域标准和 benchmark(见下节)。整张图共 **2106 nodes · 9299 typed relations**(SUBCLASS_OF 442 · GROUPED_UNDER 370 · ACHIEVES 133 · PART_OF_DOMAIN 141 · THREATENS 105 · COUNTERS 343 · DEMONSTRATES 278 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从钉死版本的 URL 抓取 + 蒸馏生成(每个输入的 commit 和 sha256 记录在 [`tools/sources/MANIFEST.json`](tools/sources/MANIFEST.json),字节不符即拒绝构建),画图用 D3.js(pinned 7.9.0,可离线)。
+这 5 个来源共 **542 个真实节点,全部保留原始官方 ID**,可去 MITRE / OWASP 官网逐一核对。2026-10-03 起,Finance、Customer Service、Identity & IT 三个行业包另外接入了领域标准和 benchmark(见下节)。整张图共 **1506 nodes · 5244 typed relations**(SUBCLASS_OF 442 · GROUPED_UNDER 370 · ACHIEVES 133 · PART_OF_DOMAIN 141 · THREATENS 105 · COUNTERS 343 · DEMONSTRATES 278 …),由 [`tools/build-ontology.mjs`](tools/build-ontology.mjs) 从钉死版本的 URL 抓取 + 蒸馏生成(每个输入的 commit 和 sha256 记录在 [`tools/sources/MANIFEST.json`](tools/sources/MANIFEST.json),字节不符即拒绝构建),画图用 D3.js(pinned 7.9.0,可离线)。
 
 ### 领域接地(2026-10-03)
 
@@ -50,11 +50,11 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 
 ### L4 公开 benchmark 运行(2026-10-03)
 
-[计划](../logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)。L4 新增 946 次公开运行、135 个事故、3 个模型、60 个工具,在 Ontology Graph 里用"Public benchmark runs"开关显示(默认关)。Finance、IT 来自 AgentDojo(Llama-3.3-70B 与加了防御的 Meta-SecAlign-70B),Customer Service 来自 τ²-bench 零售(Claude 3.7 Sonnet)。评测器判"得手"不等于出现危害:只有通过审定的轨迹规则才连到 L2 危害(118 个事故、119 条关联),其余 17 个写明原因。benchmark 节点不进部署关系、覆盖率和 KPI。
+[计划](../logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)。L4 新增公开 benchmark 运行:选入 946 次,打包时按业务包 1/3 采样保留 346 次(全部 135 个事故和所有典型示例都保留,[采样计划](../logs/2026-10-04_SWM_L4_SAMPLING_PLAN.md)),另有 3 个模型、60 个工具,在 Ontology Graph 里用"Public benchmark runs"开关显示(2026-10-04 起默认开)。Finance、IT 来自 AgentDojo(Llama-3.3-70B 与加了防御的 Meta-SecAlign-70B),Customer Service 来自 τ²-bench 零售(Claude 3.7 Sonnet)。评测器判"得手"不等于出现危害:只有通过审定的轨迹规则才连到 L2 危害(118 个事故、119 条关联),其余 17 个写明原因。benchmark 节点不进部署关系、覆盖率和 KPI。
 
 ### 怎么拼成一个四层世界模型(L1→L2→L3→L4)
 
-**L1 通用**(547)· **L2 行业包**(204)· **L3 agentic 系统**(187)· **L4 运行时实例**(24)。L4 另含公开 benchmark 运行,合计 24 illustrative + 1144 benchmark 个节点(默认隐藏,见下)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
+**L1 通用**(547)· **L2 行业包**(204)· **L3 agentic 系统**(187)· **L4 运行时实例**(24)。L4 另含公开 benchmark 运行,合计 24 illustrative + 544 benchmark 个节点(默认显示,见下)。关键:四层是**展示分组,不是分类等级**——只有 `SUBCLASS_OF` 表示"是一种";领域归属用 `PART_OF_DOMAIN`,部署用 `DEPLOYED_IN`,八个 L1 分组只是导航(`GROUPED_UNDER`)。每个谓词都有类型签名(`tools/schema.mjs`),构建脚本在签名不符、展示树或 `SUBCLASS_OF` 图出现环、或节点挂到更低层时**直接失败,不写 bundle**。
 
 ### ⚠️ 哪些是真的、哪些是示例(与下面 "What is real and what is mock" 一致)
 
@@ -70,7 +70,7 @@ Build history of the 2026-09-21 visual upgrade and Network view, and why it took
 ### 每张图具体吃哪块数据
 
 - **Ontology Layers**(L1→L2→L3→L4 带状 + ribbon)→ `ontology.json` 的 `chain`(每层计数、相邻层之间的 typed relations,以及跨层跳过的 `skips`)。
-- **Ontology Graph**(Network / Graph / Hierarchy / Relations 四种视图)→ `ontology.json` 的 **2106 nodes · 9299 typed relations**,每个节点/关系按 review 等级标注。
+- **Ontology Graph**(Network / Graph / Hierarchy / Relations 四种视图)→ `ontology.json` 的 **1506 nodes · 5244 typed relations**,每个节点/关系按 review 等级标注。
 - **World Model Coverage**(可缩放 sunburst + 雷达)→ `coverage.json`(coverage tree / gaps / KPIs)。其中 **weighted coverage 82% · 29.4K entities · 8 blind spots · sim-vs-observed 94%** 等数字**均为 illustrative,非实测**。
 
 完整来源与许可见 [`data/SOURCES.md`](data/SOURCES.md)。
@@ -102,7 +102,7 @@ swm/
   js/swm-vowl-ui.js        Network view controls                                          ┘ (defer), not the loader
   js/swm-coverage.js       Coverage Observatory (zoomable sunburst + contextual radar)
   js/swm-layers.js         Ontology Layers     (the four tiers, bands + ribbons)
-  data/ontology.json|.js   generated graph: 2106 nodes · 9299 typed relations, schema, chain summary
+  data/ontology.json|.js   generated graph: 1506 nodes · 5244 typed relations, schema, chain summary
   data/coverage.json|.js   generated coverage tree, gaps and KPIs
   data/SOURCES.md          where every public node came from, and its licence
   tools/build-ontology.mjs fetch + distil + contract-check pipeline (node, no dependencies)

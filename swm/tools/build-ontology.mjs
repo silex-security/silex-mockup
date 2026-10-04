@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import * as SEED from './silex-seed.mjs';
 import * as SCHEMA from './schema.mjs';
+import { sampleBenchmark } from './benchmark-sample.mjs';
 
 /* domain grounding source modules (swm/tools/sources/CONTRACT.md); each reads pinned raw files */
 const SOURCE_MODULES = ['fibo', 'cdm', 'ocsf', 'nist-800-53', 'atlas-mitigations', 'attack-mitigations',
@@ -411,7 +412,9 @@ function assemble({ d3fend, atlas, attack, uco, grounding }){
   const sourceRefs = {}, omitted = [];
   const emitted = [];
   for (const name of SOURCE_MODULES){
-    const out = grounding(name, inBundle);
+    let out = grounding(name, inBundle);
+    /* L4 bundle sample (plan 2026-10-04 L4 sampling): the parser counted every run; the bundle keeps a sample */
+    if (RUN_SELECTION[name]) { out = sampleBenchmark(out, SEED.BENCHMARK_SAMPLE); BENCHMARK_SAMPLE_RECORD[name] = out.sample; }
     for (const n of out.nodes || []){ const { parentLink, ...node } = n; add(node); emitted.push([node.id, parentLink, name]) }
     for (const [k, v] of Object.entries(out.sources || {})){
       if (sourceRefs[k]) problems.push(`source key ${k} is emitted by two modules`);
@@ -839,6 +842,7 @@ const groundingStats = {};
 /* tool key (e.g. `banking/tool/send_money`) → L2 action id, from SEED.BENCHMARK_ACTIONS read backwards */
 const ACTIONS_BY_TOOL = {};
 for (const [act, keys] of Object.entries(SEED.BENCHMARK_ACTIONS)) for (const k of keys) (ACTIONS_BY_TOOL[k] ||= []).push(`act:${act}`);
+const BENCHMARK_SAMPLE_RECORD = {};
 const RUN_SELECTION = { 'agentdojo-runs': SEED.BENCHMARK_RUNS.agentdojo, 'tau2-runs': SEED.BENCHMARK_RUNS.tau2 };
 const grounding = (name, inBundle) => {
   const base = RUN_SELECTION[name] ? { ...RUN_SELECTION[name], actionsByTool: ACTIONS_BY_TOOL, limit: SEED.BENCHMARK_RUNS.limit }
@@ -868,6 +872,8 @@ const ontology = {
   version:'swm-2.0',
   groups:SEED.GROUPS, layers:SEED.LAYERS, sources:SOURCES, stats, chain,
   schema:SCHEMA.compactSchema(), uncountered:graph.uncountered,
+  benchmarkSample:{ ratio:SEED.BENCHMARK_SAMPLE.ratio, rule:'One run in three per business pack; every run with an incident, every banking injection-task-4 run, one resisted attempt per AgentDojo model × suite × injection task and one passed and one failed τ² run per model are always kept; the rest is stratified by source, model, suite and outcome and ordered by the SHA-256 of the run id.',
+    sources:BENCHMARK_SAMPLE_RECORD },
   nodes:graph.nodes, links:graph.links
 };
 

@@ -212,7 +212,8 @@ async function coldLoad(panel, delay = 0, benchmarkOn = false) {
         const defaultOff = !toggle || !toggle.checked;
         return { event: window.__swmColdReady === true, benchmarkOn, benchmarkNodes: bench, defaultOff,
           content: !!panel && panel.classList.contains('active') && marks.length > 0 &&
-          (!benchmarkOn ? defaultOff && bench === 0 : !!toggle?.checked && bench > 0) &&
+          /* since the 1-in-3 bundle sample (plan 2026-10-04) the partition is on by default, so the gated default load has it on */
+          (!benchmarkOn ? (!toggle || toggle.checked) : !!toggle?.checked && bench > 0) &&
           ![...panel.querySelectorAll('.swm-loading')].some(visible) };
       })()` });
       if (r?.exceptionDetails) throw new Error('Cold readiness evaluation failed: ' + (r.exceptionDetails.exception?.description || r.exceptionDetails.text));
@@ -263,14 +264,12 @@ if (want('BENCH') || want('BENCH-T') || want('BENCH-I')) {
       benchmarkCount: benchmarkIds.length, benchmarkIds: benchmarkIds.slice(0, 4),
       benchmarkEdges: edges.filter(pair => pair.some(id => String(id || '').startsWith('bench:'))).length };
   })()`);
-  const off = await rendered();
-  if (off.hook && !off.checked) await evaluate("document.getElementById('swmBenchToggle').click(); true");
+  /* default on (plan 2026-10-04 L4 sampling): the first render already shows the partition */
   const deadline = Date.now() + 5000;
   let on;
-  do { await sleep(50); on = await rendered(); } while (off.hook && !on.benchmarkIds.length && Date.now() < deadline);
-  if (want('BENCH') || want('BENCH-T')) record('BENCH-T', off.hook && !off.checked && off.nodes > 0 &&
-    off.benchmarkIds.length === 0 && off.benchmarkEdges === 0 && on.checked && on.benchmarkIds.length > 0,
-    'L4 toggle default off / on: ' + JSON.stringify({ off, on }));
+  do { await sleep(50); on = await rendered(); } while (on.hook && on.checked && !on.benchmarkIds.length && Date.now() < deadline);
+  if (want('BENCH') || want('BENCH-T')) record('BENCH-T', on.hook && on.checked && on.nodes > 0 && on.benchmarkIds.length > 0,
+    'L4 toggle default on: ' + JSON.stringify({ on }));
   if (want('BENCH') || want('BENCH-I')) {
     const run = bundle.nodes.find(n => n.id.startsWith('bench:run:') && n.kind === 'trace' && typeof n.benchmark?.outcome === 'string');
     let selected = false, inspector = '', current = null;

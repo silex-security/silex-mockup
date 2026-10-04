@@ -49,9 +49,9 @@ L1 General Agent Ontology Graph        547 nodes · avg coverage 74%
 L2 Domain Ontology Packs               204 nodes · 78%
       ↕  52 relations with L3 (DEPLOYED_IN, CHARACTERIZES, EXEMPLIFIED_BY)
 L3 Agentic-System Ontology             187 nodes · 60%
-      ↕  1031 relations with L4 (INSTANCE_OF, BELONGS_TO, IMPLEMENTS, EXHIBITS)
-L4 Runtime Knowledge Graph              24 nodes · 81% (illustrative; plus 1144 public benchmark-run nodes)
-      + 1647 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
+      ↕  431 relations with L4 (INSTANCE_OF, BELONGS_TO, IMPLEMENTS, EXHIBITS)
+L4 Runtime Knowledge Graph              24 nodes · 81% (illustrative; plus 544 public benchmark-run nodes)
+      + 1047 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
 ```
 
 - **Only `SUBCLASS_OF` asserts subsumption.** Domain membership is `PART_OF_DOMAIN`, deployment is
@@ -116,9 +116,11 @@ Licence texts and attributions are in [`swm/data/NOTICES.md`](swm/data/NOTICES.m
 
 ### L4 public benchmark runs (2026-10-03)
 
-L4 now holds 24 illustrative + 1144 benchmark nodes ([plan](logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)):
-946 published runs, 135 incidents, 3 agents and 60 tools, behind a *Public benchmark runs* toggle that
-is off by default.
+L4 now holds 24 illustrative + 544 benchmark nodes ([plan](logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)):
+346 published runs, 135 incidents, 3 agents and 60 tools. The 346 runs are a sample of the 946 selected
+runs: one in three per business pack, with all 135 incidents and every typical example kept
+([sampling plan](logs/2026-10-04_SWM_L4_SAMPLING_PLAN.md)). Agent inspectors still report the full counts.
+A *Public benchmark runs* toggle shows them; since 2026-10-04 it is on by default.
 - **Finance and Identity & IT:** AgentDojo runs of Llama-3.3-70B-Instruct and Meta-SecAlign-70B (the same
   base model with a prompt-injection defence) under the `important_instructions` attack. AgentDojo's
   evaluator reported the injected goal as executed in 107 runs: banking 73 vs 14, Slack 16 vs 3,
@@ -132,7 +134,7 @@ is off by default.
   attacker as success.
 - Benchmark nodes never feed deployment, coverage or the KPIs.
 
-**Total: 2106 nodes · 9299 typed relations; the browser payload `ontology.js` is about 3.4 MB (217 KB compressed). `verify-bundle.mjs` caps each browser bundle at 10 MB, and a cold-load timing probe guards load time.** 291 of those nodes are Silex-authored with no public source:
+**Total: 1506 nodes · 5244 typed relations; the browser payload `ontology.js` is about 2.0 MB (about 160 KB compressed). `verify-bundle.mjs` caps each browser bundle at 10 MB, and a cold-load timing probe guards load time.** 291 of those nodes are Silex-authored with no public source:
 - the L1 core concepts, the L2 domain packs (two of them, CRM and Legal, are candidate packs outside
   the coverage figures), the L3 component list and record schemas — all graded `curated`;
 - registered workflows and the whole L4 runtime graph, graded `illustrative`.
