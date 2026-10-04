@@ -15,6 +15,7 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
 - **Enterprise World Model:** the sub-tabs are *Ontology Layers* (default), *Ontology Graph*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
   - The first three are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists; *Domain Suites* and *Coverage Gaps* are static, illustrative markup.
   - The Ontology Graph opens on the animated **Network** view (WebVOWL-style).
+  - Domain packs are grounded in public standards and benchmarks; L4 adds a labelled partition of public benchmark runs (AgentDojo, τ²-bench), shown by default through a *Public benchmark runs* toggle. The bundle carries a 1-in-3 business-stratified sample: 346 of 946 runs, with all 135 incidents and every typical example kept; agent inspectors report the full counts.
   - What was built and why: [`SECURITY_WORLD_MODEL.md`](SECURITY_WORLD_MODEL.md). Code and data pipeline: [`swm/`](swm/README.md).
 - **Runtime Observation (Jev runtime demo):** its own entry in the left nav's Environment group, between Enterprise World Model and System Validation. It shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.
   - The demo is vendored byte-for-byte in [`jev-runtime/`](jev-runtime/README.md) from jev-runtime-observability, and it is simulated end to end.
@@ -58,5 +59,6 @@ Every change to this demo, newest first, with the reasoning behind each one: [`l
 | [`2026-09-30_FLOATING_NAV_PLAN.md`](logs/2026-09-30_FLOATING_NAV_PLAN.md) | Floating left nav: hidden by default, click toggle to dock (ChatGPT-style), edge-hover peek; plan r1–r3, reviews, outcome |
 | [`2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md`](logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md) | Domain grounding of Finance, Customer Service and Identity & IT in public standards, benchmarks and cases; plan E1–E5, T0 gate, code gate, outcome (scope: [`swm/2026-10-03_SWM_DOMAIN_GROUNDING_PLAN.md`](swm/2026-10-03_SWM_DOMAIN_GROUNDING_PLAN.md)) |
 | [`2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md`](logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md) | L4 public benchmark runs (AgentDojo, τ²-bench): selection, trace-predicate mapping, T0 and code gates, outcome |
+| [`2026-10-04_SWM_L4_SAMPLING_PLAN.md`](logs/2026-10-04_SWM_L4_SAMPLING_PLAN.md) | L4 bundle: business-stratified 1-in-3 sample of the benchmark runs (all incidents and typical examples kept), toggle on by default; plan and outcome |
 
 Each document is dated and kept as written; `logs/` also holds the design frames, review records and probe evidence for the bigger changes.

@@ -2,6 +2,16 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — Enterprise World Model: L4 benchmark runs sampled 1 in 3, shown by default
+
+- **Why:** with 1144 benchmark nodes, the L4 view was too dense to read, and the runs were two thirds of `ontology.js`.
+- **What:** the bundle keeps **346 of the 946** selected runs: one in three per business pack (Finance 126, Identity & IT 68, Customer Service 152). Always kept: every run with an incident (all **135** incidents), every banking injection-task-4 run (CQ10), one resisted attempt per AgentDojo model × suite × injection task. The rest is stratified by source, model, suite and outcome and ordered by the SHA-256 of the run id (deterministic). Finance stays above one in three because its always-kept set (126) exceeds the quota.
+- **Counts stay honest:** agent nodes carry the full population per suite (e.g. Llama banking 73 of 144) and the inspector adds "N of M runs shown"; the bundle records the rule and per-pack counts in `benchmarkSample`.
+- **UI:** the *Public benchmark runs* toggle is **on by default**; unchecking it still hides every benchmark node and edge.
+- **Untouched:** the parsers and their counts, the 24 illustrative L4 nodes, the coverage bundle, CQ10's answer.
+- **Effect:** graph 2106 → 1506 nodes, 9299 → 5244 relations; L4 1168 → 568 nodes; `ontology.js` 3.4 MB → 2.0 MB. Cold load with the partition on: Layers 422 ms, Graph 439 ms.
+- **Checks:** verifier checks the sample record (5 new negative fixtures); all gates pass; site probe S20 fails identically on the previous `main`. Plan and outcome: [`2026-10-04_SWM_L4_SAMPLING_PLAN.md`](2026-10-04_SWM_L4_SAMPLING_PLAN.md).
+
 ## 2026-10-03 — Enterprise World Model: L4 public benchmark runs
 
 - **What:** L4 gains a labelled partition of **946 public benchmark runs** (≤ 1000, product owner's limit): AgentDojo banking (Finance) and Slack/workspace (Identity & IT) runs of Llama-3.3-70B-Instruct and Meta-SecAlign-70B, and all τ²-bench retail (Customer Service) runs of Claude 3.7 Sonnet. 135 incidents, 3 agents, 60 tools; L4 = 24 illustrative + 1144 benchmark nodes. Bundle 2106 nodes · 9299 links, `ontology.js` 3.4 MB (217 KB gzip).
