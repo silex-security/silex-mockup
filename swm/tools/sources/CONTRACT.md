@@ -101,8 +101,8 @@ an `"Aggressive": "False"` row…) that must throw. Exit code 1 on any failure.
   |---|---|---|---|---|
   | `planner` | `bench:agent:<source>:<model>` | `{ source, model, label }` | AgentDojo: blob URL of `runs/<model>/` at the pin; τ²: the result file URL | `INSTANCE_OF ag:planner` (curated, src silex) |
   | `tool-reg` | `bench:tool:<source>:<suite>/<name>` | `{ source, suite, tool }` | the tool's definition file at the pin (AgentDojo `default_suites/v1/tools/*.py`; τ² `src/tau2/domains/retail/tools.py`) | `INSTANCE_OF ag:tool-reg` (curated) |
-  | `trace` | `bench:run:agentdojo:<model>:<suite>:<user_task>:<injection_task>` or `bench:run:tau2:<model>:<task_id>:<trial>` | `{ source, model, suite, userTask, injectionTask \| taskId, trial, simulationId, attackType, benchmarkVersion, pipelineName, outcome, utility \| reward, calls: [{ name, ok, refusal? }] }` (ordered, duplicates kept) | the run file (archive member blob URL) / result file + `#simulation=<id>` | `INSTANCE_OF ag:trace` (curated) |
-  | `incident` | `bench:inc:<run id without "bench:run:">` | `{ source, status, predicate?, evidenceCall?, unmapped? }` | same as its run | `OCCURRED_IN` its run (curated) |
+  | `trace` | `bench:run:agentdojo:<model>:<suite>:<user_task>:<injection_task>` or `bench:run:tau2:<model>:<task_id>:<trial>` | `{ source, model, suite, userTask, injectionTask \| taskId, trial, simulationId, attackType, benchmarkVersion, pipelineName, outcome, utility \| reward, calls: [{ name, ok, refusal? }], refusals: [mapped refusal string] }` (calls ordered, duplicates kept; `refusals` = the distinct mapped refusal strings, exactly as in the selection, empty when none) | the run file (archive member blob URL) / result file + `#simulation=<id>` | `INSTANCE_OF ag:trace` (curated) |
+  | `incident` | `bench:inc:<run id without "bench:run:">` | `{ source, status, predicate?, evidenceCall?, refusals?, unmapped? }`: AgentDojo incidents carry `predicate` (the matched row's hazard and `from`) and `evidenceCall` when one matched; τ² incidents carry the same `refusals` as their run | same as its run | `OCCURRED_IN` its run (curated) |
 
   `label`: run = `<model label> · <suite> · <user task> · <injection task | task id/trial>`; incident =
   `Benchmark incident · <outcome or refusal>`. `def` (≤ 200): the first user message. Message bodies and
@@ -115,8 +115,14 @@ an `"Aggressive": "False"` row…) that must throw. Exit code 1 on any failure.
 - **Incidents.** AgentDojo: one per run with `security: true`, `status: 'reported-executed'`. τ²: one per
   run with a mapped refusal, `status: 'attempt-refused'`, one `EXHIBITS` per distinct mapped hazard. An
   incident with no `EXHIBITS` carries `unmapped` (the reason text from the selection).
+- **Pairing a call with its result.** Use `tool_call_id` ↔ call `id` when both are present and unique.
+  Otherwise (the selected AgentDojo traces have null ids) pair in order: the tool calls of one assistant
+  message with the tool messages that immediately follow it, one to one. A call with no paired result, or
+  an ambiguous pairing, is never evidence. `ok` = a paired result is present and its `error` is empty;
+  absence of an error message alone is not `ok`.
 - **Predicates** (AgentDojo). Evaluate `selection.predicates` against `calls` exactly as the seed comment
-  states; record the first matching call (index, name, args subset) as `evidenceCall`. The four
-  `negatives` must not match.
+  states (identity fields by exact normalized equality, content fields by containment); record the first
+  matching call (index, name, args subset) as `evidenceCall`. The four `negatives` must not match, and
+  every value in `identityNegatives` substituted into a matching call must not match.
 - **Tests** add: archive reader on the real archive (member count, a PAX-bearing member), the expected
   counts, every predicate on a positive and the listed negatives, τ² refusal → hazard, determinism.
