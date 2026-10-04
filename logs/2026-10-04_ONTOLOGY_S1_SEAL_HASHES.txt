@@ -31,3 +31,5 @@ c18b7789bef95e43fdadabdab3412b58d27100766cf9dfafad183b74164201b2  jev-runtime-ob
 8f0d24c950e60960049d6c7785a64efb6329ab453b06514e01ef015c197a6a9f  jev-runtime-observability/eval/ontology/v2/recheck_v2.py
 aa8d451a4007f2541f554563e38f9a41d6fa3da224f0d0b7f83dfc3cb1805d09  jev-runtime-observability/eval/ontology/recheck.py
 a64fa72c6b80bf9b0c2a1d3d7b452b6c7928000b9381c8ad56abf1d7565cdb75  silex-mockup/logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md
+4f4bbcf9d39b5e7bed57ea618cfcdd4c4a77e316b1a5c6755d25faa0f00e0ea9  jev-runtime-observability/runs/onto-s1-INPUT-MANIFEST.sha256
+e383d5095f01068fd2065da6fb51288f740b02af0e53f95cd1659af2518488ab  jev-runtime-observability/runs/onto-s1-input/counts.json
