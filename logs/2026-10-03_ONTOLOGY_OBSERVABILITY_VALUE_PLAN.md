@@ -470,3 +470,25 @@ e85c12e958e95f625979269b6a57c4707211858031b376c058c1d90f4130e90c  out/tool-map.j
 ```
 
 `binding.json` (primary binding) hash above is recorded before `binding-2.json` exists. F3-art passes on all sealed artefacts; synthetic tests pass.
+
+## Freeze gate (passed, round 3, 2026-10-04)
+
+| Seat | Round 1 | Round 2 | Round 3 (final) |
+|---|---|---|---|
+| coder-deepseek (blind; target-free evidence + hashes) | `FREEZE-REJECTED` (1: stale hashes) | `FREEZE-APPROVED` | `FREEZE-APPROVED` |
+| reviewer-codex (full evidence) | `FREEZE-REJECTED` (5) | `FREEZE-REJECTED` (2) | `FREEZE-APPROVED` |
+| planner (Claude Opus 5.5) | | | `PLANNER (claude): FREEZE-APPROVED` |
+
+Frozen files and hashes: [`2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_FREEZE_HASHES.txt`](2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_FREEZE_HASHES.txt) (95 files, both repos).
+Commits at freeze: `silex-mockup@a5bb515`, `jev-runtime-observability@0bb0cd9`.
+
+What the freeze rounds caught: B3 parsed the HTTP envelope instead of the assistant content; per-suite E3 sums used all folds;
+observed pairs were not removed centrally; terminal boolean flags were ignored; missing results became empty predictions (all
+fixed by fresh blind DeepSeek one-shots on isolated copies); `partial` rows accepted, absent rows undetected, no explicit verdict,
+unbounded redraws (fixed in stats.ts, mirrored independently in recheck.py); the union rule for harm disagreements (replaced by
+an independent blind adjudicator: banking 4 → record alteration; slack 5 → access grant ×2 + availability; workspace 1 →
+availability); a stale hash list.
+
+Freeze decisions: FD1 adjudicated harm, 8 zero-call folds excluded (20 E3 folds); FD2 E5 positive = attacked && security (240 of
+2 092); FD3 E1b data from the train split (A0-100 = published kev-train.jsonl, sha256 21b5902e…); FD4 judges on :8021 (ft) and
+:8022 (released), the user's own servers untouched; FD5 derived inputs pinned by hash; FD6 20 B3 requests to deepseek-v4-pro.
