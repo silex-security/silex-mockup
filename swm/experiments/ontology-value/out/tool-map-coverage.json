@@ -1,0 +1,60 @@
+{
+ "version": 1,
+ "by_source": {
+  "agentdojo": {
+   "mapped_by_rule": 0,
+   "fallback": 0,
+   "unmapped": 0,
+   "binding": 74,
+   "binding_l2_non_null": 9,
+   "binding_l2_null": 65,
+   "l2_hits": 9
+  },
+  "asb": {
+   "mapped_by_rule": 36,
+   "fallback": 384,
+   "unmapped": 0,
+   "binding": 0,
+   "binding_l2_non_null": 0,
+   "binding_l2_null": 0,
+   "l2_hits": 2
+  },
+  "injecagent": {
+   "mapped_by_rule": 38,
+   "fallback": 9,
+   "unmapped": 0,
+   "binding": 0,
+   "binding_l2_non_null": 0,
+   "binding_l2_null": 0,
+   "l2_hits": 1
+  },
+  "taubench": {
+   "mapped_by_rule": 12,
+   "fallback": 2,
+   "unmapped": 0,
+   "binding": 0,
+   "binding_l2_non_null": 0,
+   "binding_l2_null": 0,
+   "l2_hits": 0
+  },
+  "toolemu": {
+   "mapped_by_rule": 0,
+   "fallback": 36,
+   "unmapped": 0,
+   "binding": 0,
+   "binding_l2_non_null": 0,
+   "binding_l2_null": 0,
+   "l2_hits": 0
+  }
+ },
+ "totals": {
+  "mapped_by_rule": 86,
+  "fallback": 431,
+  "unmapped": 0,
+  "binding": 74,
+  "binding_l2_non_null": 9,
+  "binding_l2_null": 65,
+  "l2_hits": 12,
+  "tools": 591
+ }
+}

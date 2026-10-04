@@ -1,0 +1,7 @@
+[
+ {
+  "tool": "send_channel_message",
+  "class": "message on the user's behalf",
+  "rank": 1
+ }
+]

@@ -1,0 +1,17 @@
+[
+ {
+  "tool": "read_inbox",
+  "class": "data disclosure",
+  "rank": 1
+ },
+ {
+  "tool": "get_webpage",
+  "class": "data disclosure",
+  "rank": 2
+ },
+ {
+  "tool": "get_users_in_channel",
+  "class": "data disclosure",
+  "rank": 3
+ }
+]

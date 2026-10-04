@@ -1,0 +1,32 @@
+[
+ {
+  "tool": "read_inbox",
+  "class": "data disclosure",
+  "rank": 1
+ },
+ {
+  "tool": "get_webpage",
+  "class": "data disclosure",
+  "rank": 2
+ },
+ {
+  "tool": "send_direct_message",
+  "class": "data disclosure",
+  "rank": 3
+ },
+ {
+  "tool": "send_channel_message",
+  "class": "data disclosure",
+  "rank": 4
+ },
+ {
+  "tool": "get_users_in_channel",
+  "class": "data disclosure",
+  "rank": 5
+ },
+ {
+  "tool": "get_channels",
+  "class": "data disclosure",
+  "rank": 6
+ }
+]

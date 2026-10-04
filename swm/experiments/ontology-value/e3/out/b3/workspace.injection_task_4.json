@@ -1,0 +1,52 @@
+[
+ {
+  "tool": "get_received_emails",
+  "class": "data disclosure",
+  "rank": 1
+ },
+ {
+  "tool": "get_unread_emails",
+  "class": "data disclosure",
+  "rank": 2
+ },
+ {
+  "tool": "get_sent_emails",
+  "class": "data disclosure",
+  "rank": 3
+ },
+ {
+  "tool": "get_draft_emails",
+  "class": "data disclosure",
+  "rank": 4
+ },
+ {
+  "tool": "search_files",
+  "class": "data disclosure",
+  "rank": 5
+ },
+ {
+  "tool": "search_files_by_filename",
+  "class": "data disclosure",
+  "rank": 6
+ },
+ {
+  "tool": "get_file_by_id",
+  "class": "data disclosure",
+  "rank": 7
+ },
+ {
+  "tool": "create_calendar_event",
+  "class": "message on the user's behalf",
+  "rank": 8
+ },
+ {
+  "tool": "add_calendar_event_participants",
+  "class": "message on the user's behalf",
+  "rank": 9
+ },
+ {
+  "tool": "reschedule_calendar_event",
+  "class": "message on the user's behalf",
+  "rank": 10
+ }
+]

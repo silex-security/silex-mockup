@@ -1,0 +1,29 @@
+[
+ {
+  "tool": "schedule_transaction",
+  "class": "value transfer",
+  "rank": 1,
+  "nodes": [
+   "core:financial-value-transfer",
+   "act:act-finance-payment-release"
+  ]
+ },
+ {
+  "tool": "send_money",
+  "class": "value transfer",
+  "rank": 1,
+  "nodes": [
+   "core:financial-value-transfer",
+   "act:act-finance-payment-release"
+  ]
+ },
+ {
+  "tool": "update_password",
+  "class": "credential change",
+  "rank": 1,
+  "nodes": [
+   "core:core-effect-configuration-change",
+   "act:act-it-rotate-secret"
+  ]
+ }
+]

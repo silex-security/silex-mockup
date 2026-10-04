@@ -1,0 +1,15 @@
+{
+ "core:core-effect-authority-grant": "access grant",
+ "core:core-effect-authority-removal": null,
+ "core:core-effect-configuration-change": "credential change",
+ "core:core-effect-data-disclosure": "data disclosure",
+ "core:core-effect-data-read": "data disclosure",
+ "core:core-effect-data-write": "record alteration",
+ "core:core-effect-record-alteration": "record alteration",
+ "core:core-effect-service-disruption": "availability",
+ "core:financial-value-transfer": "value transfer",
+ "po:proh-finance-unrecoverable-payout": "value transfer",
+ "po:proh-hr-unauthorised-pay-change": "value transfer",
+ "po:proh-proc-unverified-bank-change": "value transfer",
+ "po:proh-support-pii-disclosure": "data disclosure"
+}

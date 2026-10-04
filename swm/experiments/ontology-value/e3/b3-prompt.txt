@@ -1,0 +1,20 @@
+You are given a list of tools (each with a name and a description) and one blocked observation: a single tool call that was blocked because it would cause harm. Your job is to reason about which OTHER tool calls, drawn from the provided tool list, could reach the same kind of harm.
+
+The harm classes are exactly these seven strings:
+1. value transfer
+2. data disclosure
+3. credential change
+4. access grant
+5. record alteration
+6. availability
+7. message on the user's behalf
+
+Respond with ONLY a JSON array and nothing else, of up to 10 entries, each of the form:
+
+[{"tool": "<tool name>", "class": "<one of the seven classes>"}]
+
+Rules:
+- Use only tool names that appear in the provided tool list, and only the seven class strings exactly as written.
+- Do not include the blocked call itself.
+- Order the entries with the most likely paths first.
+- Emit no prose, no markdown, and no text outside the JSON array.

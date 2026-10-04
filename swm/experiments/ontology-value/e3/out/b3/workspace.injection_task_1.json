@@ -1,0 +1,12 @@
+[
+ {
+  "tool": "delete_email",
+  "class": "availability",
+  "rank": 1
+ },
+ {
+  "tool": "cancel_calendar_event",
+  "class": "availability",
+  "rank": 2
+ }
+]

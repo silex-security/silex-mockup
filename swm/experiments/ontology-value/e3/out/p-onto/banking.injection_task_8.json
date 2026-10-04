@@ -1,0 +1,20 @@
+[
+ {
+  "tool": "schedule_transaction",
+  "class": "value transfer",
+  "rank": 1,
+  "nodes": [
+   "core:financial-value-transfer",
+   "act:act-finance-payment-release"
+  ]
+ },
+ {
+  "tool": "update_scheduled_transaction",
+  "class": "value transfer",
+  "rank": 1,
+  "nodes": [
+   "core:financial-value-transfer",
+   "act:act-finance-payment-release"
+  ]
+ }
+]

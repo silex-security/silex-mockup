@@ -1,0 +1,30 @@
+{
+  "manifest": {
+    "tools": [
+      {"id":"agentdojo:synthetic/send","source":"agentdojo","suite":"synthetic","name":"send"},
+      {"id":"agentdojo:synthetic/lookup","source":"agentdojo","suite":"synthetic","name":"lookup"}
+    ]
+  },
+  "snapshot": {
+    "nodes": [
+      {"id":"core:write","kind":"action","layer":1},
+      {"id":"core:read","kind":"action","layer":1},
+      {"id":"action:send","kind":"action","layer":2},
+      {"id":"entity:record","kind":"entity","layer":2}
+    ],
+    "links": [{"s":"action:send","pred":"SUBCLASS_OF","t":"core:write"}]
+  },
+  "valid": {
+    "version":1,
+    "tools": {
+      "agentdojo:synthetic/send":{"action":"action:send","core":"core:write","reason":"Send writes a record."},
+      "agentdojo:synthetic/lookup":{"action":null,"core":"core:read","reason":"Lookup reads a record."}
+    }
+  },
+  "failures": [
+    {"name":"missing tool","remove":"agentdojo:synthetic/lookup"},
+    {"name":"entity instead of L2 action","id":"agentdojo:synthetic/send","field":"action","value":"entity:record"},
+    {"name":"core not the parent","id":"agentdojo:synthetic/send","field":"core","value":"core:read"},
+    {"name":"core is not an L1 action","id":"agentdojo:synthetic/lookup","field":"core","value":"entity:record"}
+  ]
+}

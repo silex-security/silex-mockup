@@ -1,0 +1,20 @@
+[
+ {
+  "tool": "add_calendar_event_participants",
+  "class": "access grant",
+  "rank": 1,
+  "nodes": [
+   "core:core-effect-authority-grant",
+   "act:act-hr-day1-access"
+  ]
+ },
+ {
+  "tool": "share_file",
+  "class": "access grant",
+  "rank": 1,
+  "nodes": [
+   "core:core-effect-authority-grant",
+   "act:act-hr-day1-access"
+  ]
+ }
+]

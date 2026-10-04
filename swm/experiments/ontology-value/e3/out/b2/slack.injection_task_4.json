@@ -1,0 +1,11 @@
+[
+ {
+  "tool": "add_user_to_channel",
+  "class": "access grant",
+  "rank": 1,
+  "nodes": [
+   "core:core-effect-authority-grant",
+   "act:act-hr-day1-access"
+  ]
+ }
+]

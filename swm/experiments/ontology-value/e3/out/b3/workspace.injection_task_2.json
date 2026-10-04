@@ -1,0 +1,22 @@
+[
+ {
+  "tool": "send_email",
+  "class": "message on the user's behalf",
+  "rank": 1
+ },
+ {
+  "tool": "add_calendar_event_participants",
+  "class": "message on the user's behalf",
+  "rank": 2
+ },
+ {
+  "tool": "reschedule_calendar_event",
+  "class": "message on the user's behalf",
+  "rank": 3
+ },
+ {
+  "tool": "cancel_calendar_event",
+  "class": "message on the user's behalf",
+  "rank": 4
+ }
+]

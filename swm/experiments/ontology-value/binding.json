@@ -1,0 +1,375 @@
+{
+ "version": 1,
+ "tools": {
+  "agentdojo:banking/get_balance": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the balance of the account - a read with no matching L2 action."
+  },
+  "agentdojo:banking/get_iban": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the IBAN of the current bank account - a read with no matching L2 action."
+  },
+  "agentdojo:banking/get_most_recent_transactions": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the list of the most recent transactions - a read; no L2 action matches listing transactions."
+  },
+  "agentdojo:banking/get_scheduled_transactions": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the list of scheduled transactions - a read; no L2 action matches listing transactions."
+  },
+  "agentdojo:banking/get_user_info": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the user information - a read; no L2 action matches querying a user profile."
+  },
+  "agentdojo:banking/read_file": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads the contents of the file at the given path - a read; no L2 action matches file reading."
+  },
+  "agentdojo:banking/schedule_transaction": {
+   "action": "act:act-finance-payment-release",
+   "core": "core:core-action-transfer-value",
+   "reason": "Schedules a transaction (a payment) - matches \"Payment Release\" (Finance action that moves value)."
+  },
+  "agentdojo:banking/send_money": {
+   "action": "act:act-finance-payment-release",
+   "core": "core:core-action-transfer-value",
+   "reason": "Sends a transaction to the recipient - matches \"Payment Release\" (Finance action that moves value)."
+  },
+  "agentdojo:banking/update_password": {
+   "action": "act:act-it-rotate-secret",
+   "core": "core:core-action-write",
+   "reason": "Updates the user password - matches \"Secret Rotation\" (Identity & IT action rotating a credential)."
+  },
+  "agentdojo:banking/update_scheduled_transaction": {
+   "action": "act:act-finance-payment-release",
+   "core": "core:core-action-transfer-value",
+   "reason": "Updates a scheduled transaction (a payment) - matches \"Payment Release\" (Finance action that moves value)."
+  },
+  "agentdojo:banking/update_user_info": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Updates user profile fields - a write; no L2 action matches editing a user profile."
+  },
+  "agentdojo:slack/add_user_to_channel": {
+   "action": "act:act-hr-day1-access",
+   "core": "core:core-action-delegate",
+   "reason": "Adds a user to a given channel, granting access - matches \"Day-one Access Grant\" (action granting access)."
+  },
+  "agentdojo:slack/get_channels": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the list of channels - a read; no L2 action matches listing channels."
+  },
+  "agentdojo:slack/get_users_in_channel": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Get the list of users in a channel - a read; no L2 action matches listing users."
+  },
+  "agentdojo:slack/get_webpage": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns the content of a webpage at a URL - a read; no L2 action matches fetching a webpage."
+  },
+  "agentdojo:slack/invite_user_to_slack": {
+   "action": "act:act-hr-day1-access",
+   "core": "core:core-action-delegate",
+   "reason": "Invites a user to the workspace, granting access - matches \"Day-one Access Grant\" (action granting access)."
+  },
+  "agentdojo:slack/post_webpage": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Posts a webpage at a URL with content - a write; no L2 action matches publishing a webpage."
+  },
+  "agentdojo:slack/read_channel_messages": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads the messages from a channel - a read; no L2 action matches reading messages."
+  },
+  "agentdojo:slack/read_inbox": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Reads the messages from a user inbox - a read; no L2 action matches reading messages."
+  },
+  "agentdojo:slack/remove_user_from_slack": {
+   "action": "act:act-it-offboard",
+   "core": "core:core-action-revoke",
+   "reason": "Removes a user from the workspace, revoking access - matches \"Offboarding\" (Identity & IT revocation action)."
+  },
+  "agentdojo:slack/send_channel_message": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends a channel message - a write; no L2 action matches sending a message."
+  },
+  "agentdojo:slack/send_direct_message": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends a direct message - a write; no L2 action matches sending a message."
+  },
+  "agentdojo:travel/cancel_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Cancels a calendar event - a write; no L2 action matches calendar management."
+  },
+  "agentdojo:travel/check_restaurant_opening_hours": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant opening hours - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/create_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Creates a calendar event - a write; no L2 action matches calendar management."
+  },
+  "agentdojo:travel/get_all_car_rental_companies_in_city": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car rental companies in a city - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_all_hotels_in_city": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets hotels in a city - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_all_restaurants_in_city": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurants in a city - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_car_fuel_options": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car fuel options - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_car_price_per_day": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car price per day - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_car_rental_address": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car rental address - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_car_types_available": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car types available - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_contact_information_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant contact information - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_cuisine_type_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant cuisine types - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_day_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns appointments for a day - a read; no L2 action matches calendar reading."
+  },
+  "agentdojo:travel/get_dietary_restrictions_for_all_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant dietary restrictions - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_flight_information": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets flight information - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_hotels_address": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets hotel address - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_hotels_prices": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets hotel prices - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_price_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant prices - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_rating_reviews_for_car_rental": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets car rental ratings and reviews - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_rating_reviews_for_hotels": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets hotel ratings and reviews - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_rating_reviews_for_restaurants": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant ratings and reviews - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_restaurants_address": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets restaurant addresses - a read; no L2 action matches it."
+  },
+  "agentdojo:travel/get_user_information": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets user information - a read; no L2 action matches querying a user profile."
+  },
+  "agentdojo:travel/reserve_car_rental": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Makes a car rental reservation - a write; no L2 action matches booking."
+  },
+  "agentdojo:travel/reserve_hotel": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Makes a hotel reservation - a write; no L2 action matches booking."
+  },
+  "agentdojo:travel/reserve_restaurant": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Makes a restaurant reservation - a write; no L2 action matches booking."
+  },
+  "agentdojo:travel/search_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches calendar events - a read; no L2 action matches calendar reading."
+  },
+  "agentdojo:travel/send_email": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends an email - a write; no L2 action matches sending a message."
+  },
+  "agentdojo:workspace/add_calendar_event_participants": {
+   "action": "act:act-hr-day1-access",
+   "core": "core:core-action-delegate",
+   "reason": "Adds participants to a calendar event, granting access - matches \"Day-one Access Grant\" (action granting access)."
+  },
+  "agentdojo:workspace/append_to_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Appends content to a file - a write; no L2 action matches file editing."
+  },
+  "agentdojo:workspace/cancel_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Cancels a calendar event - a write; no L2 action matches calendar management."
+  },
+  "agentdojo:workspace/create_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Creates a calendar event - a write; no L2 action matches calendar management."
+  },
+  "agentdojo:workspace/create_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Creates a file in the cloud drive - a write; no L2 action matches file creation."
+  },
+  "agentdojo:workspace/delete_email": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Deletes an email - a write; no L2 action matches deleting a message."
+  },
+  "agentdojo:workspace/delete_file": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Deletes a file - a write; no L2 action matches file deletion."
+  },
+  "agentdojo:workspace/get_current_day": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns the current day - a read; no L2 action matches it."
+  },
+  "agentdojo:workspace/get_day_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns appointments for a day - a read; no L2 action matches calendar reading."
+  },
+  "agentdojo:workspace/get_draft_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns draft emails - a read; no L2 action matches reading messages."
+  },
+  "agentdojo:workspace/get_file_by_id": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets a file by its ID - a read; no L2 action matches file reading."
+  },
+  "agentdojo:workspace/get_received_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns received emails - a read; no L2 action matches reading messages."
+  },
+  "agentdojo:workspace/get_sent_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns sent emails - a read; no L2 action matches reading messages."
+  },
+  "agentdojo:workspace/get_unread_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Returns unread emails - a read; no L2 action matches reading messages."
+  },
+  "agentdojo:workspace/list_files": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Lists files in the cloud drive - a read; no L2 action matches listing files."
+  },
+  "agentdojo:workspace/reschedule_calendar_event": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Reschedules a calendar event - a write; no L2 action matches calendar management."
+  },
+  "agentdojo:workspace/search_calendar_events": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches calendar events - a read; no L2 action matches calendar reading."
+  },
+  "agentdojo:workspace/search_contacts_by_email": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Finds contacts by email - a read; no L2 action matches contact lookup."
+  },
+  "agentdojo:workspace/search_contacts_by_name": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Finds contacts by name - a read; no L2 action matches contact lookup."
+  },
+  "agentdojo:workspace/search_emails": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches emails - a read; no L2 action matches message search."
+  },
+  "agentdojo:workspace/search_files": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Searches files by content - a read; no L2 action matches file search."
+  },
+  "agentdojo:workspace/search_files_by_filename": {
+   "action": null,
+   "core": "core:core-action-read",
+   "reason": "Gets files by filename - a read; no L2 action matches file lookup."
+  },
+  "agentdojo:workspace/send_email": {
+   "action": null,
+   "core": "core:core-action-write",
+   "reason": "Sends an email - a write; no L2 action matches sending a message."
+  },
+  "agentdojo:workspace/share_file": {
+   "action": "act:act-hr-day1-access",
+   "core": "core:core-action-delegate",
+   "reason": "Shares a file with a user, granting permission - matches \"Day-one Access Grant\" (action granting access)."
+  }
+ }
+}
