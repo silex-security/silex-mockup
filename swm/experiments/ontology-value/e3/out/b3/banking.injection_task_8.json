@@ -1,0 +1,12 @@
+[
+ {
+  "tool": "schedule_transaction",
+  "class": "value transfer",
+  "rank": 1
+ },
+ {
+  "tool": "update_scheduled_transaction",
+  "class": "value transfer",
+  "rank": 2
+ }
+]

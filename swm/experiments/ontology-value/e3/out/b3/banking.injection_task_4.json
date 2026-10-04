@@ -1,0 +1,12 @@
+[
+ {
+  "tool": "send_money",
+  "class": "value transfer",
+  "rank": 1
+ },
+ {
+  "tool": "schedule_transaction",
+  "class": "value transfer",
+  "rank": 2
+ }
+]
