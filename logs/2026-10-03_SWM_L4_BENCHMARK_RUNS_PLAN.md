@@ -1,7 +1,7 @@
 # SWM L4: public benchmark runs — plan (R3, round 3 review)
 
 Base: `main` at `29b9052` (domain grounding shipped). Branch `swm-l4-benchmark-runs`, cut when the plan gate
-passes. Status: **R3 approved unanimously (round 3, 2026-10-03)**; nothing implemented.
+passes. Status: **R3 approved unanimously (round 3, 2026-10-03)**; implemented on branch `swm-l4-benchmark-runs` (see the implementation record).
 
 Roster: **planner** Claude (Opus 5.5) · **coder-deepseek** OpenCode `deepseek/deepseek-v4-pro` ·
 **reviewer-codex** Codex. Plan gate and code gate are unanimous.
@@ -230,6 +230,54 @@ paired-result rules, keeping the three "Bill payment" negatives and the single $
 regression fixtures; confirm the private values come from the fixed banking environment. Follow-up outside
 this plan: the shipped `haz-finance-unverified-instruction` cites banking task 4 as `derived`; with the new
 redirect hazard owning that task, re-grading it to `related` is a separate change.
+
+## Implementation record
+
+Branch `swm-l4-benchmark-runs` from `75bba66`; review base `BASE=75bba66`. Checkpoints: `d6b60d9` (P0), `4b9910e`
+(T0 round 1), `5867fa3` (P1–P2).
+
+### T0 gate (passed, round 2)
+
+| Seat | Round 1 | Round 2 |
+|---|---|---|
+| coder-deepseek | `T0-APPROVED` | `T0-APPROVED` |
+| reviewer-codex | `T0-REJECTED` (2: identities by substring; refusal records) | `T0-APPROVED` |
+| planner | — | `PLANNER (claude): T0-APPROVED` |
+
+Found at T0: AgentDojo banking tasks 0, 1 and 3 evaluate `service or "" in t.subject.lower()`, which is true
+for any transfer to the attacker (v1_2 file lines 61, 107, 208). This is why the plan's predicates re-test the
+private value.
+
+### Measured results
+
+- Bundle **2106 nodes · 9299 links**; L4 = 24 illustrative + 1144 benchmark (946 runs, 135 incidents,
+  3 agents, 60 tools). `ontology.js` 3.4 MB raw, 217 KB gzip (2.6 MB added; under the 3 MB split threshold).
+- `EXHIBITS` 119: AgentDojo 90 (memo exfiltration 45, scheduled redirect 9, split transfer 6, credential
+  change 10, access to an unintended party 19, security-code forwarding 1); τ² 29 (refund redirect 12, wrong
+  state 17). 17 incidents unmapped with a reason (banking task 5: 9; no matching call: 8, incl. the four
+  SecAlign negatives).
+- CQ10: Llama 8 of 16 task-4 runs reported executed, 8 mapped; SecAlign 1 reported, 1 mapped.
+- Acceptance (all exit 0): `test-sources`, `validate-seed`, build, `verify-bundle --base` (BASE coverage),
+  `competency` CQ1–CQ10, negative fixtures (72 graph + 28 CQ), `check-copy` (94 numbers), `probe-swm`
+  (Layers 578 ms, Graph 439 ms with the toggle off; benchmark-on recorded; 6 s delay fixture fails as
+  required), `preview-panels`. Two offline builds and `swm/data` identical after removing generation fields.
+- Must-not-change vs BASE: no node or relation lost (after the rename in departure 2), no grade or node-field
+  change, `DEPLOYED_IN` and every `deployment` flag identical. Site probes 41/42 (S20, as at BASE).
+
+### Departures (for the code gate)
+
+1. **Tool node ids** use `:` instead of `/` (`bench:tool:agentdojo:banking:send_money`): the page router
+   accepts node ids matching `^[\w:.\-]+$`, so `/` could never be deep-linked. Planner edit in the two
+   DeepSeek parsers after they reported done; CONTRACT updated.
+2. **Shipped NIST ids renamed** `nist:AC-2(3)`, `nist:AC-6(7)`, `nist:IA-5(7)` → `nist:AC-2.3`, `nist:AC-6.7`,
+   `nist:IA-5.7` for the same router reason (found by the same check). Label and `src.id` keep `AC-2(3)`;
+   their relations are unchanged. These ids shipped on 2026-10-03 and nothing links to them by id.
+3. The generic component threat chain is hidden in the inspector for benchmark nodes; it described the L3
+   component, not the run.
+4. My wait loop approved one Codex probe run by matching the command prefix of the already-audited
+   `probe-swm.mjs` (output in scratch). Every other probe run was approved after reading the request.
+5. The Layers panel shows L4 as "24 illustrative + 1144 benchmark" everywhere the L4 total appears
+   (`swm-layers.js`), as planned; `index.html`/`assurance.html` gain one copy line under the L4 row.
 
 ## Appendix: measurement commands
 
