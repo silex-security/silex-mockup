@@ -126,3 +126,18 @@ page gate → merge, deploy, live read-back.
   on this finite pool (θ_K and pooled ≥ −0.03), no inferential recall language; the sign-flip analysis moves to secondary with its
   assumptions stated; θ is over the K eligible models, K and dropped models named.
 - **R3** — coder-deepseek PLAN-APPROVED; reviewer-codex PLAN-APPROVED; planner PLAN-APPROVED. **Plan gate passed** (roster: planner Claude, coder-deepseek, reviewer-codex).
+
+## Outcome (appended after the run; the seal verified before and after it)
+
+`run-s1.sh` (jev `ontology-stage1`): seal and inputs verified, `stats-s1.json` ≡ `recheck-s1.json` on every key, seal verified again.
+**H15 supported** (p_H15 = 0.020). 12 195 runs, 2 469 positives, K = 6, no base model dropped, 0 redraws.
+
+| | B-prov | M-S1 |
+|---|---|---|
+| Alerted runs | 5 015 | 4 000 |
+| Precision | 0.412 | 0.535 |
+| Recall | 0.836 | 0.866 |
+
+(a) p = 0.0001, precision change +6.3 to +18.4 points (95 % CI); (b) θ = +1.2 points, pooled +3.0 points → holds; (c) p = 0.020 (random
+typing mean precision 0.375). Secondary: task-crossed recall NI p = 0.077 (3 points) / 0.030 (5 points); sign-flip p = 0.031
+(assumption-conditioned). Report: [`2026-10-04_ONTOLOGY_S1_REPORT.md`](2026-10-04_ONTOLOGY_S1_REPORT.md).
