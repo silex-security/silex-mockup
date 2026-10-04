@@ -186,3 +186,9 @@ the judge gave precision 0.629 at recall 0.796 (baseline 0.511 / 0.805), the sam
 | planner | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): FREEZE-APPROVED` | `PLANNER (claude): IMPL-APPROVED` |
 
 Code gate revision `7e2ac12be76a21775c28925d1dcaa069679fd3e4`. Probes: E-PR card 8/8, ontology card 11/11, site 42/42.
+
+### Deploy record
+
+`main` fast-forwarded and pushed in both repos (silex-mockup `6a544b3`, jev `164f413`); the approved revision `7e2ac12b…` was re-checked
+unchanged before the push. Live read-back on https://silex-mockup.vercel.app: `data/onto-pr.json` sha256 equals the reviewed SOURCE;
+`tests/site/ontology-pr-card.test.mjs --base` **8/8 PASS**; `tests/site/ontology-card.test.mjs --base` **11/11 PASS**.
