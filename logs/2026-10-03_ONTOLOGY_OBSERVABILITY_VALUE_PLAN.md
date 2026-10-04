@@ -492,3 +492,36 @@ availability); a stale hash list.
 Freeze decisions: FD1 adjudicated harm, 8 zero-call folds excluded (20 E3 folds); FD2 E5 positive = attacked && security (240 of
 2 092); FD3 E1b data from the train split (A0-100 = published kev-train.jsonl, sha256 21b5902e…); FD4 judges on :8021 (ft) and
 :8022 (released), the user's own servers untouched; FD5 derived inputs pinned by hash; FD6 20 B3 requests to deepseek-v4-pro.
+
+## Outcome
+
+**Result: neither confirmatory hypothesis is supported** (H1 p = 0.798, H7 p = 1.000; Holm over {H1, H7}); H3 (secondary) not
+supported; E3 (descriptive) could not test ontology path expansion where the ontology had content. Report:
+[`2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_REPORT.md`](2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_REPORT.md) (also in jev `logs/`).
+
+Code + report gate passed in round 3 on revision `6d9569b98c688e4247e9e23b781c0467bec7ac1f` (git hash-object of the concatenated binary diffs
+`silex-mockup 2512ddd..HEAD` and `jev-runtime-observability 64aae74..HEAD` over the implementation paths), HEADs
+`silex-mockup@0a2c6ea`, `jev-runtime-observability@e45b2bb`.
+
+| Seat | Plan (R3) | Amend. R4 | Freeze (final, r3) | Code r1 | Code r2 | Code r3 (final) |
+|---|---|---|---|---|---|---|
+| coder-deepseek (`deepseek/deepseek-v4-pro`, blind until the code gate) | `PLAN-APPROVED` | `PLAN-APPROVED` | `FREEZE-APPROVED` | `IMPL-REJECTED` (1) | `IMPL-APPROVED` | `IMPL-APPROVED` |
+| reviewer-codex (Codex) | `PLAN-APPROVED` | `PLAN-APPROVED` | `FREEZE-APPROVED` | `IMPL-REJECTED` (1) | `IMPL-REJECTED` (1) | `IMPL-APPROVED` |
+| planner (Claude Opus 5.5) | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): FREEZE-APPROVED` | — | — | `PLANNER (claude): IMPL-APPROVED` |
+
+Rounds: plan 3 + amendment 1; freeze 3; code 3. What each seat caught:
+- **Codex:** the provenance firewall (pre-import graph instead of a filtered current graph), author isolation and the code seal,
+  composite hypotheses with controls, p-value registration, crossed dependence in E5, E3 scoring rules, the E5 cohort (injection
+  tasks run as user tasks), arm construction; in the build: 194 clean runs with `security: true`, B3 envelope parsing, per-suite
+  sums, observed-pair removal, terminal flags, missing results, partial/absent rows and an explicit verdict, the union rule; at the
+  code gate: the missing per-suite E3 table and an over-explaining changelog line. Built F3 checks, the E5 converter, `recheck.py`,
+  harm annotation #1.
+- **DeepSeek (blind):** the empty-treatment finding that led to amendment R4 (core actions carry no effects; the keyword matcher
+  reached no L2 action); a stale freeze hash list; the E3 per-suite omission (independently re-derived every primary number).
+  Built the tool map, context exporter, binding, E3 predictors and scorer.
+- **Planner:** the observability framing and E5, the snapshot and manifest, arms, monitors, statistics, run scripts,
+  the report; the shortcut and ceiling in Kev's test split; the user's own judge servers left untouched.
+
+Unattended execution: no human input after the plan request. Judge calls 2 × 4 × (708 + 7 649); 6 LoRA fine-tunes (≈ 1 h each at
+100 %); 20 DeepSeek API calls for B3. Pushed: branch `ontology-observability-value` only (D5); `main`, the site and
+`learning-evidence.json` unchanged.

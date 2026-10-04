@@ -2,6 +2,14 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — Does the ontology help runtime observability? Pre-registered experiments: null result
+
+- **What:** three pre-registered experiments on public benchmarks, each with non-ontology and mismatched-ontology controls: **E1** ontology context in the runtime judge's input (Kev, AgentDojo test split), **E5** ontology context or ontology-typed alert gating for detecting evaluator-reported attack success in 2 092 published AgentDojo runs of Llama-3.3-70B and Meta-SecAlign-70B, **E3** predicting other same-harm attack paths from one blocked attack (descriptive).
+- **Result:** neither confirmatory hypothesis is supported (H1 p = 0.80, H7 p = 1.0, Holm over {H1, H7}). Ontology context did not beat plain tool descriptions or the context of a *different* tool; ontology gating (stratified AUROC 0.575) lost to a plain write-impact gate (0.802). E3 did not test ontology path expansion where the ontology had content: banking and Slack had no targets, and all 5 targets were in workspace, where the ontology predictor emitted no predictions; its pooled zero recall is evidence neither for nor against. The E1b retraining check (H3) is also not supported. Full numbers: [`2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_REPORT.md`](2026-10-04_ONTOLOGY_OBSERVABILITY_VALUE_REPORT.md).
+- **What it tested:** the pre-import ontology (`350362a`, no AgentDojo-derived content) with curated blind onboarding bindings (9 of 74 tools reach an L2 action). An observed limitation, not an established cause of the null (no experiment isolated it): in this ontology only L2 actions carry effects and hazards, and few agent tools bind to one, so most tools carry only a class label.
+- **Untouched:** `swm/data/`, the build, the schema, the site, `learning-evidence.json`. New code only under `swm/experiments/ontology-value/`.
+- **Reviews:** plan 3 rounds + amendment R4; code seal; freeze gate 3 rounds; code + report gate 3 rounds; all unanimous across planner (Claude), DeepSeek V4 Pro (blind) and Codex. Plan, freeze record and outcome: [`2026-10-03_ONTOLOGY_OBSERVABILITY_VALUE_PLAN.md`](2026-10-03_ONTOLOGY_OBSERVABILITY_VALUE_PLAN.md).
+
 ## 2026-10-03 — Enterprise World Model: L4 public benchmark runs
 
 - **What:** L4 gains a labelled partition of **946 public benchmark runs** (≤ 1000, product owner's limit): AgentDojo banking (Finance) and Slack/workspace (Identity & IT) runs of Llama-3.3-70B-Instruct and Meta-SecAlign-70B, and all τ²-bench retail (Customer Service) runs of Claude 3.7 Sonnet. 135 incidents, 3 agents, 60 tools; L4 = 24 illustrative + 1144 benchmark nodes. Bundle 2106 nodes · 9299 links, `ontology.js` 3.4 MB (217 KB gzip).
