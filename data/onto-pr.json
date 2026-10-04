@@ -1,0 +1,73 @@
+{
+ "version": 1,
+ "source": "jev-runtime-observability runs/onto-pr-stats/stats-pr.json (equal on every key to recheck-pr.json)",
+ "models": [
+  "claude-3-5-sonnet-20240620",
+  "claude-3-opus-20240229",
+  "gpt-4-turbo-2024-04-09",
+  "gpt-4-0125-preview",
+  "gemini-1.5-flash-002",
+  "gemini-1.5-pro-001"
+ ],
+ "counts": {
+  "runs": 4356,
+  "positives": 1020,
+  "items": 12209,
+  "item_failure_share": 0
+ },
+ "observed": {
+  "prov": {
+   "F": 1608,
+   "TP": 821,
+   "precision": 0.5105721393034826,
+   "recall": 0.8049019607843138
+  },
+  "m2s": {
+   "F": 734,
+   "TP": 557,
+   "precision": 0.7588555858310627,
+   "recall": 0.546078431372549
+  },
+  "untyped": {
+   "F": 797,
+   "TP": 551,
+   "precision": 0.6913425345043914,
+   "recall": 0.5401960784313725
+  }
+ },
+ "rand_precision_mean": 0.7195478546480519,
+ "p": {
+  "a": 1,
+  "b": 0.00009999000099990002,
+  "c1": 0.0188981101889811,
+  "c2": 0.11818818118188182,
+  "d": 0.1918081918081918
+ },
+ "ci": {
+  "recall_vs_prov": [
+   -0.37874659400544963,
+   -0.1362397820163488
+  ],
+  "precision_vs_prov": [
+   0.16153154801627445,
+   0.33660692900681943
+  ],
+  "precision_vs_untyped": [
+   0.0034654042373869487,
+   0.14062707586023648
+  ],
+  "recall_vs_untyped": [
+   -0.0362595419847328,
+   0.060535506402793926
+  ]
+ },
+ "p_H14": 1,
+ "verdict": "not supported",
+ "margin": 0.02,
+ "stage1_only": {
+  "F": 1291,
+  "TP": 812,
+  "precision": 0.6289697908597986,
+  "recall": 0.796078431372549
+ }
+}

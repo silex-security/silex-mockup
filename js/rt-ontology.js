@@ -41,9 +41,31 @@ function tiles(d) {
 }
 
 const pts = x => `${x >= 0 ? '+' : '−'}${Math.abs(100 * x).toFixed(1)}`;
-function part(id, label, p, ci) {
+function part(id, label, p, ci, attr = 'data-onto-part') {
   const ok = p != null && p <= 0.05;
-  return `<li data-onto-part="${id}" data-onto-part-ok="${ok}"><span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span> ${esc(label)} <span class="rt-onto-k">(one-sided p = ${p == null ? '—' : Number(p).toPrecision(2)}${ci ? `; 95 % CI ${esc(ci)}` : ''})</span></li>`;
+  return `<li ${attr}="${id}" ${attr}-ok="${ok}"><span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span> ${esc(label)} <span class="rt-onto-k">(one-sided p = ${p == null ? '—' : Number(p).toPrecision(2)}${ci ? `; 95 % CI ${esc(ci)}` : ''})</span></li>`;
+}
+function prBlock(r) {
+  if (!r) return '';
+  const [kind, badge] = VERDICT[r.verdict] ?? VERDICT.inconclusive;
+  const o = r.observed;
+  const row = (name, x) => `<tr><th scope="row">${name}</th><td>${x.F}</td><td>${pct(x.precision)}</td><td>${pct(x.recall)}</td></tr>`;
+  return `<section class="rt-onto-pr" data-onto-pr data-onto-pr-verdict="${esc(r.verdict)}">
+    <h3>Follow-up test: raising precision and recall together</h3>
+    <div class="rt-onto-verdict"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
+      <span>A two-stage monitor (ontology-typed candidates, then a judge check that the source passage instructs the agent), pre-registered on ${r.counts.runs} runs of ${r.models.length} further held-out agent models (${r.counts.positives} successful attacks).</span></div>
+    <div class="rt-onto-table"><table><thead><tr><th scope="col">Monitor</th><th scope="col">Alerted runs</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
+      ${row('Provenance only (baseline)', o.prov)}${row('Two-stage, with ontology', o.m2s)}${row('Two-stage, without ontology', o.untyped)}
+    </tbody></table></div>
+    <ul class="rt-onto-parts">
+      ${part('a', 'Recall above provenance only', r.p?.a, r.ci?.recall_vs_prov && `${pts(r.ci.recall_vs_prov[0])} to ${pts(r.ci.recall_vs_prov[1])} points`, 'data-onto-pr-part')}
+      ${part('b', 'Precision above provenance only', r.p?.b, r.ci?.precision_vs_prov && `${pts(r.ci.precision_vs_prov[0])} to ${pts(r.ci.precision_vs_prov[1])} points`, 'data-onto-pr-part')}
+      ${part('c1', 'Precision above the same two stages without the ontology', r.p?.c1, r.ci?.precision_vs_untyped && `${pts(r.ci.precision_vs_untyped[0])} to ${pts(r.ci.precision_vs_untyped[1])} points`, 'data-onto-pr-part')}
+      ${part('c2', `Recall at most ${(100 * r.margin).toFixed(0)} points below it`, r.p?.c2, r.ci?.recall_vs_untyped && `${pts(r.ci.recall_vs_untyped[0])} to ${pts(r.ci.recall_vs_untyped[1])} points`, 'data-onto-pr-part')}
+      ${part('d', 'Better than random typing of the same size', r.p?.d, null, 'data-onto-pr-part')}
+    </ul>
+    <p class="rt-ref">The judge check removed many true alerts, so recall fell. <b>Descriptive only:</b> the ontology-typed candidates without the judge check gave ${pct(r.stage1_only.precision)} precision at ${pct(r.stage1_only.recall)} recall, against ${pct(o.prov.precision)} at ${pct(o.prov.recall)} for provenance only. <a href="logs/2026-10-04_ONTOLOGY_PR_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_PRECISION_RECALL_PLAN.md">plan</a></p>
+  </section>`;
 }
 function chain(x, typed) {
   if (!x) return '';
@@ -96,7 +118,10 @@ async function init() {
     const r = await fetch('data/onto-observability.json');
     if (!r.ok) throw new Error('unavailable');
     data = await r.json();
+    let pr = null;
+    try { const rp = await fetch('data/onto-pr.json'); if (rp.ok) pr = await rp.json(); } catch {}
     root.innerHTML = `${tiles(data)}
+      ${prBlock(pr)}
       <div class="rt-onto-controls">
         <div class="tabs" role="tablist" aria-label="Example">${CELLS.map(([id, label]) => `<button type="button" class="tab" data-onto-cell-btn="${id}">${label}</button>`).join('')}</div>
         <div class="tabs" role="tablist" aria-label="Rule"><button type="button" class="tab" data-onto-mode-btn="prov">Without ontology</button><button type="button" class="tab" data-onto-mode-btn="onto">With ontology</button></div>
