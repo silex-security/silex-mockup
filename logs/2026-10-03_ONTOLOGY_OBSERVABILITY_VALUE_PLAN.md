@@ -448,3 +448,25 @@ those harm types; (c) disclose the E1b context shift (rich AgentDojo bindings at
 Also found during the build (Codex, X6): 194 clean runs record `security: true`. The E5 positive label is
 therefore `attacked && security === true` (240 positives of 2 092 runs); `stats.ts` was corrected before the
 freeze and a fixture covers it.
+
+### Code seal (2026-10-04)
+
+Coder-seat files sealed after R4-1; the blind coding context is retired. SHA-256 (paths under `swm/experiments/ontology-value/`):
+
+```
+18569bc7fb5b518ecc68de110eadaaf7fdad8979ec0e2ead46fcdde54c08d3a3  binding.json
+801f986ec1c489a4bda93ce80220d6993316201a9701b6c7ee2e9a11bbd68183  e3/b3-prompt.txt
+7492fd6d42be2117eb7f065bed7c23f9169b5c9fb8cdb427430919c0ba2fc3b0  e3/b3.mjs
+f44fc85ffcb2c87bafce8aee61059b99e967856e719ac8ebae56ae7831be2f35  e3/effect-class.json
+15e44c61f7a473f87c437873ad6151dceeb90ddf47ed019c4de04b3565c25239  e3/predict.mjs
+5774b77bd0d4636d052f024076fa596cebf9b7042e82ad037cfcde3f0965c274  e3/run.mjs
+a19d34d00832963d7fccc0173a6179380ca2982cd64a1a8b993cfd8ae8db45f6  e3/score.mjs
+43f8ac0602f0a8e55c0c55419024f044b439da4df0ed57d9931eb16294577a10  export-context.mjs
+d410620a48999d0e99fdbdd0bfcf1bb9609f8d9a90def2e597fbfa741335d8db  fixtures/synthetic/test.mjs
+5f36be645f07c56e82bc5451ff8bab9ae049fccd140e844bb8eb36fd6dba228f  out/ontology-context.v1.json
+e8ec8ae7c709a312038af68eaea0887dcaaf7596711728a4385c13375ae120df  out/tool-map-coverage.json
+e85c12e958e95f625979269b6a57c4707211858031b376c058c1d90f4130e90c  out/tool-map.json
+277035839dab51708e34b89d0f8d49d020dedc19978e5ebc6b95b588de26fecc  tool-map.mjs
+```
+
+`binding.json` (primary binding) hash above is recorded before `binding-2.json` exists. F3-art passes on all sealed artefacts; synthetic tests pass.
