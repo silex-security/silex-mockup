@@ -40,3 +40,6 @@ fb3f70f64cd7b24c8e668ebb209438c4bd520b003eefc7958e8209a4bbc6469a  jev-runtime-ob
 ad92d305a54274d4962fe786969f20c63ddaa42f124667892813680067719c2f  silex-mockup/swm/experiments/ontology-value/pr/source-binding.json
 8411c17a214c5ac6268c0587936d791670a402d12f0a2e88398b41afe2bc8e8c  silex-mockup/swm/experiments/ontology-value/pr/SOURCE-BINDING-PROMPT.md
 02fe3a7a4c8bad6820574d128727e68f9a8d2774972a8ec2448a807f9c18a563  silex-mockup/logs/2026-10-04_ONTOLOGY_PRECISION_RECALL_PLAN.md
+e6c1d515ca8c4c96e74ece863f5c90d1eefbd10ff792ae4228523695454951c6  jev-runtime-observability/runs/onto-pr-INPUT-MANIFEST.sha256
+79b31e21f3868451f4ab33ae00cdcb2cae51d4441aefbe6fe8b5b42607ab7be3  jev-runtime-observability/runs/onto-pr-input/counts.json
+9574204f90c6093b7a9cfc9ad4726bb7759f573052601799bab9898cf5782d9f  jev-runtime-observability/eval/ontology/pr/fixtures/run-pr-faults.sh
