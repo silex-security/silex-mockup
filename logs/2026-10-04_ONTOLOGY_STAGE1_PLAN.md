@@ -125,3 +125,4 @@ page gate → merge, deploy, live read-back.
   for the average-recall composite null (no invariance under the full null) → **R3:** recall becomes a descriptive pass/fail constraint
   on this finite pool (θ_K and pooled ≥ −0.03), no inferential recall language; the sign-flip analysis moves to secondary with its
   assumptions stated; θ is over the K eligible models, K and dropped models named.
+- **R3** — coder-deepseek PLAN-APPROVED; reviewer-codex PLAN-APPROVED; planner PLAN-APPROVED. **Plan gate passed** (roster: planner Claude, coder-deepseek, reviewer-codex).
