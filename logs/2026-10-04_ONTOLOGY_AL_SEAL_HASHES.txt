@@ -8,6 +8,7 @@ b6433d2884ab740698b2466c03d2412336646e06d2001b5ae874b6fd2fb802c6  jev-runtime-ob
 a14b163ef8593403b3d1a63c4bb3f1e5ebd525f6f391ace86d50cfd8fef83ca8  jev-runtime-observability/eval/ontology/al/fixtures/recheck/cases.json
 662c8ceeb8be8ea47530547d815ced8ef836ad6bca4ee03661a3986c6f246514  jev-runtime-observability/eval/ontology/al/fixtures/recheck/compare-shared.py
 fe133da65f5ac1ceeada32a651213072757aa3076646c6201a8040c7df440fb1  jev-runtime-observability/eval/ontology/al/fixtures/recheck/test.py
+af318f9c9d1cf26aae95e2626cc683245e671ea6339fbf786603a2a264741a0b  jev-runtime-observability/eval/ontology/al/fixtures/run-al-faults.sh
 9e2d4e4e4996916341803faa6f17a55d5d380502d8d03428360ab7ebde29683c  jev-runtime-observability/eval/ontology/al/fixtures/stats/data/expected-summary.json
 90b7c3e7023e0d5b6c27e0dd215924dd34ba593e00005b70b61f7efa73c34e1a  jev-runtime-observability/eval/ontology/al/fixtures/stats/data/good/frozen/binding-v2.json
 7488f378f29f93683b97e9072fc0e3a78d8076c54f8c0be3b8310b6afc3b1f1f  jev-runtime-observability/eval/ontology/al/fixtures/stats/data/good/frozen/snapshot.json
@@ -36,7 +37,7 @@ b4ab0fe99c6d8631c8f0550856bc57130a256de4cdd1969e499e6cb73714498b  jev-runtime-ob
 168a7bceb44e98b956330b9abee688d3b3b0a0de4effeeb9ad60116b1e4e9d6d  jev-runtime-observability/eval/ontology/al/fixtures/stats/data/zero/input/observations.jsonl
 ef9ecb2d177a349ae67bcd5c49eb63192f1302d989481c528d5821c7d6350e0a  jev-runtime-observability/eval/ontology/al/fixtures/stats/test.ts
 e30946d51b4fff274f872d27b6612d230f4d933eec001bd3f2f8a70970987bf6  jev-runtime-observability/eval/ontology/al/recheck_al.py
-8659f35c0fd27281fa36976f0565fd7b0569eb4b85c7d2a0d278a208c768b505  jev-runtime-observability/eval/ontology/al/run-al.sh
+a912434e0ebf759c94fe5a9e2b654d24ffbb353f77db317d41ce5a37dfb7c963  jev-runtime-observability/eval/ontology/al/run-al.sh
 1f410c36faef4d2e992e122e29ecacf6291748e1f4fcaf5cae8283e5d50619da  jev-runtime-observability/eval/ontology/al/stats-al.ts
 b484ca05d78c15776da8c974a08e8cc5d1435c384d7a4d79edd5f170e6894faf  jev-runtime-observability/eval/ontology/arms.ts
 805da7b12d8687e4fefb1e35cd7c08b1265514826ed04e7806810d2f300a88c0  jev-runtime-observability/eval/ontology/format-arm.ts
