@@ -725,6 +725,25 @@
    "path": "LICENSE"
   },
   {
+   "name": "agentdojo-repo-089ed468cf3e.tar.gz",
+   "source": "agentdojo",
+   "url": "https://codeload.github.com/ethz-spylab/agentdojo/tar.gz/089ed468cf3ed0322acc66b0211f26d9d90dbf60",
+   "pin": "089ed468cf3ed0322acc66b0211f26d9d90dbf60",
+   "sha256": "d7e0ee021be27a69e7e66647979b5a5e0dd10030d38d04ce4102e18a76a228d8",
+   "binary": true,
+   "note": "Whole repository archive at the pin; the runs/ directory is read for the L4 benchmark runs (binary)"
+  },
+  {
+   "name": "tau2-results-claude-3-7-sonnet-retail.json",
+   "source": "tau2",
+   "url": "https://raw.githubusercontent.com/sierra-research/tau2-bench/5bfa7e37b36656b37dc6d022156be6563c1007f3/data/tau2/results/final/claude-3-7-sonnet-20250219_retail_default_gpt-4.1-2025-04-14_4trials.json",
+   "pin": "5bfa7e37b36656b37dc6d022156be6563c1007f3",
+   "sha256": "ed41dbd18c080154156484e3a0122c095e324a11367a640d88e15956daed7b9d",
+   "repo": "sierra-research/tau2-bench",
+   "path": "data/tau2/results/final/claude-3-7-sonnet-20250219_retail_default_gpt-4.1-2025-04-14_4trials.json",
+   "note": "\u03c4\u00b2-bench published retail results for Claude 3.7 Sonnet (456 simulations)"
+  },
+  {
    "name": "toolemu-all_cases.json",
    "source": "toolemu",
    "url": "https://raw.githubusercontent.com/ryoungj/ToolEmu/ac4a7ab7ed8c7985d96231e214bd6b54304b7ddb/assets/all_cases.json",

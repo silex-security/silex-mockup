@@ -31,7 +31,13 @@ const MODULES = [
   ['banking-kb', './banking-kb.mjs'],
   ['asb', './asb.mjs'],
   ['toolemu', './toolemu.mjs'],
+  ['agentdojo-runs', './agentdojo-runs.mjs'],
+  ['tau2-runs', './tau2-runs.mjs'],
 ];
+
+/* L4 benchmark-run parsers are stubs until P1: import them, but skip their real-input and
+   broken-input checks (they return an empty shape and have no selection yet). */
+const STUBS = new Set(['agentdojo-runs', 'tau2-runs']);
 
 const isArray = x => Array.isArray(x);
 const isPlain = x => x !== null && typeof x === 'object' && !isArray(x);
@@ -65,6 +71,7 @@ async function main() {
 
   const allSources = {};
   for (const [name] of MODULES) {
+    if (STUBS.has(name)) continue;
     const parse = imported[name];
     if (typeof parse !== 'function') continue;
     const selection = { ...(SEED.SOURCE_SELECTION[name] || {}), inBundle, manifest };
@@ -184,7 +191,7 @@ async function main() {
     return;
   }
   const counts = Object.entries(allSources).length;
-  console.log(`  ✓ ${MODULES.length} modules pass on real inputs (shape, determinism, ${counts} sources, ${needed.size} seed keys, broken-input throws)`);
+  console.log(`  ✓ ${MODULES.length - STUBS.size} modules pass on real inputs (${STUBS.size} L4 stubs deferred to P1; shape, determinism, ${counts} sources, ${needed.size} seed keys, broken-input throws)`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

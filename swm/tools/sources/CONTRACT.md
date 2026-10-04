@@ -81,3 +81,42 @@ Runs every module against the cached raw files in `swm/.cache/` (read through MA
 the real `SOURCE_SELECTION`, and checks: shape, determinism (two runs equal), every selected key
 present, and for **each** module one deliberately broken input (a missing id, a changed sentence,
 an `"Aggressive": "False"` row…) that must throw. Exit code 1 on any failure.
+
+## L4 benchmark run modules (plan `logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md`, R3)
+
+`agentdojo-runs.mjs` and `tau2-runs.mjs` follow every rule above, with these additions. Their selection is
+`SEED.BENCHMARK_RUNS.agentdojo` / `.tau2` plus `inBundle`, `manifest`, and `actionsByTool` (the inverse of
+`SEED.BENCHMARK_ACTIONS`: tool key → L2 action id).
+
+- **Input.** `raws['agentdojo-repo-089ed468cf3e.tar.gz']` is a `Buffer` (C21). Decompress with
+  `zlib.gunzipSync`, then read tar headers: skip PAX `x`/`g` and GNU `L` long-name records correctly, join
+  ustar `prefix` + `/` + `name`, advance by the size rounded up to 512. Only members matching
+  `runs/<model>/<suite>/user_task_<n>/<attackType>/injection_task_<k>.json` for the selected models,
+  suites, tasks and attack type are parsed. The τ² file is a string.
+- **Completeness.** Throw unless the counts equal `selection.expect` (runs per suite, reported
+  executions; τ² runs, failed runs, refusal runs) and the total is ≤ `SEED.BENCHMARK_RUNS.limit`.
+- **Nodes** (all `layer: 4`, `review: 'published'`, a `benchmark` object, a non-silex `src`):
+
+  | Kind | id | `benchmark` fields | `src` | `parentLink` |
+  |---|---|---|---|---|
+  | `planner` | `bench:agent:<source>:<model>` | `{ source, model, label }` | AgentDojo: blob URL of `runs/<model>/` at the pin; τ²: the result file URL | `INSTANCE_OF ag:planner` (curated, src silex) |
+  | `tool-reg` | `bench:tool:<source>:<suite>/<name>` | `{ source, suite, tool }` | the tool's definition file at the pin (AgentDojo `default_suites/v1/tools/*.py`; τ² `src/tau2/domains/retail/tools.py`) | `INSTANCE_OF ag:tool-reg` (curated) |
+  | `trace` | `bench:run:agentdojo:<model>:<suite>:<user_task>:<injection_task>` or `bench:run:tau2:<model>:<task_id>:<trial>` | `{ source, model, suite, userTask, injectionTask \| taskId, trial, simulationId, attackType, benchmarkVersion, pipelineName, outcome, utility \| reward, calls: [{ name, ok, refusal? }] }` (ordered, duplicates kept) | the run file (archive member blob URL) / result file + `#simulation=<id>` | `INSTANCE_OF ag:trace` (curated) |
+  | `incident` | `bench:inc:<run id without "bench:run:">` | `{ source, status, predicate?, evidenceCall?, unmapped? }` | same as its run | `OCCURRED_IN` its run (curated) |
+
+  `label`: run = `<model label> · <suite> · <user task> · <injection task | task id/trial>`; incident =
+  `Benchmark incident · <outcome or refusal>`. `def` (≤ 200): the first user message. Message bodies and
+  injected text are **not** copied.
+- **Links.** `EXECUTED_BY` run → agent and `INVOKES` run → each distinct tool it called: `published`, src =
+  the source sys. Runs and incidents carry `domain` (the suite's pack) and
+  `BELONGS_TO dom:<domain>`: `curated`, src silex. Agents and tools have no domain (C19). `IMPLEMENTS` tool → action where `actionsByTool` has the tool
+  key: `curated`. `EXHIBITS` incident → `hz:<hazard>` only when a predicate row matched (AgentDojo) or a
+  mapped refusal occurred (τ²): `curated`.
+- **Incidents.** AgentDojo: one per run with `security: true`, `status: 'reported-executed'`. τ²: one per
+  run with a mapped refusal, `status: 'attempt-refused'`, one `EXHIBITS` per distinct mapped hazard. An
+  incident with no `EXHIBITS` carries `unmapped` (the reason text from the selection).
+- **Predicates** (AgentDojo). Evaluate `selection.predicates` against `calls` exactly as the seed comment
+  states; record the first matching call (index, name, args subset) as `evidenceCall`. The four
+  `negatives` must not match.
+- **Tests** add: archive reader on the real archive (member count, a PAX-bearing member), the expected
+  counts, every predicate on a positive and the listed negatives, τ² refusal → hazard, determinism.

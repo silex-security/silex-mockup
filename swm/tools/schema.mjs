@@ -11,7 +11,11 @@
    Domain grounding (plan logs/2026-10-03_SWM_DOMAIN_GROUNDING_EXEC_PLAN.md, E5) adds
    C1–C16: published COUNTERS, the L3 kind `case` with DEMONSTRATES and EXEMPLIFIED_BY,
    CLOSE_MATCH alignment to public classes, domain-tier classes, `attrs`, `src.rel`,
-   case types, and a threat partition by kind instead of by group. */
+   case types, and a threat partition by kind instead of by group.
+
+   L4 benchmark runs (plan logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md, R3) add C17–C22: a labelled
+   partition of public benchmark runs in L4. The extra review grades below are allowed on the
+   benchmark partition only (isBenchmark); every other L4 node and edge stays illustrative. */
 
 export const REVIEW = ['published', 'curated', 'heuristic', 'illustrative'];
 
@@ -66,8 +70,8 @@ export const PRED_SIGNATURES = {
   PART_OF_DOMAIN:   { pairs: pairs(['entity', 'action', 'hazard', 'effect', 'state', 'class'], ['domain']),
                       tree: true, review: ['curated'] },
   ACHIEVES:         { pairs: [['technique', 'tactic']], tree: true, review: ['published'] },
-  INSTANCE_OF:      { pairs: pairs(RUNTIME_KINDS, ['component']), tree: true, review: ['illustrative'] },
-  OCCURRED_IN:      { pairs: [['incident', 'trace']], tree: true, review: ['illustrative'] },
+  INSTANCE_OF:      { pairs: pairs(RUNTIME_KINDS, ['component']), tree: true, review: ['illustrative', 'curated'] },
+  OCCURRED_IN:      { pairs: [['incident', 'trace']], tree: true, review: ['illustrative', 'curated'] },
 
   /* agentic system ↔ domain and threats */
   DEPLOYED_IN:      { pairs: [['component', 'domain']], tree: false, review: ['illustrative'] },
@@ -91,15 +95,16 @@ export const PRED_SIGNATURES = {
   RECORDED_BY:      { pairs: [['evidence', 'record']], tree: false, review: ['curated'] },
 
   /* runtime → ontology (all illustrative: the runtime graph is mock content) */
-  BELONGS_TO:       { pairs: pairs(RUNTIME_KINDS, ['domain']), tree: false, review: ['illustrative'] },
+  BELONGS_TO:       { pairs: pairs(RUNTIME_KINDS, ['domain']), tree: false, review: ['illustrative', 'curated'] },
   REALISES:         { pairs: [['trace', 'workflow']], tree: false, review: ['illustrative'] },
-  IMPLEMENTS:       { pairs: [['tool-reg', 'action']], tree: false, review: ['illustrative'] },
-  EXHIBITS:         { pairs: [['incident', 'hazard']], tree: false, review: ['illustrative'] },
+  IMPLEMENTS:       { pairs: [['tool-reg', 'action']], tree: false, review: ['illustrative', 'curated'] },
+  EXHIBITS:         { pairs: [['incident', 'hazard']], tree: false, review: ['illustrative', 'curated'] },
 
   /* runtime ↔ runtime (seed RUNTIME.links) */
   ...Object.fromEntries(['DELEGATES_AUTHORITY', 'AUTHORIZES', 'READS_WRITES', 'RETRIEVES_FROM', 'CALLS', 'MUTATES',
     'GOVERNS', 'GATES', 'EXECUTED_BY', 'REACHES', 'CONTRIBUTED_TO', 'INTENDS', 'INVOKES', 'INFORMS', 'CAN_REACH']
-    .map(p => [p, { pairs: pairs(RUNTIME_KINDS, RUNTIME_KINDS), tree: false, review: ['illustrative'] }]))
+    .map(p => [p, { pairs: pairs(RUNTIME_KINDS, RUNTIME_KINDS), tree: false,
+                    review: ['EXECUTED_BY', 'INVOKES'].includes(p) ? ['illustrative', 'published'] : ['illustrative'] }]))
 };
 
 /* source systems a node's src may name (C7, C10, C15); `silex` marks Silex-authored content */
@@ -113,6 +118,18 @@ export const CASE_TYPES = ['incident', 'exercise', 'campaign'];
 export const ATTR_DEF_MAX = 200;
 /* C12: threats are L3 techniques and risks; a case shares the threat group but is not a threat */
 export const isThreat = n => n.layer === 3 && (n.kind === 'technique' || n.kind === 'risk');
+
+/* C17–C20: the L4 benchmark partition */
+export const isBenchmark = n => !!(n && n.benchmark);
+export const BENCH_SOURCES = ['agentdojo', 'tau2'];
+export const BENCH_OUTCOMES = {
+  agentdojo: ['attack reported executed', 'attack not executed'],   /* from the evaluator's `security` flag */
+  tau2: ['task passed', 'task failed']                              /* from `reward_info.reward` */
+};
+export const INCIDENT_STATUS = ['reported-executed', 'attempt-refused'];
+/* grades the benchmark partition may use beyond `illustrative` (C18); never on a non-benchmark node */
+export const BENCH_ONLY_GRADES = { INSTANCE_OF: 'curated', OCCURRED_IN: 'curated', BELONGS_TO: 'curated',
+  IMPLEMENTS: 'curated', EXHIBITS: 'curated', EXECUTED_BY: 'published', INVOKES: 'published' };
 
 export const TREE_PREDS = Object.keys(PRED_SIGNATURES).filter(p => PRED_SIGNATURES[p].tree);
 export const INHERITANCE_PREDS = ['SUBCLASS_OF'];

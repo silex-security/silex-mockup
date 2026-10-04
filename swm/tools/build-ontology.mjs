@@ -26,7 +26,9 @@ import * as SCHEMA from './schema.mjs';
 
 /* domain grounding source modules (swm/tools/sources/CONTRACT.md); each reads pinned raw files */
 const SOURCE_MODULES = ['fibo', 'cdm', 'ocsf', 'nist-800-53', 'atlas-mitigations', 'attack-mitigations',
-  'atlas-cases', 'attack-campaigns', 'agentdojo', 'tau2', 'banking-kb', 'asb', 'toolemu'];
+  'atlas-cases', 'attack-campaigns', 'agentdojo', 'tau2', 'banking-kb', 'asb', 'toolemu',
+  /* L4 public benchmark runs (plan 2026-10-03 L4, R3) */
+  'agentdojo-runs', 'tau2-runs'];
 const PARSERS = Object.fromEntries(await Promise.all(SOURCE_MODULES.map(async m =>
   [m, (await import(`./sources/${m}.mjs`)).parse])));
 
@@ -94,7 +96,8 @@ async function grab(name){
     await writeFile(file, buf);
   }
   if (sha256(buf) !== entry.sha256) throw new Error(`${name}: cached bytes do not match MANIFEST.json sha256 (pin ${entry.pin})`);
-  return buf.toString('utf8');
+  /* C21: binary inputs (the AgentDojo archive) stay bytes; the hash above covers the compressed bytes */
+  return entry.binary ? buf : buf.toString('utf8');
 }
 
 /* deterministic hash so rebuilds are byte-stable */
@@ -530,6 +533,13 @@ function assemble({ d3fend, atlas, attack, uco, grounding }){
     if (!sig.pairs.some(([a,b]) => a === kindOf(l.s) && b === kindOf(l.t)))
       problems.push(`${l.pred}: ${l.s} (${kindOf(l.s)}) → ${l.t} (${kindOf(l.t)}) breaks its signature`);
     if (!sig.review.includes(l.review)) problems.push(`${l.pred}: review "${l.review}" not allowed (${l.s} → ${l.t})`);
+    /* C18: grades beyond illustrative on runtime predicates belong to the benchmark partition only */
+    if (SCHEMA.BENCH_ONLY_GRADES[l.pred] === l.review && !SCHEMA.isBenchmark(index.get(l.s)))
+      problems.push(`${l.pred}: grade "${l.review}" is reserved for benchmark nodes (${l.s})`);
+  }
+  for (const n of nodes) if (n.layer === 4){
+    if (SCHEMA.isBenchmark(n) ? n.review !== 'published' : n.review !== 'illustrative')
+      problems.push(`${n.id}: L4 ${SCHEMA.isBenchmark(n) ? 'benchmark node must be published' : 'node must be illustrative'} (C17)`);
   }
   const cycles = (edges, what) => {
     const out = new Map(); edges.forEach(([a,b]) => { if (!out.has(a)) out.set(a, []); out.get(a).push(b) });
@@ -633,7 +643,7 @@ function buildCoverage(graph){
                  dims:mergeDims(domains), children:domains };
   const kpis = [
     { id:'weighted', label:'Weighted coverage', value:`${Math.round(tree.coverage*100)}%`, note:'Entity-weighted across 5 domain packs', delta:'+4 pts vs last calibration', dir:'up' },
-    { id:'entities', label:'Entities understood', value:`${(entities/1000).toFixed(1)}K`, note:'Typed and linked in the runtime graph', delta:`${graph.nodes.length} ontology types`, dir:'flat' },
+    { id:'entities', label:'Entities understood', value:`${(entities/1000).toFixed(1)}K`, note:'Typed and linked in the runtime graph', delta:`${graph.nodes.filter(n => !SCHEMA.isBenchmark(n)).length} ontology types`, dir:'flat' },
     { id:'blind',    label:'Known blind spots', value:String(SEED.GAPS.length), note:'Open coverage gaps across all domains', delta:`${SEED.GAPS.filter(g=>g.severity==='critical').length} critical`, dir:'down' },
     { id:'calib',    label:'Last calibration', value:'6h ago', note:'Simulation vs observed behaviour agreement 94%', delta:'drift 1.2%', dir:'flat' }
   ];
@@ -825,8 +835,14 @@ const groundingFiles = MANIFEST.filter(m => !['d3fend','atlas','attack','uco'].i
 const RAWS = Object.fromEntries(await Promise.all(groundingFiles.map(async m => [m.name, await grab(m.name)])));
 const MANIFEST_BY_NAME = Object.fromEntries(MANIFEST.map(m => [m.name, { url:m.url, repo:m.repo, path:m.path, pin:m.pin }]));
 const groundingStats = {};
+/* tool key (e.g. `banking/tool/send_money`) → L2 action id, from SEED.BENCHMARK_ACTIONS read backwards */
+const ACTIONS_BY_TOOL = {};
+for (const [act, keys] of Object.entries(SEED.BENCHMARK_ACTIONS)) for (const k of keys) (ACTIONS_BY_TOOL[k] ||= []).push(`act:${act}`);
+const RUN_SELECTION = { 'agentdojo-runs': SEED.BENCHMARK_RUNS.agentdojo, 'tau2-runs': SEED.BENCHMARK_RUNS.tau2 };
 const grounding = (name, inBundle) => {
-  const out = PARSERS[name](RAWS, { ...(SEED.SOURCE_SELECTION[name] || {}), inBundle, manifest:MANIFEST_BY_NAME });
+  const base = RUN_SELECTION[name] ? { ...RUN_SELECTION[name], actionsByTool: ACTIONS_BY_TOOL, limit: SEED.BENCHMARK_RUNS.limit }
+                                   : (SEED.SOURCE_SELECTION[name] || {});
+  const out = PARSERS[name](RAWS, { ...base, inBundle, manifest:MANIFEST_BY_NAME });
   groundingStats[name] = (out.nodes || []).length + Object.keys(out.sources || {}).length;
   return out;
 };
@@ -871,6 +887,10 @@ log(`\n  sources : ${Object.entries(stats).map(([k,v])=>`${k} ${v}`).join(' · '
 log(`  graph   : ${graph.nodes.length} nodes (${byLayer}) · ${graph.links.length} links`);
 log(`  bundles : ontology ${(a/1024).toFixed(0)}KB · coverage ${(b/1024).toFixed(0)}KB`);
 log(`  layers  : ${chain.hops.map(h => `L${h.from}↔L${h.to} ${h.count}`).join(' · ')} · skipping ${chain.skips.count}`);
+{
+  const bench = graph.nodes.filter(SCHEMA.isBenchmark);
+  log(`  L4 bench: ${bench.filter(n => n.kind === 'trace').length} runs · ${bench.filter(n => n.kind === 'incident').length} incidents · ${bench.filter(n => n.kind === 'planner').length} agents · ${bench.filter(n => n.kind === 'tool-reg').length} tools (public benchmark runs, not this enterprise)`);
+}
 log(`  threats : ${graph.nodes.filter(SCHEMA.isThreat).length - graph.uncountered.length} countered · ${graph.uncountered.length} uncountered`);
 log('  contract: signatures, review grades, display tree and SUBCLASS_OF acyclicity verified');
 log(`  done in ${((Date.now()-t0)/1000).toFixed(1)}s\n`);

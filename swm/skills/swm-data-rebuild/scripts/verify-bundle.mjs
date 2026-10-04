@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* Independent bundle verifier. Run: node verify-bundle.mjs [data-directory]
-   Local signatures transcribed from the domain-grounding plan v3 + E5, C1–C16.
+   Local signatures transcribed from domain grounding v3 + E5, C1–C16,
+   and the L4 public benchmark runs plan R3, C17–C20.
    Do not import schema.mjs: its shipped compact schema is checked against this copy. */
 import { readFile, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -54,7 +55,28 @@ const predicates = {
 for (const p of ['DELEGATES_AUTHORITY', 'AUTHORIZES', 'READS_WRITES', 'RETRIEVES_FROM', 'CALLS', 'MUTATES',
   'GOVERNS', 'GATES', 'EXECUTED_BY', 'REACHES', 'CONTRIBUTED_TO', 'INTENDS', 'INVOKES', 'INFORMS', 'CAN_REACH'])
   predicates[p] = rule(product(RUNTIME, RUNTIME), ['illustrative']);
+/* Keep the shipped C1–C16 table as a migration control, only for graphs without
+   benchmark nodes. Neither table is imported from the build's schema module. */
+const SHIPPED_SCHEMA = structuredClone({ review: REVIEW, inheritance: ['SUBCLASS_OF'], tree: TREE, predicates });
+const BENCHMARK_GRADES = {
+  INSTANCE_OF: 'curated', OCCURRED_IN: 'curated', BELONGS_TO: 'curated',
+  IMPLEMENTS: 'curated', EXHIBITS: 'curated', EXECUTED_BY: 'published', INVOKES: 'published'
+};
+for (const [pred, grade] of Object.entries(BENCHMARK_GRADES)) predicates[pred].review.push(grade);
 export const LOCAL_SCHEMA = { review: REVIEW, inheritance: ['SUBCLASS_OF'], tree: TREE, predicates };
+const isBenchmark = n => !!n && Object.hasOwn(n, 'benchmark');
+const object = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const text = v => typeof v === 'string' && !!v.trim();
+const recorded = v => text(v) || (Array.isArray(v) ? v.some(recorded) : object(v) && Object.values(v).some(recorded));
+const refusals = b => [...(Array.isArray(b?.refusals) ? b.refusals.filter(text) : []), ...(text(b?.refusal) ? [b.refusal] : [])];
+const OUTCOMES = {
+  agentdojo: ['attack reported executed', 'attack not executed'],
+  tau2: ['task passed', 'task failed']
+};
+const MAPPED_REFUSALS = new Set(['Payment method should be the original payment method',
+  'Non-delivered order cannot be returned', 'Non-delivered order cannot be exchanged',
+  'Non-pending order cannot be cancelled']);
+const hasMappedRefusal = b => refusals(b).some(s => MAPPED_REFUSALS.has(s.trim().replace(/^Error:\s*/, '')));
 
 function canonical(x) {
   if (Array.isArray(x)) return x.map(canonical).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
@@ -94,7 +116,9 @@ export function validateGraph(onto) {
   const edges = new Set(valid.map(l => edgeKey(l.s, l.t, l.pred)));
   const out = (id, pred) => valid.filter(l => l.s === id && l.pred === pred).map(l => byId.get(l.t));
   if (onto.version !== 'swm-2.0') fail('version: expected swm-2.0, got ' + onto.version);
-  if (!equal(onto.schema, LOCAL_SCHEMA)) fail('schema drift: bundled schema differs from independent frozen T0 table');
+  if (!equal(onto.schema, LOCAL_SCHEMA) &&
+      !(nodes.every(n => !isBenchmark(n)) && equal(onto.schema, SHIPPED_SCHEMA)))
+    fail('schema drift: bundled schema differs from independent frozen T0 table');
   if (byId.size !== nodes.length) fail('ontology.nodes contains duplicate ids');
   for (const n of nodes) {
     bump(metrics.layerCount, n.layer);
@@ -129,7 +153,31 @@ export function validateGraph(onto) {
       if (n.review !== 'published') fail(n.id + ': case must be published');
     }
     if (!REVIEW.includes(n.review)) fail(n.id + ': missing or invalid node review ' + n.review);
-    if (n.layer === 4 && n.review !== 'illustrative') fail(n.id + ': runtime node must be illustrative');
+    if (isBenchmark(n)) {
+      const b = n.benchmark;
+      if (n.layer !== 4) fail(n.id + ': benchmark node must be L4');
+      if (n.review !== 'published') fail(n.id + ': benchmark node must be published');
+      if (!object(b)) fail(n.id + ': benchmark must be a record');
+      else {
+        if (!Object.hasOwn(OUTCOMES, b.source)) fail(n.id + ': benchmark source must be agentdojo or tau2');
+        if (!(n.src || []).some(s => s?.sys === b.source && ['agentdojo', 'tau2'].includes(s.sys)))
+          fail(n.id + ': benchmark needs a matching agentdojo or tau2 public source');
+        /* Outcomes describe runs, not the shared agent/tool catalogue. If another
+           benchmark node carries an outcome, it must use the same source enum. */
+        if ((n.kind === 'trace' || b.outcome !== undefined) && !OUTCOMES[b.source]?.includes(b.outcome))
+          fail(n.id + ': invalid benchmark outcome for ' + b.source);
+        if (n.kind === 'incident') {
+          if (!['reported-executed', 'attempt-refused'].includes(b.status)) fail(n.id + ': invalid benchmark incident status');
+          if ((b.source === 'agentdojo' && b.status !== 'reported-executed') ||
+              (b.source === 'tau2' && b.status !== 'attempt-refused'))
+            fail(n.id + ': benchmark incident status disagrees with source');
+          const exhibits = out(n.id, 'EXHIBITS');
+          if (exhibits.length && !recorded(b.predicate) && !hasMappedRefusal(b))
+            fail(n.id + ': benchmark EXHIBITS needs a recorded predicate or mapped refusal');
+          if (!exhibits.length && !text(b.unmapped)) fail(n.id + ': unmapped benchmark incident needs a reason');
+        }
+      }
+    } else if (n.layer === 4 && n.review !== 'illustrative') fail(n.id + ': runtime node must be illustrative');
     if (n.review === 'published' && !(n.src || []).some(s => s.sys && s.sys !== 'silex'))
       fail(n.id + ': published node has no public source');
     if (n.kind === 'entity' && /\(prohibited\)/i.test(n.label || '')) fail(n.id + ': (prohibited) entity must be retyped');
@@ -150,6 +198,8 @@ export function validateGraph(onto) {
         metrics.signatureViolations++;
       }
       if (!sig.review.includes(l.review)) fail(l.pred + ': missing or disallowed link review ' + l.review + ' (' + l.s + ' -> ' + l.t + ')');
+      if (Object.hasOwn(BENCHMARK_GRADES, l.pred) && l.review === BENCHMARK_GRADES[l.pred] && !isBenchmark(s))
+        fail(l.pred + ': additional review grade requires a benchmark source node (' + l.s + ')');
     }
     if (!l.src) fail(l.pred + ': missing link source provenance');
     else if (!SOURCES.has(l.src)) fail(l.pred + ': unknown link source system ' + l.src);
@@ -214,12 +264,31 @@ export function validateGraph(onto) {
         if (!equal([...new Set(out(n.id, 'INSTANCE_OF').map(p => p.id))], ['ag:' + n.kind]))
           fail(n.id + ': INSTANCE_OF set disagrees with runtime kind');
       }
+      if (!n.domain && !(isBenchmark(n) && ['planner', 'tool-reg'].includes(n.kind)))
+        fail(n.id + ': runtime node needs a domain (only benchmark agents/tools may omit it)');
       if (n.domain) {
         if (byId.get('dom:' + n.domain)?.kind !== 'domain') fail(n.id + ': runtime domain missing');
         if (!equal([...new Set(out(n.id, 'BELONGS_TO').map(p => p.id))], ['dom:' + n.domain]))
           fail(n.id + ': BELONGS_TO disagrees with runtime domain');
       }
+      if (isBenchmark(n) && n.kind === 'incident') {
+        const runs = out(n.id, 'OCCURRED_IN');
+        if (runs.length !== 1 || runs[0]?.kind !== 'trace' || !isBenchmark(runs[0]))
+          fail(n.id + ': benchmark incident must OCCURRED_IN exactly one benchmark run');
+        else if (runs[0].benchmark?.source !== n.benchmark?.source)
+          fail(n.id + ': benchmark incident and run sources disagree');
+      }
     }
+  }
+  /* C20: incident existence is driven by the recorded evaluator outcome or one
+     of the four mapped retail refusals, independently of EXHIBITS mappings. */
+  for (const n of nodes.filter(n => isBenchmark(n) && n.kind === 'trace' && object(n.benchmark))) {
+    const incidents = valid.filter(l => l.pred === 'OCCURRED_IN' && l.t === n.id)
+      .map(l => byId.get(l.s)).filter(s => s.kind === 'incident');
+    const expected = n.benchmark.source === 'agentdojo' ? n.benchmark.outcome === 'attack reported executed' :
+      n.benchmark.source === 'tau2' && hasMappedRefusal(n.benchmark);
+    if (incidents.length !== (expected ? 1 : 0) || incidents.some(s => !isBenchmark(s)))
+      fail(n.id + ': benchmark incident count must be ' + (expected ? 1 : 0) + ' for its recorded outcome/refusals');
   }
   if (byId.has('dom:horizontal')) fail('dom:horizontal is retired');
   for (const [name, pairs] of [
@@ -244,6 +313,7 @@ export function validateGraph(onto) {
     for (const l of valid.filter(l => l.pred === 'INSTANCE_OF' && l.t === c.id)) {
       const n = byId.get(l.s);
       if (n.layer !== 4) fail(c.id + ': INSTANCE_OF source not L4');
+      if (isBenchmark(n)) continue;
       if (!n.domain) fail(c.id + ': runtime instance has no domain: ' + n.id);
       else domains.add('dom:' + n.domain);
     }
@@ -318,8 +388,8 @@ export function validateCoverage(cov, onto) {
     }
     if (!equal(complete.domains, expected)) fail('ontologyCompleteness per-domain counts/share differ from graph');
   }
-  if ((cov.kpis || []).find(k => k.id === 'entities')?.delta !== onto.nodes.length + ' ontology types')
-    fail('entities KPI delta must equal ontology node count');
+  if ((cov.kpis || []).find(k => k.id === 'entities')?.delta !== onto.nodes.filter(n => !isBenchmark(n)).length + ' ontology types')
+    fail('entities KPI delta must equal non-benchmark ontology node count');
   return problems;
 }
 
