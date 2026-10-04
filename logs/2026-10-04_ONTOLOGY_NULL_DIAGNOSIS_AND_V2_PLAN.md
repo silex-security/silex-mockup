@@ -209,3 +209,17 @@ hazard-relevant; secondary 28/74, 55/118; no collapse; agreement: effects 70/74,
 `stats-v2.ts` fixtures PASS; `recheck_v2.py` selftest PASS and exact agreement with `stats-v2.ts` on all four shared fixtures
 (after pinning the no-Kev reporting case in STATS_SPEC_V2); converter v1 byte identity PASS; Part A re-derived independently by
 DeepSeek (`rederive.py`, 52/52 values match).
+
+## Freeze gate (passed, round 2)
+
+| Seat | Round 1 | Round 2 (final) |
+|---|---|---|
+| coder-deepseek | `FREEZE-APPROVED` | `FREEZE-APPROVED` |
+| reviewer-codex | `FREEZE-REJECTED` (2: held-out input bytes unhashed; judge checkpoints outside the seal) | `FREEZE-APPROVED` |
+| planner | | `PLANNER (claude): FREEZE-APPROVED` |
+
+Seal addendum (no algorithm changed): held-out input hashes `jev runs/onto-v2-INPUT-MANIFEST.sha256`; judge fingerprint
+`jev eval/ontology/v2/frozen/judge-fingerprint.txt` (Kev code `84847f0`, ft adapter files, `jaredpalmer/kev-0.8b@bf75a6a8`,
+`Qwen/Qwen3.5-0.8B-Base@dc7cdfe2`, served configuration), checked by `run-v2.sh` before judging and before analysis. Full list:
+[`2026-10-04_ONTOLOGY_V2_FREEZE_HASHES.txt`](2026-10-04_ONTOLOGY_V2_FREEZE_HASHES.txt) (56 files). Held-out counts: 3 544 runs,
+11 093 calls, 509 pooled positives (power gate met).
