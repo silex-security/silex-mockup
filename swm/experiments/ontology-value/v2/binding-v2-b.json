@@ -1,0 +1,555 @@
+{
+ "version": 2,
+ "tools": {
+  "agentdojo:banking/get_balance": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns the account balance without changing state."
+  },
+  "agentdojo:banking/get_iban": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns the account IBAN without changing state."
+  },
+  "agentdojo:banking/get_most_recent_transactions": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "n": "none"
+   },
+   "reason": "Returns the last n transactions, a read-only observation."
+  },
+  "agentdojo:banking/get_scheduled_transactions": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Lists scheduled transactions, a read-only observation."
+  },
+  "agentdojo:banking/get_user_info": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns user information without changing state."
+  },
+  "agentdojo:banking/read_file": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "file_path": "core:core-resource"
+   },
+   "reason": "Reads the contents of the file at the given path."
+  },
+  "agentdojo:banking/schedule_transaction": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "amount": "none",
+    "date": "none",
+    "recipient": "core:core-account",
+    "recurring": "none",
+    "subject": "none"
+   },
+   "reason": "Creates a scheduled transaction record."
+  },
+  "agentdojo:banking/send_money": {
+   "effects": ["core:core-effect-data-write", "core:financial-value-transfer"],
+   "params": {
+    "amount": "none",
+    "date": "none",
+    "recipient": "core:core-account",
+    "subject": "none"
+   },
+   "reason": "Sends a transaction, moving value to the recipient and recording it."
+  },
+  "agentdojo:banking/update_password": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "password": "core:core-credential"
+   },
+   "reason": "Updates the stored user password credential."
+  },
+  "agentdojo:banking/update_scheduled_transaction": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "amount": "none",
+    "date": "none",
+    "id": "core:core-record",
+    "recipient": "core:core-account",
+    "recurring": "none",
+    "subject": "none"
+   },
+   "reason": "Updates an existing scheduled transaction record."
+  },
+  "agentdojo:banking/update_user_info": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "city": "none",
+    "first_name": "none",
+    "last_name": "none",
+    "street": "none"
+   },
+   "reason": "Updates stored user profile fields."
+  },
+  "agentdojo:slack/add_user_to_channel": {
+   "effects": ["core:core-effect-authority-grant", "core:core-effect-data-write"],
+   "params": {
+    "channel": "core:core-resource",
+    "user": "core:core-human-user"
+   },
+   "reason": "Grants the user access to a channel and records membership."
+  },
+  "agentdojo:slack/get_channels": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Lists Slack channels without changing state."
+  },
+  "agentdojo:slack/get_users_in_channel": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "channel": "core:core-resource"
+   },
+   "reason": "Lists users in a channel without changing state."
+  },
+  "agentdojo:slack/get_webpage": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "url": "core:core-resource"
+   },
+   "reason": "Returns the content of the webpage at the given URL."
+  },
+  "agentdojo:slack/invite_user_to_slack": {
+   "effects": ["core:core-effect-authority-grant", "core:core-effect-data-write"],
+   "params": {
+    "user": "core:core-human-user",
+    "user_email": "core:core-party"
+   },
+   "reason": "Invites a user, granting workspace access and recording the invite."
+  },
+  "agentdojo:slack/post_webpage": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "content": "none",
+    "url": "core:core-resource"
+   },
+   "reason": "Writes webpage content to the given URL."
+  },
+  "agentdojo:slack/read_channel_messages": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "channel": "core:core-resource"
+   },
+   "reason": "Reads messages from a channel without changing state."
+  },
+  "agentdojo:slack/read_inbox": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "user": "core:core-human-user"
+   },
+   "reason": "Reads the user's inbox messages without changing state."
+  },
+  "agentdojo:slack/remove_user_from_slack": {
+   "effects": ["core:core-effect-authority-removal", "core:core-effect-data-write"],
+   "params": {
+    "user": "core:core-human-user"
+   },
+   "reason": "Removes the user's workspace access and membership record."
+  },
+  "agentdojo:slack/send_channel_message": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "body": "none",
+    "channel": "core:core-resource"
+   },
+   "reason": "Posts a message to a channel, recording it."
+  },
+  "agentdojo:slack/send_direct_message": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "body": "none",
+    "recipient": "core:core-human-user"
+   },
+   "reason": "Sends a direct message to a recipient, recording it."
+  },
+  "agentdojo:travel/cancel_calendar_event": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "event_id": "core:core-record"
+   },
+   "reason": "Cancels the event, updating its stored state."
+  },
+  "agentdojo:travel/check_restaurant_opening_hours": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant opening hours without changing state."
+  },
+  "agentdojo:travel/create_calendar_event": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "description": "none",
+    "end_time": "none",
+    "location": "none",
+    "participants": "core:core-party",
+    "start_time": "none",
+    "title": "none"
+   },
+   "reason": "Creates a new calendar event record."
+  },
+  "agentdojo:travel/get_all_car_rental_companies_in_city": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "city": "none"
+   },
+   "reason": "Lists car rental companies in a city without changing state."
+  },
+  "agentdojo:travel/get_all_hotels_in_city": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "city": "none"
+   },
+   "reason": "Lists hotels in a city without changing state."
+  },
+  "agentdojo:travel/get_all_restaurants_in_city": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "city": "none"
+   },
+   "reason": "Lists restaurants in a city without changing state."
+  },
+  "agentdojo:travel/get_car_fuel_options": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "company_name": "core:core-party"
+   },
+   "reason": "Returns car rental fuel options without changing state."
+  },
+  "agentdojo:travel/get_car_price_per_day": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "company_name": "core:core-party"
+   },
+   "reason": "Returns car rental daily price without changing state."
+  },
+  "agentdojo:travel/get_car_rental_address": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "company_name": "core:core-party"
+   },
+   "reason": "Returns car rental company address without changing state."
+  },
+  "agentdojo:travel/get_car_types_available": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "company_name": "core:core-party"
+   },
+   "reason": "Returns available car types without changing state."
+  },
+  "agentdojo:travel/get_contact_information_for_restaurants": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant contact information without changing state."
+  },
+  "agentdojo:travel/get_cuisine_type_for_restaurants": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant cuisine types without changing state."
+  },
+  "agentdojo:travel/get_day_calendar_events": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "day": "none"
+   },
+   "reason": "Returns the day's calendar events without changing state."
+  },
+  "agentdojo:travel/get_dietary_restrictions_for_all_restaurants": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant dietary restrictions without changing state."
+  },
+  "agentdojo:travel/get_flight_information": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "arrival_city": "none",
+    "departure_city": "none"
+   },
+   "reason": "Returns flight information without changing state."
+  },
+  "agentdojo:travel/get_hotels_address": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "hotel_name": "core:core-party"
+   },
+   "reason": "Returns a hotel's address without changing state."
+  },
+  "agentdojo:travel/get_hotels_prices": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "hotel_names": "core:core-party"
+   },
+   "reason": "Returns hotel prices without changing state."
+  },
+  "agentdojo:travel/get_price_for_restaurants": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant prices without changing state."
+  },
+  "agentdojo:travel/get_rating_reviews_for_car_rental": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "company_name": "core:core-party"
+   },
+   "reason": "Returns car rental ratings and reviews without changing state."
+  },
+  "agentdojo:travel/get_rating_reviews_for_hotels": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "hotel_names": "core:core-party"
+   },
+   "reason": "Returns hotel ratings and reviews without changing state."
+  },
+  "agentdojo:travel/get_rating_reviews_for_restaurants": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant ratings and reviews without changing state."
+  },
+  "agentdojo:travel/get_restaurants_address": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "restaurant_names": "core:core-party"
+   },
+   "reason": "Returns restaurant addresses without changing state."
+  },
+  "agentdojo:travel/get_user_information": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns user information without changing state."
+  },
+  "agentdojo:travel/reserve_car_rental": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "company": "core:core-party",
+    "end_time": "none",
+    "start_time": "none"
+   },
+   "reason": "Makes a car rental reservation, creating a commitment record."
+  },
+  "agentdojo:travel/reserve_hotel": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "end_day": "none",
+    "hotel": "core:core-party",
+    "start_day": "none"
+   },
+   "reason": "Makes a hotel reservation, creating a commitment record."
+  },
+  "agentdojo:travel/reserve_restaurant": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "restaurant": "core:core-party",
+    "start_time": "none"
+   },
+   "reason": "Makes a restaurant reservation, creating a commitment record."
+  },
+  "agentdojo:travel/search_calendar_events": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "date": "none",
+    "query": "none"
+   },
+   "reason": "Searches calendar events without changing state."
+  },
+  "agentdojo:travel/send_email": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "attachments": "core:core-resource",
+    "bcc": "core:core-party",
+    "body": "none",
+    "cc": "core:core-party",
+    "recipients": "core:core-party",
+    "subject": "none"
+   },
+   "reason": "Sends an email, recording the message."
+  },
+  "agentdojo:workspace/add_calendar_event_participants": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "event_id": "core:core-record",
+    "participants": "core:core-party"
+   },
+   "reason": "Adds participants to an event, updating the event record."
+  },
+  "agentdojo:workspace/append_to_file": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "content": "none",
+    "file_id": "core:core-resource"
+   },
+   "reason": "Appends content to a file, updating its contents."
+  },
+  "agentdojo:workspace/cancel_calendar_event": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "event_id": "core:core-record"
+   },
+   "reason": "Cancels the event, updating its stored state."
+  },
+  "agentdojo:workspace/create_calendar_event": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "description": "none",
+    "end_time": "none",
+    "location": "none",
+    "participants": "core:core-party",
+    "start_time": "none",
+    "title": "none"
+   },
+   "reason": "Creates a new calendar event record."
+  },
+  "agentdojo:workspace/create_file": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "content": "none",
+    "filename": "none"
+   },
+   "reason": "Creates a new file in the cloud drive."
+  },
+  "agentdojo:workspace/delete_email": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "email_id": "core:core-record"
+   },
+   "reason": "Deletes the email, removing the stored record."
+  },
+  "agentdojo:workspace/delete_file": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "file_id": "core:core-resource"
+   },
+   "reason": "Deletes a file, removing the stored resource."
+  },
+  "agentdojo:workspace/get_current_day": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns the current day without changing state."
+  },
+  "agentdojo:workspace/get_day_calendar_events": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "day": "none"
+   },
+   "reason": "Returns the day's calendar events without changing state."
+  },
+  "agentdojo:workspace/get_draft_emails": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns draft emails without changing state."
+  },
+  "agentdojo:workspace/get_file_by_id": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "file_id": "core:core-resource"
+   },
+   "reason": "Retrieves a file by ID without changing state."
+  },
+  "agentdojo:workspace/get_received_emails": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns received emails without changing state."
+  },
+  "agentdojo:workspace/get_sent_emails": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Returns sent emails without changing state."
+  },
+  "agentdojo:workspace/get_unread_emails": {
+   "effects": ["core:core-effect-data-read", "core:core-effect-data-write"],
+   "params": {},
+   "reason": "Returns unread emails and marks them read, changing their state."
+  },
+  "agentdojo:workspace/list_files": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {},
+   "reason": "Lists all files without changing state."
+  },
+  "agentdojo:workspace/reschedule_calendar_event": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "event_id": "core:core-record",
+    "new_end_time": "none",
+    "new_start_time": "none"
+   },
+   "reason": "Reschedules the event, updating its stored times."
+  },
+  "agentdojo:workspace/search_calendar_events": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "date": "none",
+    "query": "none"
+   },
+   "reason": "Searches calendar events without changing state."
+  },
+  "agentdojo:workspace/search_contacts_by_email": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "query": "core:core-party"
+   },
+   "reason": "Finds contacts by email without changing state."
+  },
+  "agentdojo:workspace/search_contacts_by_name": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "query": "none"
+   },
+   "reason": "Finds contacts by name without changing state."
+  },
+  "agentdojo:workspace/search_emails": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "query": "none",
+    "sender": "core:core-party"
+   },
+   "reason": "Searches emails without changing state."
+  },
+  "agentdojo:workspace/search_files": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "query": "none"
+   },
+   "reason": "Searches files by content without changing state."
+  },
+  "agentdojo:workspace/search_files_by_filename": {
+   "effects": ["core:core-effect-data-read"],
+   "params": {
+    "filename": "none"
+   },
+   "reason": "Retrieves files by filename without changing state."
+  },
+  "agentdojo:workspace/send_email": {
+   "effects": ["core:core-effect-data-write"],
+   "params": {
+    "attachments": "core:core-resource",
+    "bcc": "core:core-party",
+    "body": "none",
+    "cc": "core:core-party",
+    "recipients": "core:core-party",
+    "subject": "none"
+   },
+   "reason": "Sends an email, recording the message."
+  },
+  "agentdojo:workspace/share_file": {
+   "effects": ["core:core-effect-authority-grant", "core:core-effect-data-write"],
+   "params": {
+    "email": "core:core-party",
+    "file_id": "core:core-resource",
+    "permission": "core:core-entitlement"
+   },
+   "reason": "Shares a file with a user, granting access and recording the share."
+  }
+ }
+}
