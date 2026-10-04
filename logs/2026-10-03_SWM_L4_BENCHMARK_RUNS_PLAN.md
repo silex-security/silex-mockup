@@ -298,6 +298,14 @@ private value.
 
 Counts unchanged after the fixes (946 runs, 135 incidents, 119 `EXHIBITS`, 17 unmapped).
 
+### Code gate round 2 → round 3
+
+DeepSeek `IMPL-APPROVED`; Codex `IMPL-REJECTED` (1): a block with only some call or result ids was paired by
+position, so a crafted block could mark an explicitly failed call `ok`. Fix (DeepSeek): id pairing only when
+every call and result has a matching unique id; positional pairing only when none has one; any mixed block is
+non-evidentiary; negatives for mixed call ids, mixed result ids and the contradictory case. The published data
+is unchanged (no selected trace has mixed ids).
+
 ## Appendix: measurement commands
 
 ```bash
