@@ -2,6 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — Why the ontology showed no effect, and a v2 test on held-out agent models: still no confirmed effect
+
+- **Diagnosis (exploratory, v1 data):** the fine-tuned judge is saturated (half its scores are 0) and moves about as much for the right tool's ontology as for another tool's; 8 % of calls reached an ontology action; 98.6 % of calls in successful-attack runs use tools that also occur in negative runs (clean runs and failed attacks); an instance-level provenance proxy carries strong signal. v1's judge test split was format-separable (0.961 there vs 0.742 on real trajectories). All explanations are recorded as untested.
+- **v2 (pre-registered, 3 544 held-out runs of Claude 3.7 Sonnet, Gemini 2.0 Flash, GPT-4o, Command R+):** the ontology used as types over the runtime provenance graph (blind onboarding binding). H10, H11, H12 **not supported**: typed provenance beat random typing (p 0.008), but an improvement over untyped provenance was not established (Δ 0.011, 95 % CI −0.037 to 0.061, p 0.28); provenance improved the judge (0.741 → 0.825); the untyped version reached 0.813 and the typed one's further gain was not established. Descriptively, the typed rule raised 817 alerts vs 1 099 at similar recall (0.813 vs 0.807, each rule's own operating point), a possible alert-load benefit that would need its own pre-registered test. Report: [`2026-10-04_ONTOLOGY_V2_REPORT.md`](2026-10-04_ONTOLOGY_V2_REPORT.md).
+- **Untouched:** `swm/data/`, the build, the site. New files only under `swm/experiments/ontology-value/v2/` and `logs/`.
+- **Reviews:** plan 2 rounds; target-free seal; freeze 3 rounds; code + report gate; all unanimous (Claude planner, DeepSeek V4 Pro, Codex). Plan and record: [`2026-10-04_ONTOLOGY_NULL_DIAGNOSIS_AND_V2_PLAN.md`](2026-10-04_ONTOLOGY_NULL_DIAGNOSIS_AND_V2_PLAN.md).
+
 ## 2026-10-04 — Does the ontology help runtime observability? Pre-registered experiments: null result
 
 - **What:** three pre-registered experiments on public benchmarks, each with non-ontology and mismatched-ontology controls: **E1** ontology context in the runtime judge's input (Kev, AgentDojo test split), **E5** ontology context or ontology-typed alert gating for detecting evaluator-reported attack success in 2 092 published AgentDojo runs of Llama-3.3-70B and Meta-SecAlign-70B, **E3** predicting other same-harm attack paths from one blocked attack (descriptive).

@@ -18,7 +18,7 @@ All numbers below are copied from that file; E5 = 2 092 runs, 7 649 calls, 240 p
 | D1 | How much does the block move the judge? | \|p(arm) − p(A0)\| per call | Kev-0.8B-ft: median 0, p90 0.0075 for A1 on bound tools (8.6 % of those calls move > 0.01), 0.0037 unbound; A2 p90 0.0029, A3 0.0031. But 49.5 % of its A0 scores are exactly 0.0000 (four-decimal output, saturation); on the 625 unsaturated calls (0.01 ≤ p ≤ 0.99) the median \|A1 − A0\| is 0.0355. Released Kev-0.8B: median ≈ 0.017 for A1 and A3, 0.010 for A2. **Observation:** blocks move scores, mostly where the judge is not saturated, and A1 and A3 move them by similar amounts. Whether the judge uses the *content* is not established either way |
 | D2 | How much of the traffic did the ontology reach? | calls on tools bound to an L2 action | 608 of 7 649 calls (8 %); 126 of 240 positive runs contain such a call |
 | D3 | Is there tool-level signal at all? | cross-fitted P(run positive \| run contains tool), leave-one-user-task-out, max over tools | stratified AUROC 0.784 vs Kev A0 0.742 (write-impact gate 0.802 in the report). An exploratory association between tool identity and outcome, computed with labels; it does not show what the judge failed to extract |
-| D6 | Do attacked and clean runs use the same tools? | share of calls in positive runs whose tool also occurs in negative runs | 98.6 %. A per-tool constant cannot by itself separate calls of the same tool; it could still matter through interaction with instance features in the judge, which this does not test |
+| D6 | Do successful-attack runs and the other runs use the same tools? | share of calls in positive runs whose tool also occurs in negative runs (clean runs and failed attacks) | 98.6 %. A per-tool constant cannot by itself separate calls of the same tool; it could still matter through interaction with instance features in the judge, which this does not test |
 | D4 | Is the signal at the instance level? | untyped provenance: a write call with an argument value (≥ 4 chars) present in earlier tool output and absent from the user's task | AUROC 0.777 alone; **0.864** fused with Kev A0 (Kev + flag) |
 | D5 | Impact-classification coverage | positive runs with no call the write regex classifies as write | 13 of 240 (e.g. `invite_user_to_slack` is "read" for the regex); an access grant can succeed without a regex "write", so this is a regex coverage gap, not label noise |
 | D7 | Is the v1 judge test realistic? | v1 E1 vs E5 for the same judge (Kev-0.8B-ft, A0) | E1 test AUROC 0.961 vs stratified 0.742 on real trajectories. E1 positives all carry the generic task "Use the provided tools…" and an `[injected_goal]` block, negatives the real user prompt (`eval/convert/agentdojo.ts`): the split is format-separable. AgentDojo was held out of training, so this is a test-construction artefact rather than training overfit |
@@ -28,7 +28,7 @@ All numbers below are copied from that file; E5 = 2 092 runs, 7 649 calls, 240 p
 - **R1 — channel.** Ontology content arrived as free text in a judge not trained on it; its scores move with the block (D1) but
   no more for the right tool's content than for another tool's. Saturation (half the scores at 0) limits what any block can do.
   Whether the E1b training-context mismatch contributed is not tested.
-- **R2 — granularity.** Attacked and clean runs use the same tools (D6), and an instance-level provenance proxy is associated with
+- **R2 — granularity.** Successful-attack runs use the same tools as the negative runs (D6), and an instance-level provenance proxy is associated with
   the outcome (D4). A per-tool line cannot state "this argument value came from a tool result"; typed instance-level facts might.
 - **R3 — coverage and model fit.** Core actions carry no effects; 9 of 74 tools reached an L2 action; G-onto was uninformative
   (0.500) in every non-banking stratum; the prohibited-outcome set had no authority-grant, configuration-change or message effect.
@@ -225,3 +225,25 @@ Seal addendum (no algorithm changed): held-out input hashes `jev runs/onto-v2-IN
 11 093 calls, 509 pooled positives (power gate met).
 
 _Freeze round 3 (2026-10-04): a run stopped before any judge call (v1 arm builder needed context for one held-out tool); A0-only builder `items-a0.ts`, byte-identical to the v1 A0 on 7 649 observations, replaced it. coder-deepseek `FREEZE-APPROVED`, reviewer-codex `FREEZE-APPROVED`, `PLANNER (claude): FREEZE-APPROVED`. 57 files in the hash list._
+
+## Outcome
+
+**Result:** H10, H11, H12 not supported (Holm over the three; p 0.278, 0.203, 0.477). Typed provenance beat random typing
+(p 0.008) but an improvement over untyped provenance was not established; provenance improved the judge (0.741 → 0.825), the
+untyped version reaching 0.813. Descriptive only: the typed rule raised fewer alerts (817 vs 1 099) at similar recall. Realistic
+judge baseline: Kev-0.8B-ft 0.741 (run level, held-out). Report: [`2026-10-04_ONTOLOGY_V2_REPORT.md`](2026-10-04_ONTOLOGY_V2_REPORT.md).
+
+Code + report gate passed in round 2 on revision `9abc20296e4cf862d61bdccffe3ec8b5248234d4` (concatenated binary diffs `silex-mockup 7d6b24c..HEAD` and
+`jev-runtime-observability 3914e4f..HEAD` over the implementation paths).
+
+| Seat | Plan | Freeze (final r3) | Code r1 | Code r2 (final) |
+|---|---|---|---|---|
+| coder-deepseek | `PLAN-APPROVED` (r1, r2) | `FREEZE-APPROVED` | `IMPL-APPROVED` | `IMPL-APPROVED` |
+| reviewer-codex | `PLAN-REJECTED` (4) → `PLAN-APPROVED` | `FREEZE-APPROVED` | `IMPL-REJECTED` (2) | `IMPL-APPROVED` |
+| planner (Claude Opus 5.5) | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): FREEZE-APPROVED` | — | `PLANNER (claude): IMPL-APPROVED` |
+
+What review changed: Part A rewritten from causes to observations after Codex's saturation point (half the scores at 0; the
+judge does move on unsaturated calls); an exact random-typing generator; a target-free seal before conversion; held-out input
+hashes and a judge fingerprint; D6's definition and "not established" wording in the report. DeepSeek re-derived Part A (52/52)
+and all primary v2 numbers independently. User input folded in: D7/V-D6 (retire the format-separable E1 split; realistic baseline).
+Pushed: branch `ontology-observability-v2` only; `main` and the site unchanged.
