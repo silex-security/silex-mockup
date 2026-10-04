@@ -537,8 +537,14 @@ Rounds: plan 5, T0 2, code 2. What each seat caught:
 Open follow-up (non-blocking, Codex code r2): `test-sources.mjs` asserts retained `COUNTERS` and ATLAS
 `DEMONSTRATES` totals; omitted-reference totals and campaign `DEMONSTRATES` totals are not yet asserted.
 
-Not done in this run: merge to `main` and push. Pushing `main` deploys the site, so it waits for the
-product owner.
+### Deploy record
+
+On the product owner's go-ahead, `main` was fast-forwarded to `b53318c` and pushed (`4f8a9e3..b53318c`).
+Read-back on https://silex-mockup.vercel.app: `swm/data/NOTICES.md` (new in this build) returned 200
+about 10 s after the push; `swm/data/ontology.js` is served as `application/javascript` and holds 961
+nodes and 2339 links; `index.html` shows "961 types · 2339 relations". The inspector smoke test (eight
+grounded nodes: hazards, a CDM class, an ATLAS case, an OCSF class, an action, an unmatched entity) passed
+against the production URL with no console errors.
 
 ## Appendix: verification commands
 
