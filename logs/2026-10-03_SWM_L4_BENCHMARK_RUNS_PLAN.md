@@ -269,15 +269,34 @@ private value.
 1. **Tool node ids** use `:` instead of `/` (`bench:tool:agentdojo:banking:send_money`): the page router
    accepts node ids matching `^[\w:.\-]+$`, so `/` could never be deep-linked. Planner edit in the two
    DeepSeek parsers after they reported done; CONTRACT updated.
-2. **Shipped NIST ids renamed** `nist:AC-2(3)`, `nist:AC-6(7)`, `nist:IA-5(7)` → `nist:AC-2.3`, `nist:AC-6.7`,
-   `nist:IA-5.7` for the same router reason (found by the same check). Label and `src.id` keep `AC-2(3)`;
-   their relations are unchanged. These ids shipped on 2026-10-03 and nothing links to them by id.
+2. **Superseded in code gate round 1:** the shipped NIST ids `nist:AC-2(3)`, `nist:AC-6(7)`, `nist:IA-5(7)`
+   are kept; instead the `index.html` router's node pattern accepts parentheses (`^[\w:.\-()]+$`; ids are
+   URL-encoded and rendered escaped). One-line behaviour change to `index.html`, outside "copy only".
 3. The generic component threat chain is hidden in the inspector for benchmark nodes; it described the L3
    component, not the run.
 4. My wait loop approved one Codex probe run by matching the command prefix of the already-audited
    `probe-swm.mjs` (output in scratch). Every other probe run was approved after reading the request.
 5. The Layers panel shows L4 as "24 illustrative + 1144 benchmark" everywhere the L4 total appears
    (`swm-layers.js`), as planned; `index.html`/`assurance.html` gain one copy line under the L4 row.
+
+### Code gate round 1 → round 2
+
+| Seat | Round 1 |
+|---|---|
+| coder-deepseek | `IMPL-APPROVED` (2 notes) |
+| reviewer-codex | `IMPL-REJECTED` (5) |
+
+| Defect (who) | Change |
+|---|---|
+| CX1: renaming shipped NIST ids changes BASE relations | Ids restored; router accepts parentheses; Codex added an exact BASE id/relation preservation check (no normalization) with rename/deletion/grade negatives (planner, Codex) |
+| CX2: the Refund example rendered all benchmark nodes as context | `renderExample` lays out non-benchmark L4 only; probe BENCH-R checks focus, glyphs and edges with the toggle off (planner, Codex) |
+| CX3: call-result pairing crossed assistant-message boundaries | Pairing per CONTRACT within the following result block; negatives for missing, ambiguous, out-of-order and the A/B case (DeepSeek) |
+| CX4: run records carried full call arguments and bodies | Published calls are `{name, ok, refusal?}`; arguments stay internal; incident keeps the reviewed evidence subset; regression (DeepSeek) |
+| CX5: AgentDojo run `def` was "[object Object]" | Text extracted from structured content; regression (DeepSeek) |
+| CX-NB: 119 mappings vs incidents | Copy says 119 mappings across 118 incidents |
+| DS-NB: dead code | Removed |
+
+Counts unchanged after the fixes (946 runs, 135 incidents, 119 `EXHIBITS`, 17 unmapped).
 
 ## Appendix: measurement commands
 
