@@ -328,7 +328,16 @@ Rounds: plan 3, T0 2, code 3. What each seat caught:
   the router-unsafe tool ids; the KPI and deployment exclusions.
 
 Follow-ups (not in this change): re-grade the shipped `haz-finance-unverified-instruction` task-4 citation to
-`related`; Splunk/OTRF telemetry as IT evidence samples. Merge to `main` and push wait for the product owner.
+`related`; Splunk/OTRF telemetry as IT evidence samples. Merge and push: see the deploy record.
+
+### Deploy record
+
+On the product owner's go-ahead, `main` was fast-forwarded to `2c245d5` and pushed (`29b9052..2c245d5`).
+Read-back on https://silex-mockup.vercel.app about 10 s after the push: `swm/data/ontology.js` served as
+`application/javascript` with 2106 nodes, 9299 links and 1144 benchmark nodes (946 runs); `index.html` carries
+"24 illustrative + 1144 benchmark" and the widened node-id pattern. Inspector smoke test against production
+(run, two incidents incl. an unmapped one, a refused τ² attempt, an agent, a tool, and the deep link
+`nist:AC-2(3)`): all rendered, no console errors.
 
 ## Appendix: measurement commands
 
