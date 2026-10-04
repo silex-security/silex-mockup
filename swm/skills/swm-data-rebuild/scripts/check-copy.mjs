@@ -20,7 +20,12 @@ const DATA = resolve(suppliedData || join(ROOT, 'swm/data'));
 const onto = JSON.parse(await readFile(join(DATA, 'ontology.json'), 'utf8'));
 
 const nodes = onto.nodes.length, links = onto.links.length;
+const isBenchmark = n => Object.hasOwn(n, 'benchmark');
+const types = onto.nodes.filter(n => !isBenchmark(n)).length;
+const illustrativeL4 = onto.nodes.filter(n => n.layer === 4 && !isBenchmark(n)).length;
+const benchmarkL4 = onto.nodes.filter(n => n.layer === 4 && isBenchmark(n)).length;
 const layer = Object.fromEntries(onto.chain.layers.map(l => [l.id, l]));
+const runtimeCount = id => +id === 4 ? illustrativeL4 : layer[id].count;
 const hop = Object.fromEntries(onto.chain.hops.map(h => [h.from, h]));
 const predCount = {}; onto.links.forEach(l => { predCount[l.pred] = (predCount[l.pred] || 0) + 1 });
 const silex = onto.nodes.filter(n => (n.src || []).every(s => s.sys === 'silex')).length;
@@ -33,10 +38,10 @@ const MD_ALL = ['SECURITY_WORLD_MODEL.md', 'swm/README.md', 'swm/skills/swm-data
 
 /* [name, files, regex (global), (match) => [[got, want, what], …]] */
 const RULES = [
-  ['kpi delta', HTML, /(\d+) ontology types, typed/g, m => [[+m[1], nodes, 'nodes']]],
+  ['kpi delta', HTML, /(\d+) ontology types, typed/g, m => [[+m[1], types, 'non-benchmark types']]],
   ['section totals', HTML, /(\d+) types · (\d+) relations/g, m => [[+m[1], nodes, 'nodes'], [+m[2], links, 'relations']]],
   ['layer rows', HTML, /<b>L(\d) · [^<]+<\/b>[\s\S]{0,260}?width:(\d+)%[\s\S]{0,160}?<div class="pc"><b>(\d+)<\/b> · (\d+)%/g,
-    m => [[+m[3], layer[m[1]].count, `L${m[1]} count`], [+m[4], pct(layer[m[1]].coverage), `L${m[1]} coverage`], [+m[2], pct(layer[m[1]].coverage), `L${m[1]} bar width`]]],
+    m => [[+m[3], runtimeCount(m[1]), `L${m[1]} illustrative count`], [+m[4], pct(layer[m[1]].coverage), `L${m[1]} coverage`], [+m[2], pct(layer[m[1]].coverage), `L${m[1]} bar width`]]],
   ['source counts', HTML, /<span class="as-src">([^<]+) <b>(\d+)<\/b>/g, m => [[+m[2], onto.stats[SRC[m[1]]], `${m[1]} nodes`]]],
   ['explorer button', HTML, /explorer — (\d+) nodes/g, m => [[+m[1], nodes, 'nodes']]],
 
@@ -49,11 +54,11 @@ const RULES = [
   ['build threats', ['swm/skills/swm-data-rebuild/SKILL.md'], /(\d+) countered · (\d+) uncountered/g,
     m => [[+m[1], threats - onto.uncountered.length, 'countered'], [+m[2], onto.uncountered.length, 'uncountered']]],
   ['tier diagram', ['SECURITY_WORLD_MODEL.md'], /^L(\d) [^\n]*?(\d+) nodes · (?:avg coverage )?(\d+)%/gm,
-    m => [[+m[2], layer[m[1]].count, `L${m[1]} count`], [+m[3], pct(layer[m[1]].coverage), `L${m[1]} coverage`]]],
+    m => [[+m[2], runtimeCount(m[1]), `L${m[1]} illustrative count`], [+m[3], pct(layer[m[1]].coverage), `L${m[1]} coverage`]]],
   ['tier hops', ['SECURITY_WORLD_MODEL.md'], /(\d+) relations with L(\d)/g, m => [[+m[1], hop[+m[2] - 1].count, `hop into L${m[2]}`]]],
   ['tier skips', ['SECURITY_WORLD_MODEL.md'], /(\d+) relations that skip a tier/g, m => [[+m[1], onto.chain.skips.count, 'skips']]],
   ['silex nodes', ['SECURITY_WORLD_MODEL.md'], /(\d+) of those nodes are Silex-authored/g, m => [[+m[1], silex, 'Silex-authored nodes']]],
-  ['README tiers', ['swm/README.md'], /\*\*L(\d) [^*]+\*\*\((\d+)\)/g, m => [[+m[2], layer[m[1]].count, `L${m[1]} count`]]],
+  ['README tiers', ['swm/README.md'], /\*\*L(\d) [^*]+\*\*\((\d+)\)/g, m => [[+m[2], runtimeCount(m[1]), `L${m[1]} illustrative count`]]],
   ['README predicates', ['swm/README.md'], /\b(SUBCLASS_OF|GROUPED_UNDER|ACHIEVES|PART_OF_DOMAIN|THREATENS) (\d+)/g,
     m => [[+m[2], predCount[m[1]] || 0, m[1]]]]
 ];
@@ -79,6 +84,18 @@ for (const [name, files, re, check] of RULES) for (const f of files) {
 }
 for (const [files, re] of RETIRED) for (const f of files)
   if (re.test(text[f])) problems.push(`${f}: retired claim still present: ${re}`);
+
+/* Benchmark L4 is a separate number, including when markup wraps the counts.
+   Keep the old per-file rules above; a changed form still needs an explicit check. */
+for (const f of [...HTML, ...MD_ALL]) {
+  const plain = text[f].replace(/<[^>]*>/g, '').replace(/\*\*/g, '');
+  const matches = [...plain.matchAll(/(\d+) illustrative \+ (\d+) benchmark/g)];
+  if (!matches.length) problems.push(`${f}: rule "L4 partition" matched nothing — the two L4 counts are required`);
+  for (const m of matches) for (const [got, want, what] of [[+m[1], illustrativeL4, 'illustrative L4'], [+m[2], benchmarkL4, 'benchmark L4']]) {
+    seen.push(`${f}: L4 partition · ${what} ${got}`);
+    if (got !== want) problems.push(`${f}: L4 partition · ${what} says ${got}, the bundle has ${want}`);
+  }
+}
 
 console.log(`check-copy · bundle ${nodes} nodes · ${links} relations · ${seen.length} printed numbers compared`);
 if (problems.length) { problems.forEach(p => console.log('  ✗ ' + p)); process.exit(1) }

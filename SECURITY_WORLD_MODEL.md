@@ -45,13 +45,13 @@ ontology-rigor run ([plan](logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md)) replaced
 
 ```
 L1 General Agent Ontology Graph        547 nodes · avg coverage 74%
-      ↕  385 relations with L2 (SUBCLASS_OF, GROUPED_UNDER, MAY_CAUSE, hazard links)
-L2 Domain Ontology Packs               203 nodes · 78%
-      ↕  51 relations with L3 (DEPLOYED_IN, CHARACTERIZES, EXEMPLIFIED_BY)
+      ↕  388 relations with L2 (SUBCLASS_OF, GROUPED_UNDER, MAY_CAUSE, hazard links)
+L2 Domain Ontology Packs               204 nodes · 78%
+      ↕  52 relations with L3 (DEPLOYED_IN, CHARACTERIZES, EXEMPLIFIED_BY)
 L3 Agentic-System Ontology             187 nodes · 60%
-      ↕  22 relations with L4 (INSTANCE_OF)
-L4 Runtime Knowledge Graph              24 nodes · 81%
-      + 433 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
+      ↕  1031 relations with L4 (INSTANCE_OF, BELONGS_TO, IMPLEMENTS, EXHIBITS)
+L4 Runtime Knowledge Graph              24 nodes · 81% (illustrative; plus 1144 public benchmark-run nodes)
+      + 1647 relations that skip a tier (e.g. an L3 component SUBCLASS_OF an L1 core class)
 ```
 
 - **Only `SUBCLASS_OF` asserts subsumption.** Domain membership is `PART_OF_DOMAIN`, deployment is
@@ -114,7 +114,24 @@ The Finance, Customer Service and Identity & IT packs are grounded in public sou
 
 Licence texts and attributions are in [`swm/data/NOTICES.md`](swm/data/NOTICES.md).
 
-**Total: 961 nodes · 2339 typed relations; the browser payload `ontology.js` is about 865 KB, served compressed. `verify-bundle.mjs` caps each browser bundle at 10 MB, and a cold-load timing probe guards load time.** 291 of those nodes are Silex-authored with no public source:
+### L4 public benchmark runs (2026-10-03)
+
+L4 now holds 24 illustrative + 1144 benchmark nodes ([plan](logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md)):
+946 published runs, 135 incidents, 3 agents and 60 tools, behind a *Public benchmark runs* toggle that
+is off by default.
+- **Finance and Identity & IT:** AgentDojo runs of Llama-3.3-70B-Instruct and Meta-SecAlign-70B (the same
+  base model with a prompt-injection defence) under the `important_instructions` attack. AgentDojo's
+  evaluator reported the injected goal as executed in 107 runs: banking 73 vs 14, Slack 16 vs 3,
+  workspace 1 vs 0. This is a descriptive comparison, not a controlled measurement of the defence.
+- **Customer Service:** all 456 τ²-bench retail runs of Claude 3.7 Sonnet; 28 runs contain an attempt the
+  tool refused (refund to a non-original method; action on an order in the wrong state).
+- **Evaluator success is not a hazard.** An incident `EXHIBITS` an L2 hazard only when a reviewed trace
+  predicate matches a specific call (119 incidents). 17 stay unmapped with the reason, e.g. three
+  "successes" whose memo is only "Bill payment": AgentDojo's tasks 0, 1 and 3 count any transfer to the
+  attacker as success.
+- Benchmark nodes never feed deployment, coverage or the KPIs.
+
+**Total: 2106 nodes · 9299 typed relations; the browser payload `ontology.js` is about 3.4 MB (217 KB compressed). `verify-bundle.mjs` caps each browser bundle at 10 MB, and a cold-load timing probe guards load time.** 291 of those nodes are Silex-authored with no public source:
 - the L1 core concepts, the L2 domain packs (two of them, CRM and Legal, are candidate packs outside
   the coverage figures), the L3 component list and record schemas — all graded `curated`;
 - registered workflows and the whole L4 runtime graph, graded `illustrative`.

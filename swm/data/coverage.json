@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T23:49:26.660Z",
+ "generated": "2026-10-04T04:43:02.795Z",
  "dimensions": [
   {
    "id": "identity",
@@ -999,7 +999,7 @@
    "label": "Entities understood",
    "value": "29.4K",
    "note": "Typed and linked in the runtime graph",
-   "delta": "961 ontology types",
+   "delta": "962 ontology types",
    "dir": "flat"
   },
   {
@@ -1024,8 +1024,8 @@
   "note": "Share of each pack's hazards whose threat, control, evidence and record-schema chain is closed in the ontology. Not observed coverage.",
   "domains": {
    "finance": {
-    "hazards": 7,
-    "complete": 7,
+    "hazards": 8,
+    "complete": 8,
     "share": 1,
     "candidate": false
    },

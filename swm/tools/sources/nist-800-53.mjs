@@ -43,7 +43,7 @@ export function parse(raws, selection) {
       return label ? `${label} ${ip}` : ip;
     });
     const full = prose ? (items.length ? `${prose} ${items.join(' ')}` : prose) : items.join(' ');
-    nodes.push({ id: `nist:${id}`, label: c.title, group: 'policy', layer: 1, kind: 'control', def: cut(full || c.title), review: 'published',
+    nodes.push({ id: `nist:${cid.toUpperCase()}`  /* node id in NIST's dotted form (AC-2.3) so deep links accept it; src id and label keep AC-2(3) */, label: c.title, group: 'policy', layer: 1, kind: 'control', def: cut(full || c.title), review: 'published',
       src: [{ sys: 'nist-800-53', id, label: `NIST SP 800-53 ${id}`, url: blobUrl(selection.manifest, selection.file) }],
       parentLink: { t: 'grp:policy', pred: 'GROUPED_UNDER', src: 'silex', review: 'curated' } });
   }

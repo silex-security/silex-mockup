@@ -1,6 +1,6 @@
 # Enterprise World Model — notices
 
-Generated 2026-10-03 by `swm/tools/build-ontology.mjs` from the licence files pinned in
+Generated 2026-10-04 by `swm/tools/build-ontology.mjs` from the licence files pinned in
 `swm/tools/sources/MANIFEST.json`. The bundle redistributes extracts (names, definitions, task goals,
 policy sentences) from the sources below.
 

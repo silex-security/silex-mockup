@@ -6,6 +6,7 @@
 
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs                 # all probes, this checkout
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only COLD --data <bundle-dir>
+     node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only BENCH,COLD --data <bundle-dir>
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --only COLD --delay-bundle 6000 # must exit 1
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs --root <dir> --only R1,E1
                                                     # serve another checkout (e.g. BASE) instead
@@ -153,13 +154,15 @@ async function browserCommand(method, params = {}) {
   }
   return browserCall(method, params);
 }
-async function coldLoad(panel, delay = 0) {
+async function coldLoad(panel, delay = 0, benchmarkOn = false) {
   const context = await browserCommand('Target.createBrowserContext');
   const contextId = context.result?.browserContextId;
   if (!contextId) throw new Error('Chrome failed to create a fresh browser context');
   let coldSocket;
   const errors = [];
-  const limit = panel === 'wm-architecture' ? 3000 : 5000;
+  // Benchmark-on timing is recorded, not judged against the 3 s / 5 s gates.
+  // Bound its observation window so a broken view cannot hang the probe.
+  const limit = benchmarkOn ? 15000 : panel === 'wm-architecture' ? 3000 : 5000;
   bundleDelayMs = delay;
   const previousDelayed = delayedBundles;
   try {
@@ -194,10 +197,22 @@ async function coldLoad(panel, delay = 0) {
     do {
       const r = await call('Runtime.evaluate', { returnByValue: true, expression: `(() => {
         const panel = document.getElementById(${JSON.stringify(panel)});
+        const toggle = document.getElementById('swmBenchToggle');
+        const benchmarkOn = ${benchmarkOn};
+        if (benchmarkOn && window.__swmColdReady && toggle && !window.__swmBenchColdEnabled && window.SWM) {
+          window.__swmBenchColdEnabled = true;
+          if (!toggle.checked) toggle.click();
+          SWM.setLevel(4);
+        }
         const selector = ${JSON.stringify(panel === 'wm-architecture' ? '#swmChainSvg g[role="button"]' : '#swmSvg g.swm-node, #swmSvg g.vw-node')};
         const visible = element => !!element && element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().height > 0 && getComputedStyle(element).visibility !== 'hidden';
-        return { event: window.__swmColdReady === true, content: !!panel && panel.classList.contains('active') &&
-          [...panel.querySelectorAll(selector)].some(visible) && ![...panel.querySelectorAll('.swm-loading')].some(visible) };
+        const marks = panel ? [...panel.querySelectorAll(selector)].filter(visible) : [];
+        const bench = marks.filter(g => { const n = window.d3 ? d3.select(g).datum() : null; return String(n?.id || n?.raw?.id || '').startsWith('bench:'); }).length;
+        const defaultOff = !toggle || !toggle.checked;
+        return { event: window.__swmColdReady === true, benchmarkOn, benchmarkNodes: bench, defaultOff,
+          content: !!panel && panel.classList.contains('active') && marks.length > 0 &&
+          (!benchmarkOn ? defaultOff && bench === 0 : !!toggle?.checked && bench > 0) &&
+          ![...panel.querySelectorAll('.swm-loading')].some(visible) };
       })()` });
       if (r?.exceptionDetails) throw new Error('Cold readiness evaluation failed: ' + (r.exceptionDetails.exception?.description || r.exceptionDetails.text));
       state = r?.result?.value || {};
@@ -207,6 +222,7 @@ async function coldLoad(panel, delay = 0) {
     const elapsed = performance.now() - start;
     return { ok: state.event && state.content && elapsed <= limit && !errors.length,
       elapsed: Math.round(elapsed), limit, event: !!state.event, content: !!state.content,
+      benchmarkOn, benchmarkNodes: state.benchmarkNodes || 0, defaultOff: state.defaultOff,
       delayedRequests: delayedBundles - previousDelayed, errors, reason: errors.length ? 'browser exception' : (state.event && state.content ? 'ready' : 'readiness deadline exceeded') };
   } finally {
     bundleDelayMs = 0;
@@ -224,6 +240,54 @@ if (want('COLD')) {
   const delayed = await coldLoad('wm-ontology', 6000);
   record('COLD-6', !delayed.ok && delayed.delayedRequests > 0 && delayed.reason === 'readiness deadline exceeded',
     '6 s delayed-bundle negative: ' + JSON.stringify(delayed));
+  const benchmark = await coldLoad('wm-ontology', 0, true);
+  results.push({ id: 'COLD-B', ok: !!benchmark.ok, gated: false,
+    detail: 'Recorded benchmark-on cold load (no performance gate): ' + JSON.stringify(benchmark) });
+}
+
+if (want('BENCH') || want('BENCH-T') || want('BENCH-I')) {
+  await openPanel('wm-ontology');
+  await evaluate('SWM.setLevel(4); true'); await sleep(1200);
+  const rendered = () => evaluate(`(() => {
+    const toggle = document.getElementById('swmBenchToggle');
+    const ids = [...document.querySelectorAll('#swmSvg g.swm-node, #swmSvg g.vw-node')].map(g => {
+      const n = d3.select(g).datum(); return n?.id || n?.raw?.id || '';
+    });
+    const edges = [...document.querySelectorAll('#swmSvg path.vw-link, #swmSvg path.swm-link')].map(g => {
+      const l = d3.select(g).datum(), raw = l?.raw || l;
+      return [raw?.s || l?.source?.id, raw?.t || l?.target?.id];
+    });
+    const benchmarkIds = ids.filter(id => id.startsWith('bench:'));
+    return { hook: toggle?.type === 'checkbox', checked: !!toggle?.checked, nodes: ids.length,
+      benchmarkCount: benchmarkIds.length, benchmarkIds: benchmarkIds.slice(0, 4),
+      benchmarkEdges: edges.filter(pair => pair.some(id => String(id || '').startsWith('bench:'))).length };
+  })()`);
+  const off = await rendered();
+  if (off.hook && !off.checked) await evaluate("document.getElementById('swmBenchToggle').click(); true");
+  const deadline = Date.now() + 5000;
+  let on;
+  do { await sleep(50); on = await rendered(); } while (off.hook && !on.benchmarkIds.length && Date.now() < deadline);
+  if (want('BENCH') || want('BENCH-T')) record('BENCH-T', off.hook && !off.checked && off.nodes > 0 &&
+    off.benchmarkIds.length === 0 && off.benchmarkEdges === 0 && on.checked && on.benchmarkIds.length > 0,
+    'L4 toggle default off / on: ' + JSON.stringify({ off, on }));
+  if (want('BENCH') || want('BENCH-I')) {
+    const run = bundle.nodes.find(n => n.id.startsWith('bench:run:') && n.kind === 'trace' && typeof n.benchmark?.outcome === 'string');
+    let selected = false, inspector = '', current = null;
+    if (run && on.checked) {
+      selected = await pick(run.id);
+      inspector = await evaluate("document.getElementById('swmInspector').innerText");
+      current = await evaluate("SWM.currentNode()");
+    }
+    record('BENCH-I', !!run && selected && current === run.id && inspector.includes(run.benchmark.outcome),
+      'Benchmark run inspector: ' + JSON.stringify({ id: run?.id, outcome: run?.benchmark?.outcome, selected, current, outcomeShown: !!run && inspector.includes(run.benchmark.outcome) }));
+    await shot('probe-benchmark-inspector.png');
+  }
+  if (on.checked) {
+    await evaluate("document.getElementById('swmBenchToggle').click(); true"); await sleep(1200);
+    const again = await rendered();
+    if (want('BENCH') || want('BENCH-T')) record('BENCH-OFF', !again.checked && !again.benchmarkIds.length && !again.benchmarkEdges,
+      'Benchmark nodes and edges hidden again: ' + JSON.stringify(again));
+  }
 }
 
 if (want('D1')) {
@@ -481,4 +545,4 @@ console.log(`\n${version.Browser} · serving ${ROOT}`);
 for (const r of results) console.log(`  ${r.ok ? '✓' : '✗'} ${r.id.padEnd(3)} ${r.detail}`);
 await writeFile(join(OUT, 'results.json'), JSON.stringify({ chrome: version.Browser, root: ROOT, data: DATA, results }, null, 2));
 console.log(`  screenshots and results → ${OUT}\n`);
-process.exit(results.every(r => r.ok) ? 0 : 1);
+process.exit(results.filter(r => r.gated !== false).every(r => r.ok) ? 0 : 1);

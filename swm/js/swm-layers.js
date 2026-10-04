@@ -14,9 +14,11 @@
     var byId = {};
     data.nodes.forEach(function (n) { byId[n.id] = n; });
 
+    /* L4 holds illustrative instances plus, when present, public benchmark runs; never one summed "runtime" number */
+    var countText = (layer) => layer.benchmark ? (layer.count - layer.benchmark) + ' illustrative + ' + layer.benchmark + ' benchmark' : String(layer.count);
     /* L4 blurb claims live runtime; show honest fixture wording */
     function layerBlurb(layer) {
-      return layer.id === 4 ? 'Simulated runtime instances (illustrative) — not a live customer graph' : layer.blurb;
+      return layer.id === 4 ? 'Simulated runtime instances (illustrative)' + (layer.benchmark ? ' and public benchmark runs (research environment)' : '') + ' — not a live customer graph' : layer.blurb;
     }
 
     /* actual directed links per hop — inspector reads true direction + source */
@@ -124,12 +126,12 @@
         var sel = layer.id === focus;
         var plane = g.append('g').style('cursor', 'pointer')
           .attr('role', 'button').attr('tabindex', 0)
-          .attr('aria-label', 'L' + layer.id + ' · ' + layer.name + ' · ' + layer.count + ' nodes' + (sel ? ' · selected' : ''))
+          .attr('aria-label', 'L' + layer.id + ' · ' + layer.name + ' · ' + countText(layer) + ' nodes' + (sel ? ' · selected' : ''))
           .on('click', function () { SWM.setLevel(layer.id, 'layers'); })
           .on('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); SWM.setLevel(layer.id, 'layers'); } })
           .on('mouseenter', function (ev) {
             SWM.tip.show('<b>L' + layer.id + ' · ' + SWM.esc(layer.name) + '</b><small>' + SWM.esc(layerBlurb(layer)) +
-              '</small><small style="margin-top:5px">' + layer.count + ' nodes · coverage ' + SWM.pct(layer.coverage) +
+              '</small><small style="margin-top:5px">' + countText(layer) + ' nodes · coverage ' + SWM.pct(layer.coverage) +
               ' (illustrative)</small><small class="more" style="margin-top:5px">click to set the abstraction level</small>', ev);
           })
           .on('mousemove', function (ev) { SWM.tip.move(ev); })
@@ -157,7 +159,7 @@
         if (!narrow) plane.append('text').attr('x', x0 + 52).attr('y', y + 45).attr('fill', SWM.ink.ink3).attr('font-size', 10)
           .text(clip(layerBlurb(layer), Math.max(24, Math.round((x1 - x0 - 260) / 5.6))));
         plane.append('text').attr('x', x1 - 16).attr('y', y + 28).attr('text-anchor', 'end')
-          .attr('fill', SWM.ink.ink).attr('font-size', 17).attr('font-weight', 700).text(layer.count);
+          .attr('fill', SWM.ink.ink).attr('font-size', layer.benchmark ? 13 : 17).attr('font-weight', 700).text(countText(layer));
         plane.append('text').attr('x', x1 - 16).attr('y', y + 43).attr('text-anchor', 'end')
           .attr('fill', SWM.ink.ink3).attr('font-size', 9).text('nodes · illustrative coverage ' + SWM.pct(layer.coverage));
 
@@ -203,7 +205,7 @@
       var up = chain.hops.find(function (h) { return h.to === layer.id; });
       var down = chain.hops.find(function (h) { return h.from === layer.id; });
       document.getElementById('swmChainFacts').innerHTML =
-        '<div class="swm-fact"><small>Nodes at this tier</small><b>' + layer.count + '</b></div>' +
+        '<div class="swm-fact"><small>Nodes at this tier</small><b>' + countText(layer) + '</b></div>' +
         '<div class="swm-fact"><small>Coverage (illustrative)</small><b>' + SWM.pct(layer.coverage) + '</b>' +
           '<div class="swm-meter"><i style="width:' + Math.round(layer.coverage * 100) + '%;background:' + SWM.coverageColor(layer.coverage, 'paper') + '"></i></div></div>' +
         '<div class="swm-fact"><small>' + (up ? 'Relations with L' + up.from : 'Tier above') + '</small><b>' + (up ? up.count + ' links' : '— top tier') + '</b></div>' +
@@ -211,7 +213,7 @@
 
       document.getElementById('swmLayerList').innerHTML = chain.layers.map(function (l) {
         return '<button data-layer="' + l.id + '"' + (l.id === focus ? ' style="background:#f2edfd;font-weight:650"' : '') + '>' +
-          '<span>L' + l.id + ' · ' + SWM.esc(l.name) + '</span><small>' + l.count + ' nodes</small></button>';
+          '<span>L' + l.id + ' · ' + SWM.esc(l.name) + '</span><small>' + countText(l) + ' nodes</small></button>';
       }).join('');
       document.querySelectorAll('#swmLayerList [data-layer]').forEach(function (b) {
         b.addEventListener('click', function () { SWM.setLevel(+b.dataset.layer, 'layers'); });

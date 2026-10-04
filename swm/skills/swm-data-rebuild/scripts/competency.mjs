@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Nine executable competency questions from the approved ontology-rigor plan.
+/* Ten executable competency questions from the approved ontology and L4 plans.
    node swm/skills/swm-data-rebuild/scripts/competency.mjs [data-directory]
    Answers describe the stored ontology and illustrative fixtures, not observations. */
 import { readFile } from 'node:fs/promises';
@@ -240,6 +240,52 @@ export function evaluateCompetencies(onto) {
     return { hazard, interpretation: 'Modelled schema and control mappings, not proof of verified identity or completed offboarding',
       controls, mitigations, records, cases: reviewedCases(hazard, typed) };
   });
+  ask('CQ10', 'Public benchmark banking task-4 runs: evaluator-reported executions versus scheduled-redirect mappings, not enterprise observations', ({ fail }) => {
+    const hazard = 'hz:haz-finance-scheduled-redirect';
+    const models = ['meta-llama_Llama-3.3-70B-Instruct', 'Meta-SecAlign-70B'];
+    const benchmark = n => !!n && Object.hasOwn(n, 'benchmark');
+    if (byId.get(hazard)?.kind !== 'hazard' || byId.get(hazard)?.layer !== 2)
+      fail('CQ10: scheduled-redirect hazard missing or mistyped');
+    const runs = nodes.filter(n => benchmark(n) && n.kind === 'trace' &&
+      n.benchmark?.source === 'agentdojo' && n.benchmark.suite === 'banking' &&
+      String(n.benchmark.injectionTask).replace(/^injection_task_/, '') === '4');
+    for (const n of runs) if (!models.includes(n.benchmark.model)) fail('CQ10: unexpected task-4 model ' + n.benchmark.model);
+    const answer = models.map(model => {
+      const selected = runs.filter(n => n.benchmark.model === model), reportedRuns = [], exhibitedRuns = [], unmappedRuns = [];
+      if (!selected.length) fail('CQ10: no banking task-4 benchmark runs for ' + model);
+      for (const run of selected) {
+        if (run.layer !== 4 || run.review !== 'published' || run.domain !== 'finance' ||
+            !(run.src || []).some(s => s.sys === 'agentdojo')) fail('CQ10: invalid public benchmark run ' + run.id);
+        if (!['attack reported executed', 'attack not executed'].includes(run.benchmark.outcome)) fail('CQ10: invalid task-4 outcome ' + run.id);
+        const reported = run.benchmark.outcome === 'attack reported executed';
+        if (reported) reportedRuns.push(run.id);
+        const incidents = incoming(run.id, 'OCCURRED_IN').map(id => byId.get(id));
+        if (incidents.length !== (reported ? 1 : 0)) fail('CQ10: task-4 incident count disagrees with evaluator outcome ' + run.id);
+        for (const inc of incidents) {
+          if (!benchmark(inc) || inc.layer !== 4 || inc.kind !== 'incident' || inc.review !== 'published' ||
+              inc.benchmark?.source !== 'agentdojo' || inc.benchmark.status !== 'reported-executed')
+            fail('CQ10: invalid reported-executed benchmark incident ' + inc.id);
+          if (out(inc.id, 'OCCURRED_IN').length !== 1) fail('CQ10: incident must belong to exactly one run ' + inc.id);
+          const exhibits = out(inc.id, 'EXHIBITS');
+          if (exhibits.includes(hazard)) {
+            const l = assertion(inc.id, hazard, 'EXHIBITS');
+            if (l.review !== 'curated') fail('CQ10: scheduled-redirect EXHIBITS must be curated ' + inc.id);
+            if (!inc.benchmark?.predicate || !inc.benchmark?.evidenceCall)
+              fail('CQ10: scheduled-redirect mapping needs recorded predicate and matching call ' + inc.id);
+            exhibitedRuns.push(run.id);
+          } else if (reported) {
+            if (!exhibits.length && !(typeof inc.benchmark?.unmapped === 'string' && inc.benchmark.unmapped.trim()))
+              fail('CQ10: unmapped task-4 incident needs a reason ' + inc.id);
+            unmappedRuns.push(run.id);
+          }
+        }
+      }
+      return { model, runs: selected.length, evaluatorReportedExecutions: reportedRuns.length,
+        runsExhibitingScheduledRedirect: unique(exhibitedRuns).length,
+        reportedRuns, exhibitedRuns: unique(exhibitedRuns), unmappedRuns };
+    });
+    return { hazard, interpretation: 'Public benchmark runs in a research environment, not enterprise observations. Evaluator-reported execution and the curated trace-to-hazard mapping are separate counts.', models: answer };
+  });
   return { common, results, ok: common.length === 0 && results.every(r => r.ok) };
 }
 
@@ -255,7 +301,7 @@ async function main() {
       cq.problems.forEach(p => console.log('  ✗ ' + p));
     }
     r.common.forEach(p => console.log('  ✗ ' + p));
-    console.log('\n' + (r.ok ? '✓ all nine competency questions pass' : '✗ competency checks failed'));
+    console.log('\n' + (r.ok ? '✓ all ten competency questions pass' : '✗ competency checks failed'));
     if (!r.ok) process.exitCode = 1;
   } catch (error) { console.error('competency: ' + error.message); process.exitCode = 1; }
 }

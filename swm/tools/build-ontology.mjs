@@ -574,7 +574,8 @@ function summariseChain(graph){
     const members = graph.nodes.filter(n => n.layer === l.id);
     const groups = {};
     members.forEach(n => { groups[n.group] = (groups[n.group] || 0) + 1; });
-    return { id:l.id, key:l.key, name:l.name, blurb:l.blurb, count:members.length, groups,
+    const bench = members.filter(SCHEMA.isBenchmark).length;   /* L4 public benchmark runs, shown apart (C19) */
+    return { id:l.id, key:l.key, name:l.name, blurb:l.blurb, count:members.length, ...(bench ? { benchmark:bench } : {}), groups,
              coverage:+(members.reduce((s,n) => s + (n.coverage || 0), 0) / (members.filter(n => n.coverage != null).length || 1)).toFixed(3) };
   });
   const hops = [1,2,3].map(from => {

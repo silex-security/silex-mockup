@@ -67,8 +67,11 @@
       layer: SWM.level || 1, view: 'network', colorBy: 'source', query: '',
       net: { minDegree: 0, subclass: true, compact: { 1: true, 2: false, 3: false, 4: false }, pickPin: true, pins: new Set() },
       groups: new Set(groupOrder), pinned: new Set(),
-      selected: null, edge: null, example: false, saved: null, animate: false, stale: false
+      selected: null, edge: null, example: false, saved: null, animate: false, stale: false,
+      bench: false             /* L4 public benchmark runs partition (plan 2026-10-03 L4): hidden by default */
     };
+    var isBench = (n) => !!(n && n.benchmark);
+    var benchCount = data.nodes.filter(isBench).length;
     var entering = false;      /* guards our own SWM.setLevel calls */
     var finalTimer = null;     /* snaps the example to its end state */
     var lastDims = null;
@@ -91,6 +94,8 @@
             '<div id="swmNetF"><p class="swm-rail-title">Network</p><label class="swm-note">Minimum degree <output id="swmMinDegV">0</output> ' +
               '<input type="range" id="swmMinDeg" min="0" max="10" value="0"></label> <button class="swm-chip" id="swmSubcl" aria-pressed="true">Subclass relations</button></div>' +
           '</div></details>' +
+          (benchCount ? '<label class="swm-chip swm-bench-toggle" title="Public benchmark runs of named models in a research environment; not this enterprise\'s runtime">' +
+            '<input type="checkbox" id="swmBenchToggle"> Public benchmark runs <small>(L4 · ' + benchCount + ' nodes)</small></label>' : '') +
           '<button class="swm-btn" id="swmBackBtn" type="button" hidden>← Back to previous view</button>' +
           '<button class="swm-btn accent" id="swmExampleBtn" type="button">Example: Refund workflow →</button>' +
         '</div>' +
@@ -144,7 +149,7 @@
     function netOn() { return state.view === 'network' && !state.example; }
     function netScope() {
       var f = vw.filter(scopeNodes(), links, state.net);
-      f.key = [state.layer, Array.from(state.groups).sort(), state.net.minDegree, state.net.subclass, state.net.compact[state.layer]].join('|');
+      f.key = [state.layer, Array.from(state.groups).sort(), state.net.minDegree, state.net.subclass, state.net.compact[state.layer], state.bench].join('|');
       return f;
     }
     var SRC_FILL = ['#5563d6', '#d9ccff'];
@@ -153,6 +158,12 @@
       return '<button data-level="' + l.id + '" aria-pressed="false" title="' + SWM.esc(l.name) + ' · ' + tierCount[l.id] + ' nodes">L' + l.id + ' ' +
              SWM.esc(l.name.split(' ')[0]) + '</button>';
     }).join('');
+    if ($('swmBenchToggle')) $('swmBenchToggle').addEventListener('change', function (ev) {
+      state.bench = ev.target.checked;
+      if (!state.bench && state.selected && isBench(byId.get(state.selected))) { state.selected = null; state.edge = null; }
+      if (state.bench && state.layer !== 4) { entering = true; state.layer = 4; SWM.setLevel(4, 'explorer'); entering = false; }
+      render();
+    });
     $('swmGroups').innerHTML = data.groups.map(function (g) {
       return '<button class="swm-chip" data-g="' + g.id + '" aria-pressed="true" title="' + SWM.esc(g.blurb || '') + '">' +
              '<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' + SWM.symbol(g.id, 52) + '" ' + SWM.glyphAttrs(g.id, '#4f5864') + '/></svg>' +
@@ -160,7 +171,7 @@
     }).join('');
 
     function scopeNodes() {
-      return data.nodes.filter((n) => n.layer === state.layer && state.groups.has(n.group));
+      return data.nodes.filter((n) => n.layer === state.layer && state.groups.has(n.group) && (state.bench || !isBench(n)));
     }
     /* L1: parent-first BFS (group order, then ID), pinned first, capped; L2–L4 fit whole */
     function visibleNodes() {
@@ -622,7 +633,7 @@
     function renderChrome() {
       var vis = current.nodes || [], M = scopeNodes().length;
       var kick = state.example ? 'Example focus / L4 runtime' : 'L' + state.layer + ' ' + (layerName[state.layer] || '') +
-        (state.view === 'network' ? ' / network · ' + (state.layer === 4 ? 'illustrative World State instances' : 'Schema') : state.view === 'graph' ? ' / grouped by ontology group' : state.view === 'tree' ? ' / hierarchy' : ' / relations between groups');
+        (state.view === 'network' ? ' / network · ' + (state.layer === 4 ? 'illustrative World State instances' + (state.bench ? ' + public benchmark runs' : '') : 'Schema') : state.view === 'graph' ? ' / grouped by ontology group' : state.view === 'tree' ? ' / hierarchy' : ' / relations between groups');
       $('swmKicker').textContent = kick;
       var scope;
       if (state.example) scope = '9 of ' + (current.total || 24) + ' runtime nodes focused · 8 focus relations · other ' + (current.ctx != null ? current.ctx : 15) + ' dimmed';
@@ -705,6 +716,7 @@
       var n = byId.get(id); if (!n) return;
       exitExample(true);
       state.groups.add(n.group); syncGroupChips();
+      if (isBench(n) && !state.bench) { state.bench = true; if ($('swmBenchToggle')) $('swmBenchToggle').checked = true; }
       /* a filter must never hide the node being focused (plan JEV_LEARNINGS B2) */
       if (state.net.minDegree || !state.net.subclass) {
         state.net.minDegree = 0; $('swmMinDeg').value = 0; $('swmMinDegV').textContent = 0;
@@ -722,9 +734,47 @@
     /* L4 chain in words (plan JEV_LEARNINGS E), read from the stored relations with their grades.
        Edge directions as stored: instance INSTANCE_OF component; threat THREATENS component;
        countermeasure COUNTERS threat; incident EXHIBITS hazard. */
+    /* L4 public benchmark runs: what the public record says, kept apart from Silex's mapping (plan § Run → hazard) */
+    var BENCH_NOTE = 'Public benchmark run of a named model in a research environment; not this enterprise\'s runtime and not counted in coverage.';
+    function benchHtml(n) {
+      var b = n.benchmark, esc = SWM.esc, h = '<h4>Public benchmark record</h4><p class="note">' + esc(BENCH_NOTE) + '</p>';
+      var runsOf = (agentId) => links.filter((l) => l.pred === 'EXECUTED_BY' && l.t === agentId).map((l) => byId.get(l.s));
+      if (n.kind === 'trace') {
+        h += row('Source', esc(SWM.srcLabel(b.source)) + (b.benchmarkVersion ? ' · ' + esc(b.benchmarkVersion) : '')) +
+          row('Model', esc(b.model)) + row('Suite', esc(b.suite)) +
+          row(b.source === 'tau2' ? 'Task · trial' : 'User task · injected task', esc(b.source === 'tau2' ? b.taskId + ' · ' + b.trial : b.userTask + ' · ' + b.injectionTask)) +
+          row('Outcome', '<b>' + esc(b.outcome) + '</b>') +
+          (b.source === 'agentdojo' ? row('Utility (user task done)', b.utility ? 'yes' : 'no') : row('Reward', esc(b.reward))) +
+          ((b.refusals || []).length ? row('Tool refused', esc(b.refusals.join('; '))) : '') +
+          '<p class="note">' + (b.source === 'agentdojo' ? 'Outcome is AgentDojo\'s own evaluator flag; it does not by itself show that the full injected goal, or a Silex hazard, occurred.' :
+            'Outcome is τ²-bench\'s task reward; a failed task is not by itself a security incident.') + '</p>' +
+          '<details class="swm-attrs"><summary><h4 style="display:inline">Tool calls · ' + (b.calls || []).length + '</h4></summary><dl>' +
+            (b.calls || []).map((c, i) => '<dt>' + (i + 1) + '. ' + esc(c.name) + '</dt><dd>' + (c.refusal ? 'refused: ' + esc(c.refusal) : c.ok ? 'ok' : 'no paired result') + '</dd>').join('') + '</dl></details>';
+      } else if (n.kind === 'incident') {
+        var ex = links.filter((l) => l.s === n.id && l.pred === 'EXHIBITS').map((l) => esc(byId.get(l.t).label));
+        h += row('Status', esc(b.status === 'attempt-refused' ? 'Attempt refused by the tool (the refused operation changed nothing)' : 'Evaluator reported the injected goal as executed')) +
+          (ex.length ? row('Exhibits', ex.join(', ')) : row('Exhibits', 'No hazard asserted')) +
+          (b.predicate ? '<p class="note">Matched trace predicate: ' + esc(b.predicate.hazard || '') + ' · ' + esc(b.predicate.from || '') + '</p>' : '') +
+          (b.evidenceCall ? row('Evidence call', esc('#' + (b.evidenceCall.index + 1) + ' ' + b.evidenceCall.name)) : '') +
+          ((b.refusals || []).length ? row('Refusal', esc(b.refusals.join('; '))) : '') +
+          (b.unmapped ? '<p class="note">' + esc(b.unmapped) + '</p>' : '');
+      } else if (n.kind === 'planner') {
+        var runs = runsOf(n.id), bySuite = {};
+        runs.forEach(function (r) { var s = r.benchmark.suite, k = (bySuite[s] ||= { runs: 0, harm: 0 }); k.runs++;
+          if (/reported executed|task failed/.test(r.benchmark.outcome)) k.harm++; });
+        h += row('Model', esc(b.label || b.model)) + Object.keys(bySuite).sort().map((s) => row(esc(s), esc(bySuite[s].harm + ' of ' + bySuite[s].runs + (b.source === 'tau2' ? ' tasks failed' : ' attacks reported executed')))).join('') +
+          '<p class="note">Counts for this model, this benchmark and this attack type only; not a general robustness claim.</p>';
+      } else if (n.kind === 'tool-reg') {
+        var callers = links.filter((l) => l.pred === 'INVOKES' && l.t === n.id).length;
+        h += row('Tool', esc(b.suite + ' / ' + b.tool)) + row('Runs that called it', callers);
+      }
+      return h;
+    }
+
     /* public grounding of a node: alignment, case type, cited sources with their strength, attributes */
     function groundingHtml(n) {
       var h = '', esc = SWM.esc;
+      if (isBench(n)) return benchHtml(n);
       if (n.caseType) h += row('Case type', esc(n.caseType)) + '<p class="note">' + esc(CASE_TEXT[n.caseType] || '') + '</p>';
       if (n.deprecated) h += row('OCSF status', 'Deprecated since ' + esc(n.deprecated.since || '') + (n.deprecated.superseded_by ? ' · use ' + esc(n.deprecated.superseded_by.join(', ')) : ''));
       if (n.alignment) {
@@ -850,7 +900,7 @@
           (n.deployment === 'unobserved' ? row('Deployment', 'No runtime instance in the illustrative graph') : '') +
           (uncountered.has(n.id) ? row('Countermeasure', 'No mapped countermeasure') : '') +
           groundingHtml(n) +
-          chainHtml(n) +
+          (isBench(n) ? '' : chainHtml(n)) +
           row('Authored model coverage', SWM.pct(n.coverage)) +
           '<div class="swm-meter"><i style="width:' + Math.round((n.coverage || 0) * 100) + '%;background:' + SWM.coverageColor(n.coverage, 'paper') + '"></i></div>';
         if (state.edge) html += '<hr>' + edgeHtml();

@@ -56,13 +56,17 @@ A healthy run ends like this (counts drift as the upstream ontologies change —
 the shape is what matters):
 
 ```
-  sources : d3fend 213 · atlas 96 · attack 61 · uco 72 · owasp 25
-  graph   : 961 nodes (L1 547 · L2 203 · L3 187 · L4 24) · 2339 links
-  bundles : ontology 570KB · coverage 15KB
-  layers  : L1↔L2 385 · L2↔L3 51 · L3↔L4 22 · skipping 433
+  sources : d3fend 213 · atlas 131 · attack 101 · uco 72 · owasp 25 · atlas-cs 57 · …
+  graph   : 2106 nodes (L1 547 · L2 204 · L3 187 · L4 1168) · 9299 links
+  bundles : ontology 3467KB · coverage 14KB
+  layers  : L1↔L2 388 · L2↔L3 52 · L3↔L4 1031 · skipping 1647
+  L4 bench: 946 runs · 135 incidents · 3 agents · 60 tools (public benchmark runs, not this enterprise)
   threats : 73 countered · 32 uncountered
   contract: signatures, review grades, display tree and SUBCLASS_OF acyclicity verified
 ```
+
+L4 holds 24 illustrative + 1144 benchmark nodes: the illustrative runtime plus the public benchmark runs
+(plan `logs/2026-10-03_SWM_L4_BENCHMARK_RUNS_PLAN.md`).
 
 **The build fails loudly on purpose.** If a relation breaks its predicate signature or review
 grades (`swm/tools/schema.mjs`), if the display tree or the `SUBCLASS_OF` graph has a cycle, if a

@@ -9,7 +9,7 @@ import { mkdtemp, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { validateGraph, validateCoverage, validateCoverageFreeze, validateNotices, verifyBundle } from '../verify-bundle.mjs';
+import { LOCAL_SCHEMA, validateGraph, validateCoverage, validateCoverageFreeze, validateNotices, verifyBundle } from '../verify-bundle.mjs';
 import { evaluateCompetencies } from '../competency.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url)), SCRIPTS = resolve(HERE, '..');
@@ -19,6 +19,9 @@ const temp = await mkdtemp(join(tmpdir(), 'codex-t7-fixtures-'));
 let onto = JSON.parse(await readFile(join(DATA, 'ontology.json'), 'utf8'));
 let cov = JSON.parse(await readFile(join(DATA, 'coverage.json'), 'utf8'));
 const SYNTHETIC = process.argv.includes('--synthetic');
+const BENCH_SYNTHETIC = process.argv.includes('--benchmark-synthetic');
+const isBenchmark = n => !!n && Object.hasOwn(n, 'benchmark');
+const typeCount = x => x.nodes.filter(n => !isBenchmark(n)).length;
 const notice = await readFile(join(ROOT, 'swm/.cache/ocsf-NOTICE'), 'utf8');
 let notices;
 if (SYNTHETIC) {
@@ -58,7 +61,7 @@ if (SYNTHETIC) {
   const countered = new Set(onto.links.filter(l => l.pred === 'COUNTERS').map(l => l.t));
   onto.uncountered = onto.nodes.filter(n => n.layer === 3 && ['technique', 'risk'].includes(n.kind) && !countered.has(n.id)).map(n => n.id);
   summarize(onto);
-  cov.kpis.find(k => k.id === 'entities').delta = onto.nodes.length + ' ontology types';
+  cov.kpis.find(k => k.id === 'entities').delta = typeCount(onto) + ' ontology types';
   notices = [...new Set(onto.nodes.flatMap(n => n.src.map(s => s.sys)))].join('\n') + '\n' + notice;
   const control = await stage('synthetic-control', onto, cov);
   assert.deepEqual((await verifyBundle(control)).problems, [], 'synthetic graph and notice positive control');
@@ -66,9 +69,44 @@ if (SYNTHETIC) {
   notices = await readFile(join(DATA, 'NOTICES.md'), 'utf8');
   assert.deepEqual((await verifyBundle(DATA)).problems, [], 'negative fixtures must start from passing integrated data');
 }
+if (BENCH_SYNTHETIC) {
+  // Explicit synthetic benchmark control for P1 development before the parsers land.
+  // Default acceptance uses the integrated public-source records, never this extension.
+  onto.schema = structuredClone(LOCAL_SCHEMA);
+  const edge = (s, t, pred, review = 'curated', src = 'silex') => onto.links.push({ s, t, pred, review, src });
+  const node = (id, kind, source, benchmark, domain, parent) => {
+    const n = { id: 'bench:fixture:' + id, kind, layer: 4, group: 'agent', label: 'Synthetic ' + id,
+      def: 'Synthetic verifier fixture, not public evidence.', review: 'published',
+      src: [{ sys: source, id, label: 'Synthetic fixture', ver: 'v1.2.1' }], benchmark: { source, ...benchmark },
+      parent: parent || 'ag:' + kind, parentPred: kind === 'incident' ? 'OCCURRED_IN' : 'INSTANCE_OF' };
+    if (domain) n.domain = domain;
+    onto.nodes.push(n); edge(n.id, n.parent, n.parentPred);
+    if (domain) edge(n.id, 'dom:' + domain, 'BELONGS_TO');
+    return n.id;
+  };
+  const agent = node('agent', 'planner', 'agentdojo', {}), tool = node('tool', 'tool-reg', 'agentdojo', {});
+  for (const [i, model] of ['meta-llama_Llama-3.3-70B-Instruct', 'Meta-SecAlign-70B'].entries()) {
+    const run = node('run-' + i, 'trace', 'agentdojo', { model, suite: 'banking', injectionTask: 'injection_task_4', outcome: 'attack reported executed' }, 'finance');
+    const inc = node('inc-' + i, 'incident', 'agentdojo', { status: 'reported-executed', ...(i === 0 ?
+      { predicate: { hazard: 'haz-finance-scheduled-redirect', from: 'Synthetic predicate' }, evidenceCall: { name: 'update_scheduled_transaction', index: 0 } } :
+      { unmapped: 'Synthetic reported execution without a matching call' }) }, 'finance', run);
+    if (i === 0) edge(inc, 'hz:haz-finance-scheduled-redirect', 'EXHIBITS');
+    edge(run, agent, 'EXECUTED_BY', 'published', 'agentdojo'); edge(run, tool, 'INVOKES', 'published', 'agentdojo');
+  }
+  node('safe-run', 'trace', 'agentdojo', { model: 'meta-llama_Llama-3.3-70B-Instruct', suite: 'banking', injectionTask: 4, outcome: 'attack not executed' }, 'finance');
+  edge(tool, 'act:act-finance-update-scheduled', 'IMPLEMENTS');
+  const refusals = ['Payment method should be the original payment method'];
+  const tau = node('tau-run', 'trace', 'tau2', { outcome: 'task passed', refusals }, 'support');
+  const tauInc = node('tau-inc', 'incident', 'tau2', { status: 'attempt-refused', refusals }, 'support', tau);
+  edge(tauInc, 'hz:haz-support-refund-redirect', 'EXHIBITS');
+  node('tau-failed', 'trace', 'tau2', { outcome: 'task failed', refusals: [] }, 'support');
+  summarize(onto);
+  const directory = await stage('benchmark-synthetic-control', onto, cov);
+  assert.deepEqual((await verifyBundle(directory)).problems, [], 'benchmark synthetic positive control');
+}
 const positiveCQ = evaluateCompetencies(onto);
-assert.equal(positiveCQ.ok, true, 'positive CQ1–CQ9 control: ' + diagnostics(positiveCQ).join('; '));
-console.log('PASS positive control: verifier and CQ1–CQ9' + (SYNTHETIC ? ' (explicit synthetic P0 extension)' : ' (integrated bundle)'));
+assert.equal(positiveCQ.ok, true, 'positive CQ1–CQ10 control: ' + diagnostics(positiveCQ).join('; '));
+console.log('PASS positive control: verifier and CQ1–CQ10' + (SYNTHETIC || BENCH_SYNTHETIC ? ' (explicit synthetic extension)' : ' (integrated bundle)'));
 
 const by = x => new Map(x.nodes.map(n => [n.id, n]));
 const add = (x, s, t, pred, review = 'curated') => x.links.push({ s, t, pred, src: 'silex', review });
@@ -178,6 +216,61 @@ const graphFixtures = [
   ['nist-parent-invalid', x => { const n = x.nodes.find(n => n.src.some(s => s.sys === 'nist-800-53')); n.parent = 'grp:resource'; add(x, n.id, n.parent, 'GROUPED_UNDER'); }, /display parent must use GROUPED_UNDER to grp:policy/]
 
 ];
+/* C17–C20 controls reuse the P0b mutations, with ids selected from the input
+   bundle so the same suite exercises synthetic and real parser output. */
+const benchNode = (kind, source, extra = () => true) => {
+  const n = onto.nodes.find(n => isBenchmark(n) && n.kind === kind && n.benchmark?.source === source && extra(n));
+  assert.ok(n, 'benchmark fixture needs ' + source + ' ' + kind); return n.id;
+};
+const adAgent = benchNode('planner', 'agentdojo');
+const adRun = benchNode('trace', 'agentdojo', n => n.benchmark.outcome === 'attack reported executed');
+const tauRun = benchNode('trace', 'tau2', n => n.benchmark.refusals?.length);
+const adInc = benchNode('incident', 'agentdojo', n => onto.links.some(l => l.s === n.id && l.pred === 'EXHIBITS'));
+const unmappedInc = benchNode('incident', 'agentdojo', n => !onto.links.some(l => l.s === n.id && l.pred === 'EXHIBITS'));
+const tauInc = benchNode('incident', 'tau2');
+const one = (x, id) => by(x).get(id);
+const edgeFrom = (x, id, p) => x.links.find(l => l.s === id && l.pred === p);
+const removeNode = (x, id) => { x.nodes = x.nodes.filter(n => n.id !== id); x.links = x.links.filter(l => l.s !== id && l.t !== id); };
+graphFixtures.push(
+  ['benchmark-review', x => { one(x, adAgent).review = 'curated'; }, /benchmark node must be published/],
+  ['benchmark-source', x => { one(x, adAgent).benchmark.source = 'asb'; }, /benchmark source must/],
+  ['benchmark-citation', x => { one(x, adAgent).src = [{ sys: 'silex' }]; }, /matching agentdojo or tau2/],
+  ['benchmark-record', x => { one(x, adAgent).benchmark = null; }, /benchmark must be a record/],
+  ['benchmark-layer', x => { one(x, adAgent).layer = 3; }, /benchmark node must be L4/],
+  ['ordinary-runtime-published', x => { const n = one(x, 'rt-refund-agent'); n.review = 'published'; n.src = [{ sys: 'tau2' }]; }, /runtime node must be illustrative/],
+  ['benchmark-disallowed-grade', x => { edgeFrom(x, adAgent, 'INSTANCE_OF').review = 'published'; }, /disallowed link review/],
+  ['ordinary-runtime-no-domain', x => { delete one(x, 'rt-refund-agent').domain; }, /runtime node needs a domain/],
+  ['benchmark-run-no-domain', x => { delete one(x, adRun).domain; }, /runtime node needs a domain/],
+  ['benchmark-incident-no-domain', x => { delete one(x, adInc).domain; }, /runtime node needs a domain/],
+  ['benchmark-deployment-leak', x => { add(x, 'ag:trace', 'dom:legal', 'DEPLOYED_IN', 'illustrative'); }, /DEPLOYED_IN differs/],
+  ['benchmark-agentdojo-outcome', x => { one(x, adRun).benchmark.outcome = 'attack executed'; }, /invalid benchmark outcome/],
+  ['benchmark-tau-outcome', x => { one(x, tauRun).benchmark.outcome = 'attack reported executed'; }, /invalid benchmark outcome/],
+  ['benchmark-missing-outcome', x => { delete one(x, adRun).benchmark.outcome; }, /invalid benchmark outcome/],
+  ['benchmark-catalogue-outcome', x => { one(x, adAgent).benchmark.outcome = 'task passed'; }, /invalid benchmark outcome/],
+  ['benchmark-incident-status', x => { one(x, adInc).benchmark.status = 'observed'; }, /invalid benchmark incident status/],
+  ['benchmark-incident-status-source', x => { one(x, adInc).benchmark.status = 'attempt-refused'; }, /status disagrees with source/],
+  ['benchmark-incident-ordinary-run', x => { const target = x.nodes.find(n => n.kind === 'trace' && !isBenchmark(n)); one(x, adInc).parent = target.id; edgeFrom(x, adInc, 'OCCURRED_IN').t = target.id; }, /exactly one benchmark run/],
+  ['benchmark-incident-two-runs', x => { add(x, adInc, tauRun, 'OCCURRED_IN'); }, /exactly one benchmark run/],
+  ['benchmark-incident-source-mismatch', x => { const n = one(x, adInc); n.benchmark.source = 'tau2'; n.benchmark.status = 'attempt-refused'; n.src = [{ sys: 'tau2' }]; }, /incident and run sources disagree/],
+  ['benchmark-missing-predicate', x => { const b = one(x, adInc).benchmark; delete b.predicate; delete b.refusals; delete b.refusal; }, /EXHIBITS needs a recorded predicate/],
+  ['benchmark-empty-predicate', x => { const b = one(x, adInc).benchmark; b.predicate = { call: {}, args: [] }; delete b.refusals; delete b.refusal; }, /EXHIBITS needs a recorded predicate/],
+  ['benchmark-missing-unmapped', x => { delete one(x, unmappedInc).benchmark.unmapped; }, /unmapped benchmark incident needs a reason/],
+  ['benchmark-blank-unmapped', x => { one(x, unmappedInc).benchmark.unmapped = ' '; }, /unmapped benchmark incident needs a reason/],
+  ['benchmark-missing-reported-incident', x => { removeNode(x, edgeFrom(x, adInc, 'OCCURRED_IN').s); }, /benchmark incident count must be 1/],
+  ['benchmark-missing-refusal-incident', x => { removeNode(x, tauInc); }, /benchmark incident count must be 1/],
+  ['benchmark-unexpected-agentdojo-incident', x => { const run = edgeFrom(x, adInc, 'OCCURRED_IN').t; one(x, run).benchmark.outcome = 'attack not executed'; }, /benchmark incident count must be 0/],
+  ['benchmark-unexpected-retail-incident', x => { const run = edgeFrom(x, tauInc, 'OCCURRED_IN').t; one(x, run).benchmark.refusals = []; delete one(x, run).benchmark.refusal; }, /benchmark incident count must be 0/],
+  ['benchmark-unrecognized-refusal', x => { const b = one(x, tauInc).benchmark; b.refusals = ['User not found']; delete b.refusal; delete b.predicate; }, /EXHIBITS needs a recorded predicate/],
+  ['benchmark-duplicate-incident', x => { const n = structuredClone(one(x, adInc)); n.id += ':duplicate'; x.nodes.push(n); x.links.push(...x.links.filter(l => l.s === adInc).map(l => ({ ...l, s: n.id }))); }, /benchmark incident count must be 1/],
+  ['benchmark-legacy-schema', x => { for (const [p, g] of Object.entries({ INSTANCE_OF: 'curated', OCCURRED_IN: 'curated', BELONGS_TO: 'curated', IMPLEMENTS: 'curated', EXHIBITS: 'curated', EXECUTED_BY: 'published', INVOKES: 'published' })) x.schema.predicates[p].review = x.schema.predicates[p].review.filter(v => v !== g); }, /schema drift/]
+);
+for (const [p, grade] of Object.entries({ INSTANCE_OF: 'curated', OCCURRED_IN: 'curated', BELONGS_TO: 'curated', IMPLEMENTS: 'curated', EXHIBITS: 'curated', EXECUTED_BY: 'published', INVOKES: 'published' }))
+  graphFixtures.push(['ordinary-benchmark-grade-' + p, x => {
+    let l = x.links.find(l => l.pred === p && !isBenchmark(one(x, l.s)));
+    if (!l) { l = { s: 'rt-inc-1042', t: 'rt-refund-agent', pred: p }; x.links.push(l); }
+    l.review = grade; l.src = 'tau2';
+  }, /additional review grade requires a benchmark source/]);
+
 for (const [name, mutate, expected] of graphFixtures) {
   const x = structuredClone(onto); mutate(x); summarize(x);
   const r = validateGraph(x);
@@ -238,6 +331,20 @@ const cqFixtures = [
   ['cq9-no-ocsf-record', x => { x.links = x.links.filter(l => !(l.pred === 'CLOSE_MATCH' && (by(x).get(l.t)?.src || []).some(s => s.sys === 'ocsf'))); }, 'CQ9', /no OCSF class/]
 
 ];
+const cq10Run = onto.nodes.find(n => n.kind === 'trace' && n.benchmark?.source === 'agentdojo' && n.benchmark.suite === 'banking' && String(n.benchmark.injectionTask).replace(/^injection_task_/, '') === '4' && n.benchmark.outcome === 'attack reported executed' && onto.links.some(l => l.pred === 'OCCURRED_IN' && l.t === n.id && onto.links.some(e => e.s === l.s && e.pred === 'EXHIBITS' && e.t === 'hz:haz-finance-scheduled-redirect')));
+assert.ok(cq10Run, 'CQ10 negative controls require a mapped task-4 run');
+const cq10Inc = onto.links.find(l => l.t === cq10Run.id && l.pred === 'OCCURRED_IN').s;
+cqFixtures.push(
+  ['cq10-missing-hazard', x => { removeNode(x, 'hz:haz-finance-scheduled-redirect'); }, 'CQ10', /scheduled-redirect hazard missing/],
+  ['cq10-missing-model', x => { const ids = x.nodes.filter(n => n.kind === 'trace' && n.benchmark?.model === 'Meta-SecAlign-70B').map(n => n.id); ids.forEach(id => removeNode(x, id)); }, 'CQ10', /no banking task-4 benchmark runs/],
+  ['cq10-invalid-outcome', x => { one(x, cq10Run.id).benchmark.outcome = 'attack executed'; }, 'CQ10', /invalid task-4 outcome/],
+  ['cq10-invalid-run', x => { one(x, cq10Run.id).review = 'illustrative'; }, 'CQ10', /invalid public benchmark run/],
+  ['cq10-ordinary-incident', x => { delete one(x, cq10Inc).benchmark; }, 'CQ10', /invalid reported-executed benchmark incident/],
+  ['cq10-missing-occurrence', x => { x.links = x.links.filter(l => !(l.s === cq10Inc && l.pred === 'OCCURRED_IN')); }, 'CQ10', /incident count disagrees/],
+  ['cq10-unreviewed-exhibit', x => { x.links.find(l => l.s === cq10Inc && l.pred === 'EXHIBITS' && l.t === 'hz:haz-finance-scheduled-redirect').review = 'published'; }, 'CQ10', /EXHIBITS must be curated/],
+  ['cq10-missing-predicate', x => { delete one(x, cq10Inc).benchmark.predicate; }, 'CQ10', /mapping needs recorded predicate/],
+  ['cq10-missing-matching-call', x => { delete one(x, cq10Inc).benchmark.evidenceCall; }, 'CQ10', /mapping needs recorded predicate/]
+);
 for (const [name, mutate, question, expected] of cqFixtures) {
   const x = structuredClone(onto); mutate(x);
   const r = evaluateCompetencies(x), q = r.results.find(q => q.id === question);
@@ -258,7 +365,7 @@ function addCoreSubtype(x, id, root, label) {
 async function positiveFixture(name, x) {
   summarize(x);
   const c = structuredClone(cov);
-  c.kpis.find(k => k.id === 'entities').delta = x.nodes.length + ' ontology types';
+  c.kpis.find(k => k.id === 'entities').delta = typeCount(x) + ' ontology types';
   const directory = await stage(name, x, c);
   assert.deepEqual((await verifyBundle(directory)).problems, [], name + ': valid graph control');
   const result = cli('competency.mjs', directory);
@@ -301,7 +408,7 @@ addCoreSubtype(deltaGraph, 'core:fixture-freeze-subtype', 'core:human-approval',
 summarize(deltaGraph);
 const deltaCoverage = structuredClone(cov);
 deltaCoverage.generated = 'new-generation';
-deltaCoverage.kpis.find(k => k.id === 'entities').delta = deltaGraph.nodes.length + ' ontology types';
+deltaCoverage.kpis.find(k => k.id === 'entities').delta = typeCount(deltaGraph) + ' ontology types';
 const deltaDirectory = await stage('coverage-freeze-delta-positive', deltaGraph, deltaCoverage);
 assert.deepEqual((await verifyBundle(deltaDirectory, { base: baselineFile })).problems, []);
 const deltaCLI = spawnSync(process.execPath, [join(SCRIPTS, 'verify-bundle.mjs'), deltaDirectory, '--base', baselineFile], { encoding: 'utf8' });
@@ -337,6 +444,55 @@ for (const file of ['ontology.json', 'ontology.js', 'coverage.json', 'coverage.j
 assert.ok((await verifyBundle(noNotice)).problems.some(p => /NOTICES.md: required/.test(p)));
 assert.equal(cli('verify-bundle.mjs', noNotice).status, 1);
 console.log('PASS NOTICES positive and missing-source / missing-OCSF-text / missing-file negatives');
+
+const leakedCoverage = structuredClone(cov);
+leakedCoverage.kpis.find(k => k.id === 'entities').delta = onto.nodes.length + ' ontology types';
+const leakDir = await stage('benchmark-coverage-leak', onto, leakedCoverage);
+assert.ok((await verifyBundle(leakDir)).problems.some(p => /non-benchmark ontology node count/.test(p)));
+assert.equal(cli('verify-bundle.mjs', leakDir).status, 1);
+console.log('REJECT benchmark nodes in entities KPI');
+
+/* A reported execution without a reviewed predicate remains a legitimate unmapped
+   incident. CQ10 must reduce EXHIBITS counts without reducing reported counts. */
+const unmappedTask4 = structuredClone(onto), before10 = evaluateCompetencies(onto).results.find(q => q.id === 'CQ10');
+unmappedTask4.links = unmappedTask4.links.filter(l => !(l.s === cq10Inc && l.pred === 'EXHIBITS'));
+const ub = one(unmappedTask4, cq10Inc).benchmark; delete ub.predicate; delete ub.evidenceCall; ub.unmapped = 'Synthetic control: reported execution, no reviewed predicate';
+const after10 = evaluateCompetencies(unmappedTask4).results.find(q => q.id === 'CQ10');
+assert.equal(after10.ok, true);
+for (const model of before10.answer.models) {
+  const after = after10.answer.models.find(m => m.model === model.model);
+  assert.equal(after.evaluatorReportedExecutions, model.evaluatorReportedExecutions);
+  assert.equal(after.runsExhibitingScheduledRedirect, model.runsExhibitingScheduledRedirect - (model.model === cq10Run.benchmark.model ? 1 : 0));
+}
+assert.match(after10.answer.interpretation, /benchmark runs.*not enterprise/i);
+await positiveFixture('cq10-reported-but-unmapped', unmappedTask4);
+const tauFailedWithRefusal = structuredClone(onto); one(tauFailedWithRefusal, tauRun).benchmark.outcome = 'task failed';
+await positiveFixture('benchmark-task-failed-with-refusal', tauFailedWithRefusal);
+console.log('PASS CQ10 separates reported executions from mapped runs; retail reward is independent of refused incidents');
+
+/* Copy controls keep every old count correct and break only the new partition
+   statement. Synthetic development bundles intentionally have no matching docs. */
+if (!SYNTHETIC && !BENCH_SYNTHETIC) {
+  const files = ['index.html', 'assurance.html', 'SECURITY_WORLD_MODEL.md', 'swm/README.md', 'swm/skills/swm-data-rebuild/SKILL.md'];
+  const copy = Object.fromEntries(await Promise.all(files.map(async f => [f, await readFile(join(ROOT, f), 'utf8')])));
+  for (const [name, mutate, diagnostic] of [
+    ['positive', s => s, null],
+    ['wrong-illustrative', s => s.replace(/(\d+) illustrative \+ (\d+) benchmark/, (_, a, b) => (+a + 1) + ' illustrative + ' + b + ' benchmark'), /illustrative L4 says/],
+    ['wrong-benchmark', s => s.replace(/(\d+) illustrative \+ (\d+) benchmark/, (_, a, b) => a + ' illustrative + ' + (+b + 1) + ' benchmark'), /benchmark L4 says/],
+    ['missing-partition', s => s.replace(/\d+ illustrative \+ \d+ benchmark/g, 'partition counts omitted'), /rule "L4 partition" matched nothing/]
+  ]) {
+    const directory = join(temp, 'copy-' + name);
+    for (const f of files) {
+      await mkdir(dirname(join(directory, f)), { recursive: true });
+      await writeFile(join(directory, f), f === 'index.html' ? mutate(copy[f]) : copy[f]);
+    }
+    const r = spawnSync(process.execPath, [join(SCRIPTS, 'check-copy.mjs'), directory, '--data', DATA], { encoding: 'utf8' });
+    assert.equal(r.status, diagnostic ? 1 : 0, 'L4 partition copy ' + name);
+    if (diagnostic) assert.match(r.stdout, diagnostic);
+    await writeFile(join(directory, 'proof.log'), r.stdout + r.stderr);
+  }
+  console.log('PASS L4 copy partition positive and three isolated negatives');
+}
 
 /* Stage all four BASE files exactly; expected failure must not be a load error. */
 const base = join(temp, 'BASE'); await mkdir(base);

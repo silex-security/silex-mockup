@@ -473,6 +473,28 @@ for (const cl of S.CASE_LINKS || []) {
   if (typeof cl.via !== 'string' || !cl.via) fail(`CASE_LINKS ${cl.hazard} → ${cl.case}: via is required`);
 }
 
+/* ---- L4 benchmark runs (plan R3): hazards, domains, limits ----------------- */
+{
+  const BR = S.BENCHMARK_RUNS || {};
+  const limit = BR.limit ?? 1000;
+  if (typeof limit !== 'number' || limit < 1) fail(`BENCHMARK_RUNS.limit must be a positive number`);
+  for (const pred of BR.agentdojo?.predicates || []) {
+    if (!hazardById.has(pred.hazard)) fail(`BENCHMARK_RUNS.agentdojo predicate hazard "${pred.hazard}" does not exist`);
+    if (typeof pred.call !== 'string' || !pred.call) fail(`BENCHMARK_RUNS.agentdojo predicate for ${pred.hazard} has no call`);
+  }
+  for (const r of BR.tau2?.refusals || []) {
+    if (!hazardById.has(r.hazard)) fail(`BENCHMARK_RUNS.tau2 refusal hazard "${r.hazard}" does not exist`);
+    if (typeof r.text !== 'string' || !r.text) fail(`BENCHMARK_RUNS.tau2 refusal has no text`);
+  }
+  for (const [suite, s] of Object.entries(BR.agentdojo?.suites || {})) {
+    if (!domainIds.has(s.domain)) fail(`BENCHMARK_RUNS.agentdojo suite "${suite}" domain "${s.domain}" is not a domain`);
+    if (!Array.isArray(s.injectionTasks) || !s.injectionTasks.length) fail(`BENCHMARK_RUNS.agentdojo suite "${suite}" has no injectionTasks`);
+  }
+  if (BR.tau2 && !domainIds.has(BR.tau2.domain)) fail(`BENCHMARK_RUNS.tau2 domain "${BR.tau2.domain}" is not a domain`);
+  const total = (BR.agentdojo?.expect?.runs ?? 0) + (BR.tau2?.expect?.runs ?? 0);
+  if (total > limit) fail(`BENCHMARK_RUNS: ${total} runs exceed the limit ${limit}`);
+}
+
 /* ---- label collisions (normalized: lowercase, non-alphanumerics removed) -- */
 {
   const norm = s => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
