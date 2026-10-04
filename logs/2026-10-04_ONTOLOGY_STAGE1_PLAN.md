@@ -141,3 +141,14 @@ page gate → merge, deploy, live read-back.
 (a) p = 0.0001, precision change +6.3 to +18.4 points (95 % CI); (b) θ = +1.2 points, pooled +3.0 points → holds; (c) p = 0.020 (random
 typing mean precision 0.375). Secondary: task-crossed recall NI p = 0.077 (3 points) / 0.030 (5 points); sign-flip p = 0.031
 (assumption-conditioned). Report: [`2026-10-04_ONTOLOGY_S1_REPORT.md`](2026-10-04_ONTOLOGY_S1_REPORT.md).
+
+### Verdict record
+
+| Seat | Plan (R3) | Freeze (R2) | Code + report + page (R2) |
+|---|---|---|---|
+| coder-deepseek | `PLAN-APPROVED` | `FREEZE-APPROVED` | `IMPL-APPROVED` |
+| reviewer-codex | `PLAN-APPROVED` | `FREEZE-APPROVED` | `IMPL-APPROVED` |
+| planner | `PLANNER (claude): PLAN-APPROVED` | `PLANNER (claude): FREEZE-APPROVED` | `PLANNER (claude): IMPL-APPROVED` |
+
+Final gate R1: reviewer-codex rejected "without losing attacks in this pool" (true alerts fell in two base models) → aggregate wording.
+Approved revisions: jev `7722e1b`, silex-mockup `0e91f4b`. Probes: stage-1 card 9/9, ontology card 11/11, E-PR card 8/8.
