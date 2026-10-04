@@ -138,6 +138,7 @@ Two different records share the number 1042, and this plan keeps them apart:
 | C8 | `verify-bundle.mjs` bundle cap: 700 KB → **10 MB** per browser bundle (decided) | See [§ Budget](#budget) |
 | C9 | Optional node field `attrs: [{name, def}]` on `class` nodes from CDM, `published`; not nodes, not relations; the verifier checks shape and that `def` is at most 200 characters | Gives entities their fields (S9) without adding thousands of nodes. The Network view's VOWL datatype boxes stay off; the inspector lists them |
 | C10 | Source allow-list (C7) also adds `asb`; `tau2` covers both S5 and S8 | S7, S8 provenance |
+| C11 | `src.kind` on AgentDojo and τ²-bench entries: `tool` (a tool name or description) or `task` (an injection task, user task or ground truth) | Phase 2 must build an ontology without task-derived content; see [§ Next phase](#next-phase) |
 
 ## Tasks
 
@@ -149,7 +150,7 @@ Two different records share the number 1042, and this plan keeps them apart:
 | T3 | Finance: fetch the pinned FIBO modules; import only the T0 class list plus their FIBO superclasses up to the module root; AgentDojo banking (pinned `task_suite.py`, `injection_tasks.py`): extract tool names and injection goals by pattern; build the T0 actions and hazards with `src` pointing at the task; add ASB `financial_analyst_agent` scenarios and the T0 `banking_knowledge` rules as further `src` or new hazards; `CLOSE_MATCH` per `DOMAIN_ALIGNMENT.finance` | `build-ontology.mjs`, `silex-seed.mjs` |
 | T4 | Customer Service: fetch the pinned CDM entity documents; import the T0 entity list; τ²-bench retail (pinned `tools.py`, `policy.md`): extract tool names and the T0 policy rules by pattern; build the T0 actions and hazards with `src` pointing at the rule; add ASB `ecommerce_manager_agent` scenarios as the attack source; CDM attributes (S9) on every imported CDM class; `CLOSE_MATCH` per `DOMAIN_ALIGNMENT.support` | `build-ontology.mjs`, `silex-seed.mjs` |
 | T5 | Links to real cases: `EXEMPLIFIED_BY` from Finance and Customer Service hazards to case studies whose techniques the hazard already `CHARACTERIZES`. A hazard with no such case gets none; no edge is invented | `build-ontology.mjs` |
-| T6 | Pipeline checks: `validate-seed.mjs` knows the new exports; `competency.mjs` gains CQ7 and CQ8; negative fixtures for C2–C6; a cold-load timing probe (see Budget); the `SOURCES.md` generator lists S2–S6 with licences | skill scripts, `build-ontology.mjs` |
+| T6 | Pipeline checks: build option `--exclude-source agentdojo-tasks` writing to a directory other than `swm/data/` (for phase 2); `validate-seed.mjs` knows the new exports; `competency.mjs` gains CQ7 and CQ8; negative fixtures for C2–C6; a cold-load timing probe (see Budget); the `SOURCES.md` generator lists S2–S6 with licences | skill scripts, `build-ontology.mjs` |
 | T7 | UI: provenance chips and labels for `fibo`, `cdm`, `atlas-cs`, `agentdojo`, `tau2`, `asb`; inspector shows `CLOSE_MATCH`, `EXEMPLIFIED_BY` and a class's `attrs` (collapsed by default); Network and Hierarchy views handle kind `case`. No layout change | `swm/js/swm-core.js`, `swm/js/swm-ontology.js`, `swm/js/swm-vowl*.js` (only if a kind table needs it) |
 | T8 | Copy and docs: counts in `SECURITY_WORLD_MODEL.md`, `swm/README.md`, the `index.html` About text; replace "700 KB budget" wording; `check-copy.mjs` rules for the new counts | docs, `index.html` (copy only), `check-copy.mjs` |
 
@@ -243,6 +244,13 @@ Plus, from the bundle:
 - **Weaker evidence in Customer Service.** τ²-bench has no attacks and ASB's attacks are generated text; overstating either would break the claim discipline.
 - **Selection bias.** S7 and S8 are large (400 scenarios, 698 documents); T0 must state the selection rule, not just a list, so a reviewer can check nothing convenient was cherry-picked.
 - **A large cap removes the size signal.** The timing probe (T6) replaces it.
+
+## Next phase
+
+Phase 2 measures whether the ontology does anything: [`2026-10-03_SWM_ONTOLOGY_VALUE_EXPERIMENTS_PLAN.md`](2026-10-03_SWM_ONTOLOGY_VALUE_EXPERIMENTS_PLAN.md)
+(E1: ontology context for the Kev judge; E3: predicting the other attack paths from one blocked attack).
+It needs C11 and the T6 build option from this plan, because AgentDojo is Kev's held-out test set and
+E3's ground truth: phase 2 runs on a snapshot with no AgentDojo task-derived content.
 
 ## Round log
 
