@@ -252,3 +252,27 @@
 #rtPipeline[data-reduced] #rtToken,
 #rtPipeline[data-reduced] .rt-stage,
 #rtPipeline[data-reduced] .rt-exit { transition: none !important; animation: none !important; }
+
+/* Click a stage to pause the animation there; click it again to resume (js/rt-pipeline.js togglePause). */
+#rtPipeline [data-pause-key] { cursor: pointer; outline-offset: 2px; }
+#rtPipeline .rt-exits[data-pause-key] { border-radius: 10px; }
+#rtPipeline .rt-stage[data-pause-key]:hover { border-color: var(--blue); }
+#rtPipeline [data-pause-key]:focus-visible { outline: 2px solid var(--blue); }
+#rtPipeline [data-pause-key][data-pause-pending] { outline: 2px dashed var(--blue); }
+#rtPipeline [data-pause-key][data-paused] { outline: 2px solid var(--blue); position: relative; }
+#rtPipeline [data-pause-key][data-paused]::after {
+  content: '⏸ paused · click to resume';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  transform: translateX(-50%);
+  z-index: 4;
+  white-space: nowrap;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--blue);
+  border-radius: 999px;
+  padding: 1px 7px;
+  pointer-events: none;
+}

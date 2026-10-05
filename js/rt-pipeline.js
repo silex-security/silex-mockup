@@ -2,7 +2,9 @@
    - traceOf(env): pure envelope → one action's outcome + stage states + caption. Never guesses: throws on an
      unknown action or decided_by so a probe can catch a schema drift.
    - mountPipeline(root, { reducedMotion }): renders the §1.2 picture into `root` and returns
-     { idle, replay, skip, stop, reset, error }. The host (task 3) drives it; probes read the §2.2 DOM hooks. */
+     { idle, replay, skip, stop, reset, error }. The host (task 3) drives it; probes read the §2.2 DOM hooks.
+   - Click (or Enter/Space on) one of the six stages to pause the animation there: the token stops at that stage
+     (now, or when it next reaches it); click it again to resume. Clicking another stage moves the pause there. */
 
 const EXIT = {
   allow: 'allow', allow_and_alert: 'allow',
@@ -102,14 +104,14 @@ export function mountPipeline(root, { reducedMotion = false } = {}) {
 
   const conn = '<span class="rt-conn" aria-hidden="true"></span>';
   const stageHtml = STAGES.map(s => `
-    <div class="rt-stage" data-stage="${s.key}" data-state="idle">
+    <div class="rt-stage" data-stage="${s.key}" data-pause-key="${s.key}" data-state="idle">
       ${ICONS[s.key]}
       <span class="rt-stage-name">${s.name}</span>
       <span class="rt-stage-cap">${s.cap}</span>
       <span class="rt-stage-note"></span>
       <span class="rt-stage-monitor"></span>
     </div>`).join(conn);
-  const exitsHtml = `<div class="rt-exits">${EXITS.map(e =>
+  const exitsHtml = `<div class="rt-exits" data-pause-key="exit">${EXITS.map(e =>
     `<div class="rt-exit" data-exit="${e.key}"><b>${e.label} ${e.glyph}</b><span>${e.sub}</span></div>`).join('')}</div>`;
 
   root.innerHTML = `
@@ -119,7 +121,7 @@ export function mountPipeline(root, { reducedMotion = false } = {}) {
       ${conn}
       ${exitsHtml}
       ${conn}
-      <div class="rt-stage rt-evidence" data-stage="evidence" data-state="idle">
+      <div class="rt-stage rt-evidence" data-stage="evidence" data-pause-key="evidence" data-state="idle">
         ${ICONS.evidence}
         <span class="rt-stage-name">Evidence</span>
         <span class="rt-stage-cap">record of the decision · preview only; nothing leaves the browser</span>
@@ -167,7 +169,7 @@ export function mountPipeline(root, { reducedMotion = false } = {}) {
   }
   if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => { docVisible = !document.hidden; visibilityChanged(); });
 
-  function clearTimers() { for (const id of timers) clearTimeout(id); timers.clear(); }
+  function clearTimers() { for (const id of timers) clearTimeout(id); timers.clear(); clearPause(); }
   function stopIdle() { idleG = null; }
   function forgetIdle() { stopIdle(); idleList = null; pausedList = null; }
 
@@ -176,6 +178,47 @@ export function mountPipeline(root, { reducedMotion = false } = {}) {
       const id = setTimeout(() => { timers.delete(id); (gen === g ? resolve() : reject(new Error('stale'))); }, ms);
       timers.add(id);
     });
+  }
+
+  // Pause at a stage. pauseAt is the stage the viewer clicked; the animation stops once the token has dwelt at that
+  // stage (immediately if it is already there) and waits on pauseWaiter until the same stage is clicked again.
+  // A new run, Skip, stop or reset (anything that bumps gen and clears the timers) drops the pause.
+  const pauseEls = [...root.querySelectorAll('[data-pause-key]')];
+  let pauseAt = null, pauseWaiter = null;
+  const pauseLabel = el => el.dataset.pauseKey === 'exit' ? 'Allow / Hold / Block' : el.querySelector('.rt-stage-name').textContent;
+  for (const el of pauseEls) {
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-pressed', 'false');
+    el.title = `Pause at ${pauseLabel(el)}`;
+    el.addEventListener('click', () => togglePause(el.dataset.pauseKey));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePause(el.dataset.pauseKey); } });
+  }
+  function showPause() {
+    for (const el of pauseEls) {
+      const on = el.dataset.pauseKey === pauseAt;
+      el.toggleAttribute('data-pause-pending', on && !pauseWaiter);
+      el.toggleAttribute('data-paused', on && !!pauseWaiter);
+      el.setAttribute('aria-pressed', String(on));
+      el.title = on ? `Paused at ${pauseLabel(el)} · click again to resume` : `Pause at ${pauseLabel(el)}`;
+    }
+    if (pauseWaiter) root.dataset.paused = pauseAt; else delete root.dataset.paused;
+  }
+  function releaseWaiter(ok) { const w = pauseWaiter; pauseWaiter = null; if (w) (ok ? w.resolve() : w.reject(new Error('stale'))); }
+  function clearPause() { pauseAt = null; releaseWaiter(false); showPause(); }
+  function togglePause(key) {
+    if (reducedMotion || (!cur && idleG === null)) return;   // nothing is animating
+    if (pauseAt === key) { pauseAt = null; releaseWaiter(true); }
+    else { pauseAt = key; releaseWaiter(true); }   // re-target: leave the old stop and stop at the new stage
+    showPause();
+  }
+  // Called after the token's dwell at `key`: holds the step while the viewer has paused at that stage.
+  async function gate(key, g) {
+    while (pauseAt === key && gen === g) {
+      await new Promise((resolve, reject) => { pauseWaiter = { resolve, reject }; showPause(); });
+    }
+    if (gen !== g) throw new Error('stale');
+    showPause();
   }
 
   // The token's offset is in pixels, so a resize (e.g. a phone rotating, or the vertical layout under 640 px)
@@ -292,30 +335,36 @@ export function mountPipeline(root, { reducedMotion = false } = {}) {
     setStage('action', 'active', trace);
     moveToken(stageEls.action);
     await tick(stepMs, g);
+    await gate('action', g);
 
     setStage('action', 'pass', trace);
     setStage('rules', 'active', trace);
     moveToken(stageEls.rules);
     await tick(stepMs, g);
+    await gate('rules', g);
 
     setStage('rules', trace.stages.rules, trace);
     setStage('judge', 'active', trace);
     moveToken(stageEls.judge);
     await tick(stepMs, g);
+    await gate('judge', g);
 
     setStage('judge', trace.stages.judge, trace);
     setStage('policy', 'active', trace);
     moveToken(stageEls.policy);
     await tick(stepMs, g);
+    await gate('policy', g);
 
     setStage('policy', trace.stages.policy, trace);
     lightExit(trace.exit);
     moveToken(exitEls[trace.exit]);
     await tick(stepMs, g);
+    await gate('exit', g);
 
     setStage('evidence', 'active', trace);
     moveToken(stageEls.evidence);
     await tick(stepMs, g);
+    await gate('evidence', g);
 
     setStage('evidence', 'pass', trace);
   }

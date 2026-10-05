@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S42. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -611,6 +611,36 @@ try {
     await nav('long-term');await ev('document.querySelector("#runEnvBtn").click()');
     await until(()=>ev('return !!document.querySelector("#ltSteps .running")'),'System Validation steps still animate');
     return '#rtSteps gone; claims on pipeline and result; 390 px no overflow; frame timeout → error state; System Validation steps unaffected';
+  });
+  await probe('S43','pipeline: click a stage to pause there, click again to resume',async()=>{
+    await rtOpen();
+    // During a run: click Judge; the token stops on Judge and stays there; a second click resumes to done.
+    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),'SOC5 replaying');
+    await ev('document.querySelector(\'#rtPipeline [data-pause-key="judge"]\').click()');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.paused==="judge"'),'paused at judge',3000);
+    const at=()=>ev('const p=document.querySelector("#rtPipeline"),j=p.querySelector(\'[data-stage="judge"]\');return [p.dataset.mode,p.dataset.actionIndex,j.dataset.state,j.hasAttribute("data-paused"),j.getAttribute("aria-pressed")]');
+    await ev('document.querySelector("#rtPipeline").scrollIntoView({block:"center"})');await sleep(400);await shot('s43-paused-judge');
+    const first=await at();assert.deepEqual([first[0],first[2],first[3],first[4]],['replay','active',true,'true'],'judge is active and marked paused');
+    await sleep(2500);assert.deepEqual(await at(),first,'nothing moves while paused');
+    // Another stage moves the pause: the token leaves Judge and stops at Evidence of the same action.
+    await ev('document.querySelector(\'#rtPipeline [data-pause-key="evidence"]\').click()');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.paused==="evidence"'),'pause moved to evidence',3000);
+    assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.actionIndex'),first[1],'same action, now at Evidence');
+    // The same stage again resumes; the run completes.
+    await ev('document.querySelector(\'#rtPipeline [data-pause-key="evidence"]\').click()');
+    assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.paused??null'),null,'resumed');
+    await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('SOC5 ·')`),'SOC5 completes after resume',25000);
+    assert.equal(await ev('return document.querySelectorAll("#rtPipeDots [data-exit]").length'),4);
+    // Enter on the fork pauses too; Skip while paused ends the run and clears the pause.
+    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),'SOC5 replaying again');
+    await ev('document.querySelector(\'#rtPipeline [data-pause-key="exit"]\').dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.paused==="exit"'),'paused at the fork via Enter',3000);
+    await ev('document.querySelector("#rtPipeSkip").click()');
+    await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="done"'),'skip while paused',1000);
+    assert.equal(await ev('return [document.querySelector("#rtPipeline").dataset.paused??"",document.querySelectorAll("#rtPipeline [data-paused],#rtPipeline [data-pause-pending]").length].join()'),',0','pause cleared by Skip');
+    return 'Judge click holds the run on Judge for 2.5 s; clicking Evidence moves the pause; clicking it again resumes to Complete; Enter on the fork pauses; Skip clears the pause';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{
