@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-04 — World Model Coverage: system colours, and hover insights on why coverage is low
+
+- **Colours:** Coverage was the only view in pink/magenta. Arcs, legend, dimension bars and radar now use the site's indigo (`--lav` → `--blue2`); Gap weight runs slate → accent violet. Every arc stop ≥ 3:1 against the stage. Ontology Graph *colour by coverage* and the Layers meters share the ramp and change with it.
+- **Insights:** hovering an arc or list row (or Tab-focusing a row) explains the figure: the two weakest dimensions vs the parent, the children that pull it down, recorded gaps in scope, and up to three suggested steps (the gap's authored action first, then a step per weak dimension). The side card shows the same for the focused node, for touch. Every line is a rearrangement of the authored demo bundle and says so; suggested steps are labelled illustrative.
+- **Untouched:** `swm/data/*`, Coverage Gaps, Domain Suites, the status palette. Probes: `probe-swm.mjs` 32/32 (new `COV-INS-*`, all failing on the previous `main`), site probes 42/42. Reviews: plan 2 rounds, code 2 rounds, unanimous (Claude planner, DeepSeek V4 Pro, Codex). Plan and record: [`2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md`](2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md).
+
 ## 2026-10-04 — Ontology typing alone: first pre-registered confirmation
 
 - **Test (stage 1, 12 195 never-opened AgentDojo runs; 18 pipelines and attack variants from six base models; no judge):** the same runtime provenance graph with and without ontology types. Alerts 5 015 → 4 000; precision 0.41 → 0.54 (p 0.0001, generalising across tasks); recall 0.84 → 0.87 (descriptive constraint: no more than 3 points lower, held for the mean over base models and for all runs); above random typing (p 0.020). **Confirmed (H15).** Precision rose for all six base models.

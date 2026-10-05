@@ -183,3 +183,43 @@ and `aria-describedby` only after the tooltip node exists, clear on blur) are fo
 - PLANNER (claude): PLAN-APPROVED — plan v3
 
 `BASE` for the code gate: `fbbdc64d30c415416d4b35993e18f8a382806ca0`.
+
+## Outcome (2026-10-04)
+
+**Shipped.** Coverage arcs, legend, dimension bars and radar now use the site's indigo (`--lav` … `--blue2`);
+Gap weight goes slate → accent violet. Hovering an arc or a list row, or focusing a row with the keyboard, shows
+*why* the coverage is what it is: the two weakest dimensions vs the parent, the children that pull it down, the
+recorded gaps in scope and up to three suggested steps; the same block sits in the side card for the focused node
+(touch). Example, WF-055 · Vendor Master Change: "Why 55 %: lowest in Resource & Data (47 %)", −15 pts vs
+Purchase to Pay; gap "Procurement vendor data not connected"; plan 1. Connect data, 2. Connect the system of
+record…, 3. Register the missing workflow branches…
+
+- **Files:** `swm/js/swm-coverage-insights.js` (new, DeepSeek; planner follow-ups below),
+  `tests/site/swm-coverage-insights.test.mjs` (new, DeepSeek; 9 tests), `swm/js/swm-core.js` (ramps, `GAP_RAMP`,
+  `gapColor`, tip id + bottom clamp), `swm/css/swm.css` (tokens, gap legend, radar, insight styles),
+  `swm/js/swm-coverage.js` (wiring), `swm/js/swm-loader.js`, `probe-swm.mjs` (`COV-INS-*`, `LAZY`).
+- **Planner follow-ups to T1:** a missing dimension is skipped (never read as 0 %); no delta without a parent
+  value; driver entities via `SWM.num`; after code review, bundle action labels verbatim and the fixture suffix.
+- **Checks on revision `f3522138`:** `probe-swm.mjs` 32/32 (new `COV-INS-TIP/SIDE/KBD/COLOUR/TOUCH/OTHERS`, all
+  six **fail on `fbbdc64`** via `--root`), `preview-panels.mjs` ok, `run-site-probes.mjs` 42/42, every
+  `tests/site/*.test.mjs` passes.
+- **Untouched:** `swm/data/*` (authored figures), Coverage Gaps, Domain Suites, the reserved status palette.
+
+### Code-gate rounds
+
+| Round | Revision | DeepSeek | Codex | Change |
+|---|---|---|---|---|
+| 1 | `52a19327` | IMPL-APPROVED (5 nits) | IMPL-REJECTED: `SPECIAL_GAP` replaced two authored gap actions with hand-written labels, against §B.5 | removed (the planner's T1 brief had asked for it); fixture suffix on plan steps and driver names (by id: `fixtureText` on a full name repeats it); arc click hides the tip; no `aria-live` on the whole card; no empty tip wrapper; new verbatim-label test |
+| 2 | `f3522138` | IMPL-APPROVED | IMPL-APPROVED | — |
+
+Not taken: the gap-weight legend's CSS midpoint vs the B-spline arc midpoint (endpoints match and are probed;
+cosmetic). Left for a later change (nits after approval): the side gap cards keep their older button wording
+("Focus Customer Refund", "Inspect memory gap") while the suggested plan uses the bundle labels; the unit test
+copies the `FIXTURE_IDS` regex rather than loading `swm-core.js`.
+
+### Code gate verdicts (revision `f3522138f8f68cef94ec4da243bd3611c00957d6`, base `fbbdc64`)
+
+- coder-deepseek (deepseek-v4-pro): IMPL-APPROVED
+- reviewer-codex (gpt-5.5): IMPL-APPROVED
+- PLANNER (claude): IMPL-APPROVED
+
