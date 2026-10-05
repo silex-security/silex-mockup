@@ -359,7 +359,7 @@
   .rt-onto-src mark{background:#ffe08a;border-radius:3px;padding:0 2px}.rt-judge-real{margin-top:10px}
   @media(max-width:760px){.rt-onto-controls .tabs{overflow:auto;flex-wrap:nowrap}.rt-onto-controls .tab{white-space:nowrap}}
   #rtLearning .body{overflow-wrap:anywhere}#rtLearning details{font-size:12px;color:var(--muted);margin-top:12px}#rtLearning summary{cursor:pointer}
-  @media(max-width:760px){.rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}.rt-learning-tiles{grid-template-columns:1fr}#rtLearning .card-head{flex-wrap:wrap;gap:12px}}
+  @media(max-width:760px){.rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}.rt-learning-tiles{grid-template-columns:1fr}#rtLearning .card-head,#rtOntology .card-head{flex-wrap:wrap;gap:12px}}
   .rt-run-result{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 14px}.rt-run-result .decision-state{margin:0;flex:1 1 320px}.rt-run-result .decision-state:not(.show){display:none}.rt-see-run{font-size:12px;font-weight:600;color:var(--blue2)}
   .rt-frame-wrap{height:780px;min-height:560px}
   /* Collapsible Runtime Observation sections: the title block toggles the body. */
@@ -368,6 +368,7 @@
   .rt-fold:not([data-fold="collapsed"]) .rt-fold-toggle h2::before{transform:rotate(90deg)}
   .rt-fold[data-fold="collapsed"]>.body{display:none}.rt-fold[data-fold="collapsed"]>.card-head{border-bottom:0}
   .rt-onto-ex-h{font-size:14px;margin:0 0 6px}
+  #rtOntoReport{background:ButtonFace;color:ButtonText;text-decoration:none;white-space:nowrap} /* matches the Try the loop button */
   #rtResult.error{background:var(--red-bg);color:var(--red)}
   @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
   @media(max-width:560px){.rt-row{grid-template-columns:44px minmax(0,1fr) auto}.rt-row .rt-chip{grid-column:2;grid-row:2;justify-self:start}.rt-row .btn{grid-column:3;grid-row:1/span 2}.rt-frame-wrap{height:680px}}
@@ -1159,7 +1160,7 @@
 </div>
 </div>
 <div class="card section-card rt-fold" id="rtOntology" data-fold="collapsed">
-<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtOntologyBody"><h2>What the ontology adds</h2><p>The same runtime provenance graph, with and without ontology types. Real AgentDojo benchmark runs of held-out agent models.</p></div></div>
+<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtOntologyBody"><h2>What the ontology adds</h2><p>The same runtime provenance graph, with and without ontology types. Real AgentDojo benchmark runs of held-out agent models.</p></div><a class="btn" id="rtOntoReport" href="https://claude.ai/artifact/MPE8qnD2f1bSz965s7y3Ap" target="_blank" rel="noopener">Check Report</a></div>
 <div class="body" id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
 </div>
 <div class="card section-card">
