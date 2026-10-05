@@ -440,7 +440,7 @@ try {
     for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
     const text=await ev('return document.querySelector("#rtLearning").textContent');
     assert.match(text,/The judge learns from your reviewers/);
-    assert.equal(await ev(`return document.querySelector('#rtLearning').previousElementSibling.id`),'rtScenarioCard','after the scenarios card');
+    assert.deepEqual(await ev(`return [...document.querySelector('#runtime-observation').querySelectorAll(':scope>.section-card')].map(e=>e.id)`),['rtScenarioCard','rtDecisionPlane','rtLearning','rtOntology','rtLatency'],'card order: scenarios, decision plane, learning, ontology, latency');
     assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
     assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);
     assert.equal(await ev(`return [...document.querySelectorAll('#rtLearning .rt-learning-tiles .metric')].filter(e=>e.textContent.includes('measured on an open benchmark (AgentDojo held-out); benchmark labels, not yet customer reviewers')).length`),3);
