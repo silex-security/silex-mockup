@@ -223,3 +223,11 @@ copies the `FIXTURE_IDS` regex rather than loading `swm-core.js`.
 - reviewer-codex (gpt-5.5): IMPL-APPROVED
 - PLANNER (claude): IMPL-APPROVED
 
+
+## Deploy record (2026-10-04)
+
+Pushed `5ee76ae` to `main` (fast-forward from `fbbdc64`); Vercel auto-deploy. Live read-back:
+`swm/js/swm-coverage-insights.js` 200 `application/javascript`; `swm-core.js`, `swm.css`, `swm-loader.js` serve
+the new build (the first fetch of `swm-core.js` hit a stale edge copy, then MISS → new). `COV-INS-*` + `E1` run
+against `https://silex-mockup.vercel.app/index.html` (scratch copy of `probe-swm.mjs` with only `base` changed):
+**7/7 pass**.
