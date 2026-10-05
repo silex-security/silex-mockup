@@ -11,9 +11,10 @@
   /* layer ramps: stage / paper */
   --swm-l1:#ece5ff; --swm-l2:#cdbcff; --swm-l3:#ae96f6; --swm-l4:#9b82ef;
   --swm-pl1:#50339c; --swm-pl2:#6f50c9; --swm-pl3:#8565d6; --swm-pl4:#8e70d9;
-  /* coverage ramps, low -> high over 40–100 %: stage / paper */
-  --swm-c1:#e0569f; --swm-c2:#e57ab5; --swm-c3:#eb9dca; --swm-c4:#f1c0de; --swm-c5:#f8e2ef;
-  --swm-pc1:#b0529c; --swm-pc2:#983f88; --swm-pc3:#7c3371; --swm-pc4:#61285a; --swm-pc5:#471d43;
+  /* coverage ramps, low -> high over 40–100 % (site indigo): stage / paper; gap = unmodelled share */
+  --swm-c1:#5f74e6; --swm-c2:#7f93f5; --swm-c3:#a2b2fb; --swm-c4:#c6d0ff; --swm-c5:#e9edff;
+  --swm-pc1:#6a7fe8; --swm-pc2:#5a70e0; --swm-pc3:#536bdb; --swm-pc4:#3f54b8; --swm-pc5:#2c3c8c;
+  --swm-g1:#7079b3; --swm-g2:#b7a3ff; --swm-g3:#e2d8ff;
 
   /* reserved status palette — always shipped with an icon + label */
   --swm-good:#0ca30c; --swm-warn:#fab219; --swm-serious:#ec835a; --swm-critical:#d03b3b;
@@ -129,7 +130,7 @@
 .swm-ramp{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--swm-ink-2)}
 .swm-ramp .bar{width:120px;height:8px;border-radius:999px;
   background:linear-gradient(90deg,var(--swm-c1),var(--swm-c2),var(--swm-c3),var(--swm-c4),var(--swm-c5))}
-.swm-ramp.gaps .bar{background:linear-gradient(90deg,#9aa4e8,#f06a9f)}
+.swm-ramp.gaps .bar{background:linear-gradient(90deg,var(--swm-g1),var(--swm-g2),var(--swm-g3))}
 .swm-hint{position:absolute;right:12px;bottom:12px;z-index:3;font-size:10.5px;color:var(--swm-ink-2);
   background:rgba(16,22,43,.72);border:1px solid var(--swm-line-d);border-radius:8px;padding:5px 9px}
 .swm-caption{font-size:11px;color:var(--swm-ink-2);line-height:1.5}
@@ -176,7 +177,7 @@
 /* tooltip (mounted on body: carries its own colours) */
 .swm-tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;
   background:#ffffff;color:#17191d;border:1px solid #e3e6ea;border-radius:10px;font-family:Inter,ui-sans-serif,system-ui,sans-serif;
-  padding:9px 11px;max-width:300px;box-shadow:0 14px 30px rgba(22,28,45,.2);font-size:11px;line-height:1.45}
+  padding:9px 11px;max-width:340px;box-shadow:0 14px 30px rgba(22,28,45,.2);font-size:11px;line-height:1.45}
 .swm-tip.on{opacity:1;transform:translateY(0)}
 .swm-tip b{display:block;font-size:12px;margin-bottom:3px;color:#17191d}
 .swm-tip small{display:block;color:#4f5864;font-size:10.5px;line-height:1.45}
@@ -257,8 +258,8 @@
 .swm-radar-wrap{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:4px}
 .swm-radar{width:100%;max-width:330px;display:block;margin:0 auto}
 .swm-radar .axis{stroke:rgba(23,25,29,.14)} .swm-radar .ring{fill:none;stroke:rgba(23,25,29,.10)}
-.swm-radar .area{fill:rgba(152,63,136,.16);stroke:var(--swm-pc2);stroke-width:2;transition:d .5s}
-.swm-radar .pt{fill:var(--swm-pc3)}
+.swm-radar .area{fill:rgba(83,107,219,.16);stroke:var(--swm-pc3);stroke-width:2;transition:d .5s}
+.swm-radar .pt{fill:var(--swm-pc4)}
 .swm-radar text{fill:var(--swm-p-ink-2);font-size:9px}
 .swm-radar .val{fill:var(--swm-p-ink);font-weight:660}
 .swm-gaps{display:grid;gap:7px}
@@ -319,3 +320,20 @@
 .swm-chain-p{font:600 10px var(--swm-mono);color:#50339c;margin:0 3px}
 .swm-chain-g{font:500 9px var(--swm-mono);color:#68707c;margin-right:3px}
 .swm-chain ul ul{margin:2px 0 4px;padding-left:14px}
+/* coverage insights: why a node's coverage is what it is (swm-coverage-insights.js); tooltip and side card, both white */
+.swm-ins{display:block;font-size:11px;line-height:1.45;color:#17191d}
+.swm-ins small{display:block;font-size:10.5px;color:#4f5864;line-height:1.45}
+.swm-ins .swm-ins-headline{display:block;font-size:11.5px;font-weight:680;color:#17191d;margin:0}
+.swm-ins .swm-ins-sec{margin:7px 0 2px;font:650 9px/1.2 var(--swm-mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:#68707c}
+.swm-ins .swm-ins-row{display:flex;flex-wrap:wrap;gap:0 5px;align-items:baseline}
+.swm-ins .swm-ins-dim{color:#17191d;font-weight:600}
+.swm-ins .swm-ins-val{font-variant-numeric:tabular-nums;color:#17191d}
+.swm-ins .swm-ins-delta{color:#68707c}
+.swm-ins .swm-ins-plan{margin:2px 0 0;padding-left:16px;font-size:10.5px;color:#17191d}
+.swm-ins .swm-ins-plan li{margin:1px 0}
+.swm-ins .swm-ins-plan li::marker{color:#536bdb;font-weight:700}
+.swm-ins .swm-ins-more{color:#3b4fb0}
+.swm-ins .swm-ins-footer{margin-top:7px;font-size:9.5px;color:#68707c}
+.swm-tip .swm-ins-wrap{margin-top:7px;padding-top:7px;border-top:1px solid #e3e6ea}
+.swm-ins-card{margin-top:2px;padding:10px 11px;border-radius:10px;background:#f5f7ff;border:1px solid rgba(83,107,219,.22)}
+.swm-ins-card:empty{display:none}

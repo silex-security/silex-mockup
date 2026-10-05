@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* Interaction probes for the Security World Model panels (plan
    logs/2026-10-02_SWM_ONTOLOGY_RIGOR_PLAN.md, T6): H1 N1 I1 I2 I3 L1 R1 E1,
-   plus D1 (2026-10-02: Ontology Layers is the first, default World Model sub-tab).
+   plus D1 (2026-10-02: Ontology Layers is the first, default World Model sub-tab), and
+   COV-INS-* (2026-10-04: World Model Coverage palette + "why is coverage low" insights).
    Same headless harness as preview-panels.mjs.
 
      node swm/skills/swm-data-rebuild/scripts/probe-swm.mjs                 # all probes, this checkout
@@ -424,7 +425,7 @@ const pWaitPaused = async (match, timeout = 10000) => {
   return null;
 };
 const LAZY = ['swm/vendor/d3.v7.min.js', 'swm/data/ontology.js', 'swm/data/coverage.js', 'swm/js/swm-core.js',
-  'swm/js/swm-ontology.js', 'swm/js/swm-coverage.js', 'swm/js/swm-layers.js'];
+  'swm/js/swm-ontology.js', 'swm/js/swm-coverage-insights.js', 'swm/js/swm-coverage.js', 'swm/js/swm-layers.js'];
 const pCounts = () => Object.fromEntries(LAZY.map(f => [f, [...pReq.entries()].filter(([u]) => u.includes(f)).reduce((n, [, c]) => n + c, 0)]));
 
 if (want('P1')) {
@@ -594,6 +595,120 @@ if (want('ZOOM')) {
   await evaluate(`document.querySelector('#swmViews [data-v="graph"]').click(); true`); await sleep(1500);
   const g0 = await scale(), gin = await press('#swmZoom [data-z="in"]'), g1 = await scale();
   record('ZOOM-G', gin?.hit && g1 > g0, 'Graph view top-bar zoom, real click: ' + JSON.stringify({ hit: gin?.hit, top: gin?.top, scale: [g0, g1] }));
+}
+
+if (want('COV-INS')) {
+  /* World Model Coverage: site-indigo palette and the "why is coverage low" insights
+     (plan logs/2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md). Real input events throughout. */
+  /* the old coverage ramps and the gap-weight pink end; #9aa4e8 (old gap start) stays out: it is also the
+     Network view's periwinkle arrow colour, which is in the site palette */
+  const OLD_PINK = ['#e0569f', '#e57ab5', '#eb9dca', '#f1c0de', '#f8e2ef', '#b0529c', '#983f88', '#7c3371', '#61285a',
+    '#471d43', '#f06a9f'];
+  const HUE = `(c => { const m = String(c).match(/^#([0-9a-f]{6})$/i) || null; let r, g, b;
+      if (m) { r = parseInt(m[1].slice(0, 2), 16); g = parseInt(m[1].slice(2, 4), 16); b = parseInt(m[1].slice(4), 16); }
+      else { const q = String(c).match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/); if (!q) return null; [r, g, b] = q.slice(1).map(Number); }
+      const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0;
+      if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; };
+      const L = .2126 * lin(r) + .7152 * lin(g) + .0722 * lin(b), Lbg = .2126 * lin(0x26) + .7152 * lin(0x30) + .0722 * lin(0x5a);
+      return { hex, hue: Math.round(((h * 60) + 360) % 360), cr: +((Math.max(L, Lbg) + .05) / (Math.min(L, Lbg) + .05)).toFixed(2) }; })`;
+  const key = async (k, shift = false) => {
+    for (const type of ['keyDown', 'keyUp'])
+      await send('Input.dispatchKeyEvent', { type, key: k, code: k, windowsVirtualKeyCode: k === 'Tab' ? 9 : 13, modifiers: shift ? 8 : 0 });
+    await sleep(250);
+  };
+  const mouse = async (x, y, click) => {
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+    if (click) for (const type of ['mousePressed', 'mouseReleased']) await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 });
+    await sleep(500);
+  };
+  /* a point inside the arc for node id (the path itself must be the top element there) */
+  const arcPoint = id => evaluate(`(() => { const p = [...document.querySelectorAll('#swmCovSvg path')].find(e => e.__data__ && e.__data__.data.id === ${JSON.stringify(id)});
+    if (!p || p.getAttribute('opacity') === '0') return null; p.scrollIntoView({ block: 'center' }); const r = p.getBoundingClientRect();
+    for (let i = 1; i < 24; i++) for (let j = 1; j < 24; j++) { const x = r.x + r.width * i / 24, y = r.y + r.height * j / 24;
+      if (document.elementFromPoint(x, y) === p) return { x, y }; } return null; })()`);
+  const tip = () => evaluate(`(() => { const t = document.getElementById('swmTip'); return t ? { on: t.classList.contains('on'), text: t.textContent } : null; })()`);
+
+  await openPanel('wm-overview'); await sleep(1200);
+  /* 1. hover WF-055 at Procurement focus */
+  await evaluate(`[...document.querySelectorAll('#swmCovList [data-cov-child]')].find(b => /Procurement/.test(b.textContent)).click(); true`);
+  await sleep(900);
+  const pt = await arcPoint('WF-055');
+  if (pt) await mouse(pt.x, pt.y);
+  const t1 = await tip();
+  await shot('cov-ins-tip.png');
+  record('COV-INS-TIP', pt && t1?.on && /Resource & Data/.test(t1.text) && /47%/.test(t1.text) && /Connect data/.test(t1.text) &&
+    /authored demo figures/.test(t1.text) && /Suggested plan/i.test(t1.text),
+    'hover WF-055 arc (real mouse): ' + JSON.stringify({ point: !!pt, on: t1?.on, text: (t1?.text || '').slice(0, 220) }));
+  await mouse(5, 5);
+  /* 2. side card for the focused node (Procurement) */
+  const why = await evaluate(`(document.getElementById('swmCovWhy') || {}).textContent || ''`);
+  record('COV-INS-SIDE', /Procurement|Why 74%/.test(why) && /Purchase to Pay/.test(why) && /Suggested plan/i.test(why),
+    'side-card Why block at Procurement: ' + why.slice(0, 200));
+  /* 3. keyboard: Tab from the last crumb into the list rows */
+  await evaluate(`[...document.querySelectorAll('#swmCovCrumbs button')].pop().focus(); true`);
+  let k = null;
+  for (let i = 0; i < 12; i++) {
+    await key('Tab');
+    k = await evaluate(`(() => { const a = document.activeElement; const t = document.getElementById('swmTip');
+      return { row: !!(a && a.matches('[data-cov-child]')), fv: !!(a && a.matches(':focus-visible')), desc: a && a.getAttribute('aria-describedby'),
+        on: !!(t && t.classList.contains('on')), text: t ? t.textContent.slice(0, 120) : '' }; })()`);
+    if (k.row) break;
+  }
+  let away = null;
+  for (let i = 0; i < 12 && k?.row; i++) {
+    await key('Tab');
+    away = await evaluate(`(() => { const a = document.activeElement; const t = document.getElementById('swmTip');
+      return { row: !!(a && a.matches('[data-cov-child]')), on: !!(t && t.classList.contains('on')),
+        stale: document.querySelectorAll('#swmCovList [aria-describedby]').length }; })()`);
+    if (!away.row) break;
+  }
+  record('COV-INS-KBD', k?.row && k.fv && k.desc === 'swmTip' && k.on && /Why|Healthy/.test(k.text) && away && !away.row && !away.on && away.stale === 0,
+    'Tab into a list row → tooltip + aria-describedby; Tab out → hidden: ' + JSON.stringify({ k, away }));
+  /* 5. colours: every coverage arc (both modes), radar and meters stay in the indigo/violet family */
+  const fills = async () => evaluate(`[...document.querySelectorAll('#swmCovSvg path')].filter(p => p.getAttribute('opacity') !== '0').map(p => ${HUE}(p.getAttribute('fill')))`);
+  await evaluate(`document.querySelector('#swmCovCrumbs button').click(); true`); await sleep(900);
+  const cov = await fills();
+  await evaluate(`document.querySelector('#swmCovModes [data-m="gaps"]').click(); true`); await sleep(900);
+  const gap = await fills();
+  await evaluate(`document.querySelector('#swmCovModes [data-m="coverage"]').click(); true`); await sleep(500);
+  const paper = await evaluate(`(() => { const H = ${HUE}; const out = [...document.querySelectorAll('#swmCovBars .swm-meter i')].map(i => H(getComputedStyle(i).backgroundColor));
+    document.querySelector('#swmCovDimsMode [data-v="radar"]').click();
+    const a = document.querySelector('#swmRadar .area'), pt = document.querySelector('#swmRadar .pt');
+    out.push(H(getComputedStyle(a).stroke), H(getComputedStyle(a).fill), pt ? H(getComputedStyle(pt).fill) : null); return out; })()`);
+  const ends = await evaluate(`[SWM.coverageColor(0.4), SWM.coverageColor(1), SWM.coverageColor(0.4, 'paper'), SWM.coverageColor(1, 'paper'),
+    SWM.gapColor ? SWM.gapColor(1) : null, SWM.gapColor ? SWM.gapColor(0.55) : null]`);
+  const inFamily = c => c && !OLD_PINK.includes(c.hex) && c.hue >= 215 && c.hue <= 265;
+  const badCov = cov.filter(c => !inFamily(c) || c.cr < 3), badGap = gap.filter(c => !inFamily(c) || c.cr < 3), badPaper = paper.filter(c => !inFamily(c));
+  record('COV-INS-COLOUR', cov.length > 20 && gap.length === cov.length && !badCov.length && !badGap.length && !badPaper.length &&
+    JSON.stringify(ends) === JSON.stringify(['#5f74e6', '#e9edff', '#6a7fe8', '#2c3c8c', '#7079b3', '#e2d8ff']),
+    'arcs ' + cov.length + ' coverage / ' + gap.length + ' gap-weight, hue 215–265° and ≥3:1 vs #26305a; meters+radar ' + paper.length +
+    '; endpoints ' + JSON.stringify(ends) + (badCov.length + badGap.length + badPaper.length ? ' BAD ' + JSON.stringify({ badCov, badGap, badPaper }).slice(0, 300) : ''));
+  await shot('cov-ins-1680.png');
+  /* 4b. touch-width: tap a list row at 390 px → side card names the new focus, no horizontal overflow */
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: false });
+  await openPanel('wm-overview'); await sleep(1200);
+  const row = await evaluate(`(() => { const b = document.querySelector('#swmCovList [data-cov-child="4"]'); if (!b) return null; b.scrollIntoView({ block: 'center' });
+    const r = b.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, name: b.textContent }; })()`);
+  if (row) await mouse(row.x, row.y, true);
+  await sleep(600);
+  const touch = await evaluate(`(() => ({ why: (document.getElementById('swmCovWhy') || {}).textContent || '', crumb: [...document.querySelectorAll('#swmCovCrumbs button')].pop().textContent,
+    doc: document.documentElement.scrollWidth, win: innerWidth }))()`);
+  record('COV-INS-TOUCH', row && /Human Resources/.test(row.name) && touch.crumb === 'Human Resources' && /Why 68%/.test(touch.why) && touch.doc <= touch.win + 1,
+    '390 px tap on row 5: ' + JSON.stringify({ row: row?.name, crumb: touch.crumb, why: touch.why.slice(0, 90), doc: touch.doc, win: touch.win }));
+  await shot('cov-ins-390.png');
+  await send('Emulation.setDeviceMetricsOverride', { width: 1680, height: 1100, deviceScaleFactor: 1, mobile: false });
+  /* 6. the other ramp consumers: Ontology Graph colour-by-coverage and Layers meters */
+  await openPanel('wm-ontology'); await sleep(1500);
+  const onto = await evaluate(`(() => { const b = document.querySelector('#swmColorBy [data-c="coverage"]'); if (!b) return { missing: true }; b.click();
+    return new Promise(r => setTimeout(() => r([...document.querySelectorAll('#swmSvg [fill]')].map(e => e.getAttribute('fill').toLowerCase())), 1200)); })()`);
+  await openPanel('wm-architecture'); await sleep(800);
+  const layers = await evaluate(`[...document.querySelectorAll('#swmLayers .swm-meter i')].map(i => ${HUE}(getComputedStyle(i).backgroundColor))`);
+  const ontoPink = Array.isArray(onto) ? onto.filter(f => OLD_PINK.includes(f)) : ['missing control'];
+  record('COV-INS-OTHERS', Array.isArray(onto) && !ontoPink.length && layers.every(inFamily),
+    'Ontology colour-by-coverage: ' + (Array.isArray(onto) ? onto.length + ' fills, ' + ontoPink.length + ' old pink' : JSON.stringify(onto)) +
+    '; Layers meters ' + layers.length + ' in family: ' + layers.every(inFamily));
 }
 
 browserSocket?.close(); ws.close(); proc.kill(); server.close();

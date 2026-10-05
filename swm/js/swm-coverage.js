@@ -57,7 +57,8 @@
               '<p class="sub" id="swmRadarSub">Six model-completeness dimensions read at this level (not the Business Harness objectives)</p>' +
               '<div class="swm-radar-wrap" id="swmRadarWrap" hidden><svg class="swm-radar" id="swmRadar" viewBox="0 0 300 260"></svg></div>' +
               '<div id="swmCovBars"></div>' +
-              '<div class="swm-facts" id="swmCovFacts" style="margin-top:11px"></div></div>' +
+              '<div class="swm-facts" id="swmCovFacts" style="margin-top:11px"></div>' +
+              '<div class="swm-ins-wrap swm-ins-card" id="swmCovWhy"></div></div>' +
             '<div class="swm-card"><h4>Coverage gaps in scope</h4>' +
               '<p class="sub" id="swmGapSub">Gaps inside the selected part of the world model</p>' +
               '<div class="swm-gaps" id="swmGaps"></div>' +
@@ -97,11 +98,7 @@
     var gapsExpanded = false, forceGap = null;
 
     function fillOf(n) {
-      if (mode === 'gaps') {
-        var miss = 1 - (n.data.coverage || 0);
-        /* light violet (no gap) → pink (large gap) */
-        return d3.interpolateRgb('#9aa4e8', '#f06a9f')(Math.min(1, Math.max(0, miss / .45)));
-      }
+      if (mode === 'gaps') return SWM.gapColor(n.data.coverage);   /* slate (no gap) → light violet (large gap) */
       return SWM.coverageColor(n.data.coverage);
     }
 
@@ -137,14 +134,8 @@
         .attr('pointer-events', function (n) { return visible(n) ? 'auto' : 'none'; })
         .attr('stroke', SWM.stageBg[0]).attr('stroke-width', 2).attr('d', function (n) { return arc(n.current); })
         .style('cursor', 'pointer')
-        .on('click', function (ev, n) { ev.stopPropagation(); zoomTo(n); })
-        .on('mouseenter', function (ev, n) {
-          var st = SWM.status[SWM.coverageStatus(n.data.coverage)];
-          SWM.tip.show('<b>' + SWM.esc(dispName(n.data)) + '</b><small>' + SWM.esc(n.data.kind) + ' · ' +
-            SWM.num(n.data.entities) + ' entities</small><small style="margin-top:4px">Coverage ' +
-            SWM.pct(n.data.coverage) + ' · ' + SWM.statusHtml(SWM.coverageStatus(n.data.coverage)) + '</small>' +
-            (n.children ? '<small class="more" style="margin-top:5px">click to drill into ' + n.children.length + ' children</small>' : ''), ev);
-        })
+        .on('click', function (ev, n) { ev.stopPropagation(); SWM.tip.hide(); zoomTo(n); })
+        .on('mouseenter', function (ev, n) { SWM.tip.show(tipHtml(n, true), ev); })
         .on('mousemove', function (ev) { SWM.tip.move(ev); })
         .on('mouseleave', function () { SWM.tip.hide(); });
 
@@ -163,6 +154,20 @@
         .on('click', function (ev) { ev.stopPropagation(); zoomTo(focus.parent || root); });
       centreText = g.append('g').attr('pointer-events', 'none').attr('text-anchor', 'middle');
       paintCentre();
+    }
+
+    /* tooltip: identity line, then why the coverage is what it is (swm-coverage-insights.js) */
+    var insCtx = { dimensions: dims, gaps: data.gaps };
+    function whyHtml(n, compact) {
+      if (!SWM.coverageInsights) return '';
+      try { return SWM.coverageInsightHtml(SWM.coverageInsights(n, insCtx), { compact: compact }); }
+      catch (e) { console.error('[SWM] coverage insight failed', e); return ''; }
+    }
+    function tipHtml(n, drill) {
+      return '<b>' + SWM.esc(dispName(n.data)) + '</b><small>' + SWM.esc(n.data.kind) + ' · ' +
+        SWM.num(n.data.entities) + ' entities · coverage ' + SWM.pct(n.data.coverage) + '</small>' +   /* status: in the insight */
+        (SWM.coverageInsights ? '<div class="swm-ins-wrap">' + whyHtml(n, true) + '</div>' : '') +
+        (drill && n.children ? '<small class="more" style="margin-top:5px">click to drill into ' + n.children.length + ' children</small>' : '');
     }
 
     function labelOf(n) {
@@ -245,7 +250,14 @@
           '<span style="font:700 12px var(--swm-mono);color:var(--swm-ink)">' + SWM.pct(c.data.coverage) + '</span></button>';
       }).join('');
       el.querySelectorAll('[data-cov-child]').forEach(function (b) {
-        b.addEventListener('click', function () { zoomTo(kids[+b.dataset.covChild]); });
+        var kid = kids[+b.dataset.covChild];
+        b.addEventListener('click', function () { SWM.tip.hide(); zoomTo(kid); });
+        b.addEventListener('mouseenter', function (ev) { SWM.tip.show(tipHtml(kid, false), ev); });
+        b.addEventListener('mousemove', function (ev) { SWM.tip.move(ev); });
+        b.addEventListener('mouseleave', function () { SWM.tip.hide(); });
+        /* keyboard: the tip exists once shown, then the row points at it */
+        b.addEventListener('focus', function (ev) { SWM.tip.show(tipHtml(kid, false), ev); b.setAttribute('aria-describedby', SWM.tip.id()); });
+        b.addEventListener('blur', function () { SWM.tip.hide(); b.removeAttribute('aria-describedby'); });
       });
     }
 
@@ -338,6 +350,7 @@
       document.getElementById('swmCovFacts').innerHTML = facts.map(function (f) {
         return '<div class="swm-fact"><small>' + f[0] + '</small><b>' + f[1] + '</b></div>';
       }).join('');
+      document.getElementById('swmCovWhy').innerHTML = whyHtml(focus, false);
 
       paintGaps();
     }
@@ -397,7 +410,7 @@
     /* events */
     function setProvenance() {
       document.getElementById('swmCovProvenance').textContent = mode === 'gaps'
-        ? 'Arc size = leaf-entity weight · colour = unmodelled share (light violet = represented, pink = missing). Illustrative demo figures, not measured telemetry.'
+        ? 'Arc size = leaf-entity weight · colour = unmodelled share (slate = represented, light violet = missing). Illustrative demo figures, not measured telemetry.'
         : 'Arc size = leaf-entity weight · colour = authored coverage over the 40–100 % display domain (endpoints are clamped bounds). Illustrative demo coverage, not measured telemetry.';
     }
     document.getElementById('swmCovModes').addEventListener('click', function (ev) {

@@ -13,10 +13,13 @@
   /* layers on paper: 9.2 / 5.7 / 4.4 / 3.8 vs #fff */
   var LAYER_RAMP_PAPER = ['#50339c', '#6f50c9', '#8565d6', '#8e70d9'];
 
-  /* coverage on stage, 40/55/70/85/100 %, clamped; low end most saturated (3.6 vs #26305a) */
-  var COVERAGE_RAMP = ['#e0569f', '#e57ab5', '#eb9dca', '#f1c0de', '#f8e2ef'];
-  /* coverage on paper: 4.6 … 13.8 vs #fff */
-  var COVERAGE_RAMP_PAPER = ['#b0529c', '#983f88', '#7c3371', '#61285a', '#471d43'];
+  /* coverage on stage, 40/55/70/85/100 %, clamped; site indigo, low end most saturated,
+     top stop = --lav: 3.1 / 4.5 / 6.2 / 8.4 / 10.9 vs #26305a */
+  var COVERAGE_RAMP = ['#5f74e6', '#7f93f5', '#a2b2fb', '#c6d0ff', '#e9edff'];
+  /* coverage on paper, #536bdb = --blue2: 3.6 / 4.4 / 4.7 / 6.6 / 9.9 vs #fff */
+  var COVERAGE_RAMP_PAPER = ['#6a7fe8', '#5a70e0', '#536bdb', '#3f54b8', '#2c3c8c'];
+  /* unmodelled share on stage, none → 45 %+ missing: 3.1 / 5.9 / 9.4 vs #26305a */
+  var GAP_RAMP = ['#7079b3', '#b7a3ff', '#e2d8ff'];
   var COVERAGE_DOMAIN = [0.4, 1];
 
   /* reserved status palette: never themed, never meaning alone */
@@ -75,7 +78,7 @@
   }
 
   var SWM = {
-    ramps: { layer: LAYER_RAMP, coverage: COVERAGE_RAMP, layerPaper: LAYER_RAMP_PAPER, coveragePaper: COVERAGE_RAMP_PAPER },
+    ramps: { layer: LAYER_RAMP, coverage: COVERAGE_RAMP, layerPaper: LAYER_RAMP_PAPER, coveragePaper: COVERAGE_RAMP_PAPER, gap: GAP_RAMP },
     coverageDomain: COVERAGE_DOMAIN,
     stageBg: STAGE_BG,
     status: STATUS,
@@ -134,6 +137,13 @@
               (COVERAGE_DOMAIN[1] - COVERAGE_DOMAIN[0]);
       if (global.d3 && global.d3.interpolateRgbBasis) return global.d3.color(global.d3.interpolateRgbBasis(ramp)(t)).formatHex();
       return ramp[Math.min(ramp.length - 1, Math.round(t * (ramp.length - 1)))];
+    },
+
+    /* unmodelled share 1 − coverage over 0–45 %, clamped (Gap weight view) */
+    gapColor: function (v) {
+      var t = Math.min(1, Math.max(0, (1 - (v || 0)) / .45));
+      if (global.d3 && global.d3.interpolateRgbBasis) return global.d3.color(global.d3.interpolateRgbBasis(GAP_RAMP)(t)).formatHex();
+      return GAP_RAMP[Math.round(t * (GAP_RAMP.length - 1))];
     },
 
     coverageStatus: function (v) {
@@ -206,7 +216,7 @@
     tip: (function () {
       var el = null;
       function node() {
-        if (!el) { el = document.createElement('div'); el.className = 'swm-tip'; el.setAttribute('role', 'tooltip'); document.body.appendChild(el); }
+        if (!el) { el = document.createElement('div'); el.className = 'swm-tip'; el.id = 'swmTip'; el.setAttribute('role', 'tooltip'); document.body.appendChild(el); }
         return el;
       }
       return {
@@ -225,10 +235,12 @@
           var x = Math.min(cx + 14, window.innerWidth - r.width - 12);
           var y = cy - r.height - 14;
           if (y < 8) y = cy + 18;
+          y = Math.max(8, Math.min(y, window.innerHeight - r.height - 8));   /* tall tips stay on screen */
           el.style.left = Math.max(8, x) + 'px';
           el.style.top = y + 'px';
         },
-        hide: function () { if (el) el.classList.remove('on'); }
+        hide: function () { if (el) el.classList.remove('on'); },
+        id: function () { return node().id; }
       };
     })(),
 

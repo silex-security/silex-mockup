@@ -22,6 +22,7 @@
     'swm/data/coverage.js',
     'swm/js/swm-core.js',
     'swm/js/swm-ontology.js',
+    'swm/js/swm-coverage-insights.js',
     'swm/js/swm-coverage.js',
     'swm/js/swm-layers.js'
   ];
