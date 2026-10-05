@@ -267,7 +267,8 @@ try {
     await sleep(150);await clickSel(sel);
   }
   const rt = code => ev('const w=globalThis.document.querySelector("#rtFrame").contentWindow;const document=w.document,window=w;'+code);
-  async function rtReady(){await until(()=>ev('return !!document.querySelector("#rtFrame")?.contentWindow?.__jevDemo?.ready'),'runtime iframe ready');}
+  // The scenario, learning and ontology cards start collapsed; these probes exercise their contents, so open them as a viewer would.
+  async function rtReady(){await until(()=>ev('return !!document.querySelector("#rtFrame")?.contentWindow?.__jevDemo?.ready'),'runtime iframe ready');if(await ev('const t=[...document.querySelectorAll(".rt-fold[data-fold=collapsed] .rt-fold-toggle")];t.forEach(x=>x.click());return t.length'))await sleep(300);}
   async function rtOpen(){await load();await until(()=>ev('return !!window.__jevRuntime?.ready'),'runtime host ready');await nav('runtime-observation');await rtReady();}
   async function rtRun(id,checkSelection=true){await rtClick(`[data-rt-scenario="${id}"] [data-rt-run]`);await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),'runtime '+id+' complete');await rtReady();if(checkSelection)await until(()=>rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='${id}').at(-1);return !!last&&document.querySelector('.run-card[data-selected]')?.dataset.runId===last.trace_id`),'selected latest '+id);}
   async function rtResult(id){

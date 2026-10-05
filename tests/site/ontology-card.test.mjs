@@ -40,7 +40,7 @@ try {
   const p = session.page, ev = code => p.ev(code), Q = JSON.stringify;
   await p.send('Emulation.setDeviceMetricsOverride', { width: 1400, height: 1000, deviceScaleFactor: 1, mobile: false });
   await p.send('Page.navigate', { url: origin + '/index.html#view=runtime-observation' });
-  await until(() => ev('return document.readyState === "complete" && !!document.querySelector("#rtOntology [data-onto-verdict]")'), 'ontology card');
+  await until(() => ev('return document.readyState === "complete" && !!document.querySelector("#rtOntology [data-onto-cell-btn]")'), 'ontology card');
   const fetched = await ev(`const r=await fetch('data/onto-observability.json', {cache:'no-store'}); if(!r.ok)throw Error('data unavailable'); const bytes=await r.arrayBuffer(); const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b=>b.toString(16).padStart(2,'0')).join(''); return {hash,data:JSON.parse(new TextDecoder().decode(bytes))};`);
   const data = fetched.data;
   await check('1', 'page data hash equals reviewed SOURCE sha256', async () => {
@@ -48,16 +48,6 @@ try {
     assert.ok(p.requests.some(u => new URL(u).pathname.endsWith('/data/onto-observability.json')), 'page fetched the generated data');
     const served = await ev(`const r=await fetch('data/onto-observability.SOURCE.json',{cache:'no-store'}); if(!r.ok)throw Error('SOURCE unavailable');return await r.json();`);
     assert.equal(served.sha256, manifest.sha256);
-  });
-  await check('2', 'verdict badge and all four composite parts match data', async () => {
-    const badges = {supported:'Confirmed (pre-registered)', 'not supported':'Not confirmed', inconclusive:'Inconclusive'};
-    const actual = await ev(`const v=document.querySelector('[data-onto-verdict]'); return {verdict:v.dataset.ontoVerdict,badge:v.querySelector('.rt-chip').textContent.trim(),parts:[...document.querySelectorAll('[data-onto-part]')].map(x=>({id:x.dataset.ontoPart,ok:x.dataset.ontoPartOk,label:x.querySelector('.rt-chip').textContent.trim()}))};`);
-    assert.equal(actual.verdict, data.al.verdict); assert.equal(actual.badge, badges[data.al.verdict]);
-    assert.deepEqual(actual.parts.map(x => x.id), ['a','b','c','d']);
-    for (const part of actual.parts) { const ok = data.al.p[part.id] != null && data.al.p[part.id] <= .05; assert.equal(part.ok, String(ok)); assert.equal(part.label, ok ? 'held' : 'not established'); }
-  });
-  await check('3', 'alert tiles show observed prov and otp counts', async () => {
-    for (const mode of ['prov','otp']) assert.equal(await ev(`return document.querySelector('[data-onto-num="${mode}-F"]').textContent.trim();`), String(data.al.observed[mode].F));
   });
   for (const cell of ['both','saved','lost','miss']) {
     await check('4-' + cell, 'selected run, toggle, flagged call and non-alert reasons', async () => {
@@ -75,9 +65,10 @@ try {
       }
     });
   }
-  await check('5', 'null and equivalence caveats use registered wording', async () => {
-    const text = await ev(`return {note:document.querySelector('[data-onto-not-established]').textContent,all:document.querySelector('#rtOntology').textContent};`);
-    assert.match(text.note, /did not establish/i); assert.match(text.note, /no equivalence test/i); assert.doesNotMatch(text.all, /no measurable|proves/i);
+  await check('5', 'unconfirmed E-AL, E-PR and v1/v2 results are not shown', async () => {
+    const text = await ev(`return document.querySelector('#rtOntology').textContent;`);
+    assert.doesNotMatch(text, /Not confirmed|not established|Follow-up test|did not establish|Inconclusive/);
+    assert.equal(await ev(`return document.querySelectorAll('[data-onto-verdict],[data-onto-pr],[data-onto-not-established]').length;`), 0);
   });
   await check('6', 'judge note shows both data-derived AUROCs', async () => {
     const text = await ev(`return document.querySelector('#rtJudgeRealNote').textContent;`);

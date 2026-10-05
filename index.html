@@ -362,6 +362,12 @@
   @media(max-width:760px){.rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}.rt-learning-tiles{grid-template-columns:1fr}#rtLearning .card-head{flex-wrap:wrap;gap:12px}}
   .rt-run-result{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 14px}.rt-run-result .decision-state{margin:0;flex:1 1 320px}.rt-run-result .decision-state:not(.show){display:none}.rt-see-run{font-size:12px;font-weight:600;color:var(--blue2)}
   .rt-frame-wrap{height:780px;min-height:560px}
+  /* Collapsible Runtime Observation sections: the title block toggles the body. */
+  .rt-fold .rt-fold-toggle{cursor:pointer;border-radius:8px}.rt-fold .rt-fold-toggle:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+  .rt-fold .rt-fold-toggle h2::before{content:"▸";display:inline-block;width:1em;color:var(--muted);transition:transform 150ms ease-out}
+  .rt-fold:not([data-fold="collapsed"]) .rt-fold-toggle h2::before{transform:rotate(90deg)}
+  .rt-fold[data-fold="collapsed"]>.body{display:none}.rt-fold[data-fold="collapsed"]>.card-head{border-bottom:0}
+  .rt-onto-ex-h{font-size:14px;margin:0 0 6px}
   #rtResult.error{background:var(--red-bg);color:var(--red)}
   @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
   @media(max-width:560px){.rt-row{grid-template-columns:44px minmax(0,1fr) auto}.rt-row .rt-chip{grid-column:2;grid-row:2;justify-self:start}.rt-row .btn{grid-column:3;grid-row:1/span 2}.rt-frame-wrap{height:680px}}
@@ -1133,17 +1139,17 @@
 <div class="card metric" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
 </div>
 <p class="rt-ref" id="rtReference"></p>
-<div class="card section-card" id="rtScenarioCard">
-<div class="card-head"><div><h2>Scripted scenarios</h2><p>Press <b>Run</b>: each of the agent's actions goes through the pipeline below. The chips are the default-policy reference outcome.</p></div><span class="status running" id="rtStatus">Ready</span></div>
-<div class="body">
+<div class="card section-card rt-fold" id="rtScenarioCard" data-fold="collapsed">
+<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtScenarioBody"><h2>Scripted scenarios</h2><p>Press <b>Run</b>: each of the agent's actions goes through the pipeline below. The chips are the default-policy reference outcome.</p></div><span class="status running" id="rtStatus">Ready</span></div>
+<div class="body" id="rtScenarioBody">
 <div class="rt-pipeline" id="rtPipeline" data-mode="idle" aria-label="How runtime validation decides each agent action"></div>
 <div class="rt-run-result"><div class="decision-state approved" id="rtResult"></div><a href="#rtFrameWrap" class="rt-see-run" id="rtSeeRun" hidden>See this run in the decision plane ↓</a></div>
 <div class="rt-scen-grid" id="rtScenarios"><p class="rt-ref">Loading the simulated engine…</p></div>
 </div>
 </div>
-<div class="card section-card" id="rtLearning">
-<div class="card-head"><div><h2>The judge learns from your reviewers</h2><p>Every reviewer answer becomes a training label. Below: what fine-tuning Kev already achieved on benchmark labels.</p></div><button type="button" class="btn" id="rtTryLoop">Try the loop</button></div>
-<div class="body">
+<div class="card section-card rt-fold" id="rtLearning" data-fold="collapsed">
+<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtLearningBody"><h2>The judge learns from your reviewers</h2><p>Every reviewer answer becomes a training label. Below: what fine-tuning Kev already achieved on benchmark labels.</p></div><button type="button" class="btn" id="rtTryLoop">Try the loop</button></div>
+<div class="body" id="rtLearningBody">
 <ol class="rt-learning-loop" aria-label="Proposed learning loop">
 <li>Held for review →</li><li>Reviewer answers →</li><li>Labels →</li><li>Train Kev →</li><li>Gate (held-out test) →</li><li>Promote</li>
 </ol>
@@ -1152,8 +1158,8 @@
 <p class="rt-ref">Training on reviewer labels and production promotion are future work. The demo illustrates a proposed promotion gate; production promotion is not implemented.</p>
 </div>
 </div>
-<div class="card section-card" id="rtOntology">
-<div class="card-head"><div><h2>What the ontology adds</h2><p>The same runtime provenance graph, with and without ontology types. Real AgentDojo benchmark runs of held-out agent models.</p></div></div>
+<div class="card section-card rt-fold" id="rtOntology" data-fold="collapsed">
+<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtOntologyBody"><h2>What the ontology adds</h2><p>The same runtime provenance graph, with and without ontology types. Real AgentDojo benchmark runs of held-out agent models.</p></div></div>
 <div class="body" id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
 </div>
 <div class="card section-card">
@@ -1766,6 +1772,7 @@ const incidentData={
 <script type="module" src="js/studio-host.js"></script>
 <script type="module" src="js/jev-runtime-host.js"></script>
 <script type="module" src="js/rt-ontology.js"></script>
+<script type="module" src="js/rt-fold.js"></script>
 <script src="swm/js/swm-loader.js"></script>
 <script defer src="swm/js/swm-vowl.js"></script>
 <script defer src="swm/js/swm-vowl-ui.js"></script>
