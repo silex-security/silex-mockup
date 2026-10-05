@@ -1,7 +1,7 @@
 {
   "source": "https://github.com/silex-ai-lab/jev-runtime-observability",
-  "commit": "be8fda29a2c911628735f3f3dcdb7920b86c1051",
-  "synced_at": "2026-10-01",
+  "commit": "4858c300a7f52969000255747060e80e8dba1f77",
+  "synced_at": "2026-10-04",
   "files": {
     "demo/css/app.css": "1a1736e67317e80f5074924ae22b8295fe1b9f0c908597f1a65893a32fa56849",
     "demo/css/learning.css": "3ef08e91398b883fd02b1d4c04a43a1bac04aff91ac0021bf054a61c7ac1f36f",
@@ -27,7 +27,7 @@
     "demo/js/learning/model.js": "66cebd8bd25c2c2b6f8754b5a4417821c8421fd98829929d45978b7ad2f2e787",
     "demo/js/learning/session.js": "82494c09974a5d2d0617fedf61fe491e2b08228432a3c6f217950e283a50b090",
     "demo/js/learning/ui.js": "2983f9df1d0f1ce8457d9aa62af71863bcda96feb269d16b67a3004ab234d4a5",
-    "demo/js/ui/app.js": "55b59ee98c5c6746d91dfae88ed02df913493740c2b86bf1e01f2e7d32236781",
+    "demo/js/ui/app.js": "cdcfa07b77411c2fc1096b27c6a04d795c6536f187e8b5ac6c1db1cf2d1201b8",
     "demo/js/ui/embed.js": "d8720c0311d36cbf864acc2ebf696afd423b82e0507b68efa8cc81b18541cb74",
     "demo/js/ui/inspector.js": "3eed6bfac51d4d0e29e75f996b25a92d3b27f1db6ca2ce8d82483c19e1a1aa93",
     "demo/js/ui/replay.js": "46603b6f6f01fcabad63caf2a4feb4cfc79404102f7c7247c51d461a37ce4bee",

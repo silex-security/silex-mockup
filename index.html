@@ -368,6 +368,17 @@
   .rt-fold:not([data-fold="collapsed"]) .rt-fold-toggle h2::before{transform:rotate(90deg)}
   .rt-fold[data-fold="collapsed"]>.body{display:none}.rt-fold[data-fold="collapsed"]>.card-head{border-bottom:0}
   .rt-onto-ex-h{font-size:14px;margin:0 0 6px}
+  .rt-lat-bars{display:grid;gap:8px;margin:16px 0 18px}.rt-lat-row{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:12px}
+  .rt-lat-track{position:relative;height:10px;background:var(--soft);border-radius:99px}.rt-lat-track i{display:block;height:100%;border-radius:99px}.rt-lat-track i.kev,.rt-lat-dots.kev i{background:var(--blue)}.rt-lat-track i.llm,.rt-lat-dots.llm i{background:#9aa1ad}
+  .rt-lat-mark{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--red)}
+  .rt-lat-axis{position:relative;height:16px}.rt-lat-axis em{position:absolute;transform:translateX(-50%);white-space:nowrap;font-style:normal;font-size:11px;font-weight:650;color:var(--red)}
+  .rt-lat-v{font-variant-numeric:tabular-nums;text-align:right;font-weight:650}#rtLatency .body{overflow-wrap:anywhere}.rt-lat-vs{font-size:14px;color:var(--muted);font-weight:500}
+  .rt-lat-race{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fafbfc;margin:0 0 12px}.rt-lat-race h3{font-size:14px;margin:0 0 4px}.rt-lat-race .rt-ref{margin:0}
+  .rt-lat-race-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}.rt-lat-race-ctl{display:flex;gap:10px;align-items:center}
+  .rt-lat-clock{font-family:var(--mono);font-size:13px;font-weight:650;min-width:52px;text-align:right}
+  .rt-lat-lane{margin-top:10px}.rt-lat-lane-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}.rt-lat-lane-head b[data-lat-count]{font-size:15px;font-variant-numeric:tabular-nums}
+  .rt-lat-dots{display:flex;flex-wrap:wrap;gap:3px;min-height:12px}.rt-lat-dots i{width:9px;height:9px;border-radius:2px}
+  @media(max-width:560px){.rt-lat-row{grid-template-columns:minmax(0,1fr) 64px}.rt-lat-name{grid-column:1/-1}.rt-lat-track,.rt-lat-axis{grid-column:1}.rt-lat-row>span:empty{display:none}}
   #rtOntoReport{background:ButtonFace;color:ButtonText;text-decoration:none;white-space:nowrap} /* matches the Try the loop button */
   #rtResult.error{background:var(--red-bg);color:var(--red)}
   @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
@@ -1163,6 +1174,10 @@
 <div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtOntologyBody"><h2>What the ontology adds</h2><p>The same runtime provenance graph, with and without ontology types. Real AgentDojo benchmark runs of held-out agent models.</p></div><a class="btn" id="rtOntoReport" href="https://claude.ai/artifact/MPE8qnD2f1bSz965s7y3Ap" target="_blank" rel="noopener">Check Report</a></div>
 <div class="body" id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
 </div>
+<div class="card section-card rt-fold" id="rtLatency" data-fold="collapsed">
+<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtLatencyBody"><h2>How fast is the judge?</h2><p>Measured: Kev running locally against gpt-4o-mini through the OpenAI API, same items, same questions.</p></div><span class="pill">Measured</span></div>
+<div class="body" id="rtLatencyBody"><p class="rt-ref">Loading the latency measurements…</p></div>
+</div>
 <div class="card section-card">
 <div class="card-head"><div><h2>Decision plane (simulated)</h2><p>The Jev runtime demo, embedded: switch agents, open a run's details, try Replay and Policy Studio.</p></div><a class="btn secondary" id="rtOpenFull" href="jev-runtime/demo/index.html">Open full page →</a></div>
 <div class="body"><div class="studio-frame-wrap rt-frame-wrap" id="rtFrameWrap"><div class="studio-frame-loading">The simulated demo loads when you open this view.</div></div></div>
@@ -1773,6 +1788,7 @@ const incidentData={
 <script type="module" src="js/studio-host.js"></script>
 <script type="module" src="js/jev-runtime-host.js"></script>
 <script type="module" src="js/rt-ontology.js"></script>
+<script type="module" src="js/rt-latency.js"></script>
 <script type="module" src="js/rt-fold.js"></script>
 <script src="swm/js/swm-loader.js"></script>
 <script defer src="swm/js/swm-vowl.js"></script>
