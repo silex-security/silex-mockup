@@ -29,7 +29,7 @@ Nothing is installed; there is no `package.json` and no lockfile by design.
 ./swm/skills/swm-data-rebuild/scripts/check-sources.sh
 ```
 
-Nine URLs must answer `200`: D3FEND, ATLAS, ATT&CK and six UCO modules. If any does not, do **not**
+All 85 inputs in `swm/tools/sources/MANIFEST.json` must answer `200`: 83 files on raw.githubusercontent.com (ATLAS, ATT&CK, the UCO modules and the rest), D3FEND, and the AgentDojo archive on codeload.github.com. If any does not, do **not**
 patch around it silently — read `references/troubleshooting.md`, which lists the known failure mode
 and the fallback for each source. A moved URL is fixed in one place: the `SOURCES` map at the top of
 `swm/tools/build-ontology.mjs`.
@@ -140,7 +140,7 @@ node -e 'const a=require("./swm/data/ontology.json");const b=JSON.parse(require(
 | `swm/tools/build-ontology.mjs` | fetch + distil + validate + write |
 | `swm/tools/silex-seed.mjs` | the simulated content (see **swm-simulation-data**) |
 | `swm/data/SOURCES.md` | regenerated each build: provenance, licences, distillation rules |
-| `scripts/check-sources.sh` | probe the nine upstream URLs |
+| `scripts/check-sources.sh` | probe every input in `MANIFEST.json` (85) |
 | `scripts/verify-bundle.mjs` | independent check of the built bundles |
 | `scripts/preview-panels.mjs` | headless render of the three panels |
 | `scripts/competency.mjs` | the six competency questions, answered from the bundle |
