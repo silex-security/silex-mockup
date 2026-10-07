@@ -1,0 +1,92 @@
+# Publish main to demo.opensilex.ai (Cloudflare Pages project opensilex-demo).
+# Same steps as the cloudflare-pages-sync skill with examples/silex-mockup-main.json:
+# committed tree only, tests first, upload, then compare live files byte for byte.
+# Needs the repo secret CLOUDFLARE_API_TOKEN (Account > Cloudflare Pages > Edit).
+# Without it, tests still run and the deploy is skipped.
+name: Deploy demo.opensilex.ai
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-demo-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: 968ee54d6c8f891edbf8a82fabd6a427
+  PAGES_PROJECT: opensilex-demo
+  PAGES_BRANCH: review # the project's production label; demo.opensilex.ai serves it
+  WRANGLER: wrangler@4.145.0
+  ORIGINS: https://opensilex-demo.pages.dev https://demo.opensilex.ai
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Export the committed tree
+        # git archive honours .gitattributes export-ignore, so .github/ is not published.
+        run: |
+          mkdir _site
+          git archive HEAD | tar -x -C _site
+          cd _site
+          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html; do
+            test -f "$f" || { echo "::error::missing required file $f"; exit 1; }
+          done
+          big=$(find . -type f -size +25M); test -z "$big" || { echo "::error::over 25 MB: $big"; exit 1; }
+          bad=$(find . -name '.env*' -o -name .git -o -name node_modules); test -z "$bad" || { echo "::error::private files: $bad"; exit 1; }
+          echo "$(find . -type f | wc -l) files"
+
+      - name: Tests
+        working-directory: _site
+        env:
+          CHROME: /usr/bin/google-chrome
+        run: |
+          node --test tests/site/*.test.mjs
+          for f in js/*.js; do node --check "$f"; done
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          WRANGLER_SEND_METRICS: "false"
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN is not set; tests passed, nothing deployed."
+            exit 0
+          fi
+          npx --yes "$WRANGLER" pages deploy _site --project-name "$PAGES_PROJECT" --branch "$PAGES_BRANCH" \
+            --commit-hash "$GITHUB_SHA" --commit-message "GitHub Actions main ${GITHUB_SHA::12}"
+          echo "deployed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Verify live content
+        if: steps.deploy.outputs.deployed == 'true'
+        working-directory: _site
+        # A mismatch is reported, never answered by another upload.
+        run: |
+          files="index.html assurance.html blueprint_studio/app/index.html swm/data/ontology.json $(ls js/* css/*)"
+          for origin in $ORIGINS; do
+            for f in $files; do
+              url="$origin/$f"; [ "$f" = index.html ] && url="$origin/"
+              want=$(sha256sum "$f" | cut -d' ' -f1)
+              for attempt in 1 2 3 4 5 6; do
+                got=$(curl -fsSL --max-time 30 "$url" | sha256sum | cut -d' ' -f1) && [ "$got" = "$want" ] && break
+                [ $attempt = 6 ] && { echo "::error::live content differs: $url"; exit 1; }
+                sleep 10
+              done
+            done
+            echo "verified $origin ($(echo $files | wc -w) files)"
+          done
