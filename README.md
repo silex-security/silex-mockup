@@ -24,6 +24,7 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
     - **Stage-1 (S1)**, confirmed on AgentDojo: 12 195 never-opened runs, precision 0.41 → 0.54, recall 0.84 → 0.87. The result holds for held-out AgentDojo cohorts only.
     - **The S2 replication on AgentDyn**, not confirmed: 3 100 runs, precision 0.36 → 0.31, recall 0.85 → 0.99. The precision gain did not replicate.
     - Recall in both is an observation, not a guarantee.
+    - S2 also differed from S1 beyond its suites: the binding procedure changed, and its primary pool has only undefended models, where S1 pooled defended and attack variants too. Both share the AgentDojo harness, so neither is evidence from an independent framework. S2 does not show that typing is harmful in general.
     - **Check Report** opens the report.
     - Plans and records: [`logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md`](logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md), [`logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md`](logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md), [`logs/2026-10-06_ONTOLOGY_S2_REPORT.md`](logs/2026-10-06_ONTOLOGY_S2_REPORT.md).
   - **How fast is the judge?:** measured, Kev-0.8B fine-tuned (local, Apple M4 Pro) against gpt-4o-mini (OpenAI API) on the same 708 held-out items: p50 152 vs 670 ms, p95 347 vs 990 ms, 99 % vs 0.3 % within the 400 ms gate budget. Data: [`data/judge-latency.json`](data/judge-latency.json).
