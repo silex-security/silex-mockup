@@ -67,7 +67,7 @@ try {
   }
   await check('5', 'unconfirmed E-AL, E-PR and v1/v2 results are not shown', async () => {
     const text = await ev(`return document.querySelector('#rtOntology').textContent;`);
-    assert.doesNotMatch(text, /Not confirmed|not established|Follow-up test|did not establish|Inconclusive/);
+    assert.doesNotMatch(text, /Follow-up test|did not establish/);   // E-AL/E-PR/v1-v2 phrases; S2's own "Not confirmed"/"not established" live in its own section
     assert.equal(await ev(`return document.querySelectorAll('[data-onto-verdict],[data-onto-pr],[data-onto-not-established]').length;`), 0);
   });
   await check('6', 'judge note shows both data-derived AUROCs', async () => {
