@@ -49,10 +49,10 @@ try {
   const kev = served.judges.find(j => j.label === 'kev-0.8b-ft'), llm = served.judges.find(j => j.label === 'gpt-4o-mini');
 
   await check('served data equals the committed data', async () => assert.deepEqual(served, local));
-  await check('card starts collapsed and opens from its title', async () => {
-    assert.equal(await ev(`return document.querySelector('#rtLatency').dataset.fold`), 'collapsed');
-    await ev(`document.querySelector('#rtLatency .rt-fold-toggle').click()`);
-    assert.equal(await ev(`return document.querySelector('#rtLatency').dataset.fold`), 'open');
+  await check('tab starts hidden and opens from its sub-tab', async () => {
+    assert.equal(await ev(`return document.querySelector('#rtLatency').hidden`), true);
+    await ev(`document.querySelector('[data-rt-tab="latency"]').click()`);
+    assert.equal(await ev(`return document.querySelector('#rtLatency').hidden`), false);
     assert.ok(await ev(`return document.querySelector('#rtLatencyBody').getBoundingClientRect().height > 0`));
   });
   await check('p50 and p95 tiles match the data', async () => {

@@ -66,7 +66,7 @@ try {
     });
   }
   await check('5', 'unconfirmed E-AL, E-PR and v1/v2 results are not shown', async () => {
-    const text = await ev(`const c=document.querySelector('#rtOntology').cloneNode(true); c.querySelectorAll('[data-onto-s2]').forEach(n=>n.remove()); return c.textContent;`);
+    const text = await ev(`const c=document.querySelector('#rtOntology').cloneNode(true); c.querySelectorAll('[data-onto-s2],[data-onto-s2-seg]').forEach(n=>n.remove()); return c.textContent;`);
     assert.doesNotMatch(text, /Not confirmed|not established|Follow-up test|did not establish|Inconclusive/);
     assert.equal(await ev(`return document.querySelectorAll('[data-onto-verdict],[data-onto-pr],[data-onto-not-established]').length;`), 0);
   });
@@ -85,7 +85,7 @@ try {
         await until(() => ev(`return document.getElementById(${Q(view)})?.classList.contains('active');`), view);
         await sleep(300);
       }
-      await ev(`document.querySelector('button[data-view="runtime-observation"]').click();`);
+      await ev(`document.querySelector('button[data-view="runtime-observation"]').click(); document.querySelector('[data-rt-tab="ontology"]').click(); document.querySelector('[data-onto-seg="ex"]').click();`);
       if (width === 390) {
         for (const cell of ['both','saved','lost','miss']) for (const mode of ['onto','prov']) {
           await ev(`document.querySelector('[data-onto-cell-btn="${cell}"]').click(); document.querySelector('[data-onto-mode-btn="${mode}"]').click();`);
