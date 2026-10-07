@@ -1,5 +1,5 @@
 // Runtime Observation · "What the ontology adds" (logs/2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md, Part B).
-// Everything shown comes from data/onto-s1.json (the Stage-1 test) and data/onto-observability.json (example runs), generated from
+// Everything shown comes from data/onto-s1.json (the Stage-1 test), data/onto-s2.json (the AgentDyn replication) and data/onto-observability.json (example runs), generated from
 // committed experiment outputs. The unconfirmed E-AL and E-PR results moved to silex-security/ontology-typed-alerting.
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -11,7 +11,7 @@ const CELLS = [
   ['miss', 'Missed by both', 'A successful attack neither rule alerts on'],
 ];
 const VERDICT = {
-  supported: ['ran', 'Confirmed (pre-registered)', 'On held-out runs, ontology types cut alerts while keeping recall within the registered tolerance.'],
+  supported: ['ran', 'Confirmed (pre-registered)', 'On held-out AgentDojo runs, ontology types cut alerts and raised precision; recall stayed within the registered tolerance in that pool (observed, not a guarantee).'],
   'not supported': ['blocked', 'Not confirmed', 'On held-out runs the pre-registered test did not confirm the claim: not every part below held.'],
   inconclusive: ['review', 'Inconclusive', 'The pre-registered test could not be decided on the held-out runs.'],
 };
@@ -21,7 +21,8 @@ let data = null, cell = 'both', mode = 'onto';
 const pts = x => `${x >= 0 ? '+' : '−'}${Math.abs(100 * x).toFixed(1)}`;
 function part(id, label, p, ci, attr = 'data-onto-part') {
   const ok = p != null && p <= 0.05;
-  return `<li ${attr}="${id}" ${attr}-ok="${ok}"><span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span> ${esc(label)} <span class="rt-onto-k">(one-sided p = ${p == null ? '—' : Number(p).toPrecision(2)}${ci ? `; 95 % CI ${esc(ci)}` : ''})</span></li>`;
+  const pstr = p == null ? '—' : (p >= 0.995 ? Number(p).toFixed(3) : Number(p).toPrecision(2));
+  return `<li ${attr}="${id}" ${attr}-ok="${ok}"><span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span> ${esc(label)} <span class="rt-onto-k">(one-sided p = ${pstr}${ci ? `; 95 % CI ${esc(ci)}` : ''})</span></li>`;
 }
 function s1Block(r) {
   if (!r) return '';
@@ -31,7 +32,7 @@ function s1Block(r) {
   const row = (name, x) => `<tr><th scope="row">${esc(name)}</th><td>${x.s1.Pos}</td><td>${x.prov.F} → ${x.s1.F}</td><td>${pct(x.prov.precision)} → ${pct(x.s1.precision)}</td><td>${pct(x.prov.recall)} → ${pct(x.s1.recall)}</td></tr>`;
   const held = ok => `<span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span>`;
   return `<section class="rt-onto-s1" data-onto-s1 data-onto-s1-verdict="${esc(r.verdict)}">
-    <h3>Pre-registered test: ontology types on the runtime provenance graph</h3>
+    <h3>Pre-registered test (S1, AgentDojo): ontology types on the runtime provenance graph</h3>
     <div class="rt-onto-verdict"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
       <span>Same alert rule, with and without ontology types, pre-registered on ${r.counts.runs} never-opened AgentDojo runs (${r.counts.cohorts} agent pipelines and attack variants, ${r.counts.K} base models, ${r.counts.positives} successful attacks). No judge model.</span></div>
     <div class="rt-learning-tiles" data-onto-s1-tiles>
@@ -40,14 +41,45 @@ function s1Block(r) {
       ${tile('Recall', pct(o.prov.recall), pct(o.s1.recall), 'share of successful attacks alerted')}
     </div>
     <ul class="rt-onto-parts">
-      ${part('a', 'Higher precision, generalising across tasks', r.p?.a, r.ci?.precision_vs_prov && `${pts(r.ci.precision_vs_prov[0])} to ${pts(r.ci.precision_vs_prov[1])} points`, 'data-onto-s1-part')}
+      ${part('a', 'Higher precision across held-out AgentDojo tasks', r.p?.a, r.ci?.precision_vs_prov && `${pts(r.ci.precision_vs_prov[0])} to ${pts(r.ci.precision_vs_prov[1])} points`, 'data-onto-s1-part')}
       <li data-onto-s1-part="b" data-onto-s1-part-ok="${!!c.holds}">${held(c.holds)} Recall at most ${(100 * r.margin).toFixed(0)} points lower in this pool <span class="rt-onto-k">(observed, not a guarantee: mean over base models ${pts(c.theta)}, all runs ${pts(c.pooled_d)} points)</span></li>
       ${part('c', 'Better than random typing of the same size', r.p?.c, null, 'data-onto-s1-part')}
     </ul>
     <div class="rt-onto-table"><table><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
       ${Object.entries(r.per_base).map(([k, v]) => row(k, v)).join('')}
     </tbody></table></div>
-    <p class="rt-ref">Precision rose for all ${n} base models. The recall statement holds for AgentDojo's tasks and these models only; gpt-4o counts once although it contributes 13 defence and attack variants. <a href="logs/2026-10-04_ONTOLOGY_S1_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md">plan</a>.</p>
+    <p class="rt-ref">Precision rose for all ${n} base models. These results hold for AgentDojo's tasks and these models only, and the replication on AgentDyn below did not confirm them; gpt-4o counts once although it contributes 13 defence and attack variants. <a href="logs/2026-10-04_ONTOLOGY_S1_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md">plan</a>.</p>
+  </section>`;
+}
+function s2Block(r) {
+  if (!r) return '';
+  const [kind, badge] = VERDICT[r.verdict] ?? VERDICT.inconclusive;
+  const o = r.observed, c = r.constraint;
+  const tile = (k, before, after, foot) => `<div class="card metric"><div class="kicker">${k}</div><div class="metric-value">${before} → ${after}</div><div class="metric-foot">${foot}</div></div>`;
+  const row = (name, x) => `<tr><th scope="row">${esc(name)}</th><td>${x.s1.Pos}</td><td>${x.prov.F} → ${x.s1.F}</td><td>${pct(x.prov.precision)} → ${pct(x.s1.precision)}</td><td>${pct(x.prov.recall)} → ${pct(x.s1.recall)}</td></tr>`;
+  const held = ok => `<span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span>`;
+  const rel = o.s1.F / o.prov.F - 1;
+  const bpb = r.b_prov_bound.prov;
+  const everyLower = Object.values(r.per_base).every(x => x.s1.precision < x.prov.precision);
+  const lowerClause = everyLower ? '; precision was lower in every base model' : '';
+  return `<section class="rt-onto-s1 rt-onto-s2" data-onto-s2 data-onto-s2-verdict="${esc(r.verdict)}">
+    <h3>Replication (S2, AgentDyn): the same frozen rules on new suites</h3>
+    <div class="rt-onto-verdict"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
+      <span>Same frozen rules, pre-registered on ${r.counts.runs} never-opened AgentDyn runs (3 new suites built on the AgentDojo harness; ${r.counts.K} undefended base models; ${r.counts.positives} successful attacks). No judge model.</span></div>
+    <div class="rt-learning-tiles" data-onto-s2-tiles>
+      ${tile('Alerts raised (runs)', `<span data-onto-s2-num="prov-F">${o.prov.F}</span>`, `<span data-onto-s2-num="s1-F">${o.s1.F}</span>`, `without → with ontology types · ${pct(Math.abs(rel))} ${rel < 0 ? 'fewer' : 'more'}`)}
+      ${tile('Precision', pct(o.prov.precision), pct(o.s1.precision), 'share of alerts that are a successful attack')}
+      ${tile('Recall', pct(o.prov.recall), pct(o.s1.recall), 'share of successful attacks alerted')}
+    </div>
+    <ul class="rt-onto-parts">
+      ${part('a', 'Higher precision across held-out AgentDyn tasks', r.p?.a, r.ci?.precision_vs_prov && `${pts(r.ci.precision_vs_prov[0])} to ${pts(r.ci.precision_vs_prov[1])} points`, 'data-onto-s2-part')}
+      <li data-onto-s2-part="b" data-onto-s2-part-ok="${!!c.holds}">${held(c.holds)} Recall at most ${(100 * r.margin).toFixed(0)} points lower in this pool <span class="rt-onto-k">(observed, not a guarantee: mean over base models ${pts(c.theta)}, all runs ${pts(c.pooled_d)} points)</span></li>
+      ${part('c', 'Better than random typing of the same size', r.p?.c, null, 'data-onto-s2-part')}
+    </ul>
+    <div class="rt-onto-table"><table><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
+      ${Object.entries(r.per_base).map(([k, v]) => row(k, v)).join('')}
+    </tbody></table></div>
+    <p class="rt-ref">The AgentDojo precision gain did not replicate: pooled, the typed rule alerted on more runs and caught more attacks, at lower precision${lowerClause}. Descriptively, most of the gap goes with how “write” is decided: taking writes from the binding's effects instead of the tool-name pattern gives precision ${pct(bpb.precision)} and recall ${pct(bpb.recall)}, close to the typed rule. S2 also differs from S1 beyond its suites: the binding procedure changed, and its primary pool has only the undefended models, where S1 pooled defended and attack variants too. This does not show that typing is harmful in general. AgentDyn reuses AgentDojo's harness, so neither test is evidence from an independent framework. <a href="logs/2026-10-06_ONTOLOGY_S2_REPORT.md">Report</a> · <a href="logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md">plan</a>.</p>
   </section>`;
 }
 function chain(x, typed) {
@@ -103,8 +135,10 @@ async function init() {
     data = await r.json();
     let s1 = null;
     try { const rs = await fetch('data/onto-s1.json'); if (rs.ok) s1 = await rs.json(); } catch {}
+    let s2 = null;
+    try { const rs = await fetch('data/onto-s2.json'); if (rs.ok) s2 = await rs.json(); } catch {}
     const a = data.al;
-    root.innerHTML = `${s1Block(s1)}
+    root.innerHTML = `${s1Block(s1)}${s2 ? s2Block(s2) : '<p class="rt-ref" data-onto-s2-missing>The replication on AgentDyn (S2) did not confirm the S1 result; its data could not be loaded.</p>'}
       <h3 class="rt-onto-ex-h">Example runs, with and without ontology types</h3>
       <p class="rt-ref">From an earlier held-out cohort: ${a.counts.runs} AgentDojo runs of ${a.models.length} agent models (${a.models.map(esc).join(', ')}).</p>
       <div class="rt-onto-controls">
