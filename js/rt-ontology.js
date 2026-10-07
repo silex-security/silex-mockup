@@ -21,7 +21,8 @@ let data = null, cell = 'both', mode = 'onto';
 const pts = x => `${x >= 0 ? '+' : '−'}${Math.abs(100 * x).toFixed(1)}`;
 function part(id, label, p, ci, attr = 'data-onto-part') {
   const ok = p != null && p <= 0.05;
-  return `<li ${attr}="${id}" ${attr}-ok="${ok}"><span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span> ${esc(label)} <span class="rt-onto-k">(one-sided p = ${p == null ? '—' : Number(p).toPrecision(2)}${ci ? `; 95 % CI ${esc(ci)}` : ''})</span></li>`;
+  const pstr = p == null ? '—' : (p >= 0.995 ? Number(p).toFixed(3) : Number(p).toPrecision(2));
+  return `<li ${attr}="${id}" ${attr}-ok="${ok}"><span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span> ${esc(label)} <span class="rt-onto-k">(one-sided p = ${pstr}${ci ? `; 95 % CI ${esc(ci)}` : ''})</span></li>`;
 }
 function s1Block(r) {
   if (!r) return '';
@@ -58,6 +59,9 @@ function s2Block(r) {
   const row = (name, x) => `<tr><th scope="row">${esc(name)}</th><td>${x.s1.Pos}</td><td>${x.prov.F} → ${x.s1.F}</td><td>${pct(x.prov.precision)} → ${pct(x.s1.precision)}</td><td>${pct(x.prov.recall)} → ${pct(x.s1.recall)}</td></tr>`;
   const held = ok => `<span class="rt-chip" data-kind="${ok ? 'ran' : 'review'}">${ok ? 'held' : 'not established'}</span>`;
   const rel = o.s1.F / o.prov.F - 1;
+  const bpb = r.b_prov_bound.prov;
+  const everyLower = Object.values(r.per_base).every(x => x.s1.precision < x.prov.precision);
+  const lowerClause = everyLower ? '; precision was lower in every base model' : '';
   return `<section class="rt-onto-s1 rt-onto-s2" data-onto-s2 data-onto-s2-verdict="${esc(r.verdict)}">
     <h3>Replication (S2, AgentDyn): the same frozen rules on new suites</h3>
     <div class="rt-onto-verdict"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
@@ -75,7 +79,7 @@ function s2Block(r) {
     <div class="rt-onto-table"><table><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
       ${Object.entries(r.per_base).map(([k, v]) => row(k, v)).join('')}
     </tbody></table></div>
-    <p class="rt-ref">The AgentDojo precision gain did not replicate: the typed rule alerted on more runs and caught more attacks, at lower precision, in every base model. Descriptively, most of the gap goes with how “write” is decided: taking writes from the binding's effects instead of the tool-name pattern gives precision ${pct(r.b_prov_bound.prov.precision)} and recall ${pct(r.b_prov_bound.prov.recall)}, close to the typed rule. This does not show that typing is harmful in general. AgentDyn reuses AgentDojo's harness, so neither test is evidence from an independent framework. <a href="logs/2026-10-06_ONTOLOGY_S2_REPORT.md">Report</a> · <a href="logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md">plan</a>.</p>
+    <p class="rt-ref">The AgentDojo precision gain did not replicate: pooled, the typed rule alerted on more runs and caught more attacks, at lower precision${lowerClause}. Descriptively, most of the gap goes with how “write” is decided: taking writes from the binding's effects instead of the tool-name pattern gives precision ${pct(bpb.precision)} and recall ${pct(bpb.recall)}, close to the typed rule. S2 also differs from S1 beyond its suites: the binding procedure changed, and its primary pool has only the undefended models, where S1 pooled defended and attack variants too. This does not show that typing is harmful in general. AgentDyn reuses AgentDojo's harness, so neither test is evidence from an independent framework. <a href="logs/2026-10-06_ONTOLOGY_S2_REPORT.md">Report</a> · <a href="logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md">plan</a>.</p>
   </section>`;
 }
 function chain(x, typed) {

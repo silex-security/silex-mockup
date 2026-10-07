@@ -96,6 +96,20 @@ try {
     const note = await ev(`return document.querySelector('[data-onto-s1] .rt-ref').textContent;`);
     assert.ok(/AgentDyn/.test(note), note);
   });
+  await check('S2 note carries the C4 differences and the pooled wording', async () => {
+    const note = await ev(`return document.querySelector('[data-onto-s2] .rt-ref').textContent;`);
+    assert.match(note, /pooled, the typed rule alerted on more runs and caught more attacks, at lower precision/);
+    assert.match(note, /the binding procedure changed/);
+    assert.match(note, /undefended models/);
+    assert.match(note, /pooled defended and attack variants/);
+    assert.doesNotMatch(note, /caught more attacks, at lower precision, in every base model/);
+    assert.doesNotMatch(note, /caught more attacks[^.;]*in every base model/);
+  });
+  await check('S2 part (a) shows p = 0.996 (not 1.0)', async () => {
+    const text = await ev(`return [...document.querySelectorAll('[data-onto-s2] [data-onto-s2-part]')].map(x=>x.textContent).join(' | ');`);
+    assert.match(text, /p = 0\.996/);
+    assert.doesNotMatch(text, /p = 1(\.0+)?\b/);
+  });
   await check('S2 report and plan links resolve with HTTP 200', async () => {
     const links = await ev(`return [...document.querySelectorAll('[data-onto-s2] a')].map(x=>({label:x.textContent.trim(),path:x.getAttribute('href'),url:x.href}));`);
     assert.deepEqual(links.map(x => [x.label, x.path]), [
@@ -119,6 +133,11 @@ try {
       }
       await ev(`document.querySelector('button[data-view="runtime-observation"]').click();`);
       await sleep(500);
+      await ev(`const t=document.querySelector('.rt-fold-toggle[aria-controls="rtOntologyBody"]'); if(t.getAttribute('aria-expanded')!=='true') t.click();`);
+      await until(() => ev(`return document.querySelector('.rt-fold-toggle[aria-controls="rtOntologyBody"]').getAttribute('aria-expanded')==='true';`), 'ontology expanded');
+      const bounds = await ev(`const e=document.querySelector('[data-onto-s2]'),r=e.getBoundingClientRect();return {w:r.width,h:r.height,left:r.left,right:r.right,viewport:innerWidth};`);
+      assert.ok(bounds.w > 0 && bounds.h > 0, 'S2 section visible with positive size: ' + JSON.stringify(bounds));
+      assert.ok(bounds.left >= -1 && bounds.right <= bounds.viewport + 1, 'S2 section within the viewport horizontally: ' + JSON.stringify(bounds));
       if (width === 390) {
         const size = await ev(`const e=document.querySelector('[data-onto-s2]'),r=e.getBoundingClientRect();return {document:document.documentElement.scrollWidth,body:document.body.scrollWidth,viewport:innerWidth,left:r.left,right:r.right};`);
         assert.ok(size.document <= size.viewport + 1 && size.body <= size.viewport + 1 && size.left >= -1 && size.right <= size.viewport + 1, JSON.stringify(size));
