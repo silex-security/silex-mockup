@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="swm/css/swm.css" />
   <link rel="stylesheet" href="swm/css/swm-vowl.css" />
   <link rel="stylesheet" href="css/rt-pipeline.css" />
+  <link rel="stylesheet" href="css/rt-subtabs.css" />
   <style>
     :root{--ink:#17191d;--muted:#68707c;--line:#e3e6ea;--soft:#f5f6f8;--panel:#fff;--nav:#26282d;--blue:#718aff;--blue2:#536bdb;--lav:#e9edff;--green:#2b8766;--green-bg:#e5f4ee;--red:#c54545;--red-bg:#fcebea;--amber:#a66a14;--amber-bg:#fff3d8;--shadow:0 10px 30px rgba(22,28,45,.07);--radius:16px;--mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
     *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#eef0f3;line-height:1.45} button{font:inherit} .app{display:grid;grid-template-columns:244px 1fr;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:var(--nav);color:#f8f8fa;padding:26px 18px;display:flex;flex-direction:column}.brand{font-weight:760;letter-spacing:.16em;font-size:19px;padding:0 12px 28px}.brand span{color:var(--blue)}.section-label{font-size:11px;color:#9197a3;text-transform:uppercase;letter-spacing:.14em;padding:0 12px;margin:10px 0 8px}.nav{display:grid;gap:5px}.nav button{appearance:none;border:0;background:transparent;color:#aeb4bf;padding:11px 12px;border-radius:9px;text-align:left;display:flex;align-items:center;gap:11px;cursor:pointer;font-size:14px}.nav button:hover,.nav button.active{color:#fff;background:#343740}.nav button.active{box-shadow:inset 3px 0 var(--blue)}.ico{width:17px;height:17px;display:inline-grid;place-items:center;font-size:15px}.spacer{flex:1}.system{border-top:1px solid #3a3d44;padding:18px 12px 0}.online{display:flex;align-items:center;gap:8px;font-size:12px;color:#bac0c9}.dot{width:8px;height:8px;border-radius:50%;background:#4bc28b;box-shadow:0 0 0 4px rgba(75,194,139,.12)}.tenant{margin-top:13px;color:#fff;font-size:13px}.tenant small{display:block;color:#898f99;margin-top:2px}.main{min-width:0}.topbar{height:68px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}.crumb{font-size:13px;color:var(--muted)}.crumb strong{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;color:#4f5864}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:white;font-size:12px}.content{padding:26px 30px 48px;max-width:1520px;margin:auto}.title-row{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}.title-row h1{font-size:26px;line-height:1.15;margin:0 0 5px;letter-spacing:-.025em}.title-row p{margin:0;color:var(--muted);font-size:13px}.btn{border:0;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:650;font-size:13px;display:inline-flex;align-items:center;gap:8px}.btn.primary{background:var(--ink);color:#fff}.btn.primary:hover{background:#000}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.blue{background:var(--blue);color:#fff}.btn:disabled{opacity:.48;cursor:not-allowed}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:var(--panel);border:1px solid #e1e4e8;border-radius:var(--radius);box-shadow:var(--shadow)}.metric{padding:18px 19px}.kicker{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-bottom:12px}.trend{font-size:11px;color:var(--green);background:var(--green-bg);padding:3px 7px;border-radius:99px}.metric-value{font-size:30px;font-weight:730;letter-spacing:-.04em;line-height:1}.metric-foot{font-size:12px;color:var(--muted);margin-top:10px}.two-col{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:18px;margin-bottom:18px}.card-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px}.card-head h2{font-size:15px;margin:0}.card-head p{font-size:12px;color:var(--muted);margin:3px 0 0}.status{font-size:11px;font-weight:720;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:5px 8px}.status.blocked{color:var(--red);background:var(--red-bg)}.status.running{color:var(--blue2);background:var(--lav)}.status.review{color:var(--amber);background:var(--amber-bg)}.incident{margin:0 20px 19px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.incident-top{display:flex;justify-content:space-between;padding:16px;background:#fafbfc;border-bottom:1px solid var(--line)}.incident-title{display:flex;gap:11px}.shield{width:36px;height:36px;border-radius:10px;background:var(--red-bg);color:var(--red);display:grid;place-items:center;font-weight:800}.incident-title strong{display:block;font-size:14px}.incident-title small{display:block;color:var(--muted);margin-top:3px}.path-wrap{padding:18px 16px 20px}.path-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}.path{display:grid;grid-template-columns:1fr 22px 1fr 22px 1.1fr 22px 1fr;align-items:center;gap:6px}.node{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;min-width:0}.node strong{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.node span{font-size:11px;color:var(--muted)}.node.danger{border-color:#efbaba;background:#fff8f8}.arrow{text-align:center;color:#979da6}.failure-note{margin-top:14px;padding:10px 12px;background:#fff6f5;border-left:3px solid var(--red);font-size:12px;color:#6c3a3a}.timeline{padding:4px 20px 19px}.event{display:grid;grid-template-columns:58px 14px 1fr;gap:10px;min-height:64px}.event time{font-size:11px;color:var(--muted);padding-top:2px}.rail{display:flex;flex-direction:column;align-items:center}.rail i{width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:4px;z-index:1}.rail:after{content:"";width:1px;flex:1;background:var(--line)}.event:last-child .rail:after{display:none}.event-copy strong{font-size:12px;display:block}.event-copy span{font-size:11px;color:var(--muted)}.validation{padding:0 20px 20px}.progress-top{display:flex;justify-content:space-between;align-items:end}.progress-number{font-weight:750;font-size:22px}.progress-track{height:7px;background:#e8eaf0;border-radius:99px;margin:10px 0 16px;overflow:hidden}.progress-bar{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),#9b79ef);border-radius:99px;transition:width .6s}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:11px;background:var(--soft);border-radius:10px}.stat strong{font-size:17px;display:block}.stat span{font-size:10px;color:var(--muted)}.findings{margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #f0c1bf;background:#fff9f8;border-radius:10px}.findings strong{font-size:12px;color:#8d3636}.findings span{font-size:11px;color:var(--muted)}.evidence-card{padding-bottom:6px}.evidence{padding:0 20px 18px}.confidence{display:grid;grid-template-columns:145px 1fr;gap:20px;align-items:center}.ring{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--blue) 0 78%,#eaecf0 78% 100%);position:relative}.ring:before{content:"";position:absolute;inset:11px;background:#fff;border-radius:50%}.ring-inner{position:relative;text-align:center}.ring-inner strong{font-size:27px;display:block}.ring-inner span{font-size:10px;color:var(--muted)}.e-list{display:grid;gap:12px}.e-item{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:12px}.e-item span{color:var(--muted)}.mini-track{grid-column:1/3;height:4px;background:#eceef2;border-radius:99px;overflow:hidden}.mini-track i{display:block;height:100%;background:var(--blue);border-radius:99px}.mini-track i.red{background:var(--red)}.section-card{margin-bottom:18px}.section-card .body{padding:0 20px 20px}.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px}.tab{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px}.tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.matrix{width:100%;border-collapse:collapse;font-size:12px}.matrix th{text-align:left;color:var(--muted);font-weight:560;border-bottom:1px solid var(--line);padding:10px 8px}.matrix td{padding:13px 8px;border-bottom:1px solid #eef0f2}.matrix tr:last-child td{border-bottom:0}.matrix .bold{font-weight:680}.matrix .score{font-weight:720}.evidence-tag{display:inline-block;border-radius:6px;background:var(--soft);padding:4px 7px;color:#555e69}.policy-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}.policy{border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}.policy.recommended{border-color:#879aff;box-shadow:inset 0 0 0 1px #879aff}.rec{position:absolute;top:12px;right:12px;background:var(--lav);color:var(--blue2);padding:4px 7px;border-radius:6px;font-size:10px;font-weight:700}.policy h3{font-size:13px;margin:0 0 7px;padding-right:80px}.policy p{font-size:11px;color:var(--muted);min-height:34px;margin:0 0 13px}.policy-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}.policy-metrics div{background:var(--soft);border-radius:8px;padding:8px}.policy-metrics strong{font-size:13px;display:block}.policy-metrics span{font-size:9px;color:var(--muted)}.calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chart{height:150px;border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;overflow:hidden;background:linear-gradient(to bottom,transparent 24%,#f0f2f4 25%,transparent 26%,transparent 49%,#f0f2f4 50%,transparent 51%,transparent 74%,#f0f2f4 75%,transparent 76%)}.chart svg{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px)}.chart-title{position:relative;z-index:1;font-size:11px;color:var(--muted)}.alert{border:1px solid #cdd5ff;background:#f7f8ff;border-radius:12px;padding:14px;display:flex;gap:11px;align-items:flex-start;margin-bottom:10px}.alert:last-child{margin-bottom:0}.alert-icon{color:var(--blue2);font-weight:800}.alert strong{font-size:12px;display:block}.alert p{font-size:11px;color:var(--muted);margin:3px 0 0}.view{display:none}.view.active{display:block}.modal-backdrop{position:fixed;inset:0;background:rgba(20,22,27,.48);z-index:30;display:none;align-items:center;justify-content:center;padding:20px}.modal-backdrop.open{display:flex}.modal{width:min(520px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);padding:22px}.modal h2{margin:0 0 8px;font-size:19px}.modal p{font-size:13px;color:var(--muted)}.modal-box{background:var(--soft);border-radius:10px;padding:13px;font-size:12px;margin:16px 0}.modal-actions{display:flex;justify-content:flex-end;gap:9px}.toast{position:fixed;right:24px;bottom:24px;background:#1f2227;color:#fff;padding:13px 16px;border-radius:10px;box-shadow:0 10px 35px rgba(0,0,0,.3);font-size:12px;transform:translateY(100px);opacity:0;transition:.25s;z-index:50}.toast.show{transform:translateY(0);opacity:1}
@@ -323,26 +324,16 @@
     @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
     @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
   /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md; content from the Runtime Validation plan). */
-  .rt-lead{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;padding:16px 20px;margin-bottom:18px}
-  .rt-lead p{margin:0;color:var(--muted);font-size:13px;max-width:880px}.rt-lead p b{color:var(--ink)}.rt-lead .pill{white-space:nowrap}
-  .rt-scen-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .rt-scen-grid h3{margin:0 0 8px;font-size:13px}
-  .rt-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;margin-bottom:6px;font-size:12px}
-  .rt-row .rt-id{font-family:var(--mono);font-weight:600;color:var(--blue2)}
-  .rt-row .rt-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rt-chip{font-size:11px;font-weight:650;border-radius:99px;padding:3px 8px;white-space:nowrap;background:var(--soft);color:var(--muted)}
   .rt-chip[data-kind="ran"]{background:var(--green-bg);color:var(--green)}
   .rt-chip[data-kind="flagged"],.rt-chip[data-kind="review"]{background:var(--amber-bg);color:var(--amber)}
   .rt-chip[data-kind="held"],.rt-chip[data-kind="blocked"]{background:var(--red-bg);color:var(--red)}
-  .rt-row .btn{padding:5px 10px;font-size:12px}
   .rt-ref{font-size:11px;color:var(--muted);margin:0 0 10px}
-  .rt-learning-loop{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0 0 16px;padding:0;list-style:none}
-  .rt-learning-loop li{border:1px solid var(--line);border-radius:9px;background:var(--soft);padding:12px 10px;font-size:12px;font-weight:600}
   #rtLearningGate{margin-top:14px}#rtLearningGate h3{font-size:14px}#rtLearningGate p{font-size:13px}
   .rt-learning-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .rt-learning-tiles .metric-value{font-size:26px}.rt-learning-tiles .metric-foot{margin-top:8px}
   /* What the ontology adds (logs/2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md). */
-  #rtOntology .body{overflow-wrap:anywhere}.rt-onto-verdict{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px;font-size:13px}
+  #rtOntologyBody{overflow-wrap:anywhere}.rt-onto-verdict{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px;font-size:13px}
   .rt-onto-controls{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:16px 0 12px}
   .rt-onto-run{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fafbfc}.rt-onto-run-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .rt-onto-run-head .rt-ref{margin:0}.rt-onto-task{font-size:13px;margin:10px 0}
@@ -352,27 +343,19 @@
   .rt-onto-why{font-size:12px;color:var(--muted);margin-top:6px}.rt-onto-chain{font-size:12px;margin:10px 0 6px;padding-left:18px;display:grid;gap:4px}
   .rt-onto-k{color:var(--muted)}.rt-onto-tag{display:inline-block;border-radius:6px;background:var(--lav);color:var(--blue2);padding:2px 6px;font-size:11px;font-weight:650}
   .rt-onto-src{font-size:11px;background:var(--soft);border-radius:8px;padding:8px 10px;white-space:pre-wrap}.rt-onto-src-ref{color:var(--muted);margin-bottom:4px}
-  .rt-onto-pr{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}.rt-onto-pr h3{font-size:14px;margin:0 0 10px}
   .rt-onto-s1{border-bottom:1px solid var(--line);margin-bottom:16px;padding-bottom:14px}.rt-onto-s1 h3{font-size:14px;margin:0 0 10px}
   .rt-onto-table{overflow-x:auto;margin:0 0 10px}.rt-onto-table table{border-collapse:collapse;font-size:12px;min-width:420px;width:100%}.rt-onto-table th,.rt-onto-table td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}.rt-onto-table td{font-variant-numeric:tabular-nums}
   .rt-onto-parts{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:6px;font-size:12px}
   .rt-onto-src mark{background:#ffe08a;border-radius:3px;padding:0 2px}.rt-judge-real{margin-top:10px}
   @media(max-width:760px){.rt-onto-controls .tabs{overflow:auto;flex-wrap:nowrap}.rt-onto-controls .tab{white-space:nowrap}}
-  #rtLearning .body{overflow-wrap:anywhere}#rtLearning details{font-size:12px;color:var(--muted);margin-top:12px}#rtLearning summary{cursor:pointer}
-  @media(max-width:760px){.rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}.rt-learning-tiles{grid-template-columns:1fr}#rtLearning .card-head,#rtOntology .card-head{flex-wrap:wrap;gap:12px}}
+  #rtLearningEvidence{overflow-wrap:anywhere}
   .rt-run-result{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 14px}.rt-run-result .decision-state{margin:0;flex:1 1 320px}.rt-run-result .decision-state:not(.show){display:none}.rt-see-run{font-size:12px;font-weight:600;color:var(--blue2)}
   .rt-frame-wrap{height:780px;min-height:560px}
-  /* Collapsible Runtime Observation sections: the title block toggles the body. */
-  .rt-fold .rt-fold-toggle{cursor:pointer;border-radius:8px}.rt-fold .rt-fold-toggle:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
-  .rt-fold .rt-fold-toggle h2::before{content:"▸";display:inline-block;width:1em;color:var(--muted);transition:transform 150ms ease-out}
-  .rt-fold:not([data-fold="collapsed"]) .rt-fold-toggle h2::before{transform:rotate(90deg)}
-  .rt-fold[data-fold="collapsed"]>.body{display:none}.rt-fold[data-fold="collapsed"]>.card-head{border-bottom:0}
-  .rt-onto-ex-h{font-size:14px;margin:0 0 6px}
   .rt-lat-bars{display:grid;gap:8px;margin:16px 0 18px}.rt-lat-row{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:12px}
   .rt-lat-track{position:relative;height:10px;background:var(--soft);border-radius:99px}.rt-lat-track i{display:block;height:100%;border-radius:99px}.rt-lat-track i.kev,.rt-lat-dots.kev i{background:var(--blue)}.rt-lat-track i.llm,.rt-lat-dots.llm i{background:#9aa1ad}
   .rt-lat-mark{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--red)}
   .rt-lat-axis{position:relative;height:16px}.rt-lat-axis em{position:absolute;transform:translateX(-50%);white-space:nowrap;font-style:normal;font-size:11px;font-weight:650;color:var(--red)}
-  .rt-lat-v{font-variant-numeric:tabular-nums;text-align:right;font-weight:650}#rtLatency .body{overflow-wrap:anywhere}.rt-lat-vs{font-size:14px;color:var(--muted);font-weight:500}
+  .rt-lat-v{font-variant-numeric:tabular-nums;text-align:right;font-weight:650}#rtLatencyBody{overflow-wrap:anywhere}.rt-lat-vs{font-size:14px;color:var(--muted);font-weight:500}
   .rt-lat-race{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fafbfc;margin:0 0 12px}.rt-lat-race h3{font-size:14px;margin:0 0 4px}.rt-lat-race .rt-ref{margin:0}
   .rt-lat-race-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}.rt-lat-race-ctl{display:flex;gap:10px;align-items:center}
   .rt-lat-clock{font-family:var(--mono);font-size:13px;font-weight:650;min-width:52px;text-align:right}
@@ -381,8 +364,7 @@
   @media(max-width:560px){.rt-lat-row{grid-template-columns:minmax(0,1fr) 64px}.rt-lat-name{grid-column:1/-1}.rt-lat-track,.rt-lat-axis{grid-column:1}.rt-lat-row>span:empty{display:none}}
   #rtOntoReport{background:ButtonFace;color:ButtonText;text-decoration:none;white-space:nowrap} /* matches the Try the loop button */
   #rtResult.error{background:var(--red-bg);color:var(--red)}
-  @media(max-width:900px){.rt-scen-grid{grid-template-columns:1fr}.rt-lead{flex-direction:column}}
-  @media(max-width:560px){.rt-row{grid-template-columns:44px minmax(0,1fr) auto}.rt-row .rt-chip{grid-column:2;grid-row:2;justify-self:start}.rt-row .btn{grid-column:3;grid-row:1/span 2}.rt-frame-wrap{height:680px}}
+  @media(max-width:560px){.rt-frame-wrap{height:680px}}
   .studio-frame-wrap{height:calc(100vh - 150px);min-height:560px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.studio-frame-wrap iframe{display:block;width:100%;height:100%;border:0}.studio-frame-loading{display:grid;place-items:center;height:100%;color:var(--muted);font-size:13px}.studio-pending .muted,.studio-pcp .muted,.studio-lib-rows .muted,.studio-empty{color:var(--muted)}.studio-pending .row{display:grid;grid-template-columns:1fr auto;gap:3px 12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:12px;text-align:left}.studio-pending .row b{font-size:13px}.studio-pending .row>*:not(button){grid-column:1}.studio-pending .row>button{grid-column:2;grid-row:1/span 3}.studio-pending small,.studio-pcp small{font-size:11px}.studio-empty{font-size:12px;padding:6px 2px 10px}.studio-pcp{display:contents}.studio-card{padding:16px}.studio-card ul{margin:8px 0;padding-left:18px;font-size:12px}.studio-card .row-actions,.studio-lib-rows .row-actions{display:flex;gap:8px;margin-top:10px}.studio-lib-rows{padding:0 20px 18px}.studio-lib-rows .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border-top:1px solid var(--line);padding:12px 0;font-size:12px}.studio-lib-rows .row .row-actions{margin:0 0 0 auto}.studio-lib-rows .warn{color:var(--amber)}.studio-pending .btn.sm,.studio-pcp .btn.sm,.studio-lib-rows .btn.sm{padding:7px 11px;font-size:12px;background:#fff;color:var(--ink);border:1px solid var(--line)}.studio-lib-rows .btn.sm:disabled{opacity:.45;cursor:not-allowed}#blueprint.view.active{display:block}@media(max-width:760px){.studio-frame-wrap{height:calc(100vh - 120px);border-radius:10px}}
 
   /* Floating navigation: phones retain the original strip. */
@@ -1143,45 +1125,83 @@
 <p>Action-wise. Is each agent action safe to run, decided before it runs?</p>
 </div>
 </div>
-<div class="card rt-lead"><p>Runtime validation checks each agent action as it happens, before it runs: <b>hard rules → a Jev judgment battery → a policy in code</b>; the gateway then allows, holds or blocks it. Below, a simulated engine runs the scripted scenarios; the judge, latencies and tenant are simulated.</p><span class="pill">Simulated judge · fictional tenant</span></div>
-<div class="metric-grid" id="rtMetrics">
-<div class="card metric" data-rt-metric="scenarios"><div class="kicker">Scripted scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
-<div class="card metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
-<div class="card metric" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
-<div class="card metric" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
+<div class="rt-lead"><p>Before an AI agent's action runs, Silex checks it in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. The gateway then <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
+<div class="card rt-kpis" id="rtMetrics">
+<div class="metric" data-rt-metric="scenarios"><div class="kicker">Scripted scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
+<div class="metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
+<div class="metric" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
+<div class="metric" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
 </div>
-<p class="rt-ref" id="rtReference"></p>
-<div class="card section-card rt-fold" id="rtScenarioCard" data-fold="collapsed">
-<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtScenarioBody"><h2>Scripted scenarios</h2><p>Press <b>Run</b>: each of the agent's actions goes through the pipeline below. The chips are the default-policy reference outcome.</p></div><span class="status running" id="rtStatus">Ready</span></div>
-<div class="body" id="rtScenarioBody">
+<nav class="rt-tabs" role="tablist" aria-label="Runtime Observation sections">
+<button type="button" role="tab" id="rtTab-scenarios" data-rt-tab="scenarios" aria-controls="rtScenarioCard" aria-selected="true" tabindex="0">Scenarios</button>
+<button type="button" role="tab" id="rtTab-plane" data-rt-tab="plane" aria-controls="rtDecisionPlane" aria-selected="false" tabindex="-1">Decision plane</button>
+<button type="button" role="tab" id="rtTab-learning" data-rt-tab="learning" aria-controls="rtLearning" aria-selected="false" tabindex="-1">Learning loop</button>
+<button type="button" role="tab" id="rtTab-ontology" data-rt-tab="ontology" aria-controls="rtOntology" aria-selected="false" tabindex="-1">Ontology</button>
+<button type="button" role="tab" id="rtTab-latency" data-rt-tab="latency" aria-controls="rtLatency" aria-selected="false" tabindex="-1">Judge latency</button>
+</nav>
+
+<section class="rt-panel active" id="rtScenarioCard" data-rt-panel="scenarios" role="tabpanel" aria-labelledby="rtTab-scenarios">
+<div class="card rt-intro"><div><h2>Watch one agent action get checked</h2><p>Pick a situation an agent might face. Each action the agent wants to take travels left to right through the checks; where it stops tells you who decided and why. Until you pick one, the picture loops through three example payments.</p></div><span class="rt-chip" data-kind="sim">Simulated engine</span></div>
+<div class="card rt-scen-bar">
+<label for="rtScenarioSelect">Scenario</label>
+<select id="rtScenarioSelect" aria-describedby="rtScenWhat"><option value="">Loading the simulated engine…</option></select>
+<button type="button" class="btn primary" id="rtRunBtn">▶ Run</button>
+<span class="status running" id="rtStatus">Ready</span>
+<div class="rt-scen-desc"><div id="rtScenWhat">Choose one of the 12 scripted situations; the chip shows its expected outcome under the default policy.</div><span id="rtScenChip"></span></div>
+</div>
+<div class="card rt-pipe-card" id="rtScenarios">
 <div class="rt-pipeline" id="rtPipeline" data-mode="idle" aria-label="How runtime validation decides each agent action"></div>
-<div class="rt-run-result"><div class="decision-state approved" id="rtResult"></div><a href="#rtFrameWrap" class="rt-see-run" id="rtSeeRun" hidden>See this run in the decision plane ↓</a></div>
-<div class="rt-scen-grid" id="rtScenarios"><p class="rt-ref">Loading the simulated engine…</p></div>
+<div class="rt-run-result"><div class="decision-state approved" id="rtResult"></div><a href="#rtFrameWrap" class="btn rt-see-run" id="rtSeeRun" hidden>See this run in the decision plane →</a></div>
 </div>
+<h3 class="rt-section-h">How to read the picture</h3>
+<div class="rt-howto">
+<div><b>Agent action</b>The tool call the agent wants to make, such as <code>payments.execute</code>.</div>
+<div><b>Hard rules</b>Fixed checks, such as an amount limit or a domain allowlist. Any one can stop the action, and no model can override it.</div>
+<div><b>Judge (Jev)</b>A small model answers risk questions: is this off the user's goal? Is the payee suspicious?</div>
+<div><b>Policy</b>Turns the judge's answers into allow, hold or block.</div>
+<div><b>Evidence</b>A record of every decision, kept for audit. In this preview nothing leaves the browser.</div>
 </div>
-<div class="card section-card" id="rtDecisionPlane">
-<div class="card-head"><div><h2>Decision plane (simulated)</h2><p>The Jev runtime demo, embedded: switch agents, open a run's details, try Replay and Policy Studio.</p></div><a class="btn secondary" id="rtOpenFull" href="jev-runtime/demo/index.html">Open full page →</a></div>
-<div class="body"><div class="studio-frame-wrap rt-frame-wrap" id="rtFrameWrap"><div class="studio-frame-loading">The simulated demo loads when you open this view.</div></div></div>
-</div>
-<div class="card section-card rt-fold" id="rtLearning" data-fold="collapsed">
-<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtLearningBody"><h2>The judge learns from your reviewers</h2><p>Every reviewer answer becomes a training label. Below: what fine-tuning Kev already achieved on benchmark labels.</p></div><button type="button" class="btn" id="rtTryLoop">Try the loop</button></div>
-<div class="body" id="rtLearningBody">
+<p class="rt-ref rt-tipline">Tip: click a stage to pause the animation there; click it again to resume. The outcome chips are the default-policy reference outcome.</p>
+</section>
+
+<section class="rt-panel" id="rtDecisionPlane" data-rt-panel="plane" role="tabpanel" aria-labelledby="rtTab-plane" hidden>
+<div class="card rt-intro"><div><h2>The security team's console</h2><p>The full Jev runtime demo, embedded. Things to try:</p>
+<div class="rt-howto">
+<div><b>1 · Switch agents</b>AP payments or SOC triage, at the top left.</div>
+<div><b>2 · Open a run</b>See every action, which check decided it, and why.</div>
+<div><b>3 · Replay</b>Step through a past run one action at a time.</div>
+<div><b>4 · Policy Studio</b>Change a threshold and see what changes. These edits change the demo only, not the reference figures above.</div>
+</div></div>
+<div class="rt-intro-side"><span class="rt-chip" data-kind="sim">Simulated</span><a class="btn secondary" id="rtOpenFull" href="jev-runtime/demo/index.html">Open full page →</a></div></div>
+<div class="card rt-frame-card"><div class="studio-frame-wrap rt-frame-wrap" id="rtFrameWrap"><div class="studio-frame-loading">The simulated demo loads when you open this view.</div></div></div>
+</section>
+
+<section class="rt-panel" id="rtLearning" data-rt-panel="learning" role="tabpanel" aria-labelledby="rtTab-learning" hidden>
+<div class="card rt-intro"><div><h2>The judge learns from your reviewers</h2><p>When the judge is unsure, it holds the action for a person. Every reviewer answer can become a training label, so the judge improves over time. Below, we tested the idea by fine-tuning our small judge, <b>Kev</b>, on a public benchmark (AgentDojo held-out). The labels come from the benchmark, <b>not yet from customer reviewers</b>.</p></div>
+<div class="rt-intro-side"><span class="rt-chip" data-kind="ran">Measured</span><button type="button" class="btn primary" id="rtTryLoop">Try the loop</button></div></div>
+<h3 class="rt-section-h">The loop</h3>
 <ol class="rt-learning-loop" aria-label="Proposed learning loop">
-<li>Held for review →</li><li>Reviewer answers →</li><li>Labels →</li><li>Train Kev →</li><li>Gate (held-out test) →</li><li>Promote</li>
+<li><b>1 · Held</b>The judge is unsure and asks a person</li><li><b>2 · Answer</b>The reviewer says safe or unsafe</li><li><b>3 · Label</b>The answer becomes a training label</li><li><b>4 · Train</b>Kev is fine-tuned on the labels</li><li><b>5 · Gate</b>The new Kev is tested on cases it never saw</li><li class="future"><b>6 · Promote</b>Future work <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>Training on reviewer labels and production promotion are future work. The demo illustrates a proposed promotion gate; production promotion is not implemented.</span></span></li>
 </ol>
 <div id="rtLearningEvidence"><p class="rt-ref">Loading measured benchmark evidence…</p></div>
-<p class="rt-ref rt-judge-real" id="rtJudgeRealNote"></p>
-<p class="rt-ref">Training on reviewer labels and production promotion are future work. The demo illustrates a proposed promotion gate; production promotion is not implemented.</p>
+<p class="rt-takeaway warn rt-judge-real" id="rtJudgeRealNote"></p>
+</section>
+
+<section class="rt-panel" id="rtOntology" data-rt-panel="ontology" role="tabpanel" aria-labelledby="rtTab-ontology" hidden>
+<div class="card rt-intro"><div><h2>Does giving actions a meaning make alerts better?</h2><p>An <b>ontology</b> labels what each step of a run means: “this call <i>changes data</i>”, “this argument is a <i>password</i>”, “this value came from a <i>document</i>, not from the user”. We asked whether those labels make a simple attack alert <b>less noisy without missing attacks</b>, on the same runtime provenance graph with and without ontology types. The rules were written down before looking at the data (pre-registered) and tested twice, on real benchmark runs of held-out agent models. No judge model is used here.</p></div>
+<div class="rt-intro-side"><span class="rt-chip" data-kind="ran">Measured</span><a class="btn" id="rtOntoReport" href="https://claude.ai/artifact/MPE8qnD2f1bSz965s7y3Ap" target="_blank" rel="noopener">Check Report</a></div></div>
+<div class="rt-howto">
+<div><b>Alerts</b>How many runs raised an alert. Fewer means less noise for the security team.</div>
+<div><b>Precision</b>Of the alerts, the share that were real attacks. Higher means fewer false alarms.</div>
+<div><b>Recall</b>Of the real attacks, the share that got an alert. Higher means fewer misses.</div>
 </div>
-</div>
-<div class="card section-card rt-fold" id="rtOntology" data-fold="collapsed">
-<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtOntologyBody"><h2>What the ontology adds</h2><p>The same runtime provenance graph, with and without ontology types, on real benchmark runs of held-out agent models: confirmed on AgentDojo (S1), not replicated on AgentDyn (S2).</p></div><a class="btn" id="rtOntoReport" href="https://claude.ai/artifact/MPE8qnD2f1bSz965s7y3Ap" target="_blank" rel="noopener">Check Report</a></div>
-<div class="body" id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
-</div>
-<div class="card section-card rt-fold" id="rtLatency" data-fold="collapsed">
-<div class="card-head"><div class="rt-fold-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="rtLatencyBody"><h2>How fast is the judge?</h2><p>Measured: Kev running locally against gpt-4o-mini through the OpenAI API, same items, same questions.</p></div><span class="pill">Measured</span></div>
-<div class="body" id="rtLatencyBody"><p class="rt-ref">Loading the latency measurements…</p></div>
-</div>
+<div id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
+</section>
+
+<section class="rt-panel" id="rtLatency" data-rt-panel="latency" role="tabpanel" aria-labelledby="rtTab-latency" hidden>
+<div class="card rt-intro"><div><h2>Is the judge fast enough?</h2><p>Every check happens while the agent waits, so the judge has a <b>budget of <span data-lat-budget-intro>400</span> ms per action</b>. We timed our small local judge, <b>Kev</b>, against <b>gpt-4o-mini</b> through the OpenAI API: same items, same questions.</p></div><span class="rt-chip" data-kind="ran">Measured</span></div>
+<div id="rtLatencyBody"><p class="rt-ref">Loading the latency measurements…</p></div>
+</section>
 </section>
 
 <section class="view" id="long-term">
@@ -1736,6 +1756,7 @@ const incidentData={
   /* Deep links (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A).
      #view=<nav view>, #view=incident&incident=<id>, #view=workflow&workflow=<id>,
      #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
+     #view=runtime-observation[&tab=scenarios|plane|learning|ontology|latency] (read by js/rt-subtabs.js).
      The old #view=long-term&tab=runtime is rewritten to #view=runtime-observation. Non-view hashes (#studio, #studio=new)
      stay with js/studio-host.js. Ordinary nav clicks do not write the hash, so Back returns to the last recorded route. */
   const WM_TABS=['wm-architecture','wm-ontology','wm-overview','wm-landscape','wm-gaps'];
@@ -1773,6 +1794,7 @@ const incidentData={
     if(id==='workflow'&&typeof currentWorkflow!=='undefined'&&currentWorkflow)return '#view=workflow&workflow='+encodeURIComponent(currentWorkflow);
     if(id==='security-model'){const t=wmTabs.find(x=>x.classList.contains('active')),tab=t?t.dataset.wmPanel:'wm-architecture',n=window.SWM&&SWM.currentNode();
       return '#view=security-model&tab='+tab+(tab==='wm-ontology'&&n?'&node='+encodeURIComponent(n):'')}
+    if(id==='runtime-observation'){const t=window.__rtTabs&&window.__rtTabs.current();if(t&&t!=='scenarios')return '#view=runtime-observation&tab='+t}
     return '#view='+id}
   function openRoute(hash){const h=location.hash;
     /* a blank origin, or a view= hash that no longer describes the visible state, is rewritten to the full current state;
@@ -1789,7 +1811,7 @@ const incidentData={
 <script type="module" src="js/jev-runtime-host.js"></script>
 <script type="module" src="js/rt-ontology.js"></script>
 <script type="module" src="js/rt-latency.js"></script>
-<script type="module" src="js/rt-fold.js"></script>
+<script type="module" src="js/rt-subtabs.js"></script>
 <script src="swm/js/swm-loader.js"></script>
 <script defer src="swm/js/swm-vowl.js"></script>
 <script defer src="swm/js/swm-vowl-ui.js"></script>

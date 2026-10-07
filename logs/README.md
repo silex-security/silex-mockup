@@ -2,6 +2,16 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-07 — Runtime Observation: five sub-tabs, plain language, hover text
+
+- **Why:** feedback was too much text and too long a page (the view rendered ~1 900 words in one scroll, five stacked cards).
+- **Layout:** the five cards become sub-tabs (17 px labels, no status chips): *Scenarios* (default), *Decision plane*, *Learning loop*, *Ontology*, *Judge latency*. Each tab opens with a plain-language intro and how to read it, shows numbers with plain captions, and ends with a takeaway. Technical detail (p-values, CIs, sample sizes, hardware, sources, the nine learning caveats) moves behind ⓘ hover text — one shared popover that opens on hover, focus or tap. Deep link `#view=runtime-observation&tab=<id>`; tab clicks do not write the hash.
+- **Scenarios:** the 12 scenarios are one dropdown (AP / SOC groups, outcome in each option) with a "what to watch" line; picking runs it, **Run** repeats it. The pipeline animation is unchanged. *See this run* and *Try the loop* open the Decision plane tab.
+- **Ontology:** a Test 1 (AgentDojo, Confirmed) / Test 2 (AgentDyn, Not confirmed) / Example runs switcher; each test shows a headline built from the data, three tiles, the three pre-registered parts with plain sub-lines, and the per-model table and full note in a closed *Per base model, and sources*.
+- **Kept on screen, not in hover text:** "Simulated" chips, S2 *Not confirmed* beside S1 *Confirmed*, the S1 AgentDojo-only scope, "observed, not a guarantee", "not yet from customer reviewers", the 0.741 reality check, "not a vendor SLA; speed only". Every sentence of the old view is still in the page, on screen or in a tip (checked by a sentence diff; rewordings listed in the plan).
+- **Removed:** `js/rt-fold.js` and the fold CSS, the per-row scenario list, and the unused `.rt-onto-pr`/`.rt-onto-ex-h` rules. New: `js/rt-subtabs.js`, `js/rt-tip.js`, `css/rt-subtabs.css`.
+- **Probes:** S14/S15/S19/S21/S40–S43 drive the dropdown and tabs; new S44 covers tabs, keyboard, deep link, hover/focus/tap/Esc and the visible claims; site probes 44/44. Card tests open the tab instead of the fold: 9/9, 9/9, 13/13, 8/8. Plan and record: [`2026-10-07_RUNTIME_SUBTABS_PLAN.md`](2026-10-07_RUNTIME_SUBTABS_PLAN.md).
+
 ## 2026-10-04 — World Model Coverage: system colours, and hover insights on why coverage is low
 
 - **Colours:** Coverage was the only view in pink/magenta. Arcs, legend, dimension bars and radar now use the site's indigo (`--lav` → `--blue2`); Gap weight runs slate → accent violet. Every arc stop ≥ 3:1 against the stage. Ontology Graph *colour by coverage* and the Layers meters share the ramp and change with it.

@@ -108,7 +108,7 @@ try {
         await until(() => ev(`return document.getElementById(${Q(view)})?.classList.contains('active');`), view);
         await sleep(300);
       }
-      await ev(`document.querySelector('button[data-view="runtime-observation"]').click();`);
+      await ev(`document.querySelector('button[data-view="runtime-observation"]').click(); document.querySelector('[data-rt-tab="ontology"]').click(); document.querySelector('[data-onto-seg="s1"]').click();`);
       await sleep(500);
       if (width === 390) {
         const size = await ev(`const e=document.querySelector('[data-onto-s1]'),r=e.getBoundingClientRect();return {document:document.documentElement.scrollWidth,body:document.body.scrollWidth,viewport:innerWidth,left:r.left,right:r.right};`);

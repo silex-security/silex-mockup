@@ -133,8 +133,8 @@ try {
       }
       await ev(`document.querySelector('button[data-view="runtime-observation"]').click();`);
       await sleep(500);
-      await ev(`const t=document.querySelector('.rt-fold-toggle[aria-controls="rtOntologyBody"]'); if(t.getAttribute('aria-expanded')!=='true') t.click();`);
-      await until(() => ev(`return document.querySelector('.rt-fold-toggle[aria-controls="rtOntologyBody"]').getAttribute('aria-expanded')==='true';`), 'ontology expanded');
+      await ev(`document.querySelector('[data-rt-tab="ontology"]').click(); document.querySelector('[data-onto-seg="s2"]').click();`);
+      await until(() => ev(`return !document.querySelector('#rtOntology').hidden && !document.querySelector('[data-onto-pane="s2"]').hidden;`), 'ontology tab, Test 2 shown');
       const bounds = await ev(`const e=document.querySelector('[data-onto-s2]'),r=e.getBoundingClientRect();return {w:r.width,h:r.height,left:r.left,right:r.right,viewport:innerWidth};`);
       assert.ok(bounds.w > 0 && bounds.h > 0, 'S2 section visible with positive size: ' + JSON.stringify(bounds));
       assert.ok(bounds.left >= -1 && bounds.right <= bounds.viewport + 1, 'S2 section within the viewport horizontally: ' + JSON.stringify(bounds));

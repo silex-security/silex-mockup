@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -263,14 +263,18 @@ try {
   async function rtClick(sel){
     // Run scrolls smoothly to the frame; stop that transition before computing
     // pointer coordinates for a control higher on the host page.
-    await ev(`const e=document.querySelector(${Q(sel)});if(!e)throw Error('Missing '+${Q(sel)});e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));`);
+    // A control in a hidden Runtime Observation sub-tab: open that tab first, as a viewer would.
+    await ev(`const e=document.querySelector(${Q(sel)});if(!e)throw Error('Missing '+${Q(sel)});const tp=e.closest('[data-rt-panel]');if(tp&&tp.hidden)document.querySelector('[data-rt-tab="'+tp.dataset.rtPanel+'"]').click();e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));`);
     await sleep(150);await clickSel(sel);
   }
   const rt = code => ev('const w=globalThis.document.querySelector("#rtFrame").contentWindow;const document=w.document,window=w;'+code);
-  // The scenario, learning and ontology cards start collapsed; these probes exercise their contents, so open them as a viewer would.
-  async function rtReady(){await until(()=>ev('return !!document.querySelector("#rtFrame")?.contentWindow?.__jevDemo?.ready'),'runtime iframe ready');if(await ev('const t=[...document.querySelectorAll(".rt-fold[data-fold=collapsed] .rt-fold-toggle")];t.forEach(x=>x.click());return t.length'))await sleep(300);}
+  async function rtReady(){await until(()=>ev('return !!document.querySelector("#rtFrame")?.contentWindow?.__jevDemo?.ready'),'runtime iframe ready');}
+  // Sub-tabs (logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md): open one as a viewer would; pick a scenario from the dropdown (a pick runs it).
+  async function rtTab(id){await ev(`document.querySelector('[data-rt-tab="${id}"]').click()`);await until(()=>ev(`return !document.querySelector('[data-rt-panel="${id}"]').hidden`),'tab '+id);}
+  const pick=id=>`(()=>{const s=document.querySelector('#rtScenarioSelect');s.value=${Q(id)};s.dispatchEvent(new Event('change',{bubbles:true}))})()`;
+  async function rtPick(id){await ev(pick(id));}
   async function rtOpen(){await load();await until(()=>ev('return !!window.__jevRuntime?.ready'),'runtime host ready');await nav('runtime-observation');await rtReady();}
-  async function rtRun(id,checkSelection=true){await rtClick(`[data-rt-scenario="${id}"] [data-rt-run]`);await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),'runtime '+id+' complete');await rtReady();if(checkSelection)await until(()=>rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='${id}').at(-1);return !!last&&document.querySelector('.run-card[data-selected]')?.dataset.runId===last.trace_id`),'selected latest '+id);}
+  async function rtRun(id,checkSelection=true){await rtPick(id);await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),'runtime '+id+' complete');await rtReady();if(checkSelection)await until(()=>rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='${id}').at(-1);return !!last&&document.querySelector('.run-card[data-selected]')?.dataset.runId===last.trace_id`),'selected latest '+id);}
   async function rtResult(id){
     const state=await rt(`const all=window.__jevDemo.log();const last=all.filter(e=>e.scenario==='${id}').at(-1);if(!last)throw Error('no injected envelopes');return all.filter(e=>e.trace_id===last.trace_id);`);
     assert.ok(state.length,'nonempty injected envelopes');
@@ -310,25 +314,26 @@ try {
     assert.deepEqual(await ev('return window.__jevRuntime.summary().metrics'),expected);
     for(const [k,v] of Object.entries(expected))assert.equal(await ev(`return Number(document.querySelector('#rtMetrics [data-rt-metric="${k}"] .metric-value').textContent)`),v,k);
     const table={S1:'all ran',S2:'review · judge',S3:'blocked · rule',S4:'held · rule',S5:'ran · flagged',S6:'blocked · rule',F1:'blocked · fallback',SOC1:'all ran',SOC2:'held · rule',SOC3:'held · rule',SOC4:'blocked · rule',SOC5:'review · judge'};
-    for(const [id,label] of Object.entries(table))assert.equal(await ev(`return document.querySelector('[data-rt-scenario="${id}"] [data-rt-outcome]').textContent`),label,id);
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('#rtScenarioSelect optgroup')].map(g=>[g.label,g.querySelectorAll('option').length])`),[['AP payments agent',7],['SOC triage agent',5]],'dropdown groups');
+    for(const [id,label] of Object.entries(table))assert.equal(await ev(`return document.querySelector('#rtScenarioSelect option[data-rt-scenario="${id}"]').dataset.rtOutcome`),label,id);
     assert.match(await ev('return document.querySelector("#rtReference").textContent'),/seed 7.*policy-v1 reference set/);
     return '12 pinned outcome chips; four metrics independently recomputed from default-policy pre_tool envelopes';
   });
   await probe('S15','SOC injection, actual results and latest-request-wins',async()=>{
-    await rtOpen();await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="replay"'),'pipeline replay visible');
+    await rtOpen();await rtPick('SOC2');await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="replay"'),'pipeline replay visible');
     await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"'),'SOC2 complete');await rtReady();
     assert.equal(await rt('return window.__jevDemo.domain'),'soc');await until(()=>rt('return !!document.querySelector(".run-card[data-selected][data-scenario=SOC2]")'),'SOC2 selected');await rtResult('SOC2');
     assert.ok((await rt('return document.querySelector(".run-card[data-selected]").textContent')).includes('Held for approval · did not run'));
     await rt('window.__probeIdentity=123;return true');await rtRun('SOC3',false);await sleep(200);const socSelection=await rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='SOC3').at(-1);return {actual:document.querySelector('.run-card[data-selected]')?.dataset.runId,expected:last?.trace_id}`);assert.equal(await rt('return window.__probeIdentity'),123,'same-agent run did not reload');await rtResult('SOC3');
-    await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await sleep(100);await rtClick('[data-rt-scenario="S3"] [data-rt-run]');
+    await rtPick('SOC2');await sleep(100);await rtPick('S3');
     await until(()=>ev('return document.querySelector("#rtStatus").textContent==="Complete"&&document.querySelector("#rtResult").textContent.startsWith("S3 ·")'),'latest S3 complete');await sleep(700);
     assert.equal(await rt('return window.__jevDemo.domain'),'ap');await rtResult('S3');
     assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.source,p.dataset.actionCount,document.querySelector("#rtToken").dataset.tool]'),['done','run','1','payments.execute'],'pipeline shows the latest S3 run');
-    const abandoned=await ev('return document.querySelectorAll("#rtScenarios [data-rt-run]:disabled").length');
+    const abandoned=await ev('return document.querySelectorAll("#rtRunBtn:disabled").length');
     await rt(`document.querySelector('[data-tab=studio]').click();const e=document.querySelector('[data-tool-mode="payments.execute"]');e.value='monitor';e.dispatchEvent(new window.Event('change',{bubbles:true}));document.querySelector('[data-tab=live]').click();`);await rtRun('S3',false);await rtResult('S3');await sleep(200);const monitorSelection=await rt(`const last=window.__jevDemo.log().filter(e=>e.scenario==='S3').at(-1);return {actual:document.querySelector('.run-card[data-selected]')?.dataset.runId,expected:last?.trace_id}`);
     assert.match(await ev('return document.querySelector("#rtResult").textContent'),/ran in monitor mode \(would have been blocked\)/);
-    assert.equal(await ev('return document.querySelector("[data-rt-scenario=S3] [data-rt-outcome]").textContent'),'blocked · rule');
-    assert.match(await ev('return document.querySelector("[data-rt-scenario=S3] [data-rt-outcome]").title'),/reference/i);
+    assert.equal(await ev('return document.querySelector("#rtScenChip [data-rt-outcome]").textContent'),'blocked · rule');
+    assert.match(await ev('return document.querySelector("#rtScenChip [data-rt-outcome]").title'),/reference/i);
     claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
     const retained=await ev(`window.__probeRuntimeDocument=document.querySelector('#rtFrame').contentDocument;return {result:document.querySelector('#rtResult').textContent}`);
     const selected=await rt('return document.querySelector(".run-card[data-selected]").dataset.runId');
@@ -383,7 +388,7 @@ try {
     await rtOpen();await rtRun('SOC5');await rtResult('SOC5');
     claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
     for(const width of [1440,390]){
-      await viewport(width);await sleep(250);
+      await viewport(width);await rtTab('plane');await sleep(250);
       assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host '+width+'px overflow');
       assert.equal(await ev(`return document.querySelector('.view.active')?.id==='runtime-observation'&&document.querySelectorAll('.view.active').length===1&&document.querySelector('.nav button.active')?.dataset.view==='runtime-observation'`),true,'nav and view hygiene '+width+'px');
       assert.equal(await ev(`const e=document.querySelector(innerWidth>760&&window.__siteNav.state().mode==='auto'?'#navToggle':'.nav [data-view="runtime-observation"]'),r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'`),true,'runtime nav reachable '+width+'px');
@@ -415,9 +420,9 @@ try {
     page.ws.addEventListener('message',onPause);
     try{
       await page.send('Fetch.enable',{patterns:[{urlPattern:'*domain=soc*',requestStage:'Request'}]});
-      await rtClick('[data-rt-scenario="SOC2"] [data-rt-run]');await until(()=>paused,'SOC navigation held');
+      await rtPick('SOC2');await until(()=>paused,'SOC navigation held');
       assert.equal(await rt('return window.__jevDemo.domain'),'ap','outgoing AP document remains during delayed SOC navigation');
-      await rtClick('[data-rt-scenario="S3"] [data-rt-run]');
+      await rtPick('S3');
       try{await page.send('Fetch.continueRequest',{requestId:paused.requestId});}
       catch(e){if(!/Invalid InterceptionId|Invalid interception|Invalid RequestId|Invalid request/i.test(e.message))throw e;}
       await page.send('Fetch.disable');
@@ -425,7 +430,7 @@ try {
       await until(()=>rt('const last=window.__jevDemo.log().filter(e=>e.scenario==="S3").at(-1);return window.__jevDemo.domain==="ap"&&last&&document.querySelector(".run-card[data-selected]")?.dataset.runId===last.trace_id'),'latest AP document and selected S3');
       await sleep(500);assert.equal(await rt('return window.__jevDemo.domain'),'ap','released old navigation cannot replace AP');await rtResult('S3');
       assert.equal(await rt('return window.__jevDemo.log().some(e=>e.scenario==="SOC2")'),false,'superseded scenario was not injected');
-      assert.equal(await ev('return document.querySelectorAll("#rtScenarios [data-rt-run]:disabled").length'),0);
+      assert.equal(await ev('return document.querySelectorAll("#rtRunBtn:disabled").length'),0);
       assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.source,p.dataset.actionCount,document.querySelectorAll("#rtPipeDots [data-exit]").length]'),['done','run','1',1],'pipeline shows only the superseding S3 run');
     }finally{await page.send('Fetch.disable');page.ws.removeEventListener('message',onPause);}
     return 'older-card pin overridden by Run; repeated monitor injection shows new receipt; delayed AP→SOC→AP ends with AP result/card, no stale injection or abandoned buttons';
@@ -440,7 +445,7 @@ try {
     for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
     const text=await ev('return document.querySelector("#rtLearning").textContent');
     assert.match(text,/The judge learns from your reviewers/);
-    assert.deepEqual(await ev(`return [...document.querySelector('#runtime-observation').querySelectorAll(':scope>.section-card')].map(e=>e.id)`),['rtScenarioCard','rtDecisionPlane','rtLearning','rtOntology','rtLatency'],'card order: scenarios, decision plane, learning, ontology, latency');
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('#runtime-observation [data-rt-tab]')].map(e=>e.getAttribute('aria-controls'))`),['rtScenarioCard','rtDecisionPlane','rtLearning','rtOntology','rtLatency'],'tab order: scenarios, decision plane, learning, ontology, latency');
     assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
     assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);
     assert.equal(await ev(`return [...document.querySelectorAll('#rtLearning .rt-learning-tiles .metric')].filter(e=>e.textContent.includes('measured on an open benchmark (AgentDojo held-out); benchmark labels, not yet customer reviewers')).length`),3);
@@ -465,7 +470,8 @@ try {
     for(const width of [1440,390]){
       await viewport(width);await sleep(250);
       assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host overflow '+width);
-      assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'learning frame overflow '+width);
+      await rtTab('plane');assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'learning frame overflow '+width);
+      await rtTab('learning');assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'learning tab overflow '+width);
       assert.equal(await ev('return document.querySelectorAll(".rt-learning-loop li").length'),6);
       if(width===390)assert.equal(await ev(`const a=[...document.querySelectorAll('.rt-learning-loop li')].map(e=>e.getBoundingClientRect().top);return new Set(a).size`),2,'two rows of three');
     }
@@ -480,7 +486,7 @@ try {
     await sleep(350);
     await ev(`document.querySelector('#rtTryLoop').click();await window.__tryRun;`);
     await sleep(1800);
-    const cancelled=await ev(`return {status:document.querySelector('#rtStatus').textContent,running:document.querySelector('#rtPipeline').dataset.mode==='replay'?1:0,disabled:document.querySelectorAll('#rtScenarios [data-rt-run]:disabled').length,tab:document.querySelector('#rtFrame').contentDocument.querySelector('[data-tab=learning]').getAttribute('aria-selected')}`);
+    const cancelled=await ev(`return {status:document.querySelector('#rtStatus').textContent,running:document.querySelector('#rtPipeline').dataset.mode==='replay'?1:0,disabled:document.querySelectorAll('#rtRunBtn:disabled').length,tab:document.querySelector('#rtFrame').contentDocument.querySelector('[data-tab=learning]').getAttribute('aria-selected')}`);
     assert.deepEqual(cancelled,{status:'Ready',running:0,disabled:0,tab:'true'},'Try the loop settles a cancelled Run: '+JSON.stringify(cancelled));
     return 'JSON-derived measurements, exact claims and caveats; ready/cold Learning tab, full-page link and scroll; 1440/390 layout no JS errors; Try during a Run settles it';
   });
@@ -528,54 +534,54 @@ try {
   });
   await probe('S40','pipeline visible while running; Run does not scroll; See this run (R4, R9)',async()=>{
     await rtOpen();
-    const ids=await ev('return [...document.querySelectorAll("[data-rt-run]")].map(e=>e.dataset.rtRun)');assert.equal(ids.length,12);
+    const ids=await ev('return [...document.querySelectorAll("#rtScenarioSelect option[data-rt-scenario]")].map(e=>e.value)');assert.equal(ids.length,12);
     for(const id of ids){
       await ev(`document.querySelector('#rtScenarioCard').scrollIntoView({block:'start',behavior:'instant'});scrollBy(0,-80)`);await sleep(120);
-      await tapNoScroll(`[data-rt-run="${id}"]`);
+      await rtPick(id);
       await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),id+' replay starts');
-      assert.equal(await ev(`return ${inView('#rtPipeline')}&&${inView(`[data-rt-run="${id}"]`)}`),true,id+' pipeline and button on screen at 1440');
+      assert.equal(await ev(`return ${inView('#rtPipeline')}&&${inView('#rtScenarioSelect')}&&${inView('#rtRunBtn')}`),true,id+' pipeline, dropdown and Run on screen at 1440');
       await ev('document.querySelector("#rtPipeSkip").click()');
       await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),id+' complete');
     }
     await viewport(390,844);await sleep(300);
     for(const id of ['S1','SOC5']){
-      await ev(`document.querySelector('[data-rt-run="${id}"]').scrollIntoView({block:'end',behavior:'instant'})`);await sleep(150);
-      await tapNoScroll(`[data-rt-run="${id}"]`);
+      await ev(`document.querySelector('#rtScenarioSelect').scrollIntoView({block:'end',behavior:'instant'})`);await sleep(150);
+      await rtPick(id);
       await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),id+' replay starts 390');await sleep(150);
-      if(id==='S1')assert.equal(await ev(`return ${inView('#rtPipeline')}&&${inView('[data-rt-run="S1"]')}`),true,'S1 pipeline and button on screen at 390');
-      else assert.equal(await ev('const r=document.querySelector("#rtPipeline").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight'),true,'SOC5 pipeline fully on screen at 390');
+      // At 390 the pipeline stacks vertically and fills most of the screen; a pick brings all of it into view.
+      assert.equal(await ev('const r=document.querySelector("#rtPipeline").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight'),true,id+' pipeline fully on screen at 390');
       await ev('document.querySelector("#rtPipeSkip").click()');
       await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('${id} ·')`),id+' complete 390');
     }
     assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');
-    // R9
+    // R9: the Run button repeats the picked scenario without scrolling; See this run opens the Decision plane tab.
     await viewport();await sleep(300);
-    await ev(`document.querySelector('#rtScenarioCard').scrollIntoView({block:'start',behavior:'instant'});scrollBy(0,-80)`);await sleep(120);
-    await tapNoScroll('[data-rt-run="S3"]');
+    await ev(`document.querySelector('#rtScenarioCard').scrollIntoView({block:'start',behavior:'instant'});scrollBy(0,-80);document.querySelector('#rtScenarioSelect').value='S3'`);await sleep(120);
+    await tapNoScroll('#rtRunBtn');
     await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="replay"'),'S3 replay');const y0=await ev('return scrollY');
     await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S3 ·')`),'S3 complete');await sleep(600);
     assert.ok(Math.abs(await ev('return scrollY')-y0)<=2,'Run did not scroll');
-    assert.equal(await ev('return document.querySelector("#rtFrameWrap").getBoundingClientRect().top>innerHeight'),true,'frame below the viewport');
+    assert.equal(await ev('return document.querySelector("#rtDecisionPlane").hidden'),true,'decision plane sits in its own tab');
     assert.equal(await ev(`return !document.querySelector('#rtSeeRun').hidden&&${inView('#rtSeeRun')}`),true,'See this run visible');
     await tapNoScroll('#rtSeeRun');
-    await until(()=>ev('const r=document.querySelector("#rtFrameWrap").getBoundingClientRect();return r.top>=-1&&r.top<innerHeight/3'),'See this run scrolls to the frame');
-    return 'all 12 Run buttons with the pipeline on screen at 1440; S1 and SOC5 at 390; no Run scroll; See this run reaches the frame';
+    await until(()=>ev('const r=document.querySelector("#rtFrameWrap").getBoundingClientRect();return !document.querySelector("#rtDecisionPlane").hidden&&document.querySelector("[data-rt-tab=plane]").getAttribute("aria-selected")==="true"&&r.height>0&&r.top>=-1&&r.top<innerHeight/3'),'See this run opens the decision plane tab at the frame');
+    return 'all 12 dropdown scenarios with the pipeline, dropdown and Run on screen at 1440; S1 and SOC5 pipeline fully on screen at 390; Run button does not scroll; See this run opens the decision plane tab';
   });
   await probe('S41','pipeline: supersede, skip, reduced motion (R5–R7)',async()=>{
     await rtOpen();
     // R5
-    await ev(`document.querySelector('[data-rt-run="SOC5"]').click();setTimeout(()=>document.querySelector('[data-rt-run="S3"]').click(),200)`);
+    await ev(`${pick('SOC5')};setTimeout(()=>${pick('S3')},200)`);
     await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S3 ·')`),'superseding S3 complete',25000);await sleep(800);
     assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.source,p.dataset.actionCount,document.querySelector("#rtToken").dataset.tool,[...p.querySelectorAll("#rtPipeDots [data-exit]")].map(e=>e.dataset.exit).join()]'),['done','run','1','payments.execute','block']);
     // R5, second phase: supersede during SOC5's replay, not only while its frame loads.
-    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await rtPick('SOC5');
     await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"&&p.dataset.actionCount==="4"'),'SOC5 replaying');
     // Clicking S3 clears SOC5's frame and dots at once, before the AP frame is ready.
-    assert.deepEqual(await ev(`document.querySelector('[data-rt-run="S3"]').click();const p=document.querySelector('#rtPipeline');return [p.dataset.mode,document.querySelectorAll('#rtPipeDots [data-exit]').length,document.querySelector('#rtPipeCaption').textContent,document.querySelector('#rtToken').dataset.tool,[...p.querySelectorAll('[data-exit][data-lit]')].length]`),['idle',0,'','',0],'old replay cleared on supersede');
+    assert.deepEqual(await ev(`${pick('S3')};const p=document.querySelector('#rtPipeline');return [p.dataset.mode,document.querySelectorAll('#rtPipeDots [data-exit]').length,document.querySelector('#rtPipeCaption').textContent,document.querySelector('#rtToken').dataset.tool,[...p.querySelectorAll('[data-exit][data-lit]')].length]`),['idle',0,'','',0],'old replay cleared on supersede');
     await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S3 ·')`),'S3 supersedes a replay',25000);await sleep(7000);
     assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [p.dataset.mode,p.dataset.actionCount,document.querySelector("#rtToken").dataset.tool,[...p.querySelectorAll("#rtPipeDots [data-exit]")].map(e=>e.dataset.exit).join(),document.querySelector("#rtPipeCaption").textContent.startsWith("Action 1 of 1 ·")]'),['done','1','payments.execute','block',true],'no SOC5 action continues after S3');
     // R7
-    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await rtPick('SOC5');
     await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),'SOC5 replay');
     const t0=Date.now();await ev('document.querySelector("#rtPipeSkip").click()');
     await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="done"'),'skip to done',500);assert.ok(Date.now()-t0<=600);
@@ -588,7 +594,7 @@ try {
       assert.equal((await ev('return window.__pipeRec')).filter(r=>r.i).length,0,'no idle loop under reduced motion');
       assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.mode'),'idle');
       assert.equal(await ev('return document.querySelector("#rtPipeline .rt-evidence-count").textContent'),'1 record','static example shows its one record');
-      const t1=Date.now();await ev('document.querySelector(\'[data-rt-run="S1"]\').click()');
+      const t1=Date.now();await ev(pick('S1'));
       await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('S1 ·')`),'S1 complete reduced',2000);
       assert.ok(Date.now()-t1<1000,'reduced-motion run completes at once ('+(Date.now()-t1)+' ms)');
       assert.equal(await ev('return document.querySelector("#rtPipeline").dataset.mode'),'done');
@@ -603,7 +609,7 @@ try {
     await rtRun('S2');claims(await ev('return document.querySelector("#rtPipeline").textContent+document.querySelector("#rtResult").textContent'));
     await viewport(390,844);await sleep(300);assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');await viewport();
     await rt('window.__jevDemo.ready=false;return true');
-    await ev('document.querySelector(\'[data-rt-run="S1"]\').click()');
+    await ev(pick('S1'));
     await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="error"'),'error state',14000);
     assert.equal(await ev('return document.querySelector("#rtPipeCaption").textContent'),'The simulated demo did not load; open it full page.');
     assert.deepEqual(await ev('const p=document.querySelector("#rtPipeline");return [document.querySelectorAll("#rtPipeDots [data-exit]").length,p.dataset.source,p.dataset.actionCount,p.dataset.actionIndex,p.querySelector(".rt-evidence-count").textContent]'),[0,'','','','0 records'],'no previous-run dots or metadata in the error state');
@@ -615,7 +621,7 @@ try {
   await probe('S43','pipeline: click a stage to pause there, click again to resume',async()=>{
     await rtOpen();
     // During a run: click Judge; the token stops on Judge and stays there; a second click resumes to done.
-    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await rtPick('SOC5');
     await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),'SOC5 replaying');
     await ev('document.querySelector(\'#rtPipeline [data-pause-key="judge"]\').click()');
     await until(()=>ev('return document.querySelector("#rtPipeline").dataset.paused==="judge"'),'paused at judge',3000);
@@ -633,7 +639,7 @@ try {
     await until(()=>ev(`return document.querySelector('#rtStatus').textContent==='Complete'&&document.querySelector('#rtResult').textContent.startsWith('SOC5 ·')`),'SOC5 completes after resume',25000);
     assert.equal(await ev('return document.querySelectorAll("#rtPipeDots [data-exit]").length'),4);
     // Enter on the fork pauses too; Skip while paused ends the run and clears the pause.
-    await rtClick('[data-rt-scenario="SOC5"] [data-rt-run]');
+    await rtPick('SOC5');
     await until(()=>ev('const p=document.querySelector("#rtPipeline");return p.dataset.mode==="replay"&&p.dataset.source==="run"'),'SOC5 replaying again');
     await ev('document.querySelector(\'#rtPipeline [data-pause-key="exit"]\').dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))');
     await until(()=>ev('return document.querySelector("#rtPipeline").dataset.paused==="exit"'),'paused at the fork via Enter',3000);
@@ -641,6 +647,61 @@ try {
     await until(()=>ev('return document.querySelector("#rtPipeline").dataset.mode==="done"'),'skip while paused',1000);
     assert.equal(await ev('return [document.querySelector("#rtPipeline").dataset.paused??"",document.querySelectorAll("#rtPipeline [data-paused],#rtPipeline [data-pause-pending]").length].join()'),',0','pause cleared by Skip');
     return 'Judge click holds the run on Judge for 2.5 s; clicking Evidence moves the pause; clicking it again resumes to Complete; Enter on the fork pauses; Skip clears the pause';
+  });
+
+  await probe('S44','sub-tabs, hover text and the claims that must stay visible',async()=>{
+    const vis=sel=>`return (()=>{const e=document.querySelector(${Q(sel)});if(!e)return false;const r=e.getBoundingClientRect();return r.width>0&&r.height>0})()`;
+    const text=sel=>ev(`return document.querySelector(${Q(sel)}).textContent`);
+    // Deep link opens a tab; the tab labels carry no status chips.
+    await load({path:'/index.html#view=runtime-observation&tab=ontology'});await until(()=>ev('return !!window.__rtTabs&&!!document.querySelector("[data-onto-s1]")'),'ontology tab via deep link');
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('[data-rt-tab]')].map(b=>[b.textContent,b.getAttribute('aria-selected')])`),[['Scenarios','false'],['Decision plane','false'],['Learning loop','false'],['Ontology','true'],['Judge latency','false']]);
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('[data-rt-panel]')].filter(p=>!p.hidden).map(p=>p.id)`),['rtOntology']);
+    // Keyboard: arrows move between tabs.
+    await ev(`document.querySelector('[data-rt-tab=ontology]').focus()`);
+    for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'ArrowRight',code:'ArrowRight'});
+    assert.equal(await ev('return window.__rtTabs.current()+"|"+document.activeElement.dataset.rtTab'),'latency|latency','ArrowRight moves to the next tab');
+    for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'ArrowLeft',code:'ArrowLeft'});
+    assert.equal(await ev('return window.__rtTabs.current()'),'ontology','ArrowLeft moves back');
+    // Ontology: both verdicts on the switcher, Test 1 scoped to AgentDojo, Test 2 not confirmed, recall an observation.
+    assert.equal(await ev(vis('[data-onto-s2-seg]')),true,'Test 2 switch visible ');assert.match(await text('[data-onto-s2-seg]'),/Not confirmed/);
+    assert.match(await ev(`return document.querySelector('[data-onto-s1] .rt-scope').innerText`),/AgentDojo tasks and these models only; Test 2 on AgentDyn did not repeat it/);
+    assert.match(await ev(`return document.querySelector('[data-onto-s1-tiles]').innerText`),/Observed, not a guarantee/);
+    await ev(`document.querySelector('[data-onto-seg=s2]').click()`);
+    assert.equal(await ev(vis('[data-onto-s2-verdict]')),true,'Test 2 verdict visible');assert.equal(await ev(`return document.querySelector('[data-onto-s2-verdict] .rt-chip').innerText.trim()`),'Not confirmed','Test 2 badge');
+    assert.match(await ev(`return document.querySelector('[data-onto-s2] .rt-takeaway').innerText`),/neither is evidence from an independent framework/);
+    // Learning: benchmark labels and the reality check on screen.
+    await rtTab('learning');
+    assert.match(await ev(`return document.querySelector('#rtLearning .rt-intro').innerText`),/not yet from customer reviewers/);
+    await until(()=>ev(`return /0\.741/.test(document.querySelector('#rtJudgeRealNote').innerText)`),'reality check visible');
+    // Latency: speed only, not an SLA.
+    await rtTab('latency');await until(()=>ev(vis('#rtLatency .rt-takeaway')),'latency takeaway');
+    assert.match(await ev(`return document.querySelector('#rtLatency .rt-takeaway').innerText`),/not a vendor SLA.*speed only, not answer quality/s);
+    // Scenarios and Decision plane: simulated, on screen.
+    await rtTab('scenarios');assert.match(await ev(`return document.querySelector('#rtScenarioCard .rt-intro .rt-chip').innerText`),/Simulated/);
+    await rtTab('plane');assert.match(await ev(`return document.querySelector('#rtDecisionPlane .rt-intro .rt-chip').innerText`),/Simulated/);
+    // Hover text: hover, focus and tap open the shared popover; Esc closes it; it stays inside a 390 px viewport.
+    await rtTab('latency');
+    const tipSel='#rtLatency .rt-tipline .rt-tip';
+    const at=await ev(`const e=document.querySelector(${Q(tipSel)});e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>setTimeout(r,200));const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);
+    await page.send('Input.dispatchMouseEvent',{type:'mouseMoved',...at});
+    await until(()=>ev(`return document.querySelector('#rtTipPop').classList.contains('on')&&/HTTP round trip/.test(document.querySelector('#rtTipPop').textContent)`),'hover opens the tip');
+    assert.equal(await ev(`return document.querySelector(${Q(tipSel)}).getAttribute('aria-expanded')`),'true','tip aria-expanded');
+    await page.send('Input.dispatchMouseEvent',{type:'mouseMoved',x:5,y:5});
+    await until(()=>ev(`return !document.querySelector('#rtTipPop').classList.contains('on')`),'leaving closes the tip');
+    await ev(`document.querySelector('[data-rt-tab=learning]').click();document.querySelector('#rtLearningGateTitle .rt-tip').focus()`);
+    assert.match(await text('#rtTipPop'),/retrospective check, not gateway outcomes/);
+    for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    assert.equal(await ev(`return document.querySelector('#rtTipPop').classList.contains('on')`),false,'Esc closes');
+    await viewport(390,844);await rtTab('ontology');await ev(`document.querySelector('[data-onto-seg=s2]').click()`);
+    const tap=await ev(`const e=document.querySelector('[data-onto-s2-part="a"] .rt-tip');e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>setTimeout(r,200));const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);
+    for(const type of ['mousePressed','mouseReleased'])await page.send('Input.dispatchMouseEvent',{type,...tap,button:'left',buttons:type==='mousePressed'?1:0,clickCount:1});
+    await until(()=>ev(`return document.querySelector('#rtTipPop').classList.contains('on')`),'tap opens the tip');
+    const box=await ev(`const r=document.querySelector('#rtTipPop').getBoundingClientRect();return {l:r.left,r:r.right,w:innerWidth,t:document.querySelector('#rtTipPop').textContent}`);
+    assert.ok(box.l>=0&&box.r<=box.w,'tip inside the viewport: '+JSON.stringify(box));assert.match(box.t,/p = 0\.996/);
+    assert.equal(await ev('return document.querySelectorAll("#rtTipPop [data-onto-s2-part],#rtTipPop [id]").length'),0,'popover copies carry no hooks');
+    assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');
+    await viewport();
+    return 'deep link and arrow keys switch tabs; tab labels plain; S2 not confirmed, S1 scope, recall caveat, benchmark labels, reality check, SLA caveat and simulated chips on screen; tip opens on hover, focus and tap, closes on leave and Esc, fits 390 px';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{
@@ -716,7 +777,7 @@ try {
       await tap(pinPoint.x,pinPoint.y);await tap(pinPoint.x,pinPoint.y);await closed();await sleep(350);await geometry(0);
       assert.equal(await ev('return window.__navResizeCount'),1,'rapid changes notify only settled layout');
       phase='Runtime';
-      await nav('runtime-observation');await rtReady();await closed();await ev(`document.querySelector('#rtFrame').scrollIntoView({block:'center',behavior:'instant'})`);
+      await nav('runtime-observation');await rtReady();await rtTab('plane');await closed();await ev(`document.querySelector('#rtFrame').scrollIntoView({block:'center',behavior:'instant'})`);
       await peek();await move(900,700);await closed();
       await ev(`document.querySelector('#rtFrame').scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`);
       const replayPoint=await rt(`const r=document.querySelector('[data-tab=replay]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);

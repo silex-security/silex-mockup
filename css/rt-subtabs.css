@@ -1,0 +1,129 @@
+/* Runtime Observation as sub-tabs with hover text (logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md).
+   Each tab reads: intro → how to read it → numbers with plain captions → takeaway; technical detail sits behind ⓘ. */
+
+#runtime-observation .rt-lead{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin:2px 0 16px}
+#runtime-observation .rt-lead p{margin:0;font-size:15px;color:#2f343b;max-width:880px}
+#runtime-observation .rt-lead .pill{white-space:nowrap}
+
+/* KPI strip: one card, four cells */
+#runtime-observation .rt-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:4px}
+.rt-kpis .metric{padding:12px 18px;border-right:1px solid var(--line)}
+.rt-kpis .metric:last-child{border-right:0}
+.rt-kpis .kicker{margin-bottom:2px}
+.rt-kpis .metric-value{font-size:26px}
+.rt-kpis .metric-foot{margin-top:2px}
+
+/* Sub-tabs */
+.rt-tabs{display:flex;gap:4px;margin:26px 0 0;border-bottom:1px solid #d6dae1;overflow-x:auto;scrollbar-width:none}
+.rt-tabs::-webkit-scrollbar{display:none}
+.rt-tabs button{appearance:none;border:0;background:none;padding:12px 20px 14px;font:inherit;font-size:17px;font-weight:550;letter-spacing:-.01em;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.rt-tabs button:hover{color:var(--ink)}
+.rt-tabs button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;border-radius:8px 8px 0 0}
+.rt-tabs button[aria-selected="true"]{color:var(--ink);font-weight:700;border-bottom-color:var(--blue2)}
+.rt-panel{margin-top:20px}
+.rt-panel[hidden]{display:none}
+
+/* Plain-language blocks */
+.rt-intro{padding:18px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;margin-bottom:16px}
+.rt-intro h2{margin:0;font-size:18px;letter-spacing:-.01em}
+.rt-intro p{margin:6px 0 0;font-size:14.5px;color:#2f343b;max-width:880px}
+.rt-intro-side{display:grid;gap:8px;justify-items:end}
+.rt-chip[data-kind="sim"]{background:var(--lav);color:var(--blue2)}
+.rt-howto{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:12px 0 0}
+.rt-howto>div{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:#3d434c}
+.rt-howto b{display:block;color:var(--ink);font-size:13px;margin-bottom:2px}
+.rt-howto code{font-family:var(--mono);font-size:12px}
+.rt-section-h{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:22px 0 10px}
+.rt-takeaway{margin:16px 0 0;padding:14px 18px;border-radius:14px;background:var(--lav);color:#2b3570;font-size:14px}
+.rt-takeaway.warn{background:var(--amber-bg);color:#5d420f}
+.rt-takeaway:empty{display:none}
+.rt-plain{font-size:13px;color:var(--muted);margin-top:6px}
+.rt-tech{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:500;margin-left:6px}
+.rt-tipline{margin-top:12px}
+
+/* Info tip: hover, focus or tap shows its hidden body in one shared popover */
+.rt-tip{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--soft);border:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:700;font-style:normal;line-height:1;cursor:help;vertical-align:middle;margin-left:5px;flex:none;letter-spacing:0;text-transform:none}
+.rt-tip:hover,.rt-tip:focus-visible,.rt-tip[aria-expanded="true"]{background:var(--lav);color:var(--blue2);border-color:#c9d2ff;outline:none}
+.rt-tip.word{width:auto;height:auto;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:600}
+.rt-tip-body[hidden]{display:none}
+#rtTipPop{position:fixed;z-index:120;max-width:380px;background:#1f2227;color:#eef0f3;font-size:12.5px;font-weight:400;line-height:1.55;padding:11px 13px;border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.28);text-align:left;opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .12s,transform .12s}
+#rtTipPop.on{opacity:1;transform:none;pointer-events:auto}
+#rtTipPop b{color:#fff}
+#rtTipPop .rt-tip-li{display:block;padding-left:12px;text-indent:-12px;margin:3px 0}
+#rtTipPop .rt-tip-li::before{content:"• "}
+#rtTipPop .rt-tip-src{display:block;margin-top:6px;color:#9aa1ad;font-size:11px}
+#rtTipPop a{color:#b9c6ff}
+@media(prefers-reduced-motion:reduce){#rtTipPop{transition:none}}
+
+/* Scenarios */
+.rt-scen-bar{padding:16px 20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:12px 14px;align-items:center;margin-bottom:14px}
+.rt-scen-bar label{font-size:13px;font-weight:650;color:var(--muted)}
+.rt-scen-bar select{width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid #d3d8df;background:#fff;color:var(--ink);cursor:pointer;min-width:0}
+.rt-scen-bar select:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.rt-scen-bar #rtStatus{grid-column:auto;justify-self:start}
+.rt-scen-desc{grid-column:1/-1;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;font-size:14px;color:#2f343b;border-top:1px solid var(--line);padding-top:12px}
+.rt-scen-desc b{color:var(--ink)}
+.rt-pipe-card{padding:18px 20px}
+.rt-pipe-card .rt-run-result{margin:12px 0 0}
+.rt-run-result .rt-see-run{text-decoration:none;font-size:13px}
+.rt-run-result .rt-see-run[hidden]{display:none}
+
+/* Decision plane */
+.rt-frame-card{padding:10px}
+.rt-frame-card .rt-frame-wrap{border:0;border-radius:10px}
+
+/* Learning loop */
+.rt-learning-loop{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0 0 4px;padding:0;list-style:none}
+.rt-learning-loop li{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--muted)}
+.rt-learning-loop li b{display:block;color:var(--ink);font-size:13px;margin-bottom:2px}
+.rt-learning-loop li.future{background:var(--soft);border-style:dashed}
+.rt-learning-loop li.future b{color:var(--muted)}
+.rt-learning-tiles .kicker{color:var(--ink);font-weight:650;font-size:13px;justify-content:flex-start;flex-wrap:wrap}
+#rtLearningGate{padding:16px 20px;margin-top:14px}
+#rtLearningGate h3{font-size:14px;margin:0;display:flex;align-items:center}
+#rtLearningGate .rt-plain{margin:2px 0 8px}
+#rtLearningGate p[data-evidence-gate]{font-size:14px;margin:6px 0}
+
+/* Ontology */
+.rt-seg{display:inline-flex;flex-wrap:wrap;gap:3px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px;margin:18px 0 0}
+.rt-seg button{appearance:none;border:0;background:none;border-radius:9px;padding:9px 14px;font:inherit;font-size:14px;color:var(--muted);cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.rt-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08);font-weight:650}
+.rt-seg button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.rt-onto-pane{margin-top:16px}
+.rt-onto-pane[hidden]{display:none}
+#rtOntology .rt-onto-s1{border:0;margin:0;padding:0}
+.rt-onto-verdict.card{padding:16px 20px;align-items:flex-start;font-size:14px;margin:0 0 14px}
+.rt-onto-verdict .rt-scope{flex:1;min-width:220px;color:#2f343b}
+.rt-onto-parts.card{padding:6px 20px;gap:0;margin:14px 0 0}
+.rt-onto-parts.card li{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.rt-onto-parts.card li:last-child{border-bottom:0}
+.rt-onto-parts.card li .rt-chip{justify-self:start}
+.rt-onto-parts small{display:block;color:var(--muted);font-size:12.5px}
+#rtOntology details.rt-more{margin-top:14px}
+#rtOntology details.rt-more>summary{cursor:pointer;font-size:14px;color:var(--blue2);font-weight:600}
+#rtOntology details.rt-more>div{margin-top:10px}
+.rt-onto-ex-intro{font-size:14px;margin:0 0 10px;color:#2f343b}
+.rt-up{color:var(--green)}.rt-down{color:var(--red)}
+.rt-arrow{color:var(--muted);font-weight:400}
+.rt-ba{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+/* Latency */
+#rtLatency .rt-lat-bars.card{padding:18px 20px;margin:14px 0}
+#rtLatency .rt-lat-race{background:#fff}
+
+@media(max-width:900px){
+  #runtime-observation .rt-lead{flex-direction:column}
+  .rt-scen-bar{grid-template-columns:minmax(0,1fr) auto}
+  .rt-scen-bar label{grid-column:1/-1}
+  .rt-scen-bar select{grid-column:1/-1}
+}
+@media(max-width:760px){
+  #runtime-observation .rt-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rt-kpis .metric{border-right:0;border-bottom:1px solid var(--line)}
+  .rt-intro{grid-template-columns:1fr}
+  .rt-intro-side{justify-items:start;grid-auto-flow:column;justify-content:start;align-items:center}
+  .rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .rt-learning-tiles{grid-template-columns:1fr}
+  .rt-onto-parts.card li{grid-template-columns:1fr}
+  .rt-tabs button{font-size:16px;padding:12px 14px}
+}
