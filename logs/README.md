@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-07 — Runtime Observation › Ontology: S2 (AgentDyn) removed from the demo
+
+- **What:** the Ontology tab no longer shows the S2 AgentDyn replication: no Test 2 switch, section, per-model table or AgentDyn mentions. It shows the pre-registered AgentDojo test (S1) and the example runs. S1 stays scoped on screen to "held-out AgentDojo tasks and these models only", with recall as an observation.
+- **Removed:** `data/onto-s2.json`, `data/onto-s2.SOURCE.json`, `tests/site/ontology-s2-card.test.mjs` and the S2 renderer in `js/rt-ontology.js`. The S2 plan, freeze record and report stay in this folder as the record of the result.
+- **Tests:** ontology-card check 5 now also asserts no S2 section, no AgentDyn text and no S2 data fetch; S44 checks the AgentDojo scope and the absence of S2.
+
 ## 2026-10-07 — Runtime Observation: five sub-tabs, plain language, hover text
 
 - **Why:** feedback was too much text and too long a page (the view rendered ~1 900 words in one scroll, five stacked cards).

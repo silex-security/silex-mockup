@@ -65,10 +65,12 @@ try {
       }
     });
   }
-  await check('5', 'unconfirmed E-AL, E-PR and v1/v2 results are not shown', async () => {
-    const text = await ev(`const c=document.querySelector('#rtOntology').cloneNode(true); c.querySelectorAll('[data-onto-s2],[data-onto-s2-seg]').forEach(n=>n.remove()); return c.textContent;`);
+  await check('5', 'unconfirmed E-AL, E-PR, S2 and v1/v2 results are not shown', async () => {
+    const text = await ev(`return document.querySelector('#rtOntology').textContent;`);
     assert.doesNotMatch(text, /Not confirmed|not established|Follow-up test|did not establish|Inconclusive/);
-    assert.equal(await ev(`return document.querySelectorAll('[data-onto-verdict],[data-onto-pr],[data-onto-not-established]').length;`), 0);
+    assert.equal(await ev(`return document.querySelectorAll('[data-onto-verdict],[data-onto-pr],[data-onto-not-established],[data-onto-s2],[data-onto-s2-seg]').length;`), 0);
+    assert.doesNotMatch(text, /AgentDyn/);
+    assert.ok(!p.requests.some(u => new URL(u).pathname.endsWith('/data/onto-s2.json')), 'page does not fetch S2 data');
   });
   await check('6', 'judge note shows both data-derived AUROCs', async () => {
     const text = await ev(`return document.querySelector('#rtJudgeRealNote').textContent;`);
