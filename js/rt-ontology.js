@@ -1,8 +1,8 @@
 // Runtime Observation · "What the ontology adds" (logs/2026-10-04_ONTOLOGY_OBSERVATION_SHOWCASE_PLAN.md, Part B).
-// Layout (logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md): Test 1 / Test 2 / Example runs switcher; each test reads verdict + plain
+// Layout (logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md): AgentDojo test / Example runs switcher; the test reads verdict + plain
 // headline → three tiles with plain captions → the three pre-registered parts; p-values, counts and sources sit behind ⓘ,
 // per-model tables and the full notes in a closed <details>.
-// Everything shown comes from data/onto-s1.json (the Stage-1 test), data/onto-s2.json (the AgentDyn replication) and data/onto-observability.json (example runs), generated from
+// Everything shown comes from data/onto-s1.json (the Stage-1 test) and data/onto-observability.json (example runs), generated from
 // committed experiment outputs. The unconfirmed E-AL and E-PR results moved to silex-security/ontology-typed-alerting.
 import { tip } from './rt-tip.js';
 
@@ -67,12 +67,11 @@ const row = (name, x) => `<tr><th scope="row">${esc(name)}</th><td>${x.s1.Pos}</
 const table = r => `<div class="rt-onto-table"><table><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
       ${Object.entries(r.per_base).map(([k, v]) => row(k, v)).join('')}
     </tbody></table></div>`;
-function s1Block(r, s2) {
+function s1Block(r) {
   if (!r) return '';
   const [kind, badge] = VERDICT[r.verdict] ?? VERDICT.inconclusive;
   const n = Object.keys(r.per_base).length;
-  const replicated = s2 && s2.verdict === 'supported';
-  const scope = replicated ? 'It holds for held-out AgentDojo runs, and Test 2 on AgentDyn repeated it.' : 'It holds for held-out AgentDojo tasks and these models only; Test 2 on AgentDyn did not repeat it.';
+  const scope = 'It holds for held-out AgentDojo tasks and these models only.';
   return `<section class="rt-onto-s1" data-onto-s1 data-onto-s1-verdict="${esc(r.verdict)}">
     <div class="rt-onto-verdict card"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
       <span class="rt-scope"><b>${headline(r.observed)}</b> ${scope}${tip(`Pre-registered test (S1, AgentDojo): same alert rule, with and without ontology types, on ${r.counts.runs} never-opened AgentDojo runs (${r.counts.cohorts} agent pipelines and attack variants, ${r.counts.K} base models, ${r.counts.positives} successful attacks). No judge model.`)}</span></div>
@@ -80,26 +79,7 @@ function s1Block(r, s2) {
     ${parts('data-onto-s1-part', r, 'AgentDojo')}
     <details class="rt-more"><summary>Per base model, and sources</summary><div>
     ${table(r)}
-    <p class="rt-ref">Precision rose for all ${n} base models. These results hold for AgentDojo's tasks and these models only, and the replication on AgentDyn did not confirm them; gpt-4o counts once although it contributes 13 defence and attack variants. <a href="logs/2026-10-04_ONTOLOGY_S1_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md">plan</a>.</p>
-    </div></details>
-  </section>`;
-}
-function s2Block(r) {
-  if (!r) return '';
-  const [kind, badge] = VERDICT[r.verdict] ?? VERDICT.inconclusive;
-  const o = r.observed;
-  const bpb = r.b_prov_bound.prov;
-  const everyLower = Object.values(r.per_base).every(x => x.s1.precision < x.prov.precision);
-  const lowerClause = everyLower ? '; precision was lower in every base model' : '';
-  return `<section class="rt-onto-s1 rt-onto-s2" data-onto-s2 data-onto-s2-verdict="${esc(r.verdict)}">
-    <div class="rt-onto-verdict card"><span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>
-      <span class="rt-scope"><b>${headline(o)}</b> The AgentDojo precision gain did not carry over to these new suites. This does not show that typing is harmful in general.${tip(`Replication (S2, AgentDyn): the same frozen rules, pre-registered on ${r.counts.runs} never-opened AgentDyn runs (3 new suites built on the AgentDojo harness; ${r.counts.K} undefended base models; ${r.counts.positives} successful attacks). No judge model.`)}</span></div>
-    ${tiles('data-onto-s2-tiles', o, r.per_base)}
-    ${parts('data-onto-s2-part', r, 'AgentDyn')}
-    <div class="rt-takeaway"><b>Why it may differ.</b> Most of the gap goes with how a “write” action is recognised: deciding writes from what the call does, instead of its tool name, gives precision ${pct(bpb.precision)} and recall ${pct(bpb.recall)}, close to the typed rule. Test 2 also changed the binding procedure and used only undefended models. Both tests use the AgentDojo harness, so neither is evidence from an independent framework.</div>
-    <details class="rt-more"><summary>Per base model, and sources</summary><div>
-    <p class="rt-ref">The AgentDojo precision gain did not replicate: pooled, the typed rule alerted on more runs and caught more attacks, at lower precision${lowerClause}. Descriptively, most of the gap goes with how “write” is decided: taking writes from the binding's effects instead of the tool-name pattern gives precision ${pct(bpb.precision)} and recall ${pct(bpb.recall)}, close to the typed rule. S2 also differs from S1 beyond its suites: the binding procedure changed, and its primary pool has only the undefended models, where S1 pooled defended and attack variants too. This does not show that typing is harmful in general. AgentDyn reuses AgentDojo's harness, so neither test is evidence from an independent framework. <a href="logs/2026-10-06_ONTOLOGY_S2_REPORT.md">Report</a> · <a href="logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md">plan</a>.</p>
-    ${table(r)}
+    <p class="rt-ref">Precision rose for all ${n} base models. These results hold for AgentDojo's tasks and these models only; gpt-4o counts once although it contributes 13 defence and attack variants. <a href="logs/2026-10-04_ONTOLOGY_S1_REPORT.md">Report</a> · <a href="logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md">plan</a>.</p>
     </div></details>
   </section>`;
 }
@@ -161,18 +141,15 @@ async function init() {
     data = await r.json();
     let s1 = null;
     try { const rs = await fetch('data/onto-s1.json'); if (rs.ok) s1 = await rs.json(); } catch {}
-    let s2 = null;
-    try { const rs = await fetch('data/onto-s2.json'); if (rs.ok) s2 = await rs.json(); } catch {}
     const a = data.al;
-    const seg = (id, label, verdict, extra = '') => {
+    const seg = (id, label, verdict) => {
       const [kind, badge] = verdict ? (VERDICT[verdict] ?? VERDICT.inconclusive) : [];
-      return `<button type="button" data-onto-seg="${id}" aria-pressed="${id === 's1'}" ${extra}>${label}${verdict ? ` <span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>` : ''}</button>`;
+      return `<button type="button" data-onto-seg="${id}" aria-pressed="${id === 's1'}">${label}${verdict ? ` <span class="rt-chip" data-kind="${kind}">${esc(badge)}</span>` : ''}</button>`;
     };
     root.innerHTML = `<div class="rt-seg" role="group" aria-label="Which result">
-        ${s1 ? seg('s1', 'Test 1 · AgentDojo', s1.verdict) : ''}${seg('s2', 'Test 2 · AgentDyn', s2?.verdict, 'data-onto-s2-seg')}${seg('ex', 'Example runs')}
+        ${s1 ? seg('s1', 'Pre-registered test · AgentDojo', s1.verdict) : ''}${seg('ex', 'Example runs')}
       </div>
-      <div class="rt-onto-pane" data-onto-pane="s1">${s1Block(s1, s2)}</div>
-      <div class="rt-onto-pane" data-onto-pane="s2" hidden>${s2 ? s2Block(s2) : '<p class="rt-ref" data-onto-s2-missing>The replication on AgentDyn (S2) did not confirm the S1 result; its data could not be loaded.</p>'}</div>
+      <div class="rt-onto-pane" data-onto-pane="s1">${s1Block(s1)}</div>
       <div class="rt-onto-pane" data-onto-pane="ex" hidden>
       <p class="rt-onto-ex-intro">One real run per case, without and with ontology types: <b>caught by both</b>, <b>alert saved</b> (types removed a false alarm), <b>alert lost</b> (types missed an attack) and <b>missed by both</b>. Switch the rule to see what each one flags, and why.${tip(`From an earlier held-out cohort: ${a.counts.runs} AgentDojo runs of ${a.models.length} agent models (${a.models.map(esc).join(', ')}). Examples are chosen by a fixed rule (first run by id in each case), including the cases where the ontology loses an alert or both rules miss. Outcomes are run level, from the benchmark's evaluator. Provenance here means: ${esc(data.provenance_note)}.`)}</p>
       <div class="rt-onto-controls">
@@ -181,7 +158,7 @@ async function init() {
       </div>
       <div id="rtOntoExample"></div>
       </div>`;
-    if (!s1) showPane('s2');
+    if (!s1) showPane('ex');
     root.addEventListener('click', e => {
       const c = e.target.closest('[data-onto-cell-btn]'), m = e.target.closest('[data-onto-mode-btn]'), g = e.target.closest('[data-onto-seg]');
       if (c) { cell = c.dataset.ontoCellBtn; render(); }

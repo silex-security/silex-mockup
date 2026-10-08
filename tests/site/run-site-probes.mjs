@@ -662,13 +662,10 @@ try {
     assert.equal(await ev('return window.__rtTabs.current()+"|"+document.activeElement.dataset.rtTab'),'latency|latency','ArrowRight moves to the next tab');
     for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'ArrowLeft',code:'ArrowLeft'});
     assert.equal(await ev('return window.__rtTabs.current()'),'ontology','ArrowLeft moves back');
-    // Ontology: both verdicts on the switcher, Test 1 scoped to AgentDojo, Test 2 not confirmed, recall an observation.
-    assert.equal(await ev(vis('[data-onto-s2-seg]')),true,'Test 2 switch visible ');assert.match(await text('[data-onto-s2-seg]'),/Not confirmed/);
-    assert.match(await ev(`return document.querySelector('[data-onto-s1] .rt-scope').innerText`),/AgentDojo tasks and these models only; Test 2 on AgentDyn did not repeat it/);
+    // Ontology: the AgentDojo test is scoped to AgentDojo; recall is an observation; no S2 section.
+    assert.match(await ev(`return document.querySelector('[data-onto-s1] .rt-scope').innerText`),/held-out AgentDojo tasks and these models only/);
     assert.match(await ev(`return document.querySelector('[data-onto-s1-tiles]').innerText`),/Observed, not a guarantee/);
-    await ev(`document.querySelector('[data-onto-seg=s2]').click()`);
-    assert.equal(await ev(vis('[data-onto-s2-verdict]')),true,'Test 2 verdict visible');assert.equal(await ev(`return document.querySelector('[data-onto-s2-verdict] .rt-chip').innerText.trim()`),'Not confirmed','Test 2 badge');
-    assert.match(await ev(`return document.querySelector('[data-onto-s2] .rt-takeaway').innerText`),/neither is evidence from an independent framework/);
+    assert.equal(await ev(`return document.querySelectorAll('[data-onto-s2],[data-onto-s2-seg]').length`),0,'no S2 section');
     // Learning: benchmark labels and the reality check on screen.
     await rtTab('learning');
     assert.match(await ev(`return document.querySelector('#rtLearning .rt-intro').innerText`),/not yet from customer reviewers/);
@@ -692,16 +689,16 @@ try {
     assert.match(await text('#rtTipPop'),/retrospective check, not gateway outcomes/);
     for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
     assert.equal(await ev(`return document.querySelector('#rtTipPop').classList.contains('on')`),false,'Esc closes');
-    await viewport(390,844);await rtTab('ontology');await ev(`document.querySelector('[data-onto-seg=s2]').click()`);
-    const tap=await ev(`const e=document.querySelector('[data-onto-s2-part="a"] .rt-tip');e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>setTimeout(r,200));const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);
+    await viewport(390,844);await rtTab('ontology');await ev(`document.querySelector('[data-onto-seg=s1]').click()`);
+    const tap=await ev(`const e=document.querySelector('[data-onto-s1-part="a"] .rt-tip');e.scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>setTimeout(r,200));const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}`);
     for(const type of ['mousePressed','mouseReleased'])await page.send('Input.dispatchMouseEvent',{type,...tap,button:'left',buttons:type==='mousePressed'?1:0,clickCount:1});
     await until(()=>ev(`return document.querySelector('#rtTipPop').classList.contains('on')`),'tap opens the tip');
     const box=await ev(`const r=document.querySelector('#rtTipPop').getBoundingClientRect();return {l:r.left,r:r.right,w:innerWidth,t:document.querySelector('#rtTipPop').textContent}`);
-    assert.ok(box.l>=0&&box.r<=box.w,'tip inside the viewport: '+JSON.stringify(box));assert.match(box.t,/p = 0\.996/);
-    assert.equal(await ev('return document.querySelectorAll("#rtTipPop [data-onto-s2-part],#rtTipPop [id]").length'),0,'popover copies carry no hooks');
+    assert.ok(box.l>=0&&box.r<=box.w,'tip inside the viewport: '+JSON.stringify(box));assert.match(box.t,/p = 0\.00010/);
+    assert.equal(await ev('return document.querySelectorAll("#rtTipPop [data-onto-s1-part],#rtTipPop [id]").length'),0,'popover copies carry no hooks');
     assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');
     await viewport();
-    return 'deep link and arrow keys switch tabs; tab labels plain; S2 not confirmed, S1 scope, recall caveat, benchmark labels, reality check, SLA caveat and simulated chips on screen; tip opens on hover, focus and tap, closes on leave and Esc, fits 390 px';
+    return 'deep link and arrow keys switch tabs; tab labels plain; AgentDojo-only scope, no S2 section, recall caveat, benchmark labels, reality check, SLA caveat and simulated chips on screen; tip opens on hover, focus and tap, closes on leave and Esc, fits 390 px';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{
