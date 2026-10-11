@@ -37,13 +37,15 @@ function chain(x, typed) {
     <li>its value <code>${esc(x.value)}</code> <span class="rt-onto-k">appeared earlier in a tool output, not in the user's task</span></li></ol>${src}`;
 }
 
-/** One call card: tool, read/write icon, the rule's verdict, then the chain or the reason text. */
-function callCard(c, rule, why, typed) {
+/** One call card: tool, read/write icon, the rule's verdict, then the chain or the reason text. Every card but the
+    first carries the connector that joins it to the card before it (right-pointing wide, down-pointing narrow). */
+function callCard(c, rule, why, typed, first) {
   const flagged = rule.call_index === c.index;
   const impact = c.impact ?? '';
   const io = `<span class="rt-onto-io"><svg class="rt-onto-io-ic" role="img" aria-label="${esc(impact)} call: ${esc(c.tool)}" viewBox="0 0 16 16" focusable="false">${IO_ICON[c.impact] ?? IO_ICON.read}</svg><span>${esc(impact)}</span></span>`;
   const body = flagged ? chain(rule.explanation, typed) : `<div class="rt-onto-why">${esc(why[c.index] ?? '')}</div>`;
   return `<li class="rt-onto-call${flagged ? ' flagged' : ''}" data-onto-call="${c.index}"${flagged ? ' data-onto-flagged' : ''}>
+    ${first ? '' : '<span class="rt-onto-connector" aria-hidden="true"></span>'}
     <div class="rt-onto-call-head"><code>${esc(c.tool)}</code><span class="rt-onto-head-io">${io}<span class="rt-chip" data-kind="${flagged ? 'blocked' : 'ran'}">${flagged ? `${ALERT_ICON}Alert` : `${OK_ICON}No alert`}</span></span></div>
     <div class="rt-onto-args">${esc(c.args)}</div>
     <div class="rt-onto-call-body">${body}</div></li>`;
@@ -82,7 +84,7 @@ function draw(el, input, tip) {
     return null;
   }
   const rule = ruleOf(ex, mode), why = reasonOf(ex, mode);
-  const calls = ex.run.calls.map(c => callCard(c, rule, why, mode === 'onto')).join('');
+  const calls = ex.run.calls.map((c, i) => callCard(c, rule, why, mode === 'onto', i === 0)).join('');
   const kind = ex.run.outcome.startsWith('attack succeeded') ? 'blocked' : 'review';
   const differ = differText(ex, mode);
   el.innerHTML = `<div class="rt-onto-run" data-onto-run="${esc(ex.run.run_id)}" data-state="idle">
@@ -109,15 +111,22 @@ export function mountOntoRun(el, input, opts = {}) {
   const none = () => {};
   if (!el) return { play: none, pause: none, reset: none, update: none, destroy: none };
   const tip = typeof opts.tip === 'function' ? opts.tip : () => '';
-  const reduced = !!opts.reducedMotion;
   const FULL = 1900, CHAIN = 1300;
   let root = null, last = null, timer = null, state = 'idle', replayBtn = null;
+
+  // Reduced motion applies to every motion entry point (play, the Replay button, a rule change in update()): each one
+  // then renders the complete end state and leaves no animation class and no timer behind. Checked when motion is
+  // requested, not only at mount, because the preference can change while this view is mounted. matchMedia is read here,
+  // never at module top level, so the module still imports under Node.
+  const reducedNow = () => !!opts.reducedMotion || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const endState = () => (root && reducedNow() ? 'done' : 'idle');
 
   function setState(s) { state = s; if (root) root.dataset.state = s; }
   function stop() { if (timer) { clearTimeout(timer); timer = null; } root?.classList.remove('rt-onto-motion', 'rt-onto-motion-chain'); }
   function motion(cls, ms) {
     stop();
     if (!root) return;
+    if (reducedNow()) { setState('done'); return; }
     root.classList.remove('rt-onto-motion', 'rt-onto-motion-chain');
     void root.offsetWidth; // restart the CSS animations from their first frame
     root.classList.add(cls);
@@ -131,14 +140,14 @@ export function mountOntoRun(el, input, opts = {}) {
     root = draw(el, last, tip);
     replayBtn = root?.querySelector('.rt-onto-run-replay') ?? null;
     replayBtn?.addEventListener('click', onReplay);
-    setState(root && reduced ? 'done' : 'idle');
+    setState(endState());
   }
   function onReplay() { motion('rt-onto-motion', FULL); }
 
   const api = {
     play() { if (root) motion('rt-onto-motion', FULL); },
     pause() { stop(); if (state === 'playing') setState('paused'); },
-    reset() { stop(); setState(root && reduced ? 'done' : 'idle'); },
+    reset() { stop(); setState(endState()); },
     update(next) {
       const n = next ?? {};
       // Only the rule changed: re-decide the cards and replay the chain, never redraw the timeline block.

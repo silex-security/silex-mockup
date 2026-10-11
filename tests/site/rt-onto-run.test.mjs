@@ -43,6 +43,31 @@ test('example-run timeline matches the data, at both widths, in motion and under
     await new Promise((r, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', r); });
     const p = session.page;
     const url = `http://127.0.0.1:${server.address().port}/index.html#view=runtime-observation&tab=ontology&sub=ex`;
+    const both = data.examples.find(x => x.cell === 'both');
+    const miss = data.examples.find(x => x.cell === 'miss');
+    // Rectangles of every call card and every connector, for the timeline geometry checks.
+    const geom = () => p.ev(`const box = e => { const r = e.getBoundingClientRect(); return { top:r.top, bottom:r.bottom, left:r.left, right:r.right }; };
+      return { cards: [...document.querySelectorAll('[data-onto-call]')].map(box), cons: [...document.querySelectorAll('.rt-onto-connector')].map(box) };`);
+    const checkGeom = async (ex, laid, at) => {
+      const g = await geom();
+      const n = ex.run.calls.length;
+      assert.equal(g.cards.length, n, `${at}: one card per call`);
+      assert.equal(g.cons.length, n - 1, `${at}: one connector per adjacent pair of calls`);
+      for (let i = 0; i + 1 < n; i++) {
+        const a = g.cards[i], b = g.cards[i + 1], c = g.cons[i];
+        if (laid === 'row') {
+          assert.ok(b.left > a.right, `${at}: cards ${i} and ${i + 1} are side by side (${JSON.stringify([a, b])})`);
+          assert.ok(Math.abs(b.top - a.top) <= 4, `${at}: cards ${i} and ${i + 1} share a row`);
+          assert.ok(c.right <= b.left + 1 && c.left >= a.right - 1, `${at}: connector ${i} sits in the gap between its two cards`);
+          assert.ok(c.top >= Math.min(a.top, b.top) - 1 && c.bottom <= Math.max(a.bottom, b.bottom) + 1, `${at}: connector ${i} is aligned with its cards`);
+        } else {
+          assert.ok(b.top > a.bottom, `${at}: cards ${i} and ${i + 1} are stacked (${JSON.stringify([a, b])})`);
+          assert.ok(c.bottom <= b.top + 1 && c.top >= a.bottom - 1, `${at}: connector ${i} sits in the gap above its card`);
+          assert.ok(c.left >= Math.min(a.left, b.left) - 1 && c.right <= Math.max(a.right, b.right) + 1, `${at}: connector ${i} is aligned with its cards`);
+        }
+      }
+      return g;
+    };
     await p.send('Emulation.setDeviceMetricsOverride', { width: 1400, height: 1100, deviceScaleFactor: 1, mobile: false });
     await p.send('Page.navigate', { url });
     await until(() => p.ev(`return !!document.querySelector('[data-onto-run],[data-onto-empty]')`), 'example run rendered', 30000);
@@ -129,6 +154,10 @@ test('example-run timeline matches the data, at both widths, in motion and under
       }
     }
 
+    // 2b · geometry at 1400 px: the 'both' cards sit side by side, one connector between them.
+    await pick('both', 'onto');
+    await checkGeom(both, 'row', '1400px both');
+
     // 3 · 390 px: the page and the panel keep their width for every case and rule.
     await p.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
     for (const cell of CELLS) for (const [mode] of RULES) {
@@ -139,15 +168,46 @@ test('example-run timeline matches the data, at both widths, in motion and under
     const narrow = await p.ev(`return {tasks:document.querySelectorAll('.rt-onto-task').length,calls:document.querySelectorAll('.rt-onto-call').length};`);
     assert.equal(narrow.tasks, 1, 'the user task sits in a bubble at the start of the timeline');
     assert.ok(narrow.calls > 0, 'calls are drawn at 390 px');
+    // 3b · geometry at 390 px: the same cards are stacked, connectors still only between neighbours.
+    for (const ex of [both, miss]) {
+      await pick(ex.cell, 'onto');
+      await checkGeom(ex, 'stack', `390px ${ex.cell}`);
+    }
 
-    // 4 · reduced motion: the whole run is on screen, with nothing left to animate.
+    // 4a · the preference flips while the block is already on screen (opts.reducedMotion was computed at page load
+    //      and is false here), so this only passes if matchMedia is read when motion is requested, not just at mount.
     await p.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    assert.equal(await p.ev(`document.querySelector('.rt-onto-run-replay').click();return document.querySelector('[data-onto-run]').dataset.state`), 'done', 'Replay right after the preference flips renders the end state');
+    assert.equal(await p.ev(`return /rt-onto-motion/.test(document.querySelector('[data-onto-run]').className)`), false, 'the flip leaves no motion class');
+    await until(() => p.ev(`return document.querySelector('[data-onto-run]').getAnimations({subtree:true}).length===0`), 'the preference flip stops the animations in flight', 5000);
+
+    // 4 · reduced motion: the whole run is on screen, nothing animates, and no motion entry point can start anything.
     await p.send('Page.reload');
     await until(() => p.ev(`const r=document.querySelector('[data-onto-run]');return !!r&&r.dataset.state==='done'`), 'reduced-motion end state', 30000);
-    const rm = await p.ev(`return {calls:document.querySelectorAll('[data-onto-call]').length,flagged:document.querySelectorAll('[data-onto-flagged]').length,animated:[...document.querySelectorAll('.rt-onto-call,.rt-onto-chain li')].some(n=>getComputedStyle(n).animationName!=='none')};`);
-    assert.equal(rm.calls, data.examples.find(x => x.cell === 'both').run.calls.length, 'reduced motion keeps the whole run visible');
+    const rm = await p.ev(`const r=document.querySelector('[data-onto-run]');return {calls:document.querySelectorAll('[data-onto-call]').length,flagged:document.querySelectorAll('[data-onto-flagged]').length,animated:[...document.querySelectorAll('.rt-onto-call,.rt-onto-chain li')].some(n=>getComputedStyle(n).animationName!=='none'),anim:r.getAnimations({subtree:true}).length,cls:r.className};`);
+    assert.equal(rm.calls, both.run.calls.length, 'reduced motion keeps the whole run visible');
     assert.equal(rm.flagged, 1, 'reduced motion still marks the flagged call');
     assert.equal(rm.animated, false, 'nothing animates under reduced motion');
+    assert.equal(rm.anim, 0, 'no running animation under [data-onto-run] at mount');
+    assert.ok(!/rt-onto-motion/.test(rm.cls), 'no motion class is left on the block');
+    // Replay is a motion entry point: it must render the end state, with no animation and no timer.
+    assert.equal(await p.ev(`document.querySelector('.rt-onto-run-replay').click();return document.querySelector('[data-onto-run]').dataset.state`), 'done', 'Replay under reduced motion renders the end state');
+    assert.equal(await p.ev(`return document.querySelector('[data-onto-run]').getAnimations({subtree:true}).length`), 0, 'Replay starts no animation under reduced motion');
+    assert.equal(await p.ev(`return /rt-onto-motion/.test(document.querySelector('[data-onto-run]').className)`), false, 'Replay leaves no motion class');
+    await p.ev(`window.__rtOntoRun.play(); window.__rtOntoRun.play()`);
+    assert.equal(await p.ev(`return document.querySelector('[data-onto-run]').dataset.state`), 'done', 'play() under reduced motion renders the end state');
+    assert.equal(await p.ev(`return document.querySelector('[data-onto-run]').getAnimations({subtree:true}).length`), 0, 'play() starts no animation under reduced motion');
+    // A rule switch is the third motion entry point: the cards are re-decided, still with no animation.
+    await p.ev(`document.querySelector('[data-onto-mode-btn="prov"]').click()`);
+    const rm2 = await p.ev(`const r=document.querySelector('[data-onto-run]');return {state:r.dataset.state,anim:r.getAnimations({subtree:true}).length,cls:r.className,flagged:[...document.querySelectorAll('[data-onto-flagged]')].map(c=>Number(c.dataset.ontoCall)),generic:document.querySelectorAll('.rt-onto-chain:not([data-onto-chain])').length,typed:document.querySelectorAll('[data-onto-chain]').length,reason:document.querySelector('[data-onto-call="0"] .rt-onto-why')?.textContent.trim()??null};`);
+    assert.equal(rm2.state, 'done', 'a rule switch under reduced motion renders the end state');
+    assert.equal(rm2.anim, 0, 'a rule switch starts no animation under reduced motion');
+    assert.ok(!/rt-onto-motion/.test(rm2.cls), 'a rule switch leaves no motion class');
+    assert.deepEqual(rm2.flagged, both.prov.call_index == null ? [] : [both.prov.call_index], 'the rule switch still re-decides the cards');
+    assert.equal(rm2.generic, 1, 'the untyped chain is shown');
+    assert.equal(rm2.typed, 0, 'no data-onto-chain in the untyped mode');
+    assert.equal(rm2.reason, both.why_not.prov['0'], 'the reason text follows the rule');
+    await checkGeom(both, 'stack', '390px under reduced motion');
 
     // 5 · lifecycle: idle at mount, play once to done, pause, reset, and a keyboard-operable Replay button.
     await p.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
@@ -171,7 +231,6 @@ test('example-run timeline matches the data, at both widths, in motion and under
     // 6 · update(): a rule change replays only the chain, and keeps the timeline block; a case change redraws.
     //     The rule change is driven through the host's own button, so the input (ex, mode, desc) is exactly what
     //     js/rt-ontology.js passes; the block only survives if the module treats it as the same case.
-    const both = data.examples.find(x => x.cell === 'both');
     await p.ev(`document.querySelector('[data-onto-run]').dataset.marker='kept'`);
     await p.ev(`document.querySelector('[data-onto-cell-btn="both"]').click()`);
     assert.equal(await p.ev(`return document.querySelector('[data-onto-run]').dataset.marker??null`), 'kept', 're-selecting the case on screen is a no-op (cell is both)');
