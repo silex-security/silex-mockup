@@ -33,8 +33,10 @@ test('fleet map and routing agree with the engine model, including motion and mo
     await new Promise((r, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', r); });
     const p = session.page;
     await p.send('Emulation.setDeviceMetricsOverride', { width: 1400, height: 1100, deviceScaleFactor: 1, mobile: false });
-    await p.send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/index.html#view=runtime-observation&tab=fleet` });
+    await p.send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/index.html#view=runtime-observation&tab=fleet&sub=routing` });
     await until(() => p.ev('return !!document.querySelector("#rtFleet[data-ready]")'), 'fleet ready', 30000);
+    // The routing block sits in its own sub-tab and plays once when first shown (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md).
+    await until(() => p.ev(`return document.querySelector('[data-rt-froute]').dataset.state==='done'`), 'routing autoplay done', 10000);
     const check = async () => {
       const result = await p.ev(`
         const m=window.__rtFleet.model();

@@ -130,7 +130,7 @@ test('the scenario matrix plays a row in the Scenarios tab and fits 390 px', { t
     // Navigate at a given width and wait for the fleet panel and its matrix.
     const open = async width => {
       await p.send('Emulation.setDeviceMetricsOverride', { width, height: 1100, deviceScaleFactor: 1, mobile: false });
-      await p.send('Page.navigate', { url: `${origin}/index.html#view=runtime-observation&tab=fleet` });
+      await p.send('Page.navigate', { url: `${origin}/index.html#view=runtime-observation&tab=fleet&sub=scenarios` });
       await until(() => p.ev('return !!document.querySelector("#rtFleet[data-ready]")'), 'Agent fleet panel', 30000);
       await until(() => p.ev('return document.querySelectorAll("[data-rt-fgrid-row]").length === 11'), 'the eleven matrix rows', 20000);
     };
@@ -212,7 +212,7 @@ test('the scenario matrix plays a row in the Scenarios tab and fits 390 px', { t
     await p.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
     const narrow = await until(async () => {
       const r = await p.ev(`const g=document.querySelector('[data-rt-fgrid]');const b=g.getBoundingClientRect();
-        return { win: innerWidth, doc: document.documentElement.scrollWidth, body: document.body.scrollWidth,
+        return { shown: !g.closest('[hidden]') && b.width > 0, win: innerWidth, doc: document.documentElement.scrollWidth, body: document.body.scrollWidth,
           rows: document.querySelectorAll('[data-rt-fgrid-row]').length, right: b.right,
           gridScroll: g.scrollWidth, gridClient: g.clientWidth,
           cap: getComputedStyle(g.querySelector('.rt-fgrid-cap')).display,
@@ -221,6 +221,9 @@ test('the scenario matrix plays a row in the Scenarios tab and fits 390 px', { t
             .querySelectorAll('.rt-fgrid-playcell').length };`);
       return r.doc <= r.win + 1 ? r : null;
     }, 'no horizontal page overflow at 390 px', 15000);
+    // The matrix sits in the "All scenarios" sub-tab (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md); a hidden block would pass the
+    // geometry checks below vacuously.
+    assert.equal(narrow.shown, true, 'the matrix is on screen');
     assert.equal(narrow.rows, 11, 'the rows survive the narrow layout');
     assert.ok(narrow.body <= narrow.win + 1, `body width ${narrow.body} at ${narrow.win}`);
     assert.ok(narrow.right <= narrow.win + 1, `the card ends at ${narrow.right}`);

@@ -17,6 +17,7 @@ import { DOMAINS } from '../jev-runtime/demo/js/engine/domains.js';
 import { tip } from './rt-tip.js';
 import { mountX1 } from './rt-fleet-x1.js';
 import { mountMap } from './rt-fleet-map.js';
+import { mountSubnav } from './rt-subnav.js';
 import { mountGrid } from './rt-fleet-grid.js';
 
 const NON_EXECUTING = new Set(['hold_for_review', 'hold_for_approval', 'deny', 'stop_and_handover']);
@@ -139,11 +140,18 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
   const teams = [...new Set([...Object.keys(m.queues.on.byTeam), ...Object.keys(m.queues.off.byTeam)])].sort();
   const seq = xs => xs.map(chip).join(' → ');
 
+  // A re-render keeps the sub-tab the viewer is on.
+  const keep = window.__rtSubnav?.fleet?.current?.();
+  if (keep && !window.__rtSubPending?.fleet) (window.__rtSubPending ||= {}).fleet = keep;
   for (const h of handles.splice(0)) { try { h.destroy?.(); } catch {} }
+  // Four sub-tabs in story order (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md): the cascade, the fleet, who reviews, all scenarios.
   root.innerHTML = `
-  <div class="rt-fblock" id="rtFleetX1" data-rt-fblock="x1"></div>
-  <div class="rt-fblock" id="rtFleetMap" data-rt-fblock="map"></div>
-  <div class="rt-fblock" id="rtFleetGrid" data-rt-fblock="grid"></div>
+  <nav data-rt-fleet-subnav></nav>
+  <div class="rt-fleet-subpanels" data-rt-fleet-subpanels>
+  <div data-rt-subpanel="cascade"><div class="rt-fblock" id="rtFleetX1" data-rt-fblock="x1"></div></div>
+  <div data-rt-subpanel="agents" hidden><div class="rt-fblock" id="rtFleetMap" data-rt-fblock="map"></div></div>
+  <div data-rt-subpanel="routing" hidden><div class="rt-fblock" id="rtFleetRoute" data-rt-fblock="route"></div></div>
+  <div data-rt-subpanel="scenarios" hidden><div class="rt-fblock" id="rtFleetGrid" data-rt-fblock="grid"></div>
   <details class="card rt-fleet-tables" data-rt-fleet-tables>
   <summary>Show as tables <small>· the same results as text, for screen readers and copying</small></summary>
   <section class="card rt-x1" data-rt-x1>
@@ -192,17 +200,30 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
       <td>${seq(s.on)}</td><td>${seq(s.off)}</td></tr>`).join('')}
     </tbody></table>
   </section>
-  </details>`;
+  </details></div>
+  </div>`;
   const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   // ▶ in the matrix: show the Scenarios tab, move focus to it, then let the host run the trace (its token guards it).
   const run = id => { window.__rtTabs?.open('scenarios'); document.getElementById('rtTab-scenarios')?.focus(); return window.__jevRuntime?.run(id); };
   const mount = (fn, id, opts) => { try { const h = fn(document.getElementById(id), m, opts); if (h) handles.push(h); return h; } catch (e) { console.error(e); return null; } };
   const x1 = mount(mountX1, 'rtFleetX1', { tip, reducedMotion });
-  // The X1 block plays its guided demo once when the tab first renders (Trace only, then With ontology). Under reduced
-  // motion it shows the end state instead (mountX1 does that itself).
-  if (!reducedMotion) x1?.tour?.();
-  mount(mountMap, 'rtFleetMap', { tip, reducedMotion });
+  const map = mount(mountMap, 'rtFleetMap', { tip, reducedMotion, routeEl: document.getElementById('rtFleetRoute') });
   mount(mountGrid, 'rtFleetGrid', { tip, run });
+  const sub = mountSubnav(root.querySelector('[data-rt-fleet-subnav]'), {
+    tab: 'fleet', label: 'Agent fleet sections', initial: 'cascade', panels: root.querySelector('[data-rt-fleet-subpanels]'),
+    items: [
+      { key: 'cascade', label: 'Cascade demo', hint: 'Every step succeeds; the outcome breaks a rule' },
+      { key: 'agents', label: 'Agents & teams', hint: 'Who runs what' },
+      { key: 'routing', label: 'Who reviews', hint: 'Where stopped calls go' },
+      { key: 'scenarios', label: 'All scenarios', hint: '11 scenarios, slice on and off' },
+    ],
+  });
+  handles.push(sub);
+  // The bar plays each animation the first time its sub-tab is on screen and pauses it when it is hidden: the X1 guided
+  // demo (Trace only, then With ontology) and the routing flight. Under reduced motion it never plays them; the modules
+  // already show their end state.
+  if (x1) sub.bind('cascade', { play: () => x1.tour?.(), pause: () => x1.stop?.() });
+  if (map) sub.bind('routing', { play: () => map.play?.(), pause: () => map.pause?.() });
   root.dataset.ready = '1';
   return m;
 }

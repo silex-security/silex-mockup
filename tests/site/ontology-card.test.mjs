@@ -73,6 +73,8 @@ try {
     assert.ok(!p.requests.some(u => new URL(u).pathname.endsWith('/data/onto-s2.json')), 'page does not fetch S2 data');
   });
   await check('6', 'judge note shows both data-derived AUROCs', async () => {
+    // The note now renders with the Learning results (js/rt-learning-visual.js), after that tab's own data loads.
+    await until(() => ev(`return !!document.querySelector('#rtJudgeRealNote')`), 'reality check rendered');
     const text = await ev(`return document.querySelector('#rtJudgeRealNote').textContent;`);
     for (const key of ['real_runs_auroc','e1_split_auroc']) assert.ok(text.includes(Number(data.judge_baseline[key]).toFixed(3)), key);
   });

@@ -1,8 +1,9 @@
 // Runtime Observation sub-tabs (logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md §3).
 // Six tabs: scenarios, plane, learning, ontology, fleet (logs/2026-10-10_CREATOR_PLATFORM_RUNTIME_OBSERVATION_DESIGN.md), latency. A click or arrow key switches tabs without writing the hash
-// (the site's ordinary navigation never does); #view=runtime-observation&tab=<id> opens one. window.__rtTabs.open(id)
+// (the site's ordinary navigation never does); #view=runtime-observation&tab=<id>[&sub=<key>] opens one. window.__rtTabs.open(id)
 // is the hook for "See this run" and "Try the loop".
 import './rt-tip.js';
+import { requestSub } from './rt-subnav.js';
 
 const TABS = ['scenarios', 'plane', 'learning', 'ontology', 'fleet', 'latency'];
 const buttons = [...document.querySelectorAll('.rt-tabs [data-rt-tab]')];
@@ -33,7 +34,11 @@ function fromHash() {
   const h = location.hash.slice(1);
   if (!h.startsWith('view=')) return;
   const q = new URLSearchParams(h);
-  if (q.get('view') === 'runtime-observation' && q.has('tab')) open(q.get('tab'));
+  if (q.get('view') !== 'runtime-observation' || !q.has('tab')) return;
+  // &sub=<key> picks a sub-tab inside it (js/rt-subnav.js); a bar that renders later applies it when it mounts. A link
+  // without &sub= opens the tab's default sub-tab, like an unknown key.
+  requestSub(q.get('tab'), q.get('sub'));
+  open(q.get('tab'));
 }
 addEventListener('hashchange', fromHash);
 fromHash();

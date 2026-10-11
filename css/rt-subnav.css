@@ -1,0 +1,19 @@
+/* Second-level sub-tabs inside a Runtime Observation tab (js/rt-subnav.js; logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md). */
+.rt-subnav{display:flex;gap:8px;margin:0 0 16px;padding:6px;background:var(--soft);border:1px solid var(--line);border-radius:14px;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.rt-subnav::-webkit-scrollbar{display:none}
+.rt-subnav button{appearance:none;border:1px solid transparent;background:none;border-radius:10px;padding:8px 14px 8px 10px;font:inherit;color:var(--muted);cursor:pointer;display:flex;gap:9px;align-items:center;text-align:left;flex:1 1 0;min-width:150px}
+.rt-subnav button:hover{color:var(--ink);background:rgba(255,255,255,.6)}
+.rt-subnav button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.rt-subnav button[aria-selected="true"]{background:#fff;color:var(--ink);border-color:var(--line);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rt-subnav-n{flex:none;font-size:20px;line-height:1;color:var(--muted)}
+.rt-subnav button[aria-selected="true"] .rt-subnav-n{color:var(--blue2)}
+.rt-subnav-t{display:grid;gap:1px;min-width:0}
+.rt-subnav-t b{font-size:14px;font-weight:650;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.rt-subnav-t small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-subnav-t .rt-chip{font-size:10.5px;padding:1px 7px}
+[data-rt-subpanel][hidden]{display:none}
+.rt-subnav-next{display:flex;justify-content:flex-end;margin:16px 0 0}
+@media (max-width:640px){
+  .rt-subnav button{min-width:132px;padding:7px 10px 7px 8px}
+  .rt-subnav-t small{display:none}
+}
