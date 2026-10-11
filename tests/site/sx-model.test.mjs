@@ -142,6 +142,7 @@ test('replay: a record replays to the same graph; removal only drops events from
   const steps = trace(SEED.values).steps;
   assert.deepEqual(steps.map(s => s.kind), ['state', 'state', 'state', 'state', 'event', 'event', 'event', 'check', 'verdict']);
   assert.equal(steps.find(s => s.nodes.includes('ticket')).source, 'context', 'approval is injected context');
+  assert.deepEqual(steps.slice(-2).map(s => s.source), ['rule', 'rule'], 'the rule check is not a lab execution');
 });
 
 test('ids round-trip', () => {

@@ -66,6 +66,7 @@ export const OPS = {
   lab: { label: 'Lab execution', hint: 'Changes what runs. Each distinct combination is one execution in the lab.' },
   context: { label: 'Context overlay', hint: 'Business context injected by a supplementary component. Never executed; it reuses a lab execution’s record.' },
   observation: { label: 'Observation removal', hint: 'Drops events from a recorded run. Derived from that record; never re-executed.' },
+  rule: { label: 'Rule check', hint: 'R1 evaluated on the events the record keeps. Nothing is executed.' },
 };
 
 export const CONSTRAINTS = [
@@ -238,8 +239,8 @@ export function trace(values) {
     { kind: 'event', source: keptReads.length < reads.length ? 'observation' : 'lab', nodes: [], events: keptReads.map(e => e.id),
       dropped: keptReads.length < reads.length,
       text: `${reads.length} ${values.permission === 'none' ? 'refused' : 'successful'} reads in ${SEED.windowMin} minutes; ${keptReads.length} in the logs.` },
-    { kind: 'check', source: 'lab', nodes: ['rule'], text: `${RULE.id}: ${res.why}` },
-    { kind: 'verdict', source: 'lab', nodes: [], text: `Rule ${res.got === 'alert' ? 'alerts' : 'stays quiet'}; proposed: ${WANT[exp.want]}. ${OUTCOMES.find(o => o.key === compare(exp.want, res.got)).label}.` },
+    { kind: 'check', source: 'rule', nodes: ['rule'], text: `${RULE.id}: ${res.why}` },
+    { kind: 'verdict', source: 'rule', nodes: [], text: `Rule ${res.got === 'alert' ? 'alerts' : 'stays quiet'}; proposed: ${WANT[exp.want]}. ${OUTCOMES.find(o => o.key === compare(exp.want, res.got)).label}.` },
   ];
   const digest = fnv1a(JSON.stringify({ values, nodes, edges, steps }));
   return { nodes, edges, steps, digest };

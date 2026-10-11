@@ -2,6 +2,20 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+<!-- sx-log:begin -->
+## 2026-10-11 — Scenario Expansion: one attack, varied by business conditions
+
+- **What:** a new view, `#view=scenario-expansion` (Environment → Scenario Expansion). It turns System Validation's "attack mutations" step into a worked example. One attack is varied by role, approval, permission, data sensitivity and log coverage; ontology constraints prune what cannot exist; each variant is compared with one illustrative rule.
+- **Sub-tabs:**
+  - ① Expand one attack: the constraint funnel and the lab-execution → context-overlay → observation-removal chain;
+  - ② Where the rule holds: the matrix with a log-coverage switch, plus candidate findings;
+  - ③ Replay one variant: provenance, runtime graph, step timeline and invariant checks;
+  - ④ How results are judged.
+- **Honesty:** everything is simulated on a fictional tenant and has not run in a lab. Expected outcomes are proposals pending expert review, and findings are candidates. Every result shows its evidence grade and ontology version.
+- **Left alone:** every existing view. System Validation only gains a link button; the full test suite passes.
+- **Plan:** [2026-10-11_SCENARIO_EXPANSION_PLAN.md](2026-10-11_SCENARIO_EXPANSION_PLAN.md).
+<!-- sx-log:end -->
+
 ## 2026-10-11 — Runtime Observation: sub-tabs inside Agent fleet; pictures for Learning loop and Ontology
 
 - **Why:** the user found the Agent fleet tab too long and asked for clickable sub-tabs by topic, and found Learning loop and Ontology as text-heavy as Agent fleet had been; they asked for animations and pictures there too.

@@ -75,15 +75,17 @@ function sources() {
   assert.ok(view, 'index.html has the sx:begin/sx:end markers');
   out.push(['index.html (sx fragment)', view]);
   const plan = 'logs/2026-10-11_SCENARIO_EXPANSION_PLAN.md';
-  if (existsSync(join(ROOT, plan))) out.push([plan, readFileSync(join(ROOT, plan), 'utf8')]);
+  assert.ok(existsSync(join(ROOT, plan)), `${plan} exists`);
+  out.push([plan, readFileSync(join(ROOT, plan), 'utf8')]);
   const entry = between(readFileSync(join(ROOT, 'logs/README.md'), 'utf8'), '<!-- sx-log:begin -->', '<!-- sx-log:end -->');
-  if (entry) out.push(['logs/README.md (sx-log entry)', entry]);
+  assert.ok(entry, 'logs/README.md has the sx-log markers');
+  out.push(['logs/README.md (sx-log entry)', entry]);
   return out;
 }
 
 test('the public Scenario Expansion text contains no denied term', () => {
   const scanned = sources();
-  assert.ok(scanned.length >= 8, 'the scan covers the view and its modules');
+  assert.ok(scanned.length >= 16, 'the scan covers the view, its modules, tests, the plan and the change-log entry');
   for (const [name, text] of scanned) {
     const hit = [...fingerprints(text)].some(h => HASHES.has(h));
     assert.equal(hit, false, `${name} contains a denied term (see the private list)`);
