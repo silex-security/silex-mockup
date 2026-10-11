@@ -87,7 +87,7 @@ function x1Svg() {
     ${box(610, 150, 'Ad Curator', 'select_creative')}
     ${arrow(760, 800)}
     ${box(800, 170, 'Ad Buyer', 'launch_campaign')}
-    <g class="rt-x1-gap"><line x1="390" y1="96" x2="390" y2="146"/><text x="398" y="160">missing check: ELIGIBLE_FOR publish ≠ advertising</text></g>
+    <g class="rt-x1-gap"><line x1="390" y1="96" x2="390" y2="146"/><text x="398" y="160">missing check: fine to publish ≠ fine for ads</text></g>
     ${band(190, 170, 'Content Ops')}${band(610, 360, 'Ads')}
   </svg>`;
 }
@@ -105,15 +105,16 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
     <div class="rt-x1-head"><div><h2>Every step succeeded. The outcome broke the rule.</h2>
       <p>Operations asked to promote a popular video, with one constraint: videos featuring minors are never used in ads.
       Three agents on two teams each did their own step correctly. A trace-only monitor sees three allowed tool calls.
-      The ontology knows two facts no single trace carries: this video is <b>eligible for publishing, not for advertising</b>,
-      and the hot pool <b>syncs automatically</b> into the ad-candidate pool.</p></div>
+      The ontology slice carries what no single trace event does: the declared policy that <b>advertising excludes minors</b>,
+      the fact that this video <b>features a minor</b> (so it is fine to publish but not for ads), and that the hot pool
+      <b>syncs automatically</b> into the ad-candidate pool.</p></div>
       <span class="rt-chip" data-kind="sim">Simulated · scripted</span></div>
     <div class="rt-x1-svgwrap">${x1Svg()}</div>
     <div class="rt-x1-cols">
       <div data-rt-x1-side="off"><h3>Trace only <small>(ontology slice off)</small></h3><ol>${steps('off')}</ol></div>
       <div data-rt-x1-side="on"><h3>With the ontology slice</h3><ol>${steps('on')}</ol></div>
     </div>
-    <p class="rt-ref">The chain comes from declared typed facts (<span class="mono">SYNCS_TO</span>, <span class="mono">ELIGIBLE_FOR</span>), not from linking traces at runtime: the three runs share no history.
+    <p class="rt-ref">The chain comes from declared typed facts, not from linking traces at runtime (the three runs share no history): <span class="mono">pool:hot SYNCS_TO pool:ad-candidates</span>, <span class="mono">video FEATURES subject:minor</span> and the policy <span class="mono">purpose:advertising EXCLUDES subject:minor</span>, from which the video's ad-ineligibility is inferred.
       The three checkpoints are evaluated independently; in a real run, the hold at the first one would stop the other two.
       Decisions computed by the vendored simulated engine at page load, seed 7.</p>
   </section>
@@ -140,7 +141,7 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
 
   <section class="card" data-rt-fleet-decisions>
     <h3>Every scenario, with and without the slice <span class="rt-chip" data-kind="sim">Computed by the engine</span></h3>
-    <p class="rt-plain">Each row is one scripted trace; "a" is the normal context and "b" the risky one. The tool calls are the same; only the facts the slice describes differ.</p>
+    <p class="rt-plain">Each row is one scripted trace; "a" is the normal context and "b" the risky one. The same tool is called in both; the "b" context differs in the facts the slice describes.</p>
     <table class="matrix"><thead><tr><th>Scenario</th><th>Agent</th><th>With the slice</th><th>Trace only</th></tr></thead><tbody>
     ${m.scenarios.map(s => `<tr data-rt-fleet-scenario="${esc(s.id)}"><td><b>${esc(s.id)}</b> <small>${esc(s.title)}</small></td><td class="mono">${esc(s.agent)}</td>
       <td>${seq(s.on)}</td><td>${seq(s.off)}</td></tr>`).join('')}

@@ -71,9 +71,7 @@ function sliceDetail(state, ontology) {
   const facts = Object.entries(c).filter(([k, v]) => k !== 'used' && typeof v === 'boolean');
   const used = Array.isArray(c.used) ? c.used : Object.values(c.used ?? {}).flat();
   const shown = facts.length ? facts.map(([k, v]) => `<span class="mono">${esc(k)}</span> = <b>${v}</b>`).join(' · ') : 'no fact applies to this tool';
-  const anyTrue = facts.some(([, v]) => v === true);
-  const triples = used.length ? `<ul class="jv-slice">${used.map(t => `<li class="mono">${esc(t.s)} ${esc(t.p)} ${esc(String(t.o))} ${chip(t.grade ?? '—', 'b')}</li>`).join('')}</ul>`
-    : anyTrue ? '<div class="jv-meta">True because a required relation is absent from the slice (no supporting triple).</div>' : '';
+  const triples = used.length ? `<ul class="jv-slice">${used.map(t => `<li class="mono">${esc(t.s)} ${esc(t.p)} ${esc(String(t.o))} ${chip(t.grade ?? '—', 'b')}</li>`).join('')}</ul>` : '';
   return shown + triples;
 }
 

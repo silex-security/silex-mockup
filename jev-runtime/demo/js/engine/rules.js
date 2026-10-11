@@ -95,7 +95,7 @@ export function checkRules(state, tenant) {
     }
     if (creator.payout_scope_excluded === true) {
       hits.push({ id: 'mcn_payout_scope', verdict: 'BLOCK',
-        reason: `agency ${args.requester} manages ${args.creator_id} without payout scope`, evidence_refs: refs });
+        reason: `${args.requester} manages ${args.creator_id} without payout scope`, evidence_refs: refs });
     }
     if (creator.subject_scope_missing === true) {
       hits.push({ id: 'cross_principal_read', verdict: 'BLOCK',

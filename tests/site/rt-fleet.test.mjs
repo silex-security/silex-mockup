@@ -119,6 +119,12 @@ test('the Agent fleet page renders the X1 chain, the queues and the reference me
     await p.send('Page.navigate', { url: `${origin}/index.html#view=runtime-observation&tab=fleet` });
     await until(() => p.ev('return !!document.querySelector("#rtFleet[data-ready]")'), 'Agent fleet panel', 30000);
 
+    // Code review r3: the X1 card names the facts the engine actually uses (FEATURES + the EXCLUDES policy), and no longer
+    // presents a missing ELIGIBLE_FOR as the check.
+    const x1Text = await p.ev('return document.querySelector("[data-rt-x1]").textContent');
+    assert.match(x1Text, /purpose:advertising EXCLUDES subject:minor/);
+    assert.match(x1Text, /video FEATURES subject:minor/);
+    assert.doesNotMatch(x1Text, /ELIGIBLE_FOR publish/);
     const snap = await p.ev(`return {
       tabSelected: document.querySelector('[data-rt-tab="fleet"]')?.getAttribute('aria-selected'),
       panelVisible: !!document.getElementById('rtFleetPanel') && !document.getElementById('rtFleetPanel').hidden && document.getElementById('rtFleetPanel').classList.contains('active'),

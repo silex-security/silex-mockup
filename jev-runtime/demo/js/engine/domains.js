@@ -59,7 +59,7 @@ export const DOMAINS = Object.freeze({
   creator: Object.freeze({
     id: 'creator', agent: 'creator-fleet', label: 'Creator platform agents', short: 'Creator platform',
     tenant: 'Acme Shorts (fictional)',
-    lede: 'Six agents of a fictional content platform, <b>Acme Shorts</b>, owned by different teams. Every span goes <b>hard rules → Jev battery → policy</b>. The creator rules read typed facts from the <b>ontology slice</b> (who manages whom, what a video is eligible for, where a pool syncs to); switch the slice off to see what a trace-only monitor decides. Scripted scenarios, simulated judge.',
+    lede: 'Six agents of a fictional content platform, <b>Acme Shorts</b>, owned by different teams. Every span goes <b>hard rules → Jev battery → policy</b>. The creator rules read typed facts from the <b>ontology slice</b> (who manages whom, what a video is eligible for, where a pool syncs to); switch the slice off to see what a trace-only monitor decides. Scripted scenarios, simulated judge: the on/off difference shows the mechanism, not a measurement.',
     replayRules: 'the typed rules (verification, agency scope, license, eligibility, limits)',
     learning: false,
     agents: Object.freeze(['trend-scout', 'help-desk', 'creator-desk', 'drama-studio', 'ad-curator', 'ad-buyer']),
@@ -103,8 +103,8 @@ export const DOMAINS = Object.freeze({
       ['asset_license', 'BLOCK', 'studio.use_asset', 'no license valid for the region on the slice date'],
       ['sensitive_event_push', 'HOLD', 'promo.push_trend_to_homepage', 'topic related to an active event, no trust-safety approval'],
       ['cumulative_limit', 'HOLD', 'help.refund_coins · studio.buy_promotion', 'linked-card or team-budget total over its limit'],
-      ['ad_use_eligibility', 'BLOCK', 'ads.select_creative · ads.launch_campaign', 'video not ELIGIBLE_FOR advertising'],
-      ['latent_ad_path', 'HOLD', 'promo.add_to_hot_pool', 'pool SYNCS_TO ad candidates and the video is not ad-eligible'],
+      ['ad_use_eligibility', 'BLOCK', 'ads.select_creative · ads.launch_campaign', 'video FEATURES a subject that advertising EXCLUDES, or its complete ELIGIBLE_FOR list lacks advertising'],
+      ['latent_ad_path', 'HOLD', 'promo.add_to_hot_pool', 'pool SYNCS_TO ad candidates and the video is affirmatively not ad-eligible (as above)'],
     ]),
   }),
 });

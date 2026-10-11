@@ -118,7 +118,9 @@ function redact(text) {
 // records, per true fact, the triples it was derived from (for the Inspector).
 
 const CREATOR_LEVEL = { L0: 0, L1: 1, L2: 2 };
-const levelOf = v => CREATOR_LEVEL[v] ?? 0;
+const levelOf = v => CREATOR_LEVEL[v] ?? null;   // an unrecognised level is unknown, not L0 (code review r3)
+// Self-access compares ids with the creator: prefix removed, so 'creator:CR-311' asking about 'CR-311' is the creator.
+const bareCreator = id => String(id ?? '').replace(/^creator:/, '');
 const firstOf = arr => (arr.length ? arr[0] : null);
 
 function creatorFacts(slice, tool) {
@@ -139,7 +141,7 @@ function creatorFacts(slice, tool) {
     const session = firstOf(T(`session:${args.session_id}`, 'VERIFICATION_LEVEL'));
     const required = firstOf(T(`tool:${name}`, 'REQUIRES_VERIFICATION'));
     // Open world (§3): null unless both levels are actually present.
-    if (session != null && required != null) {
+    if (levelOf(session) != null && levelOf(required) != null) {
       verification_short = levelOf(session) < levelOf(required);
       if (verification_short) track('verification_short', [
         ...triplesOf(`session:${args.session_id}`, 'VERIFICATION_LEVEL'),
@@ -151,7 +153,7 @@ function creatorFacts(slice, tool) {
   let payout_scope_excluded = null;
   if (name === 'creator.update_payout_account') {
     const requester = args.requester, creator_id = args.creator_id;
-    if (requester === creator_id) {
+    if (bareCreator(requester) === bareCreator(creator_id)) {
       payout_scope_excluded = false;
     } else if (T(requester, 'MANAGES').includes(`creator:${creator_id}`)) {
       if (T(requester, 'HAS_SCOPE').includes('scope:payout')) {
@@ -171,7 +173,7 @@ function creatorFacts(slice, tool) {
     const requester = args.requester, creator_id = args.creator_id;
     const manages = T(requester, 'MANAGES').includes(`creator:${creator_id}`);
     const hasAnalytics = T(requester, 'HAS_SCOPE').includes('scope:analytics');
-    if (requester === creator_id || (manages && hasAnalytics)) {
+    if (bareCreator(requester) === bareCreator(creator_id) || (manages && hasAnalytics)) {
       subject_scope_missing = false;
     } else {
       // Missing relations are not denial: only a declared-complete MANAGES + HAS_SCOPE list proves it (§2/§3).

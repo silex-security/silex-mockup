@@ -64,9 +64,9 @@ slice's triples with that `s` and `p`; ids come from the tool args named below.
 
 | Fact | Tools | Definition |
 |---|---|---|
-| `verification_short` | `help.update_login_email` | both levels present: level(`T('session:'+args.session_id,'VERIFICATION_LEVEL')`) < level(`T('tool:'+tool,'REQUIRES_VERIFICATION')`), with L0 < L1 < L2; `null` when either level is missing |
-| `payout_scope_excluded` | `creator.update_payout_account` | `false` when `args.requester === args.creator_id`; else `null` unless `'creator:'+args.creator_id ∈ T(args.requester,'MANAGES')`; then `true` when `'scope:payout' ∉ T(args.requester,'HAS_SCOPE')` and `'HAS_SCOPE' ∈ T(args.requester,'COMPLETE_FOR')`, `false` when it is present, `null` otherwise |
-| `subject_scope_missing` | `creator.get_creator_analytics` | `false` when `args.requester === args.creator_id` or when the requester `MANAGES` the creator and `HAS_SCOPE scope:analytics`; else `true` when `T(args.requester,'COMPLETE_FOR')` contains both `MANAGES` and `HAS_SCOPE`; else `null` |
+| `verification_short` | `help.update_login_email` | both levels present and recognised: level(`T('session:'+args.session_id,'VERIFICATION_LEVEL')`) < level(`T('tool:'+tool,'REQUIRES_VERIFICATION')`), with L0 < L1 < L2; `null` when either level is missing or unrecognised |
+| `payout_scope_excluded` | `creator.update_payout_account` | `false` when `args.requester` and `args.creator_id` name the same creator (a `creator:` prefix ignored); else `null` unless `'creator:'+args.creator_id ∈ T(args.requester,'MANAGES')`; then `true` when `'scope:payout' ∉ T(args.requester,'HAS_SCOPE')` and `'HAS_SCOPE' ∈ T(args.requester,'COMPLETE_FOR')`, `false` when it is present, `null` otherwise |
+| `subject_scope_missing` | `creator.get_creator_analytics` | `false` when the requester is the creator (a `creator:` prefix ignored) or when the requester `MANAGES` the creator and `HAS_SCOPE scope:analytics`; else `true` when `T(args.requester,'COMPLETE_FOR')` contains both `MANAGES` and `HAS_SCOPE`; else `null` |
 | `license_invalid` | `studio.use_asset` | over the licenses `L = T('asset:'+args.asset_id,'LICENSED_UNDER')`: `false` when some license is valid (`'region:'+args.region ∈ T(l,'VALID_IN')` and every `EXPIRES` date `> as_of`); `true` only when `'LICENSED_UNDER' ∈ T('asset:'+args.asset_id,'COMPLETE_FOR')` and every license in `L` (possibly none) is affirmatively invalid (an `EXPIRES` date `<= as_of`, or the region missing while `'VALID_IN' ∈ T(l,'COMPLETE_FOR')`); else `null` |
 | `sensitive_event_unapproved` | `promo.push_trend_to_homepage` | some event `e ∈ T('topic:'+args.topic_id,'RELATED_TO')` with `'active' ∈ T(e,'STATUS')`, and `'team:trust-safety' ∉ T('topic:'+args.topic_id,'APPROVED_BY')` (a missing approval holds; see Open world) |
 | `cumulative_over_limit` | `help.refund_coins` | card `k ∈ T('account:'+args.account_id,'PAID_WITH')` with a `LIMIT_USD`; `sum` = Σ `REFUNDED_USD` over every account with `PAID_WITH k`; true when `sum + args.amount_usd > T(k,'LIMIT_USD')`; `null` when no card or no limit is present |
@@ -81,7 +81,7 @@ slice's triples with that `s` and `p`; ids come from the tool args named below.
 | Rule id | Verdict | Fires when | Pinned reason |
 |---|---|---|---|
 | `credential_change_verification` | BLOCK | `verification_short === true` | `credential change on a session below the required verification level` |
-| `mcn_payout_scope` | BLOCK | `payout_scope_excluded === true` | `agency ${args.requester} manages ${args.creator_id} without payout scope` |
+| `mcn_payout_scope` | BLOCK | `payout_scope_excluded === true` | `${args.requester} manages ${args.creator_id} without payout scope` |
 | `cross_principal_read` | BLOCK | `subject_scope_missing === true` | `${args.requester} has no analytics scope over ${args.creator_id}` |
 | `asset_license` | BLOCK | `license_invalid === true` | `no valid license for ${args.asset_id} in ${args.region} on ${as_of}` |
 | `sensitive_event_push` | HOLD | `sensitive_event_unapproved === true` | `topic ${args.topic_id} is related to an active sensitive event without trust-safety approval` |
