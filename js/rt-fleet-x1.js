@@ -51,11 +51,13 @@ export function mountX1(el, model, opts = {}) {
   const video = facts.find(t => /^video:/.test(t.s))?.s.replace(/^video:/, '') ?? 'video';
   const reviewerOf = (agent, tool) => model?.fleet?.find(r => r.agent === agent)?.tools.find(t => t.name === tool)?.reviewer ?? null;
 
-  let mode = 'off', state = 'idle', steps = [], next = 0, timer = null;
+  // Under reduced motion the block always shows a finished run, starting with the guided demo's end state (With ontology).
+  let mode = reduced() ? 'on' : 'off', state = 'idle', steps = [], next = 0, timer = null;
+  let touring = false; // the auto-started guided demo narrates once, at its end, instead of once per step
 
   // ---- static frame -------------------------------------------------------------------------------------------
   el.innerHTML = `
-  <section class="card rt-fx1${rm ? ' rt-fx1-rm' : ''}" data-rt-fx1 data-mode="off" data-state="idle" aria-labelledby="rtFx1H">
+  <section class="card rt-fx1${rm ? ' rt-fx1-rm' : ''}" data-rt-fx1 data-mode="${mode}" data-state="idle" aria-labelledby="rtFx1H">
     <div class="rt-fx1-head">
       <h2 id="rtFx1H">Every step succeeded. The outcome broke the rule.${tip(
         'Operations asked to promote a popular video under one constraint: <b>no minors in ads</b>. Three agents on two teams each did their own step correctly. ' +
@@ -65,8 +67,8 @@ export function mountX1(el, model, opts = {}) {
     </div>
     <div class="rt-fx1-controls">
       <div class="rt-fx1-toggle" role="group" aria-label="Monitor">
-        <button type="button" data-rt-fx1-mode="off" aria-pressed="true">Trace only</button>
-        <button type="button" data-rt-fx1-mode="on" aria-pressed="false">With ontology</button>
+        <button type="button" data-rt-fx1-mode="off" aria-pressed="${mode === 'off'}">Trace only</button>
+        <button type="button" data-rt-fx1-mode="on" aria-pressed="${mode === 'on'}">With ontology</button>
       </div>
       <div class="rt-fx1-play">
         <button type="button" class="btn secondary" data-rt-fx1-act="play" aria-label="Play">▶ Play</button>
@@ -85,6 +87,7 @@ export function mountX1(el, model, opts = {}) {
   const stage = root.querySelector('.rt-fx1-stage');
   const live = root.querySelector('[data-rt-fx1-live]');
   const playBtn = root.querySelector('[data-rt-fx1-act="play"]');
+  const scroller = root.querySelector('.rt-fx1-scroll');
 
   // ---- stage --------------------------------------------------------------------------------------------------
   function svg() {
@@ -143,6 +146,7 @@ export function mountX1(el, model, opts = {}) {
     steps = plan(mode); next = 0;
     live.textContent = '';
     setState('idle');
+    if (reduced()) finish();
   }
 
   // ---- steps --------------------------------------------------------------------------------------------------
@@ -167,10 +171,11 @@ export function mountX1(el, model, opts = {}) {
 
   function plan(m) {
     const S = [];
-    S.push({ say: `Ops request: promote ${video}; constraint: no minors in ads.`, run: () => activate('ops') });
+    S.push({ say: `Ops request: promote ${video}; constraint: no minors in ads.`, run: () => activate('ops'), focus: () => [$node('ops')] });
     if (m === 'on' && facts.length) S.push({
       say: `${facts.length} declared facts: ${facts.map(t => `${t.s} ${t.p} ${t.o}`).join('; ')}.`,
       run: () => { for (const f of stage.querySelectorAll('[data-rt-fx1-fact]')) f.classList.add('is-on'); },
+      focus: () => [...stage.querySelectorAll('[data-rt-fx1-fact]')],
     });
     let stopped = null;
     x1.forEach((x, i) => {
@@ -179,9 +184,10 @@ export function mountX1(el, model, opts = {}) {
       if (i === 1 && !stopped) S.push({
         say: 'Platform sync: the hot pool flows into the ad candidates automatically.',
         run: () => { activate('sync'); moveToken(center('sync') - TOKEN_W / 2); },
+        focus: () => [$node('sync')],
       });
       if (!stopped) {
-        S.push({ say: face(x, d).say, run: () => { activate(x.id); moveToken(center(x.id) - TOKEN_W / 2); reveal(x, d, false); } });
+        S.push({ say: face(x, d).say, run: () => { activate(x.id); moveToken(center(x.id) - TOKEN_W / 2); reveal(x, d, false); }, focus: () => [$node(x.id)] });
         if (d.stopped) {
           stopped = x;
           const team = reviewerOf(x.agent, x.tool) ?? 'the owning team';
@@ -198,10 +204,11 @@ export function mountX1(el, model, opts = {}) {
               for (const e of stage.querySelectorAll('.rt-fx1-edge')) if (+e.dataset.edge >= k) e.classList.add('is-dim');
               for (const n of stage.querySelectorAll('.rt-fx1-node.is-active')) n.classList.remove('is-active');
             },
+            focus: () => [stage.querySelector('[data-rt-fx1-queue]')],
           });
         }
       } else {
-        S.push({ say: `${face(x, d).say}, independent check`, run: () => reveal(x, d, true) });
+        S.push({ say: `${face(x, d).say}, independent check`, run: () => reveal(x, d, true), focus: () => [$node(x.id)] });
       }
     });
     if (!stopped) S.push({
@@ -211,6 +218,7 @@ export function mountX1(el, model, opts = {}) {
         stage.insertAdjacentHTML('beforeend', `<div class="rt-fx1-outcome" data-rt-fx1-outcome style="left:${OUTCOME.left}px;top:${OUTCOME.top}px">
           <b>Minor-featuring video in paid ads ✗</b><span class="rt-fx1-scripted">scripted outcome</span>${tip('The scenario\'s story of what three allowed calls add up to. The engine computes the three decisions; this outcome card is scripted narrative, not an engine output.')}</div>`);
       },
+      focus: () => [stage.querySelector('[data-rt-fx1-outcome]')],
     });
     return S;
   }
@@ -222,21 +230,54 @@ export function mountX1(el, model, opts = {}) {
     playBtn.textContent = playing ? '❚❚ Pause' : '▶ Play';
     playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
   }
-  function apply() {
+  // Phone widths: keep what the step is about inside the stage's own horizontal scroller (never the page). The step's
+  // focus elements are marked [data-rt-fx1-focus]; a shown queue badge or outcome card stays in the window too.
+  function follow(s) {
+    for (const n of stage.querySelectorAll('[data-rt-fx1-focus]')) n.removeAttribute('data-rt-fx1-focus');
+    const focus = (s?.focus?.() ?? []).filter(Boolean);
+    for (const n of focus) n.setAttribute('data-rt-fx1-focus', '');
+    if (!scroller || scroller.scrollWidth <= scroller.clientWidth) return;
+    const keep = [...focus, stage.querySelector('[data-rt-fx1-queue]'), stage.querySelector('[data-rt-fx1-outcome]')].filter(Boolean);
+    if (!keep.length) return;
+    // Stage coordinates from the elements' own left (the token's or a chip's transition must not skew the target).
+    const lefts = keep.map(n => parseFloat(n.style.left) || 0), rights = keep.map((n, i) => lefts[i] + n.offsetWidth);
+    const a = Math.min(...lefts), b = Math.max(...rights);
+    const base = stage.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft;
+    const left = Math.max(0, Math.min(scroller.scrollWidth - scroller.clientWidth, base + (a + b) / 2 - scroller.clientWidth / 2));
+    scroller.scrollTo({ left, behavior: reduced() ? 'auto' : 'smooth' });
+  }
+  function apply(quiet = false) {
     const s = steps[next++];
     if (!s) return;
     s.run();
-    live.textContent = `Step ${next} of ${steps.length}. ${s.say}`;
+    if (!quiet) { live.textContent = `Step ${next} of ${steps.length}. ${s.say}`; follow(s); }
+  }
+  // The completed run of the selected mode at once, with no timers (reduced motion).
+  function finish() {
+    clearTimeout(timer); timer = null;
+    while (next < steps.length) apply(true);
+    setState('done');
+    const last = steps.at(-1);
+    live.textContent = last ? `End state. ${last.say}` : '';
+    follow(last);
+  }
+  function summary() {
+    const off = x1.every(x => !x.off?.stopped) ? 'all three steps ran and the video reached paid ads (scripted outcome)' : 'a step was stopped';
+    const on = x1.map(x => x.on && `${words(x.agent)} ${x.on.stopped ? x.on.decision : 'ran'}${x.on.rules.length ? ` (rule ${x.on.rules.join(', ')})` : ''}`).filter(Boolean).join('; ');
+    return `Demo finished. Trace only: ${off}. With ontology: ${on}; the later checks are independent.`;
   }
   function tick() {
     timer = null;
     apply();
-    if (next >= steps.length) setState('done'); else timer = setTimeout(tick, STEP_MS);
+    if (next >= steps.length) {
+      setState('done');
+      if (touring && mode === 'on') { touring = false; live.setAttribute('aria-live', 'polite'); live.textContent = summary(); }
+    } else timer = setTimeout(tick, STEP_MS);
   }
   function play() {
     if (state === 'playing') return;
     if (state === 'done') build();
-    if (reduced()) { while (next < steps.length) apply(); setState('done'); return; }
+    if (reduced()) { finish(); return; }
     setState('playing');
     timer = setTimeout(tick, next === 0 ? 250 : STEP_MS / 2);
   }
@@ -255,10 +296,14 @@ export function mountX1(el, model, opts = {}) {
   // The guided demo (T4): Trace only first, then, after a short pause, With ontology. Any button press hands control back
   // to the viewer and ends the tour; reduced motion never starts it.
   let tourTimer = null;
-  function cancelTour() { clearTimeout(tourTimer); tourTimer = null; }
+  function cancelTour() {
+    clearTimeout(tourTimer); tourTimer = null;
+    if (touring) { touring = false; live.setAttribute('aria-live', 'polite'); }
+  }
   function tour() {
     cancelTour();
     if (reduced()) return;
+    touring = true; live.setAttribute('aria-live', 'off');
     setMode('off'); build(); play();
     const wait = () => {
       if (state === 'done') tourTimer = setTimeout(() => { tourTimer = null; setMode('on'); play(); }, TOUR_GAP_MS);

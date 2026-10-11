@@ -56,6 +56,11 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
   const claims = () => p.ev(`${VISIBLE} const c = [...document.querySelectorAll('[data-rt-fx1-claim]')]; return { n: c.length, visible: c.every(vis) };`);
   const decisions = () => p.ev(`return Object.fromEntries([...document.querySelectorAll('[data-rt-fx1-node]')].map(n =>
     [n.dataset.rtFx1Node, [...n.querySelectorAll('[data-rt-fx1-decision]')].map(d => d.dataset.rtFx1Decision)]));`);
+  // Every element intersects the X1 stage scroller's visible rect (phone widths: the story must not play off-screen).
+  const INVIEW = `const sc = document.querySelector('.rt-fx1-scroll').getBoundingClientRect();
+    const inView = el => { const r = el.getBoundingClientRect(); return r.right > sc.left + 1 && r.left < sc.right - 1 && r.width > 0; };`;
+  const framed = () => p.ev(`${INVIEW} const els = [...document.querySelectorAll('[data-rt-fx1-focus],[data-rt-fx1-queue],[data-rt-fx1-outcome]')];
+    return { n: document.querySelectorAll('[data-rt-fx1-focus]').length, out: els.filter(e => !inView(e)).map(e => e.className) };`);
   const overflow = () => p.ev('return document.documentElement.scrollWidth - document.documentElement.clientWidth');
 
   try {
@@ -69,8 +74,14 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
     // T4 guided demo: on first render the block plays Trace only, then switches to With ontology and plays it.
     assert.equal(await p.ev('return document.querySelector("[data-rt-fx1]").dataset.mode'), 'off', 'the demo starts in Trace only');
     assert.equal(await state(), 'playing', 'the demo plays without a click');
+    const liveAttr = () => p.ev('return document.querySelector("[data-rt-fx1-live]").getAttribute("aria-live")');
+    assert.equal(await liveAttr(), 'off', 'the guided demo does not announce each step');
     await until(async () => (await p.ev('const r=document.querySelector("[data-rt-fx1]");return r.dataset.mode+"/"+r.dataset.state')) === 'on/done', 'the demo ends in With ontology, done', 40000);
     assert.deepEqual(await decisions(), want('on'), 'the demo ends on the model decisions with the slice');
+    assert.equal(await liveAttr(), 'polite', 'the live region is polite again after the demo');
+    const sum = await p.ev('return document.querySelector("[data-rt-fx1-live]").textContent');
+    assert.match(sum, /^Demo finished\./, `one summary line at the end of the demo: ${sum}`);
+    for (const x of model.x1) assert.ok(sum.includes(x.on.decision), `summary names ${x.id} ${x.on.decision}`);
 
     for (const width of [1400, 390]) {
       await size(width);
@@ -88,7 +99,7 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
         const extra = await p.ev(`${VISIBLE} const o = document.querySelector('[data-rt-fx1-outcome]');
           return { facts: document.querySelectorAll('[data-rt-fx1-fact]').length,
             factsVisible: [...document.querySelectorAll('[data-rt-fx1-fact]')].every(vis),
-            outcome: vis(o), scripted: vis(o?.querySelector('.rt-fx1-scripted')) && /scripted outcome/.test(o?.textContent ?? ''),
+            outcome: vis(o), scripted: vis(o?.querySelector('.rt-fx1-scripted')) && /scripted outcome/.test(o?.querySelector('.rt-fx1-scripted')?.textContent ?? ''),
             queue: vis(document.querySelector('[data-rt-fx1-queue]')) && /routed to owner · simulated/.test(document.querySelector('[data-rt-fx1-queue]')?.textContent ?? ''),
             indep: document.querySelectorAll('.rt-fx1-indep').length,
             live: document.querySelector('[data-rt-fx1-live]').textContent };`);
@@ -109,6 +120,27 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
         const ov = await overflow();
         assert.ok(ov <= 0, `${width}px ${m}: no horizontal page overflow (${ov}px)`);
       }
+    }
+
+    // Phone width: after each Step and at done, the step's element and any shown queue badge / outcome card sit inside the
+    // stage scroller's visible area (the scroller follows the story; the page does not scroll sideways).
+    await size(390);
+    await sleep(200);
+    for (const m of ['off', 'on']) {
+      await setMode(m === 'off' ? 'on' : 'off'); await setMode(m);
+      assert.equal(await state(), 'idle');
+      for (let i = 0; i < 12 && (await state()) !== 'done'; i++) {
+        await click('[data-rt-fx1-act="step"]');
+        let f;
+        await until(async () => { f = await framed(); return f.n > 0 && f.out.length === 0; }, `390px ${m} step ${i + 1} framed`, 4000)
+          .catch(() => assert.fail(`390px ${m} step ${i + 1}: outside the scroller: ${JSON.stringify(f)}`));
+      }
+      assert.equal(await state(), 'done', `390px ${m}: stepped to done`);
+      if (m === 'off') {
+        const sc = await p.ev(`${VISIBLE} ${INVIEW} const t = document.querySelector('[data-rt-fx1-outcome] .rt-fx1-scripted'); return vis(t) && inView(t);`);
+        assert.equal(sc, true, '390px: the "scripted outcome" marker is visible inside the scroller');
+      }
+      assert.ok((await overflow()) <= 0, `390px ${m}: no page overflow after stepping`);
     }
 
     // The aria-live region announces the decisive step with its rule id.
@@ -141,15 +173,29 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
     await sleep(1500);
     assert.equal(await state(), 'idle', 'the cancelled run does not resume');
 
-    // Reduced motion: Play jumps straight to the end state.
+    // Reduced motion, set before the page loads: the block opens on the guided demo's end state (With ontology, done)
+    // without a click; a mode change shows that mode's end state at once; Replay keeps it done. At 1400 and 390 px.
     await p.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
-    await p.send('Page.reload', { ignoreCache: true });
-    await until(() => p.ev('return !!document.querySelector("#rtFleet[data-ready] [data-rt-fx1]")'), 'X1 block after reload', 30000);
-    for (const m of ['off', 'on']) {
-      await setMode(m);
-      await click('[data-rt-fx1-act="play"]');
-      assert.equal(await state(), 'done', `reduced motion ${m}: done right after Play`);
-      assert.deepEqual(await decisions(), want(m), `reduced motion ${m}: decisions`);
+    for (const width of [1400, 390]) {
+      await size(width);
+      await p.send('Page.reload', { ignoreCache: true });
+      await until(() => p.ev('return !!document.querySelector("#rtFleet[data-ready] [data-rt-fx1]")'), `X1 block, reduced motion, ${width}px`, 30000);
+      const rs = () => p.ev('const r=document.querySelector("[data-rt-fx1]");return r.dataset.mode+"/"+r.dataset.state');
+      assert.equal(await rs(), 'on/done', `${width}px reduced motion: opens With ontology, done, without a click`);
+      assert.deepEqual(await decisions(), want('on'), `${width}px reduced motion: HOLD/BLOCK/BLOCK from model.x1`);
+      assert.deepEqual(await claims(), { n: 2, visible: true }, `${width}px reduced motion: claims visible`);
+      await setMode('off');
+      assert.equal(await rs(), 'off/done', `${width}px reduced motion: Trace only shows its end state at once`);
+      assert.deepEqual(await decisions(), want('off'), `${width}px reduced motion: ran ✓ ×3`);
+      assert.deepEqual(await p.ev(`return [...document.querySelectorAll('[data-rt-fx1-decision]')].map(d => d.textContent)`), model.x1.map(() => 'ran ✓'));
+      const card = await p.ev(`${VISIBLE} ${INVIEW} const o = document.querySelector('[data-rt-fx1-outcome]'); const t = o?.querySelector('.rt-fx1-scripted');
+        return { card: vis(o), marker: vis(t) && /scripted outcome/.test(t?.textContent ?? ''), inView: !!o && inView(o) && inView(t) };`);
+      assert.deepEqual(card, { card: true, marker: true, inView: true }, `${width}px reduced motion: the outcome card and its marker are visible`);
+      await click('[data-rt-fx1-act="replay"]');
+      assert.equal(await rs(), 'off/done', `${width}px reduced motion: Replay keeps it done`);
+      await setMode('on');
+      assert.equal(await rs(), 'on/done', `${width}px reduced motion: back to With ontology, done`);
+      assert.ok((await overflow()) <= 0, `${width}px reduced motion: no page overflow`);
     }
     await p.send('Emulation.setEmulatedMedia', { features: [] });
 
