@@ -41,6 +41,9 @@ function start() {
 
   function mount() {
     if (api) return;
+    // On a loaded page the inline router's hashchange listener runs first and shows the view (rt:view) before
+    // fromHash below has recorded the sub-tab; read it here so a deep link never starts ① on the way.
+    if (pending === undefined) { const sub = subFromHash(location.hash); if (sub !== undefined) pending = sub; }
     model = sxModel();
     const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     const el = id => view.querySelector(`[data-sx-mount="${id}"]`);

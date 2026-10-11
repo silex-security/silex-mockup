@@ -25,7 +25,7 @@ The intended target is an open-source attack-simulation lab (Attack Range is the
 2. **Where the rule holds** (`js/sx-coverage.js`). Role × permission against approval × sensitivity, with a switch for log coverage. Pruned cells are hatched and show the ids of the constraints that rule them out.
    - The six outcomes: caught, missed, false alarm, quiet as proposed, surfaced (alert raised, investigation still required) and silent gap.
    - Candidate findings grouped by (outcome, cause), each with a Replay button.
-3. **Replay one variant** (`js/sx-replay.js`). A picker, the provenance chain, a runtime-graph SVG and a step-by-step timeline. Dropped events are greyed out. The verdict shows the rule result against the proposed outcome, plus two invariant checks: replay digest and observation subset.
+3. **Replay one variant** (`js/sx-replay.js`). A picker, the provenance chain, a runtime-graph SVG and a step-by-step timeline. Dropped events are greyed out. The result card shows the rule result against the proposed outcome, plus two invariant checks: replay digest and observation subset.
 4. **How results are judged** (static, in `index.html`). The method: credibility, effort and coverage, and detection value. Finding a gap and improving detection after a fix are assessed separately, and the generator never judges its own output.
 
 ## Model

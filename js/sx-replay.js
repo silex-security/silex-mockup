@@ -96,7 +96,7 @@ ${edges}${boxes}</svg></div>
   function verdict(x) {
     const res = x.result, ch = checks(values);
     return `<div class="card sx-rp-verdict" data-sx-verdict hidden>
-<h3>Verdict <span class="rt-chip" data-kind="sim">${esc(res.grade)}</span></h3>
+<h3>Rule result vs proposal <span class="rt-chip" data-kind="sim">${esc(res.grade)}</span></h3>
 <dl class="sx-rp-facts">
 <div><dt>Rule ${esc(model.RULE.id)}</dt><dd data-sx-got="${esc(res.got)}">${esc(res.got)}</dd></div>
 <div><dt>Proposed, pending expert review</dt><dd data-sx-want="${esc(x.expected.want)}">${esc(WANT[x.expected.want])}</dd></div>

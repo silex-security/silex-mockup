@@ -80,6 +80,18 @@ test('the Scenario Expansion view: routing, sub-tabs, framing and layout', { tim
     await ev('document.querySelector(\'.nav button[data-view="scenario-expansion"]\').click()');
     assert.equal(await shown(), 'judging', 'returning keeps the sub-tab');
 
+    // A deep link typed on an already-loaded page, before the view's first show, opens its sub-tab without
+    // starting ① on the way (the inline router shows the view before this module reads the hash).
+    await go('#view=overview');
+    await ev(`location.hash = '#view=scenario-expansion&sub=coverage'`);
+    await until(async () => (await shown()) === 'coverage', 'warm &sub=coverage');
+    assert.equal(await ev('return document.querySelector(\'[data-sx="expand"]\').dataset.state'), 'idle', '① was never started');
+
+    // ③'s result card carries no judgement word.
+    await ev(`document.dispatchEvent(new CustomEvent('sx:replay', { detail: { id: ${JSON.stringify(variantId(SEED.values))} } }))`);
+    await until(() => ev('return document.querySelector(\'[data-sx="replay"]\').dataset.state === "done"'), 'seed replay done', 20000);
+    assert.doesNotMatch(await ev('return document.querySelector(\'[data-sx="replay"]\').textContent'), /\bverdict\b/i);
+
     // 390 px: no horizontal page overflow on any sub-tab.
     await size(390, 900);
     await go('#view=scenario-expansion');
