@@ -294,3 +294,8 @@ codex **IMPL-REJECTED**（3 条），claude **IMPL-REJECTED**（1 条）。
 - **MiMo 边界（如实记录）**：本轮 MiMo 执行了一次规则外的 `node -e`，内容是读取 worktree 内公开的 `data/onto-observability.json` 并打印各例子的字段计数，没有越界、没有网络。原因同上：OpenCode 2.0.20 下 `"shell": "ask"` 不生效。以后的 fleet 应把 OpenCode 的 shell 权限视为不可强制，改用沙箱或事后审计。
 - 结果：`node --test tests/site/*.test.mjs` 75/75；探针 44/45（S20 原有失败）；全部子页签 1400/390 px 无横向溢出。
 - 非阻塞（claude）：S45 比计划描述的薄（没有 390 px、键盘、Next），这些由 CI 里的 `rt-subnav.test.mjs` 覆盖；计划“探针迁移”一节的 S45 描述以此为准。
+
+## 代码评审第 2 轮（head `a70a7a3`，rev `92eb9904d9053263`）
+
+codex **IMPL-APPROVED**，claude **IMPL-APPROVED**，**PLANNER (claude): IMPL-APPROVED**。全票通过，进入 D1。
+非阻塞（claude）：600–1000 px 之间三调用的时间线会被压窄，D1 浏览器检查时看一眼 800 px；4 小时浏览器缓存可能让回访者短时间内拿到新旧混合的文件，以后可考虑给模块和 CSS 的 URL 加 `?v=`。
