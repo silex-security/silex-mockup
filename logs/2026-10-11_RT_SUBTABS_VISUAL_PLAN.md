@@ -299,3 +299,11 @@ codex **IMPL-REJECTED**（3 条），claude **IMPL-REJECTED**（1 条）。
 
 codex **IMPL-APPROVED**，claude **IMPL-APPROVED**，**PLANNER (claude): IMPL-APPROVED**。全票通过，进入 D1。
 非阻塞（claude）：600–1000 px 之间三调用的时间线会被压窄，D1 浏览器检查时看一眼 800 px；4 小时浏览器缓存可能让回访者短时间内拿到新旧混合的文件，以后可考虑给模块和 CSS 的 URL 加 `?v=`。
+
+## 部署记录（D1，2026-10-11）
+
+- 在 site-wt 中从 `origin/main`（`4782b78`）开分离 HEAD，`--no-ff` 合并 `subtabs-visual`，得到 `ce1f13c`；合并后的实现 diff 哈希与评审通过的 rev `92eb9904d9053263` 一致；`git push origin HEAD:main`。主工作区与其本地 `main` 未动（另一个会话的未提交改动原样保留；本地 `main` 现落后于 `origin/main`）。
+- CI “Deploy demo.opensilex.ai” 成功。`pages_sync --verify-only`（`silex-mockup-main.json`）：**LIVE MATCHES ce1f13c**，pages.dev 和 demo.opensilex.ai 各 32 个文件。
+- 线上探针（`--base https://demo.opensilex.ai`）：8/9，S21（Learning loop）通过，S20 为原有失败。
+- 真实 Chrome（1306 px）：先用 `fetch(cache:'reload')` 刷新 16 个改动文件再重载。fleet 四个子页签，Cascade 默认选中，X1 引导演示自动播放；`&sub=routing`、`learning&sub=results`、`ontology&sub=s1`、`ontology&sub=ex` 深链接都打开对应子页签；Reality check 显示 0.961 和 0.741；Example runs 时间线横排；页面无横向溢出。Learning 环形动画在后台标签页里停在 Held，原因是浏览器在后台标签页暂停 `requestAnimationFrame`，切到前台后继续播放；headless 测试已验证它会走到 Gate 并结束。
+- 仍需用户决定：demo.opensilex.ai 的 Cloudflare 浏览器缓存 TTL 为 4 小时，回访者在部署后最长 4 小时内可能看到旧版本或新旧文件混合。
