@@ -7,13 +7,13 @@
 .rt-subnav button[aria-selected="true"]{background:#fff;color:var(--ink);border-color:var(--line);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .rt-subnav-n{flex:none;font-size:20px;line-height:1;color:var(--muted)}
 .rt-subnav button[aria-selected="true"] .rt-subnav-n{color:var(--blue2)}
-.rt-subnav-t{display:grid;gap:1px;min-width:0}
+.rt-subnav-t{display:grid;gap:1px;min-width:0;overflow:hidden}
 .rt-subnav-t b{font-size:14px;font-weight:650;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .rt-subnav-t small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rt-subnav-t .rt-chip{font-size:10.5px;padding:1px 7px}
 [data-rt-subpanel][hidden]{display:none}
 .rt-subnav-next{display:flex;justify-content:flex-end;margin:16px 0 0}
 @media (max-width:640px){
-  .rt-subnav button{min-width:132px;padding:7px 10px 7px 8px}
+  .rt-subnav button{flex:0 0 auto;min-width:0;padding:7px 10px 7px 8px}
   .rt-subnav-t small{display:none}
 }

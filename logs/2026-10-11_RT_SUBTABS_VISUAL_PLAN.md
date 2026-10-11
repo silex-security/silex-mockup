@@ -272,3 +272,10 @@ T0 把 `jev-runtime-host.js` 里 `renderLearningEvidence` 的 HTML 生成搬进 
 
 第 3 轮（plan v0.3，sha256 前缀 `21cf6cc93da3`）：codex **PLAN-APPROVED**，claude **PLAN-APPROVED**，**PLANNER (claude): PLAN-APPROVED**。全票通过，进入实现。
 第 3 轮的非阻塞建议，采纳为 planner 的检查项：检查 MiMo 快照时，浏览器侧也不允许 `fetch`/`XMLHttpRequest`/`WebSocket` 或指向非本地来源的资源；回传给 MiMo 的测试结果只含断言行，不含堆栈；代码关卡时确认 `rt-subnav.test.mjs` 同时覆盖“先有待定请求、后来的链接不带 `&sub=`”的情况。
+
+## 实现记录
+
+- T0：`e7dfe80`（planner）。T1 coder-opus（`opus-taskT1-a1`，1 次完成）；T2 coder-sol（`sol-taskT2-a1`，1 次完成）；T3 coder-mimo（`mimo-taskT3-a1..a3`，前两次是它自己测试里的期望写错，模块本身没问题，第 3 次通过）。
+- **MiMo 边界的执行情况（如实记录）**：OpenCode 2.0.20 下 `"shell": "ask"` **没有生效**，MiMo 的 shell 调用不弹窗直接执行。planner 从 OpenCode 会话库逐条审计：全部 shell 调用都是 worktree 内的 `ls`/`grep`、`node --check`、`git status/diff`；全部读取都在 worktree 内；没有运行 `node --test`，没有越界。它的测试由 planner 在三次快照检查后运行（模块无任何 import；测试的静态服务器与 `rt-fleet-map.test.mjs` 逐字相同；唯一偏差是第 31 行用常量路径读取 worktree 内的 `data/onto-observability.json`，判定安全并保留）。
+- **T4 集成（planner）**：MiMo 的 3 个文件从 `subtabs-mimo` 原样取回；`rt-ontology.js` 补上 `sub.bind('ex', runView)`（MiMo 发现的 T0 遗漏）；因此 `rt-onto-run.test.mjs` 中“页面加载后为 idle”的两处断言改为：页面上先等首次显示的那次播放结束再 `reset()`，并另起一个独立挂载检查“挂载本身不启动动画”（断言内容没有放宽）；`css/rt-subnav.css` 修正 390 px 下子页签按钮文字重叠（改为按内容宽度、nav 内部横向滚动）。
+- 结果：`node --test tests/site/*.test.mjs` 75/75；站点探针 44/45（S20 为原有失败，与 main 相同）；三个页签所有子页签在 1400/390 px 下页面无横向溢出。

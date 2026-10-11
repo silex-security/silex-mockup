@@ -72,6 +72,7 @@ async function init() {
       if (m) { mode = m.dataset.ontoModeBtn; render(); }
     });
     render();
+    sub.bind('ex', runView);
   } catch {
     root.innerHTML = '<p class="rt-ref">The ontology results could not be loaded.</p>';
   }

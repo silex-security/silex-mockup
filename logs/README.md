@@ -2,6 +2,16 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-11 — Runtime Observation: sub-tabs inside Agent fleet; pictures for Learning loop and Ontology
+
+- **Why:** the user found the Agent fleet tab too long and asked for clickable sub-tabs by topic, and found Learning loop and Ontology as text-heavy as Agent fleet had been; they asked for animations and pictures there too.
+- **Sub-tabs** (`js/rt-subnav.js`): numbered, keyboard-operable tabs inside a tab, each panel ending in "Next: …". Deep links `#view=runtime-observation&tab=<tab>&sub=<key>`. Each animation plays once, the first time its sub-tab is really on screen, and pauses when hidden; it never plays under reduced motion.
+  - **Agent fleet:** ① Cascade demo · ② Agents & teams · ③ Who reviews (dots now fly from a local row of agents) · ④ All scenarios (+ tables). The panel goes from 2877 px tall to at most about 1085 px per sub-tab at 1400 px wide.
+  - **Learning loop:** ① How it learns, an *Illustration* ring where the held-action card stops at Gate and Promote is dashed "Future work" · ② Measured results, with before → after bars (recall with 95 % CI whiskers; AUROC on a shared 0–1 axis with a 0.5 coin-flip line), KEEP/DISCARD gate cards and the reality check (goal_deviation AUROC, call level vs run level, shown as different units, not a before → after).
+  - **Ontology:** ① How types help, three real held-out runs (caught by both, alert saved, alert lost), showing only fields the data has · ② Pre-registered test, with independent stacked bars on one zero-based scale (no funnel morph), precision waffles and recall bars · ③ Example runs, as a call timeline with the alert chain.
+- **Honesty notes stay visible** on their own sub-tab (tested at 1400 and 390 px): Illustration vs Measured, benchmark labels not customer reviewers, Future work, call vs run level, No judge model, the AgentDojo-only scope, "Observed, not a guarantee", and the example-selection rule.
+- **Built by** a reviewed fleet: plan v0.3, approved unanimously after three rounds. Plan, review rounds and deploy record: [2026-10-11_RT_SUBTABS_VISUAL_PLAN.md](2026-10-11_RT_SUBTABS_VISUAL_PLAN.md).
+
 ## 2026-10-10 — Runtime Observation › Agent fleet: pictures and a guided demo instead of long text
 
 - **Why:** the user found the Agent fleet tab too wordy and asked for pictures or a demo animation to explain the flow, less body text, and background moved into hover text.
