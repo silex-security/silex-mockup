@@ -212,3 +212,8 @@ mountGrid(el, model, { tip, run })
 - `follow()` 依赖 `style.left`（claude）。
 
 **不在本次评审范围、未合入的改动**：主工作区里有另一个会话在 23:33 做的修改（`tests/site/ontology-card/browser.mjs`、`run-site-probes.mjs`、新增的 `chrome-reaper.mjs`），本次没有提交，也没有回退。
+
+**CI 失败与修复（D1）**：
+- 合并提交 b9c1d8e 推送后，GitHub Actions 运行 38118627811 在测试阶段失败，因此没有部署：结局卡片有 0.4 s 的弹出动画，初始透明度为 0，CI 恰好在第 0 帧取样。
+- 修复只改测试：先等终态卡片可见、且动画播完，再检查可见性。本地用延迟动画复现了这个问题：修复前失败，修复后通过。
+- 确认轮 r3（针对 a6b79e8）：codex **IMPL-APPROVED**，claude **IMPL-APPROVED**，**PLANNER (claude): IMPL-APPROVED**。
