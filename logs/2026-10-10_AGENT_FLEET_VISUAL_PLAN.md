@@ -217,3 +217,12 @@ mountGrid(el, model, { tip, run })
 - 合并提交 b9c1d8e 推送后，GitHub Actions 运行 38118627811 在测试阶段失败，因此没有部署：结局卡片有 0.4 s 的弹出动画，初始透明度为 0，CI 恰好在第 0 帧取样。
 - 修复只改测试：先等终态卡片可见、且动画播完，再检查可见性。本地用延迟动画复现了这个问题：修复前失败，修复后通过。
 - 确认轮 r3（针对 a6b79e8）：codex **IMPL-APPROVED**，claude **IMPL-APPROVED**，**PLANNER (claude): IMPL-APPROVED**。
+
+## 部署记录（D1，2026-10-11 UTC）
+
+- main 推进到 `2e72f5e`（b9c1d8e 合并 + a6b79e8 CI 修复 + 记录），GitHub Actions 运行 38119062270 成功。
+- `pages_sync --verify-only`：**LIVE MATCHES 2e72f5e**，pages.dev 和 demo.opensilex.ai 共校验 24 个文件。三个新模块的线上 sha256 与仓库一致。
+- 在真实 Chrome 中清除这些文件的缓存后打开深链接：fleet 页签自动播放演示，最后停在 on/done，决策为 HOLD、BLOCK、BLOCK，并播报了 “Demo finished …” 总结；点阵 10 个点，矩阵 11 行，说明文字已是修正后的版本。
+- **观察到的小问题**（与 codex 和 claude 的非阻塞建议同类）：Chrome 窗口约 1300 px 宽时，演示结束后舞台略向右滚，Ops request 和左侧的事实芯片被裁掉一小截。
+- 所有席位均设为 `left`；MiMo 的 worktree 已删除（分支 `fleet-visual-mimo` 保留在本地）；账本检查通过。
+- **老访客问题**：在 Cloudflare 的 Browser Cache TTL 设置修改之前，回访用户最多 4 小时内可能看到旧版本。
