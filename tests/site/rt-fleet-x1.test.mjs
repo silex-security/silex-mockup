@@ -96,6 +96,10 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
         await waitDone(`${width}px ${m} done`);
         assert.deepEqual(await decisions(), want(m), `${width}px ${m}: node decisions equal model.x1 ${m}`);
         assert.deepEqual(await claims(), { n: 2, visible: true }, `${width}px ${m} done: both claims visible`);
+        // The end-state card pops in with a short CSS animation from opacity 0; a slow runner (CI) can sample it mid-way, so
+        // wait until the element is shown and its animations have finished before checking visibility.
+        await until(() => p.ev(`${VISIBLE} const e = document.querySelector('${m === 'off' ? '[data-rt-fx1-outcome]' : '[data-rt-fx1-queue]'}');
+          return !!e && vis(e) && e.getAnimations({ subtree: true }).every(a => a.playState === 'finished');`), `${width}px ${m}: end-state card settled`, 8000);
         const extra = await p.ev(`${VISIBLE} const o = document.querySelector('[data-rt-fx1-outcome]');
           return { facts: document.querySelectorAll('[data-rt-fx1-fact]').length,
             factsVisible: [...document.querySelectorAll('[data-rt-fx1-fact]')].every(vis),
