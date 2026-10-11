@@ -136,24 +136,34 @@ function creatorFacts(slice, tool) {
 
   let verification_short = null;
   if (name === 'help.update_login_email') {
-    const session = levelOf(firstOf(T(`session:${args.session_id}`, 'VERIFICATION_LEVEL')));
-    const required = levelOf(firstOf(T(`tool:${name}`, 'REQUIRES_VERIFICATION')));
-    verification_short = session < required;
-    if (verification_short) track('verification_short', [
-      ...triplesOf(`session:${args.session_id}`, 'VERIFICATION_LEVEL'),
-      ...triplesOf(`tool:${name}`, 'REQUIRES_VERIFICATION'),
-    ]);
+    const session = firstOf(T(`session:${args.session_id}`, 'VERIFICATION_LEVEL'));
+    const required = firstOf(T(`tool:${name}`, 'REQUIRES_VERIFICATION'));
+    // Open world (§3): null unless both levels are actually present.
+    if (session != null && required != null) {
+      verification_short = levelOf(session) < levelOf(required);
+      if (verification_short) track('verification_short', [
+        ...triplesOf(`session:${args.session_id}`, 'VERIFICATION_LEVEL'),
+        ...triplesOf(`tool:${name}`, 'REQUIRES_VERIFICATION'),
+      ]);
+    }
   }
 
   let payout_scope_excluded = null;
   if (name === 'creator.update_payout_account') {
     const requester = args.requester, creator_id = args.creator_id;
-    const manages = T(requester, 'MANAGES').includes(`creator:${creator_id}`);
-    const hasPayout = T(requester, 'HAS_SCOPE').includes('scope:payout');
-    payout_scope_excluded = requester !== creator_id && manages && !hasPayout;
-    if (payout_scope_excluded) track('payout_scope_excluded', [
-      ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'HAS_SCOPE'),
-    ]);
+    if (requester === creator_id) {
+      payout_scope_excluded = false;
+    } else if (T(requester, 'MANAGES').includes(`creator:${creator_id}`)) {
+      if (T(requester, 'HAS_SCOPE').includes('scope:payout')) {
+        payout_scope_excluded = false;
+      } else if (T(requester, 'COMPLETE_FOR').includes('HAS_SCOPE')) {
+        // The scope list is declared complete, so the absence of scope:payout is affirmative (§2/§3).
+        payout_scope_excluded = true;
+        track('payout_scope_excluded', [
+          ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'COMPLETE_FOR'), ...triplesOf(requester, 'HAS_SCOPE'),
+        ]);
+      }
+    }
   }
 
   let subject_scope_missing = null;
@@ -161,22 +171,40 @@ function creatorFacts(slice, tool) {
     const requester = args.requester, creator_id = args.creator_id;
     const manages = T(requester, 'MANAGES').includes(`creator:${creator_id}`);
     const hasAnalytics = T(requester, 'HAS_SCOPE').includes('scope:analytics');
-    subject_scope_missing = requester !== creator_id && !(manages && hasAnalytics);
-    if (subject_scope_missing) track('subject_scope_missing', [
-      ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'HAS_SCOPE'),
-    ]);
+    if (requester === creator_id || (manages && hasAnalytics)) {
+      subject_scope_missing = false;
+    } else {
+      // Missing relations are not denial: only a declared-complete MANAGES + HAS_SCOPE list proves it (§2/§3).
+      const complete = T(requester, 'COMPLETE_FOR');
+      if (complete.includes('MANAGES') && complete.includes('HAS_SCOPE')) {
+        subject_scope_missing = true;
+        track('subject_scope_missing', [
+          ...triplesOf(requester, 'COMPLETE_FOR'), ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'HAS_SCOPE'),
+        ]);
+      }
+    }
   }
 
   let license_invalid = null;
   if (name === 'studio.use_asset') {
-    const licenses = T(`asset:${args.asset_id}`, 'LICENSED_UNDER');
-    const valid = licenses.some(lic =>
-      T(lic, 'VALID_IN').includes(`region:${args.region}`) && T(lic, 'EXPIRES').every(afterExpiry));
-    license_invalid = !valid;
-    if (license_invalid) track('license_invalid', [
-      ...triplesOf(`asset:${args.asset_id}`, 'LICENSED_UNDER'),
-      ...licenses.flatMap(lic => [...triplesOf(lic, 'VALID_IN'), ...triplesOf(lic, 'EXPIRES')]),
-    ]);
+    const asset = `asset:${args.asset_id}`, region = `region:${args.region}`;
+    const licenses = T(asset, 'LICENSED_UNDER');
+    const valid = lic => T(lic, 'VALID_IN').includes(region) && T(lic, 'EXPIRES').every(afterExpiry);
+    // Affirmatively invalid: an expiry that has passed, or a region the declared-complete list omits (§3).
+    const invalid = lic => T(lic, 'EXPIRES').some(d => as_of != null && String(d) <= String(as_of))
+      || (!T(lic, 'VALID_IN').includes(region) && T(lic, 'COMPLETE_FOR').includes('VALID_IN'));
+    if (licenses.some(valid)) {
+      license_invalid = false;
+    } else if (licenses.length > 0 && licenses.every(invalid)) {
+      license_invalid = true;
+      track('license_invalid', [
+        ...triplesOf(asset, 'LICENSED_UNDER'),
+        ...licenses.flatMap(lic => [...triplesOf(lic, 'VALID_IN'), ...triplesOf(lic, 'EXPIRES'), ...triplesOf(lic, 'COMPLETE_FOR')]),
+      ]);
+    } else if (licenses.length === 0 && T(asset, 'COMPLETE_FOR').includes('LICENSED_UNDER')) {
+      license_invalid = true;
+      track('license_invalid', triplesOf(asset, 'COMPLETE_FOR'));
+    }
   }
 
   let sensitive_event_unapproved = null;
@@ -195,48 +223,74 @@ function creatorFacts(slice, tool) {
 
   let cumulative_over_limit = null;
   if (name === 'help.refund_coins') {
-    const cards = T(`account:${args.account_id}`, 'PAID_WITH');
-    let over = false; const ts = [];
-    for (const card of cards) {
-      const accounts = subjectsWith('PAID_WITH', card);
-      let sum = 0;
-      for (const acc of accounts) for (const v of T(acc, 'REFUNDED_USD')) sum += Number(v) || 0;
-      const limit = Number(firstOf(T(card, 'LIMIT_USD')));
-      if (Number.isFinite(limit) && sum + Number(args.amount_usd) > limit) over = true;
-      ts.push(...triplesOf(`account:${args.account_id}`, 'PAID_WITH'),
-        ...accounts.flatMap(a => triplesOf(a, 'REFUNDED_USD')), ...triplesOf(card, 'LIMIT_USD'));
+    // null when no card or no limit is present (§3).
+    const cards = T(`account:${args.account_id}`, 'PAID_WITH').filter(card => T(card, 'LIMIT_USD').length > 0);
+    if (cards.length > 0) {
+      let over = false; const ts = [];
+      for (const card of cards) {
+        const accounts = subjectsWith('PAID_WITH', card);
+        let sum = 0;
+        for (const acc of accounts) for (const v of T(acc, 'REFUNDED_USD')) sum += Number(v) || 0;
+        const limit = Number(firstOf(T(card, 'LIMIT_USD')));
+        if (Number.isFinite(limit) && sum + Number(args.amount_usd) > limit) over = true;
+        ts.push(...triplesOf(`account:${args.account_id}`, 'PAID_WITH'),
+          ...accounts.flatMap(a => triplesOf(a, 'REFUNDED_USD')), ...triplesOf(card, 'LIMIT_USD'));
+      }
+      cumulative_over_limit = over;
+      if (over) track('cumulative_over_limit', ts);
     }
-    cumulative_over_limit = over;
-    if (over) track('cumulative_over_limit', ts);
   } else if (name === 'studio.buy_promotion') {
-    const budgets = T(`team:${args.team}`, 'CHARGES');
-    let over = false; const ts = [];
-    for (const b of budgets) {
-      const spent = Number(firstOf(T(b, 'SPENT_USD')));
-      const limit = Number(firstOf(T(b, 'LIMIT_USD')));
-      if (Number.isFinite(spent) && Number.isFinite(limit) && spent + Number(args.amount_usd) > limit) over = true;
-      ts.push(...triplesOf(`team:${args.team}`, 'CHARGES'), ...triplesOf(b, 'SPENT_USD'), ...triplesOf(b, 'LIMIT_USD'));
+    // null when the spent or limit figure is missing (§3).
+    const budgets = T(`team:${args.team}`, 'CHARGES')
+      .filter(b => T(b, 'SPENT_USD').length > 0 && T(b, 'LIMIT_USD').length > 0);
+    if (budgets.length > 0) {
+      let over = false; const ts = [];
+      for (const b of budgets) {
+        const spent = Number(firstOf(T(b, 'SPENT_USD')));
+        const limit = Number(firstOf(T(b, 'LIMIT_USD')));
+        if (Number.isFinite(spent) && Number.isFinite(limit) && spent + Number(args.amount_usd) > limit) over = true;
+        ts.push(...triplesOf(`team:${args.team}`, 'CHARGES'), ...triplesOf(b, 'SPENT_USD'), ...triplesOf(b, 'LIMIT_USD'));
+      }
+      cumulative_over_limit = over;
+      if (over) track('cumulative_over_limit', ts);
     }
-    cumulative_over_limit = over;
-    if (over) track('cumulative_over_limit', ts);
   }
+
+  // Open world (§3): ad ineligibility is affirmative — a declared EXCLUDES policy the video features, or a
+  // declared-complete ELIGIBLE_FOR list without advertising. A missing triple leaves it unknown (null).
+  const adIneligibleFor = video => {
+    const excluded = triples.filter(t => t && t.s === 'purpose:advertising' && t.p === 'EXCLUDES');
+    const featured = T(video, 'FEATURES');
+    const excludedHit = excluded.filter(t => featured.includes(t.o));
+    if (excludedHit.length) return { value: true, used: [...triplesOf(video, 'FEATURES'), ...excludedHit] };
+    const eligible = T(video, 'ELIGIBLE_FOR');
+    if (T(video, 'COMPLETE_FOR').includes('ELIGIBLE_FOR') && !eligible.includes('purpose:advertising')) {
+      return { value: true, used: [...triplesOf(video, 'COMPLETE_FOR'), ...triplesOf(video, 'ELIGIBLE_FOR')] };
+    }
+    if (eligible.includes('purpose:advertising')) return { value: false, used: [] };
+    return { value: null, used: [] };
+  };
 
   let ad_ineligible = null;
   if (name === 'ads.select_creative' || name === 'ads.launch_campaign') {
-    const video = `video:${args.video_id}`;
-    ad_ineligible = !T(video, 'ELIGIBLE_FOR').includes('purpose:advertising');
-    if (ad_ineligible) track('ad_ineligible', triplesOf(video, 'ELIGIBLE_FOR'));
+    const r = adIneligibleFor(`video:${args.video_id}`);
+    ad_ineligible = r.value;
+    if (r.value === true) track('ad_ineligible', r.used);
   }
 
   let hot_pool_reaches_ads_ineligible = null;
   if (name === 'promo.add_to_hot_pool') {
-    const pool = `pool:${args.pool_id}`, video = `video:${args.video_id}`;
-    const syncsToAds = T(pool, 'SYNCS_TO').includes('pool:ad-candidates');
-    const notAd = !T(video, 'ELIGIBLE_FOR').includes('purpose:advertising');
-    hot_pool_reaches_ads_ineligible = syncsToAds && notAd;
-    if (hot_pool_reaches_ads_ineligible) track('hot_pool_reaches_ads_ineligible', [
-      ...triplesOf(pool, 'SYNCS_TO'), ...triplesOf(video, 'ELIGIBLE_FOR'),
-    ]);
+    const pool = `pool:${args.pool_id}`;
+    const syncs = T(pool, 'SYNCS_TO').includes('pool:ad-candidates');
+    const r = adIneligibleFor(`video:${args.video_id}`);
+    if (syncs && r.value === true) {
+      hot_pool_reaches_ads_ineligible = true;
+      track('hot_pool_reaches_ads_ineligible', [...triplesOf(pool, 'SYNCS_TO'), ...r.used]);
+    } else if (r.value === false) {
+      hot_pool_reaches_ads_ineligible = false;
+    } else if (!syncs && T(pool, 'COMPLETE_FOR').includes('SYNCS_TO')) {
+      hot_pool_reaches_ads_ineligible = false;
+    }
   }
 
   return {

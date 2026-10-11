@@ -32,7 +32,9 @@
     "MEMBER_OF": { "domain": ["account"], "range": ["cluster"] },
     "VERIFICATION_LEVEL": { "domain": ["session"], "range": ["literal"] },
     "REQUIRES_VERIFICATION": { "domain": ["action"], "range": ["literal"] },
-    "HAZARD_FOR": { "domain": ["content", "asset"], "range": ["purpose"] }
+    "HAZARD_FOR": { "domain": ["content", "asset"], "range": ["purpose"] },
+    "EXCLUDES": { "domain": ["purpose"], "range": ["subject"] },
+    "COMPLETE_FOR": { "domain": ["party", "account", "session", "instrument", "transaction", "content", "asset", "license", "record", "topic", "cluster", "event", "task", "budget", "team", "pool", "purpose", "region", "scope", "action"], "range": ["literal"] }
   },
   "teams": [
     { "id": "team:trust-safety", "label": "Trust & Safety" },
@@ -68,6 +70,7 @@
     { "id": "pack:Pool", "label": "Pool", "kind": "pool", "subClassOf": "core:core-resource" },
     { "id": "pack:Purpose", "label": "Purpose", "kind": "purpose", "subClassOf": "core:core-purpose" },
     { "id": "pack:Region", "label": "Region", "kind": "region", "subClassOf": "core:core-resource" },
+    { "id": "pack:Subject", "label": "Subject", "kind": "subject", "subClassOf": "core:core-human-user" },
     { "id": "pack:Scope", "label": "Scope", "kind": "scope", "subClassOf": "core:core-authorization-scope" },
     { "id": "pack:ReviewableAction", "label": "Reviewable action", "kind": "action", "subClassOf": "core:core-request" },
     { "id": "pack:ActionPushTrend", "label": "Push trend to homepage", "kind": "action", "subClassOf": "pack:ReviewableAction" },
@@ -100,6 +103,7 @@
     { "s": "pack:Account", "p": "MEMBER_OF", "o": "pack:AccountCluster", "grade": "inferred" },
     { "s": "pack:Video", "p": "FEATURES", "o": "pack:Creator", "grade": "declared" },
     { "s": "pack:Asset", "p": "HAZARD_FOR", "o": "pack:Purpose", "grade": "inferred" },
+    { "s": "pack:Purpose", "p": "EXCLUDES", "o": "pack:Subject", "grade": "declared" },
     { "s": "pack:ActionPushTrend", "p": "OWNED_BY_TEAM", "o": "team:trust-safety", "grade": "declared" },
     { "s": "pack:ActionHotPool", "p": "OWNED_BY_TEAM", "o": "team:trust-safety", "grade": "declared" },
     { "s": "pack:ActionSelectCreative", "p": "OWNED_BY_TEAM", "o": "team:trust-safety", "grade": "declared" },

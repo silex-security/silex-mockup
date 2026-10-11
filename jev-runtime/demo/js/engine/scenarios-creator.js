@@ -63,6 +63,8 @@ const eligible881 = () => [
 const ineligible207 = [
   { s: 'video:V-207', p: 'ELIGIBLE_FOR', o: 'purpose:publish', grade: 'declared' },
   { s: 'video:V-207', p: 'FEATURES', o: 'subject:minor', grade: 'declared' },
+  // The declared policy that makes the video affirmatively ad-ineligible (open world, CREATOR_CONTRACT.md §2).
+  { s: 'purpose:advertising', p: 'EXCLUDES', o: 'subject:minor', grade: 'declared' },
 ];
 const hotPoolSync = { s: 'pool:hot', p: 'SYNCS_TO', o: 'pool:ad-candidates', grade: 'declared' };
 
@@ -190,6 +192,8 @@ export const CREATOR_SCENARIOS = Object.freeze([
         { s: 'agency:AG-77', p: 'MANAGES', o: 'creator:CR-204', grade: 'declared' },
         { s: 'agency:AG-77', p: 'HAS_SCOPE', o: 'scope:analytics', grade: 'declared' },
         { s: 'agency:AG-77', p: 'HAS_SCOPE', o: 'scope:content', grade: 'declared' },
+        // The scope list is declared complete, so the missing payout scope is affirmative (§2/§3).
+        { s: 'agency:AG-77', p: 'COMPLETE_FOR', o: 'HAS_SCOPE', grade: 'declared' },
       ]),
       label: lbl('BLOCK', 'rule') },
   ]),
@@ -209,7 +213,11 @@ export const CREATOR_SCENARIOS = Object.freeze([
     root('invoke_agent creator-desk', 'A creator asks for the performance analytics of another creator.'),
     { kind: 'execute_tool', boundary: 'pre_tool', name: 'creator.get_creator_analytics',
       tool: { name: 'creator.get_creator_analytics', impact: 'read', args: { requester: 'creator:CR-512', creator_id: 'CR-311' } },
-      context: sl('2026-10-10', []),
+      // No MANAGES / HAS_SCOPE triples: the requester declares those lists complete and empty (§2/§3).
+      context: sl('2026-10-10', [
+        { s: 'creator:CR-512', p: 'COMPLETE_FOR', o: 'MANAGES', grade: 'declared' },
+        { s: 'creator:CR-512', p: 'COMPLETE_FOR', o: 'HAS_SCOPE', grade: 'declared' },
+      ]),
       label: lbl('BLOCK', 'rule') },
   ]),
 
