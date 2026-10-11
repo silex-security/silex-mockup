@@ -1,1 +1,76 @@
-/* Runtime Observation · Agent fleet, block E: the scenario matrix (logs/2026-10-10_AGENT_FLEET_VISUAL_PLAN.md). Owner: coder-mimo (T3). */
+/* Runtime Observation · Agent fleet, block E: the scenario matrix (logs/2026-10-10_AGENT_FLEET_VISUAL_PLAN.md, row E).
+   Owner: coder-mimo (T3). Only the site's own CSS variables; every class is prefixed rt-fgrid-*, and the block reuses
+   .card and .rt-chip[data-kind]. Colour never carries meaning alone: a badge is also named for screen readers and the
+   rows that change are also labelled "differs" in text. Everything is scoped under .rt-fgrid so the module keeps its
+   own look whatever order the stylesheets load in. */
+
+.rt-fgrid{display:grid;gap:12px;min-width:0}
+.rt-fgrid h3{margin:0;font-size:16px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;letter-spacing:-.01em}
+.rt-fgrid .rt-plain{margin:0}
+.rt-fgrid .rt-fgrid-note{font-size:12px}
+
+/* The table: a header row and one row per scenario, both on the same six columns. minmax(0,…) everywhere, so a row can
+   never push the page sideways — the badges wrap inside their cell instead. */
+.rt-fgrid .rt-fgrid-table{position:relative;display:grid;gap:5px;min-width:0}
+.rt-fgrid .rt-fgrid-head,.rt-fgrid .rt-fgrid-row{
+  display:grid;gap:6px 10px;align-items:center;
+  grid-template-columns:minmax(0,1.35fr) repeat(4,minmax(0,1fr)) 46px;min-width:0}
+.rt-fgrid .rt-fgrid-head{padding:0 10px 2px;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.rt-fgrid .rt-fgrid-hcell{min-width:0}
+
+.rt-fgrid .rt-fgrid-row{padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:transparent}
+.rt-fgrid .rt-fgrid-row.rt-fgrid-differs{background:var(--soft);box-shadow:inset 3px 0 0 var(--blue)}
+.rt-fgrid .rt-fgrid-label{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;min-width:0}
+.rt-fgrid .rt-fgrid-key{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--blue2)}
+.rt-fgrid .rt-fgrid-name{font-size:13.5px;font-weight:650;color:var(--ink)}
+.rt-fgrid .rt-fgrid-agent{flex-basis:100%;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.rt-fgrid .rt-fgrid-flag{
+  font-size:10.5px;font-weight:700;color:var(--blue2);background:var(--lav);border-radius:99px;padding:1px 7px;white-space:nowrap}
+
+/* A cell: its column caption (only when the row stacks) and the sequence of calls. */
+.rt-fgrid .rt-fgrid-cell{display:block;min-width:0}
+.rt-fgrid .rt-fgrid-cap{display:none;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}
+.rt-fgrid .rt-fgrid-seq{display:flex;flex-wrap:wrap;align-items:center;gap:3px 4px;min-width:0}
+.rt-fgrid .rt-fgrid-step{display:inline-flex;align-items:center;gap:2px}
+.rt-fgrid .rt-fgrid-arrow{color:var(--muted);font-size:11px;line-height:1}
+.rt-fgrid .rt-fgrid-empty{color:var(--muted)}
+
+/* One call: a round .rt-chip carrying the decision's icon and its accessible name. */
+.rt-fgrid .rt-fgrid-call{
+  display:inline-grid;place-items:center;width:24px;height:24px;padding:0;border-radius:50%;
+  font-size:12.5px;line-height:1;letter-spacing:0;text-transform:none;border:1px solid transparent;flex:none}
+.rt-fgrid .rt-fgrid-call[data-kind="ran"]{background:var(--green-bg);color:var(--green);border-color:var(--green)}
+.rt-fgrid .rt-fgrid-call[data-kind="held"]{background:var(--amber-bg);color:var(--amber);border-color:var(--amber)}
+.rt-fgrid .rt-fgrid-call[data-kind="blocked"]{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.rt-fgrid .rt-fgrid-call[data-kind="review"]{background:var(--lav);color:var(--blue2);border-color:var(--blue2)}
+.rt-fgrid .rt-fgrid-step .rt-tip{width:15px;height:15px;font-size:9px;margin-left:1px}
+
+/* ▶ plays the row in the Scenarios tab. */
+.rt-fgrid .rt-fgrid-playcell{justify-self:end}
+.rt-fgrid .rt-fgrid-btn{
+  appearance:none;width:32px;height:32px;padding:0;border-radius:50%;border:1px solid var(--line);
+  background:var(--lav);color:var(--blue2);font:inherit;font-size:11px;line-height:1;cursor:pointer;
+  display:inline-grid;place-items:center;transition:box-shadow .12s,border-color .12s}
+.rt-fgrid .rt-fgrid-btn:hover{border-color:var(--blue);box-shadow:var(--shadow)}
+.rt-fgrid .rt-fgrid-btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* Entrance: a short fade-in per row, staggered. mountGrid only adds .rt-fgrid-animate when motion is welcome, and the
+   media query is the second lock, so prefers-reduced-motion opens the block straight at its end state. */
+@keyframes rt-fgrid-in{from{opacity:0}to{opacity:1}}
+.rt-fgrid.rt-fgrid-animate .rt-fgrid-row{animation:rt-fgrid-in .4s ease both;animation-delay:calc(var(--rt-fgrid-i,0) * 45ms)}
+@media (prefers-reduced-motion:reduce){
+  .rt-fgrid.rt-fgrid-animate .rt-fgrid-row{animation:none}
+  .rt-fgrid .rt-fgrid-btn{transition:none}
+}
+
+/* Narrow screens: the header row stays for screen readers only, and each row stacks into a small card — a label with
+   its ▶, then the four cells, two by two, each captioned. No horizontal page overflow at 390 px. */
+@media (max-width:860px){
+  .rt-fgrid .rt-fgrid-head{
+    position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  .rt-fgrid .rt-fgrid-row{grid-template-columns:minmax(0,1fr) auto;gap:8px 10px}
+  .rt-fgrid .rt-fgrid-label{grid-column:1;grid-row:1}
+  .rt-fgrid .rt-fgrid-playcell{grid-column:2;grid-row:1}
+  .rt-fgrid .rt-fgrid-cap{display:block}
+  .rt-fgrid .rt-fgrid-cell{grid-row:auto}
+}
