@@ -6,15 +6,20 @@ export function mountMap(el, model, opts = {}) {
   const doc = el.ownerDocument, win = doc.defaultView;
   const tip = opts.tip ?? (() => '');
   const teams = [...new Set(model.fleet.map(row => row.team))];
+  // opts.routeEl (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md): the routing block renders into its own sub-tab, with a row of
+  // the agents its dots fly from; without it, both blocks share el and the dots fly from the fleet's agent cards.
+  const routeEl = opts.routeEl ?? null;
   const details = dot => `${dot.scenario} · ${dot.tool} · ${dot.decision} by ${dot.rule} → ${dot.team}`;
   el.innerHTML = `<section class="card rt-fmap" data-rt-fmap>
     <div class="rt-fmap-heading"><h3>The fleet</h3><span class="rt-chip" data-kind="sim">Authored configuration</span>
     ${tip('Reviewers follow <b>OWNED_BY_TEAM</b> in the candidate <a href="swm/data/packs/creator-platform.json" target="_blank" rel="noopener">Creator Platform Pack</a>, outside the site’s coverage figures.')}</div>
     <div class="rt-fmap-lanes">${teams.map(team => `<section class="rt-fmap-lane"><h4>${esc(team)}</h4><div class="rt-fmap-agents">${model.fleet.filter(row => row.team === team).map(row => `<article class="rt-fmap-agent" data-rt-fmap-agent="${esc(row.agent)}"><h4>${esc(row.agent)}</h4><div class="rt-fmap-tools">${row.tools.map(tool => `<span class="rt-fmap-tool" data-impact="${esc(tool.impact)}"><span>${esc(tool.name)}</span><b>${esc(tool.impact)}</b>${tip(tool.reviewer ? `Impact: ${esc(tool.impact)}; held or blocked calls go to ${esc(tool.reviewer)}.` : `Impact: ${esc(tool.impact)}; no reviewer (read-only, fails open).`)}</span>`).join('')}</div></article>`).join('')}</div></section>`).join('')}</div>
   </section>
-  <section class="card rt-froute" data-rt-froute data-state="idle">
+`;
+  const routeHtml = `  <section class="card rt-froute" data-rt-froute data-state="idle">
     <div class="rt-fmap-heading"><h3>Who reviews what</h3><div class="rt-froute-controls"><button type="button" class="rt-froute-play">▶ Play</button><button type="button" class="rt-froute-replay">↺ Replay</button></div></div>
     <span class="rt-chip rt-froute-count-chip" data-kind="sim">Scenario counts, computed by the engine, not measurements</span>
+    ${routeEl ? `<div class="rt-froute-src" aria-label="Agents whose calls were stopped">${[...new Set(model.dots.map(dot => dot.agent))].map(agent => `<span class="rt-froute-srcagent" data-rt-froute-src="${esc(agent)}">${esc(agent)}</span>`).join('')}</div>` : ''}
     <div class="rt-froute-panels"><section class="rt-froute-panel"><h4>With the ontology slice <strong data-rt-froute-total-on>${esc(model.queues.on.total)}</strong></h4>
       ${Object.entries(model.queues.on.byTeam).map(([team, count]) => `<section class="rt-froute-bucket"><h5>${esc(team)} <strong>${esc(count)}</strong></h5><div class="rt-froute-dots">${model.dots.map((dot, index) => dot.team === team ? `<button type="button" tabindex="0" class="rt-froute-dot rt-tip" data-rt-fdot="${index}" aria-label="${esc(details(dot))}" aria-expanded="false"><span aria-hidden="true">●</span><span class="rt-tip-body" hidden>${esc(details(dot))}</span></button>` : '').join('')}</div></section>`).join('')}
     </section><section class="rt-froute-panel"><h4>Trace only <strong data-rt-froute-total-off>${esc(model.queues.off.total)}</strong></h4>
@@ -23,12 +28,15 @@ export function mountMap(el, model, opts = {}) {
     <p class="rt-froute-claim" data-rt-froute-claim>Routed to the team that owns that kind of action · simulated, no tickets are created</p>
     <p class="rt-froute-status" role="status" aria-live="polite">Review buckets shown</p>
   </section>`;
-  const route = el.querySelector('[data-rt-froute]');
-  const playButton = el.querySelector('.rt-froute-play');
-  const replayButton = el.querySelector('.rt-froute-replay');
-  const status = el.querySelector('.rt-froute-status');
-  const dots = [...el.querySelectorAll('[data-rt-fdot]')];
-  const agents = new Map([...el.querySelectorAll('[data-rt-fmap-agent]')].map(node => [node.dataset.rtFmapAgent, node]));
+  if (routeEl) routeEl.innerHTML = routeHtml; else el.insertAdjacentHTML('beforeend', routeHtml);
+  const box = routeEl ?? el;
+  const route = box.querySelector('[data-rt-froute]');
+  const playButton = box.querySelector('.rt-froute-play');
+  const replayButton = box.querySelector('.rt-froute-replay');
+  const status = box.querySelector('.rt-froute-status');
+  const dots = [...box.querySelectorAll('[data-rt-fdot]')];
+  const agents = new Map(routeEl ? [...routeEl.querySelectorAll('[data-rt-froute-src]')].map(node => [node.dataset.rtFrouteSrc, node])
+    : [...el.querySelectorAll('[data-rt-fmap-agent]')].map(node => [node.dataset.rtFmapAgent, node]));
   let frame = 0, elapsed = 0, start = 0, offsets = [], destroyed = false;
   const duration = 4600, flight = 1100;
   function cancel() { if (frame) win.cancelAnimationFrame(frame); frame = 0; }
@@ -70,17 +78,20 @@ export function mountMap(el, model, opts = {}) {
   function toggle() { if (route.dataset.state === 'playing') pause(); else play(); }
   function replay() { reset(); play(); }
   function tabChanged(event) { if (event.detail?.tab !== 'fleet') reset(); }
+  // Leaving the routing sub-tab also resets a flight in progress (its coordinates are meaningless while hidden).
+  function subChanged(event) { if (routeEl && event.detail?.tab === 'fleet' && event.detail.sub !== 'routing' && route.dataset.state !== 'done') reset(); }
   // Recompute source coordinates after a resize instead of retaining offscreen transforms.
   function resized() { if (route.dataset.state === 'playing' || route.dataset.state === 'paused') reset(); }
   playButton.addEventListener('click', toggle);
   replayButton.addEventListener('click', replay);
   doc.addEventListener('rt:tab', tabChanged);
+  doc.addEventListener('rt:sub', subChanged);
   win.addEventListener('resize', resized);
   if (opts.reducedMotion) finish();
   return { play, pause, reset, destroy() {
     destroyed = true; cancel();
     playButton.removeEventListener('click', toggle); replayButton.removeEventListener('click', replay);
-    doc.removeEventListener('rt:tab', tabChanged); win.removeEventListener('resize', resized);
-    el.innerHTML = '';
+    doc.removeEventListener('rt:tab', tabChanged); doc.removeEventListener('rt:sub', subChanged); win.removeEventListener('resize', resized);
+    el.innerHTML = ''; if (routeEl) routeEl.innerHTML = '';
   } };
 }

@@ -1,0 +1,110 @@
+/* rt-learning-visual (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md, T1): the Learning loop ring and the measured-results
+   bars. Site variables only. Colour never carries meaning alone: every bar has its name and value as text, the ring has
+   a text legend (.rt-learning-loop) and an aria-label. Motion is off under prefers-reduced-motion. */
+
+.rt-learn-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 6px}
+.rt-learn-ctrl{display:flex;gap:6px;flex-wrap:wrap}
+.rt-learn-ctrl .btn{padding:6px 11px;font-size:12px}
+.rt-learn-ctrl .btn:focus-visible{outline:2px solid var(--blue2);outline-offset:2px}
+
+/* ---- loop ring ---- */
+.rt-learn-loopfig [data-rt-learn-loop-claim]{margin:0 0 4px}
+.rt-learn-ringwrap{max-width:460px;margin:0 auto 10px}
+.rt-learn-ringwrap svg{display:block;width:100%;height:auto;overflow:visible}
+.rt-learn-arc{fill:none;stroke:var(--line);stroke-width:3;transition:stroke .4s}
+.rt-learn-arc.on{stroke:var(--blue)}
+.rt-learn-arc.future{stroke:var(--muted);stroke-dasharray:5 5;opacity:.6}
+.rt-learn-node circle{fill:var(--panel);stroke:var(--line);stroke-width:2;transition:fill .3s,stroke .3s}
+.rt-learn-node .rt-learn-icon{fill:var(--muted);transition:fill .3s}
+.rt-learn-node .rt-learn-hole{fill:var(--panel)}
+.rt-learn-node.on circle{stroke:var(--blue)}
+.rt-learn-node.on .rt-learn-icon{fill:var(--blue2)}
+.rt-learn-node.cur circle{fill:var(--lav);stroke-width:3}
+.rt-learn-node.future circle{fill:var(--soft);stroke:var(--muted);stroke-dasharray:4 4}
+.rt-learn-node.future .rt-learn-icon{fill:var(--muted);opacity:.7}
+.rt-learn-nodelabel{font:650 13px Inter,ui-sans-serif,sans-serif;fill:var(--ink)}
+.rt-learn-futuretext{font:500 11px Inter,ui-sans-serif,sans-serif;fill:var(--muted);font-style:italic}
+.rt-learn-bucket text,.rt-learn-model text{font:600 10.5px Inter,ui-sans-serif,sans-serif;fill:var(--muted)}
+.rt-learn-tray{fill:var(--soft);stroke:var(--line)}
+.rt-learn-slot{fill:var(--line)}
+.rt-learn-slot.new{fill:var(--blue);opacity:0;transition:opacity .3s}
+.rt-learn-slot.new.in{opacity:1}
+.rt-learn-drop{fill:var(--blue)}
+.rt-learn-model rect{fill:var(--panel);stroke:var(--line);transition:fill .4s,stroke .4s}
+.rt-learn-model text{font-family:var(--mono);fill:var(--ink)}
+.rt-learn-model.new rect{fill:var(--green-bg);stroke:var(--green)}
+.rt-learn-model.new text{fill:var(--green)}
+.rt-learn-barrier{stroke:var(--amber);stroke-width:5;stroke-linecap:round}
+.rt-learn-card rect{fill:var(--amber-bg);stroke:var(--amber);stroke-width:1.5}
+.rt-learn-card text{font:700 12px Inter,ui-sans-serif,sans-serif;fill:var(--amber)}
+.rt-learn-card[data-kind="blocked"] rect{fill:var(--red-bg);stroke:var(--red)}
+.rt-learn-card[data-kind="blocked"] text{fill:var(--red)}
+.rt-learn-card[data-kind="label"] rect{fill:var(--lav);stroke:var(--blue2)}
+.rt-learn-card[data-kind="label"] text{fill:var(--blue2)}
+.rt-learn-card[data-kind="model"] rect{fill:var(--green-bg);stroke:var(--green)}
+.rt-learn-card[data-kind="model"] text{fill:var(--green);font-family:var(--mono)}
+.rt-learn-loopfig .rt-learning-loop li{transition:border-color .3s,background .3s}
+.rt-learn-loopfig .rt-learning-loop li.is-cur{border-color:var(--blue);background:var(--lav)}
+.rt-learn-loopfig .rt-learning-loop li.is-done b{color:var(--blue2)}
+.rt-learn-loopfig .rt-learning-loop li.future [data-rt-learn-future]{font-style:italic}
+
+/* ---- results ---- */
+#rtLearning .rt-learning-tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+#rtLearning .rt-learning-tiles .metric{display:flex;flex-direction:column;gap:6px}
+#rtLearning .rt-learning-tiles .kicker{margin-bottom:4px}
+#rtLearning .rt-learning-tiles .rt-plain{margin-top:auto;padding-top:4px}
+
+.rt-lbars{display:grid;grid-template-columns:minmax(0,7.5em) minmax(0,1fr) max-content;align-items:center;gap:6px 8px;font-size:12px;margin:2px 0}
+.rt-lbars.stack{grid-template-columns:minmax(0,1fr) max-content;row-gap:3px}
+.rt-lbars.stack .rt-lbar-name{grid-column:1/-1;margin-top:4px}
+.rt-lbar-name{color:var(--ink);line-height:1.25;overflow-wrap:anywhere}
+.rt-lbar-val{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:12.5px;white-space:nowrap}
+.rt-lbar-track{position:relative;height:14px;border-radius:4px;background:var(--soft);box-shadow:inset 0 0 0 1px var(--line)}
+.rt-lbar-fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v) * 100%);border-radius:4px;background:var(--muted);opacity:.55;
+  transform-origin:left center;transform:scaleX(1);transition:transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.rt-lbar-track.after .rt-lbar-fill{background:var(--blue);opacity:1}
+.rt-lbar-track.good .rt-lbar-fill{background:var(--green);opacity:1}
+.rt-lbar-track.bad .rt-lbar-fill{background:var(--red);opacity:1}
+.rt-lbar-track.warn .rt-lbar-fill{background:var(--amber);opacity:1}
+/* 95 % confidence interval: a whisker with end caps over the bar. */
+.rt-lbar-ci{position:absolute;top:50%;height:2px;margin-top:-1px;left:calc(var(--lo) * 100%);width:calc((var(--hi) - var(--lo)) * 100%);background:var(--ink);
+  transition:opacity .4s calc(var(--d,0ms) + 700ms)}
+.rt-lbar-ci::before,.rt-lbar-ci::after{content:"";position:absolute;top:-4px;width:2px;height:10px;background:var(--ink)}
+.rt-lbar-ci::before{left:0}.rt-lbar-ci::after{right:0}
+/* 0.5 "coin flip" mark on every AUROC track; the axis names it. */
+.rt-lbars.coin .rt-lbar-track::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;border-left:2px dashed var(--ink);opacity:.45}
+.rt-lbar-axis{grid-column:2;position:relative;height:14px;font-size:10.5px;color:var(--muted)}
+.rt-lbars.stack .rt-lbar-axis{grid-column:1}
+.rt-lbar-axis b{position:absolute;left:calc(var(--at) * 100%);transform:translateX(-50%);font-weight:500;white-space:nowrap}
+.rt-lbar-axis b:first-child{transform:none}
+.rt-lbar-axis b:last-child:not(:first-child){transform:translateX(-100%)}
+[data-state="idle"] .rt-lbar-fill{transform:scaleX(0);transition:none}
+[data-state="idle"] .rt-lbar-ci{opacity:0;transition:none}
+
+#rtLearningGate .rt-learn-gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.rt-learn-gatecard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
+.rt-learn-gatecard[data-kind="ran"]{border-color:var(--green)}
+.rt-learn-gatecard[data-kind="blocked"]{border-color:var(--red)}
+.rt-learn-gatehead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;font-size:13.5px}
+.rt-learn-vs{color:var(--muted);font-size:12px}
+.rt-learn-stamp{margin-left:auto;font:800 14px/1 var(--mono);letter-spacing:.12em;padding:5px 9px;border:2.5px solid currentColor;border-radius:6px;
+  transform:rotate(-7deg);color:var(--muted);transition:transform .35s cubic-bezier(.3,1.6,.5,1) var(--d,0ms),opacity .25s var(--d,0ms)}
+.rt-learn-stamp[data-kind="ran"]{color:var(--green);background:var(--green-bg)}
+.rt-learn-stamp[data-kind="blocked"]{color:var(--red);background:var(--red-bg)}
+.rt-learn-stamp[data-kind="review"]{color:var(--amber);background:var(--amber-bg)}
+[data-state="idle"] .rt-learn-stamp{opacity:0;transform:rotate(-7deg) scale(1.8);transition:none}
+#rtLearningGate .rt-learn-gatecard p[data-evidence-gate]{font-size:13px;margin:8px 0 0}
+
+#rtJudgeRealNote h4{margin:0 0 6px;font-size:14px;font-weight:500;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+#rtJudgeRealNote .rt-lbars{max-width:640px}
+#rtJudgeRealNote .rt-lbar-name{color:inherit}
+.rt-learn-unit{font-weight:700;text-decoration:underline dotted;text-underline-offset:3px}
+.rt-learn-realtake{margin:8px 0 0;font-weight:650}
+
+@media (max-width:600px){
+  .rt-lbars{grid-template-columns:minmax(0,6.2em) minmax(0,1fr) max-content}
+  .rt-lbars.stack{grid-template-columns:minmax(0,1fr) max-content}
+}
+@media (prefers-reduced-motion:reduce){
+  .rt-learn-loopfig *,.rt-learn-results *{transition:none!important;animation:none!important}
+}

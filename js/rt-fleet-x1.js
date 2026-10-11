@@ -335,6 +335,8 @@ export function mountX1(el, model, opts = {}) {
   build();
   return {
     play, pause, reset, tour,
+    // Sub-tab lifecycle (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md): hiding the cascade ends the guided demo, not just the step.
+    stop() { cancelTour(); pause(); },
     destroy() {
       clearTimeout(timer); timer = null; cancelTour();
       root.removeEventListener('click', onClick);

@@ -1,0 +1,33 @@
+/* Ontology comparisons and measured figures. */
+.rt-ov-how,.rt-ov-s1{min-width:0}
+.rt-ov-controls,.rt-ov-switch{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.rt-ov-switch [aria-pressed="true"]{background:var(--blue);color:var(--panel)}
+.rt-ov-task{padding:14px;background:var(--soft);border-radius:var(--radius);overflow-wrap:anywhere}
+.rt-ov-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.rt-ov-column{min-width:0}.rt-ov-column h3{font-size:16px;margin:0 0 10px}
+.rt-ov-call{border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin:10px 0;overflow-wrap:anywhere;background:var(--panel);transition:opacity .3s var(--rt-ov-delay)}
+.rt-ov-call code{display:block;white-space:pre-wrap;font-family:var(--mono);font-size:11px;color:var(--muted);margin:7px 0}
+.rt-ov-tags{display:grid;gap:6px;font-size:12px}.rt-ov-tags>span{padding:5px 8px;background:var(--soft);border-radius:var(--radius)}
+.rt-ov-why{font-size:12px;color:var(--muted);margin:8px 0}.rt-ov-decision{display:block;font-size:12px;margin-top:8px}
+.rt-ov-how[data-beat="0"] .rt-ov-call{opacity:.25}
+.rt-ov-how[data-beat="0"] .rt-ov-explain,.rt-ov-how[data-beat="1"] .rt-ov-explain{visibility:hidden}
+.rt-ov-how:not([data-beat="3"]) .rt-ov-decision{visibility:hidden}
+.rt-ov-how[data-beat="3"] [data-rt-ov-flagged="true"]{border-color:var(--red);background:var(--red-bg)}
+.rt-ov-how[data-beat="3"] [data-rt-ov-flagged="true"] .rt-ov-decision{color:var(--red)}
+.rt-ov-tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.rt-ov-alerts{grid-column:1/-1}.rt-ov-tiles .metric{min-width:0;padding:18px}
+.rt-ov-bar-row{margin-top:12px}.rt-ov-bar-row b{font-size:13px}.rt-ov-bar-row svg{display:block;width:100%;height:auto;margin-top:7px}
+.rt-ov-bar-row small,.rt-ov-waffles small{display:block;font-size:11px;color:var(--muted)}
+.rt-ov-axis{stroke:var(--line);stroke-width:2}.rt-ov-real{fill:var(--blue)}.rt-ov-false{fill:var(--lav)}
+.rt-ov-grow{transform-origin:0 0;transition:transform .65s linear}.rt-ov-s1[data-beat="0"] .rt-ov-grow{transform:scaleX(0)}
+.rt-ov-waffles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}.rt-ov-waffles b{font-size:12px}
+.rt-ov-waffle{display:block;width:100%;max-width:160px;margin:10px 0}
+.rt-ov-lit{transition:fill .1s var(--rt-ov-delay)}.rt-ov-s1[data-beat="0"] .rt-ov-lit{fill:var(--lav)}
+.rt-ov-s1 .rt-onto-parts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.rt-ov-s1 .rt-onto-parts li{min-width:0;align-items:start}
+.rt-ov-s1 .rt-onto-table{max-width:100%;overflow-x:auto}
+@media(max-width:600px){.rt-ov-columns,.rt-ov-tiles{grid-template-columns:1fr}.rt-ov-s1 .rt-onto-parts{grid-template-columns:1fr}.rt-ov-alerts{grid-column:auto}.rt-ov-call{padding:10px}}
+@media(prefers-reduced-motion:reduce){.rt-ov-call,.rt-ov-grow,.rt-ov-lit{transition:none}}
+
+/* Hiding a sub-tab settles its picture immediately, including CSS transitions. */
+.rt-ov-track{fill:var(--soft)}
+.rt-ov-how[data-settled="true"] .rt-ov-call,.rt-ov-s1[data-settled="true"] .rt-ov-grow,.rt-ov-s1[data-settled="true"] .rt-ov-lit{transition:none}

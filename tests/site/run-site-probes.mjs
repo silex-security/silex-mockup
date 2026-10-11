@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -472,8 +472,10 @@ try {
       assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'host overflow '+width);
       await rtTab('plane');assert.equal(await rt('return document.documentElement.scrollWidth<=innerWidth+1'),true,'learning frame overflow '+width);
       await rtTab('learning');assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'learning tab overflow '+width);
+      // Sub-tabs (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md): the loop picture and its six-step legend live in the "How it learns" sub-tab.
+      await ev(`window.__rtSubnav.learning.open('loop')`);
       assert.equal(await ev('return document.querySelectorAll(".rt-learning-loop li").length'),6);
-      if(width===390)assert.equal(await ev(`const a=[...document.querySelectorAll('.rt-learning-loop li')].map(e=>e.getBoundingClientRect().top);return new Set(a).size`),2,'two rows of three');
+      assert.equal(await ev(`return [...document.querySelectorAll('.rt-learning-loop li, [data-rt-learn-ring]')].every(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.left>=-1&&r.right<=innerWidth+1})`),true,'loop picture and legend inside the viewport at '+width);
     }
     // A not-yet-ready navigation must carry the deep link itself.
     await viewport();await ev(`const f=document.querySelector('#rtFrame');f.contentWindow.__jevDemo.ready=false;document.querySelector('#rtTryLoop').click()`);
@@ -663,13 +665,15 @@ try {
     assert.equal(await ev('return window.__rtTabs.current()+"|"+document.activeElement.dataset.rtTab'),'fleet|fleet','ArrowRight moves to the next tab');
     for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'ArrowLeft',code:'ArrowLeft'});
     assert.equal(await ev('return window.__rtTabs.current()'),'ontology','ArrowLeft moves back');
-    // Ontology: the AgentDojo test is scoped to AgentDojo; recall is an observation; no S2 section.
+    // Ontology: the AgentDojo test is scoped to AgentDojo; recall is an observation; no S2 section. (Its own sub-tab since 2026-10-11.)
+    await until(()=>ev('return !!window.__rtSubnav?.ontology'),'ontology sub-tabs');await ev(`window.__rtSubnav.ontology.open('s1')`);
     assert.match(await ev(`return document.querySelector('[data-onto-s1] .rt-scope').innerText`),/held-out AgentDojo tasks and these models only/);
     assert.match(await ev(`return document.querySelector('[data-onto-s1-tiles]').innerText`),/Observed, not a guarantee/);
     assert.equal(await ev(`return document.querySelectorAll('[data-onto-s2],[data-onto-s2-seg]').length`),0,'no S2 section');
     // Learning: benchmark labels and the reality check on screen.
     await rtTab('learning');
     assert.match(await ev(`return document.querySelector('#rtLearning .rt-intro').innerText`),/not yet from customer reviewers/);
+    await ev(`window.__rtSubnav.learning.open('results')`);
     await until(()=>ev(`return /0\.741/.test(document.querySelector('#rtJudgeRealNote').innerText)`),'reality check visible');
     // Latency: speed only, not an SLA.
     await rtTab('latency');await until(()=>ev(vis('#rtLatency .rt-takeaway')),'latency takeaway');
@@ -700,6 +704,18 @@ try {
     assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,'no horizontal scroll at 390');
     await viewport();
     return 'deep link and arrow keys switch tabs; tab labels plain; AgentDojo-only scope, no S2 section, recall caveat, benchmark labels, reality check, SLA caveat and simulated chips on screen; tip opens on hover, focus and tap, closes on leave and Esc, fits 390 px';
+  });
+
+  await probe('S45','sub-tabs of Agent fleet, Learning loop and Ontology: deep links and defaults',async()=>{
+    const shown=tab=>ev(`const b=window.__rtSubnav?.[${Q(tab)}];if(!b)return null;const k=b.current();const p=document.getElementById(document.getElementById('rtSub-${tab}-'+k).getAttribute('aria-controls'));return p.hidden?null:k`);
+    for(const [tab,sub,def] of [['fleet','routing','cascade'],['learning','results','loop'],['ontology','ex','how']]){
+      await load({path:`/index.html#view=runtime-observation&tab=${tab}&sub=${sub}`});
+      await until(async()=>(await shown(tab))===sub,`${tab}&sub=${sub}`);
+      await ev(`location.hash='#view=runtime-observation&tab=${tab}&sub=bogus'`);
+      await until(async()=>(await shown(tab))===def,`${tab} unknown sub falls back to ${def}`);
+      assert.equal(await ev('return document.documentElement.scrollWidth<=innerWidth+1'),true,tab+' no horizontal scroll');
+    }
+    return 'each tab opens its linked sub-tab cold and falls back to its default for an unknown key';
   });
 
   await probe('S20','click sidebar toggle, hover peek and responsive docking',async()=>{
