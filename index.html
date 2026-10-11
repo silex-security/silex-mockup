@@ -1137,6 +1137,7 @@
 <button type="button" role="tab" id="rtTab-plane" data-rt-tab="plane" aria-controls="rtDecisionPlane" aria-selected="false" tabindex="-1">Decision plane</button>
 <button type="button" role="tab" id="rtTab-learning" data-rt-tab="learning" aria-controls="rtLearning" aria-selected="false" tabindex="-1">Learning loop</button>
 <button type="button" role="tab" id="rtTab-ontology" data-rt-tab="ontology" aria-controls="rtOntology" aria-selected="false" tabindex="-1">Ontology</button>
+<button type="button" role="tab" id="rtTab-fleet" data-rt-tab="fleet" aria-controls="rtFleetPanel" aria-selected="false" tabindex="-1">Agent fleet</button>
 <button type="button" role="tab" id="rtTab-latency" data-rt-tab="latency" aria-controls="rtLatency" aria-selected="false" tabindex="-1">Judge latency</button>
 </nav>
 
@@ -1198,6 +1199,10 @@
 <div id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
 </section>
 
+<section class="rt-panel" id="rtFleetPanel" data-rt-panel="fleet" role="tabpanel" aria-labelledby="rtTab-fleet" hidden>
+<div class="card rt-intro"><div><h2>Many agents, many teams: what one trace cannot see</h2><p>A content platform runs agents for trends, customer help, creator support, short-drama production and ads, each owned by a different team. Each agent's trace shows its own tool calls. The <b>ontology slice</b> adds the facts that sit between them: who manages whom, what a video is eligible for, where a pool syncs to, and which team reviews which kind of action. Every scenario below runs twice in the simulated engine, with the slice and without it.</p></div><span class="rt-chip" data-kind="sim">Simulated · fictional tenant</span></div>
+<div id="rtFleet" class="rt-fleet"><p class="rt-ref">Loading the simulated engine…</p></div>
+</section>
 <section class="rt-panel" id="rtLatency" data-rt-panel="latency" role="tabpanel" aria-labelledby="rtTab-latency" hidden>
 <div class="card rt-intro"><div><h2>Is the judge fast enough?</h2><p>Every check happens while the agent waits, so the judge has a <b>budget of <span data-lat-budget-intro>400</span> ms per action</b>. We timed our small local judge, <b>Kev</b>, against <b>gpt-4o-mini</b> through the OpenAI API: same items, same questions.</p></div><span class="rt-chip" data-kind="ran">Measured</span></div>
 <div id="rtLatencyBody"><p class="rt-ref">Loading the latency measurements…</p></div>
@@ -1811,6 +1816,7 @@ const incidentData={
 <script type="module" src="js/jev-runtime-host.js"></script>
 <script type="module" src="js/rt-ontology.js"></script>
 <script type="module" src="js/rt-latency.js"></script>
+<script type="module" src="js/rt-fleet.js"></script>
 <script type="module" src="js/rt-subtabs.js"></script>
 <script src="swm/js/swm-loader.js"></script>
 <script defer src="swm/js/swm-vowl.js"></script>

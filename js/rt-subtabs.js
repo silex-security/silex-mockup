@@ -1,10 +1,10 @@
 // Runtime Observation sub-tabs (logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md §3).
-// Five tabs: scenarios, plane, learning, ontology, latency. A click or arrow key switches tabs without writing the hash
+// Six tabs: scenarios, plane, learning, ontology, fleet (logs/2026-10-10_CREATOR_PLATFORM_RUNTIME_OBSERVATION_DESIGN.md), latency. A click or arrow key switches tabs without writing the hash
 // (the site's ordinary navigation never does); #view=runtime-observation&tab=<id> opens one. window.__rtTabs.open(id)
 // is the hook for "See this run" and "Try the loop".
 import './rt-tip.js';
 
-const TABS = ['scenarios', 'plane', 'learning', 'ontology', 'latency'];
+const TABS = ['scenarios', 'plane', 'learning', 'ontology', 'fleet', 'latency'];
 const buttons = [...document.querySelectorAll('.rt-tabs [data-rt-tab]')];
 const panels = [...document.querySelectorAll('#runtime-observation [data-rt-panel]')];
 let currentTab = 'scenarios';
