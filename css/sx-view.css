@@ -1,0 +1,20 @@
+/* Scenario Expansion view: page frame and ④ "How results are judged" (js/sx-view.js; logs/2026-10-11_SCENARIO_EXPANSION_PLAN.md). */
+#scenario-expansion .sx-lead{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin:2px 0 16px}
+#scenario-expansion .sx-lead p{margin:0;font-size:15px;color:#2f343b;max-width:880px}
+#scenario-expansion .sx-lead .rt-chip{white-space:nowrap;flex:none}
+#scenario-expansion .sx-subpanels{min-width:0}
+#scenario-expansion .sx-subpanels>[data-rt-subpanel]{min-width:0}
+.sx-judging{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.sx-judge-card{padding:16px 18px}
+.sx-judge-card h3{font-size:14px;margin:0 0 8px}
+.sx-judge-card ul{margin:0;padding-left:18px;font-size:13px;color:#3d434b;display:grid;gap:6px}
+.sx-judge-note{grid-column:1/-1;padding:14px 18px;font-size:13px;color:#3d434b}
+.sx-judge-note p{margin:0 0 8px}
+.sx-judge-note p:last-child{margin:0}
+.sx-judge-note code{font-family:var(--mono);font-size:12px;background:var(--soft);border-radius:5px;padding:1px 5px}
+.sx-lt-link{margin:12px 0 0}
+@media(max-width:900px){
+  #scenario-expansion .sx-lead{flex-direction:column}
+  #scenario-expansion .sx-lead .rt-chip{white-space:normal}
+  .sx-judging{grid-template-columns:1fr}
+}
