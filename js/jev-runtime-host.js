@@ -196,7 +196,8 @@ function refreshOpenFull() {
   const q = new URLSearchParams({ domain: f.domain ?? frameDomain ?? 'ap' });
   if (f.demo?.seed != null) q.set('seed', String(f.demo.seed));
   try { const tab = new URL(f.nav === String(nav) ? demoWin().location.href : frame?.src ?? DEMO, location.href).searchParams.get('tab'); if (tab) q.set('tab', tab); } catch {}
-  try { const o = new URL(frame?.src ?? DEMO, location.href).searchParams.get('ontology'); if (o) q.set('ontology', o); } catch {}
+  // The frame's live setting: its ontology switch reloads it in place (keeping &nav=), so the src attribute can be stale.
+  try { const o = new URL(f.nav === String(nav) ? demoWin().location.href : frame?.src ?? DEMO, location.href).searchParams.get('ontology'); if (o) q.set('ontology', o); } catch {}
   q.set('back', BACK);
   $('rtOpenFull').href = `${DEMO}?${q}`;
 }
