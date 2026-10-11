@@ -8,6 +8,18 @@ import { $, esc, chip, decisionChip, deepClone, fmtMs } from './util.js';
 
 let counter = 0;
 
+/**
+ * Pure: route one span under a given policy and ontology setting. `ctx` carries
+ * { tenant, policy, seed, history, faults }; no DOM access, so it is unit-testable. `ontology`
+ * defaults to true, so an absent setting behaves exactly as before.
+ */
+export function replaySpan(span, ctx, { ontology = true } = {}) {
+  return route(span, {
+    tenant: ctx.tenant, policy: ctx.policy, seed: ctx.seed,
+    history: ctx.history, faults: ctx.faults, ontology,
+  });
+}
+
 function card(label, env) {
   if (!env) return `<span class="jv-meta">${esc(label)}</span>`;
   return `<div class="jv-meta">${esc(label)}</div>
@@ -46,7 +58,7 @@ export function initReplay(app) {
   const selected = () => [...app.rows()].reverse().find(r => r.env.span_id === sel.value) ?? null;
 
   function replayRow(row, policy) {
-    return route(row.span, { tenant: app.tenant, policy, seed: app.seed, history: app.history(row), faults: { jev: row.fault ?? null } });
+    return replaySpan(row.span, { tenant: app.tenant, policy, seed: app.seed, history: app.history(row), faults: { jev: row.fault ?? null } }, { ontology: app.ontology !== false });
   }
 
   function run() {

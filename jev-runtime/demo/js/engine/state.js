@@ -112,6 +112,203 @@ function redact(text) {
     .replace(/\bACCT\w*(?:[-_]\w+)*\b/gi, '[redacted]');
 }
 
+// --- Creator-platform derived facts (web/demo/CREATOR_CONTRACT.md §3). -----------------------
+// state.facts.creator is null unless the span carries span.context.creator = { as_of, triples }.
+// Each fact is true, false, or null when the tool is not the one the fact is about. `used`
+// records, per true fact, the triples it was derived from (for the Inspector).
+
+const CREATOR_LEVEL = { L0: 0, L1: 1, L2: 2 };
+const levelOf = v => CREATOR_LEVEL[v] ?? null;   // an unrecognised level is unknown, not L0 (code review r3)
+// Self-access compares ids with the creator: prefix removed, so 'creator:CR-311' asking about 'CR-311' is the creator.
+const bareCreator = id => String(id ?? '').replace(/^creator:/, '');
+const firstOf = arr => (arr.length ? arr[0] : null);
+
+function creatorFacts(slice, tool) {
+  if (slice == null) return null;
+  const triples = Array.isArray(slice.triples) ? slice.triples : [];
+  const as_of = slice.as_of ?? null;
+  const name = tool?.name ?? null;
+  const args = tool?.args ?? {};
+  const T = (s, p) => triples.filter(t => t && t.s === s && t.p === p).map(t => t.o);
+  const triplesOf = (s, p) => triples.filter(t => t && t.s === s && t.p === p);
+  const subjectsWith = (p, o) => triples.filter(t => t && t.p === p && t.o === o).map(t => t.s);
+  const used = {};
+  const track = (fact, ts) => { if (ts.length) used[fact] = ts; };
+  const afterExpiry = d => as_of == null || String(d) > String(as_of);
+
+  let verification_short = null;
+  if (name === 'help.update_login_email') {
+    const session = firstOf(T(`session:${args.session_id}`, 'VERIFICATION_LEVEL'));
+    const required = firstOf(T(`tool:${name}`, 'REQUIRES_VERIFICATION'));
+    // Open world (§3): null unless both levels are actually present.
+    if (levelOf(session) != null && levelOf(required) != null) {
+      verification_short = levelOf(session) < levelOf(required);
+      if (verification_short) track('verification_short', [
+        ...triplesOf(`session:${args.session_id}`, 'VERIFICATION_LEVEL'),
+        ...triplesOf(`tool:${name}`, 'REQUIRES_VERIFICATION'),
+      ]);
+    }
+  }
+
+  let payout_scope_excluded = null;
+  if (name === 'creator.update_payout_account') {
+    const requester = args.requester, creator_id = args.creator_id;
+    if (bareCreator(requester) === bareCreator(creator_id)) {
+      payout_scope_excluded = false;
+    } else if (T(requester, 'MANAGES').includes(`creator:${creator_id}`)) {
+      if (T(requester, 'HAS_SCOPE').includes('scope:payout')) {
+        payout_scope_excluded = false;
+      } else if (T(requester, 'COMPLETE_FOR').includes('HAS_SCOPE')) {
+        // The scope list is declared complete, so the absence of scope:payout is affirmative (§2/§3).
+        payout_scope_excluded = true;
+        track('payout_scope_excluded', [
+          ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'COMPLETE_FOR'), ...triplesOf(requester, 'HAS_SCOPE'),
+        ]);
+      }
+    }
+  }
+
+  let subject_scope_missing = null;
+  if (name === 'creator.get_creator_analytics') {
+    const requester = args.requester, creator_id = args.creator_id;
+    const manages = T(requester, 'MANAGES').includes(`creator:${creator_id}`);
+    const hasAnalytics = T(requester, 'HAS_SCOPE').includes('scope:analytics');
+    if (bareCreator(requester) === bareCreator(creator_id) || (manages && hasAnalytics)) {
+      subject_scope_missing = false;
+    } else {
+      // Missing relations are not denial: only a declared-complete MANAGES + HAS_SCOPE list proves it (§2/§3).
+      const complete = T(requester, 'COMPLETE_FOR');
+      if (complete.includes('MANAGES') && complete.includes('HAS_SCOPE')) {
+        subject_scope_missing = true;
+        track('subject_scope_missing', [
+          ...triplesOf(requester, 'COMPLETE_FOR'), ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'HAS_SCOPE'),
+        ]);
+      }
+    }
+  }
+
+  let license_invalid = null;
+  if (name === 'studio.use_asset') {
+    const asset = `asset:${args.asset_id}`, region = `region:${args.region}`;
+    const licenses = T(asset, 'LICENSED_UNDER');
+    const valid = lic => T(lic, 'VALID_IN').includes(region) && T(lic, 'EXPIRES').every(afterExpiry);
+    // Affirmatively invalid: an expiry that has passed, or a region the declared-complete list omits (§3).
+    const invalid = lic => T(lic, 'EXPIRES').some(d => as_of != null && String(d) <= String(as_of))
+      || (!T(lic, 'VALID_IN').includes(region) && T(lic, 'COMPLETE_FOR').includes('VALID_IN'));
+    // Denial needs the asset's license list declared complete: an omitted license could be the valid one (code review r2).
+    const complete = T(asset, 'COMPLETE_FOR').includes('LICENSED_UNDER');
+    if (licenses.some(valid)) {
+      license_invalid = false;
+    } else if (complete && licenses.every(invalid)) {   // also covers an empty, complete list
+      license_invalid = true;
+      track('license_invalid', [
+        ...triplesOf(asset, 'COMPLETE_FOR'),
+        ...triplesOf(asset, 'LICENSED_UNDER'),
+        ...licenses.flatMap(lic => [...triplesOf(lic, 'VALID_IN'), ...triplesOf(lic, 'EXPIRES'), ...triplesOf(lic, 'COMPLETE_FOR')]),
+      ]);
+    }
+  }
+
+  let sensitive_event_unapproved = null;
+  if (name === 'promo.push_trend_to_homepage') {
+    const topic = `topic:${args.topic_id}`;
+    const events = T(topic, 'RELATED_TO');
+    const active = events.some(e => T(e, 'STATUS').includes('active'));
+    const approved = T(topic, 'APPROVED_BY').includes('team:trust-safety');
+    sensitive_event_unapproved = active && !approved;
+    if (sensitive_event_unapproved) track('sensitive_event_unapproved', [
+      ...triplesOf(topic, 'RELATED_TO'),
+      ...events.flatMap(e => triplesOf(e, 'STATUS')),
+      ...triplesOf(topic, 'APPROVED_BY'),
+    ]);
+  }
+
+  let cumulative_over_limit = null;
+  if (name === 'help.refund_coins') {
+    // null when no card or no limit is present (§3).
+    const cards = T(`account:${args.account_id}`, 'PAID_WITH').filter(card => T(card, 'LIMIT_USD').length > 0);
+    if (cards.length > 0) {
+      let over = false; const ts = [];
+      for (const card of cards) {
+        const accounts = subjectsWith('PAID_WITH', card);
+        let sum = 0;
+        for (const acc of accounts) for (const v of T(acc, 'REFUNDED_USD')) sum += Number(v) || 0;
+        const limit = Number(firstOf(T(card, 'LIMIT_USD')));
+        if (Number.isFinite(limit) && sum + Number(args.amount_usd) > limit) over = true;
+        ts.push(...triplesOf(`account:${args.account_id}`, 'PAID_WITH'),
+          ...accounts.flatMap(a => triplesOf(a, 'REFUNDED_USD')), ...triplesOf(card, 'LIMIT_USD'));
+      }
+      cumulative_over_limit = over;
+      if (over) track('cumulative_over_limit', ts);
+    }
+  } else if (name === 'studio.buy_promotion') {
+    // null when the spent or limit figure is missing (§3).
+    const budgets = T(`team:${args.team}`, 'CHARGES')
+      .filter(b => T(b, 'SPENT_USD').length > 0 && T(b, 'LIMIT_USD').length > 0);
+    if (budgets.length > 0) {
+      let over = false; const ts = [];
+      for (const b of budgets) {
+        const spent = Number(firstOf(T(b, 'SPENT_USD')));
+        const limit = Number(firstOf(T(b, 'LIMIT_USD')));
+        if (Number.isFinite(spent) && Number.isFinite(limit) && spent + Number(args.amount_usd) > limit) over = true;
+        ts.push(...triplesOf(`team:${args.team}`, 'CHARGES'), ...triplesOf(b, 'SPENT_USD'), ...triplesOf(b, 'LIMIT_USD'));
+      }
+      cumulative_over_limit = over;
+      if (over) track('cumulative_over_limit', ts);
+    }
+  }
+
+  // Open world (§3): ad ineligibility is affirmative — a declared EXCLUDES policy the video features, or a
+  // declared-complete ELIGIBLE_FOR list without advertising. A missing triple leaves it unknown (null).
+  const adIneligibleFor = video => {
+    const excluded = triples.filter(t => t && t.s === 'purpose:advertising' && t.p === 'EXCLUDES');
+    const featured = T(video, 'FEATURES');
+    const excludedHit = excluded.filter(t => featured.includes(t.o));
+    if (excludedHit.length) return { value: true, used: [...triplesOf(video, 'FEATURES'), ...excludedHit] };
+    const eligible = T(video, 'ELIGIBLE_FOR');
+    if (T(video, 'COMPLETE_FOR').includes('ELIGIBLE_FOR') && !eligible.includes('purpose:advertising')) {
+      return { value: true, used: [...triplesOf(video, 'COMPLETE_FOR'), ...triplesOf(video, 'ELIGIBLE_FOR')] };
+    }
+    if (eligible.includes('purpose:advertising')) return { value: false, used: [] };
+    return { value: null, used: [] };
+  };
+
+  let ad_ineligible = null;
+  if (name === 'ads.select_creative' || name === 'ads.launch_campaign') {
+    const r = adIneligibleFor(`video:${args.video_id}`);
+    ad_ineligible = r.value;
+    if (r.value === true) track('ad_ineligible', r.used);
+  }
+
+  let hot_pool_reaches_ads_ineligible = null;
+  if (name === 'promo.add_to_hot_pool') {
+    const pool = `pool:${args.pool_id}`;
+    const syncs = T(pool, 'SYNCS_TO').includes('pool:ad-candidates');
+    const r = adIneligibleFor(`video:${args.video_id}`);
+    if (syncs && r.value === true) {
+      hot_pool_reaches_ads_ineligible = true;
+      track('hot_pool_reaches_ads_ineligible', [...triplesOf(pool, 'SYNCS_TO'), ...r.used]);
+    } else if (r.value === false) {
+      hot_pool_reaches_ads_ineligible = false;
+    } else if (!syncs && T(pool, 'COMPLETE_FOR').includes('SYNCS_TO')) {
+      hot_pool_reaches_ads_ineligible = false;
+    }
+  }
+
+  return {
+    as_of,
+    verification_short,
+    payout_scope_excluded,
+    subject_scope_missing,
+    license_invalid,
+    sensitive_event_unapproved,
+    cumulative_over_limit,
+    ad_ineligible,
+    hot_pool_reaches_ads_ineligible,
+    used,
+  };
+}
+
 export function buildState(span, history, tenant, now) {
   const ctx = span.context ?? {};
   const invoice = ctx.invoice ?? null;
@@ -163,6 +360,8 @@ export function buildState(span, history, tenant, now) {
     target_privileged,
     incident_approved_for_target,
     change_approved_for_ip,
+    // Creator platform (CREATOR_CONTRACT.md §3): null unless span.context.creator is present.
+    creator: creatorFacts(ctx.creator, tool),
   };
 
   const payee_similarity = (invoice?.vendor != null && bank?.holder != null)

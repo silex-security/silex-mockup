@@ -2,6 +2,21 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-10 — Runtime Observation › Agent fleet: a creator-platform domain with an ontology-slice switch
+
+- **What:** a third simulated domain, the fictional content platform **Acme Shorts**. It has six agents on five teams: trends, customer help, creator support, short-drama production and ads. There is also a new **Agent fleet** sub-tab.
+  - The flagship scenario (X1) is a cross-agent cascade: a video featuring a minor is eligible for publishing but not for advertising, and it is promoted into a hot pool that syncs automatically into the ad-candidate pool. With the trace only, all three steps are allowed. With the ontology slice, they are held, blocked and blocked.
+  - The tab also shows the fleet table, held or blocked calls routed to the reviewing team, and every scenario with and without the slice. All numbers are computed by the vendored engine at page load.
+- **Engine:** vendored from jev-runtime-observability `creator-domain` (contract `jev-runtime/demo/CREATOR_CONTRACT.md`).
+  - 22 scripted traces, eight typed rules, and `?ontology=0`, which removes the slice from decisions, the inspector and replays.
+  - AP and SOC behaviour is unchanged.
+- **Data:** the candidate pack `swm/data/packs/creator-platform.json` is a standalone file. `swm/data/ontology.json` is byte-identical, which a test checks, so no type, relation or coverage figure changes.
+- **Picker:** the scenario picker gains the 22 creator traces. The reference metrics stay AP + SOC (12 scenarios).
+- **Not built:** the design's synchronous/asynchronous split and latency budget, per-agent coverage and counts, a Domain Suites entry, and Learning for this domain. See the design doc §0.
+- **Tests:** `creator-pack`, `rt-fleet`, `no-real-brand`, and new creator assertions in `jev-runtime-model`.
+- **Plan and reviews:** jev-runtime-observability `logs/2026-10-10_CREATOR_DOMAIN_FLEET_PLAN.md`. Plan review took 4 rounds (Claude planner, DeepSeek V4.1 Flash, Codex) and was unanimous at v0.4.
+- **Design:** [`2026-10-10_CREATOR_PLATFORM_RUNTIME_OBSERVATION_DESIGN.md`](2026-10-10_CREATOR_PLATFORM_RUNTIME_OBSERVATION_DESIGN.md).
+
 ## 2026-10-07 — Runtime Observation › Ontology: S2 (AgentDyn) removed from the demo
 
 - **What:** the Ontology tab no longer shows the S2 AgentDyn replication: no Test 2 switch, section, per-model table or AgentDyn mentions. It shows the pre-registered AgentDojo test (S1) and the example runs. S1 stays scoped on screen to "held-out AgentDojo tasks and these models only", with recall as an observation.

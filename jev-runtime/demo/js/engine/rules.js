@@ -9,7 +9,10 @@ const SEVERITY = { STOP: 5, BLOCK: 4, HOLD: 3, ALERT: 2 };
 export function checkRules(state, tenant) {
   const hits = [];
   const boundary = state.boundary;
-  const isPayment = state.tool?.impact === 'payment';
+  // Hard payment rules are AP-only: narrowed to `payments.execute` so creator payment-impact tools
+  // (refunds, payouts, promotion buys) never inherit the AP amount/approval checks (plan E3).
+  const isPayment = state.tool?.name === 'payments.execute';
+  const creator = state.facts.creator ?? null;
 
   if (state.stale) {
     hits.push({ id: 'stale_state', verdict: 'STOP', reason: 'state snapshot is stale', evidence_refs: [] });
@@ -78,6 +81,46 @@ export function checkRules(state, tenant) {
       reason: 'tool returned 2xx but ERP read-back shows nothing posted',
       evidence_refs: ['tool:result', 'tool:readback'],
     });
+  }
+
+  // Creator-platform rules (web/demo/CREATOR_CONTRACT.md §4): pre_tool, positive typed facts only,
+  // pinned reasons, evidence_refs ['context:creator']. With ?ontology=0 the slice is gone
+  // (facts.creator === null) and none of these can fire.
+  if (boundary === 'pre_tool' && creator != null) {
+    const args = state.tool?.args ?? {};
+    const refs = ['context:creator'];
+    if (creator.verification_short === true) {
+      hits.push({ id: 'credential_change_verification', verdict: 'BLOCK',
+        reason: 'credential change on a session below the required verification level', evidence_refs: refs });
+    }
+    if (creator.payout_scope_excluded === true) {
+      hits.push({ id: 'mcn_payout_scope', verdict: 'BLOCK',
+        reason: `${args.requester} manages ${args.creator_id} without payout scope`, evidence_refs: refs });
+    }
+    if (creator.subject_scope_missing === true) {
+      hits.push({ id: 'cross_principal_read', verdict: 'BLOCK',
+        reason: `${args.requester} has no analytics scope over ${args.creator_id}`, evidence_refs: refs });
+    }
+    if (creator.license_invalid === true) {
+      hits.push({ id: 'asset_license', verdict: 'BLOCK',
+        reason: `no valid license for ${args.asset_id} in ${args.region} on ${creator.as_of}`, evidence_refs: refs });
+    }
+    if (creator.sensitive_event_unapproved === true) {
+      hits.push({ id: 'sensitive_event_push', verdict: 'HOLD',
+        reason: `topic ${args.topic_id} is related to an active sensitive event without trust-safety approval`, evidence_refs: refs });
+    }
+    if (creator.cumulative_over_limit === true) {
+      hits.push({ id: 'cumulative_limit', verdict: 'HOLD',
+        reason: 'cumulative amount would exceed the limit', evidence_refs: refs });
+    }
+    if (creator.ad_ineligible === true) {
+      hits.push({ id: 'ad_use_eligibility', verdict: 'BLOCK',
+        reason: `video ${args.video_id} is not eligible for advertising`, evidence_refs: refs });
+    }
+    if (creator.hot_pool_reaches_ads_ineligible === true) {
+      hits.push({ id: 'latent_ad_path', verdict: 'HOLD',
+        reason: `pool ${args.pool_id} syncs to ad candidates and video ${args.video_id} is not eligible for advertising`, evidence_refs: refs });
+    }
   }
 
   let verdict = null;

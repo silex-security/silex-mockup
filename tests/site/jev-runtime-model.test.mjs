@@ -77,3 +77,17 @@ test('referenceExamples returns the S1/S2/S3 payments.execute pre_tool envelopes
   }
   assert.deepEqual(ex.map(x => x.env.decided_by), ['policy', 'jev', 'rule']);
 });
+
+// Creator platform (jev-runtime-observability logs/2026-10-10_CREATOR_DOMAIN_FLEET_PLAN.md, S3): an opt-in set that
+// leaves the default reference set above untouched.
+test('summarize({ domains: [creator] }) is opt-in: 22 creator traces, rule outcomes on every risk variant', () => {
+  const c = summarize({ domains: ['creator'] });
+  assert.equal(c.scenarios.length, 22);
+  assert.ok(c.scenarios.every(x => x.domain === 'creator'));
+  const risky = ['TR1b', 'CS1b', 'CS2b', 'CR1b', 'CR2b', 'SD1b', 'SD2b', 'X1Pb', 'X1Cb', 'X1Bb'];
+  for (const x of c.scenarios) {
+    if (risky.includes(x.id)) assert.match(x.outcome.label, /· rule$/, x.id);
+    else assert.equal(x.outcome.label, 'all ran', x.id);
+  }
+  assert.equal(summarize().scenarios.length, 12);
+});

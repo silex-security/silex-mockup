@@ -22,6 +22,13 @@
   <div class="jv-domain" role="group" aria-label="Which simulated agent" title="Switches the simulated agent and reloads the page. Policy Studio edits reset on reload.">
     <button type="button" data-domain="ap" aria-pressed="true">AP payments agent</button>
     <button type="button" data-domain="soc" aria-pressed="false">SOC triage agent</button>
+    <button type="button" data-domain="creator" aria-pressed="false">Creator platform</button>
+  </div>
+  <div class="jv-domain jv-onto" role="group" aria-label="Ontology slice" data-ontology-switch hidden
+    title="On: the creator rules read typed facts from the ontology slice. Off: the slice is removed before every decision, inspection and replay, as a trace-only monitor would see the span. Reloads the page.">
+    <span class="jv-onto-label">Ontology slice</span>
+    <button type="button" data-ontology="1" aria-pressed="true">On</button>
+    <button type="button" data-ontology="0" aria-pressed="false">Off (trace only)</button>
   </div>
   <nav class="jv-tabs" role="tablist">
     <button role="tab" data-tab="live" aria-selected="true">Live</button>

@@ -5,6 +5,8 @@
 // Two entry points:
 //   summarize({ seed })  → the default-policy reference set: metrics over all 12 scripted scenarios (AP S1–S6,F1
 //                          then SOC1–SOC5), plus each scenario's outcome chip and result line.
+//                          summarize({ domains: ['creator'] }) is the opt-in creator-platform set (22 traces); the
+//                          default stays AP + SOC, so the reference metrics do not change.
 //   describeRun(envs, { id }) → the same one-line sentence, but for an arbitrary envelope list. The host calls it
 //                          with the envelopes __jevDemo.inject(id) returned inside the iframe, which may carry
 //                          Policy Studio edits and an injected span id (whose jitter the reference cannot predict).
@@ -74,10 +76,10 @@ export function outcomeOf(envs) {
 }
 
 /** The default-policy reference set: metrics over all 12 scenarios and each scenario's chip and line. */
-export function summarize({ seed = 7 } = {}) {
+export function summarize({ seed = 7, domains = ['ap', 'soc'] } = {}) {
   const scenarios = [];
   const metrics = { scenarios: 0, checked: 0, stopped: 0, rule: 0 };
-  for (const [domain, traces] of [['ap', scenariosFor('ap')], ['soc', scenariosFor('soc')]]) {
+  for (const [domain, traces] of domains.map(d => [d, scenariosFor(d)])) {
     for (const t of traces) {
       const envs = runStream(t.spans, { tenant: TENANT, policy: DEFAULT_POLICY, seed });
       const pre = preTools(envs);

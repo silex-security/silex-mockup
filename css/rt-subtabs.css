@@ -127,3 +127,34 @@
   .rt-onto-parts.card li{grid-template-columns:1fr}
   .rt-tabs button{font-size:16px;padding:12px 14px}
 }
+/* Agent fleet sub-tab (js/rt-fleet.js) */
+.rt-fleet{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px}
+.rt-fleet .card,.rt-x1-cols>div{min-width:0}
+.rt-x1-svgwrap{overflow-x:auto}
+.rt-fleet .card{padding:18px}
+.rt-x1-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.rt-x1-head h2{margin:0 0 6px;font-size:18px}
+.rt-x1-head p{margin:0;color:var(--muted);font-size:13px;max-width:780px}
+.rt-x1-svg{width:100%;height:auto;margin:14px 0 6px;display:block}
+.rt-x1-node rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5}
+.rt-x1-node.sys rect{fill:var(--soft);stroke-dasharray:4 3}
+.rt-x1-node .t{font-size:13px;font-weight:650;fill:var(--ink)}
+.rt-x1-node .s{font-size:11px;fill:var(--muted);font-family:var(--mono)}
+.rt-x1-edge line{stroke:var(--muted);stroke-width:1.5}
+.rt-x1-edge path{fill:var(--muted)}
+.rt-x1-edge text{font-size:11px;fill:var(--blue2);font-family:var(--mono)}
+.rt-x1-gap line{stroke:var(--amber);stroke-width:1.5;stroke-dasharray:3 3}
+.rt-x1-gap text{font-size:11px;fill:var(--amber);font-weight:600}
+.rt-x1-band rect{fill:var(--lav)}
+.rt-x1-band text{font-size:10.5px;fill:var(--blue2);font-weight:600;letter-spacing:.04em}
+.rt-x1-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rt-x1-cols>div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--soft)}
+.rt-x1-cols h3{margin:0 0 8px;font-size:14px}
+.rt-x1-cols h3 small{color:var(--muted);font-weight:500}
+.rt-x1-cols ol{margin:0;padding-left:18px;display:grid;gap:10px}
+.rt-x1-cols li{font-size:13px}
+.rt-fleet-why{font-size:12px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
+.rt-fleet .matrix{width:100%;border-collapse:collapse;font-size:12.5px}
+.rt-fleet .matrix th,.rt-fleet .matrix td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+.rt-fleet .mono{font-family:var(--mono);font-size:11.5px}
+@media (max-width:760px){.rt-x1-svg{min-width:720px}.rt-x1-cols{grid-template-columns:1fr}.rt-x1-head{flex-direction:column}.rt-fleet .matrix{display:block;overflow-x:auto}}
