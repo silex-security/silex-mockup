@@ -27,3 +27,7 @@
 .rt-ov-s1 .rt-onto-table{max-width:100%;overflow-x:auto}
 @media(max-width:600px){.rt-ov-columns,.rt-ov-tiles{grid-template-columns:1fr}.rt-ov-s1 .rt-onto-parts{grid-template-columns:1fr}.rt-ov-alerts{grid-column:auto}.rt-ov-call{padding:10px}}
 @media(prefers-reduced-motion:reduce){.rt-ov-call,.rt-ov-grow,.rt-ov-lit{transition:none}}
+
+/* Hiding a sub-tab settles its picture immediately, including CSS transitions. */
+.rt-ov-track{fill:var(--soft)}
+.rt-ov-how[data-settled="true"] .rt-ov-call,.rt-ov-s1[data-settled="true"] .rt-ov-grow,.rt-ov-s1[data-settled="true"] .rt-ov-lit{transition:none}

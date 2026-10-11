@@ -35,6 +35,51 @@ test('ontology pictures match data, lifecycle, reduced motion and mobile', {time
     };
     await p.send('Emulation.setDeviceMetricsOverride',{width:1400,height:1100,deviceScaleFactor:1,mobile:false});
     await navigate('how');
+    // Leave both panels before their first 650 ms beat; subnav must settle them.
+    const interrupted=await p.ev(`
+      const how=document.querySelector('.rt-ov-how'), s1=document.querySelector('.rt-ov-s1');
+      const startingBeat=how.dataset.beat;
+      const started=performance.now();
+      window.__rtSubnav.ontology.open('s1');
+      const s1StartingBeat=s1.dataset.beat;
+      window.__rtSubnav.ontology.open('ex');
+      const elapsed=performance.now()-started;
+      window.__rtSubnav.ontology.open('how');
+      const decisions=[...how.querySelectorAll('.rt-ov-decision')].map(e=>{
+        const r=e.getBoundingClientRect();return getComputedStyle(e).visibility==='visible'&&r.width>0&&r.height>0;
+      });
+      window.__rtSubnav.ontology.open('s1');
+      const realFill=getComputedStyle(s1.querySelector('[data-rt-ov-alert] .rt-ov-real')).fill;
+      const waffles=[...s1.querySelectorAll('[data-rt-ov-waffle]')].map(e=>({
+        key:e.dataset.rtOvWaffle,
+        lit:[...e.querySelectorAll('.rt-ov-lit')].filter(r=>getComputedStyle(r).fill===realFill).length
+      }));
+      const bars=[...s1.querySelectorAll('.rt-ov-grow')].map(e=>{
+        const transform=getComputedStyle(e).transform;
+        const scale=transform==='none'?1:new DOMMatrixReadOnly(transform).a;
+        const svg=e.closest('svg');
+        const expected=e.getBBox().width*Math.abs(svg.getScreenCTM().a);
+        return {scale,expected,actual:e.getBoundingClientRect().width};
+      });
+      const neutral=getComputedStyle(s1.querySelector('.rt-ov-track')).fill!==getComputedStyle(s1.querySelector('.rt-ov-false')).fill;
+      const states=[how.dataset.state,s1.dataset.state];
+      s1.querySelector('[data-rt-ov-control="play"]').click();
+      const restarted=s1.dataset.state==='playing'&&s1.dataset.beat==='0';
+      s1.querySelector('[data-rt-ov-control="pause"]').click();
+      const buttonPaused=s1.dataset.state==='paused';
+      window.__rtSubnav.ontology.open('how');
+      return {startingBeat,s1StartingBeat,elapsed,states,decisions,waffles,bars,neutral,restarted,buttonPaused};
+    `);
+    assert.equal(interrupted.startingBeat,'0','how was interrupted before its first beat');
+    assert.equal(interrupted.s1StartingBeat,'0','s1 was interrupted before its first beat');
+    assert.ok(interrupted.elapsed<650,'rapid navigation takes less than one beat');
+    assert.deepEqual(interrupted.states,['done','done']);
+    assert.ok(interrupted.decisions.length>0&&interrupted.decisions.every(Boolean),'every how decision is visible on return');
+    for(const waffle of interrupted.waffles)assert.equal(waffle.lit,Math.round(100*s1.observed[waffle.key].precision),'lit cells have their actual final fill');
+    assert.ok(interrupted.bars.length>0&&interrupted.bars.every(b=>b.scale===1&&Math.abs(b.actual-b.expected)<.1),'every alert and recall bar renders its full data width: '+JSON.stringify(interrupted.bars));
+    assert.equal(interrupted.neutral,true,'recall track differs from false-alarm encoding');
+    assert.equal(interrupted.restarted,true,'Play restarts a completed picture');
+    assert.equal(interrupted.buttonPaused,true,'on-screen Pause can freeze an animation');
     await until(()=>p.ev(`return document.querySelector('.rt-ov-how').dataset.state==='done'`),'how completed');
     for(const cell of ['both','saved','lost']){
       await p.ev(`document.querySelector('[data-rt-ov-example="${cell}"]').click()`);
@@ -71,7 +116,7 @@ test('ontology pictures match data, lifecycle, reduced motion and mobile', {time
       const path=join(tmpdir(),`sol-taskT2-a1-${sub}-${width}.png`);await writeFile(path,Buffer.from(shot.data,'base64'));console.log('screenshot: '+path);
     }
     // A standalone mount stays idle; destroy removes its callbacks and cancels motion.
-    assert.deepEqual(await p.ev(`const {mountOntoHow}=await import('./js/rt-onto-visual.js');const data=await (await fetch('data/onto-observability.json')).json();const el=document.createElement('div');document.body.append(el);const h=mountOntoHow(el,data);const initial=el.dataset.state;h.play();h.pause();const paused=el.dataset.state;h.reset();const reset=el.dataset.state;h.destroy();el.remove();return [initial,paused,reset];`),['idle','paused','idle']);
+    assert.deepEqual(await p.ev(`const {mountOntoHow}=await import('./js/rt-onto-visual.js');const data=await (await fetch('data/onto-observability.json')).json();const el=document.createElement('div');document.body.append(el);const h=mountOntoHow(el,data);const initial=el.dataset.state;h.play();h.pause();const paused=el.dataset.state;h.reset();const reset=el.dataset.state;h.destroy();el.remove();return [initial,paused,reset];`),['idle','done','idle']);
     assert.deepEqual(p.errors.filter(e=>!/favicon|fonts\.g|ERR_CERT|net::ERR_(INTERNET|NAME)/i.test(String(e))),[],'no page errors');
   }finally{session.close();await new Promise(r=>server.close(r));}
 });
