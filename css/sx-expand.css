@@ -1,1 +1,107 @@
-/* Scenario Expansion: styles for js/sx-expand.js (logs/2026-10-11_SCENARIO_EXPANSION_PLAN.md). Placeholder from T0. */
+/* Scenario Expansion ① "Expand one attack": styles for js/sx-expand.js (logs/2026-10-11_SCENARIO_EXPANSION_PLAN.md, T1). */
+.sx-ex{--sx-attack:var(--red);--sx-approved:var(--green);--sx-insufficient:var(--amber);--sx-benign:#8a93a0;min-width:0}
+.sx-ex-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin:0 0 14px;flex-wrap:wrap}
+.sx-ex-title h2{font-size:16px;margin:0 0 3px}
+.sx-ex-title p{margin:0;font-size:13px;color:var(--muted)}
+.sx-ex-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sx-ex-ctrl .btn{padding:7px 12px;min-width:74px;justify-content:center}
+.sx-ex-ctrl .btn:focus-visible,.sx-ex .rt-tip:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.sx-ex-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px}
+.sx-ex-seed,.sx-ex-axes,.sx-ex-classes,.sx-ex-chain{grid-column:1/-1}
+
+/* A stage: a numbered card that rises in when the timeline reaches it. */
+.sx-ex-stage{position:relative;display:flex;gap:12px;background:var(--panel);border:1px solid #e1e4e8;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;min-width:0;opacity:.14;transform:translateY(6px);transition:opacity .45s ease,transform .45s ease}
+.sx-ex-stage.on{opacity:1;transform:none}
+.sx-ex-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:720;background:var(--lav);color:var(--blue2)}
+.sx-ex-body{flex:1;min-width:0}
+.sx-ex-kick{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:3px 0 8px}
+.sx-ex-seed h3{font-size:16px;margin:0 0 10px}
+.sx-ex-facts{display:flex;flex-wrap:wrap;gap:8px}
+.sx-ex-facts>span{background:var(--soft);border-radius:9px;padding:7px 10px;font-size:13px;min-width:0;overflow-wrap:anywhere}
+.sx-ex-facts small{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.sx-ex code{font-family:var(--mono);font-size:12px}
+
+/* Axes: one column per condition. */
+.sx-ex-axislist{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.sx-ex-axis{border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease}
+.sx-ex-axis.on{opacity:1;transform:none}
+.sx-ex-axis-head b{display:block;font-size:13px;margin-bottom:6px}
+.sx-ex-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.sx-ex-tier,.sx-ex-op{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:650;border-radius:99px;padding:2px 7px;white-space:nowrap}
+.sx-ex-tier{background:var(--soft);color:#4f5864}
+.sx-ex-op[data-op="lab"]{background:var(--lav);color:var(--blue2)}
+.sx-ex-op[data-op="context"]{background:var(--amber-bg);color:var(--amber)}
+.sx-ex-op[data-op="observation"]{background:#eef0f3;color:#4f5864;border:1px dashed #b7bdc6}
+.sx-ex-axis ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.sx-ex-axis li{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 7px;border-radius:7px;background:#fafbfc}
+.sx-ex-axis li>span:first-child{flex:1;min-width:0}
+.sx-ex-axis li.seed{background:var(--lav);box-shadow:inset 2px 0 var(--blue)}
+.sx-ex-axis li small{font-size:10px;color:var(--blue2);font-weight:650}
+
+/* The wall of combinations and the gates that strike them out. */
+.sx-ex-big{font-size:14px;margin:0 0 10px;color:var(--muted)}
+.sx-ex-big b{font-size:24px;color:var(--ink);letter-spacing:-.02em;margin-right:4px}
+.sx-ex-big small{margin-left:6px;font-family:var(--mono);font-size:11px}
+.sx-ex-tiles{display:grid;grid-template-columns:repeat(auto-fill,12px);gap:3px}
+.sx-ex-tile{display:inline-block;width:12px;height:12px;border-radius:3px;background:#c9d1ff;position:relative;transition:background .3s,opacity .3s,transform .25s}
+.sx-ex-tiles .sx-ex-tile{opacity:0;transform:scale(.4)}
+.sx-ex-tiles .sx-ex-tile.on{opacity:1;transform:none}
+.sx-ex-tile.x{background:#eceef2;opacity:.9}
+.sx-ex-tile.x::after{content:"";position:absolute;left:-1px;right:-1px;top:50%;height:2px;margin-top:-1px;background:var(--red);transform:rotate(-45deg);opacity:.75}
+.sx-ex-tiles .sx-ex-tile.c:not(.x){background:var(--sx-tile)}
+.sx-ex-tile[data-cls="attack"]{--sx-tile:var(--sx-attack)}
+.sx-ex-tile[data-cls="approved"]{--sx-tile:var(--sx-approved)}
+.sx-ex-tile[data-cls="insufficient"]{--sx-tile:var(--sx-insufficient)}
+.sx-ex-tile[data-cls="benign"]{--sx-tile:var(--sx-benign)}
+.sx-ex-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin:10px 0 0}
+.sx-ex-legend span{display:inline-flex;align-items:center;gap:6px}
+.sx-ex-gatelist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sx-ex-gate{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:12.5px;opacity:.3;transition:opacity .3s,border-color .3s,background .3s}
+.sx-ex-gate.on{opacity:1}
+.sx-ex-gate.cur{border-color:#efbaba;background:#fff8f8}
+.sx-ex-gid{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);background:var(--red-bg);border-radius:6px;padding:2px 6px}
+.sx-ex-gn{font-weight:700;color:var(--red);white-space:nowrap}
+.sx-ex-left{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.sx-ex-left b{font-size:18px;color:var(--ink);margin-right:3px}
+
+/* Proposed outcome classes. */
+.sx-ex-cap{margin:-2px 0 10px;font-size:13px;color:#3d434b;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sx-ex-classlist{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.sx-ex-class{border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.sx-ex-class-head{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:8px}
+.sx-ex-class-head b[data-sx-count]{margin-left:auto;font-size:18px}
+.sx-ex-swatch{width:10px;height:10px;border-radius:3px;background:var(--sx-tile)}
+.sx-ex-class[data-cls="attack"]{--sx-tile:var(--sx-attack)}
+.sx-ex-class[data-cls="approved"]{--sx-tile:var(--sx-approved)}
+.sx-ex-class[data-cls="insufficient"]{--sx-tile:var(--sx-insufficient)}
+.sx-ex-class[data-cls="benign"]{--sx-tile:var(--sx-benign)}
+.sx-ex-class-tiles{display:flex;flex-wrap:wrap;gap:3px}
+.sx-ex-class-tiles .sx-ex-tile{width:10px;height:10px;background:var(--sx-tile);opacity:0;transform:scale(.4)}
+.sx-ex-class-tiles .sx-ex-tile.on{opacity:1;transform:none}
+
+/* The provenance chain. */
+.sx-ex-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.sx-ex-link{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:13px;opacity:.25;transition:opacity .3s}
+.sx-ex-link.on{opacity:1}
+.sx-ex-link b{font-size:18px}
+.sx-ex-link[data-op="lab"]{border-color:#b9c4ff;background:#f7f8ff}
+.sx-ex-link[data-op="context"]{border-color:#efd3a5;background:#fffaf3}
+.sx-ex-link[data-op="observation"]{border-style:dashed;border-color:#b7bdc6}
+.sx-ex-arrow{color:#89909a;font-size:16px}
+.sx-ex-note{margin:0;font-size:12.5px;color:#3d434b;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+@media(max-width:1100px){.sx-ex-axislist{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){
+  .sx-ex-grid{grid-template-columns:minmax(0,1fr)}
+  .sx-ex-classlist{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .sx-ex-stage{padding:12px;gap:8px}
+  .sx-ex-n{display:none}
+  .sx-ex-axislist,.sx-ex-classlist{grid-template-columns:minmax(0,1fr)}
+  .sx-ex-tiles{grid-template-columns:repeat(auto-fill,9px);gap:2px}
+  .sx-ex-tiles .sx-ex-tile{width:9px;height:9px;border-radius:2px}
+  .sx-ex-arrow{transform:rotate(90deg)}
+  .sx-ex-links{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){.sx-ex *,.sx-ex{transition:none!important}}
