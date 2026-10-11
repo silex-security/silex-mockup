@@ -180,3 +180,35 @@ mountGrid(el, model, { tip, run })
 前两轮的情况：第 1 轮两位都驳回；第 2 轮 codex 批准、claude 驳回。
 
 第 3 轮 claude 的非阻塞建议会落实到 MiMo 席位的配置里：`"bash": "ask"`；配置文件的 sha256 记入 ledger。
+
+## 实现与代码评审记录
+
+**任务结果**：
+- T0、T4 由 planner 完成；
+- T1（coder-opus，Claude Opus 5.5 medium）、T2（coder-sol，GPT-6.1-Sol medium）、T3（coder-mimo，MiMo-V2.6-Flash Free，在独立 worktree 中完成，以 `--stat` 核对后 cherry-pick 回来）全部 succeeded。
+
+**代码评审轮次**：
+
+| 轮次 | 评审版本 | codex（GPT-6.1-Sol high） | claude（Opus 5.5 high） | 发现的问题与修复 |
+|---|---|---|---|---|
+| r1 | f6a2885 | **IMPL-REJECTED** | **IMPL-REJECTED** | 1. 减少动态效果设置下，X1 打开时是空白的 idle 状态（两位都指出）→ 打开时、切换模式时、Reset 时都直接显示终态。<br>2. 390 px 下动画在屏幕外播放 → 舞台随当前步骤自动横向滚动。<br>3. 矩阵说明写成 “11 scripted traces, each run four ways” → 改为 “11 scenarios, 22 scripted traces”。<br>此外：演示期间的逐步播报合并为结束时一句总结；只读工具的悬浮说明改为“无 reviewer”；修正 X1 handle 的取法 |
+| r2 | **f402f64** | **IMPL-APPROVED** | **IMPL-APPROVED** | — |
+
+**PLANNER (claude): IMPL-APPROVED**，针对 f402f64（diff blob `72df79ad09b47864d6f43f54c7af3c5d1938bcac`，基线 `07b754cd9750b4dabffdaf4631a216469e37a204`）。
+
+**planner 事后修改了编码者的文件**（已在 r1 中向评审披露）：
+- 在 `js/rt-fleet-x1.js` 加入 `tour()`，并相应修改 `tests/site/rt-fleet-x1.test.mjs`；
+- 修正 `js/rt-fleet-grid.js` 的说明文字及其测试；
+- 修正 `js/rt-fleet-map.js` 的只读工具悬浮说明。
+
+**MiMo 席位的教训**（建议写进 orca-agent-fleet skill）：
+- OpenCode 2.x 的 shell 工具名叫 `shell`，所以 `"bash": "ask"` 不起作用；
+- `"external_directory": "deny"` 实际效果是弹窗询问，而不是直接拒绝；
+- planner 审计了它的全部 47 次工具调用：没有读取任何私有内容；唯一一次越界读取（读回它自己的截图）被拒绝。
+
+**留待以后处理的非阻塞建议**：
+- 390 px 下演示结束时，Ad Buyer 的 BLOCK 标签仍有部分被裁切（codex）；
+- reduced-motion 下的 “End state.” 播报可以改成一句状态总结；
+- `follow()` 依赖 `style.left`（claude）。
+
+**不在本次评审范围、未合入的改动**：主工作区里有另一个会话在 23:33 做的修改（`tests/site/ontology-card/browser.mjs`、`run-site-probes.mjs`、新增的 `chrome-reaper.mjs`），本次没有提交，也没有回退。
