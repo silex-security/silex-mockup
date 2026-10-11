@@ -198,6 +198,8 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
   const run = id => { window.__rtTabs?.open('scenarios'); document.getElementById('rtTab-scenarios')?.focus(); return window.__jevRuntime?.run(id); };
   const mount = (fn, id, opts) => { try { const h = fn(document.getElementById(id), m, opts); if (h) handles.push(h); } catch (e) { console.error(e); } };
   mount(mountX1, 'rtFleetX1', { tip, reducedMotion });
+  // The X1 block plays its guided demo once when the tab first renders (Trace only, then With ontology).
+  if (!reducedMotion) handles.at(-1)?.tour?.();
   mount(mountMap, 'rtFleetMap', { tip, reducedMotion });
   mount(mountGrid, 'rtFleetGrid', { tip, run });
   root.dataset.ready = '1';

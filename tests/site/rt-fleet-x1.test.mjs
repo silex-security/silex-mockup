@@ -66,6 +66,12 @@ test('the X1 cascade plays both modes to the model decisions, with visible claim
     const model = await p.ev('return window.__rtFleet.model()');
     const want = side => Object.fromEntries([['ops', []], ['sync', []], ...model.x1.map(x => [x.id, [x[side].decision]])]);
 
+    // T4 guided demo: on first render the block plays Trace only, then switches to With ontology and plays it.
+    assert.equal(await p.ev('return document.querySelector("[data-rt-fx1]").dataset.mode'), 'off', 'the demo starts in Trace only');
+    assert.equal(await state(), 'playing', 'the demo plays without a click');
+    await until(async () => (await p.ev('const r=document.querySelector("[data-rt-fx1]");return r.dataset.mode+"/"+r.dataset.state')) === 'on/done', 'the demo ends in With ontology, done', 40000);
+    assert.deepEqual(await decisions(), want('on'), 'the demo ends on the model decisions with the slice');
+
     for (const width of [1400, 390]) {
       await size(width);
       await sleep(200);

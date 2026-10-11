@@ -8,6 +8,7 @@
 
 const W = 980, H = 290;
 const STEP_MS = 1100;
+const TOUR_GAP_MS = 1500;
 // Stage geometry (px in a fixed 980 × 290 stage that scrolls on its own on narrow screens).
 const NODE = { ops: [0, 150], X1Pb: [190, 170], sync: [420, 150], X1Cb: [610, 150], X1Bb: [800, 170] };
 const ORDER = ['ops', 'X1Pb', 'sync', 'X1Cb', 'X1Bb'];
@@ -251,6 +252,20 @@ export function mountX1(el, model, opts = {}) {
     setState(next >= steps.length ? 'done' : 'paused');
   }
   function reset() { build(); }
+  // The guided demo (T4): Trace only first, then, after a short pause, With ontology. Any button press hands control back
+  // to the viewer and ends the tour; reduced motion never starts it.
+  let tourTimer = null;
+  function cancelTour() { clearTimeout(tourTimer); tourTimer = null; }
+  function tour() {
+    cancelTour();
+    if (reduced()) return;
+    setMode('off'); build(); play();
+    const wait = () => {
+      if (state === 'done') tourTimer = setTimeout(() => { tourTimer = null; setMode('on'); play(); }, TOUR_GAP_MS);
+      else tourTimer = setTimeout(wait, 200);
+    };
+    tourTimer = setTimeout(wait, 200);
+  }
   function setMode(m) {
     if (m === mode) return;
     mode = m;
@@ -261,21 +276,22 @@ export function mountX1(el, model, opts = {}) {
   const onClick = e => {
     const b = e.target.closest?.('button');
     if (!b || !root.contains(b)) return;
+    cancelTour();
     if (b.dataset.rtFx1Mode) setMode(b.dataset.rtFx1Mode);
     else if (b.dataset.rtFx1Act === 'play') (state === 'playing' ? pause : play)();
     else if (b.dataset.rtFx1Act === 'replay') { build(); play(); }
     else if (b.dataset.rtFx1Act === 'step') step();
   };
   // Leaving the Agent fleet tab cancels a running animation (it stays paused where it was).
-  const onTab = e => { if (e.detail?.tab && e.detail.tab !== 'fleet') pause(); };
+  const onTab = e => { if (e.detail?.tab && e.detail.tab !== 'fleet') { cancelTour(); pause(); } };
   root.addEventListener('click', onClick);
   if (typeof document !== 'undefined') document.addEventListener('rt:tab', onTab);
 
   build();
   return {
-    play, pause, reset,
+    play, pause, reset, tour,
     destroy() {
-      clearTimeout(timer); timer = null;
+      clearTimeout(timer); timer = null; cancelTour();
       root.removeEventListener('click', onClick);
       if (typeof document !== 'undefined') document.removeEventListener('rt:tab', onTab);
       el.innerHTML = '';

@@ -2,6 +2,23 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-10 — Runtime Observation › Agent fleet: pictures and a guided demo instead of long text
+
+- **Why:** the user found the Agent fleet tab too wordy and asked for pictures or a demo animation to explain the flow, less body text, and background moved into hover text.
+- **Layout, top to bottom:**
+  - **One-line intro**, with the background behind an ⓘ.
+  - **X1 cascade animation:** a guided demo plays once when the tab opens. It runs *Trace only* first (three ✓ and a red "scripted outcome" card), then *With ontology*: three typed-fact chips appear, the source is held, the video is routed to trust-safety, and the later steps are marked "independent check". Play / Pause / Replay / Step are available; with reduced motion nothing animates.
+  - **Fleet swimlanes** by team, with impact-labelled tool chips.
+  - **Routing dots:** one per stopped call, flying into the bucket of the team that reviews it.
+  - **11-row scenario matrix:** icons per call, a "differs" badge, and ▶ to play a row in the Scenarios tab.
+  - **The previous tables** are kept, with their hooks, under *Show as tables*.
+- **What stays on screen** (not only in hover text, checked by a test at 1400 and 390 px in both modes, idle and done):
+  - the Simulated chips and "scenario counts, computed by the engine, not measurements";
+  - both X1 notes: declared typed facts, not runtime linking; checkpoints evaluated independently, and in a real run the source hold stops the rest;
+  - "routed to owner · simulated, no tickets".
+- **Built by** a three-coder fleet in separate files: Claude Opus 5.5 medium (X1), GPT-6.1-Sol medium (map and dots), MiMo-V2.6-Flash Free (matrix, in an isolated worktree of tracked files only). The planner (Claude) did the model, layout, tour and integration. Plan reviewed by Codex GPT-6.1-Sol high and Claude Opus 5.5 high (3 rounds, unanimous). Plan: [`2026-10-10_AGENT_FLEET_VISUAL_PLAN.md`](2026-10-10_AGENT_FLEET_VISUAL_PLAN.md).
+- **Not in this change:** the 4-hour browser cache on demo.opensilex.ai. Its cause is the zone's Browser Cache TTL, which is a Cloudflare setting and left to the owner.
+
 ## 2026-10-10 — Runtime Observation › Agent fleet: a creator-platform domain with an ontology-slice switch
 
 - **What:** a third simulated domain, the fictional content platform **Acme Shorts**. It has six agents on five teams: trends, customer help, creator support, short-drama production and ads. There is also a new **Agent fleet** sub-tab.
