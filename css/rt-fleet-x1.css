@@ -1,0 +1,63 @@
+/* Runtime Observation · Agent fleet, block B: the X1 cascade animation (logs/2026-10-10_AGENT_FLEET_VISUAL_PLAN.md). Owner: coder-opus (T1). */
+.rt-fx1{padding:18px 20px;margin-bottom:16px;min-width:0}
+.rt-fx1-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px 16px;flex-wrap:wrap}
+.rt-fx1-head h2{margin:0;font-size:18px;letter-spacing:-.01em;min-width:0}
+.rt-fx1-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:14px 0 6px}
+.rt-fx1-toggle{display:inline-flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px;border:1px solid var(--line)}
+.rt-fx1-toggle button{border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:7px;cursor:pointer;font-size:12.5px;font-weight:600}
+.rt-fx1-toggle button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rt-fx1-play{display:inline-flex;flex-wrap:wrap;gap:6px}
+.rt-fx1-play .btn{padding:7px 12px;font-size:12.5px}
+.rt-fx1 button:focus-visible{outline:2px solid var(--blue2);outline-offset:2px}
+
+/* The stage is a fixed 980 × 290 box; its wrapper scrolls on narrow screens so the page never does. */
+.rt-fx1-scroll{overflow-x:auto;overflow-y:hidden;max-width:100%;margin:6px 0 4px;-webkit-overflow-scrolling:touch}
+.rt-fx1-stage{position:relative;margin:0 auto;font-size:12px}
+.rt-fx1-svg{position:absolute;inset:0;pointer-events:none}
+.rt-fx1-edge line{stroke:var(--muted);stroke-width:1.5}
+.rt-fx1-edge path{fill:var(--muted)}
+.rt-fx1-edge.story line{stroke-dasharray:4 3}
+.rt-fx1-edge.is-dim{opacity:.3}
+.rt-fx1-lane{stroke:var(--line);stroke-width:2;stroke-dasharray:2 5}
+.rt-fx1-route{fill:none;stroke:var(--amber);stroke-width:1.5;stroke-dasharray:4 3;opacity:0;transition:opacity .4s}
+.rt-fx1[data-routed] .rt-fx1-route{opacity:1}
+
+.rt-fx1-node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);text-align:center;transition:border-color .3s,box-shadow .3s}
+.rt-fx1-node.story{border-style:dashed;background:var(--soft)}
+.rt-fx1-node.story .rt-fx1-nt{color:var(--muted)}
+.rt-fx1-nt{font-size:13px;font-weight:650;color:var(--ink);white-space:nowrap}
+.rt-fx1-ns{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.rt-fx1-node.is-active{border-color:var(--blue);box-shadow:0 0 0 3px var(--lav)}
+.rt-fx1-node.is-dim{border-style:dashed}
+.rt-fx1-node.is-dim .rt-fx1-nt,.rt-fx1-node.is-dim .rt-fx1-ns{opacity:.45}
+.rt-fx1-slot{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 0;margin-top:3px}
+.rt-fx1-slot .rt-chip{animation:rt-fx1-pop .35s ease-out}
+.rt-fx1-indep{flex-basis:100%;font-size:10.5px;color:var(--muted);font-weight:600}
+
+.rt-fx1-band{position:absolute;height:20px;border-radius:6px;background:var(--lav);color:var(--blue2);font-size:10.5px;font-weight:600;letter-spacing:.04em;display:grid;place-items:center}
+
+.rt-fx1-token{position:absolute;width:70px;height:28px;border-radius:7px;background:var(--ink);color:var(--panel);font-size:11px;font-weight:650;font-family:var(--mono);display:grid;place-items:center;box-shadow:var(--shadow);transition:left .6s ease-in-out,top .6s ease-in-out;z-index:2}
+
+.rt-fx1-fact{position:absolute;display:inline-flex;align-items:center;white-space:nowrap;padding:3px 8px;border-radius:99px;background:var(--lav);color:var(--blue2);font-size:11px;border:1px solid var(--line);opacity:0;visibility:hidden;transform:translateY(-14px);transition:opacity .45s,transform .45s,visibility 0s .45s}
+.rt-fx1-fact .mono{font-family:var(--mono)}
+.rt-fx1-fact.is-on{opacity:1;visibility:visible;transform:none;transition:opacity .45s,transform .45s}
+.rt-fx1-fact:nth-of-type(2).is-on{transition-delay:.15s}
+.rt-fx1-fact:nth-of-type(3).is-on{transition-delay:.3s}
+
+.rt-fx1-queue{position:absolute;width:280px;height:58px;padding:6px 8px 6px 88px;border:1.5px dashed var(--amber);border-radius:10px;background:var(--amber-bg);display:flex;flex-direction:column;justify-content:center;animation:rt-fx1-pop .35s ease-out}
+.rt-fx1-queue b{color:var(--amber);font-size:12.5px}
+.rt-fx1-queue span:not(.rt-tip):not(.rt-tip-body){font-size:11px;color:var(--ink)}
+.rt-fx1-queue .rt-tip{position:absolute;top:6px;right:6px}
+
+.rt-fx1-outcome{position:absolute;width:350px;padding:10px 12px;border:1.5px solid var(--red);border-radius:10px;background:var(--red-bg);display:flex;flex-wrap:wrap;align-items:center;gap:6px;animation:rt-fx1-pop .4s ease-out}
+.rt-fx1-outcome b{color:var(--red);font-size:13px;flex-basis:100%}
+.rt-fx1-scripted{font-size:11px;font-weight:650;border-radius:99px;padding:2px 8px;background:var(--panel);color:var(--red);border:1px solid var(--red)}
+
+.rt-fx1-live{min-height:1.4em;margin:6px 0 0;font-size:12.5px;color:var(--ink)}
+.rt-fx1-claims{display:grid;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.rt-fx1-claims p{margin:0;font-size:12.5px;color:var(--muted)}
+
+@keyframes rt-fx1-pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.rt-fx1-rm *,.rt-fx1-rm *::before,.rt-fx1-rm *::after{transition:none!important;animation:none!important}
+@media (prefers-reduced-motion:reduce){.rt-fx1 *,.rt-fx1 *::before,.rt-fx1 *::after{transition:none!important;animation:none!important}}
+@media (max-width:760px){.rt-fx1{padding:14px}.rt-fx1-head h2{font-size:16px}}

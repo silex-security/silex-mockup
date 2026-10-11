@@ -36,6 +36,7 @@
   - 每个 agent 的覆盖率、日动作数、p95（§5 第 1 条的后两项）。
   - Overview 里的 Domain Suites 条目。
   - 创作者域的 Learning loop。
+- **2026-10-10 可视化改版**：Agent fleet 页签改成以图为主：X1 引导演示动画、按团队分的泳道、路由点阵、11 行场景矩阵；大段说明移进 ⓘ 悬浮框，原有表格收进 “Show as tables”。见 `2026-10-10_AGENT_FLEET_VISUAL_PLAN.md`。
 - **候选 pack**：`swm/data/packs/creator-platform.json`，单独成文件，不进入 `ontology.json`，也不计入任何覆盖率数字。
 
 ---

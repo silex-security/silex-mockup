@@ -5,11 +5,19 @@
 // scripted scenarios twice: with the ontology slice and without it (?ontology=0 semantics). Nothing is typed in.
 //
 // fleetModel({ seed }) is pure (no DOM) so tests can import it; renderFleet() fills #rtFleet.
-import { runStream } from '../jev-runtime/demo/js/engine/router.js';
-import { TENANT, scenariosFor, BACKGROUND_TRACES } from '../jev-runtime/demo/js/engine/scenarios.js';
+// Visual redesign (logs/2026-10-10_AGENT_FLEET_VISUAL_PLAN.md): renderFleet lays out blocks B (X1 animation,
+// js/rt-fleet-x1.js), C+D (fleet map and routing dots, js/rt-fleet-map.js) and E (scenario matrix, js/rt-fleet-grid.js)
+// over the same model; the original tables, with their hooks, stay in a closed "Show as tables" <details> (block F).
+import { runStream, prepareSpan } from '../jev-runtime/demo/js/engine/router.js';
+import { TENANT, scenariosFor, scenarioById, BACKGROUND_TRACES } from '../jev-runtime/demo/js/engine/scenarios.js';
+import { buildState } from '../jev-runtime/demo/js/engine/state.js';
 import { makeCreatorBackground } from '../jev-runtime/demo/js/engine/scenarios-creator.js';
 import { DEFAULT_POLICY } from '../jev-runtime/demo/js/engine/types.js';
 import { DOMAINS } from '../jev-runtime/demo/js/engine/domains.js';
+import { tip } from './rt-tip.js';
+import { mountX1 } from './rt-fleet-x1.js';
+import { mountMap } from './rt-fleet-map.js';
+import { mountGrid } from './rt-fleet-grid.js';
 
 const NON_EXECUTING = new Set(['hold_for_review', 'hold_for_approval', 'deny', 'stop_and_handover']);
 const KIND = { deny: 'blocked', stop_and_handover: 'blocked', hold_for_approval: 'held', hold_for_review: 'review' };
@@ -17,6 +25,20 @@ const X1 = [
   ['X1Pb', 'Trend Scout adds the video to the hot pool', 'content-ops'],
   ['X1Cb', 'Ad Curator selects it as a creative', 'ads'],
   ['X1Bb', 'Ad Buyer launches a paid campaign', 'ads'],
+];
+// The fact behind each creator rule (CREATOR_CONTRACT.md §3–§4): x1[].on.triples is that fact's evidence only.
+const FACT_OF_RULE = {
+  credential_change_verification: 'verification_short', mcn_payout_scope: 'payout_scope_excluded',
+  cross_principal_read: 'subject_scope_missing', asset_license: 'license_invalid',
+  sensitive_event_push: 'sensitive_event_unapproved', cumulative_limit: 'cumulative_over_limit',
+  ad_use_eligibility: 'ad_ineligible', latent_ad_path: 'hot_pool_reaches_ads_ineligible',
+};
+// Block E: eleven rows, the eight a/b pairs and X1's three steps; ▶ plays the risky ("b") trace of each row.
+const MATRIX = [
+  ['TR1', 'Sensitive-event push'], ['TR2', 'Injected user post'], ['CS1', 'Login-email change'],
+  ['CS2', 'Linked-card refunds'], ['CR1', 'Agency payout change'], ['CR2', 'Cross-creator analytics'],
+  ['SD1', 'Expiring music license'], ['SD2', 'Creeping promotion spend'],
+  ['X1P', 'X1 · add to hot pool'], ['X1C', 'X1 · select as ad creative'], ['X1B', 'X1 · launch paid campaign'],
 ];
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -56,11 +78,28 @@ export function fleetModel({ seed = 7 } = {}) {
     tools: [...toolsByAgent.get(a)].sort().map(name => ({ name, impact: c.tools[name] ?? null, reviewer: c.reviewers[name] ?? null })),
   }));
 
+  // X1: the decisive (last) pre_tool call of each risky step, plus the typed triples behind the rule that fired.
   const x1 = X1.map(([id, what, team]) => {
     const s = scenarios.find(x => x.id === id);
-    return { id, what, team, on: s?.on.at(-1) ?? null, off: s?.off.at(-1) ?? null };
+    const on = s?.on.at(-1) ?? null, off = s?.off.at(-1) ?? null;
+    const span = scenarioById(id)?.spans.filter(sp => sp.boundary === 'pre_tool').at(-1);
+    const used = span ? (buildState(prepareSpan(span, { ontology: true }), [], TENANT, 0).facts.creator?.used ?? {}) : {};
+    const fact = FACT_OF_RULE[on?.rules[0]];
+    const triples = (fact && used[fact]) ? used[fact].map(t => ({ s: t.s, p: t.p, o: t.o, grade: t.grade })) : [];
+    return { id, what, team, agent: s?.agent ?? null, tool: on?.tool ?? null, on: on && { ...on, triples }, off };
   });
-  return { tenant: c.tenant, scenarios, queues: { on: queue('on'), off: queue('off') }, fleet, x1 };
+
+  // Block D: one dot per stopped call with the slice, by the same rule as queues (so dots.length === queues.on.total).
+  const dots = scenarios.flatMap(s => s.on.filter(x => x.stopped).map(x => ({
+    scenario: s.id, agent: x.agent ?? s.agent, tool: x.tool, team: c.reviewers[x.tool] ?? 'unassigned',
+    decision: x.decision, rule: x.rules[0] ?? null,
+  })));
+
+  const brief = x => ({ tool: x.tool, decision: x.decision, stopped: x.stopped, rules: x.rules, reasons: x.reasons });
+  const side = id => { const s = scenarios.find(x => x.id === id); return { id, title: s?.title ?? '', on: (s?.on ?? []).map(brief), off: (s?.off ?? []).map(brief) }; };
+  const matrix = MATRIX.map(([key, label]) => ({ key, label, play: `${key}b`, agent: scenarios.find(x => x.id === `${key}b`)?.agent ?? null, a: side(`${key}a`), b: side(`${key}b`) }));
+
+  return { tenant: c.tenant, scenarios, queues: { on: queue('on'), off: queue('off') }, fleet, x1, dots, matrix };
 }
 
 // ---- rendering -----------------------------------------------------------------------------------------------
@@ -100,7 +139,13 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
   const teams = [...new Set([...Object.keys(m.queues.on.byTeam), ...Object.keys(m.queues.off.byTeam)])].sort();
   const seq = xs => xs.map(chip).join(' → ');
 
+  for (const h of handles.splice(0)) { try { h.destroy?.(); } catch {} }
   root.innerHTML = `
+  <div class="rt-fblock" id="rtFleetX1" data-rt-fblock="x1"></div>
+  <div class="rt-fblock" id="rtFleetMap" data-rt-fblock="map"></div>
+  <div class="rt-fblock" id="rtFleetGrid" data-rt-fblock="grid"></div>
+  <details class="card rt-fleet-tables" data-rt-fleet-tables>
+  <summary>Show as tables <small>· the same results as text, for screen readers and copying</small></summary>
   <section class="card rt-x1" data-rt-x1>
     <div class="rt-x1-head"><div><h2>Every step succeeded. The outcome broke the rule.</h2>
       <p>Operations asked to promote a popular video, with one constraint: videos featuring minors are never used in ads.
@@ -146,10 +191,22 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
     ${m.scenarios.map(s => `<tr data-rt-fleet-scenario="${esc(s.id)}"><td><b>${esc(s.id)}</b> <small>${esc(s.title)}</small></td><td class="mono">${esc(s.agent)}</td>
       <td>${seq(s.on)}</td><td>${seq(s.off)}</td></tr>`).join('')}
     </tbody></table>
-  </section>`;
+  </section>
+  </details>`;
+  const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // ▶ in the matrix: show the Scenarios tab, move focus to it, then let the host run the trace (its token guards it).
+  const run = id => { window.__rtTabs?.open('scenarios'); document.getElementById('rtTab-scenarios')?.focus(); return window.__jevRuntime?.run(id); };
+  const mount = (fn, id, opts) => { try { const h = fn(document.getElementById(id), m, opts); if (h) handles.push(h); return h; } catch (e) { console.error(e); return null; } };
+  const x1 = mount(mountX1, 'rtFleetX1', { tip, reducedMotion });
+  // The X1 block plays its guided demo once when the tab first renders (Trace only, then With ontology). Under reduced
+  // motion it shows the end state instead (mountX1 does that itself).
+  if (!reducedMotion) x1?.tour?.();
+  mount(mountMap, 'rtFleetMap', { tip, reducedMotion });
+  mount(mountGrid, 'rtFleetGrid', { tip, run });
   root.dataset.ready = '1';
   return m;
 }
+const handles = [];
 
 if (typeof document !== 'undefined') {
   let done = false;

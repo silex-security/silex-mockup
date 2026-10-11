@@ -151,6 +151,43 @@ test('the Agent fleet page renders the X1 chain, the queues and the reference me
     assert.equal(snap.creatorOptions, 22, '22 creator options in the picker');
     assert.equal(snap.refScenarios, '12', 'the reference metric still counts the 12 AP/SOC scenarios');
 
+    // T4 of logs/2026-10-10_AGENT_FLEET_VISUAL_PLAN.md: the honesty notes stay visible text, never only in a tip or in the
+    // closed "Show as tables" details, at desktop and phone widths and in both X1 modes, idle and done (S44 style).
+    const VISIBLE_NOTES = ['#rtFleetPanel .rt-fleet-intro .rt-chip[data-kind="sim"]', '[data-rt-fx1] .rt-chip[data-kind="sim"]',
+      '[data-rt-froute] .rt-chip[data-kind="sim"]', '[data-rt-froute-claim]', '[data-rt-fx1-claim]', '[data-rt-fgrid] .rt-chip[data-kind="sim"]'];
+    const visibleNotes = () => p.ev(`return ${JSON.stringify(VISIBLE_NOTES)}.map(sel => {
+      const els = [...document.querySelectorAll(sel)];
+      const ok = els.length > 0 && els.every(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0
+        && !e.closest('.rt-tip-body') && !e.closest('details:not([open])'); });
+      return [sel, ok];
+    })`);
+    const x1Mode = async m => { await p.ev(`document.querySelector('[data-rt-fx1-mode="${m}"]').click()`);
+      await until(() => p.ev(`return document.querySelector('[data-rt-fx1]').dataset.mode === '${m}'`), 'mode ' + m); };
+    for (const width of [1400, 390]) {
+      await p.send('Emulation.setDeviceMetricsOverride', { width, height: 1100, deviceScaleFactor: 1, mobile: width < 600 });
+      for (const m of ['on', 'off']) {
+        await x1Mode(m);
+        for (const phase of ['idle', 'done']) {
+          if (phase === 'done') {
+            await p.ev(`document.querySelector('[data-rt-fx1-act="step"]') && [...Array(8)].forEach(() => document.querySelector('[data-rt-fx1-act="step"]').click())`);
+            await until(() => p.ev('return document.querySelector("[data-rt-fx1]").dataset.state === "done"'), 'x1 done');
+          }
+          for (const [sel, ok] of await visibleNotes()) assert.equal(ok, true, `${width}px ${m} ${phase}: ${sel} visible`);
+          if (m === 'off' && phase === 'done') assert.match(await p.ev('return document.querySelector("[data-rt-fx1]").textContent'), /scripted outcome/);
+        }
+        if (width === 1400) await p.ev(`document.querySelector('[data-rt-fx1-act="replay"]')?.click(); document.querySelector('[data-rt-fx1-act="play"]')?.click()`);
+      }
+      assert.ok(await p.ev('return document.documentElement.scrollWidth <= innerWidth'), `${width}px: no horizontal page scroll`);
+    }
+    // ▶ in the matrix hands over to the Scenarios tab; the fleet deep link still opens the fleet tab afterwards.
+    await p.send('Emulation.setDeviceMetricsOverride', { width: 1400, height: 1100, deviceScaleFactor: 1, mobile: false });
+    await p.ev('document.querySelector(\'[data-rt-fgrid-play="CR2b"]\').click()');
+    await until(() => p.ev('return document.querySelector(\'[data-rt-tab="scenarios"]\').getAttribute("aria-selected") === "true" && document.getElementById("rtScenarioSelect").value === "CR2b"'), 'CR2b plays in Scenarios', 15000);
+    await p.ev('location.hash = "#view=dashboard"; location.hash = "#view=runtime-observation&tab=fleet"');
+    await until(() => p.ev('return window.__rtTabs.current() === "fleet"'), 'fleet deep link after ▶', 10000);
+    // The text routing note is the claim the dots illustrate.
+    assert.match(await p.ev('return document.querySelector("[data-rt-froute-claim]").textContent'), /simulated, no tickets/);
+
     await new Promise(r => setTimeout(r, 300));
     const errors = p.errors.filter(e => !/favicon|fonts\.(googleapis|gstatic)|ERR_CERT_AUTHORITY_INVALID/.test(e));
     assert.deepEqual(errors, [], 'no page exceptions or console errors');

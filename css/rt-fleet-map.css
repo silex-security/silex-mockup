@@ -1,0 +1,33 @@
+/* Runtime Observation · fleet map and review buckets. */
+.rt-fmap,.rt-froute{min-width:0;margin-bottom:20px}
+.rt-fmap-heading{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.rt-fmap-heading h3{margin:0;flex:1}
+.rt-fmap-lanes{display:grid;gap:10px}
+.rt-fmap-lane{display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;padding:12px;background:var(--soft);border:1px solid var(--line);border-radius:var(--radius)}
+.rt-fmap-lane>h4{margin:4px 0;font:12px var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.rt-fmap-agents{display:flex;flex-wrap:wrap;gap:10px;min-width:0}
+.rt-fmap-agent{flex:1 1 260px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+.rt-fmap-agent h4{margin:0 0 10px;font:13px var(--mono);overflow-wrap:anywhere}
+.rt-fmap-tools{display:flex;flex-wrap:wrap;gap:6px}
+.rt-fmap-tool{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font:11px var(--mono);color:var(--blue);background:var(--soft)}
+.rt-fmap-tool>span:first-child{overflow-wrap:anywhere;min-width:0}
+.rt-fmap-tool b{font-size:10px}
+.rt-fmap-tool[data-impact="write"]{color:var(--amber);background:var(--amber-bg)}
+.rt-fmap-tool[data-impact="payment"]{color:var(--red);background:var(--red-bg)}
+.rt-froute-controls{display:flex;gap:6px}
+.rt-froute-controls button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 10px;border-radius:6px;cursor:pointer;font:12px var(--mono)}
+.rt-froute-count-chip{white-space:normal!important;max-width:100%;line-height:1.5}
+.rt-froute-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.rt-froute-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--soft)}
+.rt-froute-panel h4{font-size:13px;margin:0 0 12px}
+.rt-froute-panel h4 strong{font:18px var(--mono);color:var(--blue);margin-left:6px}
+.rt-froute-bucket{border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:8px;background:var(--panel)}
+.rt-froute-bucket h5{display:flex;justify-content:space-between;gap:8px;margin:0 0 8px;font:12px var(--mono);overflow-wrap:anywhere}
+.rt-froute-dots{display:flex;flex-wrap:wrap;gap:8px}
+.rt-froute-dot.rt-tip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:0 0 28px;padding:0;border:1px solid var(--blue);border-radius:50%;background:var(--panel);color:var(--blue);cursor:pointer;font-size:17px;will-change:transform}
+.rt-froute-dot:focus-visible,.rt-froute-controls button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.rt-froute-empty{color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:8px;padding:20px 12px}
+.rt-froute-claim{font-size:12px;color:var(--muted);line-height:1.6;margin:14px 0 0;overflow-wrap:anywhere}
+.rt-froute-status{font:11px var(--mono);color:var(--muted);margin:8px 0 0}
+.rt-froute[data-state="playing"] .rt-froute-dot,.rt-froute[data-state="paused"] .rt-froute-dot{position:relative;z-index:2}
+@media(max-width:600px){.rt-fmap-lane{grid-template-columns:minmax(0,1fr)}.rt-froute-panels{grid-template-columns:minmax(0,1fr)}.rt-froute-panel{padding:10px}.rt-fmap-heading h3{flex-basis:100%}}
