@@ -279,3 +279,18 @@ T0 把 `jev-runtime-host.js` 里 `renderLearningEvidence` 的 HTML 生成搬进 
 - **MiMo 边界的执行情况（如实记录）**：OpenCode 2.0.20 下 `"shell": "ask"` **没有生效**，MiMo 的 shell 调用不弹窗直接执行。planner 从 OpenCode 会话库逐条审计：全部 shell 调用都是 worktree 内的 `ls`/`grep`、`node --check`、`git status/diff`；全部读取都在 worktree 内；没有运行 `node --test`，没有越界。它的测试由 planner 在三次快照检查后运行（模块无任何 import；测试的静态服务器与 `rt-fleet-map.test.mjs` 逐字相同；唯一偏差是第 31 行用常量路径读取 worktree 内的 `data/onto-observability.json`，判定安全并保留）。
 - **T4 集成（planner）**：MiMo 的 3 个文件从 `subtabs-mimo` 原样取回；`rt-ontology.js` 补上 `sub.bind('ex', runView)`（MiMo 发现的 T0 遗漏）；因此 `rt-onto-run.test.mjs` 中“页面加载后为 idle”的两处断言改为：页面上先等首次显示的那次播放结束再 `reset()`，并另起一个独立挂载检查“挂载本身不启动动画”（断言内容没有放宽）；`css/rt-subnav.css` 修正 390 px 下子页签按钮文字重叠（改为按内容宽度、nav 内部横向滚动）。
 - 结果：`node --test tests/site/*.test.mjs` 75/75；站点探针 44/45（S20 为原有失败，与 main 相同）；三个页签所有子页签在 1400/390 px 下页面无横向溢出。
+
+## 代码评审第 1 轮（head `07ef0ff`，rev `537bd8cb1ccfb31a`）
+
+codex **IMPL-REJECTED**（3 条），claude **IMPL-REJECTED**（1 条）。
+
+| 意见 | 修改 |
+|---|---|
+| how/s1 在动画中途被隐藏时，`pause()` 冻结在中间一拍：判定被隐藏、条为 0、方格不亮，与标签矛盾（claude 1） | coder-sol：`handle.pause()` 直接收束到终态（屏幕上的 Pause 按钮仍可停在当前拍）；新增快速切换回归测试。顺带采纳：完成后 Play 等同 Replay、召回条底色改为中性、`tip` 改为参数传递 |
+| `rt-onto-run.js` 的 Replay 和切换规则在 reduced motion 下仍有动画（codex 1） | coder-mimo：所有动画入口在调用时检查 reduced motion，直接到终态；CSS 加 reduced-motion 规则；测试覆盖 Replay、play、切换规则 |
+| `rt:view` 同步早于路由选中目标子页签，消耗了被离开子页签的那次自动播放；被取代的待定请求仍会生效（codex 2） | planner：`rt:view` 的同步推迟一个任务；任何新的 `view=` 路由清空待定请求；新增三项回归（离开再回到另一个子页签、被 Overview 取代、被不带 `&sub=` 的链接取代），并确认它们在旧代码上失败 |
+| index.html 里旧的 `.rt-onto-calls{display:grid}` 覆盖了时间线布局；连接箭头方向和末尾箭头错误（codex 3） | planner 删除该旧规则；coder-mimo 提高选择器优先级、只在相邻调用之间画连接、加 1400/390 px 几何测试 |
+
+- **MiMo 边界（如实记录）**：本轮 MiMo 执行了一次规则外的 `node -e`，内容是读取 worktree 内公开的 `data/onto-observability.json` 并打印各例子的字段计数，没有越界、没有网络。原因同上：OpenCode 2.0.20 下 `"shell": "ask"` 不生效。以后的 fleet 应把 OpenCode 的 shell 权限视为不可强制，改用沙箱或事后审计。
+- 结果：`node --test tests/site/*.test.mjs` 75/75；探针 44/45（S20 原有失败）；全部子页签 1400/390 px 无横向溢出。
+- 非阻塞（claude）：S45 比计划描述的薄（没有 390 px、键盘、Next），这些由 CI 里的 `rt-subnav.test.mjs` 覆盖；计划“探针迁移”一节的 S45 描述以此为准。
