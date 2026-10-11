@@ -193,17 +193,17 @@ function creatorFacts(slice, tool) {
     // Affirmatively invalid: an expiry that has passed, or a region the declared-complete list omits (§3).
     const invalid = lic => T(lic, 'EXPIRES').some(d => as_of != null && String(d) <= String(as_of))
       || (!T(lic, 'VALID_IN').includes(region) && T(lic, 'COMPLETE_FOR').includes('VALID_IN'));
+    // Denial needs the asset's license list declared complete: an omitted license could be the valid one (code review r2).
+    const complete = T(asset, 'COMPLETE_FOR').includes('LICENSED_UNDER');
     if (licenses.some(valid)) {
       license_invalid = false;
-    } else if (licenses.length > 0 && licenses.every(invalid)) {
+    } else if (complete && licenses.every(invalid)) {   // also covers an empty, complete list
       license_invalid = true;
       track('license_invalid', [
+        ...triplesOf(asset, 'COMPLETE_FOR'),
         ...triplesOf(asset, 'LICENSED_UNDER'),
         ...licenses.flatMap(lic => [...triplesOf(lic, 'VALID_IN'), ...triplesOf(lic, 'EXPIRES'), ...triplesOf(lic, 'COMPLETE_FOR')]),
       ]);
-    } else if (licenses.length === 0 && T(asset, 'COMPLETE_FOR').includes('LICENSED_UNDER')) {
-      license_invalid = true;
-      track('license_invalid', triplesOf(asset, 'COMPLETE_FOR'));
     }
   }
 

@@ -30,8 +30,10 @@ const asset31 = () => [
   { s: 'license:LIC-59', p: 'EXPIRES', o: '2026-12-31', grade: 'declared' },
 ];
 
-// SD1b uses AS-32, whose license expires on 2026-10-15; the second call reads a later as_of.
+// SD1b uses AS-32, whose license expires on 2026-10-15; the second call reads a later as_of. The rights system declares
+// AS-32's license list complete, so an expired sole license is a denial, not an unknown.
 const asset32 = (as_of) => sl(as_of, [
+  { s: 'asset:AS-32', p: 'COMPLETE_FOR', o: 'LICENSED_UNDER', grade: 'declared' },
   { s: 'asset:AS-32', p: 'LICENSED_UNDER', o: 'license:LIC-60', grade: 'declared' },
   { s: 'license:LIC-60', p: 'VALID_IN', o: 'region:US', grade: 'declared' },
   { s: 'license:LIC-60', p: 'EXPIRES', o: '2026-10-15', grade: 'declared' },

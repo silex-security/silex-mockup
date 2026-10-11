@@ -59,7 +59,8 @@ test('switching the slice off in the frame carries ontology=0 into Open full pag
     assert.equal(full.ontology, false);
     assert.equal(full.domain, 'creator');
     assert.ok(!full.rules.some(r => CREATOR_RULES.includes(r)), `no creator rule without the slice: ${full.rules}`);
-    assert.deepEqual(p.errors, [], 'no page errors');
+    // Same noise filter as the other headless site tests: favicon, web fonts and certificate messages are not page errors.
+    assert.deepEqual(p.errors.filter(e => !/favicon|fonts\.g|ERR_CERT|net::ERR_(INTERNET|NAME)/i.test(String(e))), [], 'no page errors');
   } finally {
     session.close();
     await new Promise(r => server.close(r));
