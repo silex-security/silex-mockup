@@ -314,7 +314,7 @@ try {
     assert.deepEqual(await ev('return window.__jevRuntime.summary().metrics'),expected);
     for(const [k,v] of Object.entries(expected))assert.equal(await ev(`return Number(document.querySelector('#rtMetrics [data-rt-metric="${k}"] .metric-value').textContent)`),v,k);
     const table={S1:'all ran',S2:'review · judge',S3:'blocked · rule',S4:'held · rule',S5:'ran · flagged',S6:'blocked · rule',F1:'blocked · fallback',SOC1:'all ran',SOC2:'held · rule',SOC3:'held · rule',SOC4:'blocked · rule',SOC5:'review · judge'};
-    assert.deepEqual(await ev(`return [...document.querySelectorAll('#rtScenarioSelect optgroup')].map(g=>[g.label,g.querySelectorAll('option').length])`),[['AP payments agent',7],['SOC triage agent',5]],'dropdown groups');
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('#rtScenarioSelect optgroup')].map(g=>[g.label,g.querySelectorAll('option').length])`),[['AP payments agent',7],['SOC triage agent',5],['Creator platform (Acme Shorts, fictional)',22]],'dropdown groups');
     for(const [id,label] of Object.entries(table))assert.equal(await ev(`return document.querySelector('#rtScenarioSelect option[data-rt-scenario="${id}"]').dataset.rtOutcome`),label,id);
     assert.match(await ev('return document.querySelector("#rtReference").textContent'),/seed 7.*policy-v1 reference set/);
     return '12 pinned outcome chips; four metrics independently recomputed from default-policy pre_tool envelopes';
@@ -445,7 +445,7 @@ try {
     for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
     const text=await ev('return document.querySelector("#rtLearning").textContent');
     assert.match(text,/The judge learns from your reviewers/);
-    assert.deepEqual(await ev(`return [...document.querySelectorAll('#runtime-observation [data-rt-tab]')].map(e=>e.getAttribute('aria-controls'))`),['rtScenarioCard','rtDecisionPlane','rtLearning','rtOntology','rtLatency'],'tab order: scenarios, decision plane, learning, ontology, latency');
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('#runtime-observation [data-rt-tab]')].map(e=>e.getAttribute('aria-controls'))`),['rtScenarioCard','rtDecisionPlane','rtLearning','rtOntology','rtFleetPanel','rtLatency'],'tab order: scenarios, decision plane, learning, ontology, agent fleet, latency');
     assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
     assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);
     assert.equal(await ev(`return [...document.querySelectorAll('#rtLearning .rt-learning-tiles .metric')].filter(e=>e.textContent.includes('measured on an open benchmark (AgentDojo held-out); benchmark labels, not yet customer reviewers')).length`),3);
@@ -534,7 +534,8 @@ try {
   });
   await probe('S40','pipeline visible while running; Run does not scroll; See this run (R4, R9)',async()=>{
     await rtOpen();
-    const ids=await ev('return [...document.querySelectorAll("#rtScenarioSelect option[data-rt-scenario]")].map(e=>e.value)');assert.equal(ids.length,12);
+    // The 12 AP/SOC reference scenarios (the creator-platform group is covered by tests/site/rt-fleet.test.mjs and S14).
+    const ids=await ev('return [...document.querySelectorAll("#rtScenarioSelect option[data-rt-scenario]")].filter(e=>!e.parentElement.label.startsWith("Creator")).map(e=>e.value)');assert.equal(ids.length,12);
     for(const id of ids){
       await ev(`document.querySelector('#rtScenarioCard').scrollIntoView({block:'start',behavior:'instant'});scrollBy(0,-80)`);await sleep(120);
       await rtPick(id);
@@ -654,12 +655,12 @@ try {
     const text=sel=>ev(`return document.querySelector(${Q(sel)}).textContent`);
     // Deep link opens a tab; the tab labels carry no status chips.
     await load({path:'/index.html#view=runtime-observation&tab=ontology'});await until(()=>ev('return !!window.__rtTabs&&!!document.querySelector("[data-onto-s1]")'),'ontology tab via deep link');
-    assert.deepEqual(await ev(`return [...document.querySelectorAll('[data-rt-tab]')].map(b=>[b.textContent,b.getAttribute('aria-selected')])`),[['Scenarios','false'],['Decision plane','false'],['Learning loop','false'],['Ontology','true'],['Judge latency','false']]);
+    assert.deepEqual(await ev(`return [...document.querySelectorAll('[data-rt-tab]')].map(b=>[b.textContent,b.getAttribute('aria-selected')])`),[['Scenarios','false'],['Decision plane','false'],['Learning loop','false'],['Ontology','true'],['Agent fleet','false'],['Judge latency','false']]);
     assert.deepEqual(await ev(`return [...document.querySelectorAll('[data-rt-panel]')].filter(p=>!p.hidden).map(p=>p.id)`),['rtOntology']);
     // Keyboard: arrows move between tabs.
     await ev(`document.querySelector('[data-rt-tab=ontology]').focus()`);
     for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'ArrowRight',code:'ArrowRight'});
-    assert.equal(await ev('return window.__rtTabs.current()+"|"+document.activeElement.dataset.rtTab'),'latency|latency','ArrowRight moves to the next tab');
+    assert.equal(await ev('return window.__rtTabs.current()+"|"+document.activeElement.dataset.rtTab'),'fleet|fleet','ArrowRight moves to the next tab');
     for(const type of ['keyDown','keyUp'])await page.send('Input.dispatchKeyEvent',{type,key:'ArrowLeft',code:'ArrowLeft'});
     assert.equal(await ev('return window.__rtTabs.current()'),'ontology','ArrowLeft moves back');
     // Ontology: the AgentDojo test is scoped to AgentDojo; recall is an observation; no S2 section.
