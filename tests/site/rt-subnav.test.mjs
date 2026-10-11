@@ -84,6 +84,24 @@ test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { time
     await go('#view=runtime-observation&tab=ontology');
     await ev(`location.hash = '#view=runtime-observation&tab=ontology&sub=ex'; location.hash = '#view=runtime-observation&tab=ontology&sub=s1'`);
     await until(async () => (await shownPanel('ontology')) === 's1', 'latest of two rapid links wins', 15000);
+    // Code review r1 (codex 2): a pending request is dropped by any newer view route, and by a link without &sub=.
+    await go('#view=runtime-observation&tab=ontology&sub=ex');
+    await ev(`location.hash = '#view=overview'`);
+    await until(() => ev('return !!window.__rtSubnav?.ontology'), 'ontology bar mounts while away', 15000);
+    assert.equal(await subOf('ontology'), 'how', 'a newer #view=overview cancels the pending ex request');
+    await go('#view=runtime-observation&tab=ontology&sub=ex');
+    await ev(`location.hash = '#view=runtime-observation&tab=ontology'`);
+    await until(async () => (await shownPanel('ontology')) === 'how', 'a link without &sub= replaces the pending ex', 15000);
+    // Leaving during the delayed load and coming back to another sub-tab: the sub-tab the route leaves never plays.
+    await go('#view=runtime-observation&tab=ontology');
+    await ev(`location.hash = '#view=overview'`);
+    await until(() => ev('return !!window.__rtSubnav?.ontology'), 'ontology bar mounts while away', 15000);
+    await ev(`location.hash = '#view=runtime-observation&tab=ontology&sub=s1'`);
+    await until(async () => (await shownPanel('ontology')) === 's1', 're-entry lands on s1', 15000);
+    await sleep(300);
+    const howState = () => ev(`return document.querySelector('#rtOntoHow[data-state], #rtOntoHow [data-state]')?.dataset.state ?? null`);
+    assert.equal(await howState(), 'idle', 'how was never on screen, so it never played');
+    assert.notEqual(await ev(`return document.querySelector('#rtOntoS1[data-state], #rtOntoS1 [data-state]')?.dataset.state ?? null`), 'idle', 's1 played on its first real show');
     // Fleet renders on first open: its link is also held until the bar exists. Learning's bar exists from load.
     await go('#view=runtime-observation&tab=fleet&sub=scenarios');
     await until(async () => (await shownPanel('fleet')) === 'scenarios', 'fleet &sub=scenarios', 15000);

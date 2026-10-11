@@ -33,6 +33,8 @@ document.querySelector('.rt-tabs')?.addEventListener('keydown', e => {
 function fromHash() {
   const h = location.hash.slice(1);
   if (!h.startsWith('view=')) return;
+  // Any newer view route supersedes a sub-tab request still waiting for its bar (js/rt-subnav.js requestSub).
+  if (typeof window !== 'undefined') window.__rtSubPending = {};
   const q = new URLSearchParams(h);
   if (q.get('view') !== 'runtime-observation' || !q.has('tab')) return;
   // &sub=<key> picks a sub-tab inside it (js/rt-subnav.js); a bar that renders later applies it when it mounts. A link

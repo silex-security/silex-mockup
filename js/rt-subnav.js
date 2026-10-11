@@ -81,7 +81,11 @@ export function mountSubnav(navEl, { tab, label, items, panels, initial }) {
     navEl.scrollIntoView?.({ block: 'nearest' });
   };
   // A tab change or a view change can show or hide this bar without a sub-tab change (index.html showView fires rt:view).
+  // A view change syncs one task later: a hash route shows the view first and only then selects its tab and sub-tab
+  // (js/rt-subtabs.js listens to the same hashchange), so syncing at once would start the sub-tab the route is leaving.
+  let viewTimer = 0;
   const onOuter = () => sync();
+  const onView = () => { clearTimeout(viewTimer); viewTimer = setTimeout(sync, 0); };
   // At phone widths the bar scrolls inside itself; keep the focused tab in view.
   const onFocus = e => { const b = e.target.closest?.('[data-rt-sub]'); if (b) b.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); };
   navEl.addEventListener('click', onClick);
@@ -89,7 +93,7 @@ export function mountSubnav(navEl, { tab, label, items, panels, initial }) {
   navEl.addEventListener('focusin', onFocus);
   panels.addEventListener('click', onNext);
   document.addEventListener('rt:tab', onOuter);
-  document.addEventListener('rt:view', onOuter);
+  document.addEventListener('rt:view', onView);
 
   const api = {
     open, current: () => cur, initial: init, isShown,
@@ -97,7 +101,7 @@ export function mountSubnav(navEl, { tab, label, items, panels, initial }) {
     bind(key, handle) { if (!handle || !keys.includes(key)) return; bound.set(key, handle); if (shownKey === key) shownKey = null; sync(); },
     destroy() {
       navEl.removeEventListener('click', onClick); navEl.removeEventListener('keydown', onKey); navEl.removeEventListener('focusin', onFocus); panels.removeEventListener('click', onNext);
-      document.removeEventListener('rt:tab', onOuter); document.removeEventListener('rt:view', onOuter);
+      document.removeEventListener('rt:tab', onOuter); document.removeEventListener('rt:view', onView); clearTimeout(viewTimer);
       bound.clear();
       if (window.__rtSubnav?.[tab] === api) delete window.__rtSubnav[tab];
     },
