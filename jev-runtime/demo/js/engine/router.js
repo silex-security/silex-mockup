@@ -29,11 +29,25 @@ function actionFor(decision, mode, alert) {
 const policyLatency = (seed, spanId) =>
   Math.round(rngFor(seed, spanId, 'policy-latency').uniform(LATENCY_BUDGET.policy[0], LATENCY_BUDGET.policy[1]));
 
+/**
+ * Pure and non-mutating. With `ontology: false` it returns a copy of the span whose
+ * `context.creator` slice is removed (every other field untouched); otherwise the span itself.
+ * With no argument the behaviour is exactly "ontology on".
+ */
+export function prepareSpan(span, { ontology = true } = {}) {
+  if (span == null || ontology !== false) return span;
+  const ctx = span.context;
+  if (ctx == null || !Object.prototype.hasOwnProperty.call(ctx, 'creator')) return span;
+  const nextContext = { ...ctx };
+  delete nextContext.creator;
+  return { ...span, context: nextContext };
+}
+
 export function route(span, ctx) {
   if (!span || span.boundary == null) return null;
   const { tenant, policy, seed } = ctx;
   const history = ctx.history ?? [];
-  const state = buildState(span, history, tenant, span.t_ms ?? 0);
+  const state = buildState(prepareSpan(span, { ontology: ctx.ontology !== false }), history, tenant, span.t_ms ?? 0);
   const rules = checkRules(state, tenant);
 
   const fault = span.fault ?? ctx.faults?.jev ?? null;
@@ -109,13 +123,13 @@ function normalizeFaults(faults) {
   return faults;
 }
 
-export function createEngine({ tenant, policy, seed }) {
+export function createEngine({ tenant, policy, seed, ontology = true }) {
   let currentPolicy = policy;
   let log = [];
 
   return {
     route(span, faults) {
-      const env = route(span, { tenant, policy: currentPolicy, seed, history: log, faults: normalizeFaults(faults) });
+      const env = route(span, { tenant, policy: currentPolicy, seed, history: log, faults: normalizeFaults(faults), ontology });
       if (env) log.push(env);
       return env;
     },
@@ -123,7 +137,7 @@ export function createEngine({ tenant, policy, seed }) {
       const t = scenarioById(scenarioId);
       if (!t) return [];
       const envs = runStream(t.spans, {
-        tenant, policy: currentPolicy, seed, history: log, faults: normalizeFaults(faults),
+        tenant, policy: currentPolicy, seed, history: log, faults: normalizeFaults(faults), ontology,
       });
       log.push(...envs);
       return envs;

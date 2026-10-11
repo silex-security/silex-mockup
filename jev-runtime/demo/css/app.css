@@ -29,6 +29,11 @@ a { color: var(--blue2); }
 .jv-domain button { background: transparent; color: #c9ccd3; border: 0; border-radius: 999px; padding: 4px 12px; font-size: 12px; white-space: nowrap; }
 .jv-domain button[aria-pressed="true"] { background: #fff; color: var(--ink); font-weight: 600; }
 .jv-domain button:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.jv-domain[hidden], .jv-tabs [hidden] { display: none; }
+.jv-onto { margin-left: 8px; align-items: center; }
+.jv-onto-label { color: #c9ccd3; font-size: 11px; padding: 0 8px 0 10px; white-space: nowrap; }
+.jv-slice { margin: 0; padding-left: 16px; }
+.jv-slice li { font-size: 12px; }
 .jv-tabs { display: flex; gap: 2px; overflow-x: auto; min-width: 0; }
 .jv-tabs button { background: none; border: 0; color: #b9bec8; padding: 10px 14px; border-bottom: 3px solid transparent; white-space: nowrap; }
 .jv-tabs button[aria-selected="true"] { color: #fff; border-bottom-color: var(--blue); font-weight: 600; }

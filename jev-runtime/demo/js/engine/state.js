@@ -112,6 +112,147 @@ function redact(text) {
     .replace(/\bACCT\w*(?:[-_]\w+)*\b/gi, '[redacted]');
 }
 
+// --- Creator-platform derived facts (web/demo/CREATOR_CONTRACT.md §3). -----------------------
+// state.facts.creator is null unless the span carries span.context.creator = { as_of, triples }.
+// Each fact is true, false, or null when the tool is not the one the fact is about. `used`
+// records, per true fact, the triples it was derived from (for the Inspector).
+
+const CREATOR_LEVEL = { L0: 0, L1: 1, L2: 2 };
+const levelOf = v => CREATOR_LEVEL[v] ?? 0;
+const firstOf = arr => (arr.length ? arr[0] : null);
+
+function creatorFacts(slice, tool) {
+  if (slice == null) return null;
+  const triples = Array.isArray(slice.triples) ? slice.triples : [];
+  const as_of = slice.as_of ?? null;
+  const name = tool?.name ?? null;
+  const args = tool?.args ?? {};
+  const T = (s, p) => triples.filter(t => t && t.s === s && t.p === p).map(t => t.o);
+  const triplesOf = (s, p) => triples.filter(t => t && t.s === s && t.p === p);
+  const subjectsWith = (p, o) => triples.filter(t => t && t.p === p && t.o === o).map(t => t.s);
+  const used = {};
+  const track = (fact, ts) => { if (ts.length) used[fact] = ts; };
+  const afterExpiry = d => as_of == null || String(d) > String(as_of);
+
+  let verification_short = null;
+  if (name === 'help.update_login_email') {
+    const session = levelOf(firstOf(T(`session:${args.session_id}`, 'VERIFICATION_LEVEL')));
+    const required = levelOf(firstOf(T(`tool:${name}`, 'REQUIRES_VERIFICATION')));
+    verification_short = session < required;
+    if (verification_short) track('verification_short', [
+      ...triplesOf(`session:${args.session_id}`, 'VERIFICATION_LEVEL'),
+      ...triplesOf(`tool:${name}`, 'REQUIRES_VERIFICATION'),
+    ]);
+  }
+
+  let payout_scope_excluded = null;
+  if (name === 'creator.update_payout_account') {
+    const requester = args.requester, creator_id = args.creator_id;
+    const manages = T(requester, 'MANAGES').includes(`creator:${creator_id}`);
+    const hasPayout = T(requester, 'HAS_SCOPE').includes('scope:payout');
+    payout_scope_excluded = requester !== creator_id && manages && !hasPayout;
+    if (payout_scope_excluded) track('payout_scope_excluded', [
+      ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'HAS_SCOPE'),
+    ]);
+  }
+
+  let subject_scope_missing = null;
+  if (name === 'creator.get_creator_analytics') {
+    const requester = args.requester, creator_id = args.creator_id;
+    const manages = T(requester, 'MANAGES').includes(`creator:${creator_id}`);
+    const hasAnalytics = T(requester, 'HAS_SCOPE').includes('scope:analytics');
+    subject_scope_missing = requester !== creator_id && !(manages && hasAnalytics);
+    if (subject_scope_missing) track('subject_scope_missing', [
+      ...triplesOf(requester, 'MANAGES'), ...triplesOf(requester, 'HAS_SCOPE'),
+    ]);
+  }
+
+  let license_invalid = null;
+  if (name === 'studio.use_asset') {
+    const licenses = T(`asset:${args.asset_id}`, 'LICENSED_UNDER');
+    const valid = licenses.some(lic =>
+      T(lic, 'VALID_IN').includes(`region:${args.region}`) && T(lic, 'EXPIRES').every(afterExpiry));
+    license_invalid = !valid;
+    if (license_invalid) track('license_invalid', [
+      ...triplesOf(`asset:${args.asset_id}`, 'LICENSED_UNDER'),
+      ...licenses.flatMap(lic => [...triplesOf(lic, 'VALID_IN'), ...triplesOf(lic, 'EXPIRES')]),
+    ]);
+  }
+
+  let sensitive_event_unapproved = null;
+  if (name === 'promo.push_trend_to_homepage') {
+    const topic = `topic:${args.topic_id}`;
+    const events = T(topic, 'RELATED_TO');
+    const active = events.some(e => T(e, 'STATUS').includes('active'));
+    const approved = T(topic, 'APPROVED_BY').includes('team:trust-safety');
+    sensitive_event_unapproved = active && !approved;
+    if (sensitive_event_unapproved) track('sensitive_event_unapproved', [
+      ...triplesOf(topic, 'RELATED_TO'),
+      ...events.flatMap(e => triplesOf(e, 'STATUS')),
+      ...triplesOf(topic, 'APPROVED_BY'),
+    ]);
+  }
+
+  let cumulative_over_limit = null;
+  if (name === 'help.refund_coins') {
+    const cards = T(`account:${args.account_id}`, 'PAID_WITH');
+    let over = false; const ts = [];
+    for (const card of cards) {
+      const accounts = subjectsWith('PAID_WITH', card);
+      let sum = 0;
+      for (const acc of accounts) for (const v of T(acc, 'REFUNDED_USD')) sum += Number(v) || 0;
+      const limit = Number(firstOf(T(card, 'LIMIT_USD')));
+      if (Number.isFinite(limit) && sum + Number(args.amount_usd) > limit) over = true;
+      ts.push(...triplesOf(`account:${args.account_id}`, 'PAID_WITH'),
+        ...accounts.flatMap(a => triplesOf(a, 'REFUNDED_USD')), ...triplesOf(card, 'LIMIT_USD'));
+    }
+    cumulative_over_limit = over;
+    if (over) track('cumulative_over_limit', ts);
+  } else if (name === 'studio.buy_promotion') {
+    const budgets = T(`team:${args.team}`, 'CHARGES');
+    let over = false; const ts = [];
+    for (const b of budgets) {
+      const spent = Number(firstOf(T(b, 'SPENT_USD')));
+      const limit = Number(firstOf(T(b, 'LIMIT_USD')));
+      if (Number.isFinite(spent) && Number.isFinite(limit) && spent + Number(args.amount_usd) > limit) over = true;
+      ts.push(...triplesOf(`team:${args.team}`, 'CHARGES'), ...triplesOf(b, 'SPENT_USD'), ...triplesOf(b, 'LIMIT_USD'));
+    }
+    cumulative_over_limit = over;
+    if (over) track('cumulative_over_limit', ts);
+  }
+
+  let ad_ineligible = null;
+  if (name === 'ads.select_creative' || name === 'ads.launch_campaign') {
+    const video = `video:${args.video_id}`;
+    ad_ineligible = !T(video, 'ELIGIBLE_FOR').includes('purpose:advertising');
+    if (ad_ineligible) track('ad_ineligible', triplesOf(video, 'ELIGIBLE_FOR'));
+  }
+
+  let hot_pool_reaches_ads_ineligible = null;
+  if (name === 'promo.add_to_hot_pool') {
+    const pool = `pool:${args.pool_id}`, video = `video:${args.video_id}`;
+    const syncsToAds = T(pool, 'SYNCS_TO').includes('pool:ad-candidates');
+    const notAd = !T(video, 'ELIGIBLE_FOR').includes('purpose:advertising');
+    hot_pool_reaches_ads_ineligible = syncsToAds && notAd;
+    if (hot_pool_reaches_ads_ineligible) track('hot_pool_reaches_ads_ineligible', [
+      ...triplesOf(pool, 'SYNCS_TO'), ...triplesOf(video, 'ELIGIBLE_FOR'),
+    ]);
+  }
+
+  return {
+    as_of,
+    verification_short,
+    payout_scope_excluded,
+    subject_scope_missing,
+    license_invalid,
+    sensitive_event_unapproved,
+    cumulative_over_limit,
+    ad_ineligible,
+    hot_pool_reaches_ads_ineligible,
+    used,
+  };
+}
+
 export function buildState(span, history, tenant, now) {
   const ctx = span.context ?? {};
   const invoice = ctx.invoice ?? null;
@@ -163,6 +304,8 @@ export function buildState(span, history, tenant, now) {
     target_privileged,
     incident_approved_for_target,
     change_approved_for_ip,
+    // Creator platform (CREATOR_CONTRACT.md §3): null unless span.context.creator is present.
+    creator: creatorFacts(ctx.creator, tool),
   };
 
   const payee_similarity = (invoice?.vendor != null && bank?.holder != null)

@@ -6,6 +6,7 @@
 import { makeRng } from './rng.js';
 import { traceFor, root, lbl } from './trace.js';
 import { SOC_SCENARIOS, makeSocBackground } from './scenarios-soc.js';
+import { CREATOR_SCENARIOS, makeCreatorBackground, CREATOR_STREAM_AT } from './scenarios-creator.js';
 
 // Hard-rule constants for the fictional tenant. Deliberately NOT part of the
 // policy object: no threshold edit can change them (plan §4, R p.13 hard veto).
@@ -167,11 +168,12 @@ export const FAULT_SCENARIOS = Object.freeze([
 ]);
 
 export const ALL_SCENARIOS = Object.freeze([...SCENARIOS, ...FAULT_SCENARIOS]);
-export { SOC_SCENARIOS };
-const EVERY = [...ALL_SCENARIOS, ...SOC_SCENARIOS];
+export { SOC_SCENARIOS, CREATOR_SCENARIOS };
+const EVERY = [...ALL_SCENARIOS, ...SOC_SCENARIOS, ...CREATOR_SCENARIOS];
 export const scenarioById = id => EVERY.find(t => t.scenario === id) ?? null;
-/** The scripted scenarios of one agent: 'ap' (S1–S6, F1) or 'soc' (SOC1–SOC5). */
-export const scenariosFor = domain => (domain === 'soc' ? SOC_SCENARIOS : ALL_SCENARIOS);
+/** The scripted scenarios of one agent: 'ap' (S1–S6, F1), 'soc' (SOC1–SOC5) or the 22 creator traces. */
+export const scenariosFor = domain =>
+  (domain === 'soc' ? SOC_SCENARIOS : domain === 'creator' ? CREATOR_SCENARIOS : ALL_SCENARIOS);
 
 // Normal background traffic: payments within limit, approved, payee matches,
 // allowlisted remit domain; plus drafted summaries grounded in the given evidence.
@@ -226,9 +228,12 @@ export function makeBackground(seed, n = BACKGROUND_TRACES) {
  * F1 is not in the stream; the UI injects it (and any scenario) on demand.
  */
 export function buildStream(seed, { background = BACKGROUND_TRACES, domain = 'ap' } = {}) {
-  const soc = domain === 'soc';
-  const bg = soc ? makeSocBackground(seed, background) : makeBackground(seed, background);
-  const at = soc ? { 3: 'SOC1', 9: 'SOC2', 16: 'SOC3', 23: 'SOC4', 30: 'SOC5' } : { 3: 'S1', 8: 'S2', 14: 'S3', 20: 'S4', 26: 'S5', 32: 'S6' };
+  const creator = domain === 'creator', soc = domain === 'soc';
+  const bg = creator ? makeCreatorBackground(seed, background)
+    : soc ? makeSocBackground(seed, background) : makeBackground(seed, background);
+  const at = creator ? CREATOR_STREAM_AT
+    : soc ? { 3: 'SOC1', 9: 'SOC2', 16: 'SOC3', 23: 'SOC4', 30: 'SOC5' }
+      : { 3: 'S1', 8: 'S2', 14: 'S3', 20: 'S4', 26: 'S5', 32: 'S6' };
   const traces = [];
   bg.forEach((t, i) => { const sc = at[i] && scenarioById(at[i]); if (sc) traces.push(sc); traces.push(t); });
   const r = makeRng(String(seed), 'clock');

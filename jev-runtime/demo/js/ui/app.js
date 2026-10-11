@@ -4,6 +4,7 @@
 import { DEFAULT_POLICY, BATTERY } from '../engine/types.js';
 import { TENANT, BACKGROUND_TRACES, buildStream, makeBackground, scenarioById, scenariosFor } from '../engine/scenarios.js';
 import { makeSocBackground } from '../engine/scenarios-soc.js';
+import { makeCreatorBackground } from '../engine/scenarios-creator.js';
 import { domainFrom } from '../engine/domains.js';
 import { applyHostOptions } from './embed.js';
 import { route, runStream } from '../engine/router.js';
@@ -25,8 +26,13 @@ const params = new URLSearchParams(location.search);
 const seedParam = Number.parseInt(params.get('seed') ?? '', 10);
 const SEED = Number.isFinite(seedParam) ? seedParam : 7;
 const AUTOPLAY = params.get('autoplay') !== '0';
-// One simulated agent per page load (logs/2026-09-30_DEMO_SOC_PLAN.md §1): ?domain=ap|soc, AP when missing or unknown.
+// One simulated domain per page load (logs/2026-09-30_DEMO_SOC_PLAN.md §1): ?domain=ap|soc|creator, AP when missing or unknown.
 const DOMAIN = domainFrom(location.search);
+// ?ontology=0 removes the creator ontology slice before every decision, inspection and replay (CREATOR_CONTRACT.md §2).
+// AP and SOC spans carry no slice, so the setting changes nothing for them.
+const ONTOLOGY = params.get('ontology') !== '0';
+// The creator domain has no Learning loop (DOMAINS.creator.learning === false).
+const HAS_LEARNING = DOMAIN.learning !== false;
 applyHostOptions(params);
 const SCENARIOS_HERE = scenariosFor(DOMAIN.id);
 
@@ -36,7 +42,8 @@ const policies = new Map([[policy.version, policy]]);
 const stream = buildStream(SEED, { domain: DOMAIN.id });
 const titles = new Map([
   ...SCENARIOS_HERE.map(t => [t.trace_id, t.title]),
-  ...(DOMAIN.id === 'soc' ? makeSocBackground(SEED, BACKGROUND_TRACES) : makeBackground(SEED)).map(t => [t.trace_id, t.title]),
+  ...(DOMAIN.id === 'soc' ? makeSocBackground(SEED, BACKGROUND_TRACES)
+    : DOMAIN.id === 'creator' ? makeCreatorBackground(SEED, BACKGROUND_TRACES) : makeBackground(SEED)).map(t => [t.trace_id, t.title]),
 ]);
 const rows = [];           // { seq, span, env, fault }
 let seq = 0, cursor = 0, simTime = 0, playing = false, speed = 1, injectCount = 0, injectAt = 0;
@@ -49,6 +56,7 @@ const app = {
   domain: DOMAIN,
   tenant: TENANT,
   seed: SEED,
+  ontology: ONTOLOGY,
   policy: () => policy,
   rows: () => rows,
   history: historyFor,
@@ -67,7 +75,7 @@ function routeSpan(span, f = fault) {
   const applied = span.fault ?? f ?? null;
   const row = { seq: ++seq, span, fault: applied };
   const history = rows.filter(r => r.span.trace_id === span.trace_id).map(r => r.env);
-  row.env = route(span, { tenant: TENANT, policy, seed: SEED, history, faults: { jev: applied } });
+  row.env = route(span, { tenant: TENANT, policy, seed: SEED, history, faults: { jev: applied }, ontology: ONTOLOGY });
   if (!row.env) return null;
   rows.push(row);
   learning?.onRow(row, history);
@@ -173,7 +181,7 @@ function select(s) {
   for (const el of $$('.jv-row', streamEl)) el.setAttribute('aria-selected', String(Number(el.dataset.seq) === s));
   const row = rows.find(r => r.seq === s) ?? null;
   renderInspector(inspEl, row, {
-    tenant: TENANT, seed: SEED, history: historyFor,
+    tenant: TENANT, seed: SEED, history: historyFor, ontology: ONTOLOGY,
     policyFor: v => policies.get(v) ?? policy,
     traceTitle: sp => titles.get(sp.trace_id) ?? titles.get(baseTrace(sp.trace_id)) ?? sp.trace_id,
   });
@@ -201,7 +209,7 @@ const TIP = {
 // Four headline numbers stay in view; the rest sit under "More metrics". Every tile keeps its data-kpi hook.
 const HEADLINE = new Set(['blocks', 'review_rate', 'coverage', 'p50']);
 function inspectorCtx() {
-  return { tenant: TENANT, seed: SEED, history: historyFor, policyFor: v => policies.get(v) ?? policy,
+  return { tenant: TENANT, seed: SEED, history: historyFor, ontology: ONTOLOGY, policyFor: v => policies.get(v) ?? policy,
     traceTitle: sp => titles.get(sp.trace_id) ?? titles.get(baseTrace(sp.trace_id)) ?? sp.trace_id };
 }
 function openDemoDetail(eventId) {
@@ -248,7 +256,7 @@ function renderKpis() {
 $('#lede').innerHTML = DOMAIN.lede;
 $('#inject').insertAdjacentHTML('beforeend', DOMAIN.inject.map(([id, label, tip]) =>
   `<button class="btn" data-inject="${esc(id)}" title="${esc(tip)}">${esc(label)}</button>`).join(''));
-$('#f-agent').insertAdjacentHTML('beforeend', `<option value="${esc(DOMAIN.agent)}">${esc(DOMAIN.agent)}</option>`);
+$('#f-agent').insertAdjacentHTML('beforeend', (DOMAIN.agents ?? [DOMAIN.agent]).map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join(''));
 $('[data-replay-rules]').textContent = DOMAIN.replayRules;
 for (const b of $$('[data-domain]')) {
   b.setAttribute('aria-pressed', String(b.dataset.domain === DOMAIN.id));
@@ -260,15 +268,31 @@ for (const b of $$('[data-domain]')) {
   });
 }
 
+// The ontology-slice switch, shown only for a domain whose spans carry a slice (the creator platform).
+const ontoBox = $('[data-ontology-switch]');
+if (ontoBox) {
+  ontoBox.hidden = DOMAIN.id !== 'creator';
+  for (const b of $$('[data-ontology]', ontoBox)) {
+    const on = b.dataset.ontology === '1';
+    b.setAttribute('aria-pressed', String(on === ONTOLOGY));
+    b.addEventListener('click', () => {
+      if (on === ONTOLOGY) return;
+      const q = new URLSearchParams(location.search);
+      q.set('ontology', on ? '1' : '0');
+      location.assign(`${location.pathname}?${q}${location.hash}`);
+    });
+  }
+}
+
 // ---- wiring -------------------------------------------------------------
-const PUBLIC_TABS = ['live', 'replay', 'studio', 'learning', 'about'];
+const PUBLIC_TABS = ['live', 'replay', 'studio', ...(HAS_LEARNING ? ['learning'] : []), 'about'];
 function showTab(requested, updateUrl = true) {
   const name = PUBLIC_TABS.includes(requested) ? requested : 'live';
   if (updateUrl) { const q = new URLSearchParams(location.search); q.set('tab', name); history.replaceState(null, '', `${location.pathname}?${q}${location.hash}`); }
   for (const b of $$('[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === name));
   for (const p of $$('[data-panel]')) p.hidden = p.dataset.panel !== name;
   if (name === 'replay') replay.onShow(rows.find(r => r.seq === selectedSeq)?.env.span_id);
-  if (name === 'learning') learning.onShow();
+  if (name === 'learning') learning?.onShow();
   return name;
 }
 
@@ -280,7 +304,7 @@ $$('[data-speed]').forEach(b => b.addEventListener('click', () => {
   $$('[data-speed]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
 }));
 $$('[data-inject]').forEach(b => b.addEventListener('click', () => inject(b.dataset.inject)));
-$('[data-fault]').addEventListener('change', e => { fault = e.target.value || null; learning.onFault(fault); });
+$('[data-fault]').addEventListener('change', e => { fault = e.target.value || null; learning?.onFault(fault); });
 [fBoundary, fDecision, fScen, fAgent, fRisk].forEach(x => x.addEventListener('change', applyFilters));
 streamEl.addEventListener('click', e => { const r = e.target.closest('.jv-row'); if (r) select(Number(r.dataset.seq)); });
 streamEl.addEventListener('keydown', e => {
@@ -290,7 +314,10 @@ streamEl.addEventListener('keydown', e => {
 
 const replay = initReplay(app);
 const studio = initStudio(app);
-const learning = initLearning(app);
+const learning = HAS_LEARNING ? initLearning(app) : null;
+if (!HAS_LEARNING) {
+  for (const el of $$('[data-tab="learning"], [data-panel="learning"]')) el.hidden = true;
+}
 streamEl.innerHTML = '<p class="jv-empty">Press Play to stream the agent\'s spans, or inject a scenario.</p>';
 renderKpis();
 
@@ -299,6 +326,7 @@ window.__jevDemo = {
   ready: true,
   seed: SEED,
   domain: DOMAIN.id,
+  ontology: ONTOLOGY,
   engine: { route, runStream, buildState, computeKpis, validatePolicy, BATTERY, TENANT },
   policy: () => deepClone(policy),
   setPolicy(p) {
@@ -310,9 +338,9 @@ window.__jevDemo = {
   log: () => rows.map(r => r.env),
   kpis: () => computeKpis(rows.map(r => r.env)),
   inject,
-  setFault(kind) { fault = kind || null; $('[data-fault]').value = kind || ''; learning.onFault(fault); },
+  setFault(kind) { fault = kind || null; $('[data-fault]').value = kind || ''; learning?.onFault(fault); },
   openTab: showTab,
-  learning: { state: learning.state, evidence: learning.evidence },
+  learning: learning ? { state: learning.state, evidence: learning.evidence } : null,
   flush,
   select(spanId) { const r = latestRow(spanId); if (r) select(r.seq); return !!r; },
   replay(spanId, p) { const r = latestRow(spanId); return r ? replay.replay(r.seq, p) : null; },

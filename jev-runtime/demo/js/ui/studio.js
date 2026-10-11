@@ -6,7 +6,7 @@ import { validatePolicy } from '../engine/policy.js';
 import { DOMAINS, SHARED_RULES } from '../engine/domains.js';
 import { $, esc, chip, deepClone } from './util.js';
 
-const usedBy = qid => ['ap', 'soc'].filter(d => DOMAINS[d].questions.includes(qid)).map(d => chip(d.toUpperCase(), 'b')).join(' ');
+const usedBy = qid => Object.keys(DOMAINS).filter(d => DOMAINS[d].questions.includes(qid)).map(d => chip(d.toUpperCase(), 'b')).join(' ');
 
 function diff(a, b, path = '') {
   if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) {

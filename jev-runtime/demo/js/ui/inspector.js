@@ -3,6 +3,7 @@
 
 import { BATTERY, LATENCY_BUDGET, PRICES } from '../engine/types.js';
 import { buildState } from '../engine/state.js';
+import { prepareSpan } from '../engine/router.js';
 import { combine } from '../engine/policy.js';
 import { judgeSlow } from '../engine/llm-sim.js';
 import { toSiemLine } from '../engine/siem.js';
@@ -62,7 +63,21 @@ function step(cls, title, ms, detail) {
   return `<li class="${cls}"><div class="ph"><b>${title}</b><span class="ms">${ms}</span></div>${detail ? `<div class="pd">${detail}</div>` : ''}</li>`;
 }
 
-/** row: { span, env }; ctx: { tenant, seed, policyFor(version), history(row) } */
+// The typed facts a creator rule may read, and the triples each true one came from (CREATOR_CONTRACT.md §3).
+function sliceDetail(state, ontology) {
+  if (!ontology) return 'Removed (<span class="mono">?ontology=0</span>): the rules saw no typed facts, as a trace-only monitor would.';
+  const c = state.facts?.creator;
+  if (!c) return 'No creator facts.';
+  const facts = Object.entries(c).filter(([k, v]) => k !== 'used' && typeof v === 'boolean');
+  const used = Array.isArray(c.used) ? c.used : Object.values(c.used ?? {}).flat();
+  const shown = facts.length ? facts.map(([k, v]) => `<span class="mono">${esc(k)}</span> = <b>${v}</b>`).join(' · ') : 'no fact applies to this tool';
+  const anyTrue = facts.some(([, v]) => v === true);
+  const triples = used.length ? `<ul class="jv-slice">${used.map(t => `<li class="mono">${esc(t.s)} ${esc(t.p)} ${esc(String(t.o))} ${chip(t.grade ?? '—', 'b')}</li>`).join('')}</ul>`
+    : anyTrue ? '<div class="jv-meta">True because a required relation is absent from the slice (no supporting triple).</div>' : '';
+  return shown + triples;
+}
+
+/** row: { span, env }; ctx: { tenant, seed, policyFor(version), history(row), ontology } */
 export function renderInspector(el, row, ctx) {
   if (!row) { el.innerHTML = '<p class="jv-empty">Select a span, or press Play.</p>'; el.dataset.spanId = ''; return; }
   const { span, env } = row;
@@ -74,7 +89,9 @@ export function renderInspector(el, row, ctx) {
   el.dataset.spanId = env.span_id;
 
   // Three-path comparison, computed from the same state (report p.15 "wow moment").
-  const state = buildState(span, ctx.history(row), ctx.tenant, span.t_ms ?? 0);
+  // The same span the decision saw: ?ontology=0 removes the creator slice here too (CREATOR_CONTRACT.md §2).
+  const ontology = ctx.ontology !== false;
+  const state = buildState(prepareSpan(span, { ontology }), ctx.history(row), ctx.tenant, span.t_ms ?? 0);
   let jevAlone = null;
   try {
     jevAlone = combine(state, { hits: [], verdict: null, latency_ms: 0 }, { status: env.jev_status, answers: env.answers ?? {} }, policy, { tenant: ctx.tenant });
@@ -101,6 +118,7 @@ export function renderInspector(el, row, ctx) {
 
   const pipe = [];
   pipe.push(step('on', '1 · State Engine', '', `schema ${esc(state.schema_version)} · snapshot age ${fmtMs(state.age_ms)} · evidence ${esc((env.evidence_refs ?? []).join(', ') || '—')}`));
+  if (span.context?.creator) pipe.push(step(ontology ? 'on' : 'off', '1b · Ontology slice', '', sliceDetail(state, ontology)));
   pipe.push(step(ruleHits.length ? 'hit' : 'on', '2 · Hard rules (code, veto)', fmtMs(lb.rules),
     ruleHits.length ? ruleHits.map(h => `${chip(h.verdict, h.verdict)} <b>${esc(h.id)}</b>: ${esc(h.reason ?? RULE_TEXT[h.id] ?? '')}`).join('<br>') : 'No rule hit.'));
   pipe.push(step(env.jev_on_critical_path ? 'on' : 'off', `3 · Jev battery (simulated)${env.jev_on_critical_path ? '' : ' · advisory, off the critical path'}`,

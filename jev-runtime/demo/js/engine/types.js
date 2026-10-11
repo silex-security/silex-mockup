@@ -105,6 +105,9 @@ export const BATTERY = Object.freeze([
 export const QUESTIONS_BY_AGENT = Object.freeze({
   'ap-agent': Object.freeze(['exfil', 'impact', 'attack', 'payee_mismatch', 'grounded', 'intervene']),
   'soc-agent': Object.freeze(['exfil', 'impact', 'attack', 'grounded', 'intervene', 'goal_deviation']),
+  // Creator platform (web/demo/CREATOR_CONTRACT.md §1): the generic questions; the domain's checks are typed rules.
+  ...Object.fromEntries(['trend-scout', 'help-desk', 'creator-desk', 'drama-studio', 'ad-curator', 'ad-buyer']
+    .map(a => [a, Object.freeze(['exfil', 'impact', 'attack', 'grounded', 'intervene'])])),
 });
 export const batteryFor = (boundary, { reduced = false, agent = null } = {}) =>
   BATTERY.filter(q => q.boundaries.includes(boundary) && (!reduced || q.p0)
@@ -141,6 +144,19 @@ export const DEFAULT_POLICY = Object.freeze({
     'identity.suspend_user': { mode: 'gate', fail: 'closed' },
     'ticket.update':         { mode: 'gate', fail: 'closed' },
     'webhook.post':          { mode: 'gate', fail: 'closed' },
+    // Creator platform (CREATOR_CONTRACT.md §1): read tools fail open, everything else fails closed.
+    'promo.search_posts':             { mode: 'gate', fail: 'open' },
+    'promo.push_trend_to_homepage':   { mode: 'gate', fail: 'closed' },
+    'promo.add_to_hot_pool':          { mode: 'gate', fail: 'closed' },
+    'help.lookup_account':            { mode: 'gate', fail: 'open' },
+    'help.update_login_email':        { mode: 'gate', fail: 'closed' },
+    'help.refund_coins':              { mode: 'gate', fail: 'closed' },
+    'creator.get_creator_analytics':  { mode: 'gate', fail: 'open' },
+    'creator.update_payout_account':  { mode: 'gate', fail: 'closed' },
+    'studio.use_asset':               { mode: 'gate', fail: 'closed' },
+    'studio.buy_promotion':           { mode: 'gate', fail: 'closed' },
+    'ads.select_creative':            { mode: 'gate', fail: 'closed' },
+    'ads.launch_campaign':            { mode: 'gate', fail: 'closed' },
   },
   default_tool: { mode: 'gate', fail: 'closed' },
 });
