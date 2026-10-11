@@ -96,7 +96,7 @@ test('mountGrid renders the eleven rows of model.matrix, without touching the DO
     assert.ok(!html.includes(`rt-fgrid-row rt-fgrid-differs" role="row" data-rt-fgrid-row="${r.key}"`), `${r.key} is not flagged`);
   }
   // Counts come from the model: nothing types "eleven" or any decision into the module.
-  assert.ok(html.includes(`${model.matrix.length} scripted traces`), 'the visible count is the model\'s');
+  assert.ok(html.includes(`${model.matrix.length} scenarios, ${2 * model.matrix.length} scripted traces`), 'the visible counts are the model\'s (code review r1)');
 
   // destroy() removes the listener and empties the block.
   handle.destroy();
@@ -271,4 +271,17 @@ test('the scenario matrix plays a row in the Scenarios tab and fits 390 px', { t
     session.close();
     await new Promise(r => server.close(r));
   }
+});
+
+// Code review r1: the count line names scenarios and traces correctly (11 scenarios, 22 traces, each run two ways).
+test('the grid caption counts scenarios and traces from the model', async () => {
+  const { fleetModel } = await import('../../js/rt-fleet.js');
+  const { mountGrid } = await import('../../js/rt-fleet-grid.js');
+  const model = fleetModel({ seed: 7 });
+  const el = { innerHTML: '', addEventListener() {}, removeEventListener() {}, querySelectorAll() { return []; }, querySelector() { return null; }, classList: { add() {}, remove() {} } };
+  mountGrid(el, model, { tip: () => '', run: () => {} });
+  const traces = new Set(model.matrix.flatMap(r => [r.a.id, r.b.id])).size;
+  assert.equal(traces, 22);
+  assert.match(el.innerHTML, new RegExp(`${model.matrix.length} scenarios, ${traces} scripted traces`));
+  assert.doesNotMatch(el.innerHTML, /each run four ways/);
 });

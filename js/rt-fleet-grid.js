@@ -82,7 +82,7 @@ function rootHtml(model, { tip, reducedMotion }) {
     </div>`;
   return `<section class="card rt-fgrid${reducedMotion ? '' : ' rt-fgrid-animate'}" data-rt-fgrid>
     <h3>Every scenario, with and without the slice <span class="rt-chip" data-kind="sim">Computed by the engine</span>${tip(HEADER_TIP)}</h3>
-    <p class="rt-plain">${rows.length} scripted traces, each run four ways. \u25B6 runs the risky one in the Scenarios tab.</p>
+    <p class="rt-plain" data-rt-fgrid-count>${rows.length} scenarios, ${new Set(rows.flatMap(r => [r.a.id, r.b.id])).size} scripted traces (a normal and a risky one each), every trace run with and without the slice. \u25B6 plays the risky one in the Scenarios tab.</p>
     <div class="rt-fgrid-table" role="table" aria-label="Every scenario, with and without the slice">
       ${head}
       ${rows.map((r, i) => rowHtml(r, i, tip)).join('\n      ')}
