@@ -1,6 +1,6 @@
 # Fleet ontology in the Ontology tab: role, relation graph and files — plan v0.5
 
-Date: 2026-10-11. Branch `fleet-ontology-graph`, base `47562d2` (origin/main). Status: **v0.3 approved (round 3, unanimous); v0.5 amendment (the Vision graph) approved, round 5, unanimous; T1 done, T2/T3 in progress**.
+Date: 2026-10-11. Branch `fleet-ontology-graph`, base `47562d2` (origin/main). Status: **plan v0.3 + v0.5 amendment approved unanimously; implementation approved unanimously (code review round 3); merged and deployed (see Deploy record)**.
 v0.2 answered the eight blocking objections of round 1; v0.3 answers round 2's one (tables in *Review record*).
 
 ## Goal
@@ -302,7 +302,7 @@ generator.
 Standard roster as last run, minus MiMo: planner Claude (this pane), reviewers `reviewer-claude` and `reviewer-codex`,
 coders `coder-opus` and `coder-sol`. Plan gate and code gate unanimous (planner + both reviewers). Coders commit on
 `fleet-ontology-graph` only. After the code gate: merge to `main`, push (CI deploys), live check, record here. The repo is
-public: no private paths, partner names or internal data in any file, commit message or branch name.
+public: no private paths, outside organisations' names or internal data in any file, commit message or branch name.
 
 ## Amendment v0.4/v0.5 — the Vision graph (user direction, mid-implementation)
 
@@ -414,3 +414,15 @@ simulated on this site"; refunds tagged today, payroll added as a vision node; t
 reviewer-claude PLAN-APPROVED, reviewer-codex PLAN-APPROVED, planner PLAN-APPROVED. Non-blocking taken into T5: at
 narrow widths the sketch keeps a minimum width and scrolls inside its own card (the page never scrolls sideways; the
 check measures the page), and "the raw fields the call carries" instead of "ids".
+
+## Code review record
+
+Implementation paths: everything in the branch diff outside `logs/` (20 files). Base `47562d2`.
+
+| Round | Head | Diff hash | reviewer-claude | reviewer-codex | Blocking points and fixes |
+|---|---|---|---|---|---|
+| 1 | `89ba42c` | `3b9764e10024` | IMPL-REJECTED | IMPL-REJECTED | claude: "each on its own team" was false (6 agents, 5 teams) → counts computed from the engine, wording tested. codex: calls with no declared facts drew NaN transforms → finite empty state "No declared facts for this call", five empty calls tested, SVG diagnostics captured. Non-blocking taken: graph labels ≥ 11 px at 390 px (in-card scrolling), render errors separate from library-load errors, the vision's automatic switch settles on leave, one pack fetch, video label from the engine. |
+| 2 | `35dc70d` | `1494b200aa8a` | IMPL-REJECTED | IMPL-APPROVED | claude: at 390 px on touch, the enlarged graph trapped one-finger scrolling → d3 zoom ignores single touch, `touch-action: pan-x pan-y`, a touch test (made deterministic with synthesized scroll and pinch gestures). Non-blocking taken: no writes to d3's private zoom state; the vision probe armed by URL. |
+| 3 | `0d5d607` | `c43d98c94217` | IMPL-APPROVED | IMPL-APPROVED | — (planner IMPL-APPROVED: suite 118/118 four times at default concurrency, no skips) |
+
+Also in this run: the vision test and two older timing checks (`rt-onto-visual`, `rt-subnav`) now wait on page state, not the clock, since the Ontology bar now mounts after more fetches. Left for later (non-blocking): a plain mouse wheel over the tall schema graph zooms before the page scrolls (d3's default; a Ctrl/⌘-wheel zoom would change that); a gesture crossing a schema ↔ facts switch, and a swipe straight after a pinch, are not covered by the tests.
