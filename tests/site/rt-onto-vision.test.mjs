@@ -11,7 +11,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { withPage, until, sleep, ROOT } from './sx-harness.mjs';
+import { withPage, until, ROOT } from './sx-harness.mjs';
 import { visionGraph, traceCall, NODES, EDGES, GRADE } from '../../js/rt-onto-vision.js';
 import { scenarioById } from '../../jev-runtime/demo/js/engine/scenarios.js';
 import { PACK_PATH } from '../../js/rt-onto-fleet-model.js';
@@ -64,12 +64,28 @@ test('Graph & files · the vision block in the page', { timeout: 240000 }, async
       await size(w, 1000);
     };
 
+    // Waits for a condition on computed styles (transitions finish in their own time under load) instead of sleeping.
+    const settle = (sel, prop, ok, label) => until(async () => { const v = await style(sel, prop); return v.length > 0 && v.every(ok); }, label, 15000);
+
+    // Every change of the block's data-view, recorded from the start of each page load, so the one-time switch is
+    // observed rather than raced: each entry is the value before the change and when it changed.
+    await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `window.__vzLog = [];
+      new MutationObserver(ms => { for (const m of ms) if (m.target.matches?.('[data-onto-vision]')) window.__vzLog.push({ old: m.oldValue, at: performance.now() }); })
+        .observe(document, { subtree: true, attributes: true, attributeFilter: ['data-view'], attributeOldValue: true });` });
+    /** The sequence of views the block showed (consecutive repeats merged) and the times each was set. */
+    const viewLog = () => ev(`const log = window.__vzLog, now = document.querySelector(${Q(ROOT_SEL)})?.dataset.view;
+      const seq = log.map((e, i) => ({ v: i + 1 < log.length ? log[i + 1].old : now, at: e.at }));
+      return { first: log[0]?.old ?? null, seq: seq.filter((e, i) => i === 0 || e.v !== seq[i - 1].v) }`);
+
     // Cold deep link: the block is the first thing in Graph & files; it opens on the trace view, then switches once.
     await go('#view=runtime-observation&tab=ontology&sub=graph');
     await until(() => ev(`return !!document.querySelector(${Q(ROOT_SEL)})`), 'vision mounted', 15000);
     assert.equal(await ev('return document.querySelector(\'#rtOntology [data-rt-subpanel="graph"]\').firstElementChild.matches("[data-onto-vision-mount]")'), true);
-    assert.equal(await view(), 'trace', 'opens on the trace view');
-    await until(async () => (await view()) === 'onto', 'switches once to the ontology view', 8000);
+    await until(async () => (await view()) === 'onto', 'switches once to the ontology view', 15000);
+    const log = await viewLog();
+    assert.equal(log.first, 'trace', 'the block is rendered on the trace view');
+    assert.deepEqual(log.seq.map(e => e.v), ['trace', 'onto'], 'trace, then the ontology view, exactly once');
+    assert.ok(log.seq[1].at - log.seq[0].at >= 1000, `the trace view stayed on screen before the switch (${Math.round(log.seq[1].at - log.seq[0].at)} ms)`);
 
     // Grade line.
     const grade = await q('[data-vision-grade]', r => { const g = r.querySelector('[data-vision-grade]'); const b = g.getBoundingClientRect(); return { text: g.innerText, shown: b.width > 0 && b.height > 0, chip: g.querySelector('.rt-chip[data-kind="sim"]')?.textContent }; });
@@ -102,26 +118,22 @@ test('Graph & files · the vision block in the page', { timeout: 240000 }, async
 
     // Switch A: the trace view hides ring 1 and shows the questions; the ontology view brings ring 1 back.
     await click('button[data-vision-view="trace"]');
-    await sleep(600);
-    assert.ok((await style('.rt-vz-node[data-ring="1"]', 'visibility')).every(v => v === 'hidden'), 'trace: ring 1 hidden');
-    assert.ok((await style('[data-vision-question]', 'visibility')).every(v => v === 'visible'), 'trace: questions shown');
+    await settle('.rt-vz-node[data-ring="1"]', 'visibility', v => v === 'hidden', 'trace: ring 1 hidden');
+    await settle('[data-vision-question]', 'visibility', v => v === 'visible', 'trace: questions shown');
     assert.equal(await ev(`return document.querySelectorAll(${Q(ROOT_SEL + ' [data-vision-question]')}).length`), 4);
     await click('button[data-vision-view="onto"]');
-    await sleep(600);
-    assert.ok((await style('.rt-vz-node[data-ring="1"]', 'visibility')).every(v => v === 'visible'), 'onto: ring 1 visible');
-    assert.ok((await style('.rt-vz-node[data-ring="1"]', 'opacity')).every(v => Number(v) === 1));
-    assert.ok((await style('[data-vision-question]', 'visibility')).every(v => v === 'hidden'));
+    await settle('.rt-vz-node[data-ring="1"]', 'visibility', v => v === 'visible', 'onto: ring 1 visible');
+    await settle('.rt-vz-node[data-ring="1"]', 'opacity', v => Number(v) === 1, 'onto: ring 1 opaque');
+    await settle('[data-vision-question]', 'visibility', v => v === 'hidden', 'onto: questions hidden');
     assert.equal(await ev(`return document.querySelector(${Q(ROOT_SEL + ' button[data-vision-view="onto"]')}).getAttribute('aria-pressed')`), 'true');
 
     // Switch B: this decision fades ring 2, not ring 1; the caption is on screen.
     await click('button[data-vision-focus="local"]');
-    await sleep(700);
-    assert.ok((await style('.rt-vz-node[data-ring="2"]', 'opacity')).every(v => Number(v) < 0.3), 'local: ring 2 faded');
+    await settle('.rt-vz-node[data-ring="2"]', 'opacity', v => Number(v) < 0.3, 'local: ring 2 faded');
     assert.ok((await style('.rt-vz-node[data-ring="1"]', 'opacity')).every(v => Number(v) === 1), 'local: ring 1 kept');
     assert.match(await ev(`return document.querySelector(${Q(ROOT_SEL + ' [data-vision-caption]')}).innerText`), /Not deleting the world; choosing the context this one step needs\./);
     await click('button[data-vision-focus="all"]');
-    await sleep(700);
-    assert.ok((await style('.rt-vz-node[data-ring="2"]', 'opacity')).every(v => Number(v) === 1), 'all: ring 2 at full weight');
+    await settle('.rt-vz-node[data-ring="2"]', 'opacity', v => Number(v) === 1, 'all: ring 2 at full weight');
 
     // The four steps, each tagged.
     const steps = await ev(`return [...document.querySelectorAll(${Q(ROOT_SEL + ' [data-vision-step]')})].map(e => ({ status: e.dataset.status, tag: e.querySelector('.rt-vz-tag').textContent }))`);
