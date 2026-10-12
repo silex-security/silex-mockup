@@ -430,3 +430,13 @@ Implementation paths: everything in the branch diff outside `logs/` (20 files). 
 Acceptance exception: on CI, the native-gesture layers of the touch test may skip (reported by `t.diagnostic`) when the runner cannot synthesize touch gestures; the deterministic layer and the in-page two-touch zoom always run.
 
 Also in this run: the vision test and two older timing checks (`rt-onto-visual`, `rt-subnav`) now wait on page state, not the clock, since the Ontology bar now mounts after more fetches. Left for later (non-blocking): a plain mouse wheel over the tall schema graph zooms before the page scrolls (d3's default; a Ctrl/⌘-wheel zoom would change that); a gesture crossing a schema ↔ facts switch, and a swipe straight after a pinch, are not covered by the tests.
+
+## Deploy record
+
+- First merge `32f9533` pushed to `main`: CI run 38223218217 failed in the touch test (Linux headless Chrome cannot synthesize touch scrolling), so nothing was deployed. Fixed in code review rounds 4–5.
+- `5b458e9` pushed to `main` (fast-forward): CI run 38228229552 succeeded and deployed. Tests 124: 120 pass, 0 fail, 4 native-gesture layers skipped with their diagnostic (the control swipe did not scroll on the runner); the deterministic touch checks and the in-page two-finger zoom ran.
+- Live read-back on demo.opensilex.ai, headless Chrome at 1400 and 390 px:
+  - `#view=runtime-observation&tab=ontology&sub=fleet`: grade line visible, 8 rule rows, "Six agents of a fictional content platform, owned by five teams."
+  - `…&sub=graph`: 68 graph nodes, the vision settles on the ontology view with its grade line visible, and 193 file rows.
+  - No horizontal overflow and no page errors.
+  - The served `data/creator-slice.json`, `data/ontology-files.json`, the pack, one experiment file and `js/rt-onto-vision.js` have the same sha256 as the repo.
