@@ -22,6 +22,8 @@ const FILES = [
   'swm/data/packs/creator-platform.json',
   'logs/2026-10-10_CREATOR_PLATFORM_RUNTIME_OBSERVATION_DESIGN.md',
   'js/rt-onto-fleet-model.js',
+  'js/rt-onto-fleet.js',
+  'js/rt-onto-graph.js',
   'tools/gen-onto-data.mjs',
   'data/creator-slice.json',
   'data/ontology-files.json',

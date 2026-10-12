@@ -1,0 +1,41 @@
+/* Ontology tab · In the agent fleet (js/rt-onto-fleet.js; logs/2026-10-11_FLEET_ONTOLOGY_GRAPH_PLAN.md, T3). */
+.rt-of{min-width:0}
+.rt-of-grade{margin:0 0 10px;font-size:12px;font-weight:650;color:var(--amber);background:var(--amber-bg);border-radius:8px;padding:6px 10px;display:inline-block}
+.rt-of-lead{margin:0 0 14px;font-size:14px;color:#2f343b;max-width:900px}
+.rt-of-jobs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.rt-of-job{padding:14px 16px;min-width:0}
+.rt-of-job header{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.rt-of-job h3{font-size:14px;margin:2px 0 0;line-height:1.3}
+.rt-of-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:720;background:var(--lav);color:var(--blue2)}
+.rt-of-fig{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.rt-of-fig b{font-size:22px;color:var(--ink);letter-spacing:-.02em}
+.rt-of-sub{margin:0 0 6px;font-size:12px;color:var(--muted)}
+.rt-of code{font-family:var(--mono);font-size:11.5px;overflow-wrap:anywhere}
+.rt-of-facts,.rt-of-rules,.rt-of-teams{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rt-of-facts li{display:grid;gap:2px;padding:7px 9px;border:1px solid #b9c4ff;background:#f7f8ff;border-radius:9px}
+.rt-of-t b{color:var(--blue2)}
+.rt-of-facts small{font-size:11px;color:var(--muted)}
+.rt-of-limits{margin-top:10px;padding:8px 10px;border-left:3px solid var(--amber);background:#fffaf3;border-radius:0 8px 8px 0;font-size:12px;color:#5b4a2c}
+.rt-of-limits p{margin:0 0 4px}.rt-of-limits p:last-child{margin:0}
+.rt-of-rules li{padding:7px 9px;border:1px solid var(--line);border-radius:9px;font-size:12px;display:grid;gap:3px}
+.rt-of-rule-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rt-of-rule-head code{font-weight:650;font-size:12px}
+.rt-of-rule-head .rt-chip{font-size:10px;padding:1px 7px}
+.rt-of-preds{color:#3d434b}
+.rt-of-stops{color:var(--muted);font-size:11.5px}
+.rt-of-none{color:var(--muted)}
+.rt-of-teams li{padding:7px 9px;border:1px solid var(--line);border-radius:9px;font-size:12px;display:grid;gap:4px}
+.rt-of-team-head{display:flex;align-items:center;gap:6px}
+.rt-of-bars{display:grid;gap:3px}
+.rt-of-bars i{display:block;height:6px;border-radius:99px;width:calc(var(--v) * 100%)}
+.rt-of-bars i.on{background:var(--blue)}
+.rt-of-bars i.off{background:#c9ced6}
+.rt-of-team-n{color:var(--muted);font-size:11.5px}
+.rt-of-go{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.rt-of .btn:focus-visible,.rt-fleet-onto-link .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.rt-fleet-onto-link{margin:0 0 14px}
+#rtOntology .rt-onto-today{font-size:15px;margin:18px 0 10px}
+#rtOntology [data-onto-vision-mount]:empty+.rt-onto-today{margin-top:0}
+@media(max-width:1100px){.rt-of-jobs{grid-template-columns:minmax(0,1fr)}}
+/* The Ontology intro carries two chips and the report button; at narrow widths they wrap instead of overflowing. */
+@media(max-width:900px){#rtOntology .rt-intro-side{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start}}

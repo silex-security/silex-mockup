@@ -27,6 +27,8 @@ const NOTES = {
     how: ['[data-onto-how-claim]', '[data-onto-how-lost]'],
     s1: ['[data-onto-s1-scope]', '[data-onto-s1-observed]'],
     ex: ['[data-onto-ex-claim]'],
+    fleet: ['[data-rt-subpanel="fleet"] [data-onto-fleet-grade]', '[data-rt-subpanel="fleet"] [data-onto-fleet-limits]'],
+    graph: ['[data-rt-subpanel="graph"] [data-onto-fleet-grade]'],
   },
 };
 const TEXT = {
@@ -39,6 +41,9 @@ const TEXT = {
   '[data-onto-s1-scope]': /held-out AgentDojo tasks and these models only/,
   '[data-onto-s1-observed]': /Observed, not a guarantee/,
   '[data-onto-ex-claim]': /including the cases where types lose an alert/,
+  '[data-rt-subpanel="fleet"] [data-onto-fleet-grade]': /Simulated engine/,
+  '[data-rt-subpanel="graph"] [data-onto-fleet-grade]': /Simulated engine/,
+  '[data-rt-subpanel="fleet"] [data-onto-fleet-limits]': /not from linking traces at runtime/,
 };
 
 test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { timeout: 240000 }, async t => {
