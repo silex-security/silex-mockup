@@ -106,9 +106,19 @@ test('mobile touch contract and controlled native scroll and pinch gestures', { 
         return { type, allowed, prevented: e.defaultPrevented };
       });
       svg.dispatchEvent(event('touchend', []));
-      return { action: getComputedStyle(svg).touchAction, single, double, dispatched,
+      const ancestors = [];
+      for (let el = svg.parentElement; el; el = el.parentElement) {
+        ancestors.push({ tag: el.tagName, action: getComputedStyle(el).touchAction });
+      }
+      return { action: getComputedStyle(svg).touchAction, ancestors, single, double, dispatched,
         before, after: window.d3.zoomTransform(svg).toString() };`);
     assert.deepEqual(contract.action.split(/\s+/).sort(), ['pan-x', 'pan-y'], mode + ': native panning is allowed');
+    for (const ancestor of contract.ancestors) {
+      const actions = ancestor.action.split(/\s+/);
+      assert.ok(actions.includes('auto') || actions.includes('manipulation') ||
+        (actions.includes('pan-x') && actions.includes('pan-y')),
+      mode + ': ancestor permits both pan axes: ' + JSON.stringify(ancestor));
+    }
     assert.equal(contract.single, false, mode + ': actual zoom filter rejects one touch');
     assert.equal(contract.double, true, mode + ': actual zoom filter accepts two touches');
     for (const e of contract.dispatched) {
@@ -116,6 +126,58 @@ test('mobile touch contract and controlled native scroll and pinch gestures', { 
       assert.equal(e.prevented, false, mode + ': ' + e.type + ' is not defaultPrevented');
     }
     assert.equal(contract.after, contract.before, mode + ': synthetic one-touch events do not pan the graph');
+
+    // This gesture always runs through the mounted listeners, independent of
+    // Chrome's ability to synthesize native input on the current platform.
+    const touchPinch = () => ev(`const svg = document.querySelector('${q}[data-graph-svg]');
+      const canvas = window.d3.select(svg), initial = window.d3.zoomTransform(svg);
+      const layer = svg.querySelector('.rt-og-layer'), before = layer.getAttribute('transform');
+      const b = svg.getBoundingClientRect(), x = b.left + 180, y = b.top + 240;
+      const pair = spread => [-1, 1].map((side, i) => new Touch({ identifier: i + 10, target: svg,
+        clientX: x + side * spread, clientY: y, pageX: x + side * spread + scrollX, pageY: y + scrollY }));
+      let touches = pair(40);
+      const dispatch = (type, active, changed = active) => svg.dispatchEvent(new TouchEvent(type, {
+        touches: active, targetTouches: active, changedTouches: changed, bubbles: true, cancelable: true,
+      }));
+      let result;
+      try {
+        dispatch('touchstart', touches);
+        for (const spread of [55, 70, 90]) {
+          touches = pair(spread); dispatch('touchmove', touches);
+          await new Promise(requestAnimationFrame);
+        }
+        const z = window.d3.zoomTransform(svg);
+        result = { initial: initial.k, zoom: [z.x, z.y, z.k], before, after: layer.getAttribute('transform') };
+      } finally {
+        dispatch('touchend', [], touches);
+        canvas.call(window.graphZoom.transform, initial);
+      }
+      return result;`);
+    const assertTouchPinch = result => {
+      assert.ok(result.zoom.every(Number.isFinite) && result.zoom[2] > result.initial * 1.2,
+        mode + ': dispatched two-touch gesture increases finite zoom: ' + JSON.stringify(result));
+      assert.notEqual(result.after, result.before, mode + ': dispatched pinch changes the rendered layer');
+      assert.equal(typeof result.after, 'string', mode + ': rendered pinch transform is present');
+      assert.ok(!/NaN|Infinity/.test(result.after), mode + ': rendered pinch transform stays finite');
+    };
+    assertTouchPinch(await touchPinch());
+    // Negative control: the same assertion must reject missing graph touch handlers.
+    await ev(`const canvas = window.d3.select(document.querySelector('${q}[data-graph-svg]'));
+      window.graphTouchListeners = ['touchstart.zoom', 'touchmove.zoom', 'touchend.zoom', 'touchcancel.zoom']
+        .map(name => [name, canvas.on(name)]);
+      for (const [name] of window.graphTouchListeners) canvas.on(name, null);`);
+    try {
+      const disconnected = await touchPinch();
+      assert.throws(() => assertTouchPinch(disconnected), {
+        name: 'AssertionError', message: /dispatched two-touch gesture increases finite zoom/,
+      },
+        mode + ': missing touch listeners must fail the unconditional pinch check');
+      t.diagnostic(mode + ': negative control correctly rejected pinch with touch listeners removed');
+    } finally {
+      await ev(`const canvas = window.d3.select(document.querySelector('${q}[data-graph-svg]'));
+        for (const [name, listener] of window.graphTouchListeners) canvas.on(name, listener, { passive: false });
+        delete window.graphTouchListeners;`);
+    }
 
     const scroll = (target, horizontal = false) => page.send('Input.synthesizeScrollGesture', {
       ...target, ...(horizontal ? { xDistance: -180 } : { yDistance: -200 }),
