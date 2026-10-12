@@ -45,7 +45,7 @@ async function mountVision(el, pack) {
   if (!el || !pack) return null;
   try {
     const { mountOntoVision } = await import('./rt-onto-vision.js');
-    return mountOntoVision?.(el, { tip, pack }) ?? null;
+    return mountOntoVision?.(el, { tip, pack, reducedMotion }) ?? null;
   } catch { return null; }
 }
 
@@ -104,7 +104,7 @@ async function init() {
   if (fleetView) sub.bind('fleet', fleetView);
   // One handle for the panel: the vision's switch plays once on first show; the graph draws then too (ensure() is also
   // called on rt:sub above, so it draws under reduced motion, when the bar never calls play()).
-  if (vision || graph) sub.bind('graph', { play() { vision?.play?.(); ensureGraph(); }, pause() { vision?.pause?.(); } });
+  if (vision || graph) sub.bind('graph', { play() { vision?.play?.(); }, pause() { vision?.pause?.(); } });
   if (data) {
     root.addEventListener('click', e => {
       const c = e.target.closest('[data-onto-cell-btn]'), m = e.target.closest('[data-onto-mode-btn]');

@@ -28,7 +28,7 @@ const NOTES = {
     s1: ['[data-onto-s1-scope]', '[data-onto-s1-observed]'],
     ex: ['[data-onto-ex-claim]'],
     fleet: ['[data-rt-subpanel="fleet"] [data-onto-fleet-grade]', '[data-rt-subpanel="fleet"] [data-onto-fleet-limits]'],
-    graph: ['[data-rt-subpanel="graph"] [data-onto-fleet-grade]'],
+    graph: ['[data-rt-subpanel="graph"] [data-onto-fleet-grade]', '[data-rt-subpanel="graph"] [data-vision-grade]'],
   },
 };
 const TEXT = {
@@ -44,6 +44,7 @@ const TEXT = {
   '[data-rt-subpanel="fleet"] [data-onto-fleet-grade]': /Simulated engine/,
   '[data-rt-subpanel="graph"] [data-onto-fleet-grade]': /Simulated engine/,
   '[data-rt-subpanel="fleet"] [data-onto-fleet-limits]': /not from linking traces at runtime/,
+  '[data-rt-subpanel="graph"] [data-vision-grade]': /not the current build/,
 };
 
 test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { timeout: 240000 }, async t => {

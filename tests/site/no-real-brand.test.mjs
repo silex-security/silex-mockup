@@ -24,6 +24,7 @@ const FILES = [
   'js/rt-onto-fleet-model.js',
   'js/rt-onto-fleet.js',
   'js/rt-onto-graph.js',
+  'js/rt-onto-vision.js',
   'tools/gen-onto-data.mjs',
   'data/creator-slice.json',
   'data/ontology-files.json',
