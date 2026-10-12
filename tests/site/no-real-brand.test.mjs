@@ -21,6 +21,14 @@ const FILES = [
   'js/rt-subtabs.js',
   'swm/data/packs/creator-platform.json',
   'logs/2026-10-10_CREATOR_PLATFORM_RUNTIME_OBSERVATION_DESIGN.md',
+  'js/rt-onto-fleet-model.js',
+  'js/rt-onto-fleet.js',
+  'js/rt-onto-graph.js',
+  'js/rt-onto-vision.js',
+  'tools/gen-onto-data.mjs',
+  'data/creator-slice.json',
+  'data/ontology-files.json',
+  'logs/2026-10-11_FLEET_ONTOLOGY_GRAPH_PLAN.md',
 ];
 const DENY = [
   'tiktok', 'douyin', 'bytedance', 'kuaishou', 'kwai', 'youtube', 'instagram', 'facebook',

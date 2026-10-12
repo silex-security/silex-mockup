@@ -1,5 +1,5 @@
 // logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md, shared contract 1 and rule 2: the second-level sub-tabs of Agent fleet, Learning
-// loop and Ontology. Deep links (cold, with the ontology data held back 1.5 s; unknown keys; rapid hash changes), keyboard
+// loop and Ontology. Deep links (cold, with the ontology data held until the test releases it; unknown keys; rapid hash changes), keyboard
 // and Next focus, the bind() lifecycle (play once when really shown, pause on any hide, never replay, never under reduced
 // motion), stateHash's &sub=, and the honesty notes that must stay visible on their own sub-tab at 1400 and 390 px.
 // Local static server + headless Chrome, like rt-fleet.test.mjs; skips when no Chrome binary exists.
@@ -13,7 +13,9 @@ import { browser, until, sleep } from './ontology-card/browser.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
-const SLOW = '/data/onto-observability.json';
+// Every request the Ontology bar waits for (js/rt-ontology.js mounts it once all of them have settled): the measured
+// results, and the fleet ontology (loadFleetOntology fetches the pack, once, and the files list; the vision block reuses that pack).
+const GATED = ['/data/onto-observability.json', '/data/onto-s1.json', '/swm/data/packs/creator-platform.json', '/data/ontology-files.json'];
 
 // The notes each sub-tab must show as visible text (rule 2); `top` ones belong to the tab, whatever its sub-tab.
 const NOTES = {
@@ -27,6 +29,8 @@ const NOTES = {
     how: ['[data-onto-how-claim]', '[data-onto-how-lost]'],
     s1: ['[data-onto-s1-scope]', '[data-onto-s1-observed]'],
     ex: ['[data-onto-ex-claim]'],
+    fleet: ['[data-rt-subpanel="fleet"] [data-onto-fleet-grade]', '[data-rt-subpanel="fleet"] [data-onto-fleet-limits]'],
+    graph: ['[data-rt-subpanel="graph"] [data-onto-fleet-grade]', '[data-rt-subpanel="graph"] [data-vision-grade]'],
   },
 };
 const TEXT = {
@@ -39,6 +43,10 @@ const TEXT = {
   '[data-onto-s1-scope]': /held-out AgentDojo tasks and these models only/,
   '[data-onto-s1-observed]': /Observed, not a guarantee/,
   '[data-onto-ex-claim]': /including the cases where types lose an alert/,
+  '[data-rt-subpanel="fleet"] [data-onto-fleet-grade]': /Simulated engine/,
+  '[data-rt-subpanel="graph"] [data-onto-fleet-grade]': /Simulated engine/,
+  '[data-rt-subpanel="fleet"] [data-onto-fleet-limits]': /not from linking traces at runtime/,
+  '[data-rt-subpanel="graph"] [data-vision-grade]': /not the current build/,
 };
 
 test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { timeout: 240000 }, async t => {
@@ -47,13 +55,21 @@ test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { time
     if (/Chrome not found/.test(e.message)) return t.skip('no Chrome binary (set CHROME); headless check skipped');
     throw e;
   }
+  // The gate holds the Ontology bar's data on the server until the test releases it, so "the bar waits for its data"
+  // and "a request arrives before the bar exists" are states the test sets up, not races against a fixed delay.
+  const gate = { on: false, held: [] };
+  const release = (keep = []) => {
+    if (!keep.length) gate.on = false;
+    for (const h of gate.held.filter(x => !keep.includes(x.path))) h.release();
+    gate.held = gate.held.filter(x => keep.includes(x.path));
+  };
   const server = createServer(async (req, res) => {
     try {
       const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
       let file = resolve(ROOT, '.' + path);
       if (file !== ROOT && !file.startsWith(ROOT + sep)) { res.writeHead(403).end(); return; }
       if ((await stat(file)).isDirectory()) file = join(file, 'index.html');
-      if (path === SLOW) await sleep(1500);   // the ontology bar mounts only after this arrives
+      if (gate.on && GATED.includes(path)) await new Promise(r => gate.held.push({ path, release: r }));   // held until the test releases it
       res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
       res.end(await readFile(file));
     } catch { res.writeHead(404).end(); }
@@ -66,35 +82,60 @@ test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { time
     const origin = `http://127.0.0.1:${server.address().port}`;
     const size = width => p.send('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width < 600 });
     // A fresh document each time (a hash-only navigation would reuse the page).
-    const go = async hash => { await p.send('Page.navigate', { url: 'about:blank' }); await p.send('Page.navigate', { url: `${origin}/index.html${hash}` }); await until(() => ev('return document.readyState === "complete" && !!window.__rtTabs'), 'page ' + hash, 30000); };
+    const go = async hash => { await p.send('Page.navigate', { url: 'about:blank' }); await p.send('Page.navigate', { url: `${origin}/index.html${hash}` }); // While the gate holds data, the load event waits for it too, so a held page is ready once it is interactive.
+      await until(() => ev(`return document.readyState === ${gate.on ? '"interactive" || document.readyState === "complete"' : '"complete"'} && !!window.__rtTabs`), 'page ' + hash, 30000); };
     const subOf = tab => ev(`return window.__rtSubnav?.[${Q(tab)}]?.current() ?? null`);
     const shownPanel = tab => ev(`const b = window.__rtSubnav?.[${Q(tab)}]; if (!b) return null; const k = b.current();
       const btn = document.getElementById('rtSub-${tab}-' + k); const panel = document.getElementById(btn.getAttribute('aria-controls'));
       return panel.hidden ? null : k`);
+    const hold = () => { gate.on = true; };
+    const allHeld = () => until(() => GATED.every(path => gate.held.some(h => h.path === path)), 'every request the ontology bar waits for is held', 30000);
+    const arrived = paths => until(() => ev(`return ${Q(paths)}.every(x => performance.getEntriesByName(location.origin + x).length > 0)`), 'released responses arrived', 15000);
     await size(1400);
 
     // 1. Cold deep link to an Ontology sub-tab while its data is still on the way; the bar applies it when it mounts.
+    hold();
     await go('#view=runtime-observation&tab=ontology&sub=ex');
+    await allHeld();
     assert.equal(await subOf('ontology'), null, 'the ontology bar waits for its data');
-    await until(async () => (await shownPanel('ontology')) === 'ex', 'cold &sub=ex after the delayed fetch', 15000);
+    // Everything but the fleet ontology's files list arrives: the bar still waits, since it mounts only once all have settled.
+    const last = '/data/ontology-files.json';
+    release([last]);
+    await arrived(GATED.filter(x => x !== last));
+    assert.equal(await subOf('ontology'), null, 'the ontology bar also waits for the fleet ontology');
+    release();
+    await until(async () => (await shownPanel('ontology')) === 'ex', 'cold &sub=ex once its data arrives', 15000);
     // An unknown key falls back to the default sub-tab.
     await go('#view=runtime-observation&tab=ontology&sub=nope');
     await until(async () => (await shownPanel('ontology')) === 'how', 'unknown sub falls back to how', 15000);
     // Rapid hash changes before the bar exists: only the latest applies.
+    hold();
     await go('#view=runtime-observation&tab=ontology');
+    await allHeld();
     await ev(`location.hash = '#view=runtime-observation&tab=ontology&sub=ex'; location.hash = '#view=runtime-observation&tab=ontology&sub=s1'`);
+    assert.equal(await subOf('ontology'), null, 'both links arrive before the bar exists');
+    release();
     await until(async () => (await shownPanel('ontology')) === 's1', 'latest of two rapid links wins', 15000);
     // Code review r1 (codex 2): a pending request is dropped by any newer view route, and by a link without &sub=.
+    hold();
     await go('#view=runtime-observation&tab=ontology&sub=ex');
+    await allHeld();
     await ev(`location.hash = '#view=overview'`);
+    release();
     await until(() => ev('return !!window.__rtSubnav?.ontology'), 'ontology bar mounts while away', 15000);
     assert.equal(await subOf('ontology'), 'how', 'a newer #view=overview cancels the pending ex request');
+    hold();
     await go('#view=runtime-observation&tab=ontology&sub=ex');
+    await allHeld();
     await ev(`location.hash = '#view=runtime-observation&tab=ontology'`);
+    release();
     await until(async () => (await shownPanel('ontology')) === 'how', 'a link without &sub= replaces the pending ex', 15000);
     // Leaving during the delayed load and coming back to another sub-tab: the sub-tab the route leaves never plays.
+    hold();
     await go('#view=runtime-observation&tab=ontology');
+    await allHeld();
     await ev(`location.hash = '#view=overview'`);
+    release();
     await until(() => ev('return !!window.__rtSubnav?.ontology'), 'ontology bar mounts while away', 15000);
     await ev(`location.hash = '#view=runtime-observation&tab=ontology&sub=s1'`);
     await until(async () => (await shownPanel('ontology')) === 's1', 're-entry lands on s1', 15000);

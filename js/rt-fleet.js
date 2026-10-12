@@ -28,7 +28,7 @@ const X1 = [
   ['X1Bb', 'Ad Buyer launches a paid campaign', 'ads'],
 ];
 // The fact behind each creator rule (CREATOR_CONTRACT.md §3–§4): x1[].on.triples is that fact's evidence only.
-const FACT_OF_RULE = {
+export const FACT_OF_RULE = {
   credential_change_verification: 'verification_short', mcn_payout_scope: 'payout_scope_excluded',
   cross_principal_read: 'subject_scope_missing', asset_license: 'license_invalid',
   sensitive_event_push: 'sensitive_event_unapproved', cumulative_limit: 'cumulative_over_limit',

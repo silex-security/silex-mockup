@@ -24,6 +24,9 @@
   <link rel="stylesheet" href="css/rt-learning-visual.css" />
   <link rel="stylesheet" href="css/rt-onto-visual.css" />
   <link rel="stylesheet" href="css/rt-onto-run.css" />
+  <link rel="stylesheet" href="css/rt-onto-fleet.css" />
+  <link rel="stylesheet" href="css/rt-onto-graph.css" />
+  <link rel="stylesheet" href="css/rt-onto-vision.css" />
   <link rel="stylesheet" href="css/sx-view.css" />
   <link rel="stylesheet" href="css/sx-expand.css" />
   <link rel="stylesheet" href="css/sx-coverage.css" />
@@ -1200,13 +1203,14 @@
 </section>
 
 <section class="rt-panel" id="rtOntology" data-rt-panel="ontology" role="tabpanel" aria-labelledby="rtTab-ontology" hidden>
-<div class="card rt-intro"><div><h2>Does giving actions a meaning make alerts better? <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>An <b>ontology</b> labels what each step of a run means: “this call <i>changes data</i>”, “this argument is a <i>password</i>”, “this value came from a <i>document</i>, not from the user”. We asked whether those labels make a simple attack alert <b>less noisy without missing attacks</b>, on the same runtime provenance graph with and without ontology types. The rules were written down before looking at the data (pre-registered), then tested on real benchmark runs of held-out agent models.</span></span></h2><p>Same alert rule, with and without ontology types, on real held-out agent runs. <b data-rt-onto-nojudge>No judge model</b> is used here.</p></div>
-<div class="rt-intro-side"><span class="rt-chip" data-kind="ran">Measured</span><a class="btn" id="rtOntoReport" href="https://claude.ai/artifact/MPE8qnD2f1bSz965s7y3Ap" target="_blank" rel="noopener">Check Report</a></div></div>
+<div class="card rt-intro"><div><h2>Does giving actions a meaning make alerts better? <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>An <b>ontology</b> labels what each step of a run means: “this call <i>changes data</i>”, “this argument is a <i>password</i>”, “this value came from a <i>document</i>, not from the user”. We asked whether those labels make a simple attack alert <b>less noisy without missing attacks</b>, on the same runtime provenance graph with and without ontology types. The rules were written down before looking at the data (pre-registered), then tested on real benchmark runs of held-out agent models.</span></span></h2><p>How types help, Pre-registered test and Example runs: the same alert rule, with and without ontology types, on real held-out agent runs. <span data-rt-onto-nojudge>No judge model is used there.</span> In the agent fleet and Graph &amp; files: the ontology the simulated agent fleet runs on.</p></div>
+<div class="rt-intro-side"><span class="rt-chip" data-kind="ran">Measured</span><span class="rt-chip" data-kind="sim">Simulated · fleet sub-tabs</span><a class="btn" id="rtOntoReport" href="https://claude.ai/artifact/MPE8qnD2f1bSz965s7y3Ap" target="_blank" rel="noopener">Check Report</a></div></div>
 <div id="rtOntologyBody"><p class="rt-ref">Loading the ontology results…</p></div>
 </section>
 
 <section class="rt-panel" id="rtFleetPanel" data-rt-panel="fleet" role="tabpanel" aria-labelledby="rtTab-fleet" hidden>
 <div class="card rt-intro rt-fleet-intro"><div><h2>Many agents, many teams: what one trace cannot see <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>A content platform runs agents for trends, customer help, creator support, short-drama production and ads, each owned by a different team. Each agent's trace shows its own tool calls. The <b>ontology slice</b> adds the facts that sit between them: who manages whom, what a video may be used for, where a pool syncs to, and which team reviews which kind of action. Every scenario below runs twice in the vendored simulated engine, with the slice and without it, when this tab opens.</span></span></h2><p>Each agent's own step looks fine. The ontology adds the facts between them, stops the problem at its source and sends it to the team that owns it.</p></div><span class="rt-chip" data-kind="sim">Simulated · fictional tenant</span></div>
+<p class="rt-fleet-onto-link"><button type="button" class="btn secondary" data-wm-route="#view=runtime-observation&amp;tab=ontology&amp;sub=fleet">How the ontology works here, as a graph →</button></p>
 <div id="rtFleet" class="rt-fleet"><p class="rt-ref">Loading the simulated engine…</p></div>
 </section>
 <section class="rt-panel" id="rtLatency" data-rt-panel="latency" role="tabpanel" aria-labelledby="rtTab-latency" hidden>

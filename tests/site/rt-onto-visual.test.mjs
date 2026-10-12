@@ -28,15 +28,8 @@ test('ontology pictures match data, lifecycle, reduced motion and mobile', {time
     await new Promise((r,j)=>{server.once('error',j);server.listen(0,'127.0.0.1',r);});
     const p=session.page;
     let navigation=0;
-    const navigate=async sub=>{
-      await p.ev('window.__ontoTestOld=true');
-      await p.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/index.html?ontoVisual=${++navigation}#view=runtime-observation&tab=ontology&sub=${sub}`});
-      await until(()=>p.ev(`return !window.__ontoTestOld && !!window.__rtSubnav?.ontology && !!document.querySelector('.rt-ov-s1')`),'ontology ready');
-    };
-    await p.send('Emulation.setDeviceMetricsOverride',{width:1400,height:1100,deviceScaleFactor:1,mobile:false});
-    await navigate('how');
-    // Leave both panels before their first 650 ms beat; subnav must settle them.
-    const interrupted=await p.ev(`
+    // Leave both panels before their first 650 ms beat; subnav must settle them (run in the page, see navigate('how') below).
+    const INTERRUPT=`
       const how=document.querySelector('.rt-ov-how'), s1=document.querySelector('.rt-ov-s1');
       const startingBeat=how.dataset.beat;
       const started=performance.now();
@@ -69,7 +62,22 @@ test('ontology pictures match data, lifecycle, reduced motion and mobile', {time
       const buttonPaused=s1.dataset.state==='paused';
       window.__rtSubnav.ontology.open('how');
       return {startingBeat,s1StartingBeat,elapsed,states,decisions,waffles,bars,neutral,restarted,buttonPaused};
-    `);
+`;
+    await p.send('Page.addScriptToEvaluateOnNewDocument',{source:`if(location.search.includes('ontoInterrupt'))document.addEventListener('rt:sub',function once(e){
+      if(e.detail?.tab!=='ontology')return;document.removeEventListener('rt:sub',once);
+      setTimeout(()=>{try{window.__ontoInterrupt=(()=>{${INTERRUPT}})();}catch(err){window.__ontoInterrupt={error:String(err)};}},0);});`});
+    const navigate=async (sub,flag='')=>{
+      await p.ev('window.__ontoTestOld=true');
+      await p.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/index.html?ontoVisual=${++navigation}${flag}#view=runtime-observation&tab=ontology&sub=${sub}`});
+      await until(()=>p.ev(`return !window.__ontoTestOld && !!window.__rtSubnav?.ontology && !!document.querySelector('.rt-ov-s1')`),'ontology ready');
+    };
+    await p.send('Emulation.setDeviceMetricsOverride',{width:1400,height:1100,deviceScaleFactor:1,mobile:false});
+    // The interrupt runs inside the page, from the ontology bar's own first rt:sub event: its zero-delay timer is queued
+    // before the bar binds and plays the pictures, so it always runs before their first 650 ms beat, however loaded the
+    // machine (no race between the bar mounting and a CDP round trip).
+    await navigate('how','&ontoInterrupt');
+    const interrupted=await until(()=>p.ev('return window.__ontoInterrupt ?? null'),'in-page interrupt ran');
+    assert.equal(interrupted.error,undefined,'the in-page interrupt ran without errors');
     assert.equal(interrupted.startingBeat,'0','how was interrupted before its first beat');
     assert.equal(interrupted.s1StartingBeat,'0','s1 was interrupted before its first beat');
     assert.ok(interrupted.elapsed<650,'rapid navigation takes less than one beat');
