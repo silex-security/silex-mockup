@@ -37,6 +37,77 @@ export async function mountDirect(ev) {
 }
 const q = '#graphTest ';
 
+test('one finger scrolls schema and facts while two fingers zoom on mobile', { timeout: 60000 }, async t => {
+  // Each mode starts with a fresh touch session so prior gestures cannot carry over.
+  for (const mode of ['schema', 'facts']) await withGraphPage(t, async ({ ev, go, size, page, errors, reducedMotion, overflow }) => {
+    await size(390, 844);
+    await page.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 2 });
+    await reducedMotion(true);
+    await go('#view=overview');
+    await mountDirect(ev);
+    await ev('await window.graphHandle.ensure()');
+    const state = () => ev(`const svg = document.querySelector('${q}[data-graph-svg]');
+      const z = window.d3.zoomTransform(svg);
+      return { y: scrollY, left: svg.closest('.rt-og-stage').scrollLeft, zoom: [z.x, z.y, z.k] }`);
+    const settle = () => ev(`const stage = document.querySelector('${q}.rt-og-stage');
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Touch scroll did not settle')), 10000);
+        let previous = [scrollY, stage.scrollLeft], stable = 0;
+        const frame = () => {
+          const current = [scrollY, stage.scrollLeft];
+          stable = current.every((v, i) => v === previous[i]) ? stable + 1 : 0;
+          previous = current;
+          if (stable >= 2) { clearTimeout(timer); resolve(); }
+          else requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      });`);
+    const position = async () => {
+      await settle();
+      await ev(`const svg = document.querySelector('${q}[data-graph-svg]');
+        svg.closest('.rt-og-stage').scrollLeft = 0;
+        scrollTo(0, scrollY + svg.getBoundingClientRect().top - 80);`);
+      await settle();
+      const rect = await ev(`const svg = document.querySelector('${q}[data-graph-svg]');
+        const s = svg.getBoundingClientRect(), c = svg.closest('.rt-og-stage').getBoundingClientRect();
+        const left = Math.max(0, s.left, c.left), right = Math.min(innerWidth, s.right, c.right);
+        const top = Math.max(0, s.top, c.top), bottom = Math.min(innerHeight, s.bottom, c.bottom);
+        return { left, right, top, bottom, x: (left + right) / 2, y: (top + bottom) / 2 };`);
+      assert.ok(rect.right - rect.left > 240 && rect.bottom - rect.top > 240,
+        'touch target has room inside the visible SVG: ' + JSON.stringify(rect));
+      return { x: rect.x, y: rect.y };
+    };
+    await ev(`window.graphHandle.mode('${mode}')`);
+    let target = await position();
+    const before = await state();
+    await page.send('Input.synthesizeScrollGesture', {
+      ...target, yDistance: -200, speed: 400, preventFling: true, gestureSourceType: 'touch',
+    });
+    await settle();
+    const after = await state();
+    assert.ok(after.y > before.y + 50, mode + ': one finger scrolls the page: ' + JSON.stringify({ before, after }));
+    assert.deepEqual(after.zoom, before.zoom, mode + ': scrolling does not pan the graph');
+    target = await position();
+    const sideways = await state();
+    await page.send('Input.synthesizeScrollGesture', {
+      ...target, xDistance: -180, speed: 400, preventFling: true, gestureSourceType: 'touch',
+    });
+    await settle();
+    const across = await state();
+    assert.ok(across.left > sideways.left + 50, mode + ': one finger scrolls the stage horizontally: ' + JSON.stringify({ sideways, across }));
+    assert.deepEqual(across.zoom, sideways.zoom, mode + ': sideways scrolling does not pan the graph');
+    target = await position();
+    const pinch = await state();
+    await page.send('Input.synthesizePinchGesture', {
+      ...target, scaleFactor: 1.8, relativeSpeed: 400, gestureSourceType: 'touch',
+    });
+    await settle();
+    await until(async () => (await state()).zoom[2] > pinch.zoom[2] * 1.2, mode + ': two fingers zoom the graph');
+    const o = await overflow(); assert.ok(o.doc <= o.win, JSON.stringify(o));
+    assert.deepEqual(errors(), []);
+  });
+});
+
 test('schema, rule highlights, facts, inspector, files and responsive fallback', { timeout: 120000 }, async t => {
   await withGraphPage(t, async ({ ev, go, size, overflow, errors, reducedMotion }) => {
     await reducedMotion(true);
@@ -181,7 +252,7 @@ test('empty call slices keep finite transforms and recover to a populated call',
     assert.equal(emptyCalls.length, 5);
     const finiteState = () => ev(`const svg = document.querySelector('${q}[data-graph-svg]');
       const transforms = [...svg.querySelectorAll('[transform]')].map(e => e.getAttribute('transform'));
-      const z = svg.__zoom;
+      const z = window.d3.zoomTransform(svg);
       return { transforms, zoom: [z.x, z.y, z.k], finite: [z.x, z.y, z.k].every(Number.isFinite) && z.k > 0 &&
         transforms.every(t => !/NaN|Infinity/.test(t) && [...t.matchAll(/[-+]?\\d*\\.?\\d+(?:e[-+]?\\d+)?/gi)].every(m => Number.isFinite(Number(m[0])))) }`);
     for (const call of emptyCalls) {

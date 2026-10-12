@@ -168,8 +168,7 @@ test('Graph & files · the vision block in the page', { timeout: 240000 }, async
     // Leaving Graph & files before the automatic switch settles it on the ontology view, so a return never finds the trace
     // view. The probe runs in the page from the bar's first rt:sub, on a zero-delay timer queued before the bar binds and
     // plays the block, so the 1.4 s switch is always still pending when it leaves.
-    await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `if ((() => { try { return sessionStorage.getItem('vzPauseProbe'); } catch { return null; } })()) {   // about:blank has no storage
-      sessionStorage.removeItem('vzPauseProbe');
+    await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `if (location.search.includes('vzPauseProbe')) {   // armed only by the probe's own URL
       document.addEventListener('rt:sub', function once(e) {
         if (e.detail?.tab !== 'ontology') return; document.removeEventListener('rt:sub', once);
         setTimeout(() => { const r = document.querySelector(${Q(ROOT_SEL)}), bar = window.__rtSubnav.ontology;
@@ -177,8 +176,11 @@ test('Graph & files · the vision block in the page', { timeout: 240000 }, async
           window.__vzPause = { before, away, back: r.dataset.view }; }, 0);
       });
     }` });
-    await ev(`sessionStorage.setItem('vzPauseProbe', '1')`);
-    await go('#view=runtime-observation&tab=ontology&sub=graph');
+    // A fresh document whose URL arms the probe (the harness's go() takes a hash only).
+    const origin = await ev('return location.origin');
+    await page.send('Page.navigate', { url: 'about:blank' });
+    await page.send('Page.navigate', { url: `${origin}/index.html?vzPauseProbe#view=runtime-observation&tab=ontology&sub=graph` });
+    await until(() => ev('return document.readyState === "complete" && location.search === "?vzPauseProbe" && !!window.__sxView'), 'probe page', 30000);
     const paused = await until(() => ev('return window.__vzPause ?? null'), 'pause probe ran', 15000);
     assert.deepEqual(paused, { before: 'trace', away: 'onto', back: 'onto' }, 'leaving mid-way settles the switch on the ontology view');
     assert.deepEqual((await viewLog()).seq.map(e => e.v), ['trace', 'onto'], 'and it switches exactly once');

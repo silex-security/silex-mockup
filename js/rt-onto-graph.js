@@ -118,7 +118,7 @@ export function mountOntoGraph(el, model, opts = {}) {
     if (empty) {
       d3.select(svg).selectAll('*').remove();
       d3.select(svg).on('.zoom', null);
-      svg.__zoom = d3.zoomIdentity;
+      d3.select(svg).property('__zoom', d3.zoomIdentity);
       svg.dataset.edgeLabels = 'false';
       resizeLabels = () => {};
       return;
@@ -168,7 +168,9 @@ export function mountOntoGraph(el, model, opts = {}) {
         text.style.fontSize = (innerWidth >= 900 && screenScale > 0 ? Math.max(20, 11.25 / screenScale) : 20) + 'px';
       }
     };
-    const zoom = d3.zoom().extent([[0, 0], [width, height]]).scaleExtent([fit * .6, 5]).on('zoom', e => {
+    const zoom = d3.zoom()
+      .filter(e => (!e.ctrlKey || e.type === 'wheel') && !e.button && (!e.touches || e.touches.length > 1))
+      .extent([[0, 0], [width, height]]).scaleExtent([fit * .6, 5]).on('zoom', e => {
       layer.attr('transform', e.transform);
       svg.dataset.edgeLabels = String(e.transform.k > fit * 1.65);
       labelSize();
