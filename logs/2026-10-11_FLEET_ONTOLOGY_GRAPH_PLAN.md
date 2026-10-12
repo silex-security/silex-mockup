@@ -1,6 +1,6 @@
-# Fleet ontology in the Ontology tab: role, relation graph and files — plan v0.3
+# Fleet ontology in the Ontology tab: role, relation graph and files — plan v0.5
 
-Date: 2026-10-11. Branch `fleet-ontology-graph`, base `47562d2` (origin/main). Status: **plan approved (round 3, unanimous); implementation in progress**.
+Date: 2026-10-11. Branch `fleet-ontology-graph`, base `47562d2` (origin/main). Status: **v0.3 approved (round 3, unanimous); v0.5 amendment (the Vision graph) approved, round 5, unanimous; T1 done, T2/T3 in progress**.
 v0.2 answered the eight blocking objections of round 1; v0.3 answers round 2's one (tables in *Review record*).
 
 ## Goal
@@ -304,6 +304,67 @@ coders `coder-opus` and `coder-sol`. Plan gate and code gate unanimous (planner 
 `fleet-ontology-graph` only. After the code gate: merge to `main`, push (CI deploys), live check, record here. The repo is
 public: no private paths, partner names or internal data in any file, commit message or branch name.
 
+## Amendment v0.4/v0.5 — the Vision graph (user direction, mid-implementation)
+
+The user, after v0.3 was approved: the graph drawn in the Ontology tab need not stay literal; it should express where
+Silex is heading, in the manner of their explainer page (an alert at the centre of typed relations to who, what
+permission, which task and what target; an "alert only ↔ with ontology" switch; a "whole enterprise ↔ this decision"
+focus switch; every figure labelled as an illustration, not a measurement). Everything in v0.3 stays; this adds a lead
+block to **Graph & files** and changes nothing already built.
+
+**Graph & files, new order:** (1) **The vision** (new, default on screen), (2) **What exists today**: the v0.3 graph
+(schema and facts modes) under that heading, (3) the files list. Hint becomes "The vision, today's pack, every JSON file".
+
+**The vision block** (`js/rt-onto-vision.js`, `css/rt-onto-vision.css`, `mountOntoVision(el, { tip, pack, reducedMotion })
+→ { play(), pause() }`; under reduced motion the ontology view is set at mount, since the bar never calls `play()`):
+
+- Grade line, visible, `[data-vision-grade]`, chip `data-kind="sim"` "Illustration": "Where Silex is heading, not the
+  current build. Nodes and relations marked *today* exist in the candidate pack; the rest are the vision. No figure here is a
+  measurement."
+- A hand-authored relation sketch (fixed coordinates in a viewBox, no d3, no force layout), centred on one fleet action,
+  **"Ad Buyer · launch paid campaign"**. Ring 1, the decision's own world, each with a labelled typed edge: the video it
+  promotes (USES), the subject the video FEATURES, the purpose that EXCLUDES that subject, the hot pool that SYNCS_TO ad
+  candidates, the budget it CHARGES, the music LICENSED_UNDER, the team the action is OWNED_BY_TEAM (Trust & Safety), the
+  person who DELEGATES_AUTHORITY to the agent, the consent record, and the hard rule that GATES it. Ring 2, the rest of
+  the enterprise: other domains' work (supplier payments, SOC triage, onboarding, refunds, contracts, access requests,
+  other creators, other campaigns, payroll) as faint nodes; a ring-2 node with a pack class (refunds →
+  `pack:ActionRefund`) is tagged `today` like any other.
+- Each node carries `data-status="today"` (with `data-pack-id`, a real pack class or team id) or `data-status="vision"`.
+  **An edge is `today` only if (s's `data-pack-id`, `data-p`, o's `data-pack-id`) is one of the pack's 30 edge triples**
+  (both pool nodes are `pack:Pool`; the music node is `pack:Asset`); every other edge is `vision`, even between two
+  `today` nodes. So FEATURES, EXCLUDES, SYNCS_TO, OWNED_BY_TEAM and LICENSED_UNDER can be today; USES, the action's
+  CHARGES (the pack has only Team CHARGES Budget), DELEGATES_AUTHORITY, GATES and the consent link are vision;
+  the legend explains both; vision nodes and edges are drawn dashed.
+- Switch A, `[data-vision-view="trace"|"onto"]`: *Trace only* shows the action with the raw ids a trace carries
+  (its arguments read from the engine's X1Bb span, `video_id` and `amount_usd`; nothing invented) and four open questions (who is in it? may it be used for ads? which team reviews?
+  who allowed this?); *With the ontology* draws ring 1 with the answers. Default: trace only, switching once to the
+  ontology view on first show (skipped under reduced motion, which shows the ontology view at once).
+- Switch B, `[data-vision-focus="all"|"local"]`: *Whole enterprise* shows both rings at equal weight; *This decision*
+  fades ring 2 and keeps ring 1. Caption: "Not deleting the world; choosing the context this one step needs."
+- A four-step strip under the sketch, `[data-vision-step]`: fill in context → narrow to this decision → hard rules for red
+  lines, the judge for grey areas → people for the exceptions; each step tagged *today · simulated on this site* (with where it exists on the
+  site: the Agent fleet tab, the Decision plane) or *vision*. No numbers. (Unlike the explainer, no hypothetical
+  triage counts: the site's figures are computed or measured, and a made-up 10,000-action split would be the one typed-in
+  number on these sub-tabs.)
+- Hooks: `[data-onto-vision]`, `[data-vision-node="<id>"]` with `data-status`, `data-ring` (0 centre, 1, 2),
+  `[data-vision-edge]` with `data-p`, `data-status`, the two switch groups, `[data-vision-caption]`, `[data-vision-step]`.
+- Motion: CSS transitions only (≤ 600 ms), none under reduced motion. 390 px: the sketch scales by viewBox, labels stay
+  ≥ 11 px as rendered (measured on screen at 1400 and 390 px, since viewBox scaling shrinks SVG text), the switches wrap, no horizontal page scroll.
+
+**Wiring (T3 addendum):** the Graph & files panel gets `<div data-onto-vision-mount>` first, then the v0.3 graph mount
+under an `<h3>` "What exists today", then (inside the graph module) the files. `bind('graph', …)` gets a combined handle
+whose `play()` only plays the vision's switch once; the graph's `ensure()` stays on v0.3's own path (`rt:sub` and
+after-mount), never inside `play()`, so reduced motion still draws the graph.
+
+**Task T5** (owner: whichever coder finishes first; planner assigns): the vision module, CSS and
+`tests/site/rt-onto-vision.test.mjs` (headless): grade line visible; every `today` node's `data-pack-id` is a pack class
+or team id, and at least six nodes are `today`; every edge endpoint is a node; every `today` edge's triple is a pack edge, at
+least four edges are `today`, every edge whose `data-p` is not a pack predicate is `vision`; trace-only fields equal the
+X1Bb call's argument names; rendered labels ≥ 11 px at 1400 and 390 px; switch A changes ring-1 visibility; switch
+B sets ring 2 faded and ring 1 not; reduced motion before a cold deep link `…&sub=graph` shows the ontology view with no
+running transitions; 390 px no horizontal scroll; no page errors; `no-real-brand` FILES gains the module. NOTES in
+`rt-subnav.test.mjs` gain `'[data-rt-subpanel="graph"] [data-vision-grade]'` with TEXT `/not the current build/`.
+
 ## Review record
 
 ### Plan round 1 (v0.1, sha 3de327928cbb) — both PLAN-REJECTED
@@ -337,3 +398,19 @@ hidden panel; the self-listing de-duplicated and the 193 broken down.
 
 reviewer-claude PLAN-APPROVED, reviewer-codex PLAN-APPROVED, planner PLAN-APPROVED. Non-blocking taken into T1: the model
 test asserts every `rules[].complete` entry is a relation predicate (attribute boxes carry only `data-hi`).
+
+### Plan round 4 (v0.4, sha f71058382d74) — claude PLAN-REJECTED, codex PLAN-APPROVED
+
+| # | Objection | v0.5 |
+|---|---|---|
+| claude 1 (codex nb 1 says the same) | `today` defined for nodes only; several sketch edges are not pack relations | an edge is today only if its triple is a pack edge; USES, the action's CHARGES, DELEGATES_AUTHORITY, GATES and the consent link are vision; tests check it |
+
+Non-blocking taken: `reducedMotion` passed to the vision mount; `ensure()` kept off `play()`; step tags "today ·
+simulated on this site"; refunds tagged today, payroll added as a vision node; trace-only fields read from the X1Bb call
+(no `pool`); rendered label size checked at 1400 and 390 px.
+
+### Plan round 5 (v0.5, sha f14d8f2cc9b1) — PLAN-APPROVED, unanimous
+
+reviewer-claude PLAN-APPROVED, reviewer-codex PLAN-APPROVED, planner PLAN-APPROVED. Non-blocking taken into T5: at
+narrow widths the sketch keeps a minimum width and scrolls inside its own card (the page never scrolls sideways; the
+check measures the page), and "the raw fields the call carries" instead of "ids".
