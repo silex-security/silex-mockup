@@ -102,8 +102,8 @@ async function init() {
   if (how) sub.bind('how', how);
   if (s1View) sub.bind('s1', s1View);
   if (fleetView) sub.bind('fleet', fleetView);
-  // One handle for the panel: the vision's switch plays once on first show; the graph draws then too (ensure() is also
-  // called on rt:sub above, so it draws under reduced motion, when the bar never calls play()).
+  // One handle for the panel: play() only runs the vision's switch, once, on first show. The graph is drawn by ensure()
+  // on rt:sub and after mount (above), never from play(), so it also draws under reduced motion (plan v0.5).
   if (vision || graph) sub.bind('graph', { play() { vision?.play?.(); }, pause() { vision?.pause?.(); } });
   if (data) {
     root.addEventListener('click', e => {
