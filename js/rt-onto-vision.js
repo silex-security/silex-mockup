@@ -20,16 +20,16 @@ const AUTO_MS = 1400;
 export const VIEW = { w: 1240, h: 720 };
 const C = { x: 620, y: 360 };
 
-/** Nodes: id, label, type, the pack id it stands for (null for a vision-only node), ring and position. */
+/** Nodes: id, label (null: built in visionGraph from the engine's X1Bb call and the pack), type, the pack id it stands for (null for a vision-only node), ring and position. */
 export const NODES = [
-  { id: 'action', label: 'Ad Buyer · launch paid campaign', type: 'Reviewable action', pack: 'pack:ActionLaunchCampaign', ring: 0, at: [C.x, C.y] },
-  { id: 'video', label: 'Video V-207', type: 'Video', pack: 'pack:Video', ring: 1, at: [620, 150] },
+  { id: 'action', label: null, type: 'Reviewable action', pack: 'pack:ActionLaunchCampaign', ring: 0, at: [C.x, C.y] },
+  { id: 'video', label: null, type: 'Video', pack: 'pack:Video', ring: 1, at: [620, 150] },
   { id: 'subject', label: 'A minor', type: 'Subject', pack: 'pack:Subject', ring: 1, at: [870, 95] },
   { id: 'purpose', label: 'Advertising', type: 'Purpose', pack: 'pack:Purpose', ring: 1, at: [980, 215] },
   { id: 'hotpool', label: 'Hot pool', type: 'Pool', pack: 'pack:Pool', ring: 1, at: [990, 335] },
   { id: 'adpool', label: 'Ad candidates', type: 'Pool', pack: 'pack:Pool', ring: 1, at: [960, 455] },
   { id: 'budget', label: 'Campaign budget', type: 'Budget', pack: 'pack:Budget', ring: 1, at: [860, 600] },
-  { id: 'team', label: 'Trust & Safety', type: 'Team', pack: 'team:trust-safety', ring: 1, at: [620, 610] },
+  { id: 'team', label: null, type: 'Team', pack: 'team:trust-safety', ring: 1, at: [620, 610] },
   { id: 'rule', label: 'No minors in ads', type: 'Hard rule', pack: null, ring: 1, at: [390, 600] },
   { id: 'person', label: 'Campaign manager', type: 'Person', pack: null, ring: 1, at: [270, 480] },
   { id: 'license', label: 'Track license', type: 'License', pack: 'pack:License', ring: 1, at: [230, 350] },
@@ -99,7 +99,16 @@ function clip(a, b) {
 export function visionGraph(pack) {
   const ids = new Set([...(pack?.classes ?? []).map(c => c.id), ...(pack?.teams ?? []).map(t => t.id)]);
   const triples = new Set((pack?.edges ?? []).map(e => `${e.s}|${e.p}|${e.o}`));
-  const nodes = NODES.map(n => ({ ...n, status: n.pack && ids.has(n.pack) ? 'today' : 'vision' }));
+  const packLabel = id => [...(pack?.classes ?? []), ...(pack?.teams ?? [])].find(x => x.id === id)?.label ?? null;
+  const call = traceCall();
+  const title = s => String(s).split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  const actionLabel = packLabel('pack:ActionLaunchCampaign');
+  const LABEL = {
+    action: `${title(call.agent)} · ${actionLabel ? actionLabel.charAt(0).toLowerCase() + actionLabel.slice(1) : call.tool}`,
+    video: `Video ${call.args.video_id ?? ''}`.trim(),
+    team: packLabel('team:trust-safety') ?? 'Trust & Safety',
+  };
+  const nodes = NODES.map(n => ({ ...n, label: n.label ?? LABEL[n.id], status: n.pack && ids.has(n.pack) ? 'today' : 'vision' }));
   const by = new Map(nodes.map(n => [n.id, n]));
   const edges = EDGES.map(e => {
     const s = by.get(e.s), o = by.get(e.o);
@@ -181,20 +190,19 @@ export function mountOntoVision(el, opts = {}) {
 
   const root = el.firstElementChild;
   const statusEl = root.querySelector('[data-vision-status]');
-  let timer = 0, played = false;
+  let timer = 0, played = false, chose = false;   // chose: the visitor picked a view by hand
   function set(kind, value) {
     root.dataset[kind] = value;
     for (const b of root.querySelectorAll(`[data-vision-${kind}]`)) if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(b.getAttribute(`data-vision-${kind}`) === value));
     statusEl.textContent = root.dataset.view === 'trace'
       ? 'Trace only: the call and the fields it carries. Four questions stay open.'
-      : root.dataset.focus === 'local' ? 'With the ontology, narrowed to this decision: the rest of the enterprise steps back.' : 'With the ontology: typed relations answer the four questions.';
+      : root.dataset.focus === 'local' ? 'With the ontology, narrowed to this decision: the rest of the enterprise steps back.' : 'With the ontology: typed relations answer the four questions; the dashed ones are not built yet.';
   }
   const stop = () => { clearTimeout(timer); timer = 0; };
   const onClick = e => {
     const b = e.target.closest('button[data-vision-view], button[data-vision-focus]');
     if (!b || !root.contains(b)) return;
-    stop(); played = true;
-    if (b.dataset.visionView) set('view', b.dataset.visionView); else set('focus', b.dataset.visionFocus);
+    if (b.dataset.visionView) { stop(); played = true; chose = true; set('view', b.dataset.visionView); } else set('focus', b.dataset.visionFocus);
   };
   root.addEventListener('click', onClick);
   // On a narrow screen the sketch scrolls inside its card; the first time it is on screen, centre it on the action.
@@ -217,6 +225,11 @@ export function mountOntoVision(el, opts = {}) {
       stop();
       timer = setTimeout(() => { timer = 0; played = true; set('view', 'onto'); }, AUTO_MS);
     },
-    pause() { stop(); },
+    /** Leaving before the automatic switch settles it, so a return never finds the trace view it was about to leave. */
+    pause() {
+      if (!timer) return;
+      stop(); played = true;
+      if (!chose) set('view', 'onto');
+    },
   };
 }

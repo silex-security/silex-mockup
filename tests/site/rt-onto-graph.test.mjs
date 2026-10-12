@@ -2,6 +2,28 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { withPage, until } from './sx-harness.mjs';
 
+// Rendering diagnostics are emitted through the browser log, beyond runtime exceptions.
+async function withGraphPage(t, fn) {
+  return withPage(t, async api => {
+    const diagnostics = [];
+    const listener = event => {
+      const message = JSON.parse(event.data);
+      if (message.method === 'Log.entryAdded') {
+        const entry = message.params.entry;
+        if (['warning', 'error'].includes(entry.level) &&
+            (entry.source === 'rendering' || /<svg|<g>|attribute.*transform|Expected number/i.test(entry.text))) diagnostics.push(entry.text);
+      }
+      if (message.method === 'Runtime.consoleAPICalled' && ['warning', 'warn', 'error'].includes(message.params.type)) {
+        diagnostics.push(message.params.args.map(a => a.value ?? a.description).join(' '));
+      }
+    };
+    api.page.ws.addEventListener('message', listener);
+    await api.page.send('Log.enable');
+    try { await fn({ ...api, errors: () => [...new Set([...api.errors(), ...diagnostics])] }); }
+    finally { api.page.ws.removeEventListener('message', listener); }
+  });
+}
+
 export async function mountDirect(ev) {
   return ev(`if (![...document.querySelectorAll('link[rel="stylesheet"]')].some(e => e.href.endsWith('/css/rt-onto-graph.css'))) {
       const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/css/rt-onto-graph.css'; document.head.appendChild(css);
@@ -16,7 +38,7 @@ export async function mountDirect(ev) {
 const q = '#graphTest ';
 
 test('schema, rule highlights, facts, inspector, files and responsive fallback', { timeout: 120000 }, async t => {
-  await withPage(t, async ({ ev, go, size, overflow, errors, reducedMotion }) => {
+  await withGraphPage(t, async ({ ev, go, size, overflow, errors, reducedMotion }) => {
     await reducedMotion(true);
     await go('#view=overview');
     const model = await mountDirect(ev);
@@ -97,6 +119,14 @@ test('schema, rule highlights, facts, inspector, files and responsive fallback',
       for (const mode of ['schema', 'facts']) {
         await ev(`window.graphHandle.mode('${mode}')`);
         const o = await overflow(); assert.ok(o.doc <= o.win, JSON.stringify(o));
+        if (width === 390) {
+          const mobile = await ev(`const svg = document.querySelector('${q}[data-graph-svg]'), stage = svg.closest('.rt-og-stage');
+            return { scrolls: stage.scrollWidth > stage.clientWidth, fonts: [...svg.querySelectorAll('[data-graph-node] text')].map(e => {
+              const m = e.getScreenCTM(); return parseFloat(getComputedStyle(e).fontSize) * Math.hypot(m.a, m.b);
+            }) }`);
+          assert.equal(mobile.scrolls, true, 'wide graph scrolls inside its own stage');
+          assert.ok(mobile.fonts.length && mobile.fonts.every(f => f >= 11), 'mobile node labels remain at least 11 screen pixels: ' + JSON.stringify(mobile.fonts));
+        }
       }
     }
     assert.deepEqual(errors(), []);
@@ -104,7 +134,7 @@ test('schema, rule highlights, facts, inspector, files and responsive fallback',
 });
 
 test('library failure leaves chips, table and files usable, and Retry recovers', { timeout: 60000 }, async t => {
-  await withPage(t, async ({ ev, go, page, errors }) => {
+  await withGraphPage(t, async ({ ev, go, page, errors }) => {
     await go('#view=overview');
     await page.send('Network.setBlockedURLs', { urls: ['*swm/vendor/d3.v7.min.js*'] });
     const model = await mountDirect(ev);
@@ -121,7 +151,7 @@ test('library failure leaves chips, table and files usable, and Retry recovers',
 });
 
 test('cold graph deep links draw identically with reduced motion set before load', { timeout: 60000 }, async t => {
-  await withPage(t, async ({ ev, go, reducedMotion, size, overflow, errors }) => {
+  await withGraphPage(t, async ({ ev, go, reducedMotion, size, overflow, errors }) => {
     let positions;
     for (const reduced of [true, false]) {
       await reducedMotion(reduced);
@@ -137,5 +167,65 @@ test('cold graph deep links draw identically with reduced motion set before load
       await size(1400, 1000);
     }
     assert.deepEqual(errors(), []);
+  });
+});
+
+
+test('empty call slices keep finite transforms and recover to a populated call', { timeout: 60000 }, async t => {
+  await withGraphPage(t, async ({ ev, go, errors }) => {
+    await go('#view=overview');
+    const model = await mountDirect(ev);
+    await ev('await window.graphHandle.ensure(); window.graphHandle.mode("facts")');
+    const emptyCalls = model.traces.filter(t => ['TR2a', 'TR2b', 'CR1a'].includes(t.id))
+      .flatMap(t => t.calls.map(c => ({ trace: t.id, ...c })));
+    assert.equal(emptyCalls.length, 5);
+    const finiteState = () => ev(`const svg = document.querySelector('${q}[data-graph-svg]');
+      const transforms = [...svg.querySelectorAll('[transform]')].map(e => e.getAttribute('transform'));
+      const z = svg.__zoom;
+      return { transforms, zoom: [z.x, z.y, z.k], finite: [z.x, z.y, z.k].every(Number.isFinite) && z.k > 0 &&
+        transforms.every(t => !/NaN|Infinity/.test(t) && [...t.matchAll(/[-+]?\\d*\\.?\\d+(?:e[-+]?\\d+)?/gi)].every(m => Number.isFinite(Number(m[0])))) }`);
+    for (const call of emptyCalls) {
+      assert.equal(call.facts.nodes.length, 0);
+      await ev(`window.graphHandle.trace(${JSON.stringify(call.trace)}, ${call.index})`);
+      const state = await finiteState();
+      assert.equal(state.finite, true, JSON.stringify({ call: call.trace, index: call.index, ...state }));
+      assert.equal(await ev(`return document.querySelectorAll('${q}[data-graph-node]').length`), 0);
+      assert.equal(await ev(`const e = document.querySelector('${q}[data-graph-empty]'); return !e.hidden && e.getBoundingClientRect().height > 0 && e.textContent === 'No declared facts for this call'`), true);
+      const caption = await ev(`return document.querySelector('${q}[data-graph-caption]').textContent`);
+      for (const value of [call.tool, 'with the slice: ' + call.on.decision, 'trace only: ' + call.off.decision]) assert.ok(caption.includes(value));
+    }
+    await ev('window.graphHandle.trace("X1Bb")');
+    const trace = model.traces.find(t => t.id === 'X1Bb'), call = trace.calls.find(c => c.index === trace.deciding);
+    assert.equal(await ev(`return document.querySelectorAll('${q}[data-graph-node]').length`), call.facts.nodes.length);
+    assert.equal(await ev(`return document.querySelector('${q}[data-graph-empty]').hidden`), true);
+    assert.equal((await finiteState()).finite, true);
+    assert.deepEqual(errors(), []);
+  });
+});
+
+test('drawing failures are reported separately from library load failures', async t => {
+  await withGraphPage(t, async ({ ev, go, errors }) => {
+    await go('#view=overview');
+    await mountDirect(ev);
+    await ev(`await window.graphHandle.ensure();
+      const { mountOntoGraph } = await import('/js/rt-onto-graph.js');
+      const el = document.createElement('div'); el.id = 'brokenGraph'; document.querySelector('#overview').appendChild(el);
+      const library = { ...window.d3, forceSimulation() { throw new Error('Drawing failure control'); } };
+      const handle = mountOntoGraph(el, window.graphModel, { loadD3: async () => library });
+      await handle.ensure()`);
+    assert.equal(await ev('return document.querySelector("#brokenGraph [data-graph-status]").textContent'), 'The graph could not be drawn.');
+    assert.equal(await ev('return !!document.querySelector("#brokenGraph [data-graph-retry]")'), false);
+    assert.ok(errors().some(e => e.includes('Drawing failure control')), 'drawing error is logged');
+    assert.deepEqual(errors().filter(e => !e.includes('Drawing failure control')), []);
+  });
+});
+
+test('the diagnostic collector catches invalid SVG attribute errors', async t => {
+  await withGraphPage(t, async ({ ev, go, errors }) => {
+    await go('#view=overview');
+    await ev(`const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const g = document.createElementNS(svg.namespaceURI, 'g'); svg.appendChild(g); document.body.appendChild(svg);
+      g.setAttribute('transform', 'translate(NaN,NaN)'); svg.remove()`);
+    await until(() => errors().some(e => /attribute transform.*Expected number/i.test(e)), 'SVG diagnostic captured');
   });
 });

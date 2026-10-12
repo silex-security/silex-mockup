@@ -14,7 +14,7 @@ import { browser, until, sleep } from './ontology-card/browser.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 // Every request the Ontology bar waits for (js/rt-ontology.js mounts it once all of them have settled): the measured
-// results, and the fleet ontology (loadFleetOntology fetches the pack and the files list; the vision block reads the pack).
+// results, and the fleet ontology (loadFleetOntology fetches the pack, once, and the files list; the vision block reuses that pack).
 const GATED = ['/data/onto-observability.json', '/data/onto-s1.json', '/swm/data/packs/creator-platform.json', '/data/ontology-files.json'];
 
 // The notes each sub-tab must show as visible text (rule 2); `top` ones belong to the tab, whatever its sub-tab.

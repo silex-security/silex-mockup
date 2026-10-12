@@ -1,4 +1,5 @@
-// Fleet ontology graph: fixed layout, independent of animation and panel visibility.
+// Fleet ontology graph: logs/2026-10-11_FLEET_ONTOLOGY_GRAPH_PLAN.md, Contract C.
+// Fixed layout, independent of animation and panel visibility.
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const words = value => String(value).toLowerCase().replaceAll('_', ' ');
 let libraryPromise;
@@ -59,7 +60,7 @@ export function mountOntoGraph(el, model, opts = {}) {
     </div>
     <div class="rt-og-predicates" aria-label="Pack predicates">${model.predicates.map(p => `<span data-graph-pred="${esc(p.id)}" data-kind="${esc(p.kind)}" data-hi="false" data-complete="false">${esc(p.id)} <small>${esc(p.kind)}</small>${tip(esc(p.domain.join(', ') + ' → ' + p.range.join(', ')))}</span>`).join('')}</div>
     <p class="rt-og-caption" data-graph-caption aria-live="polite"></p>
-    <div class="rt-og-columns"><div class="rt-og-stage"><div data-graph-status role="status">Open the graph to load its layout.</div><svg data-graph-svg viewBox="0 0 1000 700" role="group" aria-label="Ontology relation graph"></svg></div>
+    <div class="rt-og-columns"><div class="rt-og-stage" tabindex="0" role="region" aria-label="Ontology graph; scroll horizontally to see all nodes"><div data-graph-status role="status">Open the graph to load its layout.</div><p data-graph-empty role="status" hidden>No declared facts for this call</p><svg data-graph-svg viewBox="0 0 1000 700" role="group" aria-label="Ontology relation graph"></svg></div>
       <aside data-graph-inspector aria-label="Selected node">Select a node to inspect its relations.</aside></div>
     <div class="rt-og-legend"><span>Declared — solid</span><span>Observed – – dashed</span><span>Inferred ··· dotted</span><span>Circles: class, action, team, anchor or instance</span><span>Boxes: attributes or literals</span><span>Blue: read by the rule / used by the call</span><span>Amber: declared complete</span><span>Notation adapted from VOWL</span><span>Scroll or pinch to zoom · drag to pan · Enter to inspect</span></div>
     <p class="rt-og-limits" data-onto-fleet-limits>The chain comes from declared typed facts, not from linking traces at runtime. Each check is evaluated on its own. In a real run, the hold at the first step means the later calls never happen.</p>
@@ -112,6 +113,16 @@ export function mountOntoGraph(el, model, opts = {}) {
     if (!d3) return;
     const width = 1000, height = currentMode === 'schema' ? 1120 : 620;
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    const empty = graph.nodes.length === 0;
+    root.querySelector('[data-graph-empty]').hidden = !empty;
+    if (empty) {
+      d3.select(svg).selectAll('*').remove();
+      d3.select(svg).on('.zoom', null);
+      svg.__zoom = d3.zoomIdentity;
+      svg.dataset.edgeLabels = 'false';
+      resizeLabels = () => {};
+      return;
+    }
     const ranks = {};
     const nodes = graph.nodes.map((n, i) => {
       const rank = ranks[n.role] ?? 0;
@@ -237,8 +248,13 @@ export function mountOntoGraph(el, model, opts = {}) {
     if (pending) return pending;
     status.textContent = 'Loading graph…';
     pending = Promise.resolve().then(() => (opts.loadD3 ?? loadD3)()).then(library => {
-      d3 = library; status.hidden = true; render();
-    }).catch(() => {
+      d3 = library; status.hidden = true;
+      try { render(); } catch (error) {
+        console.error(error);
+        status.hidden = false;
+        status.textContent = 'The graph could not be drawn.';
+      }
+    }, () => {
       status.hidden = false;
       status.innerHTML = 'Could not load the graph library <button type="button" class="btn secondary" data-graph-retry>Retry</button>';
     }).finally(() => { pending = null; });

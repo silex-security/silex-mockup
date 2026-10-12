@@ -38,6 +38,7 @@ test('counts match the plan and the pack', () => {
     id: pack.meta.id, title: pack.meta.title, tenant: pack.meta.tenant, candidate: true, outside_coverage: true, path: PACK_PATH,
   });
   assert.equal(m.files, files, 'the files list is passed through');
+  assert.equal(m.packJson, pack, 'the parsed pack is passed through, so the page fetches it once');
 });
 
 test('predicates: one per pack predicate, marked relation, attribute or meta', () => {
@@ -244,6 +245,7 @@ test('loadFleetOntology fetches the pack and the files list', async () => {
   assert.deepEqual(asked.sort(), [FILES_PATH, PACK_PATH].sort());
   assert.deepEqual(got.counts, m.counts);
   assert.deepEqual(got.files, files);
+  assert.deepEqual(got.packJson, pack, 'the pack it fetched is on the model');
   await assert.rejects(loadFleetOntology({ fetchJson: async () => { throw new Error('offline'); } }), /offline/);
 });
 

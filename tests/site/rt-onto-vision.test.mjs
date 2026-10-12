@@ -42,6 +42,11 @@ test('vision statuses come from the pack; the trace call is the engine\'s X1Bb c
   // Without a pack, nothing is today.
   assert.ok(visionGraph(null).nodes.every(n => n.status === 'vision'));
   assert.deepEqual(traceCall(), { tool: X1BB.tool.name, agent: X1BB.agent, args: X1BB.tool.args });
+  // Labels the engine or the pack can give are built from them, not typed.
+  const label = id => g.nodes.find(n => n.id === id).label;
+  assert.equal(label('video'), `Video ${X1BB.tool.args.video_id}`);
+  assert.equal(label('action'), `Ad Buyer · ${pack.classes.find(c => c.id === 'pack:ActionLaunchCampaign').label.replace(/^./, c => c.toLowerCase())}`);
+  assert.equal(label('team'), pack.teams.find(t => t.id === 'team:trust-safety').label);
 });
 
 test('Graph & files · the vision block in the page', { timeout: 240000 }, async t => {
@@ -159,6 +164,28 @@ test('Graph & files · the vision block in the page', { timeout: 240000 }, async
     for (const l of await labelsPx()) assert.ok(l.px >= 11, `390 px: "${l.t}" at ${l.px.toFixed(1)} px`);
     await click('button[data-vision-focus="local"]');
     await shot('390');
+
+    // Leaving Graph & files before the automatic switch settles it on the ontology view, so a return never finds the trace
+    // view. The probe runs in the page from the bar's first rt:sub, on a zero-delay timer queued before the bar binds and
+    // plays the block, so the 1.4 s switch is always still pending when it leaves.
+    await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `if ((() => { try { return sessionStorage.getItem('vzPauseProbe'); } catch { return null; } })()) {   // about:blank has no storage
+      sessionStorage.removeItem('vzPauseProbe');
+      document.addEventListener('rt:sub', function once(e) {
+        if (e.detail?.tab !== 'ontology') return; document.removeEventListener('rt:sub', once);
+        setTimeout(() => { const r = document.querySelector(${Q(ROOT_SEL)}), bar = window.__rtSubnav.ontology;
+          const before = r.dataset.view; bar.open('fleet'); const away = r.dataset.view; bar.open('graph');
+          window.__vzPause = { before, away, back: r.dataset.view }; }, 0);
+      });
+    }` });
+    await ev(`sessionStorage.setItem('vzPauseProbe', '1')`);
+    await go('#view=runtime-observation&tab=ontology&sub=graph');
+    const paused = await until(() => ev('return window.__vzPause ?? null'), 'pause probe ran', 15000);
+    assert.deepEqual(paused, { before: 'trace', away: 'onto', back: 'onto' }, 'leaving mid-way settles the switch on the ontology view');
+    assert.deepEqual((await viewLog()).seq.map(e => e.v), ['trace', 'onto'], 'and it switches exactly once');
+    // A view the visitor picked by hand is kept across leaving and coming back.
+    await click('button[data-vision-view="trace"]');
+    await ev(`window.__rtSubnav.ontology.open('fleet'); window.__rtSubnav.ontology.open('graph')`);
+    assert.equal(await view(), 'trace', 'a hand-picked view survives leaving the sub-tab');
 
     // Reduced motion before a cold deep link: the ontology view at once, nothing running.
     await size(1400);

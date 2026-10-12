@@ -4,7 +4,8 @@
 // predicates they read, and, per scripted pre_tool call, the ontology slice the vendored engine reads, the triples it
 // used, and its decision with the slice and trace only. Decisions, queues and the X1 chain come from fleetModel(), so
 // these sub-tabs and the Agent fleet tab cannot disagree. Nothing is typed in: every figure is computed here from the
-// pack, the vendored engine and the generated files list. No DOM access at module top level; imports under node.
+// pack, the vendored engine and the generated files list. The parsed pack itself is passed through as `packJson`, so the
+// page fetches it once (the Vision block reads it too). No DOM access at module top level; imports under node.
 import { prepareSpan } from '../jev-runtime/demo/js/engine/router.js';
 import { TENANT, scenariosFor } from '../jev-runtime/demo/js/engine/scenarios.js';
 import { buildState } from '../jev-runtime/demo/js/engine/state.js';
@@ -159,6 +160,7 @@ export function fleetOntology(pack, files, { seed = 7 } = {}) {
     predicates, schema, rules, traces,
     queues: fm.queues, x1: fm.x1,
     files,
+    packJson: pack,
   };
 }
 

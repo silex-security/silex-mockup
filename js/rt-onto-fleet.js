@@ -4,6 +4,8 @@
 // OWNED_BY_TEAM routes each stopped call to the owning team. The X1 description carries the three limits the Agent fleet
 // tab states. Static: play() and pause() are no-ops. No DOM access at module top level.
 
+import { DOMAINS } from '../jev-runtime/demo/js/engine/domains.js';
+
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const noTip = () => '';
 export const GRADE_LINE = 'Simulated engine · fictional tenant · candidate pack, outside the coverage figures. Not the measured result in the first sub-tabs.';
@@ -13,6 +15,17 @@ export const LIMITS = [
   'In a real run, the hold at the first step means the later calls never happen.',
 ];
 const triple = t => `<code class="rt-of-t"><span>${esc(t.s)}</span> <b>${esc(t.p)}</b> <span>${esc(t.o)}</span></code>`;
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const word = n => WORDS[n] ?? String(n);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+/** The fleet as the engine defines it: how many agents, and how many teams own them (two agents can share a team). */
+export function fleetShape(domain = DOMAINS.creator) {
+  return { agents: domain.agents.length, teams: new Set(domain.agents.map(a => domain.teams[a])).size };
+}
+/** The lead sentence, with both counts computed. */
+export function leadText(shape = fleetShape()) {
+  return `${cap(word(shape.agents))} agents of a fictional content platform, owned by ${word(shape.teams)} teams.`;
+}
 const list = xs => (xs.length ? xs.map(x => `<code>${esc(x)}</code>`).join(', ') : '<span class="rt-of-none">none</span>');
 
 /** @returns {{ play(): void, pause(): void }} */
@@ -31,6 +44,10 @@ export function mountOntoFleet(el, model, opts = {}) {
     f.steps.push(step.what);
   }
 
+  // Job 1: the grades the slices carry, and how many teams the cascade crosses, from the model.
+  const grades = [...new Set(model.traces.flatMap(t => t.calls.flatMap(c => c.facts.links.map(l => l.grade))).filter(Boolean))].sort();
+  const cascadeTeams = new Set(x1.map(s => s.team).filter(Boolean)).size;
+
   // Job 3: one row per team: the pack's teams, plus any queue key the pack does not name.
   const teamNodes = schema.nodes.filter(n => n.role === 'team');
   const owned = id => schema.links.filter(l => l.role === 'owned' && l.o === id).map(l => schema.nodes.find(n => n.id === l.s)?.label ?? l.s);
@@ -43,22 +60,22 @@ export function mountOntoFleet(el, model, opts = {}) {
 
   el.innerHTML = `<section class="rt-of" data-onto-fleet>
 <p class="rt-of-grade" data-onto-fleet-grade>${esc(GRADE_LINE)}</p>
-<p class="rt-of-lead">Six agents of a fictional content platform, each on its own team. The ontology here is the
+<p class="rt-of-lead" data-onto-fleet-lead>${esc(leadText())} The ontology here is the
 <a href="${esc(pack.path)}" target="_blank" rel="noopener">${esc(pack.title)}</a>; it does three jobs for them.</p>
 <div class="rt-of-jobs">
 
 <article class="card rt-of-job" data-onto-fleet-job="facts">
 <header><span class="rt-of-n" aria-hidden="true">1</span><h3>Gives each call the declared facts its trace lacks
-${tip('Each scripted tool call carries a <b>slice</b> of typed facts (subject, predicate, object, grade) declared by the systems that own them. A trace-only monitor sees the call; it does not have these facts.')}</h3></header>
+${tip(`Each scripted tool call carries a <b>slice</b> of typed facts: subject, predicate, object and a grade (${grades.map(esc).join(' or ')}). A trace-only monitor sees the call; it does not have these facts.`)}</h3></header>
 <p class="rt-of-fig"><b data-onto-fleet-num="triples">${counts.triples}</b> triples across <b data-onto-fleet-num="calls">${counts.calls}</b> checked calls</p>
-<p class="rt-of-sub">In the cross-team cascade, the facts that decided it:</p>
+<p class="rt-of-sub">In the cascade across ${esc(word(cascadeTeams))} teams, the facts that decided it:</p>
 <ul class="rt-of-facts">${facts.map(f => `<li data-onto-fleet-fact>${triple(f.t)}<small>read at: ${f.steps.map(esc).join(' · ')}</small></li>`).join('')}</ul>
 <div class="rt-of-limits" data-onto-fleet-limits>${LIMITS.map(s => `<p>${esc(s)}</p>`).join('')}</div>
 </article>
 
 <article class="card rt-of-job" data-onto-fleet-job="rules">
 <header><span class="rt-of-n" aria-hidden="true">2</span><h3>Typed rules read those facts
-${tip('The predicates each rule read are taken from the facts the engine marked as used for the calls it stopped. <b>Declared complete</b>: the slice says a list (for example an agency’s scopes) is complete, so a missing entry counts as absent rather than unknown.')}</h3></header>
+${tip('The predicates each rule read are the ones in the triples the engine marked as used whenever that rule’s fact held. <b>Declared complete</b>: the slice says a list (for example an agency’s scopes) is complete, so a missing entry counts as absent rather than unknown.')}</h3></header>
 <p class="rt-of-fig"><b data-onto-fleet-num="rules">${rules.length}</b> typed rules</p>
 <ul class="rt-of-rules">${rules.map(r => `<li data-onto-fleet-rule="${esc(r.id)}">
 <div class="rt-of-rule-head"><code>${esc(r.id)}</code><span class="rt-chip" data-kind="${r.effect === 'BLOCK' ? 'blocked' : 'review'}">${esc(r.effect)}</span>${tip(esc(r.text))}</div>

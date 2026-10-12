@@ -12,7 +12,7 @@ import { tip } from './rt-tip.js';
 import { mountSubnav } from './rt-subnav.js';
 import { VERDICT, mountOntoHow, mountOntoS1 } from './rt-onto-visual.js';
 import { mountOntoRun } from './rt-onto-run.js';
-import { loadFleetOntology, PACK_PATH } from './rt-onto-fleet-model.js';
+import { loadFleetOntology } from './rt-onto-fleet-model.js';
 import { mountOntoFleet } from './rt-onto-fleet.js';
 import { mountOntoGraph } from './rt-onto-graph.js';
 
@@ -52,11 +52,11 @@ async function mountVision(el, pack) {
 async function init() {
   const root = $('rtOntologyBody');
   if (!root) return;
-  const [obs, s1r, fleetR, packR] = await Promise.allSettled([getJson('data/onto-observability.json'), getJson('data/onto-s1.json'), loadFleetOntology(), getJson(PACK_PATH)]);
+  const [obs, s1r, fleetR] = await Promise.allSettled([getJson('data/onto-observability.json'), getJson('data/onto-s1.json'), loadFleetOntology()]);
   data = obs.status === 'fulfilled' ? obs.value : null;
   const s1 = s1r.status === 'fulfilled' ? s1r.value : null;
   const fleet = fleetR.status === 'fulfilled' ? fleetR.value : null;
-  const pack = packR.status === 'fulfilled' ? packR.value : null;
+  const pack = fleet?.packJson ?? null;   // the parsed pack, fetched once by loadFleetOntology()
   const a = data?.al;
   const badge = v => { const [kind, text] = VERDICT[v] ?? VERDICT.inconclusive; return ` <span class="rt-chip" data-kind="${kind}">${esc(text)}</span>`; };
   root.innerHTML = `<nav data-rt-onto-subnav></nav>

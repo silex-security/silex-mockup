@@ -12,13 +12,23 @@ import { join } from 'node:path';
 import { withPage, until, ROOT } from './sx-harness.mjs';
 import { fleetOntology, PACK_PATH, FILES_PATH } from '../../js/rt-onto-fleet-model.js';
 import { fleetModel } from '../../js/rt-fleet.js';
-import { LIMITS, GRADE_LINE } from '../../js/rt-onto-fleet.js';
+import { LIMITS, GRADE_LINE, fleetShape, leadText } from '../../js/rt-onto-fleet.js';
 
 const Q = JSON.stringify;
 const readJson = rel => JSON.parse(readFileSync(join(ROOT, rel), 'utf8'));
 const model = fleetOntology(readJson(PACK_PATH), readJson(FILES_PATH));
 const queues = fleetModel({ seed: 7 }).queues;
 const PANEL = '#rtOntology [data-rt-subpanel="fleet"]';
+
+test('the lead counts agents and the teams that own them, from the engine', () => {
+  // Independent of fleetShape(): the fleet table fleetModel() builds lists one row per agent with its team.
+  const fleet = fleetModel({ seed: 7 }).fleet;
+  const want = { agents: fleet.length, teams: new Set(fleet.map(r => r.team)).size };
+  assert.deepEqual(fleetShape(), want);
+  assert.deepEqual(want, { agents: 6, teams: 5 }, 'two agents share the ads team');
+  assert.equal(leadText(), 'Six agents of a fictional content platform, owned by five teams.');
+  assert.equal(leadText({ agents: 3, teams: 3 }), 'Three agents of a fictional content platform, owned by three teams.');
+});
 
 test('Ontology · In the agent fleet: deep link, jobs, rules, teams, routes and layout', { timeout: 240000 }, async t => {
   await withPage(t, async ({ ev, go, size, overflow, errors, page }) => {
@@ -52,6 +62,11 @@ test('Ontology · In the agent fleet: deep link, jobs, rules, teams, routes and 
     assert.equal(await ev('return document.querySelector(\'#rtOntology .rt-intro .rt-chip[data-kind="sim"]\').textContent'), 'Simulated · fleet sub-tabs');
     assert.match(await ev('return document.getElementById("rtSub-ontology-fleet").innerText'), /In the agent fleet[\s\S]*What the ontology does for six agents/);
     assert.match(await ev('return document.getElementById("rtSub-ontology-graph").innerText'), /Graph & files[\s\S]*The vision, today's pack, every JSON file/);
+
+    // The lead sentence, computed: six agents, five teams (ad-curator and ad-buyer share the ads team).
+    const lead = await ev(`return document.querySelector(${Q(PANEL + ' [data-onto-fleet-lead]')}).innerText`);
+    assert.ok(lead.startsWith(leadText()), lead);
+    assert.doesNotMatch(lead, /each on its own team/);
 
     // Grade line and the three limits, visible.
     assert.ok(await visible(`${PANEL} [data-onto-fleet-grade]`));
