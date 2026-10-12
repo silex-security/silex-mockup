@@ -24,27 +24,35 @@ async function withGraphPage(t, fn) {
   });
 }
 
-export async function mountDirect(ev) {
+export async function mountDirect(ev, captureZoom = false) {
   return ev(`if (![...document.querySelectorAll('link[rel="stylesheet"]')].some(e => e.href.endsWith('/css/rt-onto-graph.css'))) {
       const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/css/rt-onto-graph.css'; document.head.appendChild(css);
     }
-    const { mountOntoGraph } = await import('/js/rt-onto-graph.js');
+    const { mountOntoGraph, loadD3 } = await import('/js/rt-onto-graph.js');
     const { tip } = await import('/js/rt-tip.js');
     window.graphModel = await (await import('/js/rt-onto-fleet-model.js')).loadFleetOntology();
     const el = document.createElement('div'); el.id = 'graphTest'; document.querySelector('#overview').appendChild(el);
-    window.graphHandle = mountOntoGraph(el, window.graphModel, { tip });
+    const options = { tip };
+    if (${captureZoom}) options.loadD3 = async () => {
+      const library = await loadD3();
+      return { ...library, zoom(...args) {
+        const behavior = library.zoom(...args); window.graphZoom = behavior; return behavior;
+      } };
+    };
+    window.graphHandle = mountOntoGraph(el, window.graphModel, options);
     return window.graphModel;`);
 }
 const q = '#graphTest ';
 
-test('one finger scrolls schema and facts while two fingers zoom on mobile', { timeout: 60000 }, async t => {
-  // Each mode starts with a fresh touch session so prior gestures cannot carry over.
+test('mobile touch contract and controlled native scroll and pinch gestures', { timeout: 120000 }, async t => {
+  // Fresh sessions isolate each mode; deterministic assertions always run, even
+  // where headless Chrome cannot synthesize a particular native touch gesture.
   for (const mode of ['schema', 'facts']) await withGraphPage(t, async ({ ev, go, size, page, errors, reducedMotion, overflow }) => {
     await size(390, 844);
     await page.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 2 });
     await reducedMotion(true);
     await go('#view=overview');
-    await mountDirect(ev);
+    await mountDirect(ev, true);
     await ev('await window.graphHandle.ensure()');
     const state = () => ev(`const svg = document.querySelector('${q}[data-graph-svg]');
       const z = window.d3.zoomTransform(svg);
@@ -52,9 +60,11 @@ test('one finger scrolls schema and facts while two fingers zoom on mobile', { t
     const settle = () => ev(`const stage = document.querySelector('${q}.rt-og-stage');
       await new Promise((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Touch scroll did not settle')), 10000);
-        let previous = [scrollY, stage.scrollLeft], stable = 0;
+        const values = () => [scrollY, stage.scrollLeft, document.querySelector('#touchControl')?.scrollLeft ?? 0,
+          document.querySelector('#touchControl') ? window.pinchControlScale ?? 1 : 1];
+        let previous = values(), stable = 0;
         const frame = () => {
-          const current = [scrollY, stage.scrollLeft];
+          const current = values();
           stable = current.every((v, i) => v === previous[i]) ? stable + 1 : 0;
           previous = current;
           if (stable >= 2) { clearTimeout(timer); resolve(); }
@@ -78,31 +88,109 @@ test('one finger scrolls schema and facts while two fingers zoom on mobile', { t
       return { x: rect.x, y: rect.y };
     };
     await ev(`window.graphHandle.mode('${mode}')`);
-    let target = await position();
-    const before = await state();
-    await page.send('Input.synthesizeScrollGesture', {
-      ...target, yDistance: -200, speed: 400, preventFling: true, gestureSourceType: 'touch',
+    await position();
+    const contract = await ev(`const svg = document.querySelector('${q}[data-graph-svg]');
+      const touch = (id, x, y = 300) => new Touch({ identifier: id, target: svg, clientX: x, clientY: y });
+      const one = [touch(1, 160)], two = [touch(1, 160), touch(2, 240)];
+      const event = (type, touches) => new TouchEvent(type, {
+        touches, targetTouches: touches, changedTouches: touches.length ? touches : one,
+        bubbles: true, cancelable: true,
+      });
+      const filter = window.graphZoom.filter();
+      const single = filter.call(svg, event('touchstart', one));
+      const double = filter.call(svg, event('touchstart', two));
+      const before = window.d3.zoomTransform(svg).toString();
+      const dispatched = ['touchstart', 'touchmove'].map(type => {
+        const e = event(type, type === 'touchmove' ? [touch(1, 160, 260)] : one);
+        const allowed = svg.dispatchEvent(e);
+        return { type, allowed, prevented: e.defaultPrevented };
+      });
+      svg.dispatchEvent(event('touchend', []));
+      return { action: getComputedStyle(svg).touchAction, single, double, dispatched,
+        before, after: window.d3.zoomTransform(svg).toString() };`);
+    assert.deepEqual(contract.action.split(/\s+/).sort(), ['pan-x', 'pan-y'], mode + ': native panning is allowed');
+    assert.equal(contract.single, false, mode + ': actual zoom filter rejects one touch');
+    assert.equal(contract.double, true, mode + ': actual zoom filter accepts two touches');
+    for (const e of contract.dispatched) {
+      assert.equal(e.allowed, true, mode + ': ' + e.type + ' dispatch is not cancelled');
+      assert.equal(e.prevented, false, mode + ': ' + e.type + ' is not defaultPrevented');
+    }
+    assert.equal(contract.after, contract.before, mode + ': synthetic one-touch events do not pan the graph');
+
+    const scroll = (target, horizontal = false) => page.send('Input.synthesizeScrollGesture', {
+      ...target, ...(horizontal ? { xDistance: -180 } : { yDistance: -200 }),
+      speed: 400, preventFling: true, gestureSourceType: 'touch',
     });
-    await settle();
-    const after = await state();
-    assert.ok(after.y > before.y + 50, mode + ': one finger scrolls the page: ' + JSON.stringify({ before, after }));
-    assert.deepEqual(after.zoom, before.zoom, mode + ': scrolling does not pan the graph');
-    target = await position();
-    const sideways = await state();
-    await page.send('Input.synthesizeScrollGesture', {
-      ...target, xDistance: -180, speed: 400, preventFling: true, gestureSourceType: 'touch',
-    });
-    await settle();
-    const across = await state();
-    assert.ok(across.left > sideways.left + 50, mode + ': one finger scrolls the stage horizontally: ' + JSON.stringify({ sideways, across }));
-    assert.deepEqual(across.zoom, sideways.zoom, mode + ': sideways scrolling does not pan the graph');
-    target = await position();
-    const pinch = await state();
-    await page.send('Input.synthesizePinchGesture', {
+    const pinch = target => page.send('Input.synthesizePinchGesture', {
       ...target, scaleFactor: 1.8, relativeSpeed: 400, gestureSourceType: 'touch',
     });
-    await settle();
-    await until(async () => (await state()).zoom[2] > pinch.zoom[2] * 1.2, mode + ': two fingers zoom the graph');
+    const control = async kind => {
+      await position();
+      const result = await ev(`const kind = ${JSON.stringify(kind)};
+        const el = kind === 'pinch' ? document.createElementNS('http://www.w3.org/2000/svg', 'svg') : document.createElement('div');
+        el.id = 'touchControl';
+        el.style.cssText = 'position:fixed;left:28px;top:200px;width:334px;height:300px;z-index:2147483647;touch-action:pan-x pan-y;background:#ddd;';
+        if (kind === 'horizontal') {
+          el.style.overflowX = 'auto';
+          const child = document.createElement('div'); child.style.cssText = 'width:1000px;height:300px'; el.appendChild(child);
+        }
+        document.body.appendChild(el);
+        if (kind === 'pinch') {
+          el.style.touchAction = 'none';
+          window.pinchControlScale = 1;
+          window.d3.select(el).call(window.d3.zoom().extent([[0, 0], [334, 300]])
+            .on('zoom', e => { window.pinchControlScale = e.transform.k; }));
+        }
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const b = el.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+        return { x, y, hit: el.contains(document.elementFromPoint(x, y)),
+          room: kind === 'horizontal' ? el.scrollWidth - el.clientWidth : document.scrollingElement.scrollHeight - innerHeight - scrollY };`);
+      assert.equal(result.hit, true, kind + ': gesture hits the independent control');
+      if (kind !== 'pinch') assert.ok(result.room > 200, kind + ': control has scroll room');
+      return { x: result.x, y: result.y };
+    };
+    const removeControl = async () => {
+      await ev('document.querySelector("#touchControl").remove()');
+      await settle();
+    };
+    for (const horizontal of [false, true]) await t.test(mode + (horizontal ? ' horizontal' : ' vertical') + ' native touch scrolling', async st => {
+      const kind = horizontal ? 'horizontal' : 'vertical';
+      const target = await control(kind);
+      const measure = () => ev(horizontal ? 'return document.querySelector("#touchControl").scrollLeft' : 'return scrollY');
+      const initial = await measure();
+      await scroll(target, horizontal);
+      await settle();
+      const moved = (await measure()) - initial;
+      await removeControl();
+      if (moved <= 50) {
+        const reason = mode + ': native ' + kind + ' touch layer skipped: non-graph control did not scroll (>50px); this headless platform cannot demonstrate synthesized touch scrolling';
+        st.diagnostic(reason); st.skip(reason); return;
+      }
+      st.diagnostic(mode + ': non-graph ' + kind + ' control scrolled; graph gesture is required');
+      const graphTarget = await position(), before = await state();
+      await scroll(graphTarget, horizontal);
+      await settle();
+      const after = await state();
+      assert.ok(horizontal ? after.left > before.left + 50 : after.y > before.y + 50,
+        mode + ': one finger scrolls the ' + (horizontal ? 'stage' : 'page') + ': ' + JSON.stringify({ before, after }));
+      assert.deepEqual(after.zoom, before.zoom, mode + ': native scrolling does not pan the graph');
+    });
+    await t.test(mode + ' native touch pinch', async st => {
+      const target = await control('pinch');
+      await pinch(target);
+      await settle();
+      const scale = await ev('return window.pinchControlScale');
+      await removeControl();
+      if (scale <= 1.2) {
+        const reason = mode + ': native pinch layer skipped: independent D3 control did not zoom (>1.2x); this headless platform cannot demonstrate synthesized touch pinch';
+        st.diagnostic(reason); st.skip(reason); return;
+      }
+      st.diagnostic(mode + ': independent pinch control zoomed; graph pinch is required');
+      const graphTarget = await position(), before = await state();
+      await pinch(graphTarget);
+      await settle();
+      await until(async () => (await state()).zoom[2] > before.zoom[2] * 1.2, mode + ': two fingers zoom the graph');
+    });
     const o = await overflow(); assert.ok(o.doc <= o.win, JSON.stringify(o));
     assert.deepEqual(errors(), []);
   });
