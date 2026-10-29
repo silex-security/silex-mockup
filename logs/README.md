@@ -2,12 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
-## 2026-10-28 — GitHub tidy: vite 7.3.7; branch and settings clean-up pending
+## 2026-10-28 — GitHub tidy: vite 7.3.7, merged branches pruned, repo settings
 
 - **Why:** a sweep of the repository for low-hanging fixes. It found no open issues or pull requests and a green `main`, but 10 open Dependabot alerts, four branches already merged into `main`, and settings that let merged branches pile up and left secret scanning off.
 - **Dependency:** Blueprint Studio's build tool `vite` goes from 7.3.6 to 7.3.7 (`blueprint_studio/web/package.json` and its lock file, vite entries only). All 10 alerts were vite 7.3.6 (5 advisories, each on the manifest and the lock), patched in 7.3.7. vite only builds the studio; the committed `blueprint_studio/app/` matches a fresh build before and after, so no page changes.
-- **Branches (pending, run after this commit is published):** `ontology-observability-v2`, `ontology-observability-value`, `ontology-precision-recall` and `ontology-showcase` are to be deleted on GitHub. Each is 0 commits ahead of `main`, and each is deleted only if its head still matches the SHA surveyed in the plan.
-- **Settings (pending, run after this commit is published):** delete merged branches automatically; turn on secret scanning and push protection; point the repository homepage at `demo.opensilex.ai`, which the deploy workflow publishes; add five topics. A follow-up commit replaces these pending lines with what was verified.
+- **Branches:** `ontology-observability-v2`, `ontology-observability-value`, `ontology-precision-recall` and `ontology-showcase` are deleted on GitHub. Each was 0 commits ahead of `main` at survey time and was deleted with a lease on its surveyed SHA; `main` and `demo/assurance-vv` are the remaining heads.
+- **Settings, read back from the GitHub API:** merged branches are deleted automatically; secret scanning and push protection are enabled; the repository homepage is `demo.opensilex.ai`, which the deploy workflow publishes; topics `agent-security`, `ai-agents`, `mockup`, `observability`, `ontology`.
+- **Verified:** the deploy run for the bump (40826048538) passed with its live-content check on both hosts (48 files each), and all 10 vite alerts now read `fixed`.
 - **Left as-is:** `demo/assurance-vv`, because it holds 2 unmerged commits; the README and docs links to `silex-mockup.vercel.app`, because both hosts serve the current build; automatic Dependabot fix PRs, because they were not among the changes the owner chose; a license, because that is a product decision.
 - **Record:** [`2026-10-27_GITHUB_TIDY_PLAN.md`](2026-10-27_GITHUB_TIDY_PLAN.md), with the survey, the dry run and the plan and code reviews.
 

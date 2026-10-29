@@ -108,3 +108,102 @@ The user authorized every task-3 GitHub change on 2026-10-27 (all four options p
 | deepseek round 1 | IMPL-APPROVED on the first revision; the new revision goes back to both seats |
 
 **Code gate (diff revision `c56f9155a07bf571e76231b68be026d93d297a7b`, base `c8251811d7a70113b24ebf3c39806c900285c748`):** coder-deepseek IMPL-APPROVED (round 2), reviewer-codex IMPL-APPROVED (round 2), PLANNER (claude): IMPL-APPROVED. The code-review tables above were added to this record after the v0.4 plan gate; the plan's tasks are as approved, except task 4's README wording, which the code reviewers saw in round 2.
+
+## Outcome
+
+- **Shipped:** `4633425` (vite 7.3.7, the change-log entry, this plan) pushed to `main` from base `c825181` with a normal push. Deploy run 40826048538: Tests, Deploy to Cloudflare Pages and Verify live content all `success`; "verified https://demo.opensilex.ai (48 files)" and the same for `opensilex-demo.pages.dev`.
+- **Alerts:** Dependabot reads 0 open; the 10 vite alerts are `fixed`, within a minute of the deploy.
+- **Branches:** each of the four heads matched its surveyed SHA and was an ancestor of `4633425`; all four deleted with expected-SHA leases. Remaining heads: `main` at `4633425`, `demo/assurance-vv` at `a807fc0` (unchanged).
+- **Settings (REST read-back):** `delete_branch_on_merge: true`, homepage `https://demo.opensilex.ai`, topics `agent-security, ai-agents, mockup, observability, ontology`, secret scanning `enabled`, push protection `enabled`. No setting was refused.
+- **Rounds:** plan 4 rounds, code 2. Codex caught the private scratch path, the collision with the other worktree's `main`, unguarded branch deletion, a deploy check that a skipped deploy would pass, the unreadable scanning settings, the second-push guard, and a change-log entry that claimed pending work as done. DeepSeek caught that the record never reached `main`, reproduced the bump twice, and checked the settings and ref facts against GitHub.
+- **Final verdicts:** plan v0.4: coder-deepseek PLAN-APPROVED, reviewer-codex PLAN-APPROVED, PLANNER (claude): PLAN-APPROVED. Diff `c56f915` on base `c825181`: coder-deepseek IMPL-APPROVED, reviewer-codex IMPL-APPROVED, PLANNER (claude): IMPL-APPROVED.
+- **Follow-ups for the owner:** decide on `demo/assurance-vv`; consider turning on Dependabot security updates (automatic fix PRs); which host the README links should name.
+- **Seats:** coder-deepseek and reviewer-codex left open in the Orca tab.
+
+## Appendix: dispatch ledger
+
+Machine paths replaced by `$SCRATCH`.
+
+```
+2026-10-28T06:53:43Z	deepseek-plan-r1	deepseek	plan v0.1	sent
+2026-10-28T06:53:45Z	codex-plan-r1	codex	plan v0.1	sent
+2026-10-28T06:53:51Z	deepseek-plan-r1	deepseek	plan v0.1	delivered
+2026-10-28T06:53:51Z	codex-plan-r1	codex	plan v0.1	delivered
+2026-10-28T06:54:12Z	deepseek-plan-r1	deepseek	access external dir $SCRATCH (fleet-Vmihk9/*)	question
+2026-10-28T06:54:12Z	deepseek-plan-r1	deepseek	allow once: $SCRATCH read/write	answered
+2026-10-28T06:56:06Z	codex-plan-r1	codex	plan v0.1	verdict PLAN-REJECTED
+2026-10-28T07:05:52Z	deepseek-plan-r1	deepseek	access external dir a probe folder outside $SCRATCH (outside repo and SCRATCH)	question
+2026-10-29T05:24:43Z	deepseek-plan-r1	deepseek	user allowed a probe folder outside $SCRATCH access	answered
+2026-10-29T05:25:42Z	deepseek-plan-r1	deepseek	plan v0.1; turn interrupted, no reply	superseded
+2026-10-29T05:25:43Z	deepseek-plan-r2	deepseek	plan v0.2	sent
+2026-10-29T05:25:45Z	codex-plan-r2	codex	plan v0.2	sent
+2026-10-29T05:25:51Z	deepseek-plan-r2	deepseek	plan v0.2	delivered
+2026-10-29T05:25:51Z	codex-plan-r2	codex	plan v0.2	delivered
+2026-10-29T05:26:48Z	codex-plan-r2	codex	plan v0.2	verdict PLAN-APPROVED
+2026-10-29T05:26:59Z	deepseek-plan-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:27:00Z	deepseek-plan-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:31:08Z	deepseek-plan-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:31:08Z	deepseek-plan-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:31:51Z	deepseek-plan-r2	deepseek	plan v0.2	verdict PLAN-REJECTED
+2026-10-29T05:32:01Z	deepseek-plan-r3	deepseek	plan v0.3	sent
+2026-10-29T05:32:03Z	codex-plan-r3	codex	plan v0.3	sent
+2026-10-29T05:32:03Z	deepseek-plan-r3	deepseek	plan v0.3	delivered
+2026-10-29T05:32:03Z	codex-plan-r3	codex	plan v0.3	delivered
+2026-10-29T05:32:45Z	deepseek-plan-r3	deepseek	SCRATCH access dialog	question
+2026-10-29T05:32:46Z	deepseek-plan-r3	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:33:18Z	codex-plan-r3	codex	plan v0.3	verdict PLAN-REJECTED
+2026-10-29T05:35:28Z	deepseek-plan-r3	deepseek	SCRATCH access dialog	question
+2026-10-29T05:35:28Z	deepseek-plan-r3	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:35:39Z	deepseek-plan-r3	deepseek	plan v0.3	verdict PLAN-APPROVED
+2026-10-29T05:35:55Z	deepseek-plan-r4	deepseek	plan v0.4	sent
+2026-10-29T05:35:56Z	codex-plan-r4	codex	plan v0.4	sent
+2026-10-29T05:35:56Z	deepseek-plan-r4	deepseek	plan v0.4	delivered
+2026-10-29T05:35:57Z	codex-plan-r4	codex	plan v0.4	delivered
+2026-10-29T05:36:25Z	deepseek-plan-r4	deepseek	SCRATCH access dialog	question
+2026-10-29T05:36:25Z	deepseek-plan-r4	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:36:49Z	codex-plan-r4	codex	plan v0.4	verdict PLAN-APPROVED
+2026-10-29T05:38:50Z	deepseek-plan-r4	deepseek	SCRATCH access dialog	question
+2026-10-29T05:38:50Z	deepseek-plan-r4	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:39:16Z	deepseek-task1-a1	deepseek	plan v0.4, base c8251811d7a70113b24ebf3c39806c900285c748	sent
+2026-10-29T05:39:16Z	deepseek-task1-a1	deepseek	plan v0.4	delivered
+2026-10-29T05:39:48Z	deepseek-plan-r4	deepseek	plan v0.4	verdict PLAN-APPROVED
+2026-10-29T05:41:49Z	deepseek-task1-a1	deepseek	SCRATCH access dialog	question
+2026-10-29T05:41:49Z	deepseek-task1-a1	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:43:50Z	deepseek-task1-a1	deepseek	SCRATCH access dialog	question
+2026-10-29T05:43:50Z	deepseek-task1-a1	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:44:19Z	deepseek-task1-a1	deepseek	acceptance rerun by planner: check/tests 61/0/audit 0/i18n	done succeeded
+2026-10-29T05:44:19Z	planner-task2	planner	README entry written; path grep empty	done succeeded
+2026-10-29T05:44:33Z	deepseek-impl-r1	deepseek	base c8251811d7a70113b24ebf3c39806c900285c748 rev b8f68a8b8285149f44e0da883d0813d47f47c9bc	sent
+2026-10-29T05:44:34Z	codex-impl-r1	codex	base c8251811d7a70113b24ebf3c39806c900285c748 rev b8f68a8b8285149f44e0da883d0813d47f47c9bc	sent
+2026-10-29T05:44:35Z	deepseek-impl-r1	deepseek	rev b8f68a8b8285149f44e0da883d0813d47f47c9bc	delivered
+2026-10-29T05:44:35Z	codex-impl-r1	codex	rev b8f68a8b8285149f44e0da883d0813d47f47c9bc	delivered
+2026-10-29T05:45:17Z	deepseek-impl-r1	deepseek	SCRATCH access dialog	question
+2026-10-29T05:45:18Z	deepseek-impl-r1	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:45:23Z	deepseek-impl-r1	deepseek	SCRATCH access dialog	question
+2026-10-29T05:45:23Z	deepseek-impl-r1	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:45:43Z	codex-impl-r1	codex	rev b8f68a8b8285149f44e0da883d0813d47f47c9bc	verdict IMPL-REJECTED
+2026-10-29T05:47:44Z	deepseek-impl-r1	deepseek	SCRATCH access dialog	question
+2026-10-29T05:47:44Z	deepseek-impl-r1	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:49:45Z	deepseek-impl-r1	deepseek	SCRATCH access dialog	question
+2026-10-29T05:49:45Z	deepseek-impl-r1	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:50:12Z	deepseek-impl-r1	deepseek	rev b8f68a8b8285149f44e0da883d0813d47f47c9bc	verdict IMPL-APPROVED
+2026-10-29T05:50:28Z	deepseek-impl-r2	deepseek	base c8251811d7a70113b24ebf3c39806c900285c748 rev c56f9155a07bf571e76231b68be026d93d297a7b	sent
+2026-10-29T05:50:29Z	codex-impl-r2	codex	base c8251811d7a70113b24ebf3c39806c900285c748 rev c56f9155a07bf571e76231b68be026d93d297a7b	sent
+2026-10-29T05:50:29Z	deepseek-impl-r2	deepseek	rev c56f9155a07bf571e76231b68be026d93d297a7b	delivered
+2026-10-29T05:50:30Z	codex-impl-r2	codex	rev c56f9155a07bf571e76231b68be026d93d297a7b	delivered
+2026-10-29T05:51:03Z	deepseek-impl-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:51:03Z	deepseek-impl-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:51:08Z	deepseek-impl-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:51:08Z	deepseek-impl-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:51:14Z	deepseek-impl-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:51:14Z	deepseek-impl-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:51:19Z	deepseek-impl-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:51:19Z	deepseek-impl-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:51:28Z	codex-impl-r2	codex	rev c56f9155a07bf571e76231b68be026d93d297a7b	verdict IMPL-APPROVED
+2026-10-29T05:53:29Z	deepseek-impl-r2	deepseek	SCRATCH access dialog	question
+2026-10-29T05:53:29Z	deepseek-impl-r2	deepseek	allow once: SCRATCH	answered
+2026-10-29T05:53:52Z	deepseek-impl-r2	deepseek	rev c56f9155a07bf571e76231b68be026d93d297a7b	verdict IMPL-APPROVED
+2026-10-29T05:57:28Z	seat:deepseek	deepseek	-	disposition left
+2026-10-29T05:57:28Z	seat:codex	codex	-	disposition left
+2026-10-29T05:57:28Z	planner-task3	planner	run 40826048538 verify ran; alerts 10 fixed; 4 heads deleted; settings read back	done succeeded
+```
