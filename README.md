@@ -2,7 +2,7 @@
 
 Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (Web UX / Investor Demo) on 2026-09-15.
 
-- **Page:** [`index.html`](index.html), a single self-contained HTML file. Live at [silex-mockup.vercel.app](https://silex-mockup.vercel.app/).
+- **Page:** [`index.html`](index.html), a single self-contained HTML file. Live at [demo.opensilex.ai](https://demo.opensilex.ai/).
 - **Registers:** a top-bar toggle switches between two registers:
   - **Assurance** (investor / technical): Continuous Production Assurance, the Agent V&V matrix, the Enterprise World Model;
   - **Operations**: the security-team dashboard.

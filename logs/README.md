@@ -2,6 +2,14 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-10-31 — Docs point at demo.opensilex.ai; `demo/assurance-vv` reviewed, not merged
+
+- **Links:** `README.md`, `SECURITY_WORLD_MODEL.md` and `docs/jev-runtime-guide/README.md` now name `demo.opensilex.ai`, the host the deploy workflow publishes. Dated records in `logs/` keep the host they were written against.
+- **`demo/assurance-vv` (head `a807fc0`, from `fe51c44`, 317 files):** not merged; the branch stays on GitHub as the record of that review demo. 300 of its files are a copy of the site at `fe51c44` carried to `74ed19a` (283 unchanged, 17 updated or added); its 7-file prototype imports from that copy; its sync skill uploads to the same Cloudflare Pages project and label that `main` deploys to, so on `main` it would be a second deploy path that puts the 2026-10-01 snapshot back live. The branch README's "Live" line is historical: that host now serves `main`.
+- **Dependabot security updates:** on (automatic fix PRs for vulnerable dependencies), set through the GitHub API and read back as enabled, not paused, with 0 open alerts; no file changes.
+- **Follow-ups, not in this change:** port the prototype's Blueprint intake gap list onto `main`; a root `_headers` file on `main` with a CSP and `nosniff` (the branch's copy sits under `demo/assurance-vv/site/`, which Cloudflare Pages does not read for `main`'s upload); the studio's brand link in `blueprint_studio/web/src/App.jsx` (needs a rebuild of `app/`); the old host as the example in `tests/site/run-site-probes.mjs`.
+- **Record:** [`2026-10-31_DEMO_SITE_FOLLOWUPS_PLAN.md`](2026-10-31_DEMO_SITE_FOLLOWUPS_PLAN.md).
+
 ## 2026-10-28 — GitHub tidy: vite 7.3.7, merged branches pruned, repo settings
 
 - **Why:** a sweep of the repository for low-hanging fixes. It found no open issues or pull requests and a green `main`, but 10 open Dependabot alerts, four branches already merged into `main`, and settings that let merged branches pile up and left secret scanning off.

@@ -158,7 +158,7 @@ AI agent（比如替财务付款的 agent、替安全团队处理告警的 agent
 
 ## 8. 在 Silex mockup 里：Runtime Observation
 
-线上地址：<https://silex-mockup.vercel.app/#view=runtime-observation>
+线上地址：<https://demo.opensilex.ai/#view=runtime-observation>
 
 ### 8.1 Runtime Observation 总览
 

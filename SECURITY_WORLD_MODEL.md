@@ -2,7 +2,7 @@
 
 Record of the work on the **Enterprise World Model** section of the mockup: the *World Model
 Coverage*, *Ontology Graph* and *Ontology Layers* tabs. Everything below is live at
-[silex-mockup.vercel.app](https://silex-mockup.vercel.app/); the code lives in
+[demo.opensilex.ai](https://demo.opensilex.ai/); the code lives in
 [`swm/`](swm/README.md), and the page keeps its single-file shell in `index.html`.
 
 > **Current state (2026-10-03).** This record starts with the 2026-09-17 build; later changes are
