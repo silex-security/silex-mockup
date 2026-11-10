@@ -7,6 +7,7 @@
      envelopes. Latest request wins: every asynchronous step checks its request token. */
 import { summarize, describeRun, referenceExamples } from './jev-runtime-model.js';
 import { mountPipeline } from './rt-pipeline.js';
+import { mountTrace } from './rt-trace.js';
 import { tip } from './rt-tip.js';
 import { mountSubnav } from './rt-subnav.js';
 import { mountLoop, mountLearningResults } from './rt-learning-visual.js';
@@ -19,6 +20,7 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 
 const NARROW = 900;   // below this the pipeline stacks vertically, so a Run scrolls it into view
 const pipeline = mountPipeline($('rtPipeline'), { reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches });
+const trace = mountTrace($('rtTrace'), { reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches });
 let examples = null;
 
 let summary = null, frame = null, frameDomain = null, nav = 0, token = 0, cancelPrevious = null;
@@ -154,6 +156,7 @@ async function run(id) {
     if (currentDemo(sc.domain) !== demo) demo = await Promise.race([frameOn(sc.domain, isCurrent), cancelled]);
     if (!isCurrent()) return null;
     const envs = demo.inject(id);
+    trace.show(envs, `${id} · ${sc.title}`);
     refreshOpenFull();
     // No scroll to the frame: the picture of this run is what the viewer just asked to see (#rtSeeRun goes there).
     // Centred, not nearest: the caption and badges the replay adds would push a flush-bottom picture off screen.
@@ -182,7 +185,7 @@ function shown() {
   // Entering the view shows the reference examples again, unless a Run is in flight.
   if (!cancelPrevious) {
     try { examples ??= referenceExamples(); } catch { examples = []; }
-    if (examples.length) pipeline.idle(examples);
+    if (examples.length) { pipeline.idle(examples); trace.show(examples.map(x => x.env), `Examples ${examples.map(x => x.id).join(', ')} · one payment each`, { loop: true }); }
   }
 }
 
