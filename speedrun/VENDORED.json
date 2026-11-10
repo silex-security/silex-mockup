@@ -1,7 +1,8 @@
 {
-  "source": "https://github.com/wangfe/silex-speedrun",
-  "commit": "6e1575864edd3e0517b75504db9afbf2124553fd",
-  "synced_at": "2026-11-09",
+  "forked_from": {
+    "repo": "https://github.com/wangfe/silex-speedrun",
+    "commit": "6e1575864edd3e0517b75504db9afbf2124553fd"
+  },
   "sources": {
     "index.html": "d6cb5df0bb1b24e5d875c226d8d4ebf3dc341e40ed30a11d11fa1ef9d709cccb",
     "package-lock.json": "97f77f2ab2ce199c3018bbe7a682d77a4d33d61099430641389aaec3ce19901f",
@@ -66,7 +67,7 @@
     "upstream/src/lib/format.ts": "2795acdd18ea6eed73f1484df37fa76c7354af38fe943c16db7657ceb6358359",
     "upstream/src/lib/http.ts": "b0e8bc3f6b8b963246e5bbbeeb1dc6329ef15cb6414cbb9b3001e6c63c2f52ec",
     "upstream/src/lib/types.ts": "be79ae00d68abe9b907cb334cf278578f73520cf457002d3028245465075612a",
-    "vite.config.js": "84b015866c9620431d4b38c4104537c0d261f79a76dd47b879e3a1d6e204cd14"
+    "vite.config.js": "8fdf375c69c6b79ac5c9e888c87fed8338f91b023cd6f0aaccc4d045914c72fb"
   },
   "files": {
     "app/assets/index-DFztd3Ti.css": "2461a9ca3b7d5fc860ed96a5feb8f2495403ca905e4dd6a4162df41b89107403",

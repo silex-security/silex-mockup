@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const at = p => fileURLToPath(new URL(p, import.meta.url));
 
-/* The upstream Next.js source sits unmodified in upstream/ (tools/sync-speedrun.mjs puts it there).
+/* The Next.js source of the app sits in upstream/ and is edited in this repo (tools/build-speedrun.mjs builds it).
    Its three Next imports resolve to the stand-ins in src/next/, and base './' lets the build run from any path. */
 export default defineConfig({
   base: './',

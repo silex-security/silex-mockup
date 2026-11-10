@@ -51,7 +51,7 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 ### SILEX Speedrun
 
-- **Speedrun:** the SILEX Speedrun app from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) (source vendored in `speedrun/web/upstream/`), embedded in the Speedrun view (`#view=speedrun`). The product stays marked Roadmap and every figure is illustrative.
+- **Speedrun:** the SILEX Speedrun app (source in `speedrun/web/upstream/`, forked from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) and edited here; `node tools/build-speedrun.mjs` rebuilds `speedrun/app/`), embedded in the Speedrun view (`#view=speedrun`). The product stays marked Roadmap and every figure is illustrative.
   - Screens: Organization overview (data coverage, KPIs, insight radar, anomalies, benchmark health), Business Unit (role and team relationships), Agent Team Explorer, and per team the structure with the performance optimizer, trace replay, benchmarks and the Benchmark Builder. *Create variant* sends a change to the app's Agent Gym queue, where the experiment can be configured.
   - The app opens in the dark theme of the product design. Its header toggle switches to light and the choice is remembered per browser. Its *Agent Studio* link opens Blueprint Studio.
   - The site URL follows the screen that is open (`#view=speedrun&path=<app route>`), so a reload or a shared link reopens it. For example `#view=speedrun&path=%2Fgym` opens the app's Agent Gym experiment queue.
