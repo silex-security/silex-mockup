@@ -51,7 +51,12 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 ### SILEX Speedrun
 
-- **Speedrun:** a roadmap view (`#view=speedrun`) with three goals (quality and task success, cost and inference efficiency, latency and execution paths) and one piece of evidence that exists today, the runtime judge's measured latency, which links to the Judge latency tab.
+- **Speedrun:** the SILEX Speedrun app from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) (a private repo), embedded in the Speedrun view (`#view=speedrun`). The product stays marked Roadmap and every figure is illustrative.
+  - Screens: Organization overview (data coverage, KPIs, insight radar, anomalies, benchmark health), Business Unit (role and team relationships), Agent Team Explorer, and per team the structure with the performance optimizer, trace replay, benchmarks and the Benchmark Builder. *Create variant* sends a change to the app's Agent Gym queue, where the experiment can be configured.
+  - The app opens in the dark theme of the product design. Its header toggle switches to light and the choice is remembered per browser. Its *Agent Studio* link opens Blueprint Studio.
+  - What a visitor creates (experiments, benchmark builds) lives in the page and resets on reload.
+  - The title row links to the one figure that is measured today, the runtime judge's latency.
+  - How it is built and updated: [`speedrun/`](speedrun/README.md).
 
 ### Site shell
 
