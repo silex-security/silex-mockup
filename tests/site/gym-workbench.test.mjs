@@ -270,7 +270,7 @@ test('Run validates, saves, freezes and enqueues once per draft revision; Save o
   assert.equal(run.added, 1, 'a double click creates exactly one attempt');
   assert.equal(run.again, 1, 'a third click on the same revision is still one attempt');
   assert.deepEqual([run.key, run.label, run.status, run.plan, run.title, run.saved], ['wb-exp-029-r5', 'rev 5 · attempt 2', 'queued', 18, 'Experiment 029 · retry', 5]);
-  assert.equal(run.flash, 'rev 5 · attempt 2 is already in the queue for this revision. Change the draft to run again. Open run');
+  assert.equal(run.flash, 'rev 5 · attempt 2 is already in the queue for this revision. It can run again once that attempt finishes or is cancelled. Open run');
   assert.deepEqual(run.row, ['Experiment 029 · retry, rev 5 · attempt 2', 'Sales operations', '3', 'Queued', '–']);
   assert.deepEqual(run.counts, ['1 running', '2 queued', '1 completed']);
 
