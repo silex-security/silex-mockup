@@ -210,3 +210,16 @@ for (const width of [390, 768]) {
     assert.deepEqual(dlg, [true, true]);
   }, [width, 900]));
 }
+
+test('in Review & save, each card is labelled by its scenario and its Edit and Confirm buttons name the scenario they act on', async t => withGym(t, async gym => {
+  await click(gym, byKey('sc:review'));
+  const cards = await gym.ev(`return [...document.querySelectorAll('dialog[open] .sc-rcard')].map(card => ({
+    title: card.querySelector('.sc-rcard__head strong').textContent, label: card.getAttribute('aria-label'),
+    buttons: [...card.querySelectorAll('.sc-rcard__head button')].map(b => [b.textContent.trim(), b.getAttribute('aria-label')]) }));`);
+  assert.ok(cards.length >= 5, `${cards.length} review cards`);
+  for (const card of cards) {
+    assert.equal(card.label, card.title, 'the card is named by its scenario');
+    for (const [visible, name] of card.buttons) assert.equal(name, `${visible} ${card.title}`, `${visible} on ${card.title}`);
+  }
+  assert.ok(cards.some(c => c.buttons.some(([v]) => v === 'Edit')) && cards.some(c => c.buttons.some(([v]) => v === 'Confirm')));
+}));
