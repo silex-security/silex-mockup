@@ -234,3 +234,13 @@ test('leaving with unapplied component edits asks first: Keep editing stays, App
   const free = await run(gym, `location.hash = '#/environments/new?returnTo=exp-029'; ${settle} location.hash = '#/workbench/exp-029'; ${settle} return { hash: location.hash, dialogs: document.querySelectorAll('dialog').length };`);
   assert.deepEqual(free, { hash: '#/workbench/exp-029', dialogs: 0 }, 'with nothing unapplied, leaving asks nothing');
 }));
+
+test('the Gmail component settings read "Gmail simulator" as in N2, while the app chips still say Gmail', async t => withGym(t, async gym => {
+  await gym.go('#/environments/new?returnTo=exp-029');
+  const out = await run(gym, `return { field: main.querySelector('[data-focus-key="env:f:name"]').value, id: comp('gmail').id,
+    apps: [...main.querySelectorAll('.env-appselect__label')].map(text), chips: [...main.querySelectorAll('.env-turn--user .env-inline-chip')].map(text) };`);
+  assert.equal(out.field, 'Gmail simulator');
+  assert.equal(out.id, 'gmail');
+  assert.deepEqual(out.apps, ['Salesforce', 'Gmail', 'Google Calendar']);
+  assert.ok(out.chips.includes('Gmail'), out.chips.join());
+}));

@@ -223,3 +223,16 @@ test('in Review & save, each card is labelled by its scenario and its Edit and C
   }
   assert.ok(cards.some(c => c.buttons.some(([v]) => v === 'Edit')) && cards.some(c => c.buttons.some(([v]) => v === 'Confirm')));
 }));
+
+test('an out-of-range Count stays in the field, marked invalid with the allowed range, and changes nothing until it is valid', async t => withGym(t, async gym => {
+  const tryCount = value => gym.ev(`const input = document.querySelector('${byKey('sc:count')}'); input.focus(); input.value = ${JSON.stringify(value)};
+    input.dispatchEvent(new Event('change', { bubbles: true })); input.blur(); ${frame}
+    const live = document.querySelector('${byKey('sc:count')}'), hint = document.getElementById(live.getAttribute('aria-describedby') || 'none');
+    return { value: live.value, invalid: live.getAttribute('aria-invalid'), hint: hint?.textContent ?? null,
+      stored: window.__gym.store.getState().scenarioDrafts[Object.keys(window.__gym.store.getState().scenarioDrafts)[0]].settings.prompt.count };`);
+  for (const bad of ['0', '25', '']) {
+    const out = await tryCount(bad);
+    assert.deepEqual(out, { value: bad, invalid: 'true', hint: 'Count must be a whole number from 1 to 20.', stored: 4 }, `Count "${bad}"`);
+  }
+  assert.deepEqual(await tryCount('6'), { value: '6', invalid: null, hint: null, stored: 6 });
+}));

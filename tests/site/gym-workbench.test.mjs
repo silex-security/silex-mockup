@@ -319,10 +319,13 @@ test('Run replay plays a recorded execution and is disabled until one exists', a
     const out = { q: Q().view, head: txt($('#wb-blueprint-title')), events: $$('.wb-trace li').length, current: $$('.wb-node.is-current').map(n => n.dataset.node),
       dim: $$('.wb-node.is-dim').map(n => n.dataset.node), count: txt($('.wb-replay__count')), link: $('.wb-replay__link').getAttribute('href'),
       prev: $('[data-focus-key="wb:rp:prev"]').getAttribute('aria-disabled') };
+    out.node1 = Q().node;
     click('[data-focus-key="wb:rp:next"]'); await frame();
     out.step2 = [Q().step, $$('.wb-node.is-current').map(n => n.dataset.node).join(), txt($('.wb-trace li.is-current'))];
+    out.node2 = Q().node;
     const sc = $('[data-focus-key="wb:rp:scenario"]'); sc.value = 'sc-timeout-after-send'; sc.dispatchEvent(new Event('change', { bubbles: true })); await frame();
     out.timeout = [txt($('#wb-blueprint-title')), txt(node('send-email').querySelector('.wb-node__tag'))];
+    out.node3 = [Q().node, $$('.wb-node.is-current').map(n => n.dataset.node).join()];
     out.notRun = [...$('[data-focus-key="wb:rp:scenario"]').options].filter(o => o.disabled).map(o => o.textContent);
     return out;`);
   assert.equal(v.q, 'replay');
@@ -334,6 +337,8 @@ test('Run replay plays a recorded execution and is disabled until one exists', a
   assert.equal(v.link, '#/experiments/exp-029/attempts/attempt-002');
   assert.equal(v.prev, 'true');
   assert.deepEqual(v.step2, ['2', 'draft-email', '2 model simulated-model-variant-a: drafted']);
+  assert.deepEqual([v.node1, v.node2], ['find-opportunity', 'draft-email'], 'the node in the address follows the replay step');
+  assert.equal(v.node3[0], v.node3[1], 'after a scenario change the address names the highlighted node');
   assert.deepEqual(v.timeout, ['Run replay · Timeout after send · Variant A #1', 'Timeout injection']);
   assert.deepEqual(v.notRun, ['Contact opted out (not run yet)']);
 
@@ -400,4 +405,10 @@ test('with the live clock the queue advances while typing keeps its value and ca
   assert.ok(v.advanced >= 1, 'the scheduler ticked at least once');
   assert.equal(v.shown, `${v.total}/18`, 'the queue row reads the store');
   assert.deepEqual([v.focus, v.value, v.caret], ['wb:sc-search', 'tim', 2]);
+}));
+
+test('a replay link with a stale node puts the highlighted step\'s node in the address', async t => withGym(t, async (gym, page) => {
+  await gym.go(`${WB}?view=replay&node=log-skipped&step=2`);
+  const v = await page(`await frame(); return { node: Q().node, current: $$('.wb-node.is-current').map(n => n.dataset.node).join(), step: Q().step };`);
+  assert.deepEqual(v, { node: 'draft-email', current: 'draft-email', step: '2' });
 }));
