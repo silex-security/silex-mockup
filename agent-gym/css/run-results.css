@@ -28,7 +28,7 @@
 .gym-app .run-list__status { flex-wrap: nowrap; }
 @media (max-width: 899.98px) { .gym-app .run-list__status { flex-wrap: wrap; } }
 .gym-app .run-list__progress { min-width: 120px; }
-.gym-app .run-list .run-table th, .gym-app .run-list .run-table td { padding-left: 10px; padding-right: 10px; }
+.gym-app .run-list .run-table th, .gym-app .run-list .run-table td { padding-left: 7px; padding-right: 7px; }
 .gym-app .run-review-none { font-size: var(--gym-fs-sm); }
 
 @media (max-width: 899.98px) {
