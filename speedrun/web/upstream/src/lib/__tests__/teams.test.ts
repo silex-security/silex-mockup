@@ -1,11 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as fx from "../data/fixtures";
 import {
-  createExperiment,
-  experimentEstimate,
   getBenchmarks,
   getBuilder,
-  getExperiment,
   getTeamStructure,
   getTraceRun,
 } from "../data/service";
@@ -98,35 +95,5 @@ describe.each(fx.teams.map((t) => [t.name, t] as const))("%s detail", (_name, te
     for (const r of builder.recommendations) expect(concepts.has(r.conceptId)).toBe(true);
     expect(builder.recommendations.map((r) => r.id)).toContain(builder.construction.recommendationId);
     expect(builder.suiteName).toBe(health.suiteVersion);
-  });
-});
-
-describe("Agent Gym configs per team", () => {
-  beforeEach(() => {
-    const g = globalThis as unknown as { __silexExperiments?: unknown[] };
-    g.__silexExperiments!.splice(0, Infinity, ...fx.experiments);
-  });
-
-  it("every pending experiment has a configuration", () => {
-    for (const e of fx.experiments.filter((x) => x.status === "pending")) expect(e.config).toBeDefined();
-  });
-
-  it.each(fx.teams.map((t) => t.id))("creates an experiment for %s from its own defaults", (teamId) => {
-    const run = getTraceRun(teamId, getTeamStructure(teamId)!.runId)!;
-    const preset = run.variant.presets[run.variant.defaultChange];
-    const e = createExperiment({
-      teamId,
-      title: run.variant.experimentTitle,
-      target: "t",
-      changeType: run.variant.defaultChange,
-      testScope: "similar-runs",
-      params: preset.params.map((p) => ({ name: p.name, baseline: p.baseline, variant: p.suggested ?? p.baseline })),
-    });
-    expect(e.objective).toBe(run.variant.objective);
-    expect(e.config!.environment).toBe(run.variant.environment);
-    expect(e.config!.costPerExecution).toBe(getBenchmarks(teamId)!.suite.costPerExecution);
-    const est = experimentEstimate(getExperiment(e.id)!);
-    expect(est.cases).toBe(run.variant.testSet.reduce((n, t) => n + t.count, 0));
-    expect(est.cost).toBeLessThanOrEqual(e.config!.budgetCap);
   });
 });

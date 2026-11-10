@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { ChangeType, CreateExperimentInput, VariantContext } from "@/lib/types";
+import type { ChangeType, VariantContext } from "@/lib/types";
 import { IconArrowRight } from "./icons";
 import { Tag, btnClass, cx } from "./ui";
 
@@ -39,30 +39,12 @@ export function CreateVariantForm({
   const [values, setValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(Object.values(variant.presets).flatMap((p) => p.params.map((x) => [x.name, x.suggested ?? x.baseline]))),
   );
-  const [scope, setScope] = useState<CreateExperimentInput["testScope"]>("similar-runs");
-  const [state, setState] = useState<{ busy: boolean; error?: string }>({ busy: false });
 
   const params = def.params.map((p) => ({ name: p.name, baseline: p.baseline, variant: values[p.name] ?? p.baseline }));
   const changed = params.filter((p) => p.variant.trim() !== p.baseline).length;
 
-  async function submit() {
-    setState({ busy: true });
-    const body: CreateExperimentInput = {
-      teamId,
-      title: change === variant.defaultChange ? variant.experimentTitle : `${def.title} · ${roleName}`,
-      target: `${roleName} / ${target}`,
-      changeType: change,
-      params,
-      testScope: scope,
-    };
-    try {
-      const res = await fetch("/api/gym/experiments", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Could not create the experiment");
-      router.push(`/gym/experiments/${json.data.id}`);
-    } catch (e) {
-      setState({ busy: false, error: (e as Error).message });
-    }
+  function submit() {
+    router.push(`/gym/handoff/${teamId}-${change}`);
   }
 
   return (
@@ -129,24 +111,13 @@ export function CreateVariantForm({
         })}
       </div>
 
-      <label className="flex flex-col gap-1.5 text-sm font-semibold">
-        Test scope
-        <select value={scope} onChange={(e) => setScope(e.target.value as typeof scope)} className="h-11 rounded-[10px] border border-line2 bg-card px-3 text-sm font-medium text-fg">
-          <option value="similar-runs">{variant.scopeLabel}</option>
-          <option value="this-run">This run only</option>
-          <option value="all-teams">+ All teams using {roleName}</option>
-        </select>
-      </label>
-
-      {state.error ? <p role="alert" className="m-0 rounded-lg bg-rose-wash px-3 py-2 text-sm text-rose-text">{state.error}</p> : null}
-
       <div className="grid grid-cols-[1fr_1.4fr] gap-2.5">
         <Link href={`/speedrun/teams/${teamId}/trace?run=${runId}`} className={cx(btnClass(), "!h-[52px]")}>Cancel</Link>
-        <button type="submit" disabled={state.busy || changed === 0} className={cx(btnClass(true), "!h-[52px] disabled:opacity-50")}>
-          {state.busy ? "Sending…" : "Send to Agent Gym"} <IconArrowRight />
+        <button type="submit" disabled={changed === 0} className={cx(btnClass(true), "!h-[52px] disabled:opacity-50")}>
+          Send to Agent Gym <IconArrowRight />
         </button>
       </div>
-      <span className="lbl text-center">{changed} parameter{changed === 1 ? "" : "s"} changed · creates a pending experiment</span>
+      <span className="lbl text-center">{changed} parameter{changed === 1 ? "" : "s"} changed · opens a pending experiment in Agent Gym</span>
     </form>
   );
 }

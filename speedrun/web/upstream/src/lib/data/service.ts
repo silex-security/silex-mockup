@@ -10,9 +10,6 @@ import type {
   BenchmarkView,
   BuilderView,
   BusinessUnit,
-  CreateExperimentInput,
-  Experiment,
-  ExperimentStatus,
   TeamStructure,
   TraceRun,
 } from "../types";
@@ -144,74 +141,4 @@ export function builderImpact(view: BuilderView, costPerExecution: number, repea
     weeklyCostBefore: Math.round(currentCases * repeats * costPerExecution),
     weeklyCostAfter: Math.round((currentCases + added) * repeats * costPerExecution),
   };
-}
-
-/* ---------------- Agent Gym ---------------- */
-
-// In-memory store so POST /api/gym/experiments works during a server session.
-// Kept on globalThis so pages and route handlers (separate module graphs) share it.
-const g = globalThis as unknown as { __silexExperiments?: Experiment[] };
-const store: Experiment[] = (g.__silexExperiments ??= [...fx.experiments]);
-
-export function listExperiments(status?: ExperimentStatus): Experiment[] {
-  const all = [...store].sort((a, b) => a.updatedMinutesAgo - b.updatedMinutesAgo || Number(b.id) - Number(a.id));
-  return status ? all.filter((e) => e.status === status) : all;
-}
-
-export function experimentCounts(): Record<ExperimentStatus | "all", number> {
-  const c = { all: store.length, pending: 0, queued: 0, running: 0, "needs-review": 0, done: 0 };
-  for (const e of store) c[e.status]++;
-  return c;
-}
-
-export function getExperiment(id: string): Experiment | undefined {
-  return store.find((e) => e.id === id);
-}
-
-export function getSandboxCapacity() {
-  return fx.sandboxCapacity;
-}
-
-export class ValidationError extends Error {}
-
-export function createExperiment(input: CreateExperimentInput): Experiment {
-  const team = getTeam(input.teamId);
-  if (!team) throw new ValidationError(`unknown team ${input.teamId}`);
-  if (!input.title?.trim()) throw new ValidationError("title is required");
-  if (!Array.isArray(input.params) || input.params.length === 0) throw new ValidationError("at least one parameter is required");
-  if (!input.params.some((p) => p.baseline !== p.variant)) throw new ValidationError("variant must change at least one parameter");
-
-  const run = fx.traceRuns.find((r) => r.teamId === team.id);
-  if (!run) throw new ValidationError(`no reconstructed trace for ${team.name}`);
-
-  const nextId = String(Math.max(...store.map((e) => Number(e.id))) + 1).padStart(3, "0");
-  const objective =
-    input.changeType === run.variant.defaultChange
-      ? run.variant.objective
-      : input.changeType === "retry-timeout" || input.changeType === "switch-tool"
-        ? "Latency"
-        : "Cost";
-  const exp: Experiment = {
-    id: nextId,
-    title: input.title.trim(),
-    teamId: team.id,
-    source: "speedrun",
-    objective,
-    status: "pending",
-    result: { text: "Test set required", tone: "neutral" },
-    updatedMinutesAgo: 0,
-    config: {
-      ...fx.buildGymConfig({ teamId: team.id, params: input.params, variantName: `${input.changeType}-v${nextId}`, scope: input.testScope, objective }),
-      target: input.target,
-    },
-  };
-  store.push(exp);
-  return exp;
-}
-
-/** Test-set size and run cost for an experiment config (baseline + variant). */
-export function experimentEstimate(e: Experiment) {
-  const cases = e.config!.testSet.filter((t) => t.checked).reduce((s, t) => s + t.count, 0);
-  const executions = cases * e.config!.repetitions * 2;
-  return { cases, executions, cost: Math.round(executions * e.config!.costPerExecution) };
 }
