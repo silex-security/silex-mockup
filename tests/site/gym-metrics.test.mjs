@@ -76,3 +76,18 @@ test('pass needs every variant run to pass: a complete comparison with failing v
   const c2 = compareAttempt(attempt, oneFails);
   assert.deepEqual([c2.regressedPairs, c2.totals.variant.pass, c2.verdict], [0, 8, 'fail'], 'the baseline also failed this pair, so it is no regression, and still no pass');
 });
+
+test('totals count each planned execution once and ignore executions outside the plan', () => {
+  const { attempt, executions } = completedDefaultAttempt();
+  const duplicate = structuredClone(executions.find(e => e.versionId === 'baseline' && e.scenarioId === 'sc-base-case'));
+  const stray = { ...structuredClone(executions[0]), id: 'stray', scenarioId: 'sc-stranger' };
+  const c = compareAttempt(attempt, [...executions, duplicate, stray]);
+  assert.deepEqual(c.totals, { baseline: { pass: 6, total: 9 }, variant: { pass: 9, total: 9 } });
+  assert.deepEqual(c.byScenario.map(r => r.baseline.total + r.variant.total), [6, 6, 6]);
+  assert.equal(c.verdict, 'pass');
+});
+
+test('an attempt that is running or failed never reads pass, whatever its executions say', () => {
+  const { attempt, executions } = completedDefaultAttempt();
+  for (const status of ['running', 'queued', 'failed']) assert.equal(compareAttempt({ ...attempt, status }, executions).verdict, 'inconclusive', status);
+});
