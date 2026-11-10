@@ -1,7 +1,7 @@
 // Page furniture shared by the run list, run detail and results views.
 import { h } from '../components/dom.js';
 import { badge, button, columns, emptyState, pageHeader, panel } from '../components/ui.js';
-import { REVIEW_LABEL } from './facts.js';
+import { REVIEW_LABEL } from '../model.js';
 
 export const EVIDENCE = 'Simulated evidence · Not deployed';
 export const evidenceTag = () => badge({ label: EVIDENCE, tone: 'gray', icon: 'shield', class: 'run-evidence' });

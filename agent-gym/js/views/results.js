@@ -1,10 +1,10 @@
 // Results: completeness, paired baseline/variant comparison, unresolved items, verdict and review (plan 8.2, 8.4, 9.2).
 import { h, mountView } from '../components/dom.js';
 import { badge, button, emptyState, notice, pageHeader, panel, textarea } from '../components/ui.js';
-import { REVIEW_DECISION, pairId } from '../model.js';
+import { REVIEW_DECISION, REVIEW_LABEL, pairId } from '../model.js';
 import { recordReview } from '../simulation/attempts.js';
 import { comparisonFor } from '../selectors.js';
-import { REVIEW_LABEL, attemptFacts, resolveAttempt } from '../runs/facts.js';
+import { attemptFacts, resolveAttempt } from '../runs/facts.js';
 import { VERDICT, defaultPairKey, pairKey, pairSides, unresolvedItems, verdictReason } from '../runs/compare.js';
 import { assertionList, finalStateView, nodeLabelsOf, toolRequests, traceList } from '../runs/trace.js';
 import { attemptNotFound, evidenceTag, grid, reviewBadge, runsCrumbs, statusBadges } from '../runs/page.js';

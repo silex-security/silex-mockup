@@ -2,7 +2,7 @@
 // (state, command) -> { state } | { error }. Attempt status: queued -> running -> completed | cancelled | failed.
 // `failed` is a runner or data fault (an 'error' execution, or a dispatch the scheduler caught), never a failed check.
 // `runner` ('active' | 'paused') is a separate control: a paused running attempt still holds the one slot.
-import { DEMO_SEED, FIXTURE_VERSION, REPETITIONS, REVIEW_DECISION, clone, digestOf, refKey, sameRef } from '../model.js';
+import { DEMO_SEED, FIXTURE_VERSION, MIN_IMPROVED_PAIRS, OBJECTIVE, REPETITIONS, REVIEW_DECISION, clone, digestOf, refKey, sameRef } from '../model.js';
 import { validateExperiment } from '../validators.js';
 import { buildVariant, defaultVariantPatch } from '../fixtures/workflows.js';
 import { planExecutions, runExecution } from './executor.js';
@@ -137,6 +137,18 @@ export const setRepetitions = (state, { experimentId, repetitions }) => editDraf
   if (!Number.isInteger(repetitions) || repetitions < REPETITIONS.min || repetitions > REPETITIONS.max)
     return fail('repetitions_out_of_range', `Repetitions must be ${REPETITIONS.min} to ${REPETITIONS.max}`);
   return repetitions === exp.repetitions ? exp : { ...exp, repetitions };
+});
+
+/** Edits the experiment's objective and acceptance rules. A field left out keeps its value. */
+export const setExperimentSettings = (state, { experimentId, objective, noRegression, minImprovedPairs }) => editDraft(state, experimentId, exp => {
+  if (objective !== undefined && !OBJECTIVE.includes(objective)) return fail('invalid_objective', `Objective must be one of ${OBJECTIVE.join(', ')}`);
+  if (minImprovedPairs !== undefined && (!Number.isInteger(minImprovedPairs) || minImprovedPairs < MIN_IMPROVED_PAIRS.min || minImprovedPairs > MIN_IMPROVED_PAIRS.max))
+    return fail('min_improved_out_of_range', `Minimum improved pairs must be a whole number from ${MIN_IMPROVED_PAIRS.min} to ${MIN_IMPROVED_PAIRS.max}`);
+  const next = {
+    ...exp, objective: objective ?? exp.objective,
+    acceptance: { noRegression: noRegression ?? exp.acceptance.noRegression, minImprovedPairs: minImprovedPairs ?? exp.acceptance.minImprovedPairs },
+  };
+  return next.objective === exp.objective && next.acceptance.noRegression === exp.acceptance.noRegression && next.acceptance.minImprovedPairs === exp.acceptance.minImprovedPairs ? exp : next;
 });
 
 const variantOf = (state, workflowRef) => Object.values(state.variants).find(v => sameRef(v.workflowRef, workflowRef));

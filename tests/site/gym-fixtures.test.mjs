@@ -78,8 +78,8 @@ test('Sales follow-up has the N1 graph and Variant A changes only the Draft emai
   }
 });
 
-test('scenario sets: 3 follow-up, 8 support, 6 meeting; all reviewed; refs resolve', () => {
-  assert.deepEqual(SCENARIO_SETS.map(s => [s.id, s.scenarioRefs.length]), [['set-follow-up-resilience', 3], ['set-refund-triage', 8], ['set-meeting-scheduling', 6]]);
+test('scenario sets: 3 follow-up, 8 support for each support workflow revision, 6 meeting; all reviewed; refs resolve', () => {
+  assert.deepEqual(SCENARIO_SETS.map(s => [s.id, s.scenarioRefs.length]), [['set-follow-up-resilience', 3], ['set-refund-triage', 8], ['set-refund-triage-v2', 8], ['set-meeting-scheduling', 6]]);
   const followUp = SCENARIO_SETS[0].scenarioRefs.map(r => SCENARIOS.find(s => s.id === r.id));
   assert.deepEqual(followUp.map(s => s.title), ['Base case', 'Timeout after send', 'Contact opted out']);
   assert.deepEqual([followUp[2].initialState.summary, followUp[2].expectedBehavior.summary], ['opted out', 'skip email; log reason']);
@@ -89,12 +89,15 @@ test('scenario sets: 3 follow-up, 8 support, 6 meeting; all reviewed; refs resol
   }
 });
 
-test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 1 completed with 6 scenarios', () => {
+test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 4 completed', () => {
   const s = seedState();
-  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 1, cancelled: 0, failed: 0, total: 3 });
+  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 4, cancelled: 0, failed: 0, total: 6 });
   assert.deepEqual(queueRows(s).map(r => [r.title, r.environmentName, r.scenarioCount, r.status, r.progress.text, r.canViewResults]), [
     ['Sales follow-up · Variant A', 'Sales operations', 3, 'running', '12/18', false],
     ['Support triage comparison', 'Customer support', 8, 'queued', '0/48', false],
+    ['Refund timeout steps', 'Customer support', 2, 'completed', '8/8', true],
+    ['Smaller model for refund replies', 'Customer support', 3, 'completed', '12/12', true],
+    ['Duplicate-send guard', 'Sales operations', 3, 'completed', '6/6', true],
     ['Meeting scheduling', 'Sales operations', 6, 'completed', '12/12', true],
   ]);
   for (const id of s.attemptOrder) assert.equal(s.executions[id].length, s.attempts[id].cursor, `${id} cursor counts its executions`);

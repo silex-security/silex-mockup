@@ -9,8 +9,6 @@ export const planFormula = (versions, scenarios, repetitions) =>
 
 export const isLive = attempt => attempt.status === 'queued' || attempt.status === 'running';
 
-export const REVIEW_LABEL = Object.freeze({ pass_for_demo: 'Pass for demo', needs_iteration: 'Needs iteration', reject: 'Reject' });
-
 export const versionLabel = (snapshot, versionId) => versionId === 'variant' ? snapshot.variant?.name ?? 'Variant' : 'Baseline';
 
 /** The attempt behind a run-detail or results URL. An attempt reached through another experiment's URL is a mismatch. */

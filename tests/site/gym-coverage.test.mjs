@@ -35,7 +35,7 @@ test('a set that ran to completion shows each scenario\'s latest baseline and va
   assert.equal(meeting.completed.attemptId, 'attempt-001');
   assert.deepEqual(meeting.completed.rows[0], { scenarioId: 'sc-mtg-intro', title: 'Book intro call', inRun: true, baseline: { pass: 1, total: 1 }, variant: { pass: 1, total: 1 }, regressed: 0, improved: 0 });
   const followUp = card(s, 'Follow-up resilience').evidence;
-  assert.deepEqual([followUp.completed, followUp.live.attemptId, followUp.live.progress], [null, 'attempt-002', '12/18']);
+  assert.deepEqual([followUp.completed.attemptId, followUp.live.attemptId, followUp.live.progress], ['attempt-004', 'attempt-002', '12/18'], 'Duplicate-send guard finished on this set while Sales follow-up still runs');
 
   let done = s;
   while (done.attempts['attempt-002'].status === 'running') done = ok(advanceAttempt(done, { attemptId: 'attempt-002' }));
@@ -47,8 +47,9 @@ test('a set that ran to completion shows each scenario\'s latest baseline and va
 test('cards list the workbench experiment\'s set first, carry usage and review counts, and the search hides non-matching sets', () => {
   const cards = scenarioLibrary(seedState(), { experimentId: 'exp-029' });
   assert.deepEqual(cards.map(c => [c.name, c.rev, c.count, c.reviewed, c.usedBy.map(u => u.id)]), [
-    ['Follow-up resilience', '1', 3, 3, ['exp-029']], ['Meeting scheduling', '1', 6, 6, ['exp-027']], ['Refund triage', '1', 8, 8, ['exp-028']],
+    ['Follow-up resilience', '1', 3, 3, ['exp-024', 'exp-029', 'exp-030']], ['Meeting scheduling', '1', 6, 6, ['exp-027', 'exp-031']],
+    ['Refund triage v2', '1', 8, 8, ['exp-025']], ['Refund triage', '1', 8, 8, ['exp-026', 'exp-028']],
   ]);
-  assert.deepEqual(scenarioLibrary(seedState(), { query: 'refund', experimentId: 'exp-029' }).filter(c => c.visible).map(c => c.name), ['Refund triage']);
+  assert.deepEqual(scenarioLibrary(seedState(), { query: 'refund', experimentId: 'exp-029' }).filter(c => c.visible).map(c => c.name), ['Refund triage v2', 'Refund triage']);
   assert.deepEqual(scenarioLibrary(seedState(), { query: 'opted out', experimentId: 'exp-029' }).filter(c => c.visible).map(c => c.name), ['Follow-up resilience'], 'scenario titles match');
 });

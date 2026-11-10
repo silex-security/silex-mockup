@@ -20,6 +20,7 @@ function buildVariant(workflow, { id, name, patch }) {
 
 const baselineTraits = { timeoutRecovery: 'retry_new_key', tone: 'concise' };
 const variantTraits = { timeoutRecovery: 'check_status_reuse_key', tone: 'concise' };
+const smallModelTraits = { timeoutRecovery: 'stop', tone: 'concise' };
 
 const salesFollowUp = buildWorkflow({
   id: 'wf-sales-follow-up', rev: '1', name: 'Sales follow-up',
@@ -63,6 +64,12 @@ const supportTriage = buildWorkflow({
   modelConfig: { 'draft-reply': { model: 'simulated-model-baseline', traits: baselineTraits } },
 });
 
+const { digest: _digest, ...supportTriageSpec } = supportTriage;
+const supportTriageV2 = buildWorkflow({
+  ...supportTriageSpec, id: 'wf-support-triage', rev: '2', name: 'Support triage v2',
+  modelConfig: { 'draft-reply': { model: 'simulated-model-baseline', traits: variantTraits } },
+});
+
 const meetingScheduling = buildWorkflow({
   id: 'wf-meeting-scheduling', rev: '1', name: 'Meeting scheduling',
   nodes: [
@@ -84,11 +91,12 @@ const meetingScheduling = buildWorkflow({
   modelConfig: { 'propose-times': { model: 'simulated-model-baseline', traits: baselineTraits } },
 });
 
-export const WORKFLOWS = Object.freeze([salesFollowUp, supportTriage, meetingScheduling]);
+export const WORKFLOWS = Object.freeze([salesFollowUp, supportTriage, supportTriageV2, meetingScheduling]);
 
 export const VARIANTS = Object.freeze([
   buildVariant(salesFollowUp, { id: 'variant-a', name: 'Variant A', patch: [{ nodeId: 'draft-email', model: 'simulated-model-variant-a', traits: variantTraits }] }),
   buildVariant(supportTriage, { id: 'variant-support-a', name: 'Variant A', patch: [{ nodeId: 'draft-reply', model: 'simulated-model-variant-a', traits: variantTraits }] }),
+  buildVariant(supportTriageV2, { id: 'variant-support-small', name: 'Small model', patch: [{ nodeId: 'draft-reply', model: 'simulated-model-small', traits: smallModelTraits }] }),
   buildVariant(meetingScheduling, { id: 'variant-meeting-a', name: 'Variant A', patch: [{ nodeId: 'propose-times', model: 'simulated-model-variant-a', traits: variantTraits }] }),
 ]);
 
