@@ -43,7 +43,7 @@ test('an attempt resolves only under its own experiment', () => {
   assert.equal(resolveAttempt(s, { experimentId: 'exp-029', attemptId: 'attempt-999' }).kind, 'missing');
 });
 
-test('the matrix at 12 of 18: two scenarios finished, the third waits with its first item running', () => {
+test('the matrix at 12 of 18: two scenarios finished, the third waits with its first item next', () => {
   const s = seedState();
   const m = matrixView(s.attempts[SALES], s.executions[SALES]);
   assert.deepEqual(m.versions.map(v => v.label), ['Baseline', 'Variant A']);
@@ -51,9 +51,9 @@ test('the matrix at 12 of 18: two scenarios finished, the third waits with its f
   assert.deepEqual(m.rows.map(r => r.cells.map(c => c.summary)), [
     ['3/3 passed', '3/3 passed'],
     ['0/3 passed', '3/3 passed'],
-    ['1 running · 2 pending', '3 pending'],
+    ['1 next · 2 pending', '3 pending'],
   ]);
-  assert.deepEqual(m.rows[2].cells[0].reps.map(r => [r.repeatIndex, r.state, r.hasExecution]), [[1, 'running', false], [2, 'pending', false], [3, 'pending', false]]);
+  assert.deepEqual(m.rows[2].cells[0].reps.map(r => [r.repeatIndex, r.state, r.hasExecution]), [[1, 'next', false], [2, 'pending', false], [3, 'pending', false]]);
 
   const paused = ok(pauseAttempt(s, { attemptId: SALES }));
   assert.equal(matrixView(paused.attempts[SALES], paused.executions[SALES]).rows[2].cells[0].summary, '3 pending', 'a paused runner runs nothing');

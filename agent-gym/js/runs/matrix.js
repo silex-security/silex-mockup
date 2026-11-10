@@ -14,21 +14,20 @@ export const findExecution = (executions, key) => {
   return want ? executions.find(e => executionKey(e) === executionKey(want)) ?? null : null;
 };
 
-const STATES = ['passed', 'failed', 'error', 'cancelled', 'running', 'pending'];
+const STATES = ['passed', 'failed', 'error', 'cancelled', 'next', 'pending'];
 
-/** A plan item without an execution is cancelled (attempt cancelled), running (the runner's next item) or pending. */
+/** A plan item without an execution is cancelled (attempt cancelled), next (the active runner's next item) or pending. */
 function itemState(attempt, execution, index) {
   if (execution) return execution.terminalState;
   if (attempt.status === 'cancelled') return 'cancelled';
-  return index === attempt.cursor && attempt.status === 'running' && attempt.runner === 'active' ? 'running' : 'pending';
+  return index === attempt.cursor && attempt.status === 'running' && attempt.runner === 'active' ? 'next' : 'pending';
 }
 
 export function cellSummary(counts) {
   const done = counts.passed + counts.failed + counts.error;
   const total = STATES.reduce((n, s) => n + counts[s], 0);
   if (done === total) return `${counts.passed}/${total} passed`;
-  return [['passed', 'passed'], ['failed', 'failed'], ['error', 'error'], ['cancelled', 'cancelled'], ['running', 'running'], ['pending', 'pending']]
-    .filter(([s]) => counts[s] > 0).map(([s, word]) => `${counts[s]} ${word}`).join(' · ');
+  return STATES.filter(s => counts[s] > 0).map(s => `${counts[s]} ${s}`).join(' · ');
 }
 
 export function matrixView(attempt, executions) {
