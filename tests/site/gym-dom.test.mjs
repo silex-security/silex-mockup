@@ -136,3 +136,20 @@ test('with the live clock, workbench controls keep their identity across three t
   assert.ok(out.total > 40, 'the probe saw the workbench controls');
   assert.equal(out.lost, 0, 'no control was replaced by a tick');
 }));
+
+test('a re-render that changes nothing about a native select leaves it and its options untouched, so an open popup survives', async t => withGym(t, async gym => {
+  for (const hash of ['#/workbench/exp-029', '#/environments/new?returnTo=exp-029', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up']) {
+    await gym.go(hash);
+    const out = await gym.ev(`
+      const selects = [...document.querySelectorAll('.gym-main select')];
+      const seen = [];
+      const mo = new MutationObserver(list => { for (const m of list) seen.push(m.type + ' ' + (m.attributeName ?? '') + ' on ' + m.target.nodeName + (m.target.dataset?.focusKey ? '[' + m.target.dataset.focusKey + ']' : '')); });
+      for (const s of selects) mo.observe(s, { subtree: true, childList: true, attributes: true, characterData: true });
+      ${BUMP} ${BUMP}
+      await new Promise(r => setTimeout(r, 0));
+      mo.disconnect();
+      return { selects: selects.length, seen };`);
+    assert.ok(out.selects > 0, `${hash} has selects`);
+    assert.deepEqual(out.seen, [], hash);
+  }
+}));
