@@ -142,8 +142,11 @@ export function checkbox({ checked = false, label, onChange, disabled = false, r
     label != null && h('span', { class: 'gym-check__label' }, label));
 }
 
-function field({ label, hint, error, class: extra, id }, control, makeInput) {
-  const hintId = hint || error ? nextId('hint') : null;
+// A control with a focus key keeps the same ids on every render, so a re-render does not touch its attributes.
+const stableId = (prefix, focusKey) => (focusKey ? `gym-${prefix}-${focusKey.replace(/[^\w-]/g, '-')}` : nextId(prefix));
+
+function field({ label, hint, error, class: extra, id, focusKey }, control, makeInput) {
+  const hintId = hint || error ? stableId('hint', focusKey) : null;
   const input = makeInput(hintId);
   const box = control(input);
   if (label == null && !hintId) { if (id) box.id = id; if (extra) box.className += ` ${extra}`; return box; }
@@ -274,9 +277,9 @@ function openMenuIn(wrap, last) {
 }
 
 export function popoverMenu({ trigger, items, align = 'start', label, ...rest }) {
-  const menuId = nextId('menu');
   const btn = trigger instanceof Node ? trigger : button(trigger);
   const key = btn.getAttribute('data-focus-key');
+  const menuId = stableId('menu', key);
   const isOpen = key != null && openMenu?.key === key;
   btn.setAttribute('aria-haspopup', 'menu');
   btn.setAttribute('aria-expanded', String(isOpen));
