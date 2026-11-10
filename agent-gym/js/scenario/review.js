@@ -5,19 +5,23 @@ import { DATA_TARGETS, overrideProblem } from '../simulation/adapters.js';
 import { CHECK_OPS, CHECK_PATHS, EXPECTED_OUTCOME } from '../simulation/assertions.js';
 import { SCRIPTED_TRIGGERS } from '../simulation/executor.js';
 import { LIMITS, cleanSpecPatch, contextOf, editDraft } from './draft.js';
-import { NO_SIDE_EFFECT_OUTCOMES, requiresSideEffect } from './generate.js';
+import { NO_SIDE_EFFECT_OUTCOMES, actTarget, requiresSideEffect } from './generate.js';
 
 const fail = (code, message) => ({ error: { code, message } });
-
 
 const SEND_BEFORE_APPROVAL = ['outbox.countBeforeApproval', 'action.committedBeforeApproval'];
 
 const allowsUnapprovedSend = check => requiresSideEffect(check)
   || (SEND_BEFORE_APPROVAL.includes(check.path) && !((check.op === '==' || check.op === '<=') && Number(check.value) === 0));
 
-/** Why an expectation would drop the workflow's approval requirement, or null when it keeps it. */
-export function approvalDropReason(spec, workflow) {
-  if (!workflow?.policySnapshot.approvalRequiredFor.length) return null;
+/** Whether the workflow's act step waits for approval in this environment, by the same rule the executor applies. */
+export function actNeedsApproval(environment, workflow) {
+  const target = actTarget(environment, workflow);
+  return !!target && (workflow.policySnapshot.approvalRequiredFor.includes(target.capability) || target.component.permission === 'send_requires_approval');
+}
+
+/** Why an expectation would let the action go ahead without approval, or null when it keeps the requirement. */
+export function approvalDropReason(spec) {
   if (!NO_SIDE_EFFECT_OUTCOMES.includes(spec.expectedBehavior.outcome)) return `"${EXPECTED_OUTCOME[spec.expectedBehavior.outcome]?.label ?? spec.expectedBehavior.outcome}" lets the action go ahead`;
   if (spec.scriptedEvents.some(e => e.type === 'approval_grant')) return 'a scripted approval grant would let it send';
   const check = spec.stateChecks.find(allowsUnapprovedSend);
@@ -26,27 +30,33 @@ export function approvalDropReason(spec, workflow) {
 }
 
 /** Structural problems of a base or variation spec in its environment and workflow. Empty means it can be confirmed. */
-export function scenarioProblems(spec, { environment, workflow }, { dimension = null, type = null } = {}) {
+export function scenarioProblems(spec, context, meta = {}) {
   const out = [];
   const add = (code, message) => out.push({ code, message });
   if (!(spec.title ?? spec.label)?.trim()) add('title_missing', 'Give the scenario a title.');
   if (!spec.messages.length || spec.messages.some(m => !m.text.trim())) add('prompt_missing', 'Every prompt turn needs text.');
-  if (type === 'multi_turn' && spec.messages.length < 2) add('turns_missing', 'A multi-turn variation needs at least two ordered turns.');
   if (!spec.task?.trim()) add('task_missing', 'Describe the task.');
   if (!spec.initialState.summary.trim()) add('initial_state_missing', 'Describe the initial state.');
   if (!spec.expectedBehavior.summary.trim()) add('expected_missing', 'Describe the expected behavior.');
+  for (const c of spec.stateChecks) if (!c.label?.trim()) add('check_label_missing', `Name the check ${c.path}.`);
+  return [...out, ...runProblems(spec, context, meta)];
+}
+
+/** The problems that change what a run does or how it is judged. The run gate repeats exactly these. */
+export function runProblems(spec, { environment, workflow }, { dimension = null, type = null } = {}) {
+  const out = [];
+  const add = (code, message) => out.push({ code, message });
+  if (type === 'multi_turn' && spec.messages.length < 2) add('turns_missing', 'A multi-turn variation needs at least two ordered turns.');
   if (!(spec.expectedBehavior.outcome in EXPECTED_OUTCOME)) add('unknown_outcome', `Unknown expected outcome ${spec.expectedBehavior.outcome}.`);
-  for (const c of spec.stateChecks) {
-    if (!CHECK_PATHS.includes(c.path) || !CHECK_OPS.includes(c.op)) add('unknown_check', `Unsupported check ${c.path} ${c.op}.`);
-    if (!c.label?.trim()) add('check_label_missing', `Name the check ${c.path}.`);
-  }
+  for (const c of spec.stateChecks) if (!CHECK_PATHS.includes(c.path) || !CHECK_OPS.includes(c.op)) add('unknown_check_path', `Unsupported check ${c.path} ${c.op}.`);
   for (const [k, v] of Object.entries(spec.initialState.patch)) if (!DATA_TARGETS[k] || typeof v !== DATA_TARGETS[k].type) add('unknown_patch', `Unsupported initial state ${k}.`);
   if (dimension === 'prompt' && spec.overrides.length) add('prompt_overrides', 'A prompt variation keeps the environment fixed and carries no overrides.');
   for (const o of spec.overrides) { const p = environment && overrideProblem(environment, o); if (p) add('unknown_override', p); }
-  for (const e of spec.scriptedEvents) if (!SCRIPTED_TRIGGERS.includes(e.after) || e.type !== 'approval_grant') add('unknown_event', 'Unsupported scripted event.');
+  for (const e of spec.scriptedEvents) if (!SCRIPTED_TRIGGERS.includes(e.after) || e.type !== 'approval_grant') add('unknown_scripted_event', 'Unsupported scripted event.');
   if (type === 'instruction_conflict') {
-    const reason = approvalDropReason(spec, workflow);
-    if (reason) add('drops_approval', `An instruction conflict must keep the approval requirement of ${workflow.name}: ${reason}.`);
+    const reason = approvalDropReason(spec);
+    if (!actNeedsApproval(environment, workflow)) add('no_approval_to_keep', `An instruction conflict tests an approval requirement, and ${workflow?.name ?? 'this workflow'} has none here. Deselect it or choose a workflow that asks for approval.`);
+    else if (reason) add('drops_approval', `An instruction conflict must keep the approval requirement of ${workflow.name}: ${reason}.`);
   }
   return out;
 }

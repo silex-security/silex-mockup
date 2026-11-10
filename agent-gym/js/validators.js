@@ -1,28 +1,21 @@
 // Run gate for an experiment draft. Every blocking error carries the fix the workbench offers.
 import { REPETITIONS, executionCount, pairCount, refKey, sameRef, uniqueIds } from './model.js';
-import { faultCapabilityOf, overrideProblem } from './simulation/adapters.js';
-import { CHECK_PATHS, EXPECTED_OUTCOME } from './simulation/assertions.js';
-import { SCRIPTED_TRIGGERS } from './simulation/executor.js';
+import { faultCapabilityOf } from './simulation/adapters.js';
+import { runProblems } from './scenario/review.js';
 
 export const FIX_ACTIONS = Object.freeze(['change-environment', 'change-workflow', 'change-scenario-set', 'select-scenarios', 'review-scenario', 'run-settings', 'create-variant', 'save-experiment']);
 
 const err = (code, message, label, action, extra = {}) => ({ code, message, fix: { label, action }, ...extra });
 
-function scenarioErrors(scenario, environment) {
+// The run gate repeats the builder's review against the experiment's own environment and workflow, so a scenario
+// confirmed under another context cannot run unchecked.
+function scenarioErrors(scenario, context) {
   const id = { scenarioId: scenario.id };
-  const errors = [];
-  if (scenario.reviewState !== 'reviewed') errors.push(err('scenario_unreviewed', `${scenario.title} is not reviewed`, 'Review scenario', 'review-scenario', id));
-  for (const o of scenario.overrides) {
-    const problem = environment && overrideProblem(environment, o);
-    if (problem) errors.push(err('unknown_override', `${scenario.title}: ${problem}`, 'Review scenario', 'review-scenario', id));
-  }
-  if (!(scenario.expectedBehavior.outcome in EXPECTED_OUTCOME))
-    errors.push(err('unknown_outcome', `${scenario.title}: unknown expected outcome ${scenario.expectedBehavior.outcome}`, 'Review scenario', 'review-scenario', id));
-  for (const c of scenario.stateChecks) if (!CHECK_PATHS.includes(c.path))
-    errors.push(err('unknown_check_path', `${scenario.title}: unsupported check ${c.path}`, 'Review scenario', 'review-scenario', id));
-  for (const e of scenario.scriptedEvents) if (!SCRIPTED_TRIGGERS.includes(e.after) || e.type !== 'approval_grant')
-    errors.push(err('unknown_scripted_event', `${scenario.title}: unsupported scripted event`, 'Review scenario', 'review-scenario', id));
-  return errors;
+  const review = (code, message) => err(code, `${scenario.title}: ${message}`, 'Review scenario', 'review-scenario', id);
+  return [
+    ...(scenario.reviewState !== 'reviewed' ? [err('scenario_unreviewed', `${scenario.title} is not reviewed`, 'Review scenario', 'review-scenario', id)] : []),
+    ...runProblems(scenario, context, scenario.variation ?? {}).map(p => review(p.code, p.message)),
+  ];
 }
 
 /** @returns {{errors:GymError[], warnings:GymError[], dependencyReport:{matched:boolean, missing:string[]}, executionCount:number, pairCount:number}} */
@@ -53,7 +46,9 @@ export function validateExperiment(state, experimentId) {
   if (scenarios.length === 0) errors.push(err('no_scenarios_selected', 'Select at least one scenario', 'Select scenarios', 'select-scenarios'));
   if (!Number.isInteger(exp.repetitions) || exp.repetitions < REPETITIONS.min || exp.repetitions > REPETITIONS.max)
     errors.push(err('repetitions_out_of_range', `Repetitions must be ${REPETITIONS.min} to ${REPETITIONS.max}`, 'Adjust run settings', 'run-settings'));
-  for (const s of scenarios) errors.push(...scenarioErrors(s, environment));
+  if (set && !sameRef(set.workflowRef, exp.workflowRef))
+    errors.push(err('scenario_set_workflow_mismatch', `${set.name} was written for ${refKey(set.workflowRef)}, not ${refKey(exp.workflowRef)}`, 'Choose a scenario set for this workflow', 'change-scenario-set'));
+  for (const s of scenarios) errors.push(...scenarioErrors(s, { environment, workflow }));
 
   const authoredFor = set && state.environments[refKey(set.environmentRef)];
   const faultNeed = o => faultCapabilityOf(environment, o) ?? faultCapabilityOf(authoredFor, o) ?? `${o.target}.${o.value}`;
