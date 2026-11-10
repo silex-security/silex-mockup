@@ -1,10 +1,16 @@
-// Agent Gym v2 fixtures (plan 4.1, 5.3, 5.4, 8.1; 13.1 item 1). Counts are the plan's numbers.
+// Agent Gym v2 fixtures and selectors (plan 4.1 to 4.5, 5.3, 5.4, 8.1; 13.1 items 1 and 11). Counts are the plan's numbers.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENVIRONMENTS, deriveCapabilities, deriveFaultCapabilities } from '../../agent-gym/js/fixtures/environments.js';
 import { VARIANTS, WORKFLOWS } from '../../agent-gym/js/fixtures/workflows.js';
 import { SCENARIOS, SCENARIO_SETS } from '../../agent-gym/js/fixtures/scenarios.js';
 import { digestOf, refKey } from '../../agent-gym/js/model.js';
+import { seedState } from '../../agent-gym/js/fixtures/index.js';
+import { runExecution } from '../../agent-gym/js/simulation/executor.js';
+import { toggleScenario } from '../../agent-gym/js/simulation/attempts.js';
+import {
+  blueprintView, comparisonFor, dependencyStatus, environmentCards, experimentSummary, queueCounts, queueRows, scenarioRows,
+} from '../../agent-gym/js/selectors.js';
 
 const sales = ENVIRONMENTS.find(e => refKey(e) === 'env-sales@1.2');
 const pair = r => [r.from, r.to].sort().join('|');
@@ -81,4 +87,78 @@ test('scenario sets: 3 follow-up, 8 support, 6 meeting; all reviewed; refs resol
     assert.equal(new Set(set.scenarioRefs.map(r => r.id)).size, set.scenarioRefs.length, `${set.id} unique`);
     for (const r of set.scenarioRefs) assert.equal(SCENARIOS.find(s => s.id === r.id && s.rev === r.rev)?.reviewState, 'reviewed', r.id);
   }
+});
+
+test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 1 completed with 6 scenarios', () => {
+  const s = seedState();
+  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 1, cancelled: 0, failed: 0, total: 3 });
+  assert.deepEqual(queueRows(s).map(r => [r.title, r.environmentName, r.scenarioCount, r.status, r.progress.text, r.canViewResults]), [
+    ['Sales follow-up · Variant A', 'Sales operations', 3, 'running', '12/18', false],
+    ['Support triage comparison', 'Customer support', 8, 'queued', '0/48', false],
+    ['Meeting scheduling', 'Sales operations', 6, 'completed', '12/12', true],
+  ]);
+  for (const id of s.attemptOrder) assert.equal(s.executions[id].length, s.attempts[id].cursor, `${id} cursor counts its executions`);
+});
+
+test('seeded executions are what the executor produces from the frozen snapshot', () => {
+  const s = seedState();
+  for (const id of s.attemptOrder) {
+    const a = s.attempts[id];
+    s.executions[id].forEach((e, i) => {
+      assert.deepEqual(e, { ...runExecution(a.inputSnapshot, a.plan[i], a.seed), id: `${id}/${a.plan[i].id}`, attemptId: id }, e.id);
+    });
+  }
+  const meeting = s.attemptOrder.find(id => s.attempts[id].title === 'Meeting scheduling');
+  assert.equal(comparisonFor(s, meeting).completePairs, 6);
+  const sales = s.attemptOrder.find(id => s.attempts[id].status === 'running');
+  assert.equal(comparisonFor(s, sales).verdict, 'inconclusive', 'a running attempt is not complete');
+});
+
+test('exp-029 shows a draft one revision ahead of the frozen revision that runs', () => {
+  const s = seedState();
+  const exp = s.experiments['exp-029'];
+  const running = Object.values(s.attempts).find(a => a.experimentId === 'exp-029');
+  assert.equal(exp.title, 'Experiment 029');
+  assert.equal(exp.draftRevision, exp.savedRevision + 1);
+  assert.equal(running.label, `rev ${exp.savedRevision} · attempt 1`);
+  assert.equal(running.inputSnapshot.experiment.draftRevision, exp.savedRevision);
+  assert.equal(experimentSummary(s, 'exp-029').dirty, true);
+});
+
+test('workbench selectors: summary, dependencies, environment cards, scenario rows', () => {
+  const s = seedState();
+  const summary = experimentSummary(s, 'exp-029');
+  assert.deepEqual([summary.versions, summary.selectedScenarioCount, summary.repetitions, summary.runs, summary.pairs], [2, 3, 3, 18, 9]);
+  assert.equal(summary.formula, '2 versions × 3 scenarios × 3 repetitions = 18 runs');
+  assert.deepEqual([dependencyStatus(s, 'exp-029').label, dependencyStatus(s, 'exp-029').canRun], ['Dependencies matched', true]);
+  const cards = environmentCards(s, { selectedRef: s.experiments['exp-029'].environmentRef });
+  assert.deepEqual(cards.map(c => [c.name, `v${c.rev}`, c.statusLabel, c.selected]),
+    [['Sales operations', 'v1.2', 'Ready', true], ['Customer support', 'v1.2', 'Ready', false], ['IT operations', 'v1.1', 'Ready', false]]);
+  assert.deepEqual(environmentCards(s, { query: 'logs' }).filter(c => c.visible).map(c => c.name), ['IT operations']);
+  const rows = scenarioRows(s, s.experiments['exp-029'].scenarioSetRef, { selectedIds: s.experiments['exp-029'].selectedScenarioIds, query: 'opted' });
+  assert.deepEqual(rows.map(r => [r.title, r.selected, r.visible]), [['Base case', true, false], ['Timeout after send', true, false], ['Contact opted out', true, true]]);
+  assert.deepEqual([rows[2].initialState, rows[2].expected], ['opted out', 'skip email; log reason']);
+});
+
+test('blueprint view: Variant A changes Draft email; the timeout marker follows the selected scenarios', () => {
+  const s = seedState();
+  const variant = blueprintView(s, 'exp-029', 'variant');
+  assert.deepEqual(variant.nodes.filter(n => n.changed).map(n => n.label), ['Draft email']);
+  assert.equal(variant.nodes.find(n => n.id === 'draft-email').model, 'simulated-model-variant-a');
+  assert.deepEqual(variant.nodes.filter(n => n.faultMarker).map(n => [n.label, n.faultMarker]), [['Send email', 'Timeout injection']]);
+  const baseline = blueprintView(s, 'exp-029', 'baseline');
+  assert.deepEqual([baseline.versionLabel, baseline.nodes.filter(n => n.changed).length], ['Baseline', 0]);
+  assert.equal(baseline.nodes.find(n => n.id === 'draft-email').model, 'simulated-model-baseline');
+  const withoutTimeout = toggleScenario(s, { experimentId: 'exp-029', scenarioId: 'sc-timeout-after-send' }).state;
+  assert.equal(blueprintView(withoutTimeout, 'exp-029', 'variant').nodes.some(n => n.faultMarker), false);
+  assert.equal(experimentSummary(withoutTimeout, 'exp-029').runs, 12);
+});
+
+test('seedState is fast and returns fresh state each call', () => {
+  const t0 = performance.now();
+  const a = seedState();
+  assert.ok(performance.now() - t0 < 100, 'well under 100 ms');
+  const b = seedState();
+  assert.notEqual(a.environments['env-sales@1.2'], b.environments['env-sales@1.2']);
+  assert.deepEqual(a, b, 'deterministic');
 });
