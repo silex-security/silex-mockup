@@ -6,6 +6,7 @@ import { DEMO_SEED, FIXTURE_VERSION, REPETITIONS, REVIEW_DECISION, clone, digest
 import { validateExperiment } from '../validators.js';
 import { buildVariant, defaultVariantPatch } from '../fixtures/workflows.js';
 import { planExecutions, runExecution } from './executor.js';
+import { compareAttempt } from '../metrics.js';
 
 const fail = (code, message, fix) => ({ error: fix ? { code, message, fix } : { code, message } });
 
@@ -203,6 +204,9 @@ export function recordReview(state, { attemptId, decision, note = '', reviewedAt
   if (error) return { error };
   if (LIVE.includes(attempt.status)) return fail('attempt_not_finished', 'Review a finished attempt');
   if (!REVIEW_DECISION.includes(decision)) return fail('invalid_decision', `Decision must be one of ${REVIEW_DECISION.join(', ')}`);
+  const { verdict } = compareAttempt(attempt, state.executions[attemptId] ?? []);
+  if (decision === 'pass_for_demo' && verdict !== 'pass')
+    return fail('review_needs_pass', `Pass for demo needs a Pass verdict; this comparison reads ${verdict}`, { label: 'Choose another decision', action: 'review' });
   const review = { decision, note: String(note).slice(0, 500), reviewedAt: reviewedAt ?? new Date().toISOString(), deploymentState: 'not_deployed' };
   return { state: putAttempt(state, { ...attempt, review }) };
 }
