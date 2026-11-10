@@ -137,7 +137,7 @@ export const COMMANDS = Object.freeze({
   },
   /** Imported notes stay; behavior assumptions are never imported, so every derived one starts pending. */
   importFixture(content, { content: imported }) {
-    return { ...clone(imported), assumptions: clone(imported.assumptions).filter(a => a.kind === 'info' && !a.id.startsWith(DERIVED_ASSUMPTION_PREFIX)) };
+    return { ...clone(imported), assumptions: clone(imported.assumptions).filter(a => a.kind === 'info') };
   },
   batch(content, { commands }) {
     let next = content;
