@@ -3,6 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openGym } from '../../tools/gym-shot.mjs';
+import { STORAGE_KEY } from '../../agent-gym/js/model.js';
+import { seedState } from '../../agent-gym/js/fixtures/index.js';
 
 const SALES = '#/experiments/exp-029/attempts/attempt-002';
 const RESULTS = `${SALES}/results`;
@@ -128,6 +130,20 @@ test('a cancelled attempt reads Inconclusive, keeps its finished pairs and canno
   await clickText(gym, '.run-review button', 'Mark reviewed');
   const { review } = await attempt(gym);
   assert.deepEqual([review?.decision, review?.deploymentState], ['needs_iteration', 'not_deployed']);
+}));
+
+test('a complete attempt whose variant still fails reads Fail and cannot be passed for demo', async t => withGym(t, async gym => {
+  const s = seedState();
+  const failing = { ...s, executions: { ...s.executions, 'attempt-001': s.executions['attempt-001'].map(e => ({ ...e, terminalState: 'failed' })) } };
+  await gym.go('#/kit');
+  await gym.ev(`localStorage.setItem(${JSON.stringify(STORAGE_KEY)}, ${JSON.stringify(JSON.stringify(failing))})`);
+  await gym.go('#/experiments/exp-027/attempts/attempt-001/results');
+  assert.equal(await gym.ev('return window.__gym.store.persistence.mode'), 'local', 'the crafted save loads');
+  const v = await verdict(gym);
+  assert.match(v, /^Fail /);
+  const st = await stats(gym);
+  assert.deepEqual([st.complete, st.baseline, st.variant, st.regressed], ['6/6', '0/6', '0/6', '0']);
+  assert.equal(await gym.ev('return document.querySelector(\'input[value="pass_for_demo"]\').disabled'), true);
 }));
 
 test('an unknown attempt renders not found, and a mismatched experiment links to the right results', async t => withGym(t, async gym => {

@@ -66,3 +66,13 @@ test('a new opt-out violation on the variant is a regression even when both runs
   assert.deepEqual([pair.kind, pair.deltas], ['regressed', ['new opt_out violation']]);
   assert.equal(c.verdict, 'regression');
 });
+
+test('pass needs every variant run to pass: a complete comparison with failing variant runs reads fail', () => {
+  const { attempt, executions } = completedDefaultAttempt();
+  const allFail = executions.map(e => ({ ...e, terminalState: 'failed' }));
+  const c = compareAttempt(attempt, allFail);
+  assert.deepEqual([c.totals.baseline.pass, c.totals.variant.pass, c.completePairs, c.regressedPairs, c.verdict], [0, 0, 9, 0, 'fail']);
+  const oneFails = executions.map(e => e.versionId === 'variant' && e.scenarioId === 'sc-timeout-after-send' && e.repeatIndex === 1 ? { ...e, terminalState: 'failed' } : e);
+  const c2 = compareAttempt(attempt, oneFails);
+  assert.deepEqual([c2.regressedPairs, c2.totals.variant.pass, c2.verdict], [0, 8, 'fail'], 'the baseline also failed this pair, so it is no regression, and still no pass');
+});
