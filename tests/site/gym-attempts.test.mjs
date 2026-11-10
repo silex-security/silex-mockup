@@ -128,6 +128,20 @@ test('recordReview needs a finished attempt and a legal decision, and is never a
   assert.equal(s.attempts[id].status, 'completed', 'review is separate from status');
 });
 
+test('pass for demo needs a Pass verdict, also when a second review replaces the first', () => {
+  let s = advance(enqueue(fixtureState()), 'attempt-001', 4);
+  s = ok(cancelAttempt(s, { attemptId: 'attempt-001' }));
+  assert.equal(compareAttempt(s.attempts['attempt-001'], s.executions['attempt-001']).verdict, 'inconclusive');
+  assert.equal(recordReview(s, { attemptId: 'attempt-001', decision: 'pass_for_demo' }).error?.code, 'review_needs_pass');
+  s = ok(recordReview(s, { attemptId: 'attempt-001', decision: 'needs_iteration', note: 'Rerun' }));
+  const again = recordReview(s, { attemptId: 'attempt-001', decision: 'pass_for_demo' });
+  assert.equal(again.error?.code, 'review_needs_pass');
+  let done = finish(enqueue(fixtureState()), 'attempt-001');
+  done = ok(recordReview(done, { attemptId: 'attempt-001', decision: 'reject' }));
+  done = ok(recordReview(done, { attemptId: 'attempt-001', decision: 'pass_for_demo' }));
+  assert.equal(done.attempts['attempt-001'].review.decision, 'pass_for_demo', 'the default attempt reads Pass, so a second review may pass it');
+});
+
 test('draft edits bump the draft revision and save marks it saved', () => {
   let s = fixtureState();
   assert.equal(renameExperiment(s, { experimentId: EXP, title: '   ' }).error.code, 'invalid_title');
