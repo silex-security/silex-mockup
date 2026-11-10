@@ -1,6 +1,6 @@
 // Every number and list the screens show, derived from GymState in one place.
-import { ATTEMPT_STATUS, refKey, sameRef, uniqueIds } from './model.js';
-import { compareAttempt } from './metrics.js';
+import { ATTEMPT_STATUS, REVIEW_LABEL, refKey, sameRef, uniqueIds } from './model.js';
+import { compareAttempt, objectiveComparison } from './metrics.js';
 import { validateExperiment } from './validators.js';
 import { versionModelConfig } from './simulation/executor.js';
 import { triggerOf } from './simulation/attempts.js';
@@ -24,7 +24,7 @@ export function queueRows(state) {
       attemptId: id, experimentId: a.experimentId, title: a.title, label: a.label,
       environmentName: environment.name, environmentIcon: environment.icon, scenarioCount: scenarios.length,
       trigger: triggerOf(a), status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
-      progress: attemptProgress(state, id), canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
+      progress: attemptProgress(state, id), result: attemptResultSummary(state, id), review: a.review, canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
     };
   });
   return rows.sort((x, y) => (STATUS_RANK[x.status] ?? 2) - (STATUS_RANK[y.status] ?? 2)
@@ -123,3 +123,68 @@ export function blueprintView(state, experimentId, versionId) {
 }
 
 export const comparisonFor = (state, attemptId) => compareAttempt(state.attempts[attemptId], state.executions[attemptId] ?? []);
+
+export const STAGES = Object.freeze(['pending', 'queued', 'running', 'needs_review', 'done']);
+
+// Cancelled and failed attempts are abandoned work: they never decide a stage, so an experiment with nothing else behind
+// it reads pending and offers Configure again.
+const STAGE_ATTEMPT = ['queued', 'running', 'completed'];
+
+/** The attempt that decides an experiment's stage: its latest queued, running or completed one, or null. */
+export const stageAttempt = (state, experimentId) => state.attemptOrder.map(id => state.attempts[id])
+  .filter(a => a.experimentId === experimentId && STAGE_ATTEMPT.includes(a.status)).at(-1) ?? null;
+
+// Read top to bottom; the first rule that holds decides the stage. `a` is the stage attempt.
+const STAGE_RULES = [
+  [a => !a, 'pending'],
+  [a => a.status === 'queued', 'queued'],
+  [a => a.status === 'running', 'running'],
+  [a => !a.review, 'needs_review'],
+  [() => true, 'done'],
+];
+
+/** @returns {'pending'|'queued'|'running'|'needs_review'|'done'} */
+export const experimentStage = (state, experimentId) => {
+  const attempt = stageAttempt(state, experimentId);
+  return STAGE_RULES.find(([holds]) => holds(attempt))[1];
+};
+
+/** The recorded review of the stage attempt, or null. */
+export function experimentOutcome(state, experimentId) {
+  const review = stageAttempt(state, experimentId)?.review;
+  return review ? { decision: review.decision, label: REVIEW_LABEL[review.decision] } : null;
+}
+
+/** @returns {{ passed: boolean, checks: { id: string, label: string, passed: boolean, detail: string }[] }} */
+export function acceptanceVerdict(state, attemptId) {
+  const attempt = state.attempts[attemptId];
+  const { acceptance } = attempt.inputSnapshot.experiment;
+  const cmp = comparisonFor(state, attemptId);
+  const objective = objectiveComparison(attempt, state.executions[attemptId] ?? []);
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const checks = [
+    { id: 'complete', label: 'Every pair finished', passed: cmp.verdict !== 'inconclusive', detail: `${cmp.completePairs} of ${plural(cmp.expectedPairs, 'pair')} complete` },
+    acceptance.noRegression && { id: 'no-regression', label: 'No regressed pairs', passed: cmp.regressedPairs === 0, detail: `${cmp.regressedPairs} regressed` },
+    acceptance.minImprovedPairs > 0 && { id: 'min-improved', label: `At least ${plural(acceptance.minImprovedPairs, 'improved pair')}`, passed: cmp.improvedPairs >= acceptance.minImprovedPairs, detail: `${cmp.improvedPairs} improved` },
+    { id: 'objective', label: `${objective.label} no worse than baseline`, passed: objective.met, detail: `${objective.baselineText} → ${objective.variantText}` },
+  ].filter(Boolean);
+  return { passed: checks.every(c => c.passed), checks };
+}
+
+/** One line on how a completed attempt turned out, or null while it has no finished comparison. */
+export function attemptResultSummary(state, attemptId) {
+  const attempt = state.attempts[attemptId];
+  if (attempt.status !== 'completed') return null;
+  const cmp = comparisonFor(state, attemptId);
+  const objective = objectiveComparison(attempt, state.executions[attemptId] ?? []);
+  return {
+    text: `${objective.label} ${objective.baselineText} → ${objective.variantText} · ${cmp.improvedPairs} improved · ${cmp.regressedPairs} regressed`,
+    tone: acceptanceVerdict(state, attemptId).passed ? 'green' : cmp.regressedPairs > 0 ? 'red' : 'amber',
+  };
+}
+
+/** The result line of the attempt that decides the experiment's stage, or null. */
+export function experimentResultSummary(state, experimentId) {
+  const attempt = stageAttempt(state, experimentId);
+  return attempt && attemptResultSummary(state, attempt.id);
+}

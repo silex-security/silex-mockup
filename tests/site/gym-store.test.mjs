@@ -115,7 +115,7 @@ for (const [label, mutate] of Object.entries(corrupt)) {
     const text = JSON.stringify(data);
     const store = createStore({ storage: fakeStorage({ [STORAGE_KEY]: text }), seed: seedState });
     assert.deepEqual([store.persistence.mode, store.persistence.error?.code], ['memory', 'storage_inconsistent']);
-    assert.equal(store.getState().attemptOrder.length, 3, 'the session starts from the demo seed');
+    assert.equal(store.getState().attemptOrder.length, seedState().attemptOrder.length, 'the session starts from the demo seed');
   });
 }
 

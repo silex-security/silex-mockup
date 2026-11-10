@@ -55,7 +55,7 @@ test('the Runs page reads header, Release gate, Regression, then the queue; the 
   assert.equal(await gym.ev('return location.hash'), '#/runs?status=all&trigger=change');
   assert.deepEqual(await queueTitles(gym), ['Sales follow-up · Variant A']);
   await gym.go('#/runs?status=all&trigger=manual');
-  assert.deepEqual(await queueTitles(gym), ['Support triage comparison', 'Meeting scheduling'], 'the trigger filter survives a refresh');
+  assert.deepEqual(await queueTitles(gym), ['Support triage comparison', 'Refund timeout steps', 'Smaller model for refund replies', 'Duplicate-send guard', 'Meeting scheduling'], 'the trigger filter survives a refresh');
 
   for (const width of [390, 768, 1024]) {
     await gym.size(width, 900);
@@ -85,23 +85,24 @@ test('Run regression now adds the batch\'s attempts and a history row, and is he
   await gym.go('#/runs?status=all');
   assert.match(await gym.ev('return document.querySelector(".run-reg").innerText'), /No regression batch yet\./);
   const skipped = await gym.ev('return [...document.querySelectorAll(".run-reg__skipped li")].map(li => li.textContent)');
-  assert.deepEqual(skipped, ['Support triage comparison: rev 1 · attempt 1 is already queued', 'Experiment 029: Draft rev 4 has unsaved changes; save it in the workbench to include it']);
+  assert.deepEqual(skipped, ['Support triage comparison: rev 1 · attempt 1 is already queued', 'Experiment 029: Draft rev 4 has unsaved changes; save it in the workbench to include it',
+    'Opt-out wording check: Never saved', 'Meeting no-slot handling: Never saved']);
 
   const before = await gym.ev('return window.__gym.store.getState().attemptOrder.length');
   await click(gym, '[data-focus-key="reg:run"]');
   await click(gym, '[data-focus-key="reg:run"]');
   const state = await gym.ev(`const s = window.__gym.store.getState(); return { count: s.attemptOrder.length, last: s.attempts[s.attemptOrder.at(-1)].trigger, batches: s.regression.batches.length }`);
-  assert.deepEqual(state, { count: before + 1, last: { kind: 'regression', label: 'Regression batch 1', batchId: 'regression-1' }, batches: 1 }, 'the second press enqueues nothing');
+  assert.deepEqual(state, { count: before + 4, last: { kind: 'regression', label: 'Regression batch 1', batchId: 'regression-1' }, batches: 1 }, 'the second press enqueues nothing');
   const run = await gym.ev('const b = document.querySelector("[data-focus-key=\'reg:run\']"); return [b.getAttribute("aria-disabled"), b.title]');
-  assert.deepEqual(run, ['true', 'Regression batch 1 is still running: 0 of 12 runs finished']);
+  assert.deepEqual(run, ['true', 'Regression batch 1 is still running: 0 of 38 runs finished']);
   const history = await gym.ev(`return [...document.querySelectorAll('.run-reg__history tbody tr')].map(tr => [...tr.cells].map(td => td.innerText.trim().replace(/\\s+/g, ' ')))`);
-  assert.deepEqual(history, [['Batch 1 queue seq 4', 'Meeting scheduling 2 skipped', '0/12', '1 running', 'Show runs']]);
+  assert.deepEqual(history, [['Batch 1 queue seq 7', 'Duplicate-send guard Smaller model for refund replies Refund timeout steps Meeting scheduling 4 skipped', '0/38', '4 running', 'Show runs']]);
 
   const row = await gym.ev(`const tr = [...document.querySelectorAll('.run-list__row')].find(r => r.querySelector('td[data-label="Trigger"]').innerText.trim() === 'Regression batch 1'); return tr && tr.querySelector('.run-list__title').textContent`);
-  assert.equal(row, 'Meeting scheduling');
+  assert.equal(row, 'Duplicate-send guard', 'the first queued attempt of the batch, found by its trigger label');
   await click(gym, '[data-focus-key="reg:show:regression-1"]');
   assert.equal(await gym.ev('return location.hash'), '#/runs?status=all&trigger=regression');
-  assert.deepEqual(await queueTitles(gym), ['Meeting scheduling']);
+  assert.deepEqual(await queueTitles(gym), ['Duplicate-send guard', 'Smaller model for refund replies', 'Refund timeout steps', 'Meeting scheduling'], 'queued in batch order');
 
   await gym.ev(`const s = document.querySelector('[data-focus-key="reg:cadence"]'); s.value = 'quarterly'; s.dispatchEvent(new Event('change', { bubbles: true })); ${frame}`);
   assert.equal(await gym.ev('return window.__gym.store.getState().regression.cadence'), 'quarterly');

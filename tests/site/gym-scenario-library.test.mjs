@@ -43,17 +43,17 @@ test('the library lists the seeded sets with condition coverage, named gaps and 
     ['Generate variations', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&mode=prompt'],
   ]);
   assert.equal(page.truth, 'Generated variations are proposals until an expert reviews them. Only reviewed scenarios run.');
-  assert.equal(page.count, '3 saved sets · 17 scenarios');
+  assert.equal(page.count, '4 saved sets · 25 scenarios');
 
-  const [followUp, meeting, refund] = await cards(gym);
-  assert.deepEqual([followUp.name, meeting.name, refund.name], ['Follow-up resilience', 'Meeting scheduling', 'Refund triage']);
+  const [followUp, meeting, refundV2, refund] = await cards(gym);
+  assert.deepEqual([followUp.name, meeting.name, refundV2.name, refund.name], ['Follow-up resilience', 'Meeting scheduling', 'Refund triage v2', 'Refund triage']);
   assert.equal(followUp.meta, 'Sales follow-up · Sales operations v1.2 · 3 scenarios');
   assert.deepEqual(followUp.coverage, { prompt: 'No prompt scenario', tool_failure: '1 scenario', permission: 'No permission scenario', data_state: '1 scenario' });
   assert.deepEqual(followUp.gaps, [
     '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&mode=prompt',
     '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&mode=permission',
   ]);
-  assert.match(followUp.evidence, /No completed run of this set yet\. Sales follow-up · Variant A is running \(12\/18\)\. Open run/);
+  assert.match(followUp.evidence, /Verdict Pass Duplicate-send guard · rev 2 · attempt 1 .*Timeout after send 0\/1 1\/1.*Sales follow-up · Variant A is running \(12\/18\)\. Open run/, 'the finished Duplicate-send guard run and the live Sales follow-up run');
   assert.deepEqual(followUp.use, ['true', 'Experiment 029 already uses this set.']);
   assert.deepEqual(meeting.coverage, { prompt: '3 scenarios', tool_failure: 'No tool failure scenario', permission: '1 scenario', data_state: '1 scenario' });
   assert.match(meeting.evidence, /Verdict Pass Meeting scheduling · rev 2 · attempt 1 .*SCENARIO BASELINE VARIANT Book intro call 1\/1 1\/1 No free slot 1\/1 1\/1/);
@@ -62,7 +62,7 @@ test('the library lists the seeded sets with condition coverage, named gaps and 
   assert.deepEqual(refund.gaps, []);
 
   await gym.ev(`const input = document.querySelector('${byKey('lib:search')}'); input.focus(); input.value = 'refund'; input.dispatchEvent(new Event('input', { bubbles: true })); ${frame}`);
-  assert.deepEqual((await cards(gym)).map(c => c.name), ['Refund triage']);
+  assert.deepEqual((await cards(gym)).map(c => c.name), ['Refund triage v2', 'Refund triage']);
   assert.equal(await gym.ev('return document.activeElement.dataset.focusKey'), 'lib:search', 'typing keeps focus in the search');
 
   for (const width of [320, 390, 768]) {

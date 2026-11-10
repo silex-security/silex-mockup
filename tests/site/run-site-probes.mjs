@@ -1202,13 +1202,13 @@ try {
     const at=(view,route)=>until(async()=>(await ev('return document.querySelector(".view.active").id'))===view&&(await ge('return w.location.hash'))===route,`${view} at ${route}`);
     await load({path:'/index.html#view=gym'});
     await until(()=>ev('return !!document.querySelector("#gymFrame")?.contentWindow?.__gym?.ready'),'gym frame ready',30000);
-    await at('gym','#/workbench/exp-029');
-    assert.equal(await ev('return document.querySelector("#gymFrame").getAttribute("src")'),'agent-gym/index.html?embed=1#/workbench/exp-029');
+    await at('gym','#/experiments');
+    assert.equal(await ev('return document.querySelector("#gymFrame").getAttribute("src")'),'agent-gym/index.html?embed=1#/experiments');
     assert.deepEqual(await ge('return [!!w.document.querySelector(".gym-header"),w.document.querySelector(".gym-sections__link[aria-current]").textContent]'),[false,'Workbench'],'embedded: no product header, the Workbench tab marked');
     const fill=await ev('const r=document.querySelector("#gymFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
     assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
     await ge('window.__probeDoc=w.document;return true');
-    const roots={gym:'#/workbench/exp-029','gym-environments':'#/environments','gym-scenarios':'#/scenarios','gym-runs':'#/runs?status=all'};
+    const roots={gym:'#/experiments','gym-environments':'#/environments','gym-scenarios':'#/scenarios','gym-runs':'#/runs?status=all'};
     const crumbs={gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results'};
     for(const view of ['gym-environments','gym-scenarios','gym-runs','gym']){
       await nav(view);await at(view,roots[view]);
@@ -1219,7 +1219,7 @@ try {
     await nav('library');assert.equal(await ev('return document.querySelector("#gymFrameWrap").hidden'),true,'the frame hides with the other views');
     await nav('gym-runs');await at('gym-runs','#/runs?status=all');
     assert.equal(await ge('return w.document===window.__probeDoc'),true,'switching views never reloads the frame');
-    await nav('gym');await at('gym','#/workbench/exp-029');
+    await nav('gym');await at('gym','#/experiments');
     await ge(`[...w.document.querySelectorAll('.gym-main a, .gym-main button')].find(e=>e.textContent.trim()==='View all runs').click();return true`);
     await at('gym-runs','#/runs?status=all');
     assert.deepEqual(await active(),['gym-runs','gym-runs','Runs & Results','gym'],'an in-app link moves the sidebar highlight');

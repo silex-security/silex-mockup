@@ -35,14 +35,19 @@ test('the gate state table: each combination of run status, verdict and review g
   assert.equal(gateState(cases[8][0]).reason, 'Reviewed Needs iteration');
 });
 
-test('the seeded gate: Sales follow-up is running a run frozen before its draft changed; Meeting scheduling awaits review', () => {
+test('the seeded gate: Sales follow-up is running a run frozen before its draft changed; Meeting scheduling awaits review; three reviewed runs and two unsaved drafts', () => {
   const rows = releaseGateRows(seedState());
   assert.deepEqual(rows.map(r => [r.experimentId, r.gate.label, r.gate.reason, r.attempt?.id, r.draftChanged]), [
+    ['exp-031', 'Not run', 'Never saved', undefined, false],
+    ['exp-030', 'Not run', 'Never saved', undefined, false],
     ['exp-029', 'Running', '12/18 executions finished', 'attempt-002', true],
     ['exp-028', 'Running', 'Queued', 'attempt-003', false],
     ['exp-027', 'Needs review', 'Pass verdict; not reviewed yet', 'attempt-001', false],
+    ['exp-026', 'Blocked', 'Reviewed Needs iteration', 'attempt-006', false],
+    ['exp-025', 'Blocked', 'Reviewed Reject', 'attempt-005', false],
+    ['exp-024', 'Cleared for demo', 'Pass verdict; reviewed Pass for demo', 'attempt-004', false],
   ]);
-  assert.equal(rows[0].change.text, 'Model configuration change on Draft email');
+  assert.equal(rows.find(r => r.experimentId === 'exp-029').change.text, 'Model configuration change on Draft email');
 });
 
 test('a completed pass needs review, then reads Cleared for demo after Pass for demo, and Blocked after Needs iteration', () => {

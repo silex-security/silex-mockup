@@ -146,5 +146,6 @@ const set = (id, name, environmentRef, workflowRef, scenarios) => {
 export const SCENARIO_SETS = Object.freeze([
   set('set-follow-up-resilience', FOLLOW_UP, { id: 'env-sales', rev: '1.2' }, { id: 'wf-sales-follow-up', rev: '1' }, followUp),
   set('set-refund-triage', SUPPORT, { id: 'env-support', rev: '1.2' }, { id: 'wf-support-triage', rev: '1' }, support),
+  set('set-refund-triage-v2', `${SUPPORT} v2`, { id: 'env-support', rev: '1.2' }, { id: 'wf-support-triage', rev: '2' }, support),
   set('set-meeting-scheduling', MEETING, { id: 'env-sales', rev: '1.2' }, { id: 'wf-meeting-scheduling', rev: '1' }, meeting),
 ]);

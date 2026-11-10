@@ -42,7 +42,7 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
     const cols = $$('.wb-cols > *').map(c => c.getBoundingClientRect().width);
     const total = cols.reduce((a, b) => a + b, 0);
     return {
-      h1: txt($('.gym-main h1')), sub: txt($('.gym-pagehead__subtitle')), runs: $('.wb-head a').getAttribute('href'),
+      h1: txt($('.gym-main h1')), sub: txt($('.gym-pagehead__subtitle')), runs: $('.wb-head .gym-pagehead__actions a').getAttribute('href'),
       share: cols.map(w => Math.round(w / total * 100)),
       envs: $$('.wb-env').map(e => txt(e.querySelector('.wb-env__name'))), selected: txt($('.wb-env.is-selected .wb-env__name')),
       chips: $$('.wb-env.is-selected .wb-capchip').map(txt), notes: txt($('.wb-env.is-selected .wb-env__notes')),
@@ -87,11 +87,13 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
   assert.deepEqual([v.selCount, v.checked], ['3 selected', 3]);
   assert.deepEqual(v.scenarios, ['Base case', 'Timeout after send', 'Contact opted out']);
   assert.equal(v.opened, 'Initial state: opted out Expected: skip email; log reason');
-  assert.deepEqual(v.counts, ['1 running', '1 queued', '1 completed']);
+  assert.deepEqual(v.counts, ['1 running', '1 queued', '4 completed'], 'the queue lists every experiment\'s attempts, not only this one\'s');
   assert.deepEqual(v.rows, [
     ['Sales follow-up · Variant A, rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18'],
     ['Support triage comparison, rev 1 · attempt 1', 'Customer support', '8', 'Queued', '–'],
-    ['Meeting scheduling, rev 2 · attempt 1', 'Sales operations', '6', 'Completed, every run finished; open results to see which checks passed', 'View results'],
+    ...[['Refund timeout steps', 'Customer support', '2', 1, 'Steps per run 8.5 → 9.0 · 2 improved · 0 regressed Needs iteration'], ['Smaller model for refund replies', 'Customer support', '3', 1, 'Success rate 100% → 67% · 0 improved · 2 regressed Reject'],
+      ['Duplicate-send guard', 'Sales operations', '3', 2, 'Policy violations 1 → 0 · 1 improved · 0 regressed Pass for demo'], ['Meeting scheduling', 'Sales operations', '6', 2, 'Success rate 100% → 100% · 0 improved · 0 regressed']]
+      .map(([title, env, n, rev, result]) => [`${title}, rev ${rev} · attempt 1`, env, n, 'Completed, every run finished; open results to see which checks passed', `${result} View results`]),
   ]);
   assert.equal(v.progress, '12/18');
   assert.equal(v.replay, null, 'a recorded execution exists, so Run replay is available');
@@ -272,7 +274,7 @@ test('Run validates, saves, freezes and enqueues once per draft revision; Save o
   assert.deepEqual([run.key, run.label, run.status, run.plan, run.title, run.saved], ['wb-exp-029-r5', 'rev 5 · attempt 2', 'queued', 18, 'Experiment 029 · retry', 5]);
   assert.equal(run.flash, 'rev 5 · attempt 2 is already in the queue for this revision. It can run again once that attempt finishes or is cancelled. Open run');
   assert.deepEqual(run.row, ['Experiment 029 · retry, rev 5 · attempt 2', 'Sales operations', '3', 'Queued', '–']);
-  assert.deepEqual(run.counts, ['1 running', '2 queued', '1 completed']);
+  assert.deepEqual(run.counts, ['1 running', '2 queued', '4 completed']);
 
   const edit = await page(`$('.wb-scenario[data-scenario="sc-base-case"] input').click(); await frame();
     const frozen = S().attempts[S().attemptOrder.at(-1)].inputSnapshot.scenarios.length; return [E().selectedScenarioIds.length, frozen, E().draftRevision];`);
@@ -363,7 +365,7 @@ test('entry points carry their context to the other screens', async t => withGym
     ['Describe scenario', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&source=chat'],
     ['Generate variations', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&mode=prompt'],
   ]);
-  assert.equal(links.results, '#/experiments/exp-027/attempts/attempt-001/results');
+  assert.equal(links.results, '#/experiments/exp-026/attempts/attempt-006/results', 'the first View results link is the newest finished attempt');
   await page(`$$('.wb-qrow')[1].cells[2].click(); await frame();`);
   assert.equal(await page(`return location.hash`), '#/experiments/exp-028/attempts/attempt-003', 'a row click opens that attempt');
   await gym.ev(`history.back(); await new Promise(r => setTimeout(r, 150));`);
@@ -375,7 +377,7 @@ test('the workflow selector lists fixture workflows and switching keeps the draf
     const options = [...sel.options].map(o => o.textContent);
     sel.value = 'wf-support-triage@1'; sel.dispatchEvent(new Event('change', { bubbles: true })); await frame();
     return { options, wf: E().workflowRef.id, variant: E().variantId, name: txt($('.wb-workflow__name')), nodes: $$('.wb-node .wb-node__label').map(txt), selected: $$('.wb-node[aria-pressed="true"]').map(n => n.dataset.node) };`);
-  assert.deepEqual(v.options, ['Sales follow-up · From Speedrun · fixture', 'Support triage · From Speedrun · fixture', 'Meeting scheduling · From Speedrun · fixture']);
+  assert.deepEqual(v.options, ['Sales follow-up · From Speedrun · fixture', 'Support triage · From Speedrun · fixture', 'Support triage v2 · From Speedrun · fixture', 'Meeting scheduling · From Speedrun · fixture']);
   assert.deepEqual([v.wf, v.variant, v.name], ['wf-support-triage', 'variant-support-a', 'Support triage']);
   assert.deepEqual(v.nodes, ['Read ticket', 'Draft reply', 'Refund eligible?', 'Issue refund', 'Reply to customer', 'Tag not eligible']);
   assert.deepEqual(v.selected, ['draft-reply']);

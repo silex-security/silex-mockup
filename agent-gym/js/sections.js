@@ -6,7 +6,7 @@
 import { href, DEFAULT_ROUTE } from './router.js';
 
 export const SECTIONS = Object.freeze([
-  { id: 'workbench', label: 'Workbench', root: href(DEFAULT_ROUTE.name, DEFAULT_ROUTE.params), routes: ['workbench'] },
+  { id: 'workbench', label: 'Workbench', root: href(DEFAULT_ROUTE.name, DEFAULT_ROUTE.params), routes: ['experiment-queue', 'workbench'] },
   { id: 'environments', label: 'Environments', root: href('environment-library'), routes: ['environment-library', 'environment-builder', 'environment-revision'] },
   { id: 'scenarios', label: 'Scenarios', root: href('scenario-library'), routes: ['scenario-library', 'scenario-builder', 'scenario-set'] },
   { id: 'runs', label: 'Runs & results', root: href('run-list', {}, { status: 'all' }), routes: ['run-list', 'run-detail', 'results'] },

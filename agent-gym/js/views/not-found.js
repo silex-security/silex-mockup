@@ -6,7 +6,7 @@ export function mount(root, ctx) {
     children: emptyState({
       icon: 'search', title: 'Page not found',
       text: 'This link does not match an Agent Gym screen, or it names an object that cannot exist.',
-      action: button({ label: 'Back to the workbench', variant: 'primary', href: ctx.router.href('workbench', { experimentId: 'exp-029' }) }),
+      action: button({ label: 'Back to the experiment queue', variant: 'primary', href: ctx.router.href('experiment-queue') }),
     }),
   })));
   return { update() {}, destroy() { root.replaceChildren(); } };

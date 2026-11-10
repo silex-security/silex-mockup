@@ -1,7 +1,7 @@
 // Page furniture shared by the run list, run detail and results views.
 import { h } from '../components/dom.js';
 import { badge, button, columns, emptyState, pageHeader, panel } from '../components/ui.js';
-import { REVIEW_LABEL } from './facts.js';
+import { REVIEW_LABEL } from '../model.js';
 
 export const EVIDENCE = 'Simulated evidence · Not deployed';
 export const evidenceTag = () => badge({ label: EVIDENCE, tone: 'gray', icon: 'shield', class: 'run-evidence' });
@@ -14,7 +14,7 @@ export function grid(template, children, cls) {
 }
 
 export const runsCrumbs = (router, ...rest) => [
-  { label: 'Agent Gym', href: router.href('workbench', { experimentId: 'exp-029' }) },
+  { label: 'Agent Gym', href: router.href('experiment-queue') },
   { label: 'Runs', href: router.href('run-list', {}, { status: 'all' }) },
   ...rest,
 ];

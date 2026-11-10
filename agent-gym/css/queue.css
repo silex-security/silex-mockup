@@ -1,0 +1,53 @@
+/* Experiment queue (xq-): summary cards, stage tabs and the experiment table. The table reuses the Runs list's look. */
+.gym-app .xq-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+.gym-app .xq-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: baseline; padding: 14px 16px; }
+.gym-app .xq-card__label { display: inline-flex; align-items: center; gap: 8px; color: var(--gym-ink-2); font-size: var(--gym-fs-md); font-weight: 600; }
+.gym-app .xq-card__count { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: var(--gym-fs-2xl); line-height: 1; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.gym-app .xq-card__detail { grid-column: 1; color: var(--gym-muted); font-size: var(--gym-fs-sm); overflow-wrap: anywhere; }
+.gym-app .xq-card__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gym-gray-dot); }
+.gym-app .xq-card__dot--running { background: var(--gym-primary); }
+.gym-app .xq-card__dot--needs_review { background: var(--gym-amber-dot); }
+
+.gym-app .xq-list .gym-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.gym-app .xq-list .gym-panel__actions { max-width: 100%; }
+.gym-app .xq-search { width: 260px; max-width: 100%; }
+.gym-app .xq-filter { flex-wrap: wrap; max-width: 100%; }
+.gym-app .xq-wrap { position: relative; max-width: 100%; overflow-x: auto; }
+.gym-app .xq-table th, .gym-app .xq-table td { padding-left: 10px; padding-right: 10px; }
+.gym-app .xq-row { cursor: pointer; }
+.gym-app .xq-row:hover td { background: var(--gym-surface-2); }
+.gym-app .xq-exp { display: flex; flex-direction: column; gap: 3px; min-width: 190px; }
+.gym-app .xq-exp__top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.gym-app .xq-exp__id { color: var(--gym-muted); font-size: var(--gym-fs-xs); }
+.gym-app .xq-exp__flow { display: inline-flex; align-items: center; gap: 5px; color: var(--gym-muted); font-size: var(--gym-fs-sm); }
+.gym-app .xq-source { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 150px; }
+.gym-app .xq-source small, .gym-app .xq-wait small { color: var(--gym-muted); font-size: var(--gym-fs-xs); line-height: 1.35; }
+.gym-app .xq-wait { display: flex; flex-direction: column; gap: 2px; }
+.gym-app .xq-progress { min-width: 130px; }
+.gym-app .xq-result { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 190px; }
+.gym-app .xq-result__text { font-size: var(--gym-fs-sm); font-weight: 500; line-height: 1.4; }
+.gym-app .xq-result__text--green { color: var(--gym-green); }
+.gym-app .xq-result__text--amber { color: var(--gym-amber); }
+.gym-app .xq-result__text--red { color: var(--gym-red); }
+.gym-app .xq-activity { color: var(--gym-ink-2); font-size: var(--gym-fs-sm); white-space: nowrap; }
+
+@media (max-width: 899.98px) { .gym-app .xq-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 479.98px) { .gym-app .xq-cards { grid-template-columns: minmax(0, 1fr); } .gym-app .xq-search { width: 100%; } }
+
+/* Seven columns need about 1250px; below that each experiment becomes a labelled card, so no column hides. */
+@media (max-width: 1279.98px) {
+  .gym-app .xq-table thead { display: none; }
+  .gym-app .xq-table, .gym-app .xq-table tbody { display: block; }
+  .gym-app .xq-table tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px; padding: 14px 4px; border-bottom: 1px solid var(--gym-line); }
+  .gym-app .xq-table tbody tr:last-child { border-bottom: 0; }
+  .gym-app .xq-table td { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 0; border: 0; min-width: 0; background: none; }
+  .gym-app .xq-table td::before { content: attr(data-label); color: var(--gym-muted); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .gym-app .xq-table td[data-label="Experiment"], .gym-app .xq-table td[data-label="Progress or result"] { grid-column: 1 / -1; }
+  .gym-app .xq-table td[data-label="Experiment"]::before, .gym-app .xq-table td[data-label="Action"]::before { content: none; }
+  .gym-app .xq-exp, .gym-app .xq-source, .gym-app .xq-result { min-width: 0; }
+  .gym-app .xq-progress { min-width: 0; width: 100%; }
+  .gym-app .xq-list .gym-panel__head { flex-wrap: wrap; }
+}
+@media (min-width: 900px) and (max-width: 1279.98px) {
+  .gym-app .xq-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

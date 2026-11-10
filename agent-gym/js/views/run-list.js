@@ -46,7 +46,8 @@ export function mount(root, ctx) {
       cell('Environment', h('span', { class: 'run-list__env' }, icon(r.environmentIcon, { size: 18 }), r.environmentName)),
       cell('Scenarios', String(r.scenarioCount)),
       cell('Status', h('span', { class: 'gym-row run-list__status' }, statusBadges(r))),
-      cell('Progress', progress({ value: r.progress.done, max: r.progress.total, label: `${r.title} progress`, text: r.progress.text, class: 'run-list__progress' })),
+      cell('Progress', progress({ value: r.progress.done, max: r.progress.total, label: `${r.title} progress`, text: r.progress.text, class: 'run-list__progress' }),
+        r.result && h('span', { class: `run-list__result run-list__result--${r.result.tone}` }, r.result.text)),
       cell('Review decision', reviewBadge(state.attempts[r.attemptId].review)),
       cell('Action', r.canViewResults
         ? button({ label: 'View results', variant: 'link', iconRight: 'arrow-right', focusKey: `runs:results:${r.attemptId}`, href: router.href('results', params) })
@@ -150,7 +151,7 @@ export function mount(root, ctx) {
       pageHeader({
         title: 'Runs', subtitle: 'Every simulated experiment attempt, frozen at the revision it ran.',
         breadcrumb: runsCrumbs(router).slice(0, 1).concat({ label: 'Runs' }),
-        actions: button({ label: 'Back to workbench', variant: 'outline', icon: 'arrow-left', focusKey: 'runs:workbench', href: router.href('workbench', { experimentId: 'exp-029' }) }),
+        actions: button({ label: 'Back to experiments', variant: 'outline', icon: 'arrow-left', focusKey: 'runs:workbench', href: router.href('experiment-queue') }),
       }),
       h('div', { class: 'run-panels' }, gatePanel(state), regressionPanel(state)),
       panel({

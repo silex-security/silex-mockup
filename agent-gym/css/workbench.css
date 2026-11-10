@@ -268,3 +268,32 @@
   .gym-app .wb-qtable td, .gym-app .wb-qtable th { padding-left: 10px; padding-right: 10px; }
 }
 .gym-app .wb-entry { white-space: normal; }
+
+/* What changes, and experiment settings */
+.gym-app .wb-changes { margin-bottom: 12px; padding: 12px 16px; }
+.gym-app .wb-changes--none { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.gym-app .wb-changes__empty { display: inline-flex; align-items: center; gap: 8px; color: var(--gym-muted); font-size: var(--gym-fs-md); }
+.gym-app .wb-changes__head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+.gym-app .wb-changes__title { font-size: var(--gym-fs-lg); font-weight: 600; }
+.gym-app .wb-changes__versions { font-weight: 700; overflow-wrap: anywhere; }
+.gym-app .wb-changes__wrap { max-width: 100%; overflow-x: auto; }
+.gym-app .wb-changes__table { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-sm); }
+.gym-app .wb-changes__table th, .gym-app .wb-changes__table td { padding: 5px 10px; text-align: left; border-bottom: 1px solid var(--gym-line); vertical-align: baseline; }
+.gym-app .wb-changes__table thead th { color: var(--gym-ink-2); font-size: var(--gym-fs-xs); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.gym-app .wb-changes__table tbody th { font-weight: 600; }
+.gym-app .wb-changes__table tbody tr:last-child > * { border-bottom: 0; }
+.gym-app .wb-changes__table code { font-family: var(--gym-mono); font-size: var(--gym-fs-xs); overflow-wrap: anywhere; }
+.gym-app .wb-changes__table td.is-changed { background: var(--gym-amber-soft); color: var(--gym-amber); font-weight: 600; }
+.gym-app .wb-changes__table td.is-changed + td.is-changed { background: var(--gym-green-soft); color: var(--gym-green); }
+.gym-app .wb-settings { padding: 12px 16px; }
+.gym-app .wb-settings__head h3 { font-size: var(--gym-fs-lg); font-weight: 600; }
+.gym-app .wb-settings__head p { color: var(--gym-muted); font-size: var(--gym-fs-sm); margin: 2px 0 10px; }
+.gym-app .wb-settings__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 16px; align-items: start; }
+.gym-app .wb-settings__accept { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.gym-app .wb-settings__accept legend { padding: 0; margin-bottom: 6px; color: var(--gym-ink-2); font-size: var(--gym-fs-sm); font-weight: 600; }
+@media (max-width: 899.98px) { .gym-app .wb-settings__grid { grid-template-columns: 1fr; } }
+.gym-app .wb-qconclusion { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.gym-app .wb-qsummary { font-size: var(--gym-fs-xs); line-height: 1.35; }
+.gym-app .wb-qsummary--green { color: var(--gym-green); }
+.gym-app .wb-qsummary--amber { color: var(--gym-amber); }
+.gym-app .wb-qsummary--red { color: var(--gym-red); }

@@ -9,6 +9,8 @@ import { defaultExecutionKey, findExecution, matrixView, parseExecutionKey } fro
 import { initialCursor, replayFrame, replayReducer } from '../runs/replay.js';
 import { blueprintDiagram, paintBlueprint } from '../runs/blueprint.js';
 import { assertionList, finalStateView, nodeLabelsOf, paintTrace, traceList } from '../runs/trace.js';
+import { stepIndicator } from '../components/steps.js';
+import { experimentSteps } from '../experiments/steps.js';
 import { attemptNotFound, evidenceTag, grid, reviewBadge, runsCrumbs, statusBadges } from '../runs/page.js';
 
 const TICK_MS = 650;
@@ -222,6 +224,7 @@ export function mount(root, ctx) {
         actions: headerActions(attempt, facts),
         meta: [statusBadges(facts, afterRefresh ? 'Paused after refresh' : 'Paused'), facts.review && reviewBadge(facts.review)],
       }),
+      stepIndicator({ steps: experimentSteps(state, attempt.experimentId, route), router }),
       afterRefresh && notice({
         tone: 'warning', class: 'run-notice', title: 'Paused after refresh.',
         text: 'The simulation stopped when the page reloaded. Finished executions are kept; nothing runs until you resume.',

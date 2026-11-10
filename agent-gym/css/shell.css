@@ -333,3 +333,23 @@
   .gym-app .gym-nav__link:not([aria-current="page"]) span { display: none; }
   .gym-app .gym-workspace { min-width: 0; }
 }
+
+/* Configure, Run, Review */
+.gym-app .gym-steps { margin: 0 0 12px; }
+.gym-app .gym-steps__list { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.gym-app .gym-steps__item { display: flex; align-items: center; min-width: 0; }
+.gym-app .gym-steps__item + .gym-steps__item::before { content: ''; width: 28px; height: 2px; margin: 0 6px; background: var(--gym-line-strong); border-radius: 2px; flex: none; }
+.gym-app .gym-steps__item.is-done + .gym-steps__item::before, .gym-app .gym-steps__item.is-current + .gym-steps__item::before { background: var(--gym-primary-line); }
+.gym-app .gym-steps__link { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 6px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill); background: var(--gym-surface); color: var(--gym-ink-2); font-size: var(--gym-fs-md); font-weight: 600; text-decoration: none; }
+.gym-app a.gym-steps__link:hover { border-color: var(--gym-primary-line); background: var(--gym-primary-softer); }
+.gym-app .gym-steps__marker { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gym-gray-soft); color: var(--gym-gray); font-size: var(--gym-fs-xs); font-weight: 700; flex: none; }
+.gym-app .gym-steps__text { display: inline-flex; flex-direction: column; line-height: 1.2; }
+.gym-app .gym-steps__detail { color: var(--gym-muted); font-size: 11px; font-weight: 500; }
+.gym-app .gym-steps__item.is-done .gym-steps__marker { background: var(--gym-green-soft); color: var(--gym-green); }
+.gym-app .gym-steps__item.is-current .gym-steps__link { border-color: var(--gym-primary); background: var(--gym-primary-soft); color: var(--gym-primary-ink); box-shadow: inset 0 0 0 1px var(--gym-primary-line); }
+.gym-app .gym-steps__item.is-current .gym-steps__marker { background: var(--gym-primary); color: #fff; }
+.gym-app span.gym-steps__link[aria-disabled="true"] { color: var(--gym-faint); background: var(--gym-surface-2); cursor: not-allowed; }
+@media (max-width: 479.98px) {
+  .gym-app .gym-steps__item + .gym-steps__item::before { width: 12px; margin: 0 2px; }
+  .gym-app .gym-steps__link { padding-right: 9px; gap: 6px; font-size: var(--gym-fs-sm); }
+}

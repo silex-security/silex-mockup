@@ -172,3 +172,12 @@ export function replayView(state, experimentId, query, versionId) {
     blueprint: snapshotBlueprint(snapshot, execution.versionId, execution.scenarioId),
   };
 }
+
+/** What the variant changes: every field of each changed step, with the ones that differ marked. Null without a variant. */
+export function changeSet(state, experimentId) {
+  const diff = nodeDiff(state, experimentId);
+  if (!diff) return null;
+  const workflow = workflowOf(state, experimentOf(state, experimentId));
+  const rows = diff.rows.filter(r => r.changed).flatMap(r => r.fields.map(f => ({ nodeId: r.id, node: r.label, field: f.key, baseline: f.baseline, variant: f.variant, changed: f.changed })));
+  return { baselineLabel: `${workflow.name} · rev ${workflow.rev}`, variantLabel: diff.variantName, rows, changeCount: rows.filter(r => r.changed).length };
+}

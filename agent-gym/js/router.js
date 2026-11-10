@@ -15,20 +15,23 @@
 //     start() -> stop                          listen for hashchange and put the default route on an empty hash
 //   }
 //
-// Query values are view state, so they are kept only when they match a conservative pattern. `returnTo` is an
+// Query values are view state, so they are kept only when they match a conservative pattern (or, for a key the route
+// names, that route's own validator). `returnTo` is an
 // experiment id and nothing else. A URL can never pass, because ids have no ':' or '/'.
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 const QUERY_KEY = /^[A-Za-z][A-Za-z0-9]{0,31}$/;
 const QUERY_VALUE = /^[A-Za-z0-9][A-Za-z0-9._@,-]{0,127}$/;
 
-export const DEFAULT_ROUTE = Object.freeze({ name: 'workbench', params: Object.freeze({ experimentId: 'exp-029' }), query: Object.freeze({}) });
+export const DEFAULT_ROUTE = Object.freeze({ name: 'experiment-queue', params: Object.freeze({}), query: Object.freeze({}) });
 
 const oneOf = (...values) => v => values.includes(v);
+const isSearch = v => /^[A-Za-z0-9][A-Za-z0-9 ._@,-]{0,63}$/.test(v);
 const isId = v => ID.test(v);
 const isRef = v => { const i = v.lastIndexOf('@'); return i > 0 && isId(v.slice(0, i)) && isId(v.slice(i + 1)); };
 
 export const ROUTES = Object.freeze([
+  { name: 'experiment-queue', path: '/experiments', query: { status: oneOf('all', 'pending', 'queued', 'running', 'needs_review', 'done'), q: isSearch } },
   { name: 'workbench', path: '/workbench/:experimentId' },
   { name: 'environment-library', path: '/environments' },
   { name: 'environment-builder', path: '/environments/new', query: { focus: oneOf('describe') } },
@@ -49,9 +52,10 @@ function cleanQuery(route, entries) {
   for (const [key, value] of entries) {
     if (value == null || value === '') continue;
     const text = String(value);
-    if (!QUERY_KEY.test(key) || !QUERY_VALUE.test(text)) continue;
+    if (!QUERY_KEY.test(key)) continue;
+    const own = route.query[key];
+    if (own ? !own(text) : !QUERY_VALUE.test(text)) continue;
     if (key === 'returnTo' && !isId(text)) continue;
-    if (route.query[key] && !route.query[key](text)) continue;
     query[key] = text;
   }
   return query;

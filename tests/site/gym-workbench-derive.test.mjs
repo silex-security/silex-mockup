@@ -5,7 +5,7 @@ import { seedState, fixtureState } from '../../agent-gym/js/fixtures/index.js';
 import { experimentSummary } from '../../agent-gym/js/selectors.js';
 import { advanceAttempt, cancelAttempt, clearScenarioSelection, enqueueAttempt, renameExperiment, setEnvironment, setScenarioSet, toggleScenario } from '../../agent-gym/js/simulation/attempts.js';
 import {
-  attemptByKey, missingDependencies, nodeDetail, nodeDiff, replayView, revisionNote, runKey, scenarioBuilderQuery, selectedNodeId, viewedVersion,
+  attemptByKey, changeSet, missingDependencies, nodeDetail, nodeDiff, replayView, revisionNote, runKey, scenarioBuilderQuery, selectedNodeId, viewedVersion,
 } from '../../agent-gym/js/workbench/derive.js';
 
 const EXP = 'exp-029';
@@ -130,4 +130,23 @@ test('a five-scenario set put on the experiment by another screen recomputes the
 
 test('scenario builder entries carry the experiment environment and workflow', () => {
   assert.deepEqual(scenarioBuilderQuery(seedState(), EXP, { source: 'trace' }), { environment: 'env-sales@1.2', workflow: 'wf-sales-follow-up', source: 'trace' });
+});
+
+test('the change set lists every field of each changed step and marks the ones that differ between the two versions', () => {
+  const set = changeSet(seedState(), EXP);
+  assert.deepEqual([set.baselineLabel, set.variantLabel, set.changeCount], ['Sales follow-up · rev 1', 'Variant A', 2]);
+  assert.deepEqual(set.rows.map(r => [r.node, r.field, r.baseline, r.variant, r.changed]), [
+    ['Draft email', 'model', 'simulated-model-baseline', 'simulated-model-variant-a', true],
+    ['Draft email', 'timeoutRecovery', 'retry_new_key', 'check_status_reuse_key', true],
+    ['Draft email', 'tone', 'concise', 'concise', false],
+  ]);
+  assert.equal(set.changeCount, set.rows.filter(r => r.changed).length);
+  const noVariant = { ...seedState(), experiments: { ...seedState().experiments, [EXP]: { ...seedState().experiments[EXP], variantId: null } } };
+  assert.equal(changeSet(noVariant, EXP), null, 'no variant, nothing to compare');
+});
+
+test('the change set follows the variant the experiment uses', () => {
+  const small = changeSet(seedState(), 'exp-025');
+  assert.deepEqual([small.baselineLabel, small.variantLabel, small.changeCount], ['Support triage v2 · rev 2', 'Small model', 2]);
+  assert.deepEqual(small.rows.find(r => r.field === 'timeoutRecovery'), { nodeId: 'draft-reply', node: 'Draft reply', field: 'timeoutRecovery', baseline: 'check_status_reuse_key', variant: 'stop', changed: true });
 });

@@ -211,8 +211,8 @@ test('a new attempt never reuses an existing attempt id, even when seq lags behi
   const s = { ...seedState(), seq: 0 };
   assert.ok(!(freezeAttempt(s, EXP, 'k').id in s.attempts));
   const next = enqueue(s, EXP, 'k');
-  assert.equal(next.attemptOrder.length, 4);
-  assert.equal(new Set(next.attemptOrder).size, 4);
+  assert.equal(next.attemptOrder.length, s.attemptOrder.length + 1);
+  assert.equal(new Set(next.attemptOrder).size, next.attemptOrder.length);
   assert.equal(next.attempts['attempt-001'].title, s.attempts['attempt-001'].title, 'the existing attempt is untouched');
 });
 

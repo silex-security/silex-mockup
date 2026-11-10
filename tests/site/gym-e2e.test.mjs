@@ -35,7 +35,7 @@ test('a new environment and a new scenario set reach the workbench only by choic
     const start = await run(gym, 'return main();');
     assert.match(start, /2 versions × 3 scenarios × 3 repetitions = 18 runs/);
     assert.match(start, /Dependencies matched/);
-    assert.match(start, /1 running.*1 queued.*1 completed/);
+    assert.match(start, /1 running.*1 queued.*4 completed/, 'the workbench queue counts every experiment\'s attempts');
 
     await run(gym, `await press('Create', document.querySelector('.wb-env, #gym-main'));`);
     assert.match(await gym.ev('return location.hash'), /^#\/environments\/new\?.*returnTo=exp-029/);
@@ -90,7 +90,7 @@ test('a new environment and a new scenario set reach the workbench only by choic
     await gym.go('#/workbench/exp-029');
     const reloaded = await run(gym, 'return { page: main(), attempts: state().attemptOrder.length };');
     assert.match(reloaded.page, /= 30 runs/, 'the draft survives a refresh');
-    assert.equal(reloaded.attempts, 4);
+    assert.equal(reloaded.attempts, 7, 'the six seeded attempts and the one just queued');
 
     assert.deepEqual(gym.problems(), [], 'no page errors and no failed requests');
   } finally { await gym.close(); }

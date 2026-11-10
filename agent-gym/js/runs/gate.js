@@ -1,9 +1,9 @@
 // Release gate: an experiment's variant is a change, and the gate asks whether the latest saved revision has
 // simulated evidence behind it. Pure. "Cleared for demo" is the strongest state; nothing here is released or deployed.
-import { refKey } from '../model.js';
+import { REVIEW_LABEL, refKey } from '../model.js';
 import { attemptProgress, comparisonFor } from '../selectors.js';
 import { variantChange } from '../simulation/attempts.js';
-import { REVIEW_LABEL, isLive } from './facts.js';
+import { isLive } from './facts.js';
 
 export const GATE = Object.freeze({
   not_run: { label: 'Not run', tone: 'gray' },

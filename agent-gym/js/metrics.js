@@ -72,3 +72,30 @@ export function compareAttempt(attempt, executions) {
     verdict: !complete ? 'inconclusive' : regressedPairs > 0 ? 'regression' : variantTotals.pass < variantTotals.total ? 'fail' : 'pass',
   };
 }
+
+const sum = (list, f) => list.reduce((n, e) => n + f(e), 0);
+
+/** What each experiment objective measures on one version's scored runs. `better` says which direction improves it. */
+export const OBJECTIVES = Object.freeze({
+  success: { label: 'Success rate', hint: 'Share of runs where every check passed. Higher is better.', better: 'higher', measure: runs => runs.filter(e => e.terminalState === 'passed').length / runs.length, show: v => `${Math.round(v * 100)}%` },
+  policy_violations: { label: 'Policy violations', hint: 'Duplicate sends, opt-out breaches and skipped approvals across runs. Fewer is better.', better: 'lower', measure: runs => sum(runs, e => e.finalState.violations.length), show: v => String(v) },
+  steps: { label: 'Steps per run', hint: 'Average events recorded per run. Fewer is better.', better: 'lower', measure: runs => sum(runs, e => e.events.length) / runs.length, show: v => v.toFixed(1) },
+});
+
+/** The attempt's objective on each version, and whether the variant is at least as good as the baseline. */
+export function objectiveComparison(attempt, executions) {
+  const def = OBJECTIVES[attempt.inputSnapshot.experiment.objective];
+  const scored = executions.filter(e => SCORED.includes(e.terminalState));
+  const side = versionId => {
+    const runs = scored.filter(e => e.versionId === versionId);
+    return runs.length ? def.measure(runs) : null;
+  };
+  const baseline = side('baseline');
+  const variant = side('variant');
+  const known = baseline !== null && variant !== null;
+  return {
+    label: def.label, baseline, variant,
+    baselineText: baseline === null ? 'no runs' : def.show(baseline), variantText: variant === null ? 'no runs' : def.show(variant),
+    met: known && (def.better === 'higher' ? variant >= baseline : variant <= baseline),
+  };
+}
