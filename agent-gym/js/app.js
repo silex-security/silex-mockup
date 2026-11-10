@@ -14,6 +14,7 @@ import * as environmentLibrary from './views/environment-library.js';
 import * as environmentBuilder from './views/environment-builder.js';
 import * as environmentRevision from './views/environment-revision.js';
 import * as scenarioBuilder from './views/scenario-builder.js';
+import * as scenarioLibrary from './views/scenario-library.js';
 import * as scenarioSet from './views/scenario-set.js';
 import * as runList from './views/run-list.js';
 import * as runDetail from './views/run-detail.js';
@@ -27,6 +28,7 @@ const VIEWS = {
   'environment-builder': { view: environmentBuilder, title: 'Create environment' },
   'environment-revision': { view: environmentRevision, title: 'Environment' },
   'scenario-builder': { view: scenarioBuilder, title: 'Create scenario' },
+  'scenario-library': { view: scenarioLibrary, title: 'Scenarios' },
   'scenario-set': { view: scenarioSet, title: 'Scenario set' },
   'run-list': { view: runList, title: 'Runs' },
   'run-detail': { view: runDetail, title: 'Run' },
