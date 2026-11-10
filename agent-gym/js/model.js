@@ -228,7 +228,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {{pairId:string, scenarioId:string, repeatIndex:number, kind:'improved'|'regressed'|'same', deltas:string[]}[]} pairs
  * @property {number} improvedPairs
  * @property {number} regressedPairs
- * @property {'pass'|'regression'|'inconclusive'} verdict  'pass' needs every pair complete and no regression
+ * @property {'pass'|'fail'|'regression'|'inconclusive'} verdict  'pass' needs every pair complete, no regression and every variant run passed; 'fail' is complete with no regression but failing variant runs
  *
  * @typedef {Object} GymError
  * @property {string} code

@@ -34,6 +34,7 @@ export function defaultPairKey(comparison) {
 
 export const VERDICT = Object.freeze({
   pass: { label: 'Pass', tone: 'green' },
+  fail: { label: 'Fail', tone: 'red' },
   regression: { label: 'Regression', tone: 'red' },
   inconclusive: { label: 'Inconclusive', tone: 'amber' },
 });
@@ -41,6 +42,10 @@ export const VERDICT = Object.freeze({
 export function verdictReason(attempt, comparison, executions) {
   const { expectedPairs: all, completePairs: done } = comparison;
   if (comparison.verdict === 'pass') return `All ${all} pairs are complete and none regressed.`;
+  if (comparison.verdict === 'fail') {
+    const { pass, total } = comparison.totals.variant;
+    return `All ${all} pairs are complete and none regressed, but ${total - pass} of ${total} variant runs still fail.`;
+  }
   if (comparison.verdict === 'regression') return `${comparison.regressedPairs} of ${all} pairs regressed.`;
   if (attempt.status === 'queued' || attempt.status === 'running') return `This attempt is still ${attempt.status}. ${done} of ${all} pairs are complete.`;
   if (attempt.status === 'cancelled') return `This attempt was cancelled. ${done} of ${all} pairs are complete; the rest never ran.`;

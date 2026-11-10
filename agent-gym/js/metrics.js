@@ -56,15 +56,16 @@ export function compareAttempt(attempt, executions) {
   const improvedPairs = pairs.filter(p => p.kind === 'improved').length;
   const regressedPairs = pairs.filter(p => p.kind === 'regressed').length;
   const complete = missingPairs.length === 0 && attempt.status !== 'cancelled' && !executions.some(e => e.terminalState === 'error');
+  const variantTotals = tally(byVersion('variant'));
   return {
     expectedPairs: planned.length,
     completePairs: pairs.length,
     missingPairs,
-    totals: { baseline: tally(byVersion('baseline')), variant: tally(byVersion('variant')) },
+    totals: { baseline: tally(byVersion('baseline')), variant: variantTotals },
     byScenario,
     pairs,
     improvedPairs,
     regressedPairs,
-    verdict: !complete ? 'inconclusive' : regressedPairs > 0 ? 'regression' : 'pass',
+    verdict: !complete ? 'inconclusive' : regressedPairs > 0 ? 'regression' : variantTotals.pass < variantTotals.total ? 'fail' : 'pass',
   };
 }
