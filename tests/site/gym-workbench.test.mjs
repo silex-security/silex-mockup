@@ -325,7 +325,7 @@ test('Run replay plays a recorded execution and is disabled until one exists', a
     out.node2 = Q().node;
     const sc = $('[data-focus-key="wb:rp:scenario"]'); sc.value = 'sc-timeout-after-send'; sc.dispatchEvent(new Event('change', { bubbles: true })); await frame();
     out.timeout = [txt($('#wb-blueprint-title')), txt(node('send-email').querySelector('.wb-node__tag'))];
-    out.node3 = [Q().node, $$('.wb-node.is-current').map(n => n.dataset.node).join()];
+    out.node3 = [Q().node ?? '', $$('.wb-node.is-current').map(n => n.dataset.node).join()];
     out.notRun = [...$('[data-focus-key="wb:rp:scenario"]').options].filter(o => o.disabled).map(o => o.textContent);
     return out;`);
   assert.equal(v.q, 'replay');

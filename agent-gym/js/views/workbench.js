@@ -111,6 +111,15 @@ export function mount(root, ctx) {
     else setQuery({ dialog: null });
   }
 
+  // In replay the highlighted node is the current step's node, so the address names that node and never a stale one.
+  function syncReplayNode() {
+    const state = store.getState();
+    if (!state.experiments[expId()] || query().view !== 'replay') return;
+    const replay = replayView(state, expId(), query(), viewedVersion(state, expId(), query()));
+    const node = replay?.currentNodeId ?? null;
+    if (replay && (query().node ?? null) !== node) setQuery({ node });
+  }
+
   const header = () => h('header', { class: 'gym-pagehead wb-head' },
     breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Workbench' }], class: 'gym-sr' }),
     h('div', { class: 'gym-pagehead__row' },
@@ -445,8 +454,9 @@ export function mount(root, ctx) {
 
   const view = mountView(root, render, store);
   syncDialog();
+  syncReplayNode();
   return {
-    update(next) { route = next; view.refresh(); syncDialog(); },
+    update(next) { route = next; view.refresh(); syncDialog(); syncReplayNode(); },
     destroy() { const d = local.dialog; local.dialog = null; d?.handle.close(); view.destroy(); },
   };
 }
