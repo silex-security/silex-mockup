@@ -1,3 +1,6 @@
 @import "../upstream/src/app/globals.css";
 
 html:not([data-embedded]) [data-host-hash] { display: none; }
+
+/* The demo site's top bar already names the product and links the others, so the app's own header row is left out there. */
+html[data-embedded] header:has(nav[aria-label="Products"]) { display: none; }
