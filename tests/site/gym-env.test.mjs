@@ -267,3 +267,11 @@ test('adding a catalog component brings the records its adapter reads, so the dr
   const s = validate(confirmAdapter(run(start(), { type: 'addComponent', catalogId: 'payments' })));
   assert.deepEqual(draftOf(s).validation.errors.filter(e => e.code === 'data_seed'), []);
 });
+
+test('Save as template needs the digest of the current validation, not just a validated draft', () => {
+  const s = validate(confirmAdapter(start()));
+  assert.equal(draftStatus(draftOf(s)), 'validated');
+  assert.equal(saveEnvironmentTemplate(s, { draftId: DRAFT_ID, validationDigest: 'deadbeef' }).error?.code, 'validation_stale');
+  assert.equal(saveEnvironmentTemplate(s, { draftId: DRAFT_ID }).error?.code, 'validation_stale');
+  assert.ok(save(s).state);
+});

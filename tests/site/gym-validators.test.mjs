@@ -120,3 +120,16 @@ test('the gate rejects an initial-state patch or data override the environment c
   const noConsent = { ...withBase(sc => { sc.overrides = [{ kind: 'data', target: 'contact.optOut', value: true, label: 'Opted out' }]; return sc; }), environments: { ...s.environments, 'env-sales@1.2': env } };
   assert.deepEqual(errorFor(noConsent), ['unknown_override'], 'the DB holds no record for the primary contact');
 });
+
+test('an environment without a current validation, a stale variant and an unsupported scripted event each block Run', () => {
+  const s = fixtureState();
+  const env = s.environments['env-sales@1.2'];
+  const withEnv = validation => ({ ...s, environments: { ...s.environments, 'env-sales@1.2': { ...env, validation } } });
+  for (const validation of [null, { ...env.validation, digest: 'deadbeef' }, { ...env.validation, status: 'needs_review' }])
+    assert.ok(codes(validateExperiment(withEnv(validation), EXP)).includes('environment_not_validated'), JSON.stringify(validation));
+  const stale = { ...s, variants: { ...s.variants, 'variant-a': { ...s.variants['variant-a'], baseDigest: 'deadbeef' } } };
+  assert.deepEqual(codes(validateExperiment(stale, EXP)), ['variant_stale']);
+  const sc = 'sc-base-case@1';
+  const event = { ...s, scenarios: { ...s.scenarios, [sc]: { ...s.scenarios[sc], scriptedEvents: [{ after: 'prompt', type: 'approval_grant' }] } } };
+  assert.deepEqual(codes(validateExperiment(event, EXP)), ['unknown_scripted_event']);
+});
