@@ -2,12 +2,32 @@
 // behavior, checks, overrides and review state. "Use in experiment" is the only write.
 import { h, mountView } from '../components/dom.js';
 import * as ui from '../components/ui.js';
-import { refKey } from '../model.js';
+import { refKey, sameRef } from '../model.js';
 import { setScenarioSet } from '../simulation/attempts.js';
 import { experimentSummary } from '../selectors.js';
 import { outcomeLabel, scenarioSetDetail } from '../scenario/selectors.js';
 
-const EXPERIMENT_ID = 'exp-029';
+export const EXPERIMENT_ID = 'exp-029';
+
+/** "Use in experiment" for one saved set revision. The set page and the scenario library share these rules. */
+export function useInExperimentButton({ store, router, announce }, state, ref, { focusKey, variant = 'primary', size } = {}) {
+  const exp = state.experiments[EXPERIMENT_ID];
+  if (!exp) return null;
+  const set = state.scenarioSets[refKey(ref)];
+  const inUse = sameRef(exp.scenarioSetRef, ref);
+  const preview = inUse ? null : setScenarioSet(state, { experimentId: EXPERIMENT_ID, scenarioSetRef: ref });
+  return ui.button({
+    label: 'Use in experiment', variant, size, focusKey, disabled: inUse || !!preview?.error,
+    reason: inUse ? `${exp.title} already uses this set.` : preview?.error?.message,
+    title: preview?.state ? experimentSummary(preview.state, EXPERIMENT_ID).formula : null,
+    onClick: () => {
+      const r = store.dispatch(setScenarioSet, { experimentId: EXPERIMENT_ID, scenarioSetRef: ref });
+      if (!r.ok) { announce(r.error.message); return; }
+      announce(`${exp.title} now uses ${set.name}.`);
+      router.go('workbench', { experimentId: EXPERIMENT_ID });
+    },
+  });
+}
 const listText = (list, empty) => (list.length ? list.join('; ') : empty);
 
 function scenarioCard(s, n) {
@@ -28,7 +48,7 @@ function scenarioCard(s, n) {
 }
 
 export function mount(root, ctx) {
-  const { store, router, announce } = ctx;
+  const { store, router } = ctx;
   let route = ctx.route;
 
   const render = state => {
@@ -41,24 +61,13 @@ export function mount(root, ctx) {
     ];
     const exp = state.experiments[EXPERIMENT_ID];
     const inUse = detail.usedBy.includes(EXPERIMENT_ID);
-    const preview = exp && !inUse ? setScenarioSet(state, { experimentId: EXPERIMENT_ID, scenarioSetRef: ref }) : null;
     return [
       ui.pageHeader({
         title: detail.set.name, breadcrumb: crumbs,
         subtitle: `Scenario set revision ${detail.set.rev}. Saved revisions are read-only.`,
         actions: [
           ui.button({ label: 'Create scenario', variant: 'outline', icon: 'plus', href: router.href('scenario-builder', {}, { environment: refKey(detail.set.environmentRef), workflow: detail.set.workflowRef.id }), focusKey: 'set:create' }),
-          exp && ui.button({
-            label: 'Use in experiment', variant: 'primary', focusKey: 'set:use', disabled: inUse || !!preview?.error,
-            reason: inUse ? `${exp.title} already uses this set.` : preview?.error?.message,
-            title: preview?.state ? experimentSummary(preview.state, EXPERIMENT_ID).formula : null,
-            onClick: () => {
-              const r = store.dispatch(setScenarioSet, { experimentId: EXPERIMENT_ID, scenarioSetRef: ref });
-              if (!r.ok) { announce(r.error.message); return; }
-              announce(`${exp.title} now uses ${detail.set.name}.`);
-              router.go('workbench', { experimentId: EXPERIMENT_ID });
-            },
-          }),
+          useInExperimentButton(ctx, state, ref, { focusKey: 'set:use' }),
         ],
         meta: h('div', { class: 'sc-setmeta' },
           ui.chip({ label: `Environment: ${detail.environmentName}`, icon: 'layers' }),

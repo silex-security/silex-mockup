@@ -6,7 +6,7 @@ import { openGym } from '../../tools/gym-shot.mjs';
 
 const ROUTES = [
   '#/workbench/exp-029', '#/environments', '#/environments/new?returnTo=exp-029', '#/environments/env-sales/revisions/1.2',
-  '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up', '#/scenario-sets/set-follow-up-resilience/revisions/1',
+  '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up', '#/scenarios', '#/scenario-sets/set-follow-up-resilience/revisions/1',
   '#/runs?status=all', '#/experiments/exp-029/attempts/attempt-002', '#/experiments/exp-029/attempts/attempt-002/results', '#/kit', '#/nope',
 ];
 const WIDTHS = [320, 800, 1024, 1280];
