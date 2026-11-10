@@ -30,6 +30,11 @@ test('enqueue twice with one key creates one attempt; a new key creates another'
   assert.equal(s0.attemptOrder.length, 0, 'reducers never mutate their input');
 });
 
+test('an idempotency key belongs to its experiment, so another experiment\'s enqueue is never swallowed', () => {
+  const s = enqueue(enqueue(fixtureState(), EXP, 'shared'), 'exp-027', 'shared');
+  assert.deepEqual(s.attemptOrder.map(id => s.attempts[id].experimentId), [EXP, 'exp-027']);
+});
+
 test('enqueue validates first and saves the draft it freezes', () => {
   const blocked = enqueueAttempt(ok(clearScenarioSelection(fixtureState(), { experimentId: EXP })), { experimentId: EXP, idempotencyKey: 'k' });
   assert.equal(blocked.error.code, 'experiment_invalid');

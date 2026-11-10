@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { seedState, fixtureState } from '../../agent-gym/js/fixtures/index.js';
 import { experimentSummary } from '../../agent-gym/js/selectors.js';
-import { clearScenarioSelection, enqueueAttempt, renameExperiment, setEnvironment, setScenarioSet, toggleScenario } from '../../agent-gym/js/simulation/attempts.js';
+import { advanceAttempt, cancelAttempt, clearScenarioSelection, enqueueAttempt, renameExperiment, setEnvironment, setScenarioSet, toggleScenario } from '../../agent-gym/js/simulation/attempts.js';
 import {
   attemptByKey, missingDependencies, nodeDetail, nodeDiff, replayView, revisionNote, runKey, scenarioBuilderQuery, selectedNodeId, viewedVersion,
 } from '../../agent-gym/js/workbench/derive.js';
@@ -78,6 +78,24 @@ test('one run key per draft revision makes a repeated Run a no-op until the draf
   assert.equal(attemptByKey(s2, key).label, 'rev 4 · attempt 2');
   const s3 = ok(renameExperiment(s2, { experimentId: EXP, title: 'Experiment 029 b' }));
   assert.notEqual(runKey(s3, EXP), key);
+});
+
+test('after the attempt for a revision is cancelled or finished, Run on the same revision enqueues a new attempt, once', () => {
+  const run = s => ok(enqueueAttempt(s, { experimentId: EXP, idempotencyKey: runKey(s, EXP) }));
+  const s1 = run(seedState());
+  const first = attemptByKey(s1, runKey(s1, EXP));
+  const cancelled = ok(cancelAttempt(s1, { attemptId: first.id }));
+  const s2 = run(cancelled);
+  assert.equal(s2.attemptOrder.length, s1.attemptOrder.length + 1, 'a re-run after cancel is a new attempt');
+  assert.equal(attemptByKey(s2, runKey(s2, EXP)).label, 'rev 4 · attempt 3');
+  assert.equal(run(s2), s2, 'a double click on the re-run still enqueues once');
+
+  let f = run(fixtureState());
+  const id = f.attemptOrder[0];
+  while (f.attempts[id].status !== 'completed') f = ok(advanceAttempt(f, { attemptId: id }));
+  const again = run(f);
+  assert.equal(again.attemptOrder.length, 2, 'a re-run after completion is a new attempt');
+  assert.equal(run(again), again);
 });
 
 test('replay picks a recorded execution and falls back when the asked combination has not run', () => {
