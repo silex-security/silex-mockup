@@ -103,8 +103,17 @@ export function revisionNote(state, experimentId) {
   return { editing: `Editing rev ${exp.draftRevision}`, frozen: shown ? `${shown.label} is ${shown.status} in the queue` : null, attemptId: shown?.id ?? null };
 }
 
-/** One idempotency key per draft revision, so a double click on Run enqueues exactly one attempt. */
-export const runKey = (state, experimentId) => `wb-${experimentId}-r${experimentOf(state, experimentId).draftRevision}`;
+/**
+ * The idempotency key for Run. It stays the same while an attempt for this draft revision is queued or running, so a
+ * double click enqueues one attempt, and moves on once that attempt is finished or cancelled, so a deliberate re-run
+ * enqueues a new one.
+ */
+export function runKey(state, experimentId) {
+  const rev = experimentOf(state, experimentId).draftRevision;
+  const finished = Object.values(state.attempts).filter(a => a.experimentId === experimentId
+    && a.inputSnapshot.experiment.draftRevision === rev && a.status !== 'queued' && a.status !== 'running').length;
+  return `wb-${experimentId}-r${rev}${finished ? `-${finished}` : ''}`;
+}
 export const attemptByKey = (state, key) => Object.values(state.attempts).find(a => a.idempotencyKey === key) ?? null;
 
 /** Missing dependencies, split into workflow tools and the fault hooks selected scenarios inject. */

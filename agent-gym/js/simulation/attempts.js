@@ -141,7 +141,7 @@ export function addVariant(state, { experimentId }) {
 
 export function enqueueAttempt(state, { experimentId, idempotencyKey }) {
   if (!idempotencyKey) return fail('idempotency_key_required', 'Run needs an idempotency key');
-  if (Object.values(state.attempts).some(a => a.idempotencyKey === idempotencyKey)) return { state };
+  if (Object.values(state.attempts).some(a => a.experimentId === experimentId && a.idempotencyKey === idempotencyKey)) return { state };
   const report = validateExperiment(state, experimentId);
   if (report.errors.length) return { error: { code: 'experiment_invalid', message: report.errors.map(e => e.message).join('; '), fix: report.errors[0].fix, errors: report.errors } };
   const saved = saveExperiment(state, { experimentId }).state;
