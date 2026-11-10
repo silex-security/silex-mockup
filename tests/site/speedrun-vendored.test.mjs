@@ -1,5 +1,5 @@
-// speedrun/app/ is build output from the upstream Speedrun app at the commit in VENDORED.json. Every file must match
-// the manifest, with nothing added or removed. To change the app, change it upstream and run tools/sync-speedrun.mjs.
+// speedrun/web/upstream/ is a byte-identical copy of the upstream Speedrun src/ at the commit in VENDORED.json, and
+// speedrun/app/ is its build output. Every file must match the manifest, with nothing added or removed. To change the app, change it upstream and run tools/sync-speedrun.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -17,11 +17,11 @@ test('every built file matches its manifest hash, none missing, none added', () 
   for (const [rel, sha] of Object.entries(manifest.files))
     assert.equal(createHash('sha256').update(readFileSync(join(DEST, rel))).digest('hex'), sha, rel);
 });
-test('the shell that built app/ is the shell in the tree (rebuild with tools/sync-speedrun.mjs after editing speedrun/web)', () => {
+test('the vendored upstream source and the shell are the ones app/ was built from', () => {
   const web = join(DEST, 'web');
-  const now = ['index.html', 'vite.config.js', 'package-lock.json', ...walk(join(web, 'src')).map(f => relative(web, f))].sort();
-  assert.deepEqual(now, Object.keys(manifest.shell).sort());
-  for (const [rel, sha] of Object.entries(manifest.shell))
+  const now = ['index.html', 'vite.config.js', 'package-lock.json', ...['src', 'upstream'].flatMap(d => walk(join(web, d))).map(f => relative(web, f))].sort();
+  assert.deepEqual(now, Object.keys(manifest.sources).sort());
+  for (const [rel, sha] of Object.entries(manifest.sources))
     assert.equal(createHash('sha256').update(readFileSync(join(web, rel))).digest('hex'), sha, rel);
 });
 test('the built page loads its script and stylesheet by relative path', () => {

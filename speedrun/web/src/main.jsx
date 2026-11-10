@@ -8,9 +8,9 @@ import { compile, layoutsFor, match, parseHash } from './routes.js';
 import { router, subscribe } from './next/router.js';
 import { NotFound, Redirect } from './next/navigation.js';
 
-const pages = import.meta.glob('../.upstream/src/app/**/page.tsx', { eager: true });
-const layouts = import.meta.glob(['../.upstream/src/app/**/layout.tsx', '!../.upstream/src/app/layout.tsx'], { eager: true });
-const apis = import.meta.glob('../.upstream/src/app/api/**/route.ts', { eager: true });
+const pages = import.meta.glob('../upstream/src/app/**/page.tsx', { eager: true });
+const layouts = import.meta.glob(['../upstream/src/app/**/layout.tsx', '!../upstream/src/app/layout.tsx'], { eager: true });
+const apis = import.meta.glob('../upstream/src/app/api/**/route.ts', { eager: true });
 const pageTable = compile(Object.keys(pages), 'page.tsx');
 const apiTable = compile(Object.keys(apis), 'route.ts');
 

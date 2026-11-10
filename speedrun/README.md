@@ -1,12 +1,13 @@
 # SILEX Speedrun in the demo
 
-The Speedrun view of the demo (`index.html#view=speedrun`) shows the SILEX Speedrun app from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun), a private repo. All of its data is illustrative.
+The Speedrun view of the demo (`index.html#view=speedrun`) shows the SILEX Speedrun app from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun), vendored here at one commit. All of its data is illustrative.
 
 | Path | What it is |
 |---|---|
 | `app/` | The built app that the demo serves. Build output, never edited by hand. |
-| `VENDORED.json` | The upstream commit that `app/` was built from, and the sha256 of every built file. |
-| `web/` | The Vite shell that builds `app/`. |
+| `VENDORED.json` | The upstream commit, and the sha256 of every source and built file. |
+| `web/upstream/src/` | The upstream `src/`, byte for byte. Never edited here. |
+| `web/` | The Vite shell that builds `app/` from it. |
 | `../tools/sync-speedrun.mjs` | Builds `app/` from one upstream commit. |
 | `../js/speedrun-host.js` | Loads `app/` into the Speedrun view. |
 
@@ -20,9 +21,9 @@ node --test tests/site/speedrun-*.test.mjs
 node tests/site/run-site-probes.mjs --only S46
 ```
 
-The tool reads `src/` with `git archive <commit>`, so uncommitted changes in the checkout are not picked up. It writes the source to `web/.upstream/` (git-ignored), runs the build, and rewrites `VENDORED.json`. A change to `web/` also needs a sync, and `speedrun-vendored.test.mjs` fails until it is done. Commit `app/` and `VENDORED.json` together.
+The tool reads `src/` with `git archive <commit>`, so uncommitted changes in the checkout are not picked up. It replaces `web/upstream/`, runs the build, and rewrites `VENDORED.json`. A change to the shell also needs a sync, and `speedrun-vendored.test.mjs` fails until it is done. Commit `web/upstream/`, `app/` and `VENDORED.json` together.
 
-To change what the app shows, change it upstream and sync. Do not edit `app/`.
+To change what the app shows, change it upstream and sync. Do not edit `app/` or `web/upstream/`.
 
 ## How the shell works
 
