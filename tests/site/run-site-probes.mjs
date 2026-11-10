@@ -1164,7 +1164,7 @@ try {
     await load();await nav('speedrun');
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
     await h1('Organization overview');
-    assert.equal(await se('return document.documentElement.classList.contains("dark")'),false,'opens in the light theme');
+    assert.equal(await se('return document.documentElement.classList.contains("dark")'),true,'opens in the dark theme, like the console');
     const fill=await ev('const r=document.querySelector("#speedrunFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
     assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
     await se(`document.querySelector('a[href="#/speedrun/teams/refund"]').click()`);await h1('Refund Team');
@@ -1330,39 +1330,45 @@ try {
     return 'Gym queue -> Invoice trace; Send to Agent Gym -> pending workbench with a link back; twice -> one experiment; header link; old /gym link; standalone Speedrun';
   });
 
-  await probe('S50','Speedrun trace replay: log and lane status follow the playhead, play, pause, seek by log row, speed',async()=>{
+  await probe('S50','Speedrun trace replay: the waterfall plays by itself, the log follows the playhead, pause, seek by log row, speed, replay',async()=>{
     const SR='const w=globalThis.document.querySelector("#speedrunFrame").contentWindow; const document=w.document, location=w.location;';
     const se=code=>ev(SR+code);
     const log=()=>se(`return [...document.querySelectorAll('[data-replay-log] [data-replay-event]')].map(li=>({kind:li.dataset.replayEvent,t:Number(li.textContent.match(/\\+(\\d+\\.\\d)s/)[1])}))`);
     const clock=()=>se(`return Number(document.querySelector('[data-replay-time]').textContent.split('s')[0])`);
-    const press=label=>se(`document.querySelector('button[aria-label=${label}]').click(); return true`);
+    const press=label=>se(`document.querySelector('button[aria-label="${label}"]').click(); return true`);
+    const rowsIn=state=>se(`return document.querySelectorAll('.tw-row${state}').length`);
     await load({path:'/index.html#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund%2Ftrace'});
     await until(()=>se(`return !!document.querySelector('[data-replay-log]')`),'trace replay rendered',30000);
-    assert.equal(await clock(),18,'opens at 18s');
-    const first=await log();
-    assert.ok(first.length>=8&&first.every(e=>e.t<=18),'the log holds only events at or before 18s: '+Q(first));
-    assert.ok(first.every(e=>e.kind!=='message'),'no message has been sent by 18s');
-    assert.deepEqual(first.map(e=>e.t),[...first.map(e=>e.t)].sort((a,b)=>a-b),'log is in time order');
-    assert.deepEqual(await se(`return [...document.querySelectorAll('[data-lane-status]')].map(e=>e.dataset.laneStatus)`),['idle','working','blocked','blocked'],'lane chips at 18s');
-    await press('Play');
-    await until(async()=>(await clock())>21&&(await log()).length>first.length,'time advances and the log grows');
-    await press('Pause');
+    assert.equal(await rowsIn(''),16,'four members and their twelve task rows');
+    assert.equal(await se(`return document.querySelectorAll('.tw-lane').length`),16,'one lane per row');
+    await until(async()=>(await clock())>=3&&(await log()).length>0,'the replay starts by itself and the log grows');
+    await press('Play or pause');
     const paused=await clock();
-    assert.ok((await log()).every(e=>e.t<=paused+0.05),'the log never runs ahead of the playhead');
     const rows=await log();
-    const target=rows[2].t;
-    await se(`document.querySelectorAll('[data-replay-log] [data-replay-event] button')[2].click(); return true`);
-    assert.equal(await clock(),target,'clicking a log row seeks to that event');
+    assert.ok(paused<30,'paused before the end: '+paused);
+    assert.ok(rows.every(e=>e.t<=paused+0.5),'the log never runs ahead of the playhead: '+Q(rows)+' at '+paused);
+    assert.deepEqual(rows.map(e=>e.t),[...rows.map(e=>e.t)].sort((a,b)=>a-b),'log is in time order');
+    assert.ok(await rowsIn('.pending')>0,'rows after the playhead are dimmed');
+    await sleep(400);
+    assert.equal(await clock(),paused,'pausing stops the clock');
+    await press('Replay from the start');
+    await until(async()=>(await log()).length>=3&&(await clock())>=6,'replay runs again from the start');
+    await press('Play or pause');
+    const before=await log();
+    const target=before[1].t;
+    await se(`document.querySelectorAll('[data-replay-log] [data-replay-event] button')[1].click(); return true`);
+    assert.ok(Math.abs(await clock()-target)<=0.5,'clicking a log row seeks to that event');
     const after=await log();
-    assert.ok(after.length<rows.length&&after.every(e=>e.t<=target),'later rows left the log: '+Q(after.length)+' < '+Q(rows.length));
-    assert.equal(await se(`return document.querySelector('button[aria-label=Play]')!==null`),true,'seeking pauses');
-    await se(`[...document.querySelectorAll('[role=group][aria-label="Replay speed"] button')].find(b=>b.textContent==='10×').click(); return true`);
-    assert.deepEqual(await se(`return [...document.querySelectorAll('[role=group][aria-label="Replay speed"] button')].filter(b=>b.getAttribute('aria-pressed')==='true').map(b=>b.textContent)`),['10×'],'10× is selected');
-    const t0=await clock();
-    await press('Play');
-    await until(async()=>(await clock())>=t0+4,'10× advances faster than real time',5000);
-    await press('Pause');
-    return `opened at 18s with ${first.length} log rows and chips idle/working/blocked/blocked; played to ${paused.toFixed(1)}s, row click back to ${target}s (${rows.length} -> ${after.length} rows), 10× selected`;
+    assert.ok(after.length<before.length&&after.every(e=>e.t<=target),'later rows left the log: '+Q(after.length)+' < '+Q(before.length));
+    const held=await clock(); await sleep(400);
+    assert.equal(await clock(),held,'seeking pauses');
+    await press('Playback speed');
+    assert.equal(await se(`return document.querySelector('button[aria-label="Playback speed"]').textContent`),'2x','speed steps to 2x');
+    await press('Play or pause');
+    await until(async()=>(await clock())>=30,'the replay reaches the end',20000);
+    assert.equal(await rowsIn('.pending'),0,'no row is dimmed at the end');
+    assert.equal(await se(`return document.querySelectorAll('.tw-bar[data-mark="fail"]').length`),1,'the timed-out attempt is marked as failed');
+    return `16 rows; played by itself to ${paused}s with ${rows.length} log rows, replayed, row click back to ${target}s (${before.length} -> ${after.length} rows), 2x to the end`;
   });
 
   await probe('S49','Incidents & Decisions: no Overview or PCP sidebar item, pending count, decisions panel, retired and deep routes, Overview still renders',async()=>{

@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="swm/css/swm-vowl.css" />
   <link rel="stylesheet" href="css/rt-pipeline.css" />
   <link rel="stylesheet" href="css/rt-subtabs.css" />
+  <link rel="stylesheet" href="css/trace-waterfall.css" />
   <link rel="stylesheet" href="css/rt-fleet-x1.css" />
   <link rel="stylesheet" href="css/rt-fleet-map.css" />
   <link rel="stylesheet" href="css/rt-fleet-grid.css" />
@@ -29,6 +30,7 @@
   <link rel="stylesheet" href="css/rt-onto-graph.css" />
   <link rel="stylesheet" href="css/rt-onto-vision.css" />
   <link rel="stylesheet" href="css/console.css" />
+  <link rel="stylesheet" href="css/fog.css" />
 </head>
 <body>
 <div class="app">
@@ -649,6 +651,7 @@
 <div class="rt-pipeline" id="rtPipeline" data-mode="idle" aria-label="How runtime validation decides each agent action"></div>
 <div class="rt-run-result"><div class="decision-state approved" id="rtResult"></div><a href="#rtFrameWrap" class="btn rt-see-run" id="rtSeeRun" hidden>See this run in the decision plane →</a></div>
 </div>
+<div class="card rt-trace-card"><div id="rtTrace" aria-label="Gate trace of this run"></div></div>
 <h3 class="rt-section-h">How to read the picture</h3>
 <div class="rt-howto">
 <div><b>Agent action</b>The tool call the agent wants to make, such as <code>payments.execute</code>.</div>

@@ -9,7 +9,7 @@
   --gym-ink: var(--ink);
   --gym-ink-2: var(--ink-2);
   --gym-muted: var(--muted);
-  --gym-faint: #858c97;
+  --gym-faint: var(--faint);
   --gym-line: var(--line);
   --gym-line-strong: var(--line-strong);
 
@@ -17,8 +17,8 @@
   --gym-primary-hover: var(--blue3);
   --gym-primary-ink: var(--blue2);
   --gym-primary-soft: var(--lav);
-  --gym-primary-softer: #f3f5ff;
-  --gym-primary-line: #aab6f3;
+  --gym-primary-softer: var(--lav-2);
+  --gym-primary-line: var(--blue-line);
 
   --gym-green: var(--green);
   --gym-green-dot: var(--green-dot);
@@ -31,9 +31,9 @@
   --gym-red-dot: var(--red-dot);
   --gym-red-soft: var(--red-bg);
   --gym-red-line: var(--red-line);
-  --gym-gray: #4b5360;
+  --gym-gray: var(--muted);
   --gym-gray-dot: #858c97;
-  --gym-gray-soft: #eceef2;
+  --gym-gray-soft: var(--soft);
 
   --gym-r-sm: 6px;
   --gym-r: 9px;

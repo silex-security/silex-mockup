@@ -1,15 +1,15 @@
 /* Blueprint Studio v2. Silex tokens (../../index.html :root) + the builder's
-   own surfaces. One light theme, deliberately: it matches the Silex demo. */
+   own surfaces. One dark theme, deliberately: it matches the Silex demo. */
 :root{
-  --ink:#17191d; --ink-2:#3b414b; --muted:#68707c; --faint:#9aa1ab;
-  --line:#e4e7ec; --line-2:#d6dae1; --soft:#f6f7f9; --panel:#ffffff; --canvas:#f3f4f7; --nav:#1f2126;
-  --blue:#536bdb; --blue-2:#718aff; --blue-soft:#eef1ff; --blue-ring:rgba(83,107,219,.22);
-  --green:#2b8766; --green-bg:#e5f4ee; --red:#c54545; --red-bg:#fcebea; --amber:#a66a14; --amber-bg:#fff3d8;
-  --c-trigger:#6b7482; --c-agent:#536bdb; --c-tool:#8a63c9; --c-decision:#d18a2f; --c-control:#c9771b; --c-data:#3f86ab; --c-outcome:#2f7a57; --c-prohibited:#c54545;
-  --radius:12px; --shadow-1:0 1px 2px rgba(20,24,36,.06),0 1px 1px rgba(20,24,36,.04); --shadow-2:0 8px 28px rgba(20,24,36,.12);
+  --ink:#ececf1; --ink-2:#cfd3dc; --muted:#9aa1ad; --faint:#646a77;
+  --line:#30333d; --line-2:#454956; --soft:#262932; --panel:#1d1f26; --canvas:#15161b; --nav:#1f2126;
+  --blue:#6f86f5; --blue-2:#8fa2ff; --blue-soft:#262c4d; --blue-ring:rgba(113,138,255,.35);
+  --green:#3fb98a; --green-bg:#16302a; --red:#ef6b6b; --red-bg:#3a1c1c; --amber:#e0aa3e; --amber-bg:#33290f;
+  --c-trigger:#8b93a1; --c-agent:#6f86f5; --c-tool:#a47cf0; --c-decision:#e0a13a; --c-control:#d98a2b; --c-data:#57a3c9; --c-outcome:#3fb98a; --c-prohibited:#ef6b6b;
+  --radius:12px; --shadow-1:0 1px 2px rgba(0,0,0,.4),0 1px 1px rgba(0,0,0,.3); --shadow-2:0 8px 28px rgba(0,0,0,.55);
   --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:Inter,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,-apple-system,'Segoe UI',sans-serif;
-  color-scheme:light;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%;margin:0}

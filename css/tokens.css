@@ -2,53 +2,66 @@
    type size, radius or shadow value is written. tools/style-audit.mjs and tests/site/style-budget.test.mjs
    keep raw values from coming back. Text colours pass 4.5:1 on --panel and on --bg. */
 :root {
-  --ink: #17191d;
-  --ink-2: #343740;
-  --muted: #606975;
-  --faint: #9aa1ad;           /* arrows, separators and marks. Not for text. */
+  color-scheme: dark;
+  --ink: #ececf1;
+  --ink-2: #cfd3dc;
+  --muted: #9aa1ad;
+  --faint: #646a77;           /* arrows, separators and marks. Not for text. */
 
-  --bg: #eef0f3;
-  --panel: #fff;
-  --soft: #f5f6f8;
-  --soft-2: #fafbfc;
-  --line: #e3e6ea;
-  --line-strong: #cfd4db;
+  --bg: #121318;
+  --panel: #1d1f26;
+  --soft: #262932;
+  --soft-2: #21232b;
+  --line: #30333d;
+  --line-strong: #454956;
 
-  --nav: #26282d;
-  --nav-2: #34373f;
-  --nav-deep: #1f2227;
+  --nav: #1a1b21;
+  --nav-2: #2a2d36;
+  --nav-deep: #15161b;
   --nav-text: #aeb4bf;
   --nav-muted: #9197a3;
   --nav-green: #7fd6b0;
   --nav-amber: #f0c36a;
 
   --blue: #718aff;            /* borders, focus and marks */
-  --blue2: #4a61d2;           /* text, links and fills that carry text */
-  --blue3: #3d51b8;
-  --blue-line: #aebaff;
-  --blue-line-soft: #cdd5ff;
-  --lav: #e9edff;
-  --lav-2: #f7f8ff;
+  --blue2: #a3b2ff;           /* text, links and fills that carry text */
+  --blue3: #bcc7ff;
+  --blue-line: #4b5aa9;
+  --blue-line-soft: #353e74;
+  --lav: #262c4d;
+  --lav-2: #1e2238;
 
-  --green: #1f6f53;
-  --green-dot: #2b8766;
-  --green-line: #b9decf;
-  --green-bg: #e5f4ee;
-  --green-soft: #f8fcfa;
-  --amber: #8a560c;
-  --amber-dot: #c98a1e;
-  --amber-line: #f0dfb4;
-  --amber-bg: #fff3d8;
-  --amber-soft: #fffaf2;
-  --red: #b03a3a;
-  --red-dot: #c54545;
-  --red-line: #efbaba;
-  --red-bg: #fcebea;
-  --red-soft: #fff8f8;
-  --violet: #50339c;
-  --violet-dot: #9a72d4;
-  --violet-line: #c9c2ee;
-  --violet-bg: #f1ecfb;
+  --green: #7fd6b0;
+  --green-dot: #3fb98a;
+  --green-line: #2b5a49;
+  --green-bg: #16302a;
+  --green-soft: #16251f;
+  --amber: #f0c36a;
+  --amber-dot: #e0aa3e;
+  --amber-line: #5a4a22;
+  --amber-bg: #33290f;
+  --amber-soft: #272114;
+  --red: #f4a0a0;
+  --red-dot: #ef6b6b;
+  --red-line: #6a3232;
+  --red-bg: #3a1c1c;
+  --red-soft: #2a1a1b;
+  --violet: #c6b3f7;
+  --violet-dot: #a47cf0;
+  --violet-line: #4b3f7a;
+  --violet-bg: #2a2444;
+  /* Dark surfaces. --fog paints the page; --glass is a surface the fog shows through. */
+  --blue-fill: #4a61d2;       /* fills that carry white text */
+  --blue-fill-2: #5a70e0;
+  --stage-ink: #e9edff;       /* light marks on the World Model chart stage */
+  --stage-ink-2: #cdd5ff;
+  --glass: rgba(29, 31, 38, .72);
+  --glass-bar: rgba(18, 19, 24, .78);
+  --fog: radial-gradient(900px 520px at 88% -4%, rgba(113, 138, 255, .22), transparent 62%),
+         radial-gradient(700px 460px at 2% 100%, rgba(154, 114, 212, .13), transparent 70%),
+         radial-gradient(600px 400px at 46% 44%, rgba(113, 138, 255, .05), transparent 70%),
+         linear-gradient(135deg, #121318, #191b22);
+
 
   --text-2xs: 11px;
   --text-xs: 12px;
@@ -67,11 +80,11 @@
   --radius: 16px;
   --r-pill: 999px;
 
-  --shadow-sm: 0 1px 3px rgba(22, 28, 45, .08);
-  --shadow-md: 0 5px 15px rgba(29, 35, 52, .07);
-  --shadow: 0 10px 30px rgba(22, 28, 45, .07);
-  --shadow-pop: 0 24px 80px rgba(0, 0, 0, .3);
-  --ring: 0 0 0 3px rgba(113, 138, 255, .15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .35);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, .35);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .4);
+  --shadow-pop: 0 24px 80px rgba(0, 0, 0, .6);
+  --ring: 0 0 0 3px rgba(113, 138, 255, .28);
 
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }

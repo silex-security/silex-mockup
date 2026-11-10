@@ -123,7 +123,7 @@
 .gym-app .gym-btn--sm { min-height: 30px; padding: 0 11px; font-size: var(--gym-fs-sm); gap: 6px; }
 .gym-app .gym-btn--lg { min-height: 40px; padding: 0 22px; font-size: 15px; }
 .gym-app .gym-btn--block { display: flex; width: 100%; }
-.gym-app .gym-btn--primary { background: var(--gym-ink); color: #fff; box-shadow: var(--gym-shadow-sm); }
+.gym-app .gym-btn--primary { background: var(--gym-ink); color:var(--bg); box-shadow: var(--gym-shadow-sm); }
 .gym-app .gym-btn--primary:hover { background: var(--gym-ink-2); }
 .gym-app .gym-btn--secondary { background: var(--gym-surface); border-color: var(--gym-line-strong); box-shadow: var(--gym-shadow-sm); }
 .gym-app .gym-btn--secondary:hover { background: var(--gym-primary-softer); border-color: var(--gym-primary-line); }

@@ -238,11 +238,11 @@ function Canvas() {
       <div className="canvas" ref={wrap} onDragOver={e => { if (!locked) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } }}
         onDrop={e => { const type = e.dataTransfer.getData('application/x-bs-type'); if (type && !locked) { e.preventDefault(); addFromLibrary(type, { x: e.clientX, y: e.clientY }); } }}>
         {graph.nodes.length === 0 ? <EmptyState /> : null}
-        <ReactFlow nodes={rfNodes} edges={rfEdges} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
+        <ReactFlow colorMode="dark" nodes={rfNodes} edges={rfEdges} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
           onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onDelete={onDelete} onConnect={onConnect} isValidConnection={isValidConnection}
           onPaneClick={() => ctl.setSelected(null)} deleteKeyCode={locked ? null : ['Backspace', 'Delete']} nodesDraggable={!locked} nodesConnectable={!locked}
           minZoom={0.25} maxZoom={1.8} proOptions={{ hideAttribution: true }} fitViewOptions={{ padding: 0.15, maxZoom: 1 }}>
-          <Background gap={18} size={1.2} color="#d3d7de" />
+          <Background gap={18} size={1.2} color="#2a2d36" />
           <Controls showInteractive={false} position="bottom-left" />
           <MiniMap pannable zoomable position="bottom-right" nodeColor={n => ({ trigger: '#6b7482', agent: '#536bdb', tool: '#8a63c9', decision: '#d18a2f', control: '#c9771b', data: '#3f86ab', outcome: '#2f7a57', prohibited: '#c54545' }[n.data?.node?.type] || '#999')} />
           <Panel position="top-left" className="canvas-tools">
