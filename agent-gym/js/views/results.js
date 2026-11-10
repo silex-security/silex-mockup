@@ -8,6 +8,8 @@ import { attemptFacts, resolveAttempt } from '../runs/facts.js';
 import { VERDICT, defaultPairKey, pairKey, pairSides, unresolvedItems, verdictReason } from '../runs/compare.js';
 import { assertionList, finalStateView, nodeLabelsOf, toolRequests, traceList } from '../runs/trace.js';
 import { attemptNotFound, evidenceTag, grid, reviewBadge, runsCrumbs, statusBadges } from '../runs/page.js';
+import { stepIndicator } from '../components/steps.js';
+import { experimentSteps } from '../experiments/steps.js';
 
 const CAVEAT = 'Repetitions are deterministic replays with the same seed and fixtures, not independent statistical samples. These counts describe behaviour on these scripted scenarios; they do not measure a real change in success rate.';
 const DECISION_HINT = {
@@ -177,6 +179,7 @@ export function mount(root, ctx) {
         ],
         meta: statusBadges(facts),
       }),
+      stepIndicator({ steps: experimentSteps(state, attempt.experimentId, route), router }),
       facts.live && notice({
         tone: 'warning', class: 'run-notice', title: `Still ${facts.status}.`,
         text: `This is a partial comparison of ${facts.progress.done} of ${facts.progress.total} executions. It reads Inconclusive until every pair is complete.`,

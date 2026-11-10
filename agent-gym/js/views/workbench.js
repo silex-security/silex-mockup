@@ -2,16 +2,19 @@
 // View state in the route query: version, node, view (blueprint | replay), attempt, scenario, rep, step, dialog.
 import { h, mountView } from '../components/dom.js';
 import { icon, appIcon } from '../components/icons.js';
-import { badge, breadcrumb, button, card, checkbox, emptyState, iconButton, notice, panel, progress, searchField } from '../components/ui.js';
-import { refKey } from '../model.js';
+import { badge, breadcrumb, button, card, checkbox, emptyState, iconButton, notice, panel, progress, searchField, select, textInput } from '../components/ui.js';
+import { MIN_IMPROVED_PAIRS, refKey } from '../model.js';
+import { OBJECTIVES } from '../metrics.js';
+import { experimentSteps } from '../experiments/steps.js';
+import { stepIndicator } from '../components/steps.js';
 import { blueprintView, dependencyStatus, environmentCards, experimentSummary, queueCounts, queueRows, scenarioRows, selectedScenarioIds } from '../selectors.js';
 import {
-  addVariant, clearScenarioSelection, createOrSelectVariant, enqueueAttempt, renameExperiment, saveExperiment, setEnvironment, setWorkflow, toggleScenario,
+  addVariant, clearScenarioSelection, createOrSelectVariant, enqueueAttempt, renameExperiment, saveExperiment, setEnvironment, setExperimentSettings, setWorkflow, toggleScenario,
 } from '../simulation/attempts.js';
 import { blueprintDiagram } from '../workbench/diagram.js';
 import { openCompare, openInspect, openRunSettings } from '../workbench/dialogs.js';
 import {
-  attemptByKey, missingDependencies, nodeDetail, replayView, revisionNote, runKey, scenarioBuilderQuery, selectedNodeId, viewedVersion,
+  attemptByKey, changeSet, missingDependencies, nodeDetail, replayView, revisionNote, runKey, scenarioBuilderQuery, selectedNodeId, viewedVersion,
 } from '../workbench/derive.js';
 
 const SCENARIO_ENTRIES = [
@@ -121,7 +124,7 @@ export function mount(root, ctx) {
   }
 
   const header = () => h('header', { class: 'gym-pagehead wb-head' },
-    breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Workbench' }], class: 'gym-sr' }),
+    breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Experiment queue', href: router.href('experiment-queue') }, { label: 'Workbench' }], class: 'gym-sr' }),
     h('div', { class: 'gym-pagehead__row' },
       h('div', { class: 'gym-pagehead__titles' },
         h('h1', { class: 'gym-pagehead__title' }, 'Experiment Workbench'),
@@ -297,6 +300,51 @@ export function mount(root, ctx) {
       mode === 'replay' ? replayPanel(exp, replay) : nodeStrip(state, exp, versionId, nodeId));
   }
 
+  function changesStrip(state, exp) {
+    const set = changeSet(state, exp.id);
+    if (!set) {
+      return h('section', { class: 'gym-panel wb-changes wb-changes--none', 'aria-label': 'What changes' },
+        h('p', { class: 'wb-changes__empty' }, icon('sliders', { size: 18 }), 'Nothing is being compared yet. Variant A is the change this experiment tests.'),
+        button({ label: 'Create Variant A', size: 'sm', icon: 'plus', focusKey: 'wb:changes-create', onClick: chooseVariant }));
+    }
+    return h('section', { class: 'gym-panel wb-changes', 'aria-labelledby': 'wb-changes-title' },
+      h('header', { class: 'wb-changes__head' },
+        h('h2', { class: 'wb-changes__title', id: 'wb-changes-title' }, 'What changes: ', h('span', { class: 'wb-changes__versions' }, `${set.baselineLabel} → ${set.variantLabel}`)),
+        badge({ label: `${set.changeCount} change${set.changeCount === 1 ? '' : 's'}`, tone: set.changeCount ? 'violet' : 'gray', class: 'wb-changes__count' })),
+      h('div', { class: 'wb-changes__wrap' }, h('table', { class: 'wb-changes__table' },
+        h('thead', h('tr', ['Step', 'Field', 'Baseline', set.variantLabel].map(c => h('th', { scope: 'col' }, c)))),
+        h('tbody', set.rows.map(r => h('tr', { class: r.changed ? 'is-changed' : null, dataset: { field: `${r.nodeId}.${r.field}` } },
+          h('th', { scope: 'row' }, r.node), h('td', h('code', r.field)),
+          h('td', { class: r.changed ? 'is-changed' : null }, h('code', r.baseline)),
+          h('td', { class: r.changed ? 'is-changed' : null }, h('code', r.variant))))))));
+  }
+
+  function settingsBlock(state, exp) {
+    const commit = (command, input, restore) => {
+      const result = store.dispatch(setExperimentSettings, { experimentId: exp.id, ...command });
+      if (!result.ok) { restore?.(); flash('error', result.error.message); refresh(); return; }
+      local.flash = null;
+      announce(`Experiment settings changed. Draft rev ${result.state.experiments[exp.id].draftRevision}.`);
+    };
+    return h('section', { class: 'gym-panel wb-settings', 'aria-labelledby': 'wb-settings-title' },
+      h('header', { class: 'wb-settings__head' },
+        h('h3', { id: 'wb-settings-title' }, 'Experiment settings'),
+        h('p', 'What this experiment tries to improve, and when its comparison counts as accepted.')),
+      h('div', { class: 'wb-settings__grid' },
+        select({
+          label: 'Objective', value: exp.objective, focusKey: 'wb:objective', hint: OBJECTIVES[exp.objective].hint,
+          options: Object.entries(OBJECTIVES).map(([value, o]) => ({ value, label: o.label })), onChange: v => commit({ objective: v }),
+        }),
+        h('fieldset', { class: 'wb-settings__accept' },
+          h('legend', 'Accepted when'),
+          checkbox({ checked: exp.acceptance.noRegression, label: 'No pair regresses', focusKey: 'wb:accept-noregression', onChange: on => commit({ noRegression: on }) }),
+          textInput({
+            label: 'Minimum improved pairs', type: 'number', value: String(exp.acceptance.minImprovedPairs), focusKey: 'wb:accept-min',
+            hint: `A whole number from ${MIN_IMPROVED_PAIRS.min} to ${MIN_IMPROVED_PAIRS.max}. Every pair must also finish, and the objective must not get worse.`,
+            onChange: (v, e) => commit({ minImprovedPairs: v.trim() === '' ? NaN : Number(v) }, e.target, () => { e.target.value = String(exp.acceptance.minImprovedPairs); }),
+          }))));
+  }
+
   function summaryCards(state, exp) {
     const env = state.environments[refKey(exp.environmentRef)];
     const set = state.scenarioSets[refKey(exp.scenarioSetRef)];
@@ -367,6 +415,7 @@ export function mount(root, ctx) {
         versionRow(state, exp, versionId),
         blueprintPanel(state, exp, versionId),
         summaryCards(state, exp),
+        settingsBlock(state, exp),
         runArea(state, exp)));
   }
 
@@ -444,10 +493,12 @@ export function mount(root, ctx) {
   function render(state) {
     const exp = state.experiments[expId()];
     if (!exp) {
-      return [header(), panel({ title: 'Experiment not found', children: emptyState({ icon: 'flask', title: `No experiment “${expId()}”`, text: 'It may have been removed by a demo reset.', action: button({ label: 'Open Experiment 029', variant: 'primary', href: router.href('workbench', { experimentId: 'exp-029' }) }) }) })];
+      return [header(), panel({ title: 'Experiment not found', children: emptyState({ icon: 'flask', title: `No experiment “${expId()}”`, text: 'It may have been removed by a demo reset.', action: button({ label: 'Back to the experiment queue', variant: 'primary', href: router.href('experiment-queue') }) }) })];
     }
     return h('div', { class: 'wb' },
       header(),
+      stepIndicator({ steps: experimentSteps(state, exp.id, route), router }),
+      changesStrip(state, exp),
       h('div', { class: 'gym-cols wb-cols', style: { '--gym-cols': '24fr 51fr 24fr' } }, envColumn(state, exp), centre(state, exp), scenarioColumn(state, exp)),
       queue(state));
   }

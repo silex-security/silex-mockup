@@ -77,9 +77,9 @@ const sum = (list, f) => list.reduce((n, e) => n + f(e), 0);
 
 /** What each experiment objective measures on one version's scored runs. `better` says which direction improves it. */
 export const OBJECTIVES = Object.freeze({
-  success: { label: 'Success rate', better: 'higher', measure: runs => runs.filter(e => e.terminalState === 'passed').length / runs.length, show: v => `${Math.round(v * 100)}%` },
-  policy_violations: { label: 'Policy violations', better: 'lower', measure: runs => sum(runs, e => e.finalState.violations.length), show: v => String(v) },
-  steps: { label: 'Steps per run', better: 'lower', measure: runs => sum(runs, e => e.events.length) / runs.length, show: v => v.toFixed(1) },
+  success: { label: 'Success rate', hint: 'Share of runs where every check passed. Higher is better.', better: 'higher', measure: runs => runs.filter(e => e.terminalState === 'passed').length / runs.length, show: v => `${Math.round(v * 100)}%` },
+  policy_violations: { label: 'Policy violations', hint: 'Duplicate sends, opt-out breaches and skipped approvals across runs. Fewer is better.', better: 'lower', measure: runs => sum(runs, e => e.finalState.violations.length), show: v => String(v) },
+  steps: { label: 'Steps per run', hint: 'Average events recorded per run. Fewer is better.', better: 'lower', measure: runs => sum(runs, e => e.events.length) / runs.length, show: v => v.toFixed(1) },
 });
 
 /** The attempt's objective on each version, and whether the variant is at least as good as the baseline. */

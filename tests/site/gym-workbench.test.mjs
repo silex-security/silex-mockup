@@ -42,7 +42,7 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
     const cols = $$('.wb-cols > *').map(c => c.getBoundingClientRect().width);
     const total = cols.reduce((a, b) => a + b, 0);
     return {
-      h1: txt($('.gym-main h1')), sub: txt($('.gym-pagehead__subtitle')), runs: $('.wb-head a').getAttribute('href'),
+      h1: txt($('.gym-main h1')), sub: txt($('.gym-pagehead__subtitle')), runs: $('.wb-head .gym-pagehead__actions a').getAttribute('href'),
       share: cols.map(w => Math.round(w / total * 100)),
       envs: $$('.wb-env').map(e => txt(e.querySelector('.wb-env__name'))), selected: txt($('.wb-env.is-selected .wb-env__name')),
       chips: $$('.wb-env.is-selected .wb-capchip').map(txt), notes: txt($('.wb-env.is-selected .wb-env__notes')),
