@@ -65,6 +65,7 @@ export function mount(root, ctx) {
     const kindOf = (scenarioId, repeatIndex) => comparison.pairs.find(p => p.pairId === pairId({ scenarioId, repeatIndex }))?.kind ?? 'missing';
     return panel({
       class: 'run-byscenario', title: 'By scenario', subtitle: 'Each repetition pairs one baseline run with one variant run on the same scenario and seed.',
+      actions: evidenceTag(),
       children: [h('div', { class: 'run-byscenario__wrap' }, h('table', { class: 'run-table run-table--compact' },
         h('thead', h('tr', ['Scenario', facts.baselineName, facts.variantName ?? 'Variant', 'Improved', 'Regressed', 'Pairs'].map(c => h('th', { scope: 'col' }, c)))),
         h('tbody', comparison.byScenario.map(row => h('tr', { dataset: { scenario: row.scenarioId } },
@@ -136,8 +137,8 @@ export function mount(root, ctx) {
     return h('section', { class: 'run-side', dataset: { side: execution.versionId } },
       h('header', { class: 'run-side__head' }, h('h3', { class: 'run-side__title' }, label), badge({ status: execution.terminalState })),
       part(execution.terminalState === 'passed' ? 'Assertions' : 'Why it failed', assertionList(execution.assertionResults, { failedOnly: true })),
-      part('Tool requests', toolRequests(execution.events)),
       part('Final state', finalStateView(execution.finalState)),
+      part('Tool requests', toolRequests(execution.events)),
       part('Trace', traceList(execution.events, nodeLabels, { detailed: false, label: `${label} trace` })));
   }
 
@@ -174,7 +175,7 @@ export function mount(root, ctx) {
           button({ label: 'Back to run', variant: 'outline', icon: 'arrow-left', focusKey: 'res:run', href: detail }),
           button({ label: 'Back to workbench', variant: 'outline', focusKey: 'res:workbench', href: router.href('workbench', { experimentId: attempt.experimentId }) }),
         ],
-        meta: [statusBadges(facts), evidenceTag()],
+        meta: statusBadges(facts),
       }),
       facts.live && notice({
         tone: 'warning', class: 'run-notice', title: `Still ${facts.status}.`,

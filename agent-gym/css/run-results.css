@@ -26,6 +26,7 @@
 .gym-app .run-list__title:hover { text-decoration: underline; }
 .gym-app .run-list__rev { color: var(--gym-muted); white-space: nowrap; }
 .gym-app .run-list__status { flex-wrap: nowrap; }
+@media (max-width: 899.98px) { .gym-app .run-list__status { flex-wrap: wrap; } }
 .gym-app .run-list__progress { min-width: 170px; }
 .gym-app .run-review-none { font-size: var(--gym-fs-sm); }
 
@@ -222,3 +223,5 @@
 .gym-app .run-cell__summary { white-space: nowrap; }
 .gym-app .run-list__env .gym-icon { color: var(--gym-ink-2); }
 .gym-app .run-pairs__legend { margin-top: 8px; font-size: var(--gym-fs-xs); }
+.gym-app .run-rep.gym-btn--ghost { border: 1px solid var(--gym-line); background: var(--gym-surface); }
+.gym-app .run-byscenario .gym-panel__head { flex-wrap: wrap; }
