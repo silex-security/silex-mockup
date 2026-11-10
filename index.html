@@ -311,14 +311,9 @@
     #assurance .en-card h3{margin:0;font-size:13.5px}
     #assurance .en-card p{margin:0;font-size:12px;color:var(--muted);flex:1}
     #assurance .en-card .as-open{margin:0;font-size:12px;width:100%;justify-content:center;text-align:center}
-    .sr-goals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-    .sr-goals .card,.sr-evidence{padding:18px 20px}
-    .sr-goals h3,.sr-evidence h3{margin:0 0 6px;font-size:14px}
-    .sr-goals p,.sr-evidence p{margin:0;font-size:12.5px;color:var(--muted)}
-    .sr-evidence{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
     .sr-head{display:flex;align-items:center;gap:10px}
     @media(max-width:1400px){.app[data-nav-mode="pinned"] .suite-rail{display:none}}
-    @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}#assurance .en-grid{grid-template-columns:repeat(2,1fr)}.sr-goals{grid-template-columns:1fr}}
+    @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}#assurance .en-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:760px){.suite-row,#assurance .en-grid{grid-template-columns:1fr}.suite-band{flex-direction:column;align-items:stretch}}
     /* ── Assurance view (investor / technical register) ── */
     #assurance{max-width:1060px}
@@ -716,14 +711,9 @@
 <section class="view" id="speedrun">
 <div class="title-row"><div>
 <div class="sr-head"><h1>SILEX Speedrun</h1><span class="rx-stt roadmap">Roadmap</span></div>
-<p>Improve selected performance goals within business and safety constraints.</p>
-</div></div>
-<div class="sr-goals">
-<div class="card"><h3>Quality and task success</h3><p>Raise how often agents finish the task correctly, without loosening a business rule.</p></div>
-<div class="card"><h3>Cost and inference efficiency</h3><p>Spend less on inference for the same task by reusing validated knowledge.</p></div>
-<div class="card"><h3>Latency and execution paths</h3><p>Shorten the path an agent takes by reusing steps that are already validated.</p></div>
-</div>
-<div class="card sr-evidence"><div><h3>What is measured today</h3><p>The runtime judge's latency is measured on held-out items.</p></div><button class="btn secondary" data-wm-route="#view=runtime-observation&amp;tab=latency">See the measured judge latency →</button></div>
+<p>How agent teams perform, where they are slow or costly, and which optimizations are worth testing in Agent Gym. All figures are illustrative.</p>
+</div><button class="btn secondary" data-wm-route="#view=runtime-observation&amp;tab=latency">Measured today: judge latency →</button></div>
+<div class="studio-frame-wrap" id="speedrunFrameWrap" style="background:#08060f"><div class="studio-frame-loading">Opening Speedrun…</div></div>
 </section>
 
 <section class="view" id="overview">
@@ -1876,6 +1866,7 @@ const incidentData={
      #view=<nav view>, #view=incident&incident=<id>, #view=workflow&workflow=<id>,
      #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
      #view=runtime-observation[&tab=scenarios|plane|learning|ontology|fleet|latency[&sub=<key>]] (read by js/rt-subtabs.js).
+     #view=speedrun[&path=<app route>] (read and kept current by js/speedrun-host.js).
      The old #view=long-term&tab=runtime is rewritten to #view=runtime-observation. Non-view hashes (#studio, #studio=new)
      stay with js/studio-host.js. Ordinary nav clicks do not write the hash, so Back returns to the last recorded route. */
   const WM_TABS=['wm-architecture','wm-ontology','wm-overview','wm-landscape','wm-gaps'];
@@ -1915,6 +1906,7 @@ const incidentData={
       return '#view=security-model&tab='+tab+(tab==='wm-ontology'&&n?'&node='+encodeURIComponent(n):'')}
     if(id==='runtime-observation'){const t=window.__rtTabs&&window.__rtTabs.current();if(t&&t!=='scenarios'){const s=window.__rtSubnav&&window.__rtSubnav[t],k=s&&s.current();return '#view=runtime-observation&tab='+t+(k&&k!==s.initial?'&sub='+k:'')}}
     if(id==='scenario-expansion'){const s=window.__sxView,k=s&&s.current();return '#view=scenario-expansion'+(k&&k!==s.initial?'&sub='+encodeURIComponent(k):'')}
+    if(id==='speedrun'&&window.__speedrun)return window.__speedrun.hash();
     return '#view='+id}
   function openRoute(hash){const h=location.hash;
     /* a blank origin, or a view= hash that no longer describes the visible state, is rewritten to the full current state;
@@ -1930,6 +1922,7 @@ const incidentData={
 <script type="module" src="js/suite-nav.js"></script>
 <script type="module" src="js/studio-host.js"></script>
 <script type="module" src="js/jev-runtime-host.js"></script>
+<script type="module" src="js/speedrun-host.js"></script>
 <script type="module" src="js/rt-ontology.js"></script>
 <script type="module" src="js/rt-latency.js"></script>
 <script type="module" src="js/rt-fleet.js"></script>

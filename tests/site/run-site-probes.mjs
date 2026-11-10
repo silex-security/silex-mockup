@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -1161,6 +1161,44 @@ try {
     await until(wmActive,'Forward to the World Model',10000);
     assert.equal(await wmPanel(),'wm-ontology','Forward restores the Ontology Graph');
     return 'Assurance button -> Ontology Graph; Back -> Assurance; Forward -> Ontology Graph';
+  });
+
+  await probe('S46','Speedrun view runs the embedded app: overview, team, search, variant to Agent Gym, Studio link',async()=>{
+    const SR='const w=globalThis.document.querySelector("#speedrunFrame").contentWindow; const document=w.document, location=w.location;';
+    const se=code=>ev(SR+code);
+    const h1=text=>until(()=>se(`return (document.querySelector('h1')?.textContent||'').includes(${Q(text)})`),'frame heading '+text);
+    const queued=()=>se(`return Number(document.querySelector('nav[aria-label="Filter by status"] a .lbl').textContent)`);
+    await load();await nav('speedrun');
+    await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
+    await h1('Organization overview');
+    assert.equal(await se('return document.documentElement.classList.contains("dark")'),true,'opens in the dark theme');
+    const fill=await ev('const r=document.querySelector("#speedrunFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
+    assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
+    await se(`document.querySelector('a[href="#/speedrun/teams/refund"]').click()`);await h1('Refund Team');
+    await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund"'),'the site URL follows the app route');
+    await se(`location.hash='/speedrun/units/customer-service/teams'`);await h1('Agent Team Explorer');
+    await se(`const f=document.querySelector('form');f.querySelector('[name=q]').value='escalation';f.requestSubmit()`);
+    await until(()=>se(`return location.hash.includes('q=escalation')&&document.querySelectorAll('a[href^="#/speedrun/teams/"]').length===1`),'search narrows the list to one team');
+    await se(`[...document.querySelectorAll('nav[aria-label="Scope"] a')].find(a=>a.textContent==='Agent Team').click()`);
+    await until(()=>se(`return !location.hash.includes('q=')&&document.querySelectorAll('a[href^="#/speedrun/teams/"]').length>1&&document.querySelector('[name=q]').value===''`),'a link without the filter clears the list and the box');
+    await se(`location.hash='/gym'`);await h1('Agent Gym');const before=await queued();
+    await se(`location.hash='/speedrun/teams/refund/variant'`);
+    await until(()=>se(`return [...document.querySelectorAll('button[type=submit]')].some(b=>b.textContent.includes('Send to Agent Gym')&&!b.disabled)`),'variant form ready');
+    await se(`[...document.querySelectorAll('button[type=submit]')].find(b=>b.textContent.includes('Send to Agent Gym')).click()`);
+    await until(()=>se(`return location.hash.startsWith('#/gym/experiments/')`),'the new experiment opens');
+    await se(`location.hash='/gym'`);await h1('Agent Gym');
+    await until(async()=>(await queued())===before+1,'queue grew by one');
+    await load({path:'/index.html#view=speedrun&path=%2Fgym%3Fstatus%3Ddone'});
+    await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'deep link frame rendered',30000);
+    await h1('Agent Gym');
+    assert.equal(await se(`return document.querySelector('nav[aria-label="Filter by status"] a[aria-current=page]').textContent.trim().startsWith('Done')`),true,'a deep link opens the named screen with its query');
+    await se(`document.querySelector('header a[href="#/speedrun"]').click()`);await h1('Organization overview');
+    await until(()=>ev('return location.hash==="#view=speedrun"'),'the overview is the plain view link');
+    await ev(`location.hash='view=speedrun&path='+encodeURIComponent('/speedrun/teams/invoice/trace')`);
+    await until(()=>se(`return location.hash==='#/speedrun/teams/invoice/trace'`),'a path link drives the open frame');
+    await se(`[...document.querySelectorAll('header a')].find(a=>a.textContent.trim()==='Agent Studio').click()`);
+    await until(()=>ev('return document.querySelector(".view.active").id==="blueprint"'),'Agent Studio link opens the Studio view');
+    return `frame ${fill.h}px; team, search, variant -> queue ${before} -> ${before+1}; URL mirror and deep link; Studio link`;
   });
 
 } finally {

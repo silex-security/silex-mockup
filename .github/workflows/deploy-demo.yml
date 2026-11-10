@@ -42,7 +42,7 @@ jobs:
           mkdir _site
           git archive HEAD | tar -x -C _site
           cd _site
-          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html; do
+          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html speedrun/app/index.html; do
             test -f "$f" || { echo "::error::missing required file $f"; exit 1; }
           done
           big=$(find . -type f -size +25M); test -z "$big" || { echo "::error::over 25 MB: $big"; exit 1; }
@@ -77,7 +77,7 @@ jobs:
         working-directory: _site
         # A mismatch is reported, never answered by another upload.
         run: |
-          files="index.html assurance.html blueprint_studio/app/index.html swm/data/ontology.json $(ls js/* css/*)"
+          files="index.html assurance.html blueprint_studio/app/index.html swm/data/ontology.json $(ls js/* css/* speedrun/app/index.html speedrun/app/assets/*.js speedrun/app/assets/*.css)"
           for origin in $ORIGINS; do
             for f in $files; do
               url="$origin/$f"; [ "$f" = index.html ] && url="$origin/"
