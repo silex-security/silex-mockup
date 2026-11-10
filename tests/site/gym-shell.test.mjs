@@ -216,6 +216,25 @@ test('mountView keeps focus, caret and scroll across a store-driven re-render', 
   assert.deepEqual([out.renders, out.afterDestroy, out.emptied], [2, 2, 0], 'destroy unsubscribes and empties the root');
 }));
 
+test('a dialog returns focus to its opener by focus key when a re-render replaced the opener while it was open', async t => withGym(t, async gym => {
+  const out = await gym.ev(`
+    const { h, mountView } = await import('./js/components/dom.js');
+    const { openDialog, button } = await import('./js/components/ui.js');
+    const root = document.createElement('div'); document.querySelector('.gym-main').append(root);
+    const view = mountView(root, () => button({ label: 'Opener', focusKey: 'probe:opener' }), window.__gym.store);
+    const before = root.querySelector('button'); before.focus();
+    const dlg = openDialog({ title: 'Probe', actions: close => [button({ label: 'Done', onClick: () => close('done') })] });
+    window.__gym.store.dispatch(state => ({ state: { ...state, seq: state.seq + 1 } }), {});
+    const stillOpen = dlg.el.open && before.isConnected === false;
+    dlg.close('done');
+    ${frame}
+    const after = root.querySelector('button');
+    const result = { stillOpen, replaced: after !== before, focused: document.activeElement === after, dialogs: document.querySelectorAll('dialog').length };
+    view.destroy();
+    return result;`);
+  assert.deepEqual(out, { stillOpen: true, replaced: true, focused: true, dialogs: 0 });
+}));
+
 test('no horizontal page scroll at 390, 768 and 1440px, and three columns stack below 1024px', async t => withGym(t, async gym => {
   for (const [width, columns] of [[390, 1], [768, 1], [1023, 1], [1024, 3], [1440, 3]]) {
     await gym.size(width, 900);

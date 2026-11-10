@@ -209,9 +209,9 @@
 
 /* Panels and cards */
 .gym-app .gym-panel { display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--gym-line); border-radius: var(--gym-r-lg); background: var(--gym-surface); box-shadow: var(--gym-shadow-sm); }
-.gym-app .gym-panel__head { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px 0; }
+.gym-app .gym-panel__head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; padding: 14px 16px 0; }
 .gym-app .gym-panel__icon { flex: none; display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--gym-r); background: var(--gym-primary-soft); color: var(--gym-primary-ink); }
-.gym-app .gym-panel__titles { flex: 1; min-width: 0; }
+.gym-app .gym-panel__titles { flex: 1 1 150px; min-width: 0; }
 .gym-app .gym-panel__title { font-size: var(--gym-fs-xl); line-height: 1.25; font-weight: 700; letter-spacing: -.01em; }
 .gym-app .gym-panel__subtitle { color: var(--gym-muted); font-size: var(--gym-fs-md); }
 .gym-app .gym-panel__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
