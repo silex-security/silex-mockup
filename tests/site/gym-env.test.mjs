@@ -32,14 +32,14 @@ test('the N2 draft has 4 systems, 12 tools, 4 relationships, 3 components ready 
   const draft = draftOf(start());
   const s = draftSummary(draft);
   assert.equal(s.text, '4 systems · 12 tools · 4 relationships');
-  assert.deepEqual(s.rows.map(r => [r.name, r.toolCount, r.status]), [['Salesforce', 4, 'ready'], ['Gmail simulator', 3, 'needs_review'], ['Google Calendar', 3, 'ready'], ['Customer DB', 2, 'ready']]);
+  assert.deepEqual(s.rows.map(r => [r.name, r.toolCount, r.status]), [['Salesforce', 4, 'ready'], ['Gmail', 3, 'needs_review'], ['Google Calendar', 3, 'ready'], ['Customer DB', 2, 'ready']]);
   assert.deepEqual([s.ready, s.pending, s.status], [3, 1, 'draft']);
   assert.ok(draft.assumptions.some(a => a.text === 'Synthetic customer data' && a.kind === 'info'), 'the synthetic-data note exists and is not counted');
   assert.deepEqual(component(draft, 'customdb').permission, 'read_only');
   assert.deepEqual([component(draft, 'gmail').permission, component(draft, 'gmail').failureBehavior, component(draft, 'gmail').dedup], ['send_requires_approval', 'timeout_after_send', 'custom_adapter']);
   assert.ok(draft.components.every(c => c.mode === 'simulated'));
   assert.deepEqual(draft.chat.filter(t => t.role === 'user').length, 2);
-  assert.deepEqual(draft.chat.at(-1).changes, ['Customer DB: read only', 'Gmail simulator: timeout enabled'], 'the second turn lists the changes the assistant really made');
+  assert.deepEqual(draft.chat.at(-1).changes, ['Customer DB: read only', 'Gmail: timeout enabled'], 'the second turn lists the changes the assistant really made');
   const again = ok(ensureEnvironmentDraft(update(start(), 'gcal', { name: 'Calendar' }), {}));
   assert.equal(component(draftOf(again), 'gcal').name, 'Calendar', 'ensuring an existing draft keeps its edits');
 });
@@ -120,8 +120,8 @@ test('undo and redo restore the exact draft content, cover assistant and compone
 test('the assistant applies recognised intents as one undoable step and lists the real field changes', () => {
   const cases = [
     ['Make the customer database read-write', ['Customer DB: read and write'], d => component(d, 'customdb').permission === 'read_write'],
-    ['Disable Gmail timeout testing', ['Gmail simulator: timeout disabled'], d => component(d, 'gmail').failureBehavior === 'none'],
-    ['Drop approval before sending', ['Gmail simulator: read and write'], d => component(d, 'gmail').permission === 'read_write'],
+    ['Disable Gmail timeout testing', ['Gmail: timeout disabled'], d => component(d, 'gmail').failureBehavior === 'none'],
+    ['Drop approval before sending', ['Gmail: read and write'], d => component(d, 'gmail').permission === 'read_write'],
     ['Make Salesforce read-only', ['Salesforce: read only', 'Salesforce: update_opportunity disabled', 'Salesforce: log_activity disabled'], d => component(d, 'salesforce').enabledTools.length === 2],
     ['Add Helpdesk', ['Added Helpdesk'], d => !!component(d, 'helpdesk') && 'tickets' in d.dataSeed],
     ['Remove Google Calendar', ['Removed Google Calendar'], d => !component(d, 'gcal')],
