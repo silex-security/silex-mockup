@@ -181,7 +181,7 @@
 .gym-app .sc-lib__meta { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; width: 100%; }
 .gym-app .sc-lib__search { flex: 0 1 360px; min-width: 0; }
 .gym-app .sc-lib__count { color: var(--gym-muted); font-size: var(--gym-fs-sm); font-weight: 500; }
-.gym-app .sc-lib__truth { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 12px; border-radius: var(--gym-r-pill); background: var(--gym-amber-soft); color: var(--gym-amber); font-size: var(--gym-fs-sm); font-weight: 500; }
+.gym-app .sc-lib__truth { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 5px 12px; border-radius: var(--gym-r); background: var(--gym-amber-soft); color: var(--gym-amber); font-size: var(--gym-fs-sm); font-weight: 500; }
 .gym-app .sc-lib__truth .gym-icon { flex: none; }
 .gym-app .sc-lib { display: grid; gap: 14px; margin: 4px 0 18px; padding: 0; list-style: none; }
 .gym-app .sc-lib__card { padding: 14px 18px 12px; gap: 12px; }

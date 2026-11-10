@@ -27,7 +27,8 @@
 .gym-app .run-list__rev { color: var(--gym-muted); white-space: nowrap; }
 .gym-app .run-list__status { flex-wrap: nowrap; }
 @media (max-width: 899.98px) { .gym-app .run-list__status { flex-wrap: wrap; } }
-.gym-app .run-list__progress { min-width: 170px; }
+.gym-app .run-list__progress { min-width: 120px; }
+.gym-app .run-list .run-table th, .gym-app .run-list .run-table td { padding-left: 10px; padding-right: 10px; }
 .gym-app .run-review-none { font-size: var(--gym-fs-sm); }
 
 @media (max-width: 899.98px) {
@@ -63,7 +64,7 @@
 .gym-app .run-gate__tally { justify-content: flex-end; }
 .gym-app .run-reg__cadence .gym-input--select { min-width: 168px; }
 .gym-app .run-reg > .gym-panel__body { display: flex; flex-direction: column; gap: 10px; }
-.gym-app .run-reg__note { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 4px 12px; border-radius: var(--gym-r-pill); background: var(--gym-surface-2); color: var(--gym-ink-2); font-size: var(--gym-fs-sm); }
+.gym-app .run-reg__note { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 5px 12px; border-radius: var(--gym-r); background: var(--gym-surface-2); color: var(--gym-ink-2); font-size: var(--gym-fs-sm); }
 .gym-app .run-reg__note .gym-icon { flex: none; color: var(--gym-primary-ink); }
 .gym-app .run-reg__plan { display: grid; gap: 4px; font-size: var(--gym-fs-sm); }
 .gym-app .run-reg__skipped { display: grid; gap: 2px; margin: 0; padding-left: 18px; color: var(--gym-muted); list-style: disc; }
@@ -85,6 +86,9 @@
   .gym-app .run-gate .run-table td[data-label="Experiment"]::before, .gym-app .run-gate .run-table td[data-label="Action"]::before,
   .gym-app .run-reg .run-table td[data-label="Batch"]::before, .gym-app .run-reg .run-table td[data-label="Action"]::before { content: none; }
   .gym-app .run-reg__progress { min-width: 0; width: 100%; }
+  .gym-app .run-gate__drift { white-space: normal; }
+  .gym-app .run-gate .run-table td[data-label="Experiment"] { order: -2; }
+  .gym-app .run-gate .run-table td[data-label="Gate"] { order: -1; }
 }
 @media (min-width: 900px) and (max-width: 1279.98px) {
   .gym-app .run-gate .run-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
