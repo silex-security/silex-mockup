@@ -10,14 +10,40 @@ import { capabilityOf, clone } from '../model.js';
 
 export const PERMISSION_VALUES = Object.freeze(['allowed', 'requires_approval', 'denied']);
 
+// A world is a copy of the data seed plus runtime records, so the same lookup reads a seed and a world.
 const primaryRecord = (world, kind, collection, primaryKey) =>
-  world[kind]?.[collection]?.find(r => r.id === world.primary[primaryKey]);
+  world[kind]?.[collection]?.find?.(r => r?.id === world.primary?.[primaryKey]);
+
+// The records each component kind's adapter reads. validateEnvironment holds a data seed to this table.
+export const SEED_NEEDS = Object.freeze({
+  crm: [{ collection: 'contacts', primary: 'contact' }, { collection: 'opportunities', primary: 'opportunity' }, { collection: 'activities' }],
+  email: [{ collection: 'inbox' }],
+  calendar: [{ collection: 'events' }, { collection: 'freeSlots' }],
+  db: [{ collection: 'contacts', primary: 'contact' }],
+  payments: [{ collection: 'charges', primary: 'charge' }],
+  tickets: [{ collection: 'tickets' }],
+});
+
+/** What a data seed lacks for one component kind, in words. Empty when the adapter can read everything it needs. */
+export const seedProblems = (seed, kind) => !SEED_NEEDS[kind] ? [] : !seed?.[kind] ? [`the data seed has no ${kind} records`] : SEED_NEEDS[kind].flatMap(({ collection, primary }) => {
+  if (!Array.isArray(seed?.[kind]?.[collection])) return [`the data seed has no ${kind}.${collection} list`];
+  if (primary && !primaryRecord(seed, kind, collection, primary)) return [`${kind}.${collection} has no record for the primary ${primary} ${seed.primary?.[primary] ?? '(none named)'}`];
+  return [];
+});
 
 export const DATA_TARGETS = Object.freeze({
-  'contact.optOut': { kind: 'db', type: 'boolean', apply: (w, v) => { primaryRecord(w, 'db', 'contacts', 'contact').optOut = v; } },
-  'charge.refundable': { kind: 'payments', type: 'boolean', apply: (w, v) => { primaryRecord(w, 'payments', 'charges', 'charge').refundable = v; } },
-  'calendar.freeSlots': { kind: 'calendar', type: 'number', apply: (w, v) => { w.calendar.freeSlots = w.calendar.freeSlots.slice(0, v); } },
+  'contact.optOut': { kind: 'db', type: 'boolean', holds: s => !!primaryRecord(s, 'db', 'contacts', 'contact'), apply: (w, v) => { primaryRecord(w, 'db', 'contacts', 'contact').optOut = v; } },
+  'charge.refundable': { kind: 'payments', type: 'boolean', holds: s => !!primaryRecord(s, 'payments', 'charges', 'charge'), apply: (w, v) => { primaryRecord(w, 'payments', 'charges', 'charge').refundable = v; } },
+  'calendar.freeSlots': { kind: 'calendar', type: 'number', holds: s => Array.isArray(s.calendar?.freeSlots), apply: (w, v) => { w.calendar.freeSlots = w.calendar.freeSlots.slice(0, v); } },
 });
+
+/** Why `key` = `value` cannot be written into a run of `environment`, or null. Without an environment, only the key and type. */
+export function dataTargetProblem(environment, key, value) {
+  const target = DATA_TARGETS[key];
+  if (!target) return `unknown data target ${key}`;
+  if (environment && !target.holds(environment.dataSeed)) return `${environment.name} holds no ${target.kind} record for ${key}`;
+  return typeof value === target.type ? null : `${key} expects a ${target.type}`;
+}
 
 export const primaryContact = world => primaryRecord(world, 'crm', 'contacts', 'contact');
 export const primaryConsent = world => primaryRecord(world, 'db', 'contacts', 'contact');
@@ -31,12 +57,7 @@ const toolOf = (environment, target) => {
 };
 
 export function overrideProblem(environment, override) {
-  if (override.kind === 'data') {
-    const target = DATA_TARGETS[override.target];
-    if (!target) return `unknown data target ${override.target}`;
-    if (!(target.kind in environment.dataSeed)) return `${override.target} needs a ${target.kind} component`;
-    return typeof override.value === target.type ? null : `${override.target} expects a ${target.type}`;
-  }
+  if (override.kind === 'data') return dataTargetProblem(environment, override.target, override.value);
   if (override.kind !== 'fault' && override.kind !== 'permission') return `unknown override kind ${override.kind}`;
   const found = toolOf(environment, override.target);
   if (!found) return `unknown tool ${override.target}`;
@@ -54,13 +75,15 @@ const basePermission = (component, spec) =>
   spec.effect === 'read' || component.permission === 'read_write' ? 'allowed'
     : component.permission === 'read_only' ? 'read_only' : 'requires_approval';
 
+/** The runtime records every world starts with, before any data seed. */
+export const emptyWorld = () => ({
+  outbox: [], writes: [], ledger: {}, violations: [], notices: [],
+  approvals: { requested: [], granted: [] }, drafts: [], clarifications: [], cancellations: [],
+  permissions: {}, faults: {}, seq: 0,
+});
+
 export function createWorld(environment, scenario) {
-  const world = {
-    ...clone(environment.dataSeed),
-    outbox: [], writes: [], ledger: {}, violations: [], notices: [],
-    approvals: { requested: [], granted: [] }, drafts: [], clarifications: [], cancellations: [],
-    permissions: {}, faults: {}, seq: 0,
-  };
+  const world = { ...clone(environment.dataSeed), ...emptyWorld() };
   for (const c of environment.components) for (const t of c.tools) world.permissions[capabilityOf(c, t.name)] = basePermission(c, t);
   for (const [target, value] of Object.entries(scenario.initialState?.patch ?? {})) DATA_TARGETS[target].apply(world, value);
   for (const o of scenario.overrides ?? []) {

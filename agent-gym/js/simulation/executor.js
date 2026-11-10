@@ -29,7 +29,7 @@
 //
 // SCRIPTED_TRIGGERS are the legal `after` values of scriptedEvents. Prompt text never creates an approval grant.
 import { digestOf } from '../model.js';
-import { ACT_REQUEST, callTool, createWorld, finalStateOf, primaryCharge, primaryConsent, primaryContact } from './adapters.js';
+import { ACT_REQUEST, callTool, createWorld, emptyWorld, finalStateOf, primaryCharge, primaryConsent, primaryContact } from './adapters.js';
 import { evaluateRun } from './assertions.js';
 
 export const SITUATION = Object.freeze(['standard', 'noisy_context', 'ambiguous_request', 'instruction_conflict', 'cancel_after_draft']);
@@ -201,21 +201,27 @@ function walk(run) {
   }
 }
 
-/** Deterministic: same snapshot, plan item and seed give a deep-equal result. Own world per call. */
+/**
+ * Deterministic: same snapshot, plan item and seed give a deep-equal result. Own world per call. Never throws: a
+ * scenario, world or step the simulation cannot run ends in an 'error' execution whose last event says why.
+ */
 export function runExecution(snapshot, planItem, seed) {
-  const scenario = snapshot.scenarios.find(s => s.id === planItem.scenarioId);
-  const world = createWorld(snapshot.environment, scenario);
-  const initialStateDigest = digestOf(finalStateOf(world));
-  const run = createRun(snapshot, planItem, seed, world, scenario);
-  const base = { id: planItem.id, attemptId: null, versionId: planItem.versionId, scenarioId: planItem.scenarioId, repeatIndex: planItem.repeatIndex, initialStateDigest, evidenceGrade: 'simulated' };
+  const base = { id: planItem.id, attemptId: null, versionId: planItem.versionId, scenarioId: planItem.scenarioId, repeatIndex: planItem.repeatIndex, evidenceGrade: 'simulated' };
+  let world = emptyWorld(), initialStateDigest = null, run = null;
   try {
+    const scenario = snapshot.scenarios.find(s => s.id === planItem.scenarioId);
+    if (!scenario) throw Error(`${planItem.scenarioId} is not in this attempt`);
+    world = createWorld(snapshot.environment, scenario);
+    initialStateDigest = digestOf(finalStateOf(world));
+    run = createRun(snapshot, planItem, seed, world, scenario);
     run.fire('start');
     walk(run);
+    const finalState = finalStateOf(world);
+    const assertionResults = evaluateRun(scenario, finalState);
+    return { ...base, initialStateDigest, events: run.events, finalState, assertionResults, terminalState: assertionResults.every(a => a.pass) ? 'passed' : 'failed' };
   } catch (err) {
-    run.emit('', 'note', `Simulation error: ${err.message}`);
-    return { ...base, events: run.events, finalState: finalStateOf(world), assertionResults: [], terminalState: 'error' };
+    const events = run?.events ?? [];
+    const note = { seq: events.length + 1, nodeId: '', type: 'note', note: `Simulation error: ${err.message}` };
+    return { ...base, initialStateDigest, events: [...events, note], finalState: finalStateOf(world), assertionResults: [], terminalState: 'error' };
   }
-  const finalState = finalStateOf(world);
-  const assertionResults = evaluateRun(scenario, finalState);
-  return { ...base, events: run.events, finalState, assertionResults, terminalState: assertionResults.every(a => a.pass) ? 'passed' : 'failed' };
 }

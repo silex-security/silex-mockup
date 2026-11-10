@@ -1,7 +1,7 @@
 // Review and save for the N3 builder. Structural checks for a scenario spec, confirm and edit reducers, and the save
 // that writes reviewed Scenario records and a new immutable ScenarioSetRevision.
 import { digestOf, refKey } from '../model.js';
-import { DATA_TARGETS, overrideProblem } from '../simulation/adapters.js';
+import { dataTargetProblem, overrideProblem } from '../simulation/adapters.js';
 import { CHECK_OPS, CHECK_PATHS, EXPECTED_OUTCOME } from '../simulation/assertions.js';
 import { SCRIPTED_TRIGGERS } from '../simulation/executor.js';
 import { LIMITS, cleanSpecPatch, contextOf, editDraft } from './draft.js';
@@ -49,7 +49,7 @@ export function runProblems(spec, { environment, workflow }, { dimension = null,
   if (type === 'multi_turn' && spec.messages.length < 2) add('turns_missing', 'A multi-turn variation needs at least two ordered turns.');
   if (!(spec.expectedBehavior.outcome in EXPECTED_OUTCOME)) add('unknown_outcome', `Unknown expected outcome ${spec.expectedBehavior.outcome}.`);
   for (const c of spec.stateChecks) if (!CHECK_PATHS.includes(c.path) || !CHECK_OPS.includes(c.op)) add('unknown_check_path', `Unsupported check ${c.path} ${c.op}.`);
-  for (const [k, v] of Object.entries(spec.initialState.patch)) if (!DATA_TARGETS[k] || typeof v !== DATA_TARGETS[k].type) add('unknown_patch', `Unsupported initial state ${k}.`);
+  for (const [k, v] of Object.entries(spec.initialState.patch)) { const p = dataTargetProblem(environment, k, v); if (p) add('unknown_patch', `Unsupported initial state: ${p}.`); }
   if (dimension === 'prompt' && spec.overrides.length) add('prompt_overrides', 'A prompt variation keeps the environment fixed and carries no overrides.');
   for (const o of spec.overrides) { const p = environment && overrideProblem(environment, o); if (p) add('unknown_override', p); }
   for (const e of spec.scriptedEvents) if (!SCRIPTED_TRIGGERS.includes(e.after) || e.type !== 'approval_grant') add('unknown_scripted_event', 'Unsupported scripted event.');

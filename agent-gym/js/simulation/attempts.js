@@ -1,5 +1,6 @@
 // Experiment draft edits, attempt freezing and the attempt lifecycle, as pure reducers:
-// (state, command) -> { state } | { error }. Attempt status: queued -> running -> completed | cancelled.
+// (state, command) -> { state } | { error }. Attempt status: queued -> running -> completed | cancelled | failed.
+// `failed` is a runner or data fault (an 'error' execution, or a dispatch the scheduler caught), never a failed check.
 // `runner` ('active' | 'paused') is a separate control: a paused running attempt still holds the one slot.
 import { DEMO_SEED, FIXTURE_VERSION, REPETITIONS, REVIEW_DECISION, clone, digestOf, refKey, sameRef } from '../model.js';
 import { validateExperiment } from '../validators.js';
@@ -162,12 +163,20 @@ export function advanceAttempt(state, { attemptId }) {
   const item = attempt.plan[attempt.cursor];
   const execution = { ...runExecution(attempt.inputSnapshot, item, attempt.seed), id: `${attempt.id}/${item.id}`, attemptId: attempt.id };
   const cursor = attempt.cursor + 1;
-  const status = cursor === attempt.plan.length ? 'completed' : 'running';
+  const status = execution.terminalState === 'error' ? 'failed' : cursor === attempt.plan.length ? 'completed' : 'running';
   const next = {
     ...putAttempt(state, { ...attempt, cursor, status }),
     executions: { ...state.executions, [attempt.id]: [...(state.executions[attempt.id] ?? []), execution] },
   };
-  return { state: status === 'completed' ? releaseSlot(next) : next };
+  return { state: status === 'running' ? next : releaseSlot(next) };
+}
+
+/** The scheduler's verdict on an attempt whose advance threw: it stops as failed and gives up the slot. */
+export function failAttempt(state, { attemptId }) {
+  const { attempt, error } = lookup(state, attemptId);
+  if (error) return { error };
+  if (!LIVE.includes(attempt.status)) return { state };
+  return { state: releaseSlot(putAttempt(state, { ...attempt, status: 'failed' })) };
 }
 
 const setRunner = runner => (state, { attemptId }) => {

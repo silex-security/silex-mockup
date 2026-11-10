@@ -5,7 +5,7 @@ import { capabilityOf, digestOf, uniqueIds } from '../model.js';
 import { ENVIRONMENTS, deriveCapabilities, deriveFaultCapabilities } from '../fixtures/environments.js';
 import { WORKFLOWS } from '../fixtures/workflows.js';
 import { SCENARIOS, SCENARIO_SETS } from '../fixtures/scenarios.js';
-import { faultCapabilityOf } from '../simulation/adapters.js';
+import { faultCapabilityOf, seedProblems } from '../simulation/adapters.js';
 import { LINK_FIELDS, PERMISSION_LABEL } from './catalog.js';
 
 const salesWorkflow = WORKFLOWS.find(w => w.id === 'wf-sales-follow-up');
@@ -114,6 +114,9 @@ export const RULES = Object.freeze({
     const have = new Set([...deriveCapabilities(draft.components), ...deriveFaultCapabilities(draft.components)]);
     const missing = [...req.capabilities, ...req.faultCapabilities].filter(cap => !have.has(cap));
     return missing.length ? [error('capability_missing', `${req.name} needs ${missing.join(', ')}, which no enabled tool or fault hook provides`)] : [];
+  },
+  dataSeed(draft) {
+    return draft.components.flatMap(c => seedProblems(draft.dataSeed, c.kind).map(p => error('data_seed', `${c.name}: ${p}`, c.id)));
   },
   linked(draft) {
     return draft.components.filter(c => draft.components.length > 1 && !draft.relations.some(r => r.from === c.id || r.to === c.id))

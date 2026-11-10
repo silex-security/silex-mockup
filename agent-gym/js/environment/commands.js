@@ -8,6 +8,8 @@
 import { clone, digestOf } from '../model.js';
 import { DEDUP_ASSUMPTION_TEXT, LINK_FIELDS, PERMISSION_LABEL, catalogEntry } from './catalog.js';
 import { behaviourDigest, validateEnvironment } from './validate.js';
+import { ENVIRONMENTS } from '../fixtures/environments.js';
+import { SEED_NEEDS } from '../simulation/adapters.js';
 
 export const DRAFT_ID = 'draft-sales-ops';
 export const HISTORY_LIMIT = 50;
@@ -50,7 +52,15 @@ function nextFreePos(components) {
 
 const findComponent = (content, id) => content.components.find(c => c.id === id);
 const mapComponent = (content, id, fn) => ({ ...content, components: content.components.map(c => c.id === id ? fn(c) : c) });
-const withSeed = (dataSeed, entry) => ({ ...Object.fromEntries(Object.entries(entry.seed).map(([k, v]) => [k, clone(v)])), ...dataSeed });
+// The primary record ids a catalog component's seed records are keyed by, taken from the fixture it was copied from.
+const primaryFor = kind => {
+  const from = ENVIRONMENTS.find(e => kind in e.dataSeed)?.dataSeed.primary ?? {};
+  return Object.fromEntries((SEED_NEEDS[kind] ?? []).filter(n => n.primary && n.primary in from).map(n => [n.primary, from[n.primary]]));
+};
+const withSeed = (dataSeed, entry) => ({
+  ...Object.fromEntries(Object.entries(entry.seed).map(([k, v]) => [k, clone(v)])), ...dataSeed,
+  primary: { ...primaryFor(entry.component.kind), ...dataSeed.primary },
+});
 const dropUnusedSeed = (dataSeed, components, kind) =>
   components.some(c => c.kind === kind) ? dataSeed : Object.fromEntries(Object.entries(dataSeed).filter(([k]) => k !== kind));
 
