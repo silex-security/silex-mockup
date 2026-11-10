@@ -296,3 +296,10 @@
 
 /* #/kit dev page */
 .gym-app .kit-card { flex: 1 1 150px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+
+/* The three nav labels and the workspace button collide between 768px and 900px. */
+@media (max-width: 900px) {
+  .gym-app .gym-header__rule { display: none; }
+  .gym-app .gym-nav__link:not([aria-current="page"]) span { display: none; }
+  .gym-app .gym-workspace { min-width: 0; }
+}

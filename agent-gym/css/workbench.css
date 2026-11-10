@@ -267,3 +267,4 @@
   .gym-app .wb-workflow__label { margin-right: 0; }
   .gym-app .wb-qtable td, .gym-app .wb-qtable th { padding-left: 10px; padding-right: 10px; }
 }
+.gym-app .wb-entry { white-space: normal; }

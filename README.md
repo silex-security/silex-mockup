@@ -30,7 +30,14 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 ### Agent Gym
 
-- **Pre-release, Scenario Expansion, System Validation:** the three Agent Gym views. They keep their view ids and deep links (`#view=short-term`, `#view=scenario-expansion`, `#view=long-term`).
+- **Experiment Workbench (concept preview, simulated data):** a separate static page at [`agent-gym/index.html`](agent-gym/index.html), linked from the Agent Gym group in the left nav. It follows the Agent Gym v2 design (three reference screens, 2026-11-10).
+  - *Workbench* (`#/workbench/exp-029`): pick an environment, a workflow version (baseline or Variant A) and scenarios, then run. The default is 2 versions × 3 scenarios × 3 repetitions = 18 runs. The queue below shows frozen attempts.
+  - *Create environment* (`#/environments/new`): edit simulated components, tools, relations and permissions, confirm behaviour assumptions, validate, and save an immutable template revision.
+  - *Create scenario* (`#/scenarios/new`): a base scenario plus generated variations, each reviewed before the set is saved. The five-scenario set makes 30 runs.
+  - *Runs and results* (`#/runs`): per-run replay of recorded events, a paired baseline against variant comparison, and a review decision. Nothing is deployed.
+  - Every run is a deterministic scripted simulation over an in-memory state copy. No model, connector or network call is involved, and app names mark simulated components, not connected accounts. State is kept in `localStorage` under `silex.gym.demo.v2`, and *Reset demo data* in the workspace menu clears only that key.
+  - Module contract: [`docs/agent-gym-v2-contract.md`](docs/agent-gym-v2-contract.md). Tests: `node --test tests/site/gym-*.test.mjs`. Screenshot tool: `node tools/gym-shot.mjs '#/workbench/exp-029' 1585x992 out.png`.
+- **Pre-release, Scenario Expansion, System Validation:** the three earlier Agent Gym views. They keep their view ids and deep links (`#view=short-term`, `#view=scenario-expansion`, `#view=long-term`).
 
 ### SILEX Runtime
 
