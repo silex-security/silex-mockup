@@ -1,4 +1,4 @@
-// Shared headless harness for the Scenario Expansion tests (logs/2026-10-11_SCENARIO_EXPANSION_PLAN.md).
+// Shared headless harness for the console page tests (first written for Scenario Expansion, since removed).
 // withPage(t, fn) serves the repo from a local static server (no git, no network), opens headless Chrome through
 // tests/site/ontology-card/browser.mjs and calls fn with a small page API. It skips the test with a clear message
 // when no Chrome binary exists (set CHROME), like the other headless site tests.
@@ -50,10 +50,10 @@ export async function withPage(t, fn) {
     const api = {
       page: p,
       ev: code => p.ev(code),
-      async go(hash = '#view=scenario-expansion') {
+      async go(hash = '#view=assurance') {
         await p.send('Page.navigate', { url: 'about:blank' });
         await p.send('Page.navigate', { url: `${origin}/index.html${hash}` });
-        await until(() => p.ev('return document.readyState === "complete" && !!window.__sxView'), 'page ' + hash, 30000);
+        await until(() => p.ev('return document.readyState === "complete" && !!window.__gymHost'), 'page ' + hash, 30000);
       },
       size: (width, height = 1000) => p.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 600 }),
       reducedMotion: on => p.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: on ? 'reduce' : 'no-preference' }] }),
