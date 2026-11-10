@@ -1866,6 +1866,7 @@ const incidentData={
      #view=<nav view>, #view=incident&incident=<id>, #view=workflow&workflow=<id>,
      #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
      #view=runtime-observation[&tab=scenarios|plane|learning|ontology|fleet|latency[&sub=<key>]] (read by js/rt-subtabs.js).
+     #view=speedrun[&path=<app route>] (read and kept current by js/speedrun-host.js).
      The old #view=long-term&tab=runtime is rewritten to #view=runtime-observation. Non-view hashes (#studio, #studio=new)
      stay with js/studio-host.js. Ordinary nav clicks do not write the hash, so Back returns to the last recorded route. */
   const WM_TABS=['wm-architecture','wm-ontology','wm-overview','wm-landscape','wm-gaps'];
@@ -1905,6 +1906,7 @@ const incidentData={
       return '#view=security-model&tab='+tab+(tab==='wm-ontology'&&n?'&node='+encodeURIComponent(n):'')}
     if(id==='runtime-observation'){const t=window.__rtTabs&&window.__rtTabs.current();if(t&&t!=='scenarios'){const s=window.__rtSubnav&&window.__rtSubnav[t],k=s&&s.current();return '#view=runtime-observation&tab='+t+(k&&k!==s.initial?'&sub='+k:'')}}
     if(id==='scenario-expansion'){const s=window.__sxView,k=s&&s.current();return '#view=scenario-expansion'+(k&&k!==s.initial?'&sub='+encodeURIComponent(k):'')}
+    if(id==='speedrun'&&window.__speedrun)return window.__speedrun.hash();
     return '#view='+id}
   function openRoute(hash){const h=location.hash;
     /* a blank origin, or a view= hash that no longer describes the visible state, is rewritten to the full current state;

@@ -31,11 +31,20 @@ Upstream is a Next.js App Router app. Its pages are async server components and 
 
 - **Routing.** `web/src/routes.js` turns the `app/**/page.tsx` file paths into a route table. The route lives in the URL hash (`app/index.html#/speedrun/teams/refund?c=2`), so the build works under any path. `web/src/main.jsx` calls the matching page function with its `params` and `searchParams` and renders the element it returns, inside the upstream layouts.
 - **Next imports.** `web/src/next/` holds stand-ins for `next/link`, `next/navigation` (`useRouter`, `redirect`, `notFound`) and `next/server`. `vite.config.js` aliases them.
-- **Mock API.** A `fetch` wrapper sends `/api/...` calls to the upstream `route.ts` handlers in the page. Experiments and benchmark builds a visitor creates last until the page reloads. The app's route is not mirrored in the demo's URL, so a reload returns to the overview.
+- **Mock API.** A `fetch` wrapper sends `/api/...` calls to the upstream `route.ts` handlers in the page. Experiments and benchmark builds a visitor creates last until the page reloads.
 
 Plain GET forms (the search boxes) navigate through the same router. A new upstream page, layout or API route is picked up by the next sync with no change here, as long as it uses only those Next features. An import the shell has no stand-in for fails the build. File conventions the shell does not know (route groups, catch-all segments, `not-found.tsx`, `error.tsx`, `loading.tsx`) build but do not behave as in Next, so check the upstream diff for them and walk the new screens after a sync.
 
 The upstream root layout is not used. `web/index.html` carries its theme script, and `web/src/main.jsx` imports its fonts, and `web/src/app.css` imports its `globals.css`.
+
+## Links to a screen
+
+`js/speedrun-host.js` mirrors the app's route in the demo URL as `#view=speedrun&path=<route>`, with the route URL-encoded. A reload or a shared link reopens that screen. Examples:
+
+- `index.html#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund%2Ftrace` opens the Refund Team trace replay.
+- `index.html#view=speedrun&path=%2Fgym` opens the Agent Gym experiment queue.
+
+The overview is plain `#view=speedrun`. What a visitor created is not in the URL and still resets on reload.
 
 ## Theme
 

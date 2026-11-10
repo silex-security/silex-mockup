@@ -1175,6 +1175,7 @@ try {
     const fill=await ev('const r=document.querySelector("#speedrunFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
     assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
     await se(`document.querySelector('a[href="#/speedrun/teams/refund"]').click()`);await h1('Refund Team');
+    await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund"'),'the site URL follows the app route');
     await se(`location.hash='/speedrun/units/customer-service/teams'`);await h1('Agent Team Explorer');
     await se(`const f=document.querySelector('form');f.querySelector('[name=q]').value='escalation';f.requestSubmit()`);
     await until(()=>se(`return location.hash.includes('q=escalation')&&document.querySelectorAll('a[href^="#/speedrun/teams/"]').length===1`),'search narrows the list to one team');
@@ -1187,9 +1188,17 @@ try {
     await until(()=>se(`return location.hash.startsWith('#/gym/experiments/')`),'the new experiment opens');
     await se(`location.hash='/gym'`);await h1('Agent Gym');
     await until(async()=>(await queued())===before+1,'queue grew by one');
+    await load({path:'/index.html#view=speedrun&path=%2Fgym%3Fstatus%3Ddone'});
+    await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'deep link frame rendered',30000);
+    await h1('Agent Gym');
+    assert.equal(await se(`return document.querySelector('nav[aria-label="Filter by status"] a[aria-current=page]').textContent.trim().startsWith('Done')`),true,'a deep link opens the named screen with its query');
+    await se(`document.querySelector('header a[href="#/speedrun"]').click()`);await h1('Organization overview');
+    await until(()=>ev('return location.hash==="#view=speedrun"'),'the overview is the plain view link');
+    await ev(`location.hash='view=speedrun&path='+encodeURIComponent('/speedrun/teams/invoice/trace')`);
+    await until(()=>se(`return location.hash==='#/speedrun/teams/invoice/trace'`),'a path link drives the open frame');
     await se(`[...document.querySelectorAll('header a')].find(a=>a.textContent.trim()==='Agent Studio').click()`);
     await until(()=>ev('return document.querySelector(".view.active").id==="blueprint"'),'Agent Studio link opens the Studio view');
-    return `frame ${fill.h}px; team, search, variant -> queue ${before} -> ${before+1}; Studio link`;
+    return `frame ${fill.h}px; team, search, variant -> queue ${before} -> ${before+1}; URL mirror and deep link; Studio link`;
   });
 
 } finally {
