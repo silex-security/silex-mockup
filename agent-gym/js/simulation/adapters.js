@@ -3,7 +3,7 @@
 //
 // Override vocabulary (ScenarioOverride), checked by overrideProblem:
 //   fault       target `${componentId}.${tool}`, value = that component's failureBehavior hook ('timeout_after_send')
-//   permission  target `${componentId}.${tool}`, value one of PERMISSION_VALUES
+//   permission  target `${componentId}.${tool}` of a write tool, value one of PERMISSION_VALUES
 //   data        target a DATA_TARGETS key, value of that target's type
 // initialState.patch uses the DATA_TARGETS keys too: { 'contact.optOut': true }.
 import { capabilityOf, clone } from '../model.js';
@@ -61,6 +61,8 @@ export function overrideProblem(environment, override) {
   if (override.kind !== 'fault' && override.kind !== 'permission') return `unknown override kind ${override.kind}`;
   const found = toolOf(environment, override.target);
   if (!found) return `unknown tool ${override.target}`;
+  // Reads are always allowed in the simulation (basePermission), so a permission overlay on a read tool would change nothing.
+  if (override.kind === 'permission' && found.spec.effect === 'read') return `${override.target} is a read tool; permission overrides apply to write tools`;
   if (override.kind === 'permission') return PERMISSION_VALUES.includes(override.value) ? null : `unknown permission ${override.value}`;
   return found.component.failureBehavior === override.value ? null : `${found.component.id} has no ${override.value} hook`;
 }
