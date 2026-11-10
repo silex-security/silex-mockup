@@ -124,8 +124,10 @@ An `ExperimentDraft` also carries three settings, edited through `setExperimentS
 ```js
 objective: 'success' | 'policy_violations' | 'steps'                 // metrics.js OBJECTIVES
 acceptance: { noRegression: boolean, minImprovedPairs: number }       // 0 to 99
-source: { kind: 'manual' | 'speedrun' | 'studio', label: string }
+source: { kind: 'manual' | 'speedrun' | 'studio', label: string, ref: string | null }
 ```
+
+`ref` is the Speedrun route an experiment came from, such as `/speedrun/teams/refund/trace`, and is `null` for the other kinds. One pattern, `SPEEDRUN_REF` in `model.js`, accepts it (`/speedrun/` then route-safe segments) and the integrity check enforces it. A seeded Speedrun experiment names a route that exists in the built Speedrun app, and `tests/site/gym-source-link.test.mjs` checks that against the app's page files.
 
 Objectives are limited to what the executor already records for every execution: pass or fail (`success`), the guarded violations in `finalState.violations` (`policy_violations`) and the length of `events` (`steps`). Executions carry no duration and the simulation has no price, so there is no latency or cost objective. `OBJECTIVES[id]` holds the label, the one-line hint, the direction that is better, and the measure over one version's scored runs. Success is higher-is-better, the other two are lower-is-better.
 
@@ -172,6 +174,10 @@ The row button comes from one lookup keyed by stage:
 | `done` | Results | results of the stage attempt |
 
 Class prefix `xq-`, styles in `css/queue.css`. The table reuses the `run-table` look of the Runs list and stacks into labelled cards below 1280px.
+
+### Source link back to Speedrun
+
+`experiments/source.js` holds the one pure function that builds a console link, `consoleHref(view, path)`, which returns `../index.html#view=<view>&path=<encoded path>`, and `sourceLink(source)`, which returns the link for a Speedrun source with a `ref` and `null` for any other source. `components/source-link.js` draws it as a real `<a target="_top">`, so it works embedded and standalone. The experiment queue shows it in the Source cell and the workbench shows it in the page header. A view never posts a message to the parent window or takes a URL from the route.
 
 ### Configure, Run, Review
 

@@ -14,14 +14,14 @@ const TRIAGE = { workflow: { id: 'wf-support-triage' }, variant: 'variant-suppor
 const TRIAGE_V2 = { workflow: { id: 'wf-support-triage', rev: '2' }, variant: 'variant-support-small', environment: SUPPORT, set: { id: 'set-refund-triage-v2' } };
 const MEETING = { workflow: { id: 'wf-meeting-scheduling' }, variant: 'variant-meeting-a', environment: SALES, set: { id: 'set-meeting-scheduling' } };
 
-const speedrun = label => ({ kind: 'speedrun', label });
-const studio = label => ({ kind: 'studio', label });
-const manual = { kind: 'manual', label: 'Created in the workbench' };
+const speedrun = (label, ref) => ({ kind: 'speedrun', label, ref });
+const studio = label => ({ kind: 'studio', label, ref: null });
+const manual = { kind: 'manual', label: 'Created in the workbench', ref: null };
 
 export const EXPERIMENTS = Object.freeze([
   experiment('exp-024', 24, 'Duplicate-send guard', {
     ...FOLLOW_UP, scenarios: ['sc-base-case', 'sc-timeout-after-send', 'sc-contact-opted-out'], repetitions: 1, revision: 2,
-    objective: 'policy_violations', source: speedrun('Speedrun trace: duplicate follow-up emails'),
+    objective: 'policy_violations', source: speedrun('Speedrun trace: duplicate follow-up emails', '/speedrun/teams/invoice/trace'),
   }),
   experiment('exp-025', 25, 'Smaller model for refund replies', {
     ...TRIAGE_V2, scenarios: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout', 'sc-sup-outside-window'], repetitions: 2, revision: 1,
@@ -33,7 +33,7 @@ export const EXPERIMENTS = Object.freeze([
   }),
   experiment('exp-027', 27, 'Meeting scheduling', {
     ...MEETING, scenarios: ['sc-mtg-intro', 'sc-mtg-no-slot', 'sc-mtg-ambiguous', 'sc-mtg-cancel', 'sc-mtg-no-permission', 'sc-mtg-noisy'], repetitions: 1, revision: 2,
-    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: intro-call booking'),
+    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: intro-call booking', '/speedrun/teams/order-support/trace'),
   }),
   experiment('exp-028', 28, 'Support triage comparison', {
     ...TRIAGE, scenarios: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout', 'sc-sup-outside-window', 'sc-sup-rephrased', 'sc-sup-ambiguous', 'sc-sup-skip-approval', 'sc-sup-cancel', 'sc-sup-no-permission'],
@@ -44,7 +44,7 @@ export const EXPERIMENTS = Object.freeze([
   }),
   experiment('exp-030', 30, 'Opt-out wording check', {
     ...FOLLOW_UP, scenarios: ['sc-base-case', 'sc-contact-opted-out'], repetitions: 2, revision: 1,
-    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: opt-out complaints'), saved: false,
+    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: opt-out complaints', '/speedrun/teams/expense-review/trace'), saved: false,
   }),
   experiment('exp-031', 31, 'Meeting no-slot handling', {
     ...MEETING, scenarios: ['sc-mtg-intro', 'sc-mtg-no-slot'], repetitions: 2, revision: 1, objective: 'steps',

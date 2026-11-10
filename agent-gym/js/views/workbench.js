@@ -7,6 +7,7 @@ import { MIN_IMPROVED_PAIRS, refKey } from '../model.js';
 import { OBJECTIVES } from '../metrics.js';
 import { experimentSteps } from '../experiments/steps.js';
 import { stepIndicator } from '../components/steps.js';
+import { sourceAnchor } from '../components/source-link.js';
 import { reviewBadge } from '../runs/page.js';
 import { blueprintView, dependencyStatus, environmentCards, experimentSummary, queueCounts, queueRows, scenarioRows, selectedScenarioIds } from '../selectors.js';
 import {
@@ -124,13 +125,14 @@ export function mount(root, ctx) {
     if (replay && (query().node ?? null) !== node) setQuery({ node });
   }
 
-  const header = () => h('header', { class: 'gym-pagehead wb-head' },
+  const header = exp => h('header', { class: 'gym-pagehead wb-head' },
     breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Experiment queue', href: router.href('experiment-queue') }, { label: 'Workbench' }], class: 'gym-sr' }),
     h('div', { class: 'gym-pagehead__row' },
       h('div', { class: 'gym-pagehead__titles' },
         h('h1', { class: 'gym-pagehead__title' }, 'Experiment Workbench'),
         h('p', { class: 'gym-pagehead__subtitle' }, 'Assemble an experiment. Test what changes.')),
       h('div', { class: 'gym-pagehead__actions' },
+        exp && sourceAnchor(exp.source, { size: 'md', focusKey: 'wb:source' }),
         button({ label: 'View all runs', variant: 'outline', href: router.href('run-list', {}, { status: 'all' }), focusKey: 'wb:runs' }))));
 
   function envCard(c, state, exp) {
@@ -499,7 +501,7 @@ export function mount(root, ctx) {
       return [header(), panel({ title: 'Experiment not found', children: emptyState({ icon: 'flask', title: `No experiment “${expId()}”`, text: 'It may have been removed by a demo reset.', action: button({ label: 'Back to the experiment queue', variant: 'primary', href: router.href('experiment-queue') }) }) })];
     }
     return h('div', { class: 'wb' },
-      header(),
+      header(exp),
       stepIndicator({ steps: experimentSteps(state, exp.id, route), router }),
       changesStrip(state, exp),
       h('div', { class: 'gym-cols wb-cols', style: { '--gym-cols': '24fr 51fr 24fr' } }, envColumn(state, exp), centre(state, exp), scenarioColumn(state, exp)),

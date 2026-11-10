@@ -4,6 +4,7 @@ import { icon } from '../components/icons.js';
 import { badge, button, card, emptyState, pageHeader, panel, progress, searchField, tabs } from '../components/ui.js';
 import { queueSummary, queueView } from '../experiments/queue.js';
 import { reviewBadge } from '../runs/page.js';
+import { sourceAnchor } from '../components/source-link.js';
 
 const COLUMNS = ['Experiment', 'Source', 'Objective', 'Stage', 'Progress or result', 'Last activity', ''];
 const SOURCE_TONE = { manual: 'gray', speedrun: 'violet', studio: 'amber' };
@@ -34,7 +35,7 @@ export function mount(root, ctx) {
         h('span', { class: 'xq-exp__top' }, h('span', { class: 'gym-mono xq-exp__id' }, r.id),
           h('a', { class: 'run-list__title xq-exp__name', href: router.href('workbench', { experimentId: r.id }), dataset: { focusKey: `xq:open:${r.id}` } }, r.title)),
         h('span', { class: 'xq-exp__flow' }, icon('workflow', { size: 14 }), r.workflowName))),
-      cell('Source', h('span', { class: 'xq-source' }, badge({ label: SOURCE_NAME[r.source.kind], tone: SOURCE_TONE[r.source.kind] }), h('small', r.source.label))),
+      cell('Source', h('span', { class: 'xq-source' }, badge({ label: SOURCE_NAME[r.source.kind], tone: SOURCE_TONE[r.source.kind] }), h('small', r.source.label), sourceAnchor(r.source, { class: 'xq-source__link', focusKey: `xq:source:${r.id}` }))),
       cell('Objective', r.objective.label),
       cell('Stage', badge({ status: r.stage })),
       cell('Progress or result', resultCell(r)),
