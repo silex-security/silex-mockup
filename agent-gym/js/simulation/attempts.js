@@ -164,8 +164,9 @@ export function advanceAttempt(state, { attemptId }) {
   if (error) return { error };
   if (!LIVE.includes(attempt.status)) return fail('attempt_finished', `${attempt.title} is ${attempt.status}`);
   if (attempt.runner === 'paused') return fail('attempt_paused', `${attempt.title} is paused`, { label: 'Resume simulation', action: 'resume' });
-  if (attempt.status === 'queued' && ordered(state).some(a => a.status === 'running'))
-    return fail('slot_busy', 'Another attempt is running');
+  if (runnableAttemptId(state) !== attemptId) return ordered(state).some(a => a.status === 'running')
+    ? fail('slot_busy', 'Another attempt is running')
+    : fail('queue_order', 'An earlier queued attempt runs first');
   const item = attempt.plan[attempt.cursor];
   const execution = { ...runExecution(attempt.inputSnapshot, item, attempt.seed), id: `${attempt.id}/${item.id}`, attemptId: attempt.id };
   const cursor = attempt.cursor + 1;
