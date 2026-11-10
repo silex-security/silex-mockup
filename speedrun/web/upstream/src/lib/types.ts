@@ -46,12 +46,16 @@ export interface WeeklyPoint {
   value: number;
 }
 
+/** The Workflow Library entry this team runs. The demo site's Library holds the other half of the relation. */
+export type TeamWorkflow = { status: "registered"; id: string; name: string } | { status: "unregistered"; name: string };
+
 export interface AgentTeam {
   id: string;
   unitId: string;
   name: string;
   description: string;
   icon: "refund" | "escalation" | "orders" | "invoice" | "expense" | "reconcile";
+  workflow: TeamWorkflow;
   /** Production version currently deployed, e.g. "v1.4" */
   baseline: string;
   members: TeamMember[];

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + Workflow Library <-> Speedrun agent-team links S47. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -1199,6 +1199,40 @@ try {
     await se(`[...document.querySelectorAll('header a')].find(a=>a.textContent.trim()==='Agent Studio').click()`);
     await until(()=>ev('return document.querySelector(".view.active").id==="blueprint"'),'Agent Studio link opens the Studio view');
     return `frame ${fill.h}px; team, search, variant -> queue ${before} -> ${before+1}; URL mirror and deep link; Studio link`;
+  });
+
+  await probe('S47','Workflow Library and Speedrun link both ways: row link, Governance link, detail button, unregistered row',async()=>{
+    const SR='const w=globalThis.document.querySelector("#speedrunFrame").contentWindow; const document=w.document, location=w.location;';
+    const se=code=>ev(SR+code);
+    const h1=text=>until(()=>se(`return (document.querySelector('h1')?.textContent||'').includes(${Q(text)})`),'frame heading '+text);
+    const activeView=()=>ev('return document.querySelector(".view.active").id');
+    const governance=text=>se(`const a=[...document.querySelectorAll('a[data-host-hash]')].find(a=>a.textContent.includes(${Q(text)})); if(!a) throw Error('no Governance link ${text}'); a.click(); return true`);
+    await load();await nav('library');
+    assert.equal(await ev('return document.querySelectorAll("#libRows [data-speedrun-team]").length'),5,'five registered rows link to a team');
+    assert.equal(await ev('return document.querySelector("#libRows [data-open-workflow=\'WF-021\'] td:last-child").textContent'),'—','an unlinked row shows a dash');
+    await clickSel('#libRows [data-speedrun-team="refund"]');
+    await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
+    await h1('Refund Team');
+    assert.equal(await activeView(),'speedrun','the row link does not also open the workflow');
+    assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'speedrun','the nav highlights Speedrun');
+    await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund"'),'the site URL names the team page');
+    await governance('Workflow WF-014');
+    await until(async()=>(await activeView())==='workflow'&&(await ev('return document.getElementById("wfId").textContent'))==='WF-014','the Governance link opens Workflow Detail WF-014');
+    assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'library','the nav highlights the Library');
+    await se(`location.hash='/gym'`);await h1('Agent Gym');
+    await clickSel('#wfSpeedrunBtn');
+    await h1('Refund Team');
+    assert.equal(await activeView(),'speedrun','the detail button opens the team in the already-open frame');
+    await ev(`openWorkflow('WF-021');true`);
+    assert.equal(await ev('return getComputedStyle(document.getElementById("wfSpeedrunBtn")).display'),'none','no button for a workflow without a team');
+    await nav('library');
+    await ev(`const e=document.querySelector('#deployFilter'); e.value='Not registered'; e.dispatchEvent(new Event('input',{bubbles:true}));`);
+    await clickSel('#libRows [data-speedrun-team="expense-review"]');
+    await h1('Expense Review Team');
+    assert.equal(await activeView(),'speedrun','the unregistered row link opens the team, not the Blueprint Studio');
+    await governance('Not in the Workflow Library');
+    await until(async()=>(await activeView())==='library','the Governance link of an unregistered workflow opens the Library');
+    return 'row link -> Refund Team; Governance -> WF-014; detail button -> Refund Team; unregistered row -> Expense Review Team -> Library';
   });
 
 } finally {

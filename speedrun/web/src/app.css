@@ -1,1 +1,3 @@
 @import "../upstream/src/app/globals.css";
+
+html:not([data-embedded]) [data-host-hash] { display: none; }

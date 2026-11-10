@@ -67,12 +67,14 @@ window.addEventListener('submit', e => {
   router.push(action + (q ? '?' + q : ''), { scroll: false });
 });
 
-/* The header's Agent Studio link has no page upstream (href="#"). Embedded in the demo site, it opens the site's Studio. */
+/* An anchor with data-host-hash opens a screen of the demo site that embeds this app: the value is the site's hash.
+   Outside the site there is nothing to open, so app.css hides these anchors until data-embedded is set. */
+if (window.parent !== window) document.documentElement.dataset.embedded = '';
 window.addEventListener('click', e => {
-  const a = e.target.closest?.('a[href="#"]');
+  const a = e.target.closest?.('a[data-host-hash]');
   if (!a) return;
   e.preventDefault();
-  if (window.parent !== window && a.textContent.trim() === 'Agent Studio') window.parent.location.hash = 'view=blueprint';
+  window.parent.location.hash = a.dataset.hostHash;
 });
 
 createRoot(document.getElementById('root')).render(<App />);

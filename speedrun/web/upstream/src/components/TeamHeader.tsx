@@ -41,6 +41,14 @@ export function TeamHeader({ team, tab, crumb }: { team: AgentTeam; tab: TeamTab
         Lead + {team.members.length - 1} teammates
         {team.humanReviewers ? ` · ${team.humanReviewers} human reviewer` : ""} · {team.instances} instances
       </span>
+      <Link
+        href="#"
+        data-host-hash={team.workflow.status === "registered" ? `view=workflow&workflow=${team.workflow.id}` : "view=library"}
+        title={team.workflow.name}
+        className="lbl !text-acc-text hover:underline"
+      >
+        {team.workflow.status === "registered" ? `Workflow ${team.workflow.id} →` : "Not in the Workflow Library →"}
+      </Link>
       <div className="flex-1" />
       <TeamTabs teamId={team.id} active={tab} />
     </div>

@@ -2,6 +2,14 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-09 — Workflow Library and Speedrun agent teams link both ways
+
+- **Why:** the Library (governance) and Speedrun (performance) list the same entity, a multi-agent workflow run by an agent team, and did not link or agree.
+- **Relation:** stored once per app. `team` on a `workflowData` or `UNREGISTERED` entry in `index.html`, and a required `workflow` field on each team in `speedrun/web/upstream/src/lib/data/fixtures.ts`. `tests/site/library-speedrun-link.test.mjs` checks ids, names, back-pointers and agent counts.
+- **Library:** four new Low-risk rows (WF-017, WF-019, WF-023, WF-029) match the other four Speedrun teams, and WF-014 now has 4 agents like the Refund Team. A Performance column and the cards link to the team page. The detail page has a "Performance in Speedrun" button. Registered rows go from 6 to 10 and known workflows from 9 to 13. Workflows at risk is unchanged.
+- **Speedrun:** the team header has a Governance link back to the workflow or the Library. Links to the host page use one mechanism, `data-host-hash`, and are hidden when the app is not embedded.
+- **Tests:** probe S47 walks Library row, Governance link, detail button and the unregistered row.
+
 ## 2026-11-09 — Speedrun view runs the Speedrun app
 
 - **Why:** the Speedrun view was a roadmap placeholder with three goal cards. The product design for Speedrun now exists as a working front end in [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun), which implements the Speedrun and Agent Gym screens of the UI demo doc with agent teams in place of workflows. The demo now shows that app.

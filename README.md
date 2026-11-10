@@ -55,6 +55,7 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
   - Screens: Organization overview (data coverage, KPIs, insight radar, anomalies, benchmark health), Business Unit (role and team relationships), Agent Team Explorer, and per team the structure with the performance optimizer, trace replay, benchmarks and the Benchmark Builder. *Create variant* sends a change to the app's Agent Gym queue, where the experiment can be configured.
   - The app opens in the dark theme of the product design. Its header toggle switches to light and the choice is remembered per browser. Its *Agent Studio* link opens Blueprint Studio.
   - The site URL follows the screen that is open (`#view=speedrun&path=<app route>`), so a reload or a shared link reopens it. For example `#view=speedrun&path=%2Fgym` opens the app's Agent Gym experiment queue.
+  - Each agent team links to its Workflow Library entry and back (Performance column, workflow detail button, Governance link in the team header). `tests/site/library-speedrun-link.test.mjs` keeps the two lists in agreement.
   - What a visitor creates (experiments, benchmark builds) lives in the page and resets on reload.
   - The title row links to the one figure that is measured today, the runtime judge's latency.
   - How it is built and updated: [`speedrun/`](speedrun/README.md).

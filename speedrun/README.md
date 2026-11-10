@@ -44,6 +44,10 @@ The upstream root layout is not used. `web/index.html` carries its theme script,
 
 The overview is plain `#view=speedrun`. What a visitor created is not in the URL and still resets on reload.
 
+## Links to the Workflow Library
+
+Each team has a required `workflow` field (`registered` with the Library id and name, or `unregistered` with a name). The team header shows it as a Governance link. An anchor with `data-host-hash="<hash>"` sets the hash of the page that embeds the app, and `app.css` hides such anchors when the app runs alone. `tests/site/library-speedrun-link.test.mjs` checks the field against `workflowData` in `index.html`.
+
 ## Theme
 
 The app follows the theme saved by its own header toggle. With nothing saved it uses `?theme=dark|light`, then the system setting. The demo passes `?theme=dark`.
