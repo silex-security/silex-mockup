@@ -18,7 +18,7 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/jav
 // Web fonts and the favicon are not part of the page under test, and fonts are unreachable offline.
 const NOISE = /favicon|fonts\.(googleapis|gstatic)|ERR_CERT|net::ERR_(INTERNET|NAME)/i;
 
-async function serveRepo() {
+export async function serveRepo() {
   const server = createServer(async (req, res) => {
     try {
       const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
