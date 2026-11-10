@@ -1,6 +1,6 @@
 # Site aesthetics plan
 
-Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 and P1 are built. P2 and P3 are built and wait for review.
+Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 to P3 are merged. P4 is built.
 
 The demo console (`index.html`) grew view by view and has no shared visual system. This plan gives it one, then applies it to the shell, the Platform home and the data views. A visitor sees one product instead of five pages. A maintainer changes a colour or a type size in one file.
 
@@ -64,6 +64,8 @@ One PR per phase, stacked in this order. Each ends in the checks under Verificat
 - Remove the doubled title rows around Agent Gym and Speedrun. Keep one header per screen.
 - Give Blueprint Studio and the other frames a loading skeleton.
 - Make the frame edge fit the dark Speedrun app.
+- Built. The console's title row above Agent Gym and Speedrun is one line (product, status, one sentence, one action), which gives the app about 50px more height. Frames show a ring and a page outline while they open. The Speedrun frame has a dark edge. After shots are in `logs/site-aesthetics-2026-11-10/p4-1440/`.
+- Not done here. The headers inside the apps are the apps' own and stay.
 
 ### P5. Data views
 

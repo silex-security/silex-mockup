@@ -562,3 +562,24 @@
 #assurance .recon-assurance-link a{color:var(--blue2);font-weight:600}
 @media(max-width:1100px){#assurance .as-hero .title-row{grid-template-columns:1fr}#assurance .as-graph{display:none}#assurance .as-wm{grid-template-columns:1fr}}
 @media(max-width:760px){#assurance .as-hero{padding:28px 20px 0}#assurance .as-hero .as-kpis{margin:0 -20px;padding:0 8px}#assurance .as-hero .as-kpi:nth-child(3){border-left:0}}
+
+/* Embedded apps (Agent Gym, Speedrun). The app has its own page header, so the console's title row shrinks to one
+   line of context: product, status, one sentence, one action. */
+.gym-view .title-row,#speedrun .title-row{align-items:center;flex-wrap:nowrap;margin-bottom:10px}
+.gym-view .title-row>div,#speedrun .title-row>div{display:flex;align-items:baseline;gap:14px;min-width:0}
+.gym-view .title-row .sr-head,#speedrun .title-row .sr-head{flex:none;align-items:center;gap:8px}
+.gym-view .title-row h1,#speedrun .title-row h1{font-size:var(--text-lg);letter-spacing:-.01em;margin:0}
+.gym-view .title-row p,#speedrun .title-row p{font-size:var(--text-base);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.gym-view .title-row .btn,#speedrun .title-row .btn{flex:none;padding:6px 11px;font-size:var(--text-sm)}
+@media(max-width:760px){.gym-view .title-row p,#speedrun .title-row p{display:none}}
+.studio-frame-wrap{border-radius:var(--radius)}
+.studio-frame-wrap.dark{background:var(--app-dark);border-color:var(--nav-2)}
+/* The placeholder a frame shows until its app mounts: a ring and the outline of a page. */
+.studio-frame-loading{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;--bone:var(--soft);background:linear-gradient(var(--bone),var(--bone)) 24px 22px/180px 18px no-repeat,linear-gradient(var(--bone),var(--bone)) right 24px top 22px/120px 18px no-repeat,linear-gradient(var(--bone),var(--bone)) 24px 64px/calc(100% - 48px) 1px no-repeat,linear-gradient(var(--bone),var(--bone)) 24px 88px/26% 120px no-repeat,linear-gradient(var(--bone),var(--bone)) right 24px top 88px/calc(74% - 64px) 120px no-repeat}
+.studio-frame-loading::before{content:"";width:22px;height:22px;border-radius:50%;border:2px solid var(--line-strong);border-top-color:var(--blue2);animation:frame-spin .8s linear infinite}
+.studio-frame-wrap.dark .studio-frame-loading{--bone:rgba(255,255,255,.06);color:var(--nav-text)}
+.studio-frame-wrap.dark .studio-frame-loading::before{border-color:rgba(255,255,255,.18);border-top-color:var(--blue)}
+.rt-frame-wrap .studio-frame-loading{background:none}
+.rt-frame-wrap .studio-frame-loading::before{content:none}
+@keyframes frame-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.studio-frame-loading::before{animation:none}}
