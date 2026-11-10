@@ -25,7 +25,7 @@ function build(node, props, children) {
   for (const [key, val] of Object.entries(props || {})) {
     if (val == null || val === false) continue;
     if (key === 'class') node.setAttribute('class', val);
-    else if (key === 'style') Object.assign(node.style, val);
+    else if (key === 'style') for (const [prop, v] of Object.entries(val)) prop.startsWith('--') ? node.style.setProperty(prop, v) : (node.style[prop] = v);
     else if (key === 'dataset') { for (const [k, v] of Object.entries(val)) if (v != null && v !== false) node.dataset[k] = v; }
     else if (key === 'ref') continue;
     else if (key === 'value') value = val;
