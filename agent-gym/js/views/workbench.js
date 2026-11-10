@@ -228,12 +228,12 @@ export function mount(root, ctx) {
   function nodeStrip(state, exp, versionId, nodeId) {
     const d = nodeDetail(state, exp.id, versionId, nodeId);
     const deps = d.dependencies.length ? d.dependencies.map(x => `${x.capability} ${x.matched ? '✓' : '(missing)'}`).join(', ') : 'simulated model, no tool';
-    const line = d.change ? `Change: ${d.change}`
-      : [`Needs ${deps}`, d.inputs && `In: ${d.inputs}`, d.outputs && `Out: ${d.outputs}`,
-        d.checks.length ? `Checks: ${[...new Set(d.checks.map(c => c.label))].join('; ')}` : 'No selected check reads this step'].filter(Boolean).join(' · ');
+    const lines = d.change ? [`Change: ${d.change}`]
+      : [[`Needs ${deps}`, d.inputs && `In: ${d.inputs}`, d.outputs && `Out: ${d.outputs}`].filter(Boolean).join(' · '),
+        d.checks.length ? `Checks: ${[...new Set(d.checks.map(c => c.label))].join('; ')}` : 'No selected check reads this step'];
     return h('div', { class: 'wb-strip', dataset: { node: d.id } },
       h('span', { class: 'wb-strip__icon' }, icon(d.kind === 'model' ? 'wand' : d.kind === 'decision' ? 'branch' : 'database', { size: 18 })),
-      h('span', { class: 'wb-strip__text', 'aria-live': 'polite' }, h('strong', d.title), h('span', { class: 'wb-strip__line' }, line)),
+      h('span', { class: 'wb-strip__text', 'aria-live': 'polite' }, h('strong', d.title), lines.map(line => h('span', { class: 'wb-strip__line', title: line }, line))),
       button({ label: 'Inspect step', variant: 'link', size: 'sm', iconRight: 'arrow-up-right', class: 'wb-u', focusKey: 'wb:inspect', onClick: () => setQuery({ dialog: 'inspect', node: d.id }) }));
   }
 
@@ -315,6 +315,7 @@ export function mount(root, ctx) {
     const missing = missingDependencies(state, exp.id);
     const msg = local.flash?.where === 'run' ? local.flash : null;
     const errors = dep.errors;
+    const blocking = errors.filter(e => e.code !== 'dependency_unmatched' || !missing.length);
     const runReason = errors.length ? `${errors[0].message}.${errors[0].fix ? ` Fix: ${errors[0].fix.label}.` : ''}` : null;
     return h('div', { class: 'wb-run' },
       h('div', { class: 'wb-run__meta' },
@@ -325,9 +326,13 @@ export function mount(root, ctx) {
           sum.formula, h('span', { class: 'gym-sr' }, `. ${sum.pairs} pairs. Open run settings.`))),
       !dep.matched && missing.length > 0 && notice({
         tone: 'error', class: 'wb-missing', title: `${state.environments[refKey(exp.environmentRef)]?.name ?? 'This environment'} lacks what this experiment needs. The draft is unchanged.`,
-        children: h('ul', { class: 'wb-list' }, missing.map(m => h('li', h('code', m.capability), m.kind === 'tool' ? ' · tool the workflow calls' : ' · fault hook a selected scenario injects'))),
+        children: [
+          missingGroup('Tools the workflow calls', missing.filter(m => m.kind === 'tool')),
+          missingGroup('Fault hooks selected scenarios inject', missing.filter(m => m.kind === 'fault')),
+        ],
+        actions: button({ label: 'Change environment', variant: 'link', size: 'sm', focusKey: 'wb:missing-fix', onClick: FIX['change-environment'] }),
       }),
-      errors.length > 0 && h('ul', { class: 'wb-errors', 'aria-label': 'What blocks Run' }, errors.map((e, i) => h('li', { dataset: { code: e.code } },
+      blocking.length > 0 && h('ul', { class: 'wb-errors', 'aria-label': 'What blocks Run' }, blocking.map((e, i) => h('li', { dataset: { code: e.code } },
         icon('alert', { size: 14 }), h('span', e.message),
         e.fix && FIX[e.fix.action] && button({ label: e.fix.label, variant: 'link', size: 'sm', focusKey: `wb:fix:${i}`, onClick: () => FIX[e.fix.action](e) })))),
       h('div', { class: 'wb-run__buttons' },
@@ -337,6 +342,9 @@ export function mount(root, ctx) {
         msg.attemptId && h('a', { href: router.href('run-detail', { experimentId: exp.id, attemptId: msg.attemptId }) }, ' Open run')),
       h('p', { class: 'wb-sandbox' }, h('span', 'Each run starts in an isolated sandbox'), h('span', { class: 'wb-sandbox__sim' }, 'Simulated sandbox · isolated in-memory state')));
   }
+
+  const missingGroup = (label, items) => items.length > 0 && h('div', { class: 'wb-missing__group' },
+    h('span', { class: 'wb-missing__label' }, `${label}:`), h('ul', { class: 'wb-missing__list' }, items.map(m => h('li', h('code', m.capability)))));
 
   function centre(state, exp) {
     const versionId = viewedVersion(state, exp.id, query());

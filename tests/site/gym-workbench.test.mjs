@@ -128,7 +128,7 @@ test('selecting a node updates the strip, Inspect step and Compare changes open 
     return { q: Q().node, pressed: $$('.wb-node[aria-pressed="true"]').map(n => n.dataset.node), strip: txt($('.wb-strip__text')) };`);
   assert.equal(send.q, 'send-email');
   assert.deepEqual(send.pressed, ['send-email']);
-  assert.match(send.strip, /^Send email · Variant A Needs email\.send_email ✓, email\.get_send_status ✓ · In: Email draft, approval · Out: Message id · Checks: .*Exactly one email sent/);
+  assert.match(send.strip, /^Send email · Variant A Needs email\.send_email ✓, email\.get_send_status ✓ · In: Email draft, approval · Out: Message id Checks: .*Exactly one email sent/);
   assert.doesNotMatch(send.strip, /model configuration/, 'another node never shows the Draft email content');
 
   const inspect = await page(`$('[data-focus-key="wb:inspect"]').focus(); click('[data-focus-key="wb:inspect"]'); await frame();
@@ -217,18 +217,22 @@ test('environments: search keeps the selection, an incompatible choice lists wha
   const it = await page(`const before = { workflow: E().workflowRef.id, ids: E().selectedScenarioIds.join(), rev: E().draftRevision };
     click('.wb-env', 'IT operations'); await frame();
     return { before, env: E().environmentRef, workflow: E().workflowRef.id, ids: E().selectedScenarioIds.join(), rev: E().draftRevision,
-      selected: txt($('.wb-env.is-selected .wb-env__name')), warn: txt($('.wb-env__warn')), dep: txt($('.wb-dep')), missing: $$('.wb-missing li').map(txt),
-      run: $('.wb-run__go').getAttribute('aria-disabled'), card: txt($('[data-summary="environment"] strong')), envError: txt($('.wb-errors li[data-code="dependency_unmatched"]')) };`);
+      selected: txt($('.wb-env.is-selected .wb-env__name')), warn: txt($('.wb-env__warn')), dep: txt($('.wb-dep')), missing: $$('.wb-missing__group').map(txt), fix: txt($('.wb-missing .gym-btn--link')),
+      run: $('.wb-run__go').getAttribute('aria-disabled'), card: txt($('[data-summary="environment"] strong')), dupe: !!$('.wb-errors li[data-code="dependency_unmatched"]'), override: txt($('.wb-errors li[data-code="unknown_override"]')) };`);
   assert.deepEqual(it.env, { id: 'env-it', rev: '1.1' });
   assert.deepEqual([it.workflow, it.ids, it.rev], [it.before.workflow, it.before.ids, it.before.rev + 1], 'the workflow and scenarios stay as they were');
   assert.equal(it.selected, 'IT operations');
   assert.equal(it.warn, 'Not compatible with this workflow');
   assert.match(it.dep, /^Dependencies missing \(\d+\)$/);
-  assert.ok(it.missing.includes('crm.find_opportunity · tool the workflow calls'));
-  assert.ok(it.missing.includes('email.timeout_after_send · fault hook a selected scenario injects'));
+  assert.deepEqual(it.missing, [
+    'Tools the workflow calls: crm.find_opportunity db.lookup_contact email.send_email email.get_send_status crm.update_opportunity crm.log_activity',
+    'Fault hooks selected scenarios inject: email.timeout_after_send',
+  ]);
+  assert.equal(it.fix, 'Change environment');
   assert.equal(it.run, 'true');
   assert.equal(it.card, 'IT operations v1.1');
-  assert.match(it.envError, /IT operations v1\.1 is missing .*crm\.find_opportunity.* Change environment$/);
+  assert.equal(it.dupe, false, 'the missing list is shown once');
+  assert.equal(it.override, 'Timeout after send: unknown tool gmail.send_email Review scenario', 'a fault the new environment cannot inject is a blocking error too');
 
   const back = await page(`click('.wb-env', 'Sales operations'); await frame(); return [E().environmentRef.id, txt($('.wb-dep')), $('.wb-run__go').getAttribute('aria-disabled')]`);
   assert.deepEqual(back, ['env-sales', 'Dependencies matched', null]);
@@ -372,4 +376,18 @@ test('no horizontal page scroll at 390 and 768px; the diagram and queue scroll i
     assert.equal(cols, 1, `${width}px stacks the columns`);
     if (width === 390) assert.ok(await page(`const s = $('.wb-diagram-scroll'); return s.scrollWidth > s.clientWidth`), 'the diagram scrolls inside its container at 390px');
   }
+}));
+
+test('with the live clock the queue advances while typing keeps its value and caret', async t => withGym(t, async (gym, page) => {
+  await gym.ev('localStorage.clear()');
+  await gym.go(WB, { search: '' });
+  const v = await page(`const input = $('[data-focus-key="wb:sc-search"]');
+    input.focus(); input.value = 'tim'; input.setSelectionRange(2, 2); input.dispatchEvent(new Event('input', { bubbles: true }));
+    const before = S().executions['attempt-002'].length;
+    await new Promise(r => setTimeout(r, 2200));
+    const a = document.activeElement;
+    return { advanced: S().executions['attempt-002'].length - before, shown: txt($('.wb-qrow .gym-progress__text')), total: S().executions['attempt-002'].length, focus: a.dataset.focusKey, value: a.value, caret: a.selectionStart };`);
+  assert.ok(v.advanced >= 1, 'the scheduler ticked at least once');
+  assert.equal(v.shown, `${v.total}/18`, 'the queue row reads the store');
+  assert.deepEqual([v.focus, v.value, v.caret], ['wb:sc-search', 'tim', 2]);
 }));

@@ -151,7 +151,7 @@ export function replayView(state, experimentId, query, versionId) {
   const step = clampInt(query.step, 1, execution.events.length, 1);
   const visited = [...new Set(execution.events.map(e => e.nodeId).filter(Boolean))];
   return {
-    attempts: attempts.map(a => ({ id: a.id, label: `${a.title} · ${a.label}`, recorded: state.executions[a.id].length, planned: a.plan.length })),
+    attempts: attempts.map(a => ({ id: a.id, label: a.label, recorded: state.executions[a.id].length, planned: a.plan.length })),
     attemptId: attempt.id, experimentId,
     versions: ['baseline', 'variant'].filter(v => executions.some(e => e.versionId === v)).map(v => ({ id: v, label: v === 'variant' ? snapshot.variant?.name ?? 'Variant' : 'Baseline' })),
     scenarios: snapshot.scenarios.map(s => ({ id: s.id, label: s.title, recorded: executions.some(e => e.scenarioId === s.id) })),
