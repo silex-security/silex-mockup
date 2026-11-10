@@ -2,6 +2,13 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-10 — Speedrun trace replay replays the run
+
+- **Why:** the Trace replay tab only slid a playhead over static bars. Nothing on the page changed as it played.
+- **Model:** `speedrun/web/upstream/src/lib/replay.ts` derives a time-sorted event list and a per-lane status from the existing lanes. No per-team fixtures, so all six teams replay.
+- **Page:** bars fill as the playhead passes them, message and opportunity markers light up when reached, and each lane shows a live status chip. A run log lists the events up to the playhead and a click on a row seeks there. The time track is clickable and the speed is 1×, 3× or 10×.
+- **Tests:** `tests/site/speedrun-replay.test.mjs` covers the model. Probe S50 plays, pauses, seeks and switches speed in the embedded app.
+
 ## 2026-11-10 — Agent Gym is one app in four console views
 
 - **Why:** the Agent Gym group mixed a link out to the new Experiment Workbench with three older views that did not belong with it. The owner asked to make the workbench the core of Agent Gym.
