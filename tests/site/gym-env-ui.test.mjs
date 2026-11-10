@@ -2,6 +2,9 @@
 // Drives the real page through tools/gym-shot.mjs. Skips with a clear message when no Chrome binary exists (set CHROME).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { openGym } from '../../tools/gym-shot.mjs';
 
 const BUILDER = '#/environments/new?returnTo=exp-029&focus=describe';
@@ -164,6 +167,31 @@ test('path A: confirm the adapter, validate, save as template, use it in Experim
   assert.match(rev, /email\.timeout_after_send/);
   assert.match(rev, /Custom adapter/);
   assert.match(rev, /matches this revision/);
+}));
+
+test('the attach button reads a local JSON fixture, shows a parse summary, and imports it as one undoable change', async t => withGym(t, async gym => {
+  const dir = mkdtempSync(join(tmpdir(), 'gym-env-'));
+  const good = join(dir, 'desk.json');
+  const bad = join(dir, 'live.json');
+  const component = { id: 'desk', kind: 'tickets', name: 'Desk', category: 'Tickets', tools: [{ name: 'get_ticket', effect: 'read', input: { ticketId: 'string' }, output: { ticket: 'Ticket' } }] };
+  writeFileSync(good, JSON.stringify({ name: 'Imported desk', components: [component] }));
+  writeFileSync(bad, JSON.stringify({ name: 'Live desk', components: [{ ...component, mode: 'live' }] }));
+  await gym.go(BUILDER);
+  const attach = async file => {
+    const { root } = await gym.page.send('DOM.getDocument', { depth: -1 });
+    const { nodeId } = await gym.page.send('DOM.querySelector', { nodeId: root.nodeId, selector: 'input.env-file' });
+    await gym.page.send('DOM.setFileInputFiles', { nodeId, files: [file] });
+    return run(gym, `await new Promise(r => setTimeout(r, 150)); return text(document.querySelector('dialog.gym-dialog'));`);
+  };
+  const refused = await attach(bad);
+  assert.match(refused, /Fixture not imported.*live connections are not supported/);
+  await run(gym, `await press('Close', document.querySelector('dialog.gym-dialog'));`);
+  const summary = await attach(good);
+  assert.match(summary, /Import local fixture\?.*Nothing was uploaded.*Imported desk.*1 system · 1 tool · 0 relationships.*Simulated/);
+  assert.equal(await run(gym, `return text(main.querySelector('.env-counts'))`), '4 systems · 12 tools · 4 relationships', 'nothing changes before the import is confirmed');
+  const imported = await run(gym, `await press('Import fixture', document.querySelector('dialog.gym-dialog'));
+    const after = [text(main.querySelector('.env-counts')), draft().name]; await press('Undo'); return [...after, text(main.querySelector('.env-counts')), draft().name];`);
+  assert.deepEqual(imported, ['1 system · 1 tool · 0 relationships', 'Imported desk', '4 systems · 12 tools · 4 relationships', 'Sales operations']);
 }));
 
 test('no horizontal page scroll at 390 and 768px on the three environment screens', async t => withGym(t, async gym => {

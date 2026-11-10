@@ -187,6 +187,7 @@
   .gym-app .env-rev { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 767.98px) {
+  .gym-app .env-apps { flex-wrap: wrap; }
   .gym-app .env-footer .gym-btn, .gym-app .env-footer .gym-btn--primary { min-width: 0; flex: 1 1 auto; }
   .gym-app .env-footer__actions { width: 100%; }
   .gym-app .env-gen__row { grid-template-columns: 22px minmax(0, 1.4fr) minmax(0, .8fr) minmax(0, 1fr); padding: 2px 8px; gap: 6px; }
