@@ -2,6 +2,8 @@
 import { refKey } from '../model.js';
 import { dependencyStatus, selectedScenarioIds } from '../selectors.js';
 import { versionModelConfig } from '../simulation/executor.js';
+import { experimentAttempts } from '../simulation/attempts.js';
+import { changeSetOf, configRows, nodeDiffOf } from './changes.js';
 
 const FAULT_MARKER = { timeout_after_send: 'Timeout injection' };
 
@@ -11,6 +13,7 @@ const CHECK_CAPABILITY = {
   'crm.updates': 'crm.update_opportunity', 'crm.skipReasons': 'crm.log_activity', 'crm.activities': 'crm.log_activity',
   'calendar.created': 'calendar.create_event', 'payments.refunds': 'payments.issue_refund',
   'tickets.replies': 'tickets.reply_to_ticket', 'tickets.skipReasons': 'tickets.update_ticket',
+  'payables.scheduled': 'payables.schedule_payment', 'ledger.notes': 'erp.annotate_invoice', 'ledger.skipReasons': 'erp.annotate_invoice',
 };
 
 const experimentOf = (state, experimentId) => state.experiments[experimentId];
@@ -38,15 +41,6 @@ export function selectedNodeId(state, experimentId, query) {
 }
 
 const configText = cfg => (cfg ? [cfg.model, ...Object.entries(cfg.traits ?? {}).map(([k, v]) => `${k}: ${v}`)].join(' · ') : null);
-
-function configRows(baseline, variant) {
-  if (!baseline && !variant) return [];
-  const keys = [...new Set([...Object.keys(baseline?.traits ?? {}), ...Object.keys(variant?.traits ?? {})])];
-  return [
-    { key: 'model', baseline: baseline?.model ?? '—', variant: variant?.model ?? '—' },
-    ...keys.map(key => ({ key, baseline: baseline?.traits?.[key] ?? '—', variant: variant?.traits?.[key] ?? '—' })),
-  ].map(row => ({ ...row, changed: row.baseline !== row.variant }));
-}
 
 /** Everything the strip and the Inspect step dialog say about one node, for one version. */
 export function nodeDetail(state, experimentId, versionId, nodeId) {
@@ -84,21 +78,12 @@ const faultCapability = (environment, override) => {
 };
 
 /** Node-level diff of the baseline against the variant, every node listed. */
-export function nodeDiff(state, experimentId) {
-  const exp = experimentOf(state, experimentId);
-  const workflow = workflowOf(state, exp);
-  const variant = variantOf(state, exp);
-  if (!variant) return null;
-  const base = versionModelConfig({ workflow, variant }, 'baseline');
-  const next = versionModelConfig({ workflow, variant }, 'variant');
-  const rows = workflow.nodes.map(n => ({ id: n.id, label: n.label, chip: n.chip, changed: variant.changedNodeIds.includes(n.id), fields: configRows(base[n.id], next[n.id]) }));
-  return { workflowName: workflow.name, variantName: variant.name, rows, changedCount: rows.filter(r => r.changed).length };
-}
+export const nodeDiff = (state, experimentId) => nodeDiffOf(workflowOf(state, experimentOf(state, experimentId)), variantOf(state, experimentOf(state, experimentId)));
 
 /** "Editing rev 4" plus the frozen revision the queue is running or holding for this experiment. */
 export function revisionNote(state, experimentId) {
   const exp = experimentOf(state, experimentId);
-  const live = state.attemptOrder.map(id => state.attempts[id]).filter(a => a.experimentId === experimentId && (a.status === 'running' || a.status === 'queued'));
+  const live = experimentAttempts(state, experimentId).filter(a => a.status === 'running' || a.status === 'queued');
   const shown = live.find(a => a.status === 'running') ?? live.at(-1);
   return { editing: `Editing rev ${exp.draftRevision}`, frozen: shown ? `${shown.label} is ${shown.status} in the queue` : null, attemptId: shown?.id ?? null };
 }
@@ -110,8 +95,7 @@ export function revisionNote(state, experimentId) {
  */
 export function runKey(state, experimentId) {
   const rev = experimentOf(state, experimentId).draftRevision;
-  const finished = Object.values(state.attempts).filter(a => a.experimentId === experimentId
-    && a.inputSnapshot.experiment.draftRevision === rev && a.status !== 'queued' && a.status !== 'running').length;
+  const finished = experimentAttempts(state, experimentId).filter(a => a.inputSnapshot.experiment.draftRevision === rev && a.status !== 'queued' && a.status !== 'running').length;
   return `wb-${experimentId}-r${rev}${finished ? `-${finished}` : ''}`;
 }
 export const attemptByKey = (state, key) => Object.values(state.attempts).find(a => a.idempotencyKey === key) ?? null;
@@ -147,8 +131,7 @@ const clampInt = (text, min, max, fallback) => {
 
 /** The recorded execution a replay shows, chosen by attempt, version, scenario and repetition, with safe fallbacks. */
 export function replayView(state, experimentId, query, versionId) {
-  const attempts = state.attemptOrder.map(id => state.attempts[id])
-    .filter(a => a.experimentId === experimentId && (state.executions[a.id] ?? []).length > 0).reverse();
+  const attempts = experimentAttempts(state, experimentId).filter(a => (state.executions[a.id] ?? []).length > 0).reverse();
   if (!attempts.length) return null;
   const attempt = attempts.find(a => a.id === query.attempt) ?? attempts[0];
   const executions = state.executions[attempt.id];
@@ -174,10 +157,4 @@ export function replayView(state, experimentId, query, versionId) {
 }
 
 /** What the variant changes: every field of each changed step, with the ones that differ marked. Null without a variant. */
-export function changeSet(state, experimentId) {
-  const diff = nodeDiff(state, experimentId);
-  if (!diff) return null;
-  const workflow = workflowOf(state, experimentOf(state, experimentId));
-  const rows = diff.rows.filter(r => r.changed).flatMap(r => r.fields.map(f => ({ nodeId: r.id, node: r.label, field: f.key, baseline: f.baseline, variant: f.variant, changed: f.changed })));
-  return { baselineLabel: `${workflow.name} · rev ${workflow.rev}`, variantLabel: diff.variantName, rows, changeCount: rows.filter(r => r.changed).length };
-}
+export const changeSet = (state, experimentId) => changeSetOf(workflowOf(state, experimentOf(state, experimentId)), variantOf(state, experimentOf(state, experimentId)));

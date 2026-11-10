@@ -22,6 +22,8 @@ export const SEED_NEEDS = Object.freeze({
   db: [{ collection: 'contacts', primary: 'contact' }],
   payments: [{ collection: 'charges', primary: 'charge' }],
   tickets: [{ collection: 'tickets' }],
+  erp: [{ collection: 'invoices', primary: 'invoice' }],
+  payables: [{ collection: 'payments' }],
 });
 
 /** What a data seed lacks for one component kind, in words. Empty when the adapter can read everything it needs. */
@@ -31,9 +33,19 @@ export const seedProblems = (seed, kind) => !SEED_NEEDS[kind] ? [] : !seed?.[kin
   return [];
 });
 
+const sameInvoice = (a, b) => a.vendor === b.vendor && a.reference === b.reference;
+
 export const DATA_TARGETS = Object.freeze({
   'contact.optOut': { kind: 'db', type: 'boolean', holds: s => !!primaryRecord(s, 'db', 'contacts', 'contact'), apply: (w, v) => { primaryRecord(w, 'db', 'contacts', 'contact').optOut = v; } },
   'charge.refundable': { kind: 'payments', type: 'boolean', holds: s => !!primaryRecord(s, 'payments', 'charges', 'charge'), apply: (w, v) => { primaryRecord(w, 'payments', 'charges', 'charge').refundable = v; } },
+  'invoice.duplicate': {
+    kind: 'erp', type: 'boolean', holds: s => !!primaryRecord(s, 'erp', 'invoices', 'invoice'),
+    apply: (w, v) => {
+      const invoice = primaryRecord(w, 'erp', 'invoices', 'invoice');
+      w.erp.invoices = w.erp.invoices.filter(i => i.id === invoice.id || !sameInvoice(i, invoice));
+      if (v) w.erp.invoices.push({ id: 'inv-2188', vendor: invoice.vendor, reference: invoice.reference, status: 'paid' });
+    },
+  },
   'calendar.freeSlots': { kind: 'calendar', type: 'number', holds: s => Array.isArray(s.calendar?.freeSlots), apply: (w, v) => { w.calendar.freeSlots = w.calendar.freeSlots.slice(0, v); } },
 });
 
@@ -48,6 +60,9 @@ export function dataTargetProblem(environment, key, value) {
 export const primaryContact = world => primaryRecord(world, 'crm', 'contacts', 'contact');
 export const primaryConsent = world => primaryRecord(world, 'db', 'contacts', 'contact');
 export const primaryCharge = world => primaryRecord(world, 'payments', 'charges', 'charge');
+export const primaryInvoice = world => primaryRecord(world, 'erp', 'invoices', 'invoice');
+/** Other invoices from the same vendor with the same reference as the primary one. */
+export const duplicatesOf = world => world.erp.invoices.filter(i => i.id !== primaryInvoice(world).id && sameInvoice(i, primaryInvoice(world)));
 
 const toolOf = (environment, target) => {
   const [componentId, toolName] = target.split('.');
@@ -129,6 +144,11 @@ const ADAPTERS = {
   'payments.get_charge': { read: w => ({ charge: primaryCharge(w) }) },
   'payments.get_refund_status': { read: statusOf('payments.issue_refund') },
   'payments.issue_refund': { commit: (w, req, id) => { (w.payments.refunds ??= []).push({ id, chargeId: req.chargeId, actionId: req.actionId }); } },
+  'erp.get_invoice': { read: w => ({ invoice: primaryInvoice(w) }) },
+  'erp.find_duplicates': { read: w => ({ invoices: duplicatesOf(w) }) },
+  'erp.annotate_invoice': { commit: (w, req, id) => { (w.erp.notes ??= []).push({ id, kind: req.kind, reason: req.reason }); } },
+  'payables.get_payment_status': { read: statusOf('payables.schedule_payment') },
+  'payables.schedule_payment': { commit: (w, req, id) => { w.payables.payments.push({ id, invoiceId: req.invoiceId, actionId: req.actionId }); } },
   'tickets.reply_to_ticket': { commit: (w, req, id) => { (w.tickets.replies ??= []).push({ id, body: req.body }); } },
   'tickets.update_ticket': { commit: (w, req, id) => { (w.tickets.tags ??= []).push({ id, kind: req.kind, reason: req.reason }); } },
 };
@@ -140,6 +160,7 @@ export const ACT_REQUEST = Object.freeze({
   'email.send_email': w => ({ to: primaryContact(w).email, subject: 'Following up on the Acme proposal' }),
   'calendar.create_event': w => ({ slot: w.calendar.freeSlots[0], attendee: primaryContact(w).email, title: 'Intro call with Acme' }),
   'payments.issue_refund': w => ({ chargeId: primaryCharge(w).id }),
+  'payables.schedule_payment': w => ({ invoiceId: primaryInvoice(w).id }),
 });
 
 const violation = (world, kind, capability, attempted = true) => {

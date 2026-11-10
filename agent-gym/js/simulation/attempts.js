@@ -24,6 +24,12 @@ export const MANUAL_TRIGGER = Object.freeze({ kind: 'manual', label: 'Manual run
 /** Why an attempt was enqueued. Attempts saved before triggers existed read as manual runs. */
 export const triggerOf = attempt => attempt.trigger ?? MANUAL_TRIGGER;
 
+/** A shared-agent impact run belongs to the experiment it checks but is not one of that experiment's own runs. */
+export const isImpactAttempt = attempt => !!attempt.impactOf;
+
+/** The experiment's own attempts in queue order, without the impact runs filed under it. */
+export const experimentAttempts = (state, experimentId) => ordered(state).filter(a => a.experimentId === experimentId && !isImpactAttempt(a));
+
 /** What a variant changes against its baseline: the changed steps and the kind of change. v1 variants patch model configuration only. */
 export function variantChange(workflow, variant) {
   if (!variant) return null;
@@ -70,7 +76,7 @@ export function freezeAttempt(state, experimentId, idempotencyKey, trigger = MAN
   const idOf = n => `attempt-${String(n).padStart(3, '0')}`;
   let seq = state.seq + 1;
   while (state.attempts[idOf(seq)]) seq += 1;
-  const attemptNo = Object.values(state.attempts).filter(a => a.experimentId === experimentId).length + 1;
+  const attemptNo = experimentAttempts(state, experimentId).length + 1;
   return {
     id: idOf(seq), experimentId, title: exp.title,
     label: `rev ${exp.draftRevision} · attempt ${attemptNo}`, idempotencyKey,
@@ -140,15 +146,18 @@ export const setRepetitions = (state, { experimentId, repetitions }) => editDraf
 });
 
 /** Edits the experiment's objective and acceptance rules. A field left out keeps its value. */
-export const setExperimentSettings = (state, { experimentId, objective, noRegression, minImprovedPairs }) => editDraft(state, experimentId, exp => {
+export const setExperimentSettings = (state, { experimentId, objective, noRegression, minImprovedPairs, noSharedRegression }) => editDraft(state, experimentId, exp => {
   if (objective !== undefined && !OBJECTIVE.includes(objective)) return fail('invalid_objective', `Objective must be one of ${OBJECTIVE.join(', ')}`);
   if (minImprovedPairs !== undefined && (!Number.isInteger(minImprovedPairs) || minImprovedPairs < MIN_IMPROVED_PAIRS.min || minImprovedPairs > MIN_IMPROVED_PAIRS.max))
     return fail('min_improved_out_of_range', `Minimum improved pairs must be a whole number from ${MIN_IMPROVED_PAIRS.min} to ${MIN_IMPROVED_PAIRS.max}`);
   const next = {
     ...exp, objective: objective ?? exp.objective,
-    acceptance: { noRegression: noRegression ?? exp.acceptance.noRegression, minImprovedPairs: minImprovedPairs ?? exp.acceptance.minImprovedPairs },
+    acceptance: {
+      noRegression: noRegression ?? exp.acceptance.noRegression, minImprovedPairs: minImprovedPairs ?? exp.acceptance.minImprovedPairs,
+      noSharedRegression: noSharedRegression ?? exp.acceptance.noSharedRegression,
+    },
   };
-  return next.objective === exp.objective && next.acceptance.noRegression === exp.acceptance.noRegression && next.acceptance.minImprovedPairs === exp.acceptance.minImprovedPairs ? exp : next;
+  return next.objective === exp.objective && Object.keys(next.acceptance).every(k => next.acceptance[k] === exp.acceptance[k]) ? exp : next;
 });
 
 const variantOf = (state, workflowRef) => Object.values(state.variants).find(v => sameRef(v.workflowRef, workflowRef));
@@ -183,9 +192,12 @@ export function enqueueAttempt(state, { experimentId, idempotencyKey, trigger = 
   const report = validateExperiment(state, experimentId);
   if (report.errors.length) return { error: { code: 'experiment_invalid', message: report.errors.map(e => e.message).join('; '), fix: report.errors[0].fix, errors: report.errors } };
   const saved = saveExperiment(state, { experimentId }).state;
-  const attempt = freezeAttempt(saved, experimentId, idempotencyKey, trigger);
-  return { state: { ...putAttempt(saved, attempt), attemptOrder: [...saved.attemptOrder, attempt.id], executions: { ...saved.executions, [attempt.id]: [] }, seq: attempt.enqueuedSeq } };
+  return { state: queueAttempt(saved, freezeAttempt(saved, experimentId, idempotencyKey, trigger)) };
 }
+
+/** Puts a frozen attempt at the end of the queue. */
+export const queueAttempt = (state, attempt) =>
+  ({ ...putAttempt(state, attempt), attemptOrder: [...state.attemptOrder, attempt.id], executions: { ...state.executions, [attempt.id]: [] }, seq: attempt.enqueuedSeq });
 
 function lookup(state, attemptId) {
   const attempt = state.attempts[attemptId];

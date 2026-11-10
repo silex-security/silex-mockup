@@ -34,15 +34,16 @@ test('Gmail carries the N2 settings', () => {
   assert.ok(db.tools.every(t => t.effect === 'read'));
 });
 
-test('the three environment templates: validated, simulated, internally consistent, derived capabilities', () => {
+test('the four environment templates: validated, simulated, internally consistent, derived capabilities', () => {
   assert.deepEqual(ENVIRONMENTS.map(e => [refKey(e), e.name, e.caps.join(' · ')]), [
     ['env-sales@1.2', 'Sales operations', 'CRM · Email · Calendar'],
     ['env-support@1.2', 'Customer support', 'Tickets · Payments · Knowledge base'],
     ['env-it@1.1', 'IT operations', 'Identity · Logs · Cloud'],
+    ['env-finance@1.0', 'Finance operations', 'Ledger · Payables'],
   ]);
   for (const e of ENVIRONMENTS) {
     assert.equal(e.validation.status, 'validated', e.id);
-    assert.ok(e.components.length >= 3 && e.components.every(c => c.mode === 'simulated' && c.tools.length > 0), e.id);
+    assert.ok(e.components.length >= 2 && e.components.every(c => c.mode === 'simulated' && c.tools.length > 0), e.id);
     for (const c of e.components) assert.ok(c.enabledTools.every(t => c.tools.some(x => x.name === t)), `${c.id} enables only its own tools`);
     const ids = new Set(e.components.map(c => c.id));
     assert.ok(e.relations.every(r => ids.has(r.from) && ids.has(r.to)), `${e.id} relations reference components`);
@@ -78,8 +79,8 @@ test('Sales follow-up has the N1 graph and Variant A changes only the Draft emai
   }
 });
 
-test('scenario sets: 3 follow-up, 8 support for each support workflow revision, 6 meeting; all reviewed; refs resolve', () => {
-  assert.deepEqual(SCENARIO_SETS.map(s => [s.id, s.scenarioRefs.length]), [['set-follow-up-resilience', 3], ['set-refund-triage', 8], ['set-refund-triage-v2', 8], ['set-meeting-scheduling', 6]]);
+test('scenario sets: 3 follow-up, 8 support for each support workflow revision, 6 meeting, 5 invoice review; all reviewed; refs resolve', () => {
+  assert.deepEqual(SCENARIO_SETS.map(s => [s.id, s.scenarioRefs.length]), [['set-follow-up-resilience', 3], ['set-refund-triage', 8], ['set-refund-triage-v2', 8], ['set-meeting-scheduling', 6], ['set-invoice-review', 5]]);
   const followUp = SCENARIO_SETS[0].scenarioRefs.map(r => SCENARIOS.find(s => s.id === r.id));
   assert.deepEqual(followUp.map(s => s.title), ['Base case', 'Timeout after send', 'Contact opted out']);
   assert.deepEqual([followUp[2].initialState.summary, followUp[2].expectedBehavior.summary], ['opted out', 'skip email; log reason']);
@@ -89,12 +90,16 @@ test('scenario sets: 3 follow-up, 8 support for each support workflow revision, 
   }
 });
 
-test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 4 completed', () => {
+test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 4 completed experiment runs and 4 completed shared-agent checks', () => {
   const s = seedState();
-  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 4, cancelled: 0, failed: 0, total: 6 });
+  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 8, cancelled: 0, failed: 0, total: 10 });
   assert.deepEqual(queueRows(s).map(r => [r.title, r.environmentName, r.scenarioCount, r.status, r.progress.text, r.canViewResults]), [
     ['Sales follow-up · Variant A', 'Sales operations', 3, 'running', '12/18', false],
     ['Support triage comparison', 'Customer support', 8, 'queued', '0/48', false],
+    ['Invoice review · shared-agent check', 'Finance operations', 5, 'completed', '10/10', true],
+    ['Sales follow-up · shared-agent check', 'Sales operations', 3, 'completed', '6/6', true],
+    ['Invoice review · shared-agent check', 'Finance operations', 5, 'completed', '10/10', true],
+    ['Support triage v2 · shared-agent check', 'Customer support', 8, 'completed', '16/16', true],
     ['Refund timeout steps', 'Customer support', 2, 'completed', '8/8', true],
     ['Smaller model for refund replies', 'Customer support', 3, 'completed', '12/12', true],
     ['Duplicate-send guard', 'Sales operations', 3, 'completed', '6/6', true],
@@ -136,7 +141,7 @@ test('workbench selectors: summary, dependencies, environment cards, scenario ro
   assert.deepEqual([dependencyStatus(s, 'exp-029').label, dependencyStatus(s, 'exp-029').canRun], ['Dependencies matched', true]);
   const cards = environmentCards(s, { selectedRef: s.experiments['exp-029'].environmentRef });
   assert.deepEqual(cards.map(c => [c.name, `v${c.rev}`, c.statusLabel, c.selected]),
-    [['Sales operations', 'v1.2', 'Ready', true], ['Customer support', 'v1.2', 'Ready', false], ['IT operations', 'v1.1', 'Ready', false]]);
+    [['Sales operations', 'v1.2', 'Ready', true], ['Customer support', 'v1.2', 'Ready', false], ['IT operations', 'v1.1', 'Ready', false], ['Finance operations', 'v1.0', 'Ready', false]]);
   assert.deepEqual(environmentCards(s, { query: 'logs' }).filter(c => c.visible).map(c => c.name), ['IT operations']);
   const rows = scenarioRows(s, s.experiments['exp-029'].scenarioSetRef, { selectedIds: s.experiments['exp-029'].selectedScenarioIds, query: 'opted' });
   assert.deepEqual(rows.map(r => [r.title, r.selected, r.visible]), [['Base case', true, false], ['Timeout after send', true, false], ['Contact opted out', true, true]]);

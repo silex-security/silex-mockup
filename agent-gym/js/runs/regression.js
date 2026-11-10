@@ -3,7 +3,7 @@
 // from the button alone. Batches are numbered and placed by the store sequence, never by wall-clock time.
 import { CADENCE } from '../integrity.js';
 import { validateExperiment } from '../validators.js';
-import { enqueueAttempt } from '../simulation/attempts.js';
+import { enqueueAttempt, experimentAttempts } from '../simulation/attempts.js';
 import { comparisonFor } from '../selectors.js';
 import { isLive } from './facts.js';
 
@@ -21,8 +21,8 @@ export const liveBatch = state => regressionOf(state).batches.find(b => attempts
 function skipReason(state, exp) {
   if (exp.savedRevision == null) return 'Never saved';
   if (exp.savedRevision !== exp.draftRevision) return `Draft rev ${exp.draftRevision} has unsaved changes; save it in the workbench to include it`;
-  const live = state.attemptOrder.map(id => state.attempts[id])
-    .find(a => a.experimentId === exp.id && isLive(a) && a.inputSnapshot.experiment.draftRevision === exp.savedRevision);
+  const live = experimentAttempts(state, exp.id)
+    .find(a => isLive(a) && a.inputSnapshot.experiment.draftRevision === exp.savedRevision);
   if (live) return `${live.label} is already ${live.status}`;
   const { errors } = validateExperiment(state, exp.id);
   return errors.length ? errors[0].message : null;

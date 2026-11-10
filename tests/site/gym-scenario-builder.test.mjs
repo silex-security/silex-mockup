@@ -94,7 +94,7 @@ test('review, save, then Use in experiment moves the workbench to 30 runs; nothi
   assert.equal(await text(gym, '[data-review-status]'), 'Review first: 3 to confirm.');
   assert.equal(await gym.ev(`return document.querySelector('${byKey('sc-review:save')}').getAttribute('aria-disabled')`), 'true');
   await click(gym, byKey('sc-review:save'));
-  assert.equal(await gym.ev('return Object.keys(window.__gym.store.getState().scenarioSets).length'), 4, 'a blocked save writes nothing');
+  assert.equal(await gym.ev('return Object.keys(window.__gym.store.getState().scenarioSets).length'), 5, 'a blocked save writes nothing');
 
   for (const id of ['v2', 'v3', 'v4']) await click(gym, byKey(`sc-review:confirm:${id}`));
   assert.equal(await text(gym, '[data-review-status]'), '5 scenarios ready to save.');

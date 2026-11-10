@@ -13,7 +13,7 @@ import { SCHEMA_VERSION, FIXTURE_VERSION, STORAGE_KEY } from './model.js';
 import { stateProblems } from './integrity.js';
 
 const SHAPE = {
-  environments: 'object', environmentDrafts: 'object', workflows: 'object', variants: 'object', scenarios: 'object',
+  agents: 'object', environments: 'object', environmentDrafts: 'object', workflows: 'object', variants: 'object', scenarios: 'object',
   scenarioDrafts: 'object', scenarioSets: 'object', experiments: 'object', attempts: 'object', executions: 'object',
   attemptOrder: 'array', seq: 'number',
 };

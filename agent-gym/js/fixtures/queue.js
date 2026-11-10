@@ -1,5 +1,6 @@
 // Experiment drafts and the seeded queue. The queue is produced by the real reducers and executor, never typed in.
-import { FOLLOW_UP, MEETING, TRIAGE, TRIAGE_V2, experiment } from './experiment.js';
+import { FOLLOW_UP, INVOICE, MEETING, TRIAGE, TRIAGE_V2, experiment } from './experiment.js';
+import { checkSharedImpact } from '../runs/impact.js';
 import { advanceAttempt, changeTrigger, enqueueAttempt, pauseAttempt, recordReview, renameExperiment, resumeAttempt } from '../simulation/attempts.js';
 
 const speedrun = (label, ref) => ({ kind: 'speedrun', label, ref });
@@ -38,6 +39,10 @@ export const EXPERIMENTS = Object.freeze([
     ...MEETING, scenarios: ['sc-mtg-intro', 'sc-mtg-no-slot'], repetitions: 2, revision: 1, objective: 'steps',
     source: studio('Agent Studio: Scheduling agent draft 2'), saved: false,
   }),
+  experiment('exp-032', 32, 'Invoice review · Variant A', {
+    ...INVOICE, scenarios: ['sc-inv-base-case', 'sc-inv-duplicate', 'sc-inv-timeout', 'sc-inv-approval-boundary', 'sc-inv-no-permission'], repetitions: 2, revision: 1,
+    source: speedrun('Speedrun trace: invoice exceptions', '/speedrun/teams/reconciliation/trace'), saved: false,
+  }),
 ]);
 
 export const SEED_CURSOR = 12;
@@ -63,11 +68,19 @@ function finished(state, experimentId, review) {
   return review ? must(recordReview(s, { attemptId, ...review, reviewedAt: REVIEWED_AT })) : s;
 }
 
+/** Runs the shared-agent check for an experiment to completion, so its acceptance reads the finished impact runs. */
+function checked(state, experimentId) {
+  let s = must(checkSharedImpact(state, { experimentId }));
+  for (const id of s.attemptOrder.filter(id => s.attempts[id].impactOf?.experimentId === experimentId)) s = advanceWhile(s, id, a => a.status !== 'completed');
+  return s;
+}
+
 /**
  * Meeting scheduling runs to completion and awaits review; Sales follow-up runs to 12 of 18; Support triage waits.
  * Their attempts are numbered 1 to 3. The experiments that finished and were reviewed are enqueued while the other two are
  * held (paused), then the queue order is set to run order, so the scheduler's one slot stays honest: only Sales follow-up
  * is running at the end, and it is the latest of the attempts on its scenario set.
+ * Duplicate-send guard and the smaller model then check the workflows that share their agent, which numbers those attempts 7 to 10.
  * exp-029 is then renamed, so its draft is one revision ahead of the frozen revision that is running.
  */
 export function buildQueue(state) {
@@ -81,6 +94,7 @@ export function buildQueue(state) {
   s = finished(s, 'exp-024', { decision: 'pass_for_demo', note: 'The status check removed the duplicate send. Safe to show.' });
   s = finished(s, 'exp-025', { decision: 'reject', note: 'The smaller model stops after a timeout and drops the refund reply. Not adopted.' });
   s = finished(s, 'exp-026', { decision: 'needs_iteration', note: 'Fewer duplicates, but the status check adds steps. Try a cheaper check.' });
+  s = checked(checked(s, 'exp-024'), 'exp-025');
 
   s = must(resumeAttempt(must(resumeAttempt(s, { attemptId: sales })), { attemptId: support }));
   const held = [sales, support];

@@ -4,13 +4,11 @@
  */
 import type {
   AgentRole,
-  ExperimentConfig,
   AgentTeam,
   BenchmarkHealth,
   BenchmarkView,
   BuilderView,
   BusinessUnit,
-  Experiment,
   Organization,
   TeamStructure,
   TraceRun,
@@ -542,119 +540,3 @@ export const builderViews: BuilderView[] = [
   },
   ...teamDetail.builderViews,
 ];
-
-/* ---------------- Agent Gym ---------------- */
-
-/**
- * Agent Gym configuration for a variant of a team's focus task, built from the
- * team's trace-run defaults so every team's experiment reads from the same data.
- */
-export function buildGymConfig(opts: {
-  teamId: string;
-  params: { name: string; baseline: string; variant: string }[];
-  variantName: string;
-  scope: "this-run" | "similar-runs" | "all-teams";
-  objective?: string;
-  roleId?: string;
-  task?: string;
-  note?: string;
-}): ExperimentConfig {
-  const team = teams.find((t) => t.id === opts.teamId)!;
-  const run = traceRuns.find((r) => r.teamId === team.id)!;
-  const bench = benchmarkViews.find((b) => b.suite.teamId === team.id)!;
-  const v = run.variant;
-  const roleId = opts.roleId ?? run.focus.roleId;
-  const role = agentRoles.find((r) => r.id === roleId)!;
-  const shared = teams.filter((t) => t.members.some((mb) => mb.roleId === roleId)).length;
-  const testSet: ExperimentConfig["testSet"] = v.testSet.map((t, i) => ({
-    ...t,
-    checked: opts.scope === "this-run" ? i === 0 : true,
-  }));
-  if (shared > 1 && v.sharedCases) {
-    testSet.push({ name: `Other teams using ${role.name}`, count: v.sharedCases, checked: opts.scope === "all-teams", highlight: true });
-  }
-  const cases = testSet.filter((t) => t.checked).reduce((n, t) => n + t.count, 0);
-  const estimate = cases * 3 * 2 * bench.suite.costPerExecution;
-  return {
-    baseline: `Production ${team.baseline}`,
-    variantName: opts.variantName,
-    target: `${role.name} / ${opts.task ?? `${run.focus.taskId} ${run.focus.title}`}`,
-    sharedAcrossTeams: shared,
-    params: opts.params,
-    note: opts.note ?? v.note,
-    testSet,
-    sampleCases: v.sampleCases,
-    objective: opts.objective ?? v.objective,
-    criteria: v.criteria,
-    acceptanceChecks: [
-      "No drop in success rate",
-      "No new requirement violations",
-      ...(shared > 1 ? ["No regression in other teams sharing this agent"] : []),
-    ],
-    improvementThreshold: v.improvementThreshold,
-    environment: v.environment,
-    repetitions: 3,
-    concurrency: 5,
-    budgetCap: Math.max(20, Math.ceil((estimate * 1.1) / 10) * 10),
-    costPerExecution: bench.suite.costPerExecution,
-  };
-}
-
-const config028 = buildGymConfig({
-  teamId: "refund",
-  variantName: "retry-policy-v2",
-  scope: "all-teams",
-  params: [
-    { name: "First-attempt timeout", baseline: "8s", variant: "4s" },
-    { name: "Retry delay", baseline: "2s", variant: "1s" },
-    { name: "Max retries", baseline: "3", variant: "3" },
-  ],
-});
-
-const config018 = buildGymConfig({
-  teamId: "escalation",
-  variantName: "lead-prompt-v3",
-  scope: "similar-runs",
-  objective: "Success",
-  roleId: "escalation-lead",
-  task: "T1 Triage & route case",
-  params: [
-    { name: "Lead prompt", baseline: "v2.3", variant: "v3" },
-    { name: "Routing threshold", baseline: "0.6", variant: "0.6" },
-  ],
-  note: "Routing threshold and lead review stay unchanged.",
-});
-
-const config016 = buildGymConfig({
-  teamId: "reconciliation",
-  variantName: "ledger-mapping-once",
-  scope: "similar-runs",
-  objective: "Cost",
-  roleId: "ledger-matcher",
-  task: "T2 Match ledger entries",
-  params: [{ name: "Ledger mapping", baseline: "loaded per agent", variant: "supplied once" }],
-  note: "Valid while the chart of accounts is unchanged. Balance checks and audit evidence stay unchanged.",
-});
-
-export const experiments: Experiment[] = [
-  { id: "028", title: "Tune order-lookup retry policy", teamId: "refund", source: "speedrun", objective: "Latency", status: "pending", result: { text: "Test set required", tone: "neutral" }, updatedMinutesAgo: 2, config: config028 },
-  { id: "027", title: "Switch classification model", teamId: "invoice", source: "agent-studio", objective: "Cost", status: "queued", queuePosition: 1, result: { text: "150 cases · Ready", tone: "neutral" }, updatedMinutesAgo: 8 },
-  { id: "026", title: "Replace order lookup tool", teamId: "order-support", source: "speedrun", objective: "Latency", status: "running", progress: { done: 42, total: 100 }, updatedMinutesAgo: 12 },
-  { id: "025", title: "Reduce retrieval context", teamId: "escalation", source: "speedrun", objective: "Cost", status: "needs-review", result: { text: "Cost −18% · 0 regressions", tone: "good", grade: "simulated" }, updatedMinutesAgo: 24 },
-  { id: "024", title: "Prefetch order on intake", teamId: "order-support", source: "speedrun", objective: "Latency", status: "needs-review", result: { text: "P95 −13.9% · 0 regressions", tone: "good", grade: "simulated" }, updatedMinutesAgo: 35 },
-  { id: "023", title: "Update approval prompt", teamId: "expense-review", source: "agent-studio", objective: "Success", status: "needs-review", result: { text: "2 regressions detected", tone: "warn" }, updatedMinutesAgo: 60 },
-  { id: "022", title: "Cache policy retrieval", teamId: "order-support", source: "speedrun", objective: "Cost", status: "done", result: { text: "Adopted · v1.5", tone: "neutral" }, updatedMinutesAgo: 120 },
-  { id: "021", title: "Adjust routing threshold", teamId: "invoice", source: "agent-studio", objective: "Success", status: "done", result: { text: "Not adopted", tone: "neutral" }, updatedMinutesAgo: 180 },
-  { id: "020", title: "Shorten variance summary", teamId: "reconciliation", source: "speedrun", objective: "Cost", status: "done", result: { text: "Adopted · v2.2", tone: "neutral" }, updatedMinutesAgo: 300 },
-  { id: "019", title: "Batch receipt matching", teamId: "expense-review", source: "speedrun", objective: "Latency", status: "queued", queuePosition: 2, result: { text: "90 cases · Ready", tone: "neutral" }, updatedMinutesAgo: 320 },
-  { id: "018", title: "Escalation lead prompt v3", teamId: "escalation", source: "agent-studio", objective: "Success", status: "pending", result: { text: "Test set required", tone: "neutral" }, updatedMinutesAgo: 400, config: config018 },
-  { id: "017", title: "Parallel vendor lookup", teamId: "invoice", source: "speedrun", objective: "Latency", status: "needs-review", result: { text: "P95 −6.0% · 1 regression", tone: "warn", grade: "simulated" }, updatedMinutesAgo: 480 },
-  { id: "016", title: "Reuse ledger mapping", teamId: "reconciliation", source: "speedrun", objective: "Cost", status: "pending", result: { text: "Test set required", tone: "neutral" }, updatedMinutesAgo: 560, config: config016 },
-  { id: "015", title: "Smaller model for replies", teamId: "order-support", source: "speedrun", objective: "Cost", status: "done", result: { text: "Not adopted", tone: "neutral" }, updatedMinutesAgo: 1440 },
-  { id: "014", title: "Tighten refund eligibility prompt", teamId: "refund", source: "agent-studio", objective: "Success", status: "done", result: { text: "Adopted · v1.4", tone: "neutral" }, updatedMinutesAgo: 2880 },
-  { id: "013", title: "Expense policy summary", teamId: "expense-review", source: "speedrun", objective: "Cost", status: "done", result: { text: "Adopted · v2.0", tone: "neutral" }, updatedMinutesAgo: 4320 },
-  { id: "012", title: "Invoice OCR fallback", teamId: "invoice", source: "agent-studio", objective: "Success", status: "done", result: { text: "Adopted · v1.9", tone: "neutral" }, updatedMinutesAgo: 5760 },
-  { id: "011", title: "Escalation hand-off format", teamId: "escalation", source: "speedrun", objective: "Latency", status: "done", result: { text: "Not adopted", tone: "neutral" }, updatedMinutesAgo: 7200 },
-];
-
-export const sandboxCapacity = { slots: 1, inUse: 1, environment: "Orders API test" };

@@ -10,7 +10,7 @@ Agent Gym is a static page at `agent-gym/index.html`. It uses native ES modules 
 | --- | --- | --- |
 | Shapes | `js/model.js` | JSDoc typedefs, enums, `refKey`, `digestOf`, `clone`. Frozen. Ask the lead for changes. |
 | Fixtures | `js/fixtures/*.js` | Pure data builders. `js/fixtures/index.js` exports `seedState()` returning a full `GymState`. |
-| Domain | `js/environment/*`, `js/scenario/*`, `js/simulation/*`, `js/validators.js`, `js/metrics.js`, `js/selectors.js` | Pure functions. No DOM, no storage, no timers (the scheduler is the one exception, see below). |
+| Domain | `js/environment/*`, `js/scenario/*`, `js/simulation/*`, `js/runs/impact.js`, `js/validators.js`, `js/metrics.js`, `js/selectors.js` | Pure functions. No DOM, no storage, no timers (the scheduler is the one exception, see below). |
 | Store | `js/store.js` | The only writer of state and of `localStorage`. |
 | Shell | `js/app.js`, `js/router.js`, `js/sections.js`, `js/components/*`, `css/tokens.css`, `css/shell.css` | Header, section tabs, routing, shared widgets. |
 | Views | `js/views/*.js` with one CSS file per screen | Read through selectors, write through reducers. |
@@ -116,15 +116,28 @@ startScheduler(store, { tickMs, frozen }) -> stop()                  // one runn
 
 `Completed` means every planned execution has a terminal state. It does not mean every check passed. A cancelled or incomplete attempt compares as `inconclusive`. The page query `?clock=frozen` starts the scheduler frozen, which holds the seeded queue at 12/18 for screenshots.
 
-The seed has eight experiments, exp-024 to exp-031. It is built by the real reducers: the experiments that finished are enqueued while exp-029 and exp-028 are held (paused), then the queue order is set to run order and the two are resumed, so exactly one attempt is running. exp-029 keeps the attempt ids and the 12/18 position it had before the queue page existed.
+The seed has nine experiments, exp-024 to exp-032 and ten attempts (six experiment runs, four shared-agent checks). exp-032 is an unsaved Invoice review draft with no attempt. The seed is built by the real reducers: the experiments that finished are enqueued while exp-029 and exp-028 are held (paused), then the queue order is set to run order and the two are resumed, so exactly one attempt is running. exp-029 keeps the attempt ids and the 12/18 position it had before the queue page existed.
+
+## Workflows
+
+Four workflows are seeded, each with a variant, a matching environment template and a reviewed scenario set. The executor runs all of them through the same step table (`fetch`, `compose`, `guard`, `act`, `follow_up`, `skip`). A new workflow adds entries to the registries below and no branch to the executor.
+
+| Workflow | Environment | Scenario set | Registry entries it needed |
+| --- | --- | --- | --- |
+| Sales follow-up | Sales operations | Follow-up resilience (3) | none, the original |
+| Support triage (rev 1, rev 2) | Customer support | Refund triage (8) each | none |
+| Meeting scheduling | Sales operations | Meeting scheduling (6) | none |
+| Invoice review | Finance operations | Invoice review (5) | `SEED_NEEDS`, `DATA_TARGETS` and `ADAPTERS` for the `erp` and `payables` component kinds (`simulation/adapters.js`), `GUARDS` (`invoice_unique`) in `simulation/executor.js`, check paths `payables.scheduled`, `ledger.notes` and `ledger.skipReasons` in `simulation/assertions.js`, and the scenario builder tables in `scenario/` |
+
+Invoice review reads an invoice, drafts an approver note, checks the ledger for a duplicate, schedules the payment after a trusted approval, and records it. The scenario set has a base case, a duplicate invoice, a timeout after scheduling, an approval boundary (a prompt that says the lead already agreed) and a missing scheduling permission. Nothing in the finance data holds a price or an amount.
 
 ## Experiments, stages and conclusions
 
-An `ExperimentDraft` also carries three settings, edited through `setExperimentSettings(state, { experimentId, objective?, noRegression?, minImprovedPairs? })`. It is a draft edit like the others: it bumps `draftRevision`, and Run freezes the settings into the attempt snapshot.
+An `ExperimentDraft` also carries three settings, edited through `setExperimentSettings(state, { experimentId, objective?, noRegression?, minImprovedPairs?, noSharedRegression? })`. It is a draft edit like the others: it bumps `draftRevision`, and Run freezes the settings into the attempt snapshot.
 
 ```js
 objective: 'success' | 'policy_violations' | 'steps'                 // metrics.js OBJECTIVES
-acceptance: { noRegression: boolean, minImprovedPairs: number }       // 0 to 99
+acceptance: { noRegression: boolean, minImprovedPairs: number, noSharedRegression: boolean }       // minImprovedPairs 0 to 99
 source: { kind: 'manual' | 'speedrun' | 'studio', label: string, ref: string | null }
 ```
 
@@ -154,7 +167,7 @@ The stage is one table read top to bottom over the experiment's stage attempt, w
 
 A cancelled or failed attempt is abandoned work and never decides the stage. An experiment whose only attempts were cancelled or failed reads `pending`, and its row offers Configure again. A cancelled re-run behind a reviewed attempt leaves the experiment `done`. A new attempt reopens a `done` experiment as `queued`.
 
-`acceptanceVerdict` reads the settings frozen into the attempt, never the current draft. Its checks, in order: `complete` (every pair finished), `no-regression` (only when the experiment asks for it), `min-improved` (only when the minimum is above 0) and `objective` (the variant is no worse than the baseline on the chosen objective). It passes when every listed check passes. `recordReview` is unchanged and still needs a Pass verdict for Pass for demo. The acceptance verdict is information next to the review, not a second gate.
+`acceptanceVerdict` reads the settings frozen into the attempt, never the current draft. Its checks, in order: `complete` (every pair finished), `no-regression` (only when the experiment asks for it), `min-improved` (only when the minimum is above 0), `objective` (the variant is no worse than the baseline on the chosen objective) and `shared-agents` (only when the experiment asks for it and a changed agent works in another workflow, see Shared agents). It passes when every listed check passes. `recordReview` is unchanged and still needs a Pass verdict for Pass for demo. The acceptance verdict is information next to the review, not a second gate.
 
 Every number and result line on screen comes from these selectors and from `compareAttempt`. No fixture holds a typed percentage.
 
@@ -182,7 +195,7 @@ Class prefix `xq-`, styles in `css/queue.css`. The table reuses the `run-table` 
 
 ### Handoff from Speedrun
 
-Speedrun's "Send to Agent Gym" and its Agent Gym links leave the Speedrun app and open the console's Gym. `fixtures/handoffs.js` is the registry: one template per handoff id `<team>-<change>` (six Speedrun teams by four kinds of change, `retry-timeout`, `switch-tool`, `switch-model`, `prompt-context`). A template names a workflow, a variant, an environment, a scenario set and a scenario selection that Gym already has, an objective and a `source` of kind `speedrun` with its `ref`. Gym keeps no model of Speedrun teams beyond the name and the trace route that the source carries.
+Speedrun's "Send to Agent Gym" and its Agent Gym links leave the Speedrun app and open the console's Gym. `fixtures/handoffs.js` is the registry: one template per handoff id `<team>-<change>` (six Speedrun teams by four kinds of change, `retry-timeout`, `switch-tool`, `switch-model`, `prompt-context`). A template names a workflow, a variant, an environment, a scenario set and a scenario selection that Gym already has. The three support-like teams (refund, order-support, escalation) map to Support triage and the three finance teams (invoice, expense-review, reconciliation) map to Invoice review, an objective and a `source` of kind `speedrun` with its `ref`. Gym keeps no model of Speedrun teams beyond the name and the trace route that the source carries.
 
 ```js
 acceptHandoff(state, { handoffId })     // -> { state } | { error: { code: 'handoff_unknown' } }
@@ -197,9 +210,36 @@ The reducer adds an unsaved `pending` draft with no attempts. The experiment id 
 
 The workbench shows the indicator, a what-changes strip (`workbench/derive.js` `changeSet`, computed from the version data, with differing cells highlighted) and the experiment settings block. The Results view shows the acceptance checks and the objective next to the comparison. The All runs list and the workbench Run queue show one result line per completed attempt and, once reviewed, the review decision.
 
+## Shared agents ("blast radius")
+
+A variant changes how one agent behaves at one step. An agent that also works in other workflows takes the change with it, so Gym shows those workflows and can check them.
+
+`state.agents` is the agent registry, `{ [agentId]: { id, name } }`, seeded from `fixtures/agents.js`. Every workflow step carries an `agentId`, and the integrity check refuses a step whose agent does not exist. An agent that appears in more than one workflow is shared. Nothing about sharing is stored.
+
+```js
+sharedAgentImpact(state, experimentId) -> { agents: [{ agentId, name, changedFields: string[], workflows: [{ workflowId, name, steps: string[] }] }] }   // other workflows only
+impactRuns(state, experimentId)        -> one row per affected workflow: state 'not_run' | 'queued' | 'running' | 'done' | 'not_comparable', its attempt, progress and result line
+impactCheckState(state, experimentId)  -> { canRun, reason, toRun }                    // what the button can do, and why not
+checkSharedImpact(state, { experimentId })                                              // the reducer behind "Check shared workflows"
+```
+
+All of it lives in `runs/impact.js`. The changed fields come from `changeSetOf` in `workbench/changes.js`, the function that also builds the What changes strip, so the strip and the check cannot disagree. The strip marks a changed step whose agent is shared with a chip such as `Shared · 2 other workflows`.
+
+**The check really runs.** For each other workflow that uses a changed agent, the baseline is that workflow's current revision (the highest revision of its id). The variant is the same revision with the experiment's field changes applied to that agent's steps. The scenarios are every scenario of that workflow's default scenario set, which is the first set whose workflow ref is that revision, run once (one repetition). The attempts go through `freezeAttempt`, `planExecutions`, `runExecution` and `compareAttempt` like any other and carry the `change` trigger plus `impactOf: { experimentId, change }`, where `change` is the digest of the field changes. `attempt.experimentId` stays the experiment's id, so links, the Runs list and the integrity check work unchanged.
+
+A workflow is **not comparable** when a changed field does not exist on that agent's steps there (a step has `model` and the trait keys of its model configuration only), when the steps already hold the changed values, or when it has no scenario set. It is listed with the reason and no run is faked.
+
+**Idempotent.** The idempotency key of an impact run is built from the experiment, the workflow revision and `change`. Asking again while a run for that change is queued, running or completed returns the same state and enqueues nothing. A cancelled or failed run can be asked for again and gets the next key. A different variant has a different `change`, so it is checked afresh.
+
+**Not part of the experiment.** `experimentAttempts` (`simulation/attempts.js`) is the experiment's own attempts without impact runs, and `stageAttempt`, the stage, attempt numbering, the run key, the replay, the release gate, the regression batch and the scenario library's evidence all read it. `runs = versions × scenarios × repetitions` counts only the experiment's own runs. The impact runs have their own count, `impactRunCount` (versions × scenarios × 1 for each comparable workflow), shown beside the button as "26 check runs, counted apart from this experiment's 18 runs".
+
+**Acceptance.** `acceptance.noSharedRegression` (default on, frozen into the attempt like the other rules) adds the `shared-agents` check to `acceptanceVerdict`. The check has `state` `passed`, `failed` or `pending`. Pending reads "Not run yet" or "Running: 1 of 2 workflows finished". Failed reads "1 regressed pair in 1 workflow". Passed also covers an experiment whose changed agents are shared only with workflows that are not comparable. An experiment with no shared agent, or with the rule off, gets no such check. The check carries `runs`, links to the impact runs, which Results shows. A failed check also ends the result line of the Experiment queue and the Runs list with "shared workflows: 1 regressed".
+
+The workbench shows a Shared agents panel under the strip: each affected workflow, the agent and its steps there, the state of its run and one button, Check shared workflows. A disabled button says why. The Runs list and the workbench run queue mark impact attempts with a Shared check badge and the experiment they belong to. The seed includes finished checks for exp-024 and exp-025 (attempts 7 to 10); exp-025's smaller model, which stops after a timeout, regresses the timeout scenario of Invoice review, whose baseline checks the payment status first.
+
 ## Counting rules
 
-`runs = versions × selected scenarios × repetitions`. `pairs = selected scenarios × repetitions`. The default is 2 × 3 × 3 = 18 runs and 9 pairs. With the five-scenario set it is 30 runs and 15 pairs. Progress is executions with a terminal state over planned executions.
+`runs = versions × selected scenarios × repetitions`. `pairs = selected scenarios × repetitions`. Shared-agent impact runs are not part of these counts, see Shared agents. The default is 2 × 3 × 3 = 18 runs and 9 pairs. With the five-scenario set it is 30 runs and 15 pairs. Progress is executions with a terminal state over planned executions.
 
 ## Simulated truth
 

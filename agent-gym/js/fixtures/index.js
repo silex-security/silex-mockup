@@ -1,5 +1,6 @@
 // The seeded GymState. fixtureState() holds every revision and draft with an empty queue; seedState() adds the queue.
 import { FIXTURE_VERSION, SCHEMA_VERSION, clone, refKey } from '../model.js';
+import { AGENTS } from './agents.js';
 import { ENVIRONMENTS } from './environments.js';
 import { VARIANTS, WORKFLOWS } from './workflows.js';
 import { SCENARIOS, SCENARIO_SETS } from './scenarios.js';
@@ -12,7 +13,7 @@ const byId = list => Object.fromEntries(list.map(x => [x.id, clone(x)]));
 export function fixtureState() {
   return {
     schemaVersion: SCHEMA_VERSION, fixtureVersion: FIXTURE_VERSION,
-    environments: byRef(ENVIRONMENTS), environmentDrafts: {},
+    agents: byId(AGENTS), environments: byRef(ENVIRONMENTS), environmentDrafts: {},
     workflows: byRef(WORKFLOWS), variants: byId(VARIANTS),
     scenarios: byRef(SCENARIOS), scenarioDrafts: {}, scenarioSets: byRef(SCENARIO_SETS),
     experiments: byId(EXPERIMENTS),

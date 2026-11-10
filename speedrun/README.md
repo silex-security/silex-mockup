@@ -29,7 +29,7 @@ The app is a Next.js App Router app. Its pages are async server components and i
 
 - **Routing.** `web/src/routes.js` turns the `app/**/page.tsx` file paths into a route table. The route lives in the URL hash (`app/index.html#/speedrun/teams/refund?c=2`), so the build works under any path. `web/src/main.jsx` calls the matching page function with its `params` and `searchParams` and renders the element it returns, inside the upstream layouts.
 - **Next imports.** `web/src/next/` holds stand-ins for `next/link`, `next/navigation` (`useRouter`, `redirect`, `notFound`) and `next/server`. `vite.config.js` aliases them.
-- **Mock API.** A `fetch` wrapper sends `/api/...` calls to the upstream `route.ts` handlers in the page. Experiments and benchmark builds a visitor creates last until the page reloads.
+- **Mock API.** A `fetch` wrapper sends `/api/...` calls to the upstream `route.ts` handlers in the page. Benchmark builds a visitor creates last until the page reloads.
 
 Plain GET forms (the search boxes) navigate through the same router. A new page, layout or API route is picked up by the next build with no change in the shell, as long as it uses only those Next features. An import the shell has no stand-in for fails the build. File conventions the shell does not know (route groups, catch-all segments, `not-found.tsx`, `error.tsx`, `loading.tsx`) build but do not behave as in Next, so walk the new screens after adding one.
 
@@ -45,10 +45,10 @@ The overview is plain `#view=speedrun`. What a visitor created is not in the URL
 
 ## Links to Agent Gym
 
-Agent Gym is the console's, not this app's. The app still carries its older `app/gym/**` pages, but the shell never renders them. `web/src/gym.js` and the stand-ins send every path under `/gym` to the console instead.
+Agent Gym is the console's, not this app's. The app has no Gym pages and no Gym API. `web/src/gym.js` and the stand-ins send every path under `/gym` to the console instead.
 
-- `next/link` renders a link to `/gym` as `<a href="../../index.html#view=gym" target="_top">`.
-- `useRouter().push('/gym/experiments/<id>')` (the *Send to Agent Gym* button) looks the experiment up in the mock API, builds the handoff id `<team>-<kind of change>` from its team and `<change>-v<id>` variant name, and sets the top window's hash to `#view=gym&path=%2Fhandoff%2Fspeedrun%2F<handoff id>`. An experiment it cannot map (a seeded one) opens `#view=gym`. The page is rebuilt afterwards, so the form is fresh when the visitor returns.
+- `next/link` renders a link to `/gym` as `<a href="../../index.html#view=gym" target="_top">`. The header keeps this link.
+- `useRouter().push('/gym/handoff/<handoff id>')` (the *Send to Agent Gym* button) is what the variant form calls, with the handoff id `<team>-<kind of change>` built from the team and the change the visitor chose. The shell sets the top window's hash to `#view=gym&path=%2Fhandoff%2Fspeedrun%2F<handoff id>`. Any other `/gym` path opens `#view=gym`. The page is rebuilt afterwards, so the form is fresh when the visitor returns.
 - A direct hash to `/gym…` (an old shared link) does the same from `resolve()` in `web/src/main.jsx`.
 - The URL is relative to this page, so it also works when the app is opened on its own, where the top window is the app itself.
 

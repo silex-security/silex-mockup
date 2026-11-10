@@ -42,7 +42,7 @@ jobs:
           mkdir _site
           git archive HEAD | tar -x -C _site
           cd _site
-          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html speedrun/app/index.html agent-gym/index.html agent-gym/js/app.js agent-gym/js/views/experiment-queue.js agent-gym/js/experiments/queue.js agent-gym/js/experiments/handoff.js agent-gym/js/fixtures/handoffs.js agent-gym/css/queue.css; do
+          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html speedrun/app/index.html agent-gym/index.html agent-gym/js/app.js agent-gym/js/views/experiment-queue.js agent-gym/js/experiments/queue.js agent-gym/js/experiments/handoff.js agent-gym/js/fixtures/handoffs.js agent-gym/js/fixtures/agents.js agent-gym/js/runs/impact.js agent-gym/js/workbench/changes.js agent-gym/js/workbench/impact-panel.js agent-gym/css/queue.css; do
             test -f "$f" || { echo "::error::missing required file $f"; exit 1; }
           done
           big=$(find . -type f -size +25M); test -z "$big" || { echo "::error::over 25 MB: $big"; exit 1; }

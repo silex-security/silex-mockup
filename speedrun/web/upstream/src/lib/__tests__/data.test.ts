@@ -1,12 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { distinctRoles, totals } from "../data/aggregate";
 import * as fx from "../data/fixtures";
 import {
-  ValidationError,
-  createExperiment,
-  experimentCounts,
-  experimentEstimate,
-  getExperiment,
   getOrg,
   getUnit,
   listUnits,
@@ -50,46 +45,5 @@ describe("aggregates add up", () => {
 
   it("benchmark health covers every team", () => {
     expect(new Set(getOrg().benchmarkHealth.map((h) => h.teamId))).toEqual(new Set(fx.teams.map((t) => t.id)));
-  });
-});
-
-describe("Agent Gym", () => {
-  beforeEach(() => {
-    const g = globalThis as unknown as { __silexExperiments?: unknown[] };
-    g.__silexExperiments!.splice(0, Infinity, ...fx.experiments);
-  });
-
-  it("status counts sum to the total", () => {
-    const c = experimentCounts();
-    expect(c.pending + c.queued + c.running + c["needs-review"] + c.done).toBe(c.all);
-    expect(c.all).toBe(18);
-  });
-
-  it("estimates executions as cases × repeats × 2 versions", () => {
-    const e = experimentEstimate(getExperiment("028")!);
-    expect(e.cases).toBe(120);
-    expect(e.executions).toBe(720);
-    expect(e.cost).toBe(108);
-  });
-
-  it("creates a pending experiment with the next id", () => {
-    const e = createExperiment({
-      teamId: "refund",
-      title: "Shorter timeout",
-      target: "Order Specialist / T2 Fetch order",
-      changeType: "retry-timeout",
-      testScope: "similar-runs",
-      params: [{ name: "First-attempt timeout", baseline: "8s", variant: "4s" }],
-    });
-    expect(e.id).toBe("029");
-    expect(e.status).toBe("pending");
-    expect(getExperiment("029")).toBe(e);
-  });
-
-  it("rejects invalid input", () => {
-    const base = { teamId: "refund", title: "x", target: "t", changeType: "retry-timeout" as const, testScope: "this-run" as const };
-    expect(() => createExperiment({ ...base, teamId: "nope", params: [{ name: "a", baseline: "1", variant: "2" }] })).toThrow(ValidationError);
-    expect(() => createExperiment({ ...base, title: " ", params: [{ name: "a", baseline: "1", variant: "2" }] })).toThrow(ValidationError);
-    expect(() => createExperiment({ ...base, params: [{ name: "a", baseline: "1", variant: "1" }] })).toThrow(ValidationError);
   });
 });

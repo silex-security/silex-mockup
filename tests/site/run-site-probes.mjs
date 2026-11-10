@@ -1311,7 +1311,7 @@ try {
     await send();
     await until(async()=>(await activeView())==='gym'&&(await ge(`return w.location.hash`))==='#/workbench/exp-refund-retry-timeout','the second send lands on the same experiment');
     assert.deepEqual(await handoffs(),FIRST,'doing it twice yields one experiment');
-    assert.equal(await ge(`return Object.keys(w.__gym.store.getState().experiments).length`),9,'eight seeded plus one');
+    assert.equal(await ge(`return Object.keys(w.__gym.store.getState().experiments).length`),10,'nine seeded plus one');
 
     await nav('speedrun');await until(async()=>(await activeView())==='speedrun','Speedrun again');
     await se(`location.hash='/gym';return true`);

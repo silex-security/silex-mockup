@@ -2,7 +2,7 @@
 // docs/agent-gym-v2-contract.md names which module owns each shape.
 
 export const SCHEMA_VERSION = 2;
-export const FIXTURE_VERSION = 'gym-fx-3';
+export const FIXTURE_VERSION = 'gym-fx-4';
 export const STORAGE_KEY = 'silex.gym.demo.v2';
 export const DEMO_SEED = 29;
 
@@ -33,7 +33,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  *
  * @typedef {Object} Component                            one simulated system inside an environment
  * @property {string} id                                 'salesforce' | 'gmail' | 'gcal' | 'customdb' | ...
- * @property {'crm'|'email'|'calendar'|'db'|'tickets'|'payments'|'kb'|'identity'|'logs'|'cloud'} kind
+ * @property {'crm'|'email'|'calendar'|'db'|'tickets'|'payments'|'kb'|'identity'|'logs'|'cloud'|'erp'|'payables'} kind
  * @property {string} app                                icon key, see components/icons.js
  * @property {string} name
  * @property {string} category                           'CRM', 'Email', ...
@@ -135,6 +135,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {'tool'|'model'|'decision'} kind
  * @property {string} chip                               'CRM' | 'Model' | 'Email' | ''
  * @property {string|null} capability                    `${kind}.${tool}` this step needs
+ * @property {string} agentId                            the agent that performs this step; a key of GymState.agents
  * @property {string} inputs
  * @property {string} outputs
  * @property {{col:number,row:number}} pos
@@ -173,7 +174,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {string[]} selectedScenarioIds              unique; subset of the set
  * @property {number} repetitions
  * @property {'success'|'policy_violations'|'steps'} objective        what the variant is meant to improve; measured by metrics.js OBJECTIVES
- * @property {{noRegression: boolean, minImprovedPairs: number}} acceptance   what a comparison must show to be accepted
+ * @property {{noRegression: boolean, minImprovedPairs: number, noSharedRegression: boolean}} acceptance   what a comparison must show to be accepted; noSharedRegression also reads the shared-agent impact runs
  * @property {{kind: 'manual'|'speedrun'|'studio', label: string, ref: string|null}} source     where the experiment came from; ref is a Speedrun route (SPEEDRUN_REF) or null
  *
  * @typedef {{id:string, versionId:'baseline'|'variant', scenarioId:string, repeatIndex:number}} PlanItem
@@ -204,6 +205,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {number} enqueuedSeq
  * @property {{decision:string, note:string, reviewedAt:string, deploymentState:'not_deployed'}|null} review
  * @property {AttemptTrigger} [trigger]                  absent on attempts saved before triggers; read through triggerOf
+ * @property {{experimentId: string, change: string}} [impactOf]  set on a shared-agent impact run: the experiment whose variant it checks and the digest of that change. Not part of the experiment's own runs.
  *
  * @typedef {Object} AttemptTrigger                       why an attempt was enqueued
  * @property {'manual'|'change'|'regression'} kind
@@ -253,6 +255,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @typedef {Object} GymState                             the single store value
  * @property {number} schemaVersion
  * @property {string} fixtureVersion
+ * @property {Record<string,{id:string, name:string}>} agents        the agent registry, by id
  * @property {Record<string,EnvironmentRevision>} environments       by `id@rev`
  * @property {Record<string,EnvironmentDraft>} environmentDrafts
  * @property {Record<string,WorkflowRevision>} workflows             by `id@rev`

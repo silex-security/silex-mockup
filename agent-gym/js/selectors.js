@@ -3,7 +3,8 @@ import { ATTEMPT_STATUS, REVIEW_LABEL, refKey, sameRef, uniqueIds } from './mode
 import { compareAttempt, objectiveComparison } from './metrics.js';
 import { validateExperiment } from './validators.js';
 import { versionModelConfig } from './simulation/executor.js';
-import { triggerOf } from './simulation/attempts.js';
+import { experimentAttempts, triggerOf } from './simulation/attempts.js';
+import { sharedAcceptance } from './runs/impact.js';
 
 const STATUS_RANK = { running: 0, queued: 1 };
 const FAULT_MARKER = { timeout_after_send: 'Timeout injection' };
@@ -23,7 +24,7 @@ export function queueRows(state) {
     return {
       attemptId: id, experimentId: a.experimentId, title: a.title, label: a.label,
       environmentName: environment.name, environmentIcon: environment.icon, scenarioCount: scenarios.length,
-      trigger: triggerOf(a), status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
+      trigger: triggerOf(a), impactOf: a.impactOf ?? null, status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
       progress: attemptProgress(state, id), result: attemptResultSummary(state, id), review: a.review, canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
     };
   });
@@ -131,8 +132,8 @@ export const STAGES = Object.freeze(['pending', 'queued', 'running', 'needs_revi
 const STAGE_ATTEMPT = ['queued', 'running', 'completed'];
 
 /** The attempt that decides an experiment's stage: its latest queued, running or completed one, or null. */
-export const stageAttempt = (state, experimentId) => state.attemptOrder.map(id => state.attempts[id])
-  .filter(a => a.experimentId === experimentId && STAGE_ATTEMPT.includes(a.status)).at(-1) ?? null;
+export const stageAttempt = (state, experimentId) => experimentAttempts(state, experimentId)
+  .filter(a => STAGE_ATTEMPT.includes(a.status)).at(-1) ?? null;
 
 // Read top to bottom; the first rule that holds decides the stage. `a` is the stage attempt.
 const STAGE_RULES = [
@@ -155,7 +156,7 @@ export function experimentOutcome(state, experimentId) {
   return review ? { decision: review.decision, label: REVIEW_LABEL[review.decision] } : null;
 }
 
-/** @returns {{ passed: boolean, checks: { id: string, label: string, passed: boolean, detail: string }[] }} */
+/** @returns {{ passed: boolean, checks: { id: string, label: string, passed: boolean, detail: string }[] }}  the shared-agents check also carries `state` and `runs` */
 export function acceptanceVerdict(state, attemptId) {
   const attempt = state.attempts[attemptId];
   const { acceptance } = attempt.inputSnapshot.experiment;
@@ -167,6 +168,7 @@ export function acceptanceVerdict(state, attemptId) {
     acceptance.noRegression && { id: 'no-regression', label: 'No regressed pairs', passed: cmp.regressedPairs === 0, detail: `${cmp.regressedPairs} regressed` },
     acceptance.minImprovedPairs > 0 && { id: 'min-improved', label: `At least ${plural(acceptance.minImprovedPairs, 'improved pair')}`, passed: cmp.improvedPairs >= acceptance.minImprovedPairs, detail: `${cmp.improvedPairs} improved` },
     { id: 'objective', label: `${objective.label} no worse than baseline`, passed: objective.met, detail: `${objective.baselineText} → ${objective.variantText}` },
+    sharedAcceptance(state, attempt),
   ].filter(Boolean);
   return { passed: checks.every(c => c.passed), checks };
 }
@@ -177,9 +179,11 @@ export function attemptResultSummary(state, attemptId) {
   if (attempt.status !== 'completed') return null;
   const cmp = comparisonFor(state, attemptId);
   const objective = objectiveComparison(attempt, state.executions[attemptId] ?? []);
+  const verdict = acceptanceVerdict(state, attemptId);
+  const shared = verdict.checks.find(c => c.id === 'shared-agents' && c.state === 'failed');
   return {
-    text: `${objective.label} ${objective.baselineText} → ${objective.variantText} · ${cmp.improvedPairs} improved · ${cmp.regressedPairs} regressed`,
-    tone: acceptanceVerdict(state, attemptId).passed ? 'green' : cmp.regressedPairs > 0 ? 'red' : 'amber',
+    text: `${objective.label} ${objective.baselineText} → ${objective.variantText} · ${cmp.improvedPairs} improved · ${cmp.regressedPairs} regressed${shared ? ` · shared workflows: ${shared.regressedPairs} regressed` : ''}`,
+    tone: verdict.passed ? 'green' : cmp.regressedPairs > 0 || shared ? 'red' : 'amber',
   };
 }
 

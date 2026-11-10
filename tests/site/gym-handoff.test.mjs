@@ -50,7 +50,7 @@ test('accepting a handoff adds one pending experiment that names Speedrun as its
   assert.deepEqual(Object.keys(once.experiments).length, Object.keys(before.experiments).length + 1);
   assert.equal(experimentStage(once, exp.id), 'pending');
   assert.deepEqual(once.attemptOrder, before.attemptOrder, 'no attempt is created');
-  assert.equal(exp.number, 32);
+  assert.equal(exp.number, Math.max(...Object.values(before.experiments).map(e => e.number)) + 1, 'numbered after the newest experiment');
   assert.deepEqual(exp.source, { kind: 'speedrun', label: 'Speedrun trace: Refund Team, retry and timeout', ref: '/speedrun/teams/refund/trace' });
   assert.deepEqual(stateProblems(once), []);
   const twice = acceptHandoff(once, { handoffId: ID });
