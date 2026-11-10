@@ -1,0 +1,56 @@
+import type { ReactNode } from "react";
+import { Card, Tag, cx } from "./ui";
+import { fmtInt } from "@/lib/format";
+
+export function CoverageStrip({
+  staleInstances,
+  incompleteTraces,
+  missingCostInstances,
+  missingEvaluationRuns,
+}: {
+  staleInstances: number;
+  incompleteTraces: number;
+  missingCostInstances: number;
+  missingEvaluationRuns: number;
+}) {
+  const item = (label: string, value: string) => (
+    <div>
+      <div className="lbl">{label}</div>
+      <div className="text-xl font-semibold">{value}</div>
+    </div>
+  );
+  return (
+    <Card aria-label="Data coverage" className="flex flex-wrap items-center gap-6 px-5 py-3.5">
+      <Tag className="!h-[34px] px-3.5 !text-[13px]">Data coverage</Tag>
+      <div className="grid flex-[1_1_640px] grid-cols-2 gap-6 md:grid-cols-4">
+        {item("Missing / stale data", `${staleInstances} ${staleInstances === 1 ? "instance" : "instances"}`)}
+        {item("Incomplete traces", `${fmtInt(incompleteTraces)} traces`)}
+        {item("Missing cost", `${missingCostInstances} instances`)}
+        {item("Missing success evaluation", `${fmtInt(missingEvaluationRuns)} runs`)}
+      </div>
+    </Card>
+  );
+}
+
+export function KpiRow({ items }: { items: { label: string; value: ReactNode; tone?: "amb" | "rose" }[] }) {
+  return (
+    <Card aria-label="Key measures" className="grid grid-cols-2 overflow-hidden sm:grid-cols-4 xl:grid-cols-8">
+      {items.map((k, i) => (
+        <div key={k.label} className={cx("flex flex-col gap-1.5 px-4 py-3.5", i > 0 && "border-l border-line")}>
+          <span className="lbl">{k.label}</span>
+          <span className={cx("text-[26px] font-bold tracking-tight", k.tone === "amb" && "text-amb-text", k.tone === "rose" && "text-rose-text")}>
+            {k.value}
+          </span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+export function RolesValue({ roles, instances }: { roles: number; instances: number }) {
+  return (
+    <>
+      {roles} <span className="text-[15px] font-medium text-mut">/ {fmtInt(instances)}</span>
+    </>
+  );
+}
