@@ -202,7 +202,7 @@ test('scenarios: checkboxes recompute everything, search hides rows only, zero s
   assert.equal(zero.focus, 'wb:sc:sc-base-case', 'the fix entry point focuses the first scenario checkbox');
 }));
 
-test('environments: search keeps the selection, an incompatible choice lists what is missing and keeps the draft', async t => withGym(t, async (gym, page) => {
+test('environments: search keeps the selection, an incompatible choice lists what is missing and says the draft now uses it', async t => withGym(t, async (gym, page) => {
   const search = await page(`const input = $('[data-focus-key="wb:env-search"]'); input.value = 'logs'; input.dispatchEvent(new Event('input', { bubbles: true })); await frame();
     const out = { cards: $$('.wb-env .wb-env__name').map(txt), env: E().environmentRef.id, hint: txt($('.wb-col--env .wb-hint')) };
     const i2 = $('[data-focus-key="wb:env-search"]'); i2.value = 'calendar'; i2.dispatchEvent(new Event('input', { bubbles: true })); await frame();
@@ -218,6 +218,7 @@ test('environments: search keeps the selection, an incompatible choice lists wha
     click('.wb-env', 'IT operations'); await frame();
     return { before, env: E().environmentRef, workflow: E().workflowRef.id, ids: E().selectedScenarioIds.join(), rev: E().draftRevision,
       selected: txt($('.wb-env.is-selected .wb-env__name')), warn: txt($('.wb-env__warn')), dep: txt($('.wb-dep')), missing: $$('.wb-missing__group').map(txt), fix: txt($('.wb-missing .gym-btn--link')),
+      title: txt($('.wb-missing .gym-notice__title')), says: txt($('.wb-missing .gym-notice__body > span')),
       run: $('.wb-run__go').getAttribute('aria-disabled'), card: txt($('[data-summary="environment"] strong')), dupe: !!$('.wb-errors li[data-code="dependency_unmatched"]'), override: txt($('.wb-errors li[data-code="unknown_override"]')) };`);
   assert.deepEqual(it.env, { id: 'env-it', rev: '1.1' });
   assert.deepEqual([it.workflow, it.ids, it.rev], [it.before.workflow, it.before.ids, it.before.rev + 1], 'the workflow and scenarios stay as they were');
@@ -229,6 +230,9 @@ test('environments: search keeps the selection, an incompatible choice lists wha
     'Fault hooks selected scenarios inject: email.timeout_after_send',
   ]);
   assert.equal(it.fix, 'Change environment');
+  assert.equal(it.title, 'IT operations v1.1 lacks what this experiment needs.');
+  assert.equal(it.says, `The draft now uses it at rev ${it.rev}. Nothing else was changed to fit it. Run stays blocked until the items below are resolved or another environment is chosen.`);
+  assert.doesNotMatch(it.title + it.says, /unchanged/, 'the draft did change, so the copy never says it did not');
   assert.equal(it.run, 'true');
   assert.equal(it.card, 'IT operations v1.1');
   assert.equal(it.dupe, false, 'the missing list is shown once');
@@ -236,6 +240,12 @@ test('environments: search keeps the selection, an incompatible choice lists wha
 
   const back = await page(`click('.wb-env', 'Sales operations'); await frame(); return [E().environmentRef.id, txt($('.wb-dep')), $('.wb-run__go').getAttribute('aria-disabled')]`);
   assert.deepEqual(back, ['env-sales', 'Dependencies matched', null]);
+
+  const gone = await page(`window.__gym.store.dispatch(s => ({ state: { ...s, experiments: { ...s.experiments, 'exp-029': { ...s.experiments['exp-029'], environmentRef: { id: 'env-gone', rev: '9' } } } } }), {}); await frame();
+    return { dep: txt($('.wb-dep')), notice: !!$('.wb-missing'), errors: $$('.wb-errors li').map(li => li.dataset.code) };`);
+  assert.equal(gone.dep, 'Dependencies not checked', 'no environment record means nothing was checked, not zero missing');
+  assert.equal(gone.notice, false);
+  assert.ok(gone.errors.includes('environment_missing'), gone.errors.join());
 }));
 
 test('Run validates, saves, freezes and enqueues once per draft revision; Save only saves', async t => withGym(t, async (gym, page) => {
