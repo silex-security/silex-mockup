@@ -1,11 +1,14 @@
-// Agent Gym v2 shell: header, page frame, routing and the view lifecycle (docs/agent-gym-v2-contract.md).
+// Agent Gym v2 shell: header, section tabs, page frame, routing and the view lifecycle (docs/agent-gym-v2-contract.md).
 // Tests and tools/gym-shot.mjs wait for window.__gym.ready.
+// ?embed=1 is the SILEX console's frame (js/gym-host.js): the console has the product header, so the app leaves its own
+// out and offers Reset demo data from the preview marker at the end of the section tabs.
 // A view's mount ctx also carries setLeaveGuard({ pending, apply, discard }): while pending() names something, a route
 // change to another view is held and the shell asks Keep editing, Discard and leave or Apply and leave.
 import { seedState } from './fixtures/index.js';
 import { startScheduler } from './simulation/scheduler.js';
 import { createStore } from './store.js';
 import { createRouter } from './router.js';
+import { SECTIONS, sectionOf } from './sections.js';
 import { h } from './components/dom.js';
 import { icon, logoMark } from './components/icons.js';
 import { button, notice, popoverMenu, confirmDialog, openDialog } from './components/ui.js';
@@ -39,6 +42,7 @@ const VIEWS = {
 
 const PREVIEW_MARK = 'Concept preview · Simulated data';
 const TICK_MS = 900;
+const EMBED = new URLSearchParams(location.search).get('embed') === '1';
 
 function browserStorage() {
   try { return window.localStorage; } catch { return null; }
@@ -86,10 +90,27 @@ const header = h('header', { class: 'gym-header' },
       ],
     })));
 
+const sectionLinks = SECTIONS.map(s => h('a', { class: 'gym-sections__link', href: s.root, dataset: { section: s.id } }, s.label));
+const sectionBar = h('div', { class: 'gym-sections' },
+  h('nav', { class: 'gym-sections__nav', 'aria-label': 'Agent Gym' }, sectionLinks),
+  EMBED && popoverMenu({
+    align: 'end', label: 'Demo data', class: 'gym-sections__menu',
+    trigger: { label: PREVIEW_MARK, iconRight: 'chevron-down', size: 'sm', variant: 'ghost', class: 'gym-preview-mark gym-sections__mark', focusKey: 'shell:preview' },
+    items: [
+      { heading: 'Simulated data' },
+      { label: 'Reset demo data', icon: 'refresh', danger: true, description: 'Restores the Agent Gym examples.', onSelect: resetDemo },
+    ],
+  }));
+
+function markSection(route) {
+  const id = sectionOf(route.name)?.id;
+  for (const a of sectionLinks) if (a.dataset.section === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+}
+
 const banners = h('div', { class: 'gym-banners' });
 const main = h('main', { class: 'gym-main', id: 'gym-main', tabIndex: -1 });
 const notSaving = h('span', { class: 'gym-preview-mark gym-saving-mark', title: 'Changes last until this page reloads. Reset demo data starts saving again.', hidden: true }, 'Not saving · memory only');
-const foot = h('footer', { class: 'gym-foot' }, h('span', { class: 'gym-preview-mark' }, PREVIEW_MARK), notSaving);
+const foot = h('footer', { class: 'gym-foot' }, !EMBED && h('span', { class: 'gym-preview-mark' }, PREVIEW_MARK), notSaving);
 const FIXES = { reset: resetDemo };
 
 function renderBanners() {
@@ -137,6 +158,7 @@ router.setLeaveGuard((next, proceed) => {
 function show(route) {
   const entry = VIEWS[route.name];
   document.title = `${entry.title} · Agent Gym · SILEX`;
+  markSection(route);
   if (mounted?.name === route.name) { mounted.handle.update(route); return; }
   const first = !mounted;
   mounted?.handle.destroy();
@@ -148,9 +170,9 @@ function show(route) {
   if (!first) { main.focus({ preventScroll: true }); announce(entry.title); }
 }
 
-document.body.append(
+document.body.append(...[
   h('a', { class: 'gym-skip', href: '#gym-main', onClick: e => { e.preventDefault(); main.focus(); } }, 'Skip to content'),
-  header, banners, main, foot, live);
+  !EMBED && header, sectionBar, banners, main, foot, live].filter(Boolean));
 
 store.subscribe(renderBanners);
 renderBanners();

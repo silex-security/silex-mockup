@@ -43,6 +43,27 @@
 .gym-app .gym-workspace { min-width: 196px; justify-content: flex-start; font-weight: 500; }
 .gym-app .gym-workspace .gym-btn__label { flex: 1; text-align: left; }
 
+/* Section tabs: the four parts of Agent Gym, under the header, or at the top when embedded */
+.gym-app .gym-sections {
+  flex: none; display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 var(--gym-gutter);
+  background: var(--gym-surface); border-bottom: 1px solid var(--gym-line);
+}
+.gym-app .gym-sections__nav { display: flex; align-self: stretch; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.gym-app .gym-sections__link {
+  display: inline-flex; align-items: center; padding: 0 12px; border-bottom: 2px solid transparent;
+  color: var(--gym-muted); font-size: var(--gym-fs-sm); font-weight: 500; text-decoration: none; white-space: nowrap;
+  transition: color var(--gym-ease), border-color var(--gym-ease);
+}
+.gym-app .gym-sections__link:hover { color: var(--gym-primary-ink); }
+.gym-app .gym-sections__link:focus-visible { box-shadow: none; outline: 2px solid var(--gym-primary); outline-offset: -2px; border-radius: 4px; }
+.gym-app .gym-sections__link[aria-current="page"] { border-bottom-color: var(--gym-primary); color: var(--gym-primary-ink); font-weight: 600; }
+.gym-app .gym-sections__menu { flex: 0 1 auto; min-width: 0; margin-left: auto; }
+.gym-app .gym-sections__mark.gym-btn {
+  min-height: 24px; padding: 0 8px 0 12px; gap: 4px; border-color: var(--gym-line); border-radius: var(--gym-r-pill);
+  background: var(--gym-surface-2); color: var(--gym-muted); font-size: var(--gym-fs-xs); font-style: italic; font-weight: 400;
+}
+.gym-app .gym-sections__mark.gym-btn:hover { background: var(--gym-primary-softer); color: var(--gym-primary-ink); }
+
 /* Page frame */
 .gym-app .gym-banners { padding: 0 var(--gym-gutter); }
 .gym-app .gym-banners > * { margin-top: 10px; }

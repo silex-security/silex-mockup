@@ -276,3 +276,41 @@ test('the memory-mode banner offers Reset demo data, and after Dismiss a quiet m
   const reset = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode, saved: JSON.parse(localStorage.getItem(${KEY})).schemaVersion }`);
   assert.deepEqual(reset, { banner: false, marks: ['Concept preview · Simulated data'], mode: 'local', saved: 2 });
 }));
+
+test('the section tabs link the four parts of Agent Gym and mark the one that owns the route', async t => withGym(t, async gym => {
+  const owners = [['#/workbench/exp-029', 'Workbench'], ['#/environments', 'Environments'], ['#/environments/new?returnTo=exp-029', 'Environments'],
+    ['#/environments/env-sales/revisions/1.2', 'Environments'], ['#/scenarios', 'Scenarios'], ['#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up', 'Scenarios'],
+    ['#/scenario-sets/set-follow-up-resilience/revisions/1', 'Scenarios'], ['#/runs?status=all', 'Runs & results'], ['#/experiments/exp-029/attempts/attempt-001', 'Runs & results'],
+    ['#/experiments/exp-029/attempts/attempt-001/results', 'Runs & results'], ['#/kit', null], ['#/nope', null]];
+  await gym.go('#/workbench/exp-029');
+  const bar = await gym.ev(`const nav = document.querySelector('nav.gym-sections__nav');
+    return { label: nav.getAttribute('aria-label'), links: [...nav.querySelectorAll('a')].map(a => [a.textContent, a.getAttribute('href')]),
+      below: Math.round(nav.getBoundingClientRect().top) >= Math.round(document.querySelector('.gym-header').getBoundingClientRect().bottom) };`);
+  assert.deepEqual(bar, { label: 'Agent Gym', below: true, links: [['Workbench', '#/workbench/exp-029'], ['Environments', '#/environments'], ['Scenarios', '#/scenarios'], ['Runs & results', '#/runs?status=all']] });
+  const marked = [];
+  for (const [hash] of owners) {
+    await gym.ev(`location.hash = ${JSON.stringify(hash)}; ${frame}`);
+    marked.push([hash, await gym.ev(`const on = [...document.querySelectorAll('.gym-sections__link[aria-current="page"]')]; return on.length > 1 ? 'several' : on[0]?.textContent ?? null`)]);
+  }
+  assert.deepEqual(marked, owners);
+  await gym.ev(`[...document.querySelectorAll('.gym-sections__link')].find(a => a.textContent === 'Scenarios').click(); ${frame}`);
+  assert.deepEqual(await gym.ev('return [location.hash, document.querySelector(".gym-main h1").textContent]'), ['#/scenarios', 'Scenarios']);
+}));
+
+test('embed mode drops the product header, keeps the section tabs, and offers Reset demo data from the preview marker', async t => withGym(t, async gym => {
+  await gym.go('#/runs?status=all', { search: '?clock=frozen&embed=1' });
+  const page = await gym.ev(`const marks = [...document.querySelectorAll('.gym-preview-mark')].filter(el => el.checkVisibility()).map(el => el.textContent);
+    return { header: !!document.querySelector('.gym-header, .gym-nav, .gym-workspace, .gym-logo'), top: Math.round(document.querySelector('.gym-sections').getBoundingClientRect().top),
+      current: document.querySelector('.gym-sections__link[aria-current="page"]').textContent, marks, h1: document.querySelector('.gym-main h1').textContent };`);
+  assert.deepEqual(page, { header: false, top: 0, current: 'Runs & results', marks: ['Concept preview · Simulated data'], h1: 'Runs' });
+  await gym.ev(`localStorage.setItem(${KEY}, '{broken');`);
+  await gym.go('#/workbench/exp-029', { search: '?clock=frozen&embed=1' });
+  assert.equal(await gym.ev('return window.__gym.store.persistence.mode'), 'memory');
+  const opened = await gym.ev(`const trigger = document.querySelector('.gym-sections__mark'); trigger.focus(); trigger.click();
+    const items = [...document.querySelectorAll('.gym-sections [role="menuitem"]')].map(b => b.textContent);
+    [...document.querySelectorAll('.gym-sections [role="menuitem"]')].find(b => b.textContent.includes('Reset demo data')).click(); ${frame}
+    return { items, dialog: document.querySelector('dialog.gym-dialog h2')?.textContent };`);
+  assert.deepEqual(opened, { items: ['Reset demo dataRestores the Agent Gym examples.'], dialog: 'Reset demo data?' });
+  await gym.ev(`[...document.querySelectorAll('dialog.gym-dialog button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}`);
+  assert.deepEqual(await gym.ev(`return [window.__gym.store.persistence.mode, JSON.parse(localStorage.getItem(${KEY})).schemaVersion, document.querySelector('body > .gym-sr').textContent]`), ['local', 2, 'Demo data reset.']);
+}));
