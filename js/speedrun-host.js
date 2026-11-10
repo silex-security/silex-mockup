@@ -17,7 +17,7 @@ function requested() {
   return p?.startsWith('/') ? p : null;
 }
 
-/* The frame fills the viewport below the host chrome and the view's title row. */
+/* The frame fills the viewport below the host chrome. */
 function size() {
   if (!wrap.offsetParent) return;
   wrap.style.height = Math.max(520, window.innerHeight - (wrap.getBoundingClientRect().top + window.scrollY) - 16) + 'px';

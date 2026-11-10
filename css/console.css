@@ -563,13 +563,13 @@
 @media(max-width:1100px){#assurance .as-hero .title-row{grid-template-columns:1fr}#assurance .as-graph{display:none}#assurance .as-wm{grid-template-columns:1fr}}
 @media(max-width:760px){#assurance .as-hero{padding:28px 20px 0}#assurance .as-hero .as-kpis{margin:0 -20px;padding:0 8px}#assurance .as-hero .as-kpi:nth-child(3){border-left:0}}
 
-/* Embedded apps (Agent Gym, Speedrun). The app has its own page header, so the console's title row shrinks to one
-   line of context: product, status, one action. */
-.gym-view .title-row,#speedrun .title-row{align-items:center;flex-wrap:nowrap;margin-bottom:10px}
-.gym-view .title-row>div,#speedrun .title-row>div{display:flex;align-items:baseline;gap:14px;min-width:0}
-.gym-view .title-row .sr-head,#speedrun .title-row .sr-head{flex:none;align-items:center;gap:8px}
-.gym-view .title-row h1,#speedrun .title-row h1{font-size:var(--text-lg);letter-spacing:-.01em;margin:0}
-.gym-view .title-row .btn,#speedrun .title-row .btn{flex:none;padding:6px 11px;font-size:var(--text-sm)}
+/* Agent Gym is an embedded app with its own page header, so the console's title row shrinks to one line of context:
+   product, status, one action. Speedrun has no title row: its description (data-note) hangs off the top-bar crumb. */
+.gym-view .title-row{align-items:center;flex-wrap:nowrap;margin-bottom:10px}
+.gym-view .title-row>div{display:flex;align-items:baseline;gap:14px;min-width:0}
+.gym-view .title-row .sr-head{flex:none;align-items:center;gap:8px}
+.gym-view .title-row h1{font-size:var(--text-lg);letter-spacing:-.01em;margin:0}
+.gym-view .title-row .btn{flex:none;padding:6px 11px;font-size:var(--text-sm)}
 .studio-frame-wrap{border-radius:var(--radius)}
 /* The placeholder a frame shows until its app mounts: a ring and the outline of a page. */
 .studio-frame-loading{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;--bone:var(--soft);background:linear-gradient(var(--bone),var(--bone)) 24px 22px/180px 18px no-repeat,linear-gradient(var(--bone),var(--bone)) right 24px top 22px/120px 18px no-repeat,linear-gradient(var(--bone),var(--bone)) 24px 64px/calc(100% - 48px) 1px no-repeat,linear-gradient(var(--bone),var(--bone)) 24px 88px/26% 120px no-repeat,linear-gradient(var(--bone),var(--bone)) right 24px top 88px/calc(74% - 64px) 120px no-repeat}
@@ -581,16 +581,10 @@
 /* A description under a heading shows while the pointer is over that heading, or anywhere on a view's title.
    It stays in the page for readers and search. */
 :has(>.hover-note){position:relative}
-:has(+.hover-note)::after{content:"i";display:inline-grid;place-items:center;flex:none;width:16px;height:16px;margin-left:6px;border-radius:50%;background:var(--soft);border:1px solid var(--line);color:var(--muted);font:700 var(--text-2xs)/1 var(--mono);letter-spacing:0;vertical-align:middle;cursor:help}
+:has(+.hover-note:not([hidden]))::after{content:"i";display:inline-grid;place-items:center;flex:none;width:16px;height:16px;margin-left:6px;border-radius:50%;background:var(--soft);border:1px solid var(--line);color:var(--muted);font:700 var(--text-2xs)/1 var(--mono);letter-spacing:0;vertical-align:middle;cursor:help}
 p.hover-note{position:absolute;z-index:40;width:max-content;max-width:min(440px,calc(100vw - 48px));margin:6px 0 0;padding:9px 11px;border-radius:var(--r-sm);background:var(--nav-deep);color:#fff;font-size:var(--text-xs);font-weight:400;line-height:1.45;letter-spacing:0;text-align:left;box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transition:opacity 120ms}
 :has(+.hover-note):hover+.hover-note,.title-row>div:hover>.hover-note{opacity:1}
-.gym-view .title-row .hover-note,#speedrun .title-row .hover-note{left:0;top:100%}
+.gym-view .title-row .hover-note,.top-left .hover-note{left:0;top:100%}
 #assurance .as-hero p.hover-note{background:var(--panel);color:var(--ink)}
 .brand-mark{flex:none;width:28px;height:28px}
 .app[data-nav-mode="pinned"] .top-left .brand-mark{display:none}
-
-/* Dark fog. The page carries the fog and cards are glass over it, the look of the Platform hero. */
-html{background:var(--bg)}
-body{background:var(--fog) fixed}
-.card{background:var(--glass)}
-.sidebar{border-right:1px solid var(--line)}
