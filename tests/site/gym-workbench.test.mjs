@@ -57,7 +57,7 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
       runDisabled: $('.wb-run__go').getAttribute('aria-disabled'),
       selCount: txt($('.wb-selbar__count')), scenarios: $$('.wb-scenario__title').map(txt), checked: $$('.wb-scenario input:checked').length,
       opened: txt($('.wb-scenario.is-open .wb-scenario__body')),
-      counts: $$('.wb-qcount').map(txt), rows: $$('.wb-qrow').map(r => [...r.cells].map(txt)),
+      queueTitle: txt($('#wb-queue-title')), counts: $$('.wb-qcount').map(txt), rows: $$('.wb-qrow').map(r => [...r.cells].map(txt)),
       progress: $('.wb-qrow .gym-progress__track').getAttribute('aria-valuenow') + '/' + $('.wb-qrow .gym-progress__track').getAttribute('aria-valuemax'),
       replay: $('[data-tab="replay"]').getAttribute('aria-disabled'),
     };`);
@@ -87,6 +87,7 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
   assert.deepEqual([v.selCount, v.checked], ['3 selected', 3]);
   assert.deepEqual(v.scenarios, ['Base case', 'Timeout after send', 'Contact opted out']);
   assert.equal(v.opened, 'Initial state: opted out Expected: skip email; log reason');
+  assert.equal(v.queueTitle, 'Run queue', 'the queue page owns the title Experiment queue');
   assert.deepEqual(v.counts, ['1 running', '1 queued', '4 completed'], 'the queue lists every experiment\'s attempts, not only this one\'s');
   assert.deepEqual(v.rows, [
     ['Sales follow-up · Variant A, rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18'],

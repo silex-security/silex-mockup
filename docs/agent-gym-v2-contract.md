@@ -157,6 +157,8 @@ Every number and result line on screen comes from these selectors and from `comp
 
 ### Experiment queue
 
+The title Experiment queue belongs to this page and its breadcrumbs only. The workbench panel is titled Run queue and the Runs page list is titled All runs.
+
 `js/experiments/queue.js` builds the queue's rows, the stage tabs with counts over the whole queue, and the four summary cards (Pending, Queued, Running, Needs review). Search matches the experiment name or id, the workflow name and the source label, ignoring case. The model has no team, so the source label stands in for it. Last activity shows `Reviewed <date>` for a reviewed experiment, else the attempt label, else `Draft rev N`, because the simulation keeps no wall-clock time.
 
 The row button comes from one lookup keyed by stage:
@@ -175,7 +177,7 @@ Class prefix `xq-`, styles in `css/queue.css`. The table reuses the `run-table` 
 
 `components/steps.js` draws the step indicator and `experiments/steps.js` decides each step. The current step comes from the route (workbench, run detail, results). Whether another step has a target comes from the stage attempt, or from the attempt named in the route when it belongs to the experiment. A step with a target is a link built through the router. A step without one is not a link, has `aria-disabled`, and says why in its `title`.
 
-The workbench shows the indicator, a what-changes strip (`workbench/derive.js` `changeSet`, computed from the version data, with differing cells highlighted) and the experiment settings block. The Results view shows the acceptance checks and the objective next to the comparison. The Runs list and the workbench queue show one result line per completed attempt and, once reviewed, the review decision.
+The workbench shows the indicator, a what-changes strip (`workbench/derive.js` `changeSet`, computed from the version data, with differing cells highlighted) and the experiment settings block. The Results view shows the acceptance checks and the objective next to the comparison. The All runs list and the workbench Run queue show one result line per completed attempt and, once reviewed, the review decision.
 
 ## Counting rules
 

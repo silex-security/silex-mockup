@@ -467,7 +467,7 @@ export function mount(root, ctx) {
     const extra = ['cancelled', 'failed'].filter(s => counts[s] > 0);
     return h('section', { class: 'gym-panel wb-queue', 'aria-labelledby': 'wb-queue-title' },
       h('header', { class: 'wb-queue__head' },
-        h('h2', { id: 'wb-queue-title' }, 'Experiment queue'),
+        h('h2', { id: 'wb-queue-title' }, 'Run queue'),
         h('span', { class: 'wb-queue__counts' }, ['running', 'queued', 'completed', ...extra].map(s => badge({ label: `${counts[s]} ${s}`, tone: QUEUE_TONE[s], dot: true, class: 'wb-qcount' })))),
       h('div', { class: 'wb-queue__scroll', dataset: { scrollKey: 'wb:queue' } },
         rows.length ? h('table', { class: 'wb-qtable' },
