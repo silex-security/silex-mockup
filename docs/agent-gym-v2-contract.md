@@ -55,6 +55,7 @@ View-only state that must survive a refresh (the selected tab, node, component, 
 #/environments/new?returnTo=:experimentId&focus=describe    environment builder
 #/environments/:id/revisions/:rev                           environment revision (read-only detail)
 #/scenarios/new?environment=:id@:rev&workflow=:id&source=chat|trace|blueprint|upload&mode=prompt|tool_failure|permission|data_state
+#/scenarios                                                 scenario library (saved sets)
 #/scenario-sets/:id/revisions/:rev                          scenario set revision (read-only detail)
 #/runs?status=all|running|queued|completed|cancelled        run list
 #/experiments/:experimentId/attempts/:attemptId             run detail

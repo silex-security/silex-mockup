@@ -9,6 +9,7 @@ const CONTRACT = [
   ['#/environments/new?returnTo=exp-029&focus=describe', 'environment-builder', {}, { returnTo: 'exp-029', focus: 'describe' }],
   ['#/environments/env-sales/revisions/1.2', 'environment-revision', { id: 'env-sales', rev: '1.2' }, {}],
   ['#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&source=chat&mode=tool_failure', 'scenario-builder', {}, { environment: 'env-sales@1.2', workflow: 'wf-sales-follow-up', source: 'chat', mode: 'tool_failure' }],
+  ['#/scenarios', 'scenario-library', {}, {}],
   ['#/scenario-sets/set-follow-up-resilience/revisions/1', 'scenario-set', { id: 'set-follow-up-resilience', rev: '1' }, {}],
   ['#/runs?status=all', 'run-list', {}, { status: 'all' }],
   ['#/experiments/exp-029/attempts/attempt-001', 'run-detail', { experimentId: 'exp-029', attemptId: 'attempt-001' }, {}],
