@@ -1,0 +1,207 @@
+/* Agent Gym v2: environment screen styles (builder, library, revision). Scope every rule under .gym-app. */
+
+/* Builder header */
+.gym-app .env-head { padding-bottom: 14px; }
+.gym-app .env-head .gym-pagehead__meta { margin-top: 8px; }
+.gym-app .env-name { width: 288px; max-width: 100%; }
+.gym-app .env-name .gym-input__control { font-size: 15px; font-weight: 600; }
+.gym-app .env-saved { display: inline-flex; align-items: center; gap: 4px; color: var(--gym-green); font-size: var(--gym-fs-sm); }
+
+/* Three columns */
+/* The kit's columns() sets --gym-cols through style assignment, which drops custom properties, so the template is set here. */
+.gym-app .env-cols { grid-template-columns: minmax(0, 26fr) minmax(0, 46fr) minmax(0, 26fr); align-items: stretch; }
+.gym-app .env-cols > .gym-panel { min-height: 0; }
+.gym-app .env-cols .gym-panel__head { padding: 12px 16px 0; }
+.gym-app .env-cols .gym-panel__body { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 10px 14px 10px; }
+
+/* Chat */
+.gym-app .env-chat .gym-panel__body { gap: 8px; }
+.gym-app .env-chat__log { flex: 1 1 0; min-height: 320px; margin: 0; padding: 0 2px 0 0; scrollbar-width: thin; list-style: none; overflow: hidden auto; display: flex; flex-direction: column; gap: 6px; }
+.gym-app .env-turn { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; align-items: start; }
+.gym-app .env-turn__avatar { display: inline-grid; place-items: center; width: 30px; height: 30px; margin-top: 2px; border-radius: 50%; background: var(--gym-primary-soft); color: var(--gym-primary-ink); }
+.gym-app .env-turn--assistant .env-turn__avatar { background: none; color: var(--gym-primary); }
+.gym-app .env-turn__bubble { min-width: 0; padding: 6px 10px; border-radius: var(--gym-r-lg); background: var(--gym-surface-2); font-size: var(--gym-fs-md); line-height: 1.4; }
+.gym-app .env-turn--user .env-turn__bubble { background: var(--gym-primary-soft); color: var(--gym-ink); }
+.gym-app .env-turn__bubble p { margin: 0; }
+.gym-app .env-turn__title { display: block; margin-bottom: 6px; font-size: 15px; }
+.gym-app .env-turn__bubble .env-turn__hint { margin-top: 6px; color: var(--gym-muted); font-size: var(--gym-fs-xs); }
+.gym-app .env-inline-chip { min-height: 22px; margin: 0 2px; padding: 0 7px; vertical-align: middle; background: var(--gym-surface); font-size: var(--gym-fs-sm); }
+.gym-app .env-apps { display: flex; gap: 4px; }
+.gym-app .env-appselect {
+  position: relative; display: inline-flex; flex: 0 1 auto; align-items: center; gap: 3px; max-width: 118px; min-height: 30px; padding: 2px 5px;
+  border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r); background: var(--gym-surface); box-shadow: var(--gym-shadow-sm);
+  font-size: 11.5px; font-weight: 600; line-height: 1.15; cursor: pointer;
+}
+.gym-app .env-appselect:hover { border-color: var(--gym-primary-line); }
+.gym-app .env-appselect:focus-within { border-color: var(--gym-primary); box-shadow: var(--gym-ring); }
+.gym-app .env-appselect__label { min-width: 0; }
+.gym-app .env-appselect > .gym-icon { flex: none; color: var(--gym-ink-2); }
+.gym-app .env-appselect__native { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 14px; }
+.gym-app .env-assume { margin-top: 4px; padding: 5px 8px 6px; border: 1px solid var(--gym-line); border-radius: var(--gym-r); background: var(--gym-surface); }
+.gym-app .env-assume strong { display: block; margin-bottom: 4px; font-size: var(--gym-fs-sm); }
+.gym-app .env-assume ul, .gym-app .env-changes { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.gym-app .env-assume li { display: flex; align-items: center; gap: 8px; padding: 2px 8px; border-radius: var(--gym-r-sm); background: var(--gym-amber-soft); color: var(--gym-amber); font-size: var(--gym-fs-sm); }
+.gym-app .env-assume li .gym-icon { color: var(--gym-amber-dot); }
+.gym-app .env-changes { margin-top: 4px; align-items: flex-start; }
+.gym-app .env-changes li { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: var(--gym-r-sm); background: var(--gym-green-soft); color: var(--gym-green); font-size: var(--gym-fs-sm); }
+.gym-app .env-options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.gym-app .env-composer { display: flex; flex-direction: column; gap: 6px; }
+.gym-app .env-composer__row { display: flex; align-items: center; gap: 2px; min-width: 0; margin: 0; padding: 0 3px 2px 12px; border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r); background: var(--gym-surface); }
+.gym-app .env-composer__row:focus-within { border-color: var(--gym-primary); box-shadow: var(--gym-ring); }
+.gym-app .env-composer__input { flex: 1; min-width: 0; padding: 6px 0; border: 0; background: none; color: var(--gym-ink); font: inherit; font-size: var(--gym-fs-md); }
+.gym-app .env-composer__input:focus-visible { box-shadow: none; outline: none; }
+.gym-app .env-composer__input::placeholder { color: var(--gym-muted); }
+.gym-app .env-composer__row .gym-btn { min-height: 28px; }
+.gym-app .env-composer__row .gym-btn--primary { width: 40px; }
+.gym-app .env-file { display: none; }
+.gym-app .env-composer__hint { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--gym-muted); font-size: var(--gym-fs-xs); }
+.gym-app .env-demo-tag { margin-left: auto; padding: 0 7px; border-radius: var(--gym-r-pill); background: var(--gym-primary-soft); color: var(--gym-primary-ink); font-size: 11px; font-weight: 600; line-height: 14px; }
+
+/* Preview */
+.gym-app .env-preview .gym-panel__head { align-items: center; }
+.gym-app .env-tabs { align-self: flex-start; }
+.gym-app .env-tabpanel { min-width: 0; }
+.gym-app .env-topo-scroll { overflow-x: auto; overflow-y: hidden; border-radius: var(--gym-r); background-image: radial-gradient(var(--gym-dot) 1px, transparent 1.2px); background-size: 14px 14px; }
+.gym-app .env-topo { position: relative; margin: 0 auto; }
+.gym-app .env-topo__wires { position: absolute; inset: 0; overflow: visible; }
+.gym-app .env-wire line { stroke: var(--gym-primary-line); stroke-width: 1.6; }
+.gym-app .env-wire circle { fill: var(--gym-primary); }
+.gym-app .env-wire.is-selected line { stroke: var(--gym-primary); stroke-width: 2.6; }
+.gym-app .env-node {
+  position: absolute; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px 8px;
+  border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r-lg); background: var(--gym-surface); color: var(--gym-ink);
+  text-align: left; cursor: pointer; box-shadow: var(--gym-shadow-sm); transition: border-color var(--gym-ease), box-shadow var(--gym-ease);
+}
+.gym-app .env-node:hover { border-color: var(--gym-primary-line); }
+.gym-app .env-node.is-selected { border: 2px solid var(--gym-primary); padding: 9px 11px 7px; box-shadow: 0 0 0 3px var(--gym-primary-softer); }
+.gym-app .env-node__icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: var(--gym-r); background: var(--gym-surface-2); }
+.gym-app .env-node__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.gym-app .env-node__name { font-size: 16px; font-weight: 700; }
+.gym-app .env-node__meta { color: var(--gym-ink-2); font-size: var(--gym-fs-xs); overflow: hidden; text-overflow: ellipsis; }
+.gym-app .env-node__badge { align-self: flex-start; height: 18px; margin-top: 4px; padding: 0 8px; font-size: 11px; }
+.gym-app .env-edge {
+  position: absolute; transform: translate(-50%, -50%); padding: 3px 12px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill);
+  background: var(--gym-primary-softer); color: var(--gym-ink); font-size: var(--gym-fs-md); font-weight: 500; cursor: pointer;
+}
+.gym-app .env-edge:hover { border-color: var(--gym-primary-line); }
+.gym-app .env-edge.is-selected { border-color: var(--gym-primary); background: var(--gym-primary); color: #fff; }
+.gym-app .env-counts { color: var(--gym-muted); font-size: var(--gym-fs-sm); }
+.gym-app .env-gen__title { margin-bottom: 4px; font-size: 15px; font-weight: 700; }
+.gym-app .env-gen__rows { margin: 0; padding: 0; list-style: none; border: 1px solid var(--gym-line); border-radius: var(--gym-r); }
+.gym-app .env-gen__rows li + li { border-top: 1px solid var(--gym-line); }
+.gym-app .env-gen__row {
+  display: grid; grid-template-columns: 26px minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: center; width: 100%;
+  min-height: 27px; padding: 1px 14px; border: 0; background: none; color: var(--gym-ink); text-align: left; cursor: pointer;
+}
+.gym-app .env-gen__row:hover { background: var(--gym-primary-softer); }
+.gym-app .env-gen__row.is-selected { background: var(--gym-primary-softer); box-shadow: inset 3px 0 0 var(--gym-primary); }
+.gym-app .env-gen__name { font-weight: 600; font-size: var(--gym-fs-md); }
+.gym-app .env-gen__tools { color: var(--gym-ink-2); font-size: var(--gym-fs-sm); }
+.gym-app .env-gen__status .gym-badge { height: 20px; }
+.gym-app .env-notice { padding: 5px 12px; }
+.gym-app .env-notice ul { margin: 4px 0 0; }
+.gym-app .env-context { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 5px 12px; border-radius: var(--gym-r); background: var(--gym-primary-soft); }
+.gym-app .env-context__label { display: inline-flex; align-items: center; gap: 6px; margin-right: 4px; font-weight: 700; font-size: var(--gym-fs-sm); color: var(--gym-ink); }
+.gym-app .env-context__label .gym-icon { color: var(--gym-primary-ink); }
+.gym-app .env-context .gym-chip { min-height: 24px; font-size: var(--gym-fs-xs); }
+.gym-app .env-hint { margin-top: auto; color: var(--gym-muted); font-size: var(--gym-fs-xs); }
+.gym-app .env-tab-list { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow: auto; padding: 4px 2px; }
+.gym-app .env-tools ul, .gym-app .env-data ul { margin: 4px 0 0; padding: 0; list-style: none; }
+.gym-app .env-tools__head { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 8px; border: 1px solid transparent; border-radius: var(--gym-r); background: none; color: var(--gym-ink); cursor: pointer; text-align: left; }
+.gym-app .env-tools__head.is-selected { border-color: var(--gym-primary-line); background: var(--gym-primary-softer); }
+.gym-app .env-tool { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 3px 8px 3px 36px; font-size: var(--gym-fs-sm); }
+.gym-app .env-tool.is-off code { color: var(--gym-faint); text-decoration: line-through; }
+.gym-app .env-tool__sig { color: var(--gym-muted); font-family: var(--gym-mono); font-size: 11.5px; overflow-wrap: anywhere; }
+.gym-app .env-data h4 { font-size: var(--gym-fs-md); }
+.gym-app .env-data li { padding: 2px 0; font-size: var(--gym-fs-sm); }
+.gym-app .env-data__sample { display: block; color: var(--gym-muted); font-family: var(--gym-mono); font-size: 11.5px; overflow-wrap: anywhere; }
+.gym-app .env-table { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-sm); }
+.gym-app .env-table th, .gym-app .env-table td { padding: 6px 8px; border-bottom: 1px solid var(--gym-line); text-align: left; vertical-align: top; }
+.gym-app .env-table thead th { color: var(--gym-muted); font-weight: 600; }
+
+/* Settings side panel */
+.gym-app .env-side .gym-panel__icon { width: auto; height: auto; background: none; }
+.gym-app .env-ctabs { align-self: flex-start; }
+.gym-app .env-form { display: flex; flex-direction: column; gap: 8px; }
+.gym-app .env-form .gym-field { gap: 4px; }
+.gym-app .env-fieldset { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.gym-app .env-fieldset legend { margin-bottom: 2px; padding: 0; }
+.gym-app .env-fieldset .gym-check__label { font-size: var(--gym-fs-md); }
+.gym-app .env-fieldset .gym-check { min-height: 24px; }
+.gym-app .env-contract { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gym-app .env-contract details { flex: 1 1 auto; font-size: var(--gym-fs-xs); color: var(--gym-ink-2); }
+.gym-app .env-contract details[open] { flex-basis: 100%; order: 2; }
+.gym-app .env-contract summary { cursor: pointer; color: var(--gym-primary-ink); font-weight: 600; }
+.gym-app .env-contract ul { margin: 6px 0 0; padding-left: 18px; }
+.gym-app .env-side__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: auto; }
+.gym-app .env-unapplied { color: var(--gym-amber); font-size: var(--gym-fs-xs); }
+.gym-app .env-side-tools { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gym-app .env-side-tools li { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border: 1px solid var(--gym-line); border-radius: var(--gym-r); }
+.gym-app .env-side .gym-empty { margin: auto 0; }
+.gym-app .env-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 12px; margin: 0; font-size: var(--gym-fs-sm); }
+.gym-app .env-dl dt { color: var(--gym-muted); font-weight: 600; }
+.gym-app .env-dl dd { margin: 0; overflow-wrap: anywhere; }
+.gym-app .env-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: var(--gym-fs-sm); }
+.gym-app .env-bad { color: var(--gym-red); }
+.gym-app .env-link { color: var(--gym-primary-ink); font-weight: 600; }
+.gym-app .env-catalog { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; max-height: 52vh; overflow: auto; }
+.gym-app .env-catalog__item { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--gym-line); border-radius: var(--gym-r); }
+.gym-app .env-catalog__text { display: flex; flex-direction: column; min-width: 0; font-size: var(--gym-fs-sm); }
+.gym-app .env-catalog__text span, .gym-app .env-catalog__text small { color: var(--gym-muted); }
+
+/* Footer bar */
+.gym-app .env-footer { margin-top: 10px; padding: 8px 22px; }
+.gym-app .env-footer__stats { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.gym-app .env-ready { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
+.gym-app .env-ready .gym-icon { color: var(--gym-green-dot); }
+.gym-app .env-ready--muted { color: var(--gym-muted); font-weight: 500; }
+.gym-app .env-footer__rule { width: 1px; height: 22px; background: var(--gym-line); }
+.gym-app .env-pending { min-height: 30px; padding: 2px 12px; border-radius: var(--gym-r-pill); font-size: 15px; font-weight: 600; }
+.gym-app .env-footer__hint { margin-top: 4px; color: var(--gym-muted); font-size: var(--gym-fs-sm); }
+.gym-app .env-footer .gym-btn { min-width: 160px; min-height: 36px; }
+.gym-app .env-footer .gym-btn--primary { min-width: 228px; }
+
+/* Library and revision */
+.gym-app .env-lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.gym-app .env-lib__card { display: flex; flex-direction: column; gap: 10px; height: 100%; padding: 14px 16px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-lg); background: var(--gym-surface); box-shadow: var(--gym-shadow-sm); }
+.gym-app .env-lib__card.is-current { border-color: var(--gym-primary-line); box-shadow: 0 0 0 3px var(--gym-primary-softer); }
+.gym-app .env-lib__top { display: flex; align-items: flex-start; gap: 12px; }
+.gym-app .env-lib__titles { flex: 1; min-width: 0; }
+.gym-app .env-lib__titles h2 { font-size: 17px; font-weight: 700; }
+.gym-app .env-lib__titles p { color: var(--gym-muted); font-size: var(--gym-fs-sm); }
+.gym-app .env-lib__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.gym-app .env-lib__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; }
+.gym-app .env-lib__result { font-size: var(--gym-fs-sm); }
+.gym-app .env-lib__result.is-ok { color: var(--gym-green); }
+.gym-app .env-lib__result.is-bad { color: var(--gym-red); }
+.gym-app .env-rev { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.gym-app .env-rev__stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.gym-app .env-rev .env-table code, .gym-app .env-rev .env-dl code { font-family: var(--gym-mono); font-size: 12px; }
+.gym-app .env-scroll-x { overflow-x: auto; }
+.gym-app .env-caps { display: flex; flex-wrap: wrap; gap: 6px; }
+.gym-app .env-caps code { padding: 2px 6px; border-radius: var(--gym-r-sm); background: var(--gym-surface-2); font-family: var(--gym-mono); font-size: 12px; }
+
+/* Three columns need about 1280px. Narrower, the chat keeps the left column and the settings sit under the preview. */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  .gym-app .env-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); grid-template-areas: "chat preview" "chat side"; }
+  .gym-app .env-chat { grid-area: chat; }
+  .gym-app .env-preview { grid-area: preview; }
+  .gym-app .env-side { grid-area: side; }
+  .gym-app .env-apps { flex-wrap: wrap; }
+}
+@media (max-width: 1023.98px) {
+  .gym-app .env-cols { grid-template-columns: minmax(0, 1fr); }
+  .gym-app .env-chat__log { flex: none; max-height: 420px; min-height: 0; }
+  .gym-app .env-rev { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767.98px) {
+  .gym-app .env-apps { flex-wrap: wrap; }
+  .gym-app .env-footer .gym-btn, .gym-app .env-footer .gym-btn--primary { min-width: 0; flex: 1 1 auto; }
+  .gym-app .env-footer__actions { width: 100%; }
+  .gym-app .env-gen__row { grid-template-columns: 22px minmax(0, 1.4fr) minmax(0, .8fr) minmax(0, 1fr); padding: 2px 8px; gap: 6px; }
+}
+
+/* "Needs review" does not shrink, so on the narrowest phones the status column takes its own width. */
+@media (max-width: 420px) {
+  .gym-app .env-gen__row { grid-template-columns: 22px minmax(0, 1fr) auto auto; }
+}

@@ -27,13 +27,9 @@
   <link rel="stylesheet" href="css/rt-onto-fleet.css" />
   <link rel="stylesheet" href="css/rt-onto-graph.css" />
   <link rel="stylesheet" href="css/rt-onto-vision.css" />
-  <link rel="stylesheet" href="css/sx-view.css" />
-  <link rel="stylesheet" href="css/sx-expand.css" />
-  <link rel="stylesheet" href="css/sx-coverage.css" />
-  <link rel="stylesheet" href="css/sx-replay.css" />
   <style>
     :root{--ink:#17191d;--muted:#68707c;--line:#e3e6ea;--soft:#f5f6f8;--panel:#fff;--nav:#26282d;--blue:#718aff;--blue2:#536bdb;--lav:#e9edff;--green:#2b8766;--green-bg:#e5f4ee;--red:#c54545;--red-bg:#fcebea;--amber:#a66a14;--amber-bg:#fff3d8;--shadow:0 10px 30px rgba(22,28,45,.07);--radius:16px;--mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#eef0f3;line-height:1.45} button{font:inherit} .app{display:grid;grid-template-columns:244px 1fr;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:var(--nav);color:#f8f8fa;padding:26px 18px;display:flex;flex-direction:column}.brand{font-weight:760;letter-spacing:.16em;font-size:19px;padding:0 12px 28px}.brand span{color:var(--blue)}.section-label{font-size:11px;color:#9197a3;text-transform:uppercase;letter-spacing:.14em;padding:0 12px;margin:10px 0 8px}.nav{display:grid;gap:5px}.nav button{appearance:none;border:0;background:transparent;color:#aeb4bf;padding:11px 12px;border-radius:9px;text-align:left;display:flex;align-items:center;gap:11px;cursor:pointer;font-size:14px}.nav button:hover,.nav button.active{color:#fff;background:#343740}.nav button.active{box-shadow:inset 3px 0 var(--blue)}.ico{width:17px;height:17px;display:inline-grid;place-items:center;font-size:15px}.spacer{flex:1}.system{border-top:1px solid #3a3d44;padding:18px 12px 0}.online{display:flex;align-items:center;gap:8px;font-size:12px;color:#bac0c9}.dot{width:8px;height:8px;border-radius:50%;background:#4bc28b;box-shadow:0 0 0 4px rgba(75,194,139,.12)}.tenant{margin-top:13px;color:#fff;font-size:13px}.tenant small{display:block;color:#898f99;margin-top:2px}.main{min-width:0}.topbar{height:68px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}.crumb{font-size:13px;color:var(--muted)}.crumb strong{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;color:#4f5864}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:white;font-size:12px}.content{padding:26px 30px 48px;max-width:1520px;margin:auto}.title-row{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}.title-row h1{font-size:26px;line-height:1.15;margin:0 0 5px;letter-spacing:-.025em}.title-row p{margin:0;color:var(--muted);font-size:13px}.btn{border:0;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:650;font-size:13px;display:inline-flex;align-items:center;gap:8px}.btn.primary{background:var(--ink);color:#fff}.btn.primary:hover{background:#000}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.blue{background:var(--blue);color:#fff}.btn:disabled{opacity:.48;cursor:not-allowed}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:var(--panel);border:1px solid #e1e4e8;border-radius:var(--radius);box-shadow:var(--shadow)}.metric{padding:18px 19px}.kicker{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-bottom:12px}.trend{font-size:11px;color:var(--green);background:var(--green-bg);padding:3px 7px;border-radius:99px}.metric-value{font-size:30px;font-weight:730;letter-spacing:-.04em;line-height:1}.metric-foot{font-size:12px;color:var(--muted);margin-top:10px}.two-col{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:18px;margin-bottom:18px}.card-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px}.card-head h2{font-size:15px;margin:0}.card-head p{font-size:12px;color:var(--muted);margin:3px 0 0}.status{font-size:11px;font-weight:720;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:5px 8px}.status.blocked{color:var(--red);background:var(--red-bg)}.status.running{color:var(--blue2);background:var(--lav)}.status.review{color:var(--amber);background:var(--amber-bg)}.incident{margin:0 20px 19px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.incident-top{display:flex;justify-content:space-between;padding:16px;background:#fafbfc;border-bottom:1px solid var(--line)}.incident-title{display:flex;gap:11px}.shield{width:36px;height:36px;border-radius:10px;background:var(--red-bg);color:var(--red);display:grid;place-items:center;font-weight:800}.incident-title strong{display:block;font-size:14px}.incident-title small{display:block;color:var(--muted);margin-top:3px}.path-wrap{padding:18px 16px 20px}.path-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}.path{display:grid;grid-template-columns:1fr 22px 1fr 22px 1.1fr 22px 1fr;align-items:center;gap:6px}.node{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;min-width:0}.node strong{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.node span{font-size:11px;color:var(--muted)}.node.danger{border-color:#efbaba;background:#fff8f8}.arrow{text-align:center;color:#979da6}.failure-note{margin-top:14px;padding:10px 12px;background:#fff6f5;border-left:3px solid var(--red);font-size:12px;color:#6c3a3a}.timeline{padding:4px 20px 19px}.event{display:grid;grid-template-columns:58px 14px 1fr;gap:10px;min-height:64px}.event time{font-size:11px;color:var(--muted);padding-top:2px}.rail{display:flex;flex-direction:column;align-items:center}.rail i{width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:4px;z-index:1}.rail:after{content:"";width:1px;flex:1;background:var(--line)}.event:last-child .rail:after{display:none}.event-copy strong{font-size:12px;display:block}.event-copy span{font-size:11px;color:var(--muted)}.validation{padding:0 20px 20px}.progress-top{display:flex;justify-content:space-between;align-items:end}.progress-number{font-weight:750;font-size:22px}.progress-track{height:7px;background:#e8eaf0;border-radius:99px;margin:10px 0 16px;overflow:hidden}.progress-bar{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),#9b79ef);border-radius:99px;transition:width .6s}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:11px;background:var(--soft);border-radius:10px}.stat strong{font-size:17px;display:block}.stat span{font-size:10px;color:var(--muted)}.findings{margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #f0c1bf;background:#fff9f8;border-radius:10px}.findings strong{font-size:12px;color:#8d3636}.findings span{font-size:11px;color:var(--muted)}.evidence-card{padding-bottom:6px}.evidence{padding:0 20px 18px}.confidence{display:grid;grid-template-columns:145px 1fr;gap:20px;align-items:center}.ring{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--blue) 0 78%,#eaecf0 78% 100%);position:relative}.ring:before{content:"";position:absolute;inset:11px;background:#fff;border-radius:50%}.ring-inner{position:relative;text-align:center}.ring-inner strong{font-size:27px;display:block}.ring-inner span{font-size:10px;color:var(--muted)}.e-list{display:grid;gap:12px}.e-item{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:12px}.e-item span{color:var(--muted)}.mini-track{grid-column:1/3;height:4px;background:#eceef2;border-radius:99px;overflow:hidden}.mini-track i{display:block;height:100%;background:var(--blue);border-radius:99px}.mini-track i.red{background:var(--red)}.section-card{margin-bottom:18px}.section-card .body{padding:0 20px 20px}.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px}.tab{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px}.tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.matrix{width:100%;border-collapse:collapse;font-size:12px}.matrix th{text-align:left;color:var(--muted);font-weight:560;border-bottom:1px solid var(--line);padding:10px 8px}.matrix td{padding:13px 8px;border-bottom:1px solid #eef0f2}.matrix tr:last-child td{border-bottom:0}.matrix .bold{font-weight:680}.matrix .score{font-weight:720}.evidence-tag{display:inline-block;border-radius:6px;background:var(--soft);padding:4px 7px;color:#555e69}.policy-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}.policy{border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}.policy.recommended{border-color:#879aff;box-shadow:inset 0 0 0 1px #879aff}.rec{position:absolute;top:12px;right:12px;background:var(--lav);color:var(--blue2);padding:4px 7px;border-radius:6px;font-size:10px;font-weight:700}.policy h3{font-size:13px;margin:0 0 7px;padding-right:80px}.policy p{font-size:11px;color:var(--muted);min-height:34px;margin:0 0 13px}.policy-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}.policy-metrics div{background:var(--soft);border-radius:8px;padding:8px}.policy-metrics strong{font-size:13px;display:block}.policy-metrics span{font-size:9px;color:var(--muted)}.calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chart{height:150px;border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;overflow:hidden;background:linear-gradient(to bottom,transparent 24%,#f0f2f4 25%,transparent 26%,transparent 49%,#f0f2f4 50%,transparent 51%,transparent 74%,#f0f2f4 75%,transparent 76%)}.chart svg{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px)}.chart-title{position:relative;z-index:1;font-size:11px;color:var(--muted)}.alert{border:1px solid #cdd5ff;background:#f7f8ff;border-radius:12px;padding:14px;display:flex;gap:11px;align-items:flex-start;margin-bottom:10px}.alert:last-child{margin-bottom:0}.alert-icon{color:var(--blue2);font-weight:800}.alert strong{font-size:12px;display:block}.alert p{font-size:11px;color:var(--muted);margin:3px 0 0}.view{display:none}.view.active{display:block}.modal-backdrop{position:fixed;inset:0;background:rgba(20,22,27,.48);z-index:30;display:none;align-items:center;justify-content:center;padding:20px}.modal-backdrop.open{display:flex}.modal{width:min(520px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);padding:22px}.modal h2{margin:0 0 8px;font-size:19px}.modal p{font-size:13px;color:var(--muted)}.modal-box{background:var(--soft);border-radius:10px;padding:13px;font-size:12px;margin:16px 0}.modal-actions{display:flex;justify-content:flex-end;gap:9px}.toast{position:fixed;right:24px;bottom:24px;background:#1f2227;color:#fff;padding:13px 16px;border-radius:10px;box-shadow:0 10px 35px rgba(0,0,0,.3);font-size:12px;transform:translateY(100px);opacity:0;transition:.25s;z-index:50}.toast.show{transform:translateY(0);opacity:1}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#eef0f3;line-height:1.45} button{font:inherit} .app{display:grid;grid-template-columns:244px 1fr;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:var(--nav);color:#f8f8fa;padding:26px 18px;display:flex;flex-direction:column}.brand{font-weight:760;letter-spacing:.16em;font-size:19px;padding:0 12px 28px}.brand span{color:var(--blue)}.section-label{font-size:11px;color:#9197a3;text-transform:uppercase;letter-spacing:.14em;padding:0 12px;margin:10px 0 8px}.nav{display:grid;gap:5px}.nav button{appearance:none;border:0;background:transparent;color:#aeb4bf;padding:11px 12px;border-radius:9px;text-align:left;display:flex;align-items:center;gap:11px;cursor:pointer;font-size:14px;text-decoration:none}.nav button:hover,.nav button.active{color:#fff;background:#343740}.nav button.active{box-shadow:inset 3px 0 var(--blue)}.ico{width:17px;height:17px;display:inline-grid;place-items:center;font-size:15px}.spacer{flex:1}.system{border-top:1px solid #3a3d44;padding:18px 12px 0}.online{display:flex;align-items:center;gap:8px;font-size:12px;color:#bac0c9}.dot{width:8px;height:8px;border-radius:50%;background:#4bc28b;box-shadow:0 0 0 4px rgba(75,194,139,.12)}.tenant{margin-top:13px;color:#fff;font-size:13px}.tenant small{display:block;color:#898f99;margin-top:2px}.main{min-width:0}.topbar{height:68px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}.crumb{font-size:13px;color:var(--muted)}.crumb strong{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;color:#4f5864}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:white;font-size:12px}.content{padding:26px 30px 48px;max-width:1520px;margin:auto}.title-row{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}.title-row h1{font-size:26px;line-height:1.15;margin:0 0 5px;letter-spacing:-.025em}.title-row p{margin:0;color:var(--muted);font-size:13px}.btn{border:0;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:650;font-size:13px;display:inline-flex;align-items:center;gap:8px}.btn.primary{background:var(--ink);color:#fff}.btn.primary:hover{background:#000}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.blue{background:var(--blue);color:#fff}.btn:disabled{opacity:.48;cursor:not-allowed}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:var(--panel);border:1px solid #e1e4e8;border-radius:var(--radius);box-shadow:var(--shadow)}.metric{padding:18px 19px}.kicker{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-bottom:12px}.trend{font-size:11px;color:var(--green);background:var(--green-bg);padding:3px 7px;border-radius:99px}.metric-value{font-size:30px;font-weight:730;letter-spacing:-.04em;line-height:1}.metric-foot{font-size:12px;color:var(--muted);margin-top:10px}.two-col{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:18px;margin-bottom:18px}.card-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px}.card-head h2{font-size:15px;margin:0}.card-head p{font-size:12px;color:var(--muted);margin:3px 0 0}.status{font-size:11px;font-weight:720;text-transform:uppercase;letter-spacing:.06em;border-radius:99px;padding:5px 8px}.status.blocked{color:var(--red);background:var(--red-bg)}.status.running{color:var(--blue2);background:var(--lav)}.status.review{color:var(--amber);background:var(--amber-bg)}.incident{margin:0 20px 19px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.incident-top{display:flex;justify-content:space-between;padding:16px;background:#fafbfc;border-bottom:1px solid var(--line)}.incident-title{display:flex;gap:11px}.shield{width:36px;height:36px;border-radius:10px;background:var(--red-bg);color:var(--red);display:grid;place-items:center;font-weight:800}.incident-title strong{display:block;font-size:14px}.incident-title small{display:block;color:var(--muted);margin-top:3px}.path-wrap{padding:18px 16px 20px}.path-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}.path{display:grid;grid-template-columns:1fr 22px 1fr 22px 1.1fr 22px 1fr;align-items:center;gap:6px}.node{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;min-width:0}.node strong{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.node span{font-size:11px;color:var(--muted)}.node.danger{border-color:#efbaba;background:#fff8f8}.arrow{text-align:center;color:#979da6}.failure-note{margin-top:14px;padding:10px 12px;background:#fff6f5;border-left:3px solid var(--red);font-size:12px;color:#6c3a3a}.timeline{padding:4px 20px 19px}.event{display:grid;grid-template-columns:58px 14px 1fr;gap:10px;min-height:64px}.event time{font-size:11px;color:var(--muted);padding-top:2px}.rail{display:flex;flex-direction:column;align-items:center}.rail i{width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:4px;z-index:1}.rail:after{content:"";width:1px;flex:1;background:var(--line)}.event:last-child .rail:after{display:none}.event-copy strong{font-size:12px;display:block}.event-copy span{font-size:11px;color:var(--muted)}.validation{padding:0 20px 20px}.progress-top{display:flex;justify-content:space-between;align-items:end}.progress-number{font-weight:750;font-size:22px}.progress-track{height:7px;background:#e8eaf0;border-radius:99px;margin:10px 0 16px;overflow:hidden}.progress-bar{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),#9b79ef);border-radius:99px;transition:width .6s}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:11px;background:var(--soft);border-radius:10px}.stat strong{font-size:17px;display:block}.stat span{font-size:10px;color:var(--muted)}.findings{margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #f0c1bf;background:#fff9f8;border-radius:10px}.findings strong{font-size:12px;color:#8d3636}.findings span{font-size:11px;color:var(--muted)}.evidence-card{padding-bottom:6px}.evidence{padding:0 20px 18px}.confidence{display:grid;grid-template-columns:145px 1fr;gap:20px;align-items:center}.ring{width:128px;height:128px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--blue) 0 78%,#eaecf0 78% 100%);position:relative}.ring:before{content:"";position:absolute;inset:11px;background:#fff;border-radius:50%}.ring-inner{position:relative;text-align:center}.ring-inner strong{font-size:27px;display:block}.ring-inner span{font-size:10px;color:var(--muted)}.e-list{display:grid;gap:12px}.e-item{display:grid;grid-template-columns:1fr auto;gap:6px;font-size:12px}.e-item span{color:var(--muted)}.mini-track{grid-column:1/3;height:4px;background:#eceef2;border-radius:99px;overflow:hidden}.mini-track i{display:block;height:100%;background:var(--blue);border-radius:99px}.mini-track i.red{background:var(--red)}.section-card{margin-bottom:18px}.section-card .body{padding:0 20px 20px}.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px}.tab{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px}.tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.matrix{width:100%;border-collapse:collapse;font-size:12px}.matrix th{text-align:left;color:var(--muted);font-weight:560;border-bottom:1px solid var(--line);padding:10px 8px}.matrix td{padding:13px 8px;border-bottom:1px solid #eef0f2}.matrix tr:last-child td{border-bottom:0}.matrix .bold{font-weight:680}.matrix .score{font-weight:720}.evidence-tag{display:inline-block;border-radius:6px;background:var(--soft);padding:4px 7px;color:#555e69}.policy-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}.policy{border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}.policy.recommended{border-color:#879aff;box-shadow:inset 0 0 0 1px #879aff}.rec{position:absolute;top:12px;right:12px;background:var(--lav);color:var(--blue2);padding:4px 7px;border-radius:6px;font-size:10px;font-weight:700}.policy h3{font-size:13px;margin:0 0 7px;padding-right:80px}.policy p{font-size:11px;color:var(--muted);min-height:34px;margin:0 0 13px}.policy-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}.policy-metrics div{background:var(--soft);border-radius:8px;padding:8px}.policy-metrics strong{font-size:13px;display:block}.policy-metrics span{font-size:9px;color:var(--muted)}.calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px}.chart{height:150px;border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;overflow:hidden;background:linear-gradient(to bottom,transparent 24%,#f0f2f4 25%,transparent 26%,transparent 49%,#f0f2f4 50%,transparent 51%,transparent 74%,#f0f2f4 75%,transparent 76%)}.chart svg{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px)}.chart-title{position:relative;z-index:1;font-size:11px;color:var(--muted)}.alert{border:1px solid #cdd5ff;background:#f7f8ff;border-radius:12px;padding:14px;display:flex;gap:11px;align-items:flex-start;margin-bottom:10px}.alert:last-child{margin-bottom:0}.alert-icon{color:var(--blue2);font-weight:800}.alert strong{font-size:12px;display:block}.alert p{font-size:11px;color:var(--muted);margin:3px 0 0}.view{display:none}.view.active{display:block}.modal-backdrop{position:fixed;inset:0;background:rgba(20,22,27,.48);z-index:30;display:none;align-items:center;justify-content:center;padding:20px}.modal-backdrop.open{display:flex}.modal{width:min(520px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.3);padding:22px}.modal h2{margin:0 0 8px;font-size:19px}.modal p{font-size:13px;color:var(--muted)}.modal-box{background:var(--soft);border-radius:10px;padding:13px;font-size:12px;margin:16px 0}.modal-actions{display:flex;justify-content:flex-end;gap:9px}.toast{position:fixed;right:24px;bottom:24px;background:#1f2227;color:#fff;padding:13px 16px;border-radius:10px;box-shadow:0 10px 35px rgba(0,0,0,.3);font-size:12px;transform:translateY(100px);opacity:0;transition:.25s;z-index:50}.toast.show{transform:translateY(0);opacity:1}
     .workflow-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.workflow-card{padding:18px;display:flex;flex-direction:column;min-height:225px}.workflow-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.workflow-icon{width:40px;height:40px;border-radius:11px;background:var(--lav);color:var(--blue2);display:grid;place-items:center;font-weight:800}.workflow-card h3{font-size:14px;margin:15px 0 4px}.workflow-card p{font-size:11px;color:var(--muted);margin:0;min-height:34px}.workflow-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:16px 0}.workflow-meta div{background:var(--soft);border-radius:8px;padding:8px}.workflow-meta strong{display:block;font-size:13px}.workflow-meta span{font-size:9px;color:var(--muted)}.workflow-card .btn{margin-top:auto;justify-content:center}.filter-row{display:flex;gap:9px;align-items:center;margin-bottom:16px}.search{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font:inherit;font-size:12px;min-width:0}.workspace-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 20px}.workspace-tab{border:0;background:transparent;color:var(--muted);padding:12px 11px 11px;cursor:pointer;font-size:12px;border-bottom:2px solid transparent}.workspace-tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:680}.tab-panel{display:none;padding:20px}.tab-panel.active{display:block}.ontology{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.onto-item{border:1px solid var(--line);border-radius:10px;padding:12px}.onto-item small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:9px;margin-bottom:5px}.onto-item strong{font-size:12px}.onto-item p{font-size:10px;color:var(--muted);margin:4px 0 0}.causal-canvas{border:1px solid var(--line);border-radius:13px;background:#fbfcfd;padding:18px;overflow:auto}.causal-flow{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr 32px 1fr;align-items:center;min-width:760px}.causal-node{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px;min-height:82px}.causal-node small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.causal-node strong{font-size:12px;display:block;margin:7px 0 2px}.causal-node span{font-size:10px;color:var(--muted)}.causal-node.evidence{border-color:#b9c4ff;background:#f7f8ff}.causal-node.mechanism{border-color:#efba86;background:#fffaf3}.causal-node.outcome{border-color:#efbaba;background:#fff8f8}.causal-arrow{text-align:center;color:#89909a;font-size:18px}.causal-caption{display:flex;justify-content:space-between;gap:16px;margin-top:13px;font-size:10px;color:var(--muted)}.legend{display:flex;gap:12px;flex-wrap:wrap}.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}.branch-list{display:grid;gap:9px}.branch{display:grid;grid-template-columns:85px 1fr 130px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:11px}.branch strong{font-size:11px}.branch-path{color:var(--muted)}.intervention-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.intervention{border:1px solid var(--line);border-radius:12px;padding:16px}.intervention.candidate{border-color:#879aff;background:#fafbff}.do-label{font-family:var(--mono);font-size:11px;color:var(--blue2);background:var(--lav);padding:5px 8px;border-radius:7px;display:inline-block}.intervention h3{font-size:13px;margin:13px 0 5px}.intervention p{font-size:11px;color:var(--muted);margin:0 0 14px}.reachability{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px;font-size:11px}.reachability strong{font-size:18px}.evidence-state{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}.state-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
     .view-switch{display:flex;gap:4px;padding:4px;background:var(--soft);border-radius:9px}.view-switch button{border:0;background:transparent;color:var(--muted);border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer}.view-switch button.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.incident-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}.incident-card{padding:16px;cursor:pointer;transition:.18s}.incident-card:hover{transform:translateY(-2px);border-color:#bfc8f7}.incident-card-top{display:flex;justify-content:space-between;gap:10px}.incident-id{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}.incident-card h3{font-size:13px;margin:11px 0 5px}.incident-card p{font-size:11px;color:var(--muted);margin:0;min-height:32px}.incident-card-meta{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:11px;margin-top:13px;font-size:10px;color:var(--muted)}.queue-table{width:100%;border-collapse:collapse;font-size:12px}.queue-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:650;padding:10px;border-bottom:1px solid var(--line)}.queue-table td{padding:12px 10px;border-bottom:1px solid #eef0f2}.queue-table tbody tr{cursor:pointer}.queue-table tbody tr:hover{background:#f8f9fc}.queue-table .incident-name{font-weight:680}.queue-table small{display:block;color:var(--muted);margin-top:2px}.workspace-context{display:flex;align-items:center;gap:8px}.back-link{border:0;background:transparent;color:var(--blue2);font-size:12px;cursor:pointer;padding:0}.graph-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.mode-tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:9px;overflow:auto}.mode-tab{border:0;background:transparent;color:var(--muted);padding:7px 9px;border-radius:7px;font-size:10px;white-space:nowrap;cursor:pointer}.mode-tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}.kg-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;background:linear-gradient(#fbfcfd,#f7f8fa);padding:12px}.kg-graph{position:relative;min-width:980px;height:430px}.kg-lines{position:absolute;inset:0;width:100%;height:100%}.kg-lines path{fill:none;stroke:#c9ced6;stroke-width:1.6}.kg-lines path.observed{stroke:var(--blue);stroke-width:3}.kg-lines path.causal{stroke:#d58a3f;stroke-width:2.5;stroke-dasharray:6 4}.kg-lines path.counterfactual{stroke:#9a72d4;stroke-width:2.5;stroke-dasharray:3 5}.kg-lines path.intervention{stroke:var(--green);stroke-width:3;stroke-dasharray:7 4}.kg-lines text{font-size:10px;fill:#7a828d}.kg-node{position:absolute;width:146px;min-height:72px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 11px;box-shadow:0 5px 15px rgba(29,35,52,.06);transition:.2s}.kg-node small{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.kg-node strong{font-size:11px;display:block;margin:5px 0 2px}.kg-node span{font-size:9px;color:var(--muted);display:block}.kg-node.agent{border-top:3px solid var(--blue)}.kg-node.identity{border-top:3px solid #499777}.kg-node.tool{border-top:3px solid #9a72d4}.kg-node.resource{border-top:3px solid #737b85}.kg-node.control{border-top:3px solid #e2a04e}.kg-node.outcome{border-top:3px solid var(--red)}.kg-node.mechanism{border:2px solid #e2a04e;background:#fffaf2;width:174px}.kg-node.observed-node{box-shadow:0 0 0 3px rgba(113,138,255,.18),0 7px 18px rgba(29,35,52,.08)}.kg-node .ev-badge{display:inline-block;margin-top:5px;background:var(--lav);color:var(--blue2);border-radius:5px;padding:2px 5px;font-size:8px}.kg-graph.mode-observed .kg-item:not(.observed),.kg-graph.mode-causal .kg-item:not(.causal),.kg-graph.mode-counterfactual .kg-item:not(.counterfactual),.kg-graph.mode-intervention .kg-item:not(.intervention){opacity:.15}.graph-insight{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.graph-insight div{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff}.graph-insight small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.graph-insight strong{font-size:11px;display:block;margin-top:4px}.wm-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 20px;overflow:auto}.wm-tab{border:0;background:transparent;color:var(--muted);padding:12px 10px 11px;cursor:pointer;font-size:12px;white-space:nowrap;border-bottom:2px solid transparent}.wm-tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:680}.wm-panel{display:none;padding:20px}.wm-panel.active{display:block}.world-overview{display:grid;grid-template-columns:minmax(420px,1.1fr) 1fr;gap:18px}.radar-card{border:1px solid var(--line);border-radius:13px;padding:14px;background:#fbfcfd}.radar-card svg{width:100%;height:330px;display:block}.radar-card text{font-size:10px;fill:#606975}.radar-card .grid{fill:none;stroke:#dfe3e8;stroke-width:1}.radar-card .axis{stroke:#d6dae1;stroke-width:1}.radar-card .data{fill:rgba(113,138,255,.22);stroke:var(--blue);stroke-width:2}.model-layers{display:grid;gap:9px}.model-layer{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff;display:grid;grid-template-columns:38px 1fr auto;gap:11px;align-items:center}.layer-icon{width:36px;height:36px;border-radius:9px;background:var(--soft);display:grid;place-items:center;color:var(--blue2);font-weight:750}.model-layer strong{font-size:11px;display:block}.model-layer span{font-size:9px;color:var(--muted)}.model-layer b{font-size:12px}.ontology-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ontology-token{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}.ontology-token i{width:9px;height:9px;border-radius:3px;display:block;margin-bottom:9px;background:var(--blue)}.ontology-token strong{font-size:11px;display:block}.ontology-token span{font-size:9px;color:var(--muted)}.harness-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.harness-card{border:1px solid var(--line);border-radius:12px;padding:15px}.harness-card h3{font-size:12px;margin:0 0 10px}.harness-card ul{padding-left:17px;margin:0;color:var(--muted);font-size:11px}.harness-card li{margin:6px 0}.model-health{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.world-graph{position:relative;height:380px;min-width:900px}.world-node{position:absolute;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;width:130px;box-shadow:0 4px 12px rgba(25,31,48,.06)}.world-node strong{font-size:10px;display:block}.world-node span{font-size:8px;color:var(--muted)}
     @media(max-width:1100px){.metric-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.calibration{grid-template-columns:1fr}.policy-layout,.intervention-grid{grid-template-columns:1fr}.workflow-grid,.incident-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.world-overview,.model-health{grid-template-columns:1fr}.ontology-grid{grid-template-columns:repeat(2,1fr)}}
@@ -221,10 +217,6 @@
     .detail-list details{border:1px solid var(--line);border-radius:10px;background:#fff}
     .detail-list summary{cursor:pointer;padding:10px 12px;font-size:12px;font-weight:650}
     .detail-list .detail-body{padding:0 12px 12px;font-size:11px;color:var(--muted)}
-    .change-feed{display:grid;gap:8px;padding:0 20px 18px}
-    .change{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;background:#fff}
-    .change .ci{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--lav);color:var(--blue2);font-weight:800}
-    .change small{display:block;color:var(--muted);margin-top:2px}
     .v2-note{font-size:11px;color:var(--muted);border:1px dashed #cfd4db;border-radius:10px;padding:10px 12px;background:#fbfcfd;margin-top:14px}
     .two-col.wide-right{grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr)}
     .pending-list{display:grid;gap:8px;padding:0 20px 18px}
@@ -312,6 +304,9 @@
     #assurance .en-card p{margin:0;font-size:12px;color:var(--muted);flex:1}
     #assurance .en-card .as-open{margin:0;font-size:12px;width:100%;justify-content:center;text-align:center}
     .sr-head{display:flex;align-items:center;gap:10px}
+    .studio-frame-wrap.gym-frame-wrap{border:0;border-radius:0;background:none}
+    .gym-view .title-row{margin-bottom:6px}.gym-view .title-row .btn{text-decoration:none;white-space:nowrap}
+    @media(max-width:760px){.gym-view .title-row{flex-wrap:wrap}}
     @media(max-width:1400px){.app[data-nav-mode="pinned"] .suite-rail{display:none}}
     @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}#assurance .en-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:760px){.suite-row,#assurance .en-grid{grid-template-columns:1fr}.suite-band{flex-direction:column;align-items:stretch}}
@@ -505,17 +500,6 @@
     .rx-win b{display:block;font-size:14px;margin-top:2px}
     .rx-win.none{background:var(--red-bg)}.rx-win.none b{color:var(--red)}
     .rej-tag.veto{background:var(--red-bg);color:var(--red)}
-    /* P3 */
-    .rx-mc{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;padding:0 20px 20px}
-    .rx-mc table{width:100%;border-collapse:collapse;font-size:12px}
-    .rx-mc th{text-align:left;color:var(--muted);font-weight:560;border-bottom:1px solid var(--line);padding:8px 6px}
-    .rx-mc td{padding:8px 6px;border-bottom:1px solid #eef0f2}
-    .rx-pass{color:var(--green);font:700 11px var(--mono)}
-    .rx-ex{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:12px}
-    .rx-ex.new{border-color:#efbaba;background:#fff8f8}
-    .rx-mark{font:700 10.5px var(--mono);color:var(--muted)}
-    .rx-ex.new .rx-mark{color:var(--red)}
-    .rx-mc.hl .rx-ex:not(.new){opacity:.45}
     /* P4 / P5 */
     .rx-eval{margin-top:14px}
     .rx-stages{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:8px;align-items:stretch}
@@ -538,7 +522,7 @@
     .rx-stt.building{background:var(--amber-bg);color:var(--amber)}
     .rx-stt.thesis{border:1px dashed var(--muted);color:var(--muted)}
     .rx-entry{margin-top:14px}
-    @media(max-width:1100px){.rx-map,.rx-opt,.rx-mc{grid-template-columns:1fr}.rx-jobs{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1100px){.rx-map,.rx-opt{grid-template-columns:1fr}.rx-jobs{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:760px){.rx-stages{grid-template-columns:1fr}.rx-arr{transform:rotate(90deg);justify-self:center}.rx-jobs{grid-template-columns:1fr}.rx-opt svg{min-width:0}}
   </style>
   <style id="sparse-observability-style">
@@ -571,11 +555,12 @@
 <button data-view="blueprint"><span class="ico">◇</span>Blueprint Studio</button>
 <button data-view="library"><span class="ico">▦</span>Workflow Library</button>
 </nav>
-<div class="section-label" data-suite="gym" data-stage="Verify · Validate" data-status="Building" data-desc="Run agents in a private simulation of task-relevant enterprise conditions. Normal, boundary and adversarial testing. Outcome validation and regression replay.">Agent Gym</div>
+<div class="section-label" data-suite="gym" data-stage="Verify · Validate" data-status="Building" data-desc="Test one change before it ships. Build a simulated environment, choose scenarios, run the baseline against a variant, and keep the runs as evidence.">Agent Gym</div>
 <nav class="nav">
-<button data-view="short-term"><span class="ico">▷</span>Pre-release</button>
-<button data-view="scenario-expansion"><span class="ico">⧉</span>Scenario Expansion</button>
-<button data-view="long-term"><span class="ico">⟳</span>System Validation</button>
+<button data-view="gym"><span class="ico">⬡</span>Experiment Workbench</button>
+<button data-view="gym-environments"><span class="ico">◰</span>Environments</button>
+<button data-view="gym-scenarios"><span class="ico">⧉</span>Scenarios</button>
+<button data-view="gym-runs"><span class="ico">▤</span>Runs &amp; Results</button>
 </nav>
 <div class="section-label" data-suite="runtime" data-stage="Production" data-status="Building" data-desc="Understand execution and govern consequential actions. Security, safety, observability.">SILEX Runtime</div>
 <nav class="nav">
@@ -678,8 +663,8 @@
 <div class="as-vv">
 <div></div><div class="h">Verification — conforms to spec?</div><div class="h">Validation — spec still correct?</div>
 <div class="rl">Outcome side</div>
-<div class="as-vvc" data-jump="short-term"><h4>Actual state = expected state</h4><p>Replay every production trajectory against its designed path.</p><div class="r">1,240 trajectories replayed · 3 deviations flagged</div></div>
-<div class="as-vvc val" data-jump="long-term"><h4>Expected state still correct?</h4><p>Has the environment moved the "good" state under the agent?</p><div class="r w">2 workflows' expected outcome invalidated by env change</div></div>
+<div class="as-vvc" data-jump="gym-runs"><h4>Actual state = expected state</h4><p>Replay every production trajectory against its designed path.</p><div class="r">1,240 trajectories replayed · 3 deviations flagged</div></div>
+<div class="as-vvc val" data-jump="gym-environments"><h4>Expected state still correct?</h4><p>Has the environment moved the "good" state under the agent?</p><div class="r w">2 workflows' expected outcome invalidated by env change</div></div>
 <div class="rl">Control side</div>
 <div class="as-vvc"><h4>Policy enforced as specified</h4><p>Every control fires where the design says it should.</p><div class="r">61 control types checked · enforced as specified</div></div>
 <div class="as-vvc clo" data-open-incident="I-1042"><h4>Failure Closure →</h4><p>Does the control prevent the prohibited outcome, or only block one path?</p><div class="r w">5 prohibited outcomes · 4 latent paths still open to "Unverified Bank Change"</div></div>
@@ -729,7 +714,7 @@
 <div class="card metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
 <div class="card metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
 <div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 6 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
-<div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="short-term">revalidate</button></div></div>
+<div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="gym">revalidate</button></div></div>
 </div>
 <div class="two-col" style="grid-template-columns:1fr">
 <div class="card chg" data-chg="9/15 review: World Model Coverage moved to Enterprise World Model">
@@ -1112,68 +1097,31 @@
 </div>
 </section>
 
-<section class="view" id="short-term">
-<div class="title-row chg" data-chg="9/15 review: renamed from Short-Term Validation">
-<div>
-<h1>Pre-release · Workflow Validation <span class="help" data-help="Release-gate stage of the agent lifecycle. Revalidate a workflow when the agents, permissions, policies or enterprise dependencies it relies on change, before it ships.">?</span></h1>
-<p>Release gate — workflow-wise. Is the workflow still safe after the enterprise changes, before release?</p>
-</div>
-<button class="btn primary" id="revalidateBtn">↻ Revalidate Affected Workflows</button>
-</div>
-<div class="two-col">
-<div class="card">
-<div class="card-head"><div><h2>Environment change detected</h2><p><b id="stAffectedText">3 workflows may be affected.</b> Security validity decays as the enterprise changes.</p></div><span class="status review" id="stChangeCount">3 changes</span></div>
-<div class="change-feed" id="changeFeed"></div>
-</div>
-<div class="card">
-<div class="card-head"><div><h2>Affected workflows</h2><p>Revalidation replays validation with the change applied</p></div></div>
-<div class="body" style="padding:0 20px 18px">
-<table class="matrix">
-<thead><tr><th>Workflow</th><th>Trigger</th><th>Last validation</th><th>Status</th></tr></thead>
-<tbody id="stRows"></tbody>
-</table>
-</div>
-</div>
-</div>
-<div class="card section-card" id="rxModel">
-<div class="card-head"><div><h2>Model change: Finance Agent model update</h2><p>A second kind of release-gate change. Same prompts, tools, permissions and task suite; only the model differs.</p></div><span class="rx-cap">Illustrative model comparison, not recorded runs</span></div>
-<div class="rx-mc" id="rxMc">
-<div>
-<div class="rx-steps" style="margin-bottom:6px">OUTPUT CHECKS · AP output check suite v3 · 8 checks</div>
-<table><thead><tr><th>Check</th><th>Current model</th><th>Updated model</th></tr></thead><tbody>
-<tr><td>Invoice amount matches PO</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>Vendor name matches vendor master</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>No duplicate payment</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>Approval present above $10,000</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>Ledger entry balanced</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>Currency and remittance format</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>Remittance notice sent</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td>Response format and tone</td><td class="rx-pass">PASS</td><td class="rx-pass">PASS</td></tr>
-<tr><td><b>Score</b></td><td class="rx-pass">8 / 8</td><td class="rx-pass">8 / 8</td></tr>
-</tbody></table>
-</div>
-<div style="display:grid;gap:8px;align-content:start">
-<div class="rx-steps">GRAPH DIFF · execution routes exercised by the suite</div>
-<div class="rx-ex"><span>Finance → Vendor Tool → approved mutation</span><span class="rx-mark">both models</span><span></span></div>
-<div class="rx-ex"><span>Finance → Procurement → PO lookup</span><span class="rx-mark">both models</span><span></span></div>
-<div class="rx-ex new"><span><span class="grade g-lat">Latent</span> Finance → Support → vendor merge → inherited authority</span><span class="rx-mark">updated model only</span><button class="def-link" data-rx-open="I-1042:C">Inspect Path C →</button></div>
-<p style="font-size:12px;color:var(--muted);margin:4px 0 0">Every output check stays green, yet the updated model exercises <b>Path C of incident I-1042</b>, a route the world model had already flagged by type. The model change granted no new authority; it used authority that was already there. Illustrative: Path C remains <b>latent</b> in production traces.</p>
-<div><button class="rx-btn" id="rxMcHl" aria-pressed="false">Highlight what changed</button></div>
-</div>
-</div>
-</div>
-<div class="card section-card" id="stRun" style="display:none">
-<div class="card-head"><div><h2>Revalidation</h2><p>What SILEX is doing</p></div><span class="status running" id="stStatus">Running</span></div>
-<div class="body"><div class="run-steps" id="stSteps">
-<div class="run-step"><i></i><div>Apply detected changes to the simulated environment</div><span>3 changes</span></div>
-<div class="run-step"><i></i><div>Replay validation for affected workflows</div><span>3 workflows</span></div>
-<div class="run-step"><i></i><div>Explore newly reachable alternative paths</div><span>agents · tools · permissions</span></div>
-<div class="run-step"><i></i><div>Update workflow validation status</div><span>Revalidated / Needs revision</span></div>
-</div>
-<div class="decision-state" id="stResult" style="margin:12px 0 0"></div>
-</div>
-</div>
+<section class="view gym-view" id="gym">
+<div class="title-row"><div>
+<div class="sr-head"><h1>Agent Gym</h1><span class="rx-stt building">Building</span></div>
+<p>Experiment Workbench. Change one thing and run the baseline against the variant in a simulation.</p>
+</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
 </section>
+<section class="view gym-view" id="gym-environments">
+<div class="title-row"><div>
+<div class="sr-head"><h1>Agent Gym</h1><span class="rx-stt building">Building</span></div>
+<p>Environments. Simulated systems, tools and data, each saved as a revision an experiment can pin.</p>
+</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
+</section>
+<section class="view gym-view" id="gym-scenarios">
+<div class="title-row"><div>
+<div class="sr-head"><h1>Agent Gym</h1><span class="rx-stt building">Building</span></div>
+<p>Scenarios. The conditions an agent is tested under, from normal cases to failures and attacks.</p>
+</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
+</section>
+<section class="view gym-view" id="gym-runs">
+<div class="title-row"><div>
+<div class="sr-head"><h1>Agent Gym</h1><span class="rx-stt building">Building</span></div>
+<p>Runs &amp; Results. Every simulated run of baseline and variant, with its trace, checks and evidence.</p>
+</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
+</section>
+<div class="studio-frame-wrap gym-frame-wrap" id="gymFrameWrap" hidden><div class="studio-frame-loading">Opening Agent Gym…</div></div>
 
 <section class="view" id="runtime-observation">
 <div class="title-row">
@@ -1261,98 +1209,7 @@
 </section>
 </section>
 
-<section class="view" id="long-term">
-<div class="title-row chg" data-chg="9/15 review: renamed from Long-Term Validation">
-<div>
-<h1>System Validation <span class="help" data-help="Periodically reassess the whole enterprise environment as workflows, agents, dependencies and attack patterns evolve.">?</span></h1>
-<p>System-wise. Is the broader enterprise environment still safe as data, agents, workflows and threats evolve?</p>
-</div>
-<div style="display:flex;gap:10px;align-items:center"><select class="search" id="ltCadence" title="Validation cadence" style="min-width:134px"><option>Every 2 weeks</option><option selected>Monthly</option><option>Quarterly</option></select><button class="btn primary" id="runEnvBtn">⟳ Run System Validation</button></div>
-</div>
-<div class="metric-grid">
-<div class="card metric"><div class="kicker">Last system validation</div><div class="metric-value">Aug 31</div><div class="metric-foot chg" data-chg="9/15 review: cadence is enterprise-defined" id="ltCadenceFoot">Monthly cadence</div></div>
-<div class="card metric"><div class="kicker">Workflows in scope</div><div class="metric-value">24</div><div class="metric-foot">All registered workflows</div></div>
-<div class="card metric"><div class="kicker">Environment changes since</div><div class="metric-value">+3 / +5</div><div class="metric-foot">Workflows / agents</div></div>
-<div class="card metric"><div class="kicker">Revalidation status</div><div class="metric-value" id="ltValid">21 / 24</div><div class="metric-foot">Workflows still valid</div></div>
-</div>
-<div class="card section-card">
-<div class="card-head"><div><h2>What system validation does</h2><p>Visible and manually triggered in V1</p></div><span class="status running" id="ltStatus">Not started</span></div>
-<div class="body"><div class="run-steps" id="ltSteps">
-<div class="run-step"><i></i><div>1 · Recalibrating environment</div><span>Enterprise World Model</span></div>
-<div class="run-step"><i></i><div>2 · Updating workflow dependencies</div><span>24 workflows</span></div>
-<div class="run-step"><i></i><div>3 · Generating adversarial scenarios</div><span>incl. historical incident replay</span></div>
-<div class="run-step"><i></i><div>4 · Running attack mutations</div><span>red teaming · backtesting</span></div>
-<div class="run-step"><i></i><div>5 · Testing policy resilience</div><span>approved policies</span></div>
-<div class="run-step"><i></i><div>6 · Updating residual risk</div><span>residual reachability</span></div>
-</div>
-<p class="sx-lt-link"><button type="button" class="btn secondary" data-wm-route="#view=scenario-expansion">See how one attack is expanded →</button></p>
-<div class="decision-state approved" id="ltResult" style="margin:12px 0 0">System validation complete. 2,700 scenarios · 3 unsafe outcomes still reachable · 1 policy weakened by the new vendor tool.</div>
-</div>
-</div>
-<div class="card section-card">
-<div class="card-head"><div><h2>Backtest history</h2><p>Same scenario family, re-run as agents and workflows are added</p></div></div>
-<div class="body"><table class="matrix">
-<thead><tr><th>Period</th><th>Environment</th><th>Scenarios</th><th>Unsafe outcomes reachable</th><th>Policies weakened</th></tr></thead>
-<tbody id="ltHistory">
-<tr><td class="bold">Jul</td><td>18 workflows · 41 agents</td><td>2,140</td><td style="color:var(--red)">6</td><td>2</td></tr>
-<tr><td class="bold">Aug</td><td>21 workflows · 48 agents</td><td>2,420</td><td style="color:var(--amber)">4</td><td>1</td></tr>
-</tbody>
-</table></div>
-</div>
-</section>
 
-<!-- sx:begin -->
-<section class="view" id="scenario-expansion">
-<div class="title-row">
-<div>
-<h1>Scenario Expansion <span class="help" data-help="Vary the business conditions around one attack within the enterprise's ontology constraints, then compare a detection rule with the proposed outcome of each variant. Simulated.">?</span></h1>
-<p>Variant-wise. Under which business conditions does a detection rule still hold?</p>
-</div>
-</div>
-<div class="sx-lead">
-<p>Change the business conditions around one attack — role, approval, permission, data sensitivity, log coverage — and see where a detection rule still holds. The ontology and runtime graph keep every change within the enterprise's constraints, reproducible and reviewable. What is meant to be tested is the run in a lab; nothing here has run in a lab yet.</p>
-<span class="rt-chip" data-kind="sim">Simulated · fictional tenant · not yet run in a lab <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>Everything in this view is computed in your browser from a small, fictional ontology slice (<b>scenario-slice 0.1</b>) for the Acme Financial tenant. The attack is meant to run in an open-source attack-simulation lab such as Attack Range; the business conditions are layered on top of it. Expected outcomes are <b>proposals awaiting expert review</b>: the generator never accepts its own scenarios.</span></span></span>
-</div>
-<nav data-sx-subnav></nav>
-<div class="sx-subpanels" data-sx-subpanels>
-<div data-rt-subpanel="expand"><div data-sx-mount="expand"></div></div>
-<div data-rt-subpanel="coverage" hidden><div data-sx-mount="coverage"></div></div>
-<div data-rt-subpanel="replay" hidden><div data-sx-mount="replay"></div></div>
-<div data-rt-subpanel="judging" hidden>
-<div class="sx-judging" data-sx="judging">
-<div class="card sx-judge-card">
-<h3>Are the scenarios credible?</h3>
-<ul>
-<li>Share of generated variants that domain experts accept as realistic</li>
-<li>Constraint violations found after generation</li>
-<li>Share of lab executions that run to completion</li>
-<li>Whether replaying a record gives the same runtime graph</li>
-</ul>
-</div>
-<div class="card sx-judge-card">
-<h3>Is building them cheaper, and is coverage wider?</h3>
-<ul>
-<li>Expert time per accepted, valid scenario, compared with how scenarios are built today</li>
-<li>New business-condition combinations for the same effort — not the volume of logs produced</li>
-</ul>
-</div>
-<div class="card sx-judge-card">
-<h3>Do they matter for detection?</h3>
-<ul>
-<li>Blind spots and false-alarm conditions that experts confirm and that reproduce in the lab</li>
-<li>Finding a candidate gap and improving detection after a fix are assessed separately</li>
-<li>If nothing is found, that is reported as it is</li>
-</ul>
-</div>
-<div class="card sx-judge-note">
-<p><b>The generator never judges its own output.</b> Every variant here carries <code>review: pending</code>; experts set the expected outcome before any comparison counts.</p>
-<p>The same method is designed to carry over to alert triage on data that stays in your environment: a case is an alert plus its context, and “not enough evidence — keep investigating” is a valid answer.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- sx:end -->
 
 <section class="view" id="security-model">
 <div class="swm-head chg" data-chg="9/21: SWM visual upgrade — dark stage, Ontology first">
@@ -1438,9 +1295,7 @@
 <div class="def-item" id="def-registered"><strong>Registered vs Deployed Workflow</strong><p>Registered: formally accepted into the SILEX workflow inventory, possibly still pre-production. Deployed: active in production, so telemetry can be linked to it.</p></div>
 <div class="def-item" id="def-workflowcov"><strong>Workflow Coverage</strong><p>How much of the enterprise agentic workflow inventory is represented.</p></div>
 <div class="def-item" id="def-worldmodel"><strong>World Model Coverage</strong><p>How much of the relevant enterprise environment SILEX currently understands.</p></div>
-<div class="def-item" id="def-workflowval"><strong>Workflow Validation</strong><p>Workflow-wise and change-triggered: a workflow is revalidated when the agents, permissions, policies or dependencies it relies on change.</p></div>
 <div class="def-item" id="def-runtimeval"><strong>Runtime Observation</strong><p>Watch each agent action as it happens and see what runtime validation decides before it runs (hard rules → judgment → policy). Shown with a simulated engine.</p></div>
-<div class="def-item" id="def-systemval"><strong>System Validation</strong><p>System-wise and periodic: environment-wide recalibration, backtesting, red teaming and adversarial validation, on a cadence the enterprise defines.</p></div>
 </div>
 <div class="modal-actions"><button class="btn secondary" data-close="defsModal">Close</button></div>
 </div>
@@ -1459,8 +1314,6 @@
 <div class="chg-item"><strong>Workflow Library</strong><span>Inventory table, lifecycle and deployment status, Registered vs Deployed.</span><button class="btn secondary" data-go="library">Go</button></div>
 <div class="chg-item"><strong>Workflow detail</strong><span>New page: header, graph, security posture, activity, expandable detail, Mark as deployed.</span><button class="btn secondary" data-go="workflow">Go</button></div>
 <div class="chg-item"><strong>Policy Review</strong><span>Workflow-level review with Approve / Modify / Reject; executive queue table as V1.5 preview.</span><button class="btn secondary" data-go="policies">Go</button></div>
-<div class="chg-item"><strong>Workflow Validation</strong><span>Renamed from Short-Term Validation: change feed, affected workflows, manual Revalidate Affected Workflows. Horizon cards and the automation roadmap strip removed.</span><button class="btn secondary" data-go="short-term">Go</button></div>
-<div class="chg-item"><strong>System Validation</strong><span>Renamed from Long-Term Validation: Run System Validation with six visible steps; backtest history; cadence is enterprise-defined.</span><button class="btn secondary" data-go="long-term">Go</button></div>
 <div class="chg-item"><strong>Enterprise World Model</strong><span>Renamed from Security Model and now first under Environment. Domain Suites, World Model Coverage, Ontology Graph, Coverage Gaps; ontology layers marked TBD; V2 tabs hidden.</span><button class="btn secondary" data-go="security-model">Go</button></div>
 </div>
 <div class="modal-actions"><button class="btn secondary" id="toggleHighlights">Hide highlights</button><button class="btn secondary" data-close="changesModal">Close</button></div>
@@ -1494,7 +1347,7 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Platform',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','short-term':'Pre-release','runtime-observation':'Runtime Observation','long-term':'System Validation','scenario-expansion':'Scenario Expansion','security-model':'Enterprise World Model',speedrun:'Speedrun'};
+  const viewNames={assurance:'Platform',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
   /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
      that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
      destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */
@@ -1563,13 +1416,12 @@ const incidentData={
   // Revalidate the current workflow in place (fix 5-G).
   function revalidateWorkflow(id){openWorkflow(id);const w=workflowData[id],res=$id('wfRevalResult');$id('wfRevalRun').style.display='block';setText('wfRevalName',w.name);res.className='decision-state';
     runSteps($id('wfRevalSteps'),{onDone:()=>{const bad=id==='WF-033';w.lifecycle=bad?'Needs Revision':'Revalidated';w.validation=bad?'Needs revision':'Revalidated';w.last='Just now';if(w.activity)w.activity.unshift(['Latest revalidation','Just now · '+w.lifecycle,'']);
-      renderShortTerm();renderLibrary();const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);setText('wfLastVal','Just now');
+      renderLibrary();const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);setText('wfLastVal','Just now');
       if(bad)setMsgHtml(res,'Needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review incident →</button>','rejected');else setMsg(res,'Revalidated. No new reachable paths after the latest changes.','approved');notify(w.name+' · '+w.lifecycle)}})}
   $id('wfRevalidateBtn').addEventListener('click',()=>revalidateWorkflow(currentWorkflow));
   // A deployment is an environment change: queue the workflow for Workflow Validation (fix 5-H).
   $id('wfDeployBtn').addEventListener('click',()=>{const id=currentWorkflow,w=workflowData[id];w.deploy='Deployed';w.lifecycle='Needs Revalidation';w.validation='Revalidation pending';if(w.activity)w.activity.unshift(['Deployed','Just now · first production revalidation pending','']);
-    ST_CHANGES.unshift({icon:'D',title:'New deployment',sub:w.name+' moved to production',tag:'Deployment',cls:'running'});if(!ST_AFFECTED.some(a=>a.id===id))ST_AFFECTED.push({id,trigger:'Deployment'});
-    renderShortTerm();renderLibrary();openWorkflow(id);notify('Marked as deployed · queued for Workflow Validation')});
+    renderLibrary();openWorkflow(id);notify('Marked as deployed · revalidation pending')});
 
   // Blueprint Studio: the React app in an iframe (js/studio-host.js; cutover plan 2026-09-24).
 
@@ -1771,10 +1623,9 @@ const incidentData={
     const mod=st.mod;if(w&&mod&&mod.idx===rxWinner){setText('incValDC',mod.dc+'%');setText('incValRR',mod.rr+'%');setText('incDecisionStateText','Defense '+mod.dc+'% · Reachability '+mod.rr+'% · scope: '+mod.scope);$id('rxWin').insertAdjacentHTML('beforeend','<span style="font-size:11.5px;color:var(--amber);display:block">Scope modified to “'+rxEsc(mod.scope)+'”; ranked and plotted with its re-validated reachability ('+mod.rr+'%).</span>')}
     else if(w&&mod&&mod.idx!=null&&mod.idx!==rxWinner&&incDecision[id]!=='approved')$id('rxWin').insertAdjacentHTML('beforeend','<span style="font-size:11.5px;color:var(--amber);display:block">'+'ABC'[mod.idx]+' was re-validated at scope “'+rxEsc(mod.scope)+'” ('+mod.rr+'%) and is no longer the lowest-reachability candidate.</span>')
     rxChart(id)}
-  function rxRender(id){rxSel=id==='I-1042'&&window.__rxSel?window.__rxSel:'B';window.__rxSel=null;rxVeto=(RX_STATE[id]&&RX_STATE[id].veto!=null)?RX_STATE[id].veto:10;rxDrawMap(id);rxDrawOpt(id)}
+  function rxRender(id){rxSel='B';rxVeto=(RX_STATE[id]&&RX_STATE[id].veto!=null)?RX_STATE[id].veto:10;rxDrawMap(id);rxDrawOpt(id)}
   (function(){const pnl=$id('inc-paths');if(pnl&&window.MutationObserver)new MutationObserver(()=>{if(pnl.classList.contains('active'))rxPlay()}).observe(pnl,{attributes:true,attributeFilter:['class']});
-    document.addEventListener('click',e=>{const t=e.target.closest('[data-rx-open]');if(!t)return;const [inc,path]=t.dataset.rxOpen.split(':');window.__rxSel=path;renderIncident(inc);setIncTab(1)});
-    const hl=$id('rxMcHl');if(hl)hl.addEventListener('click',()=>{const on=hl.getAttribute('aria-pressed')!=='true';hl.setAttribute('aria-pressed',on);$id('rxMc').classList.toggle('hl',on);hl.textContent=on?'Show all routes':'Highlight what changed'})})();
+  })();
   const nextActions=id=>{const wf=INC_WF[id];return '<div class="next-actions"><button class="btn secondary" data-open-workflow="'+wf+'">Open affected workflow →</button><button class="btn blue" data-revalidate-wf="'+wf+'">Revalidate workflow</button><button class="btn secondary" data-jump="incidents">Back to queue</button></div>'};
   // Decisions are recorded per incident and lock after approval; approval always offers a next step (fixes 5-C, 5-D).
   function applyIncDecision(id){const st=incDecision[id],msg=$id('incDecisionMsg'),lock=st==='approved'||st==='closed';['incApproveBtn','incModifyBtn','incRejectBtn','incRerunBtn'].forEach(x=>$id(x).disabled=lock);if(!lock&&rxWinner===null&&$id('rxOpt')&&$id('rxOpt').innerHTML)$id('incApproveBtn').disabled=true;if($id('rxVeto'))$id('rxVeto').disabled=lock;$id('incModifyForm').classList.remove('open');
@@ -1789,8 +1640,8 @@ const incidentData={
   $id('incRejectBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;incDecision[id]='rejected';resolvePending(id);setRecStatus(id,'Rejected','blocked');applyIncDecision(id);setTimeout(()=>setIncTab(2),900)});
   $id('incApproveBtn').addEventListener('click',()=>{const id=currentIncident;if(incDecision[id]==='approved'||incDecision[id]==='closed')return;openDecision({title:'Approve validated recommendation?',text:'This recommendation was already validated in simulation for incident '+id+'.',box:'<strong>'+$id('incDecisionText').textContent+'</strong><br>'+$id('incDecisionStateText').textContent+'<br><br>Next: the policy is promoted through shadow → canary before production, and the affected workflow is queued for revalidation. Rollback stays available at each stage.',onConfirm:()=>{
     incDecision[id]='approved';(RX_STATE[id]=RX_STATE[id]||{}).approved=rxWinner;RX_STATE[id].veto=rxVeto;const _apName=$id('incDecisionText').textContent;document.querySelectorAll('.pending-row[data-open-incident="'+id+'"] strong').forEach(e=>e.textContent=_apName);document.querySelectorAll('#policies button[data-review-inc="'+id+'"]').forEach(b=>{const art=b.closest('article'),h=art&&art.querySelector('h3');if(h)h.textContent=_apName});document.querySelectorAll('#policies tr[data-review-inc="'+id+'"] td:nth-child(2)').forEach(td=>td.textContent=_apName);resolvePending(id);setRecStatus(id,'Approved','');const wfId=INC_WF[id],w=workflowData[wfId];
-    if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;if(!ST_AFFECTED.some(a=>a.id===wfId))ST_AFFECTED.push({id:wfId,trigger:'Policy change'});ST_CHANGES.unshift({icon:'P',title:'Policy approved',sub:_apName+' · '+w.name,tag:'Policy change',cls:'review'})}
-    renderShortTerm();renderLibrary();applyIncDecision(id);notify('Recommendation approved for '+id)}})});
+    if(w){w.lifecycle='Needs Revalidation';w.validation='Policy change · revalidation pending';w.policies=Number(w.policies)+1;}
+    renderLibrary();applyIncDecision(id);notify('Recommendation approved for '+id)}})});
 
   // Incident filters work together with search (fixes 4-1, 5-L).
   function applyIncFilters(){const q=$id('incidentSearch').value.toLowerCase().trim(),f={};document.querySelectorAll('.inc-filter').forEach(s=>{f[s.dataset.f]=s.value});
@@ -1802,23 +1653,6 @@ const incidentData={
 
   document.querySelectorAll('[data-pr]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-pr]').forEach(x=>x.classList.toggle('active',x===b));$id('prWorkflow').style.display=b.dataset.pr==='workflow'?'block':'none';$id('prExec').style.display=b.dataset.pr==='exec'?'block':'none'}));
 
-  // Workflow Validation is generated from state: deployments and approved policies add entries (fixes 5-G, 5-H).
-  const ST_CHANGES=[{icon:'T',title:'New tool connected',sub:'Vendor Merge Tool available to Procurement Agent',tag:'New tool',cls:'running'},{icon:'P',title:'Permission change',sub:'Procurement Agent gained vendor_master.write',tag:'Permission',cls:'review'},{icon:'A',title:'Agent role change',sub:'Remediation Agent can now restart production workloads',tag:'Agent role',cls:'running'}];
-  const ST_AFFECTED=[{id:'WF-021',trigger:'New tool'},{id:'WF-008',trigger:'Permission'},{id:'WF-033',trigger:'Agent role'}];
-  function renderShortTerm(){$id('changeFeed').innerHTML=ST_CHANGES.map(c=>`<div class="change"><div class="ci">${c.icon}</div><div><strong>${c.title}</strong><small>${c.sub}</small></div><span class="status ${c.cls}">${c.tag}</span></div>`).join('');
-    const need=ST_AFFECTED.filter(a=>workflowData[a.id]&&workflowData[a.id].lifecycle==='Needs Revalidation').length;
-    setText('stAffectedText',need?need+' workflow'+(need===1?'':'s')+' may be affected.':'No affected workflow is waiting for revalidation.');setText('stChangeCount',ST_CHANGES.length+' changes');
-    $id('stRows').innerHTML=ST_AFFECTED.map(a=>{const w=workflowData[a.id];return `<tr data-open-workflow="${a.id}" style="cursor:pointer"><td class="bold">${w.name.split(' · ').slice(-1)[0]}</td><td>${a.trigger}</td><td>${w.last}</td><td><span class="lc ${lcClass(w.lifecycle)}" id="st-${a.id}">${w.lifecycle}</span></td></tr>`}).join('');
-    $id('revalidateBtn').disabled=!need}
-  $id('revalidateBtn').addEventListener('click',()=>{const targets=ST_AFFECTED.filter(a=>workflowData[a.id].lifecycle==='Needs Revalidation');if(!targets.length){notify('Nothing to revalidate');return}
-    const run=$id('stRun'),res=$id('stResult'),st=$id('stStatus');run.style.display='block';res.className='decision-state';st.textContent='Running';st.className='status running';st.style.cssText='';
-    runSteps($id('stSteps'),{onDone:()=>{targets.forEach(a=>{const w=workflowData[a.id],bad=a.id==='WF-033';w.lifecycle=bad?'Needs Revision':'Revalidated';w.validation=bad?'Needs revision':'Revalidated';w.last='Just now'});renderShortTerm();renderLibrary();
-      const bad=targets.some(a=>a.id==='WF-033'),good=targets.length-(bad?1:0);
-      setMsgHtml(res,good+' workflow'+(good===1?'':'s')+' revalidated'+(bad?'. Service Account Remediation needs revision: the new restart permission reopens one path. <button class="def-link" data-open-incident="I-1019">Review →</button>':'.'),bad?'rejected':'approved');
-      st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';notify('Revalidation complete')}})});
-  $id('runEnvBtn').addEventListener('click',()=>{const st=$id('ltStatus'),res=$id('ltResult');res.className='decision-state approved';st.textContent='Running';st.className='status running';st.style.cssText='';runSteps($id('ltSteps'),{ms:480,onDone:()=>{st.textContent='Complete';st.className='status';st.style.cssText='background:var(--green-bg);color:var(--green)';res.className='decision-state approved show';const h=$id('ltHistory');if(!h.querySelector('[data-sep]'))h.insertAdjacentHTML('beforeend','<tr data-sep><td class="bold">Sep</td><td>24 workflows · 53 agents</td><td>2,700</td><td style="color:var(--amber)">3</td><td>1</td></tr>');notify('System validation complete')}})});
-  // Cadence is defined by the enterprise, not hardcoded to monthly (9/15 review).
-  $id('ltCadence').addEventListener('change',e=>{setText('ltCadenceFoot',e.target.value+' cadence');notify('System validation cadence: '+e.target.value.toLowerCase())});
 
   /* Enterprise World Model subtabs (2026-09-21; order and default changed 2026-10-02): Ontology Layers is first and default; ARIA tabs with roving tabindex and arrow keys.
      Ordinary returns to the view keep the current subtab; only explicit actions (Assurance explorer link, gap focus, Layers → Explorer) switch it. */
@@ -1857,7 +1691,7 @@ const incidentData={
     if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next system validation');return}
     if(ds.jump){showView(ds.jump)}});
 
-  refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('assurance');
+  refreshPending();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('assurance');
   /* Hooks for js/studio-host.js (cutover plan 2026-09-24 §2.4). */
   window.__siteShowView=showView;window.__siteRefreshPending=refreshPending;window.__siteNotify=notify;
   /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md). js/jev-runtime-host.js uses this hook. */
@@ -1867,12 +1701,16 @@ const incidentData={
      #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
      #view=runtime-observation[&tab=scenarios|plane|learning|ontology|fleet|latency[&sub=<key>]] (read by js/rt-subtabs.js).
      #view=speedrun[&path=<app route>] (read and kept current by js/speedrun-host.js).
-     The old #view=long-term&tab=runtime is rewritten to #view=runtime-observation. Non-view hashes (#studio, #studio=new)
+     #view=gym|gym-environments|gym-scenarios|gym-runs[&path=<Agent Gym route>] (read and kept current by js/gym-host.js).
+     LEGACY_VIEWS rewrites the removed views' links: #view=long-term&tab=runtime to #view=runtime-observation,
+     #view=short-term and #view=long-term to #view=gym-runs, #view=scenario-expansion to #view=gym-scenarios. Non-view hashes (#studio, #studio=new)
      stay with js/studio-host.js. Ordinary nav clicks do not write the hash, so Back returns to the last recorded route. */
   const WM_TABS=['wm-architecture','wm-ontology','wm-overview','wm-landscape','wm-gaps'];
   function routed(fn){routing=true;try{fn()}finally{routing=false}}
+  const LEGACY_VIEWS={'short-term':'gym-runs','long-term':'gym-runs','scenario-expansion':'gym-scenarios'};
   function applyViewHash(){const h=location.hash.slice(1);if(!h.startsWith('view='))return;const q=new URLSearchParams(h),v=q.get('view');
-    if(v==='long-term'&&q.get('tab')==='runtime'){history.replaceState(null,'','#view=runtime-observation');showView('runtime-observation');return}
+    const moved=v==='long-term'&&q.get('tab')==='runtime'?'runtime-observation':LEGACY_VIEWS[v];
+    if(moved){history.replaceState(null,'','#view='+moved);showView(moved);return}
     if(v==='incident'){const id=q.get('incident');if(!incidentData[id]){notify('Unknown incident — showing the Incident Queue.');showView('incidents');return}renderIncident(id);return}
     if(v==='workflow'&&q.get('workflow')){const id=q.get('workflow');if(workflowData[id]){openWorkflow(id);return}notify('Unknown workflow — showing the Workflow Library.');showView('library');return}
     if(v==='security-model'){routeWorldModel(q);return}
@@ -1905,7 +1743,7 @@ const incidentData={
     if(id==='security-model'){const t=wmTabs.find(x=>x.classList.contains('active')),tab=t?t.dataset.wmPanel:'wm-architecture',n=window.SWM&&SWM.currentNode();
       return '#view=security-model&tab='+tab+(tab==='wm-ontology'&&n?'&node='+encodeURIComponent(n):'')}
     if(id==='runtime-observation'){const t=window.__rtTabs&&window.__rtTabs.current();if(t&&t!=='scenarios'){const s=window.__rtSubnav&&window.__rtSubnav[t],k=s&&s.current();return '#view=runtime-observation&tab='+t+(k&&k!==s.initial?'&sub='+k:'')}}
-    if(id==='scenario-expansion'){const s=window.__sxView,k=s&&s.current();return '#view=scenario-expansion'+(k&&k!==s.initial?'&sub='+encodeURIComponent(k):'')}
+    if(id.startsWith('gym')&&window.__gymHost)return window.__gymHost.hash();
     if(id==='speedrun'&&window.__speedrun)return window.__speedrun.hash();
     return '#view='+id}
   function openRoute(hash){const h=location.hash;
@@ -1923,11 +1761,11 @@ const incidentData={
 <script type="module" src="js/studio-host.js"></script>
 <script type="module" src="js/jev-runtime-host.js"></script>
 <script type="module" src="js/speedrun-host.js"></script>
+<script type="module" src="js/gym-host.js"></script>
 <script type="module" src="js/rt-ontology.js"></script>
 <script type="module" src="js/rt-latency.js"></script>
 <script type="module" src="js/rt-fleet.js"></script>
 <script type="module" src="js/rt-subtabs.js"></script>
-<script type="module" src="js/sx-view.js"></script>
 <script src="swm/js/swm-loader.js"></script>
 <script defer src="swm/js/swm-vowl.js"></script>
 <script defer src="swm/js/swm-vowl-ui.js"></script>
