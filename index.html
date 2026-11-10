@@ -1867,7 +1867,7 @@ const incidentData={
     if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next system validation');return}
     if(ds.jump){showView(ds.jump)}});
 
-  refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('overview');
+  refreshPending();renderShortTerm();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('assurance');
   /* Hooks for js/studio-host.js (cutover plan 2026-09-24 §2.4). */
   window.__siteShowView=showView;window.__siteRefreshPending=refreshPending;window.__siteNotify=notify;
   /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md). js/jev-runtime-host.js uses this hook. */
