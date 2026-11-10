@@ -768,7 +768,7 @@ try {
       phase='peek keyboard focus';
       await peek();await ev('document.querySelector(".nav button.active").focus()');await key('Tab');await move(600,450);await sleep(450);await waitState('auto',true);
       await key('Escape');await closed();assert.equal(await ev('return document.activeElement.id'),'navToggle','peek Esc restores visible toggle');
-      await peek();await ev('document.querySelector(".nav [data-view=library]").focus()');await key('Tab');await closed();
+      await peek();await ev('document.querySelector(".nav [data-view=speedrun]").focus()');await key('Tab');await closed();
       await peek();await ev('document.querySelector("#navPin").focus()');await key('Tab',true);await closed();
       await ev('document.querySelector("#main").focus()');await key('Escape');assert.equal(await ev('return document.activeElement.id'),'main','outside focus not stolen');
       phase='peek docks';
