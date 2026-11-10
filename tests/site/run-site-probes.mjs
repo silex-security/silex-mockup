@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + embedded Agent Gym S47 + Workflow Library <-> Speedrun agent-team links S48 + Incidents & Decisions page S49 + Speedrun trace replay S50. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + embedded Agent Gym S47 + Workflow Library <-> Speedrun agent-team links S48 + Incidents & Decisions page S49 + Speedrun trace replay S50 + Gym <-> Speedrun links S51. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (lazy runtime frame), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -1157,11 +1157,10 @@ try {
     return 'Assurance button -> Ontology Graph; Back -> Assurance; Forward -> Ontology Graph';
   });
 
-  await probe('S46','Speedrun view runs the embedded app: overview, team, search, variant to Agent Gym, Studio link',async()=>{
+  await probe('S46','Speedrun view runs the embedded app: overview, team, search, variant form, deep link, Studio link',async()=>{
     const SR='const w=globalThis.document.querySelector("#speedrunFrame").contentWindow; const document=w.document, location=w.location;';
     const se=code=>ev(SR+code);
     const h1=text=>until(()=>se(`return (document.querySelector('h1')?.textContent||'').includes(${Q(text)})`),'frame heading '+text);
-    const queued=()=>se(`return Number(document.querySelector('nav[aria-label="Filter by status"] a .lbl').textContent)`);
     await load();await nav('speedrun');
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
     await h1('Organization overview');
@@ -1175,24 +1174,19 @@ try {
     await until(()=>se(`return location.hash.includes('q=escalation')&&document.querySelectorAll('a[href^="#/speedrun/teams/"]').length===1`),'search narrows the list to one team');
     await se(`[...document.querySelectorAll('nav[aria-label="Scope"] a')].find(a=>a.textContent==='Agent Team').click()`);
     await until(()=>se(`return !location.hash.includes('q=')&&document.querySelectorAll('a[href^="#/speedrun/teams/"]').length>1&&document.querySelector('[name=q]').value===''`),'a link without the filter clears the list and the box');
-    await se(`location.hash='/gym'`);await h1('Agent Gym');const before=await queued();
     await se(`location.hash='/speedrun/teams/refund/variant'`);
     await until(()=>se(`return [...document.querySelectorAll('button[type=submit]')].some(b=>b.textContent.includes('Send to Agent Gym')&&!b.disabled)`),'variant form ready');
-    await se(`[...document.querySelectorAll('button[type=submit]')].find(b=>b.textContent.includes('Send to Agent Gym')).click()`);
-    await until(()=>se(`return location.hash.startsWith('#/gym/experiments/')`),'the new experiment opens');
-    await se(`location.hash='/gym'`);await h1('Agent Gym');
-    await until(async()=>(await queued())===before+1,'queue grew by one');
-    await load({path:'/index.html#view=speedrun&path=%2Fgym%3Fstatus%3Ddone'});
+    await load({path:'/index.html#view=speedrun&path='+encodeURIComponent('/speedrun/units/customer-service/teams?q=escalation')});
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'deep link frame rendered',30000);
-    await h1('Agent Gym');
-    assert.equal(await se(`return document.querySelector('nav[aria-label="Filter by status"] a[aria-current=page]').textContent.trim().startsWith('Done')`),true,'a deep link opens the named screen with its query');
+    await h1('Agent Team Explorer');
+    assert.equal(await se(`return document.querySelectorAll('a[href^="#/speedrun/teams/"]').length`),1,'a deep link opens the named screen with its query');
     await se(`document.querySelector('header a[href="#/speedrun"]').click()`);await h1('Organization overview');
     await until(()=>ev('return location.hash==="#view=speedrun"'),'the overview is the plain view link');
     await ev(`location.hash='view=speedrun&path='+encodeURIComponent('/speedrun/teams/invoice/trace')`);
     await until(()=>se(`return location.hash==='#/speedrun/teams/invoice/trace'`),'a path link drives the open frame');
     await se(`[...document.querySelectorAll('header a')].find(a=>a.textContent.trim()==='Agent Studio').click()`);
     await until(()=>ev('return document.querySelector(".view.active").id==="blueprint"'),'Agent Studio link opens the Studio view');
-    return `frame ${fill.h}px; team, search, variant -> queue ${before} -> ${before+1}; URL mirror and deep link; Studio link`;
+    return `frame ${fill.h}px; team, search, variant form; URL mirror and deep link; Studio link`;
   });
 
   await probe('S47','Agent Gym: one embedded app behind four views, followed both ways, deep links and old links',async()=>{
@@ -1264,7 +1258,7 @@ try {
     await governance('Runs workflow WF-014');
     await until(async()=>(await activeView())==='workflow'&&(await ev('return document.getElementById("wfId").textContent'))==='WF-014','the Governance link opens Workflow Detail WF-014');
     assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'library','the nav highlights the Library');
-    await se(`location.hash='/gym'`);await h1('Agent Gym');
+    await se(`location.hash='/speedrun'`);await h1('Organization overview');
     await clickSel('#wfSpeedrunBtn');
     await h1('Refund Team');
     assert.equal(await activeView(),'speedrun','the detail button opens the team in the already-open frame');
@@ -1278,6 +1272,63 @@ try {
     await governance('Not in the Workflow Library');
     await until(async()=>(await activeView())==='library','the Governance link of an unregistered workflow opens the Library');
     return 'row link -> Refund Team; Governance -> WF-014; detail button -> Refund Team; unregistered row -> Expense Review Team -> Library';
+  });
+
+  await probe('S51','Agent Gym and Speedrun link both ways: source link, Send to Agent Gym handoff (twice, one experiment), header link, old /gym link',async()=>{
+    const GW='const w=globalThis.document.querySelector("#gymFrame").contentWindow;';
+    const SR='const w=globalThis.document.querySelector("#speedrunFrame").contentWindow; const document=w.document, location=w.location;';
+    const ge=code=>ev(GW+code), se=code=>ev(SR+code);
+    const activeView=()=>ev('return document.querySelector(".view.active").id');
+    const gymReady=()=>until(()=>ev('return !!document.querySelector("#gymFrame")?.contentWindow?.__gym?.ready'),'gym frame ready',30000);
+    const srReady=()=>until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'speedrun frame rendered',30000);
+    const sendButton=()=>se(`return [...document.querySelectorAll('button[type=submit]')].some(b=>b.textContent.includes('Send to Agent Gym')&&!b.disabled)`);
+    const send=async()=>{await until(sendButton,'Send to Agent Gym is ready');await se(`[...document.querySelectorAll('button[type=submit]')].find(b=>b.textContent.includes('Send to Agent Gym')).click();return true`)};
+    const handoffs=()=>ge(`return Object.values(w.__gym.store.getState().experiments).filter(e=>e.id.startsWith('exp-refund-')).map(e=>[e.id,e.source.kind,e.source.ref,e.savedRevision])`);
+    const FIRST=[['exp-refund-retry-timeout','speedrun','/speedrun/teams/refund/trace',null]];
+
+    await load({path:'/index.html#view=gym'});await gymReady();
+    await ge(`w.document.querySelector('.xq-row[data-experiment="exp-024"] [data-source-link]').click();return true`);
+    await until(async()=>(await activeView())==='speedrun','View source in Speedrun switches the console to the Speedrun view');
+    await srReady();
+    await until(()=>se(`return (document.querySelector('h1')?.textContent||'').includes('Invoice Team')&&location.hash==='#/speedrun/teams/invoice/trace'`),'the Speedrun view shows the experiment\'s source route');
+    await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Finvoice%2Ftrace"'),'the site URL names that route');
+
+    await load({path:'/index.html#view=speedrun&path='+encodeURIComponent('/speedrun/teams/refund/variant')});await srReady();
+    await send();
+    await until(async()=>(await activeView())==='gym','Send to Agent Gym switches the console to the Gym view');
+    await gymReady();
+    await until(()=>ge(`return w.location.hash==='#/workbench/exp-refund-retry-timeout'`),'the Gym opens the handed-off experiment');
+    assert.deepEqual(await handoffs(),FIRST,'one pending, unsaved experiment with a Speedrun source and a way back');
+    assert.equal(await ge(`const s=w.__gym.store.getState();return Object.values(s.attempts).some(a=>a.experimentId==='exp-refund-retry-timeout')`),false,'no attempt yet');
+    await until(()=>ev('return location.hash==="#view=gym&path=%2Fworkbench%2Fexp-refund-retry-timeout"'),'the site URL names the workbench');
+    assert.equal(await ge(`return w.document.querySelector('.wb-head [data-source-link]')?.textContent`),'View source in Speedrun','the workbench links back');
+    await ge(`w.location.hash='/experiments';return true`);
+    assert.equal(await ge(`const tr=w.document.querySelector('.xq-row[data-experiment="exp-refund-retry-timeout"]');return tr&&[tr.dataset.stage,tr.querySelector('td[data-label="Source"]').innerText.replace(/\\s+/g,' ').trim()]`).then(String),'pending,Speedrun Speedrun trace: Refund Team, retry and timeout View source in Speedrun','the queue row says pending, Speedrun and links back');
+    await shot('S51-gym-queue');
+
+    await nav('speedrun');
+    await until(async()=>(await activeView())==='speedrun','back in the Speedrun view');
+    await until(sendButton,'the form is fresh after coming back, not stuck on Sending');
+    await send();
+    await until(async()=>(await activeView())==='gym'&&(await ge(`return w.location.hash`))==='#/workbench/exp-refund-retry-timeout','the second send lands on the same experiment');
+    assert.deepEqual(await handoffs(),FIRST,'doing it twice yields one experiment');
+    assert.equal(await ge(`return Object.keys(w.__gym.store.getState().experiments).length`),9,'eight seeded plus one');
+
+    await nav('speedrun');await until(async()=>(await activeView())==='speedrun','Speedrun again');
+    await se(`[...document.querySelectorAll('header nav[aria-label="Products"] a')].find(a=>a.textContent.trim()==='Agent Gym').click();return true`);
+    await until(async()=>(await activeView())==='gym','the Speedrun header Agent Gym link opens the console Gym');
+    await until(()=>ge(`return w.location.hash==='#/experiments'`),'on the experiment queue');
+    assert.equal(await ev('return location.hash'),'#view=gym','the plain Gym link');
+
+    await load({path:'/index.html#view=speedrun&path=%2Fgym%3Fstatus%3Ddone'});
+    await until(async()=>(await activeView())==='gym','an old Speedrun /gym link opens the console Gym');
+    await page.send('Page.navigate',{url:origin+'/speedrun/app/index.html#/speedrun/teams/refund/variant'});
+    await until(()=>ev(`return [...document.querySelectorAll('button[type=submit]')].some(b=>b.textContent.includes('Send to Agent Gym')&&!b.disabled)`),'standalone Speedrun form ready',30000);
+    await ev(`[...document.querySelectorAll('button[type=submit]')].find(b=>b.textContent.includes('Send to Agent Gym')).click();return true`);
+    await until(async()=>(await ev('return location.pathname'))==='/index.html'&&(await activeView())==='gym','standalone Speedrun opens the console Gym with the same link',30000);
+    await gymReady();
+    await until(()=>ge(`return w.location.hash==='#/workbench/exp-refund-retry-timeout'`),'the standalone handoff lands on the pending experiment');
+    return 'Gym queue -> Invoice trace; Send to Agent Gym -> pending workbench with a link back; twice -> one experiment; header link; old /gym link; standalone Speedrun';
   });
 
   await probe('S50','Speedrun trace replay: log and lane status follow the playhead, play, pause, seek by log row, speed',async()=>{

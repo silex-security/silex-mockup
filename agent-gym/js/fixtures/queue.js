@@ -1,27 +1,15 @@
 // Experiment drafts and the seeded queue. The queue is produced by the real reducers and executor, never typed in.
+import { FOLLOW_UP, MEETING, TRIAGE, TRIAGE_V2, experiment } from './experiment.js';
 import { advanceAttempt, changeTrigger, enqueueAttempt, pauseAttempt, recordReview, renameExperiment, resumeAttempt } from '../simulation/attempts.js';
 
-const experiment = (id, number, title, { workflow, variant, environment, set, scenarios, repetitions, revision, objective = 'success', acceptance = { noRegression: true, minImprovedPairs: 1 }, source, saved = true }) => ({
-  id, number, title, draftRevision: revision, savedRevision: saved ? revision : null,
-  workflowRef: { id: workflow.id, rev: workflow.rev ?? '1' }, variantId: variant, environmentRef: environment, scenarioSetRef: { id: set.id, rev: set.rev ?? '1' },
-  selectedScenarioIds: scenarios, repetitions, objective, acceptance, source,
-});
-
-const SALES = { id: 'env-sales', rev: '1.2' };
-const SUPPORT = { id: 'env-support', rev: '1.2' };
-const FOLLOW_UP = { workflow: { id: 'wf-sales-follow-up' }, variant: 'variant-a', environment: SALES, set: { id: 'set-follow-up-resilience' } };
-const TRIAGE = { workflow: { id: 'wf-support-triage' }, variant: 'variant-support-a', environment: SUPPORT, set: { id: 'set-refund-triage' } };
-const TRIAGE_V2 = { workflow: { id: 'wf-support-triage', rev: '2' }, variant: 'variant-support-small', environment: SUPPORT, set: { id: 'set-refund-triage-v2' } };
-const MEETING = { workflow: { id: 'wf-meeting-scheduling' }, variant: 'variant-meeting-a', environment: SALES, set: { id: 'set-meeting-scheduling' } };
-
-const speedrun = label => ({ kind: 'speedrun', label });
-const studio = label => ({ kind: 'studio', label });
-const manual = { kind: 'manual', label: 'Created in the workbench' };
+const speedrun = (label, ref) => ({ kind: 'speedrun', label, ref });
+const studio = label => ({ kind: 'studio', label, ref: null });
+const manual = { kind: 'manual', label: 'Created in the workbench', ref: null };
 
 export const EXPERIMENTS = Object.freeze([
   experiment('exp-024', 24, 'Duplicate-send guard', {
     ...FOLLOW_UP, scenarios: ['sc-base-case', 'sc-timeout-after-send', 'sc-contact-opted-out'], repetitions: 1, revision: 2,
-    objective: 'policy_violations', source: speedrun('Speedrun trace: duplicate follow-up emails'),
+    objective: 'policy_violations', source: speedrun('Speedrun trace: duplicate follow-up emails', '/speedrun/teams/invoice/trace'),
   }),
   experiment('exp-025', 25, 'Smaller model for refund replies', {
     ...TRIAGE_V2, scenarios: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout', 'sc-sup-outside-window'], repetitions: 2, revision: 1,
@@ -33,7 +21,7 @@ export const EXPERIMENTS = Object.freeze([
   }),
   experiment('exp-027', 27, 'Meeting scheduling', {
     ...MEETING, scenarios: ['sc-mtg-intro', 'sc-mtg-no-slot', 'sc-mtg-ambiguous', 'sc-mtg-cancel', 'sc-mtg-no-permission', 'sc-mtg-noisy'], repetitions: 1, revision: 2,
-    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: intro-call booking'),
+    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: intro-call booking', '/speedrun/teams/order-support/trace'),
   }),
   experiment('exp-028', 28, 'Support triage comparison', {
     ...TRIAGE, scenarios: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout', 'sc-sup-outside-window', 'sc-sup-rephrased', 'sc-sup-ambiguous', 'sc-sup-skip-approval', 'sc-sup-cancel', 'sc-sup-no-permission'],
@@ -44,7 +32,7 @@ export const EXPERIMENTS = Object.freeze([
   }),
   experiment('exp-030', 30, 'Opt-out wording check', {
     ...FOLLOW_UP, scenarios: ['sc-base-case', 'sc-contact-opted-out'], repetitions: 2, revision: 1,
-    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: opt-out complaints'), saved: false,
+    acceptance: { noRegression: true, minImprovedPairs: 0 }, source: speedrun('Speedrun trace: opt-out complaints', '/speedrun/teams/expense-review/trace'), saved: false,
   }),
   experiment('exp-031', 31, 'Meeting no-slot handling', {
     ...MEETING, scenarios: ['sc-mtg-intro', 'sc-mtg-no-slot'], repetitions: 2, revision: 1, objective: 'steps',

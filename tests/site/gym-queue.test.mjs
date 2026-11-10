@@ -29,7 +29,7 @@ test('the action label and target depend only on the stage', () => {
 
 test('a row carries its source, objective and the one-line result or progress from the selectors', () => {
   const view = queueView(seedState(), {});
-  assert.deepEqual([row(view, 'exp-024').source, row(view, 'exp-024').objective], [{ kind: 'speedrun', label: 'Speedrun trace: duplicate follow-up emails' }, { id: 'policy_violations', label: 'Policy violations' }]);
+  assert.deepEqual([row(view, 'exp-024').source, row(view, 'exp-024').objective], [{ kind: 'speedrun', label: 'Speedrun trace: duplicate follow-up emails', ref: '/speedrun/teams/invoice/trace' }, { id: 'policy_violations', label: 'Policy violations' }]);
   assert.equal(row(view, 'exp-024').workflowName, 'Sales follow-up');
   assert.equal(row(view, 'exp-025').workflowName, 'Support triage v2');
   assert.deepEqual(row(view, 'exp-029').progress, { done: 12, total: 18, pct: 67, text: '12/18' });

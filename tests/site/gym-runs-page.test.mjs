@@ -40,7 +40,7 @@ const queueTitles = gym => gym.ev('return [...document.querySelectorAll(".run-li
 test('the Runs page reads header, Release gate, Regression, then the queue; the frozen sales run reads Running with a changed draft', async t => withGym(t, async gym => {
   await gym.go('#/runs?status=all');
   const order = await gym.ev('return [...document.querySelector(".gym-main").children].flatMap(el => el.matches(".run-panels") ? [...el.children] : [el]).map(el => el.querySelector("h1, h2")?.textContent)');
-  assert.deepEqual(order, ['Runs', 'Release gate', 'Regression', 'Experiment queue']);
+  assert.deepEqual(order, ['Runs', 'Release gate', 'Regression', 'All runs']);
   const sales = await gateRow(gym, 'exp-029');
   assert.equal(sales.gate, 'running');
   assert.deepEqual(sales.cells, {

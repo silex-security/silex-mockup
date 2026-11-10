@@ -7,6 +7,7 @@ import './app.css';
 import { compile, layoutsFor, match, parseHash } from './routes.js';
 import { router, subscribe } from './next/router.js';
 import { NotFound, Redirect } from './next/navigation.js';
+import { GYM_HOME, isGymPath, leaveForGym } from './gym.js';
 
 const pages = import.meta.glob('../upstream/src/app/**/page.tsx', { eager: true });
 const layouts = import.meta.glob(['../upstream/src/app/**/layout.tsx', '!../upstream/src/app/layout.tsx'], { eager: true });
@@ -15,7 +16,11 @@ const pageTable = compile(Object.keys(pages), 'page.tsx');
 const apiTable = compile(Object.keys(apis), 'route.ts');
 
 /* The upstream pages are async server components. Here each one is called as a function and its element rendered. */
-async function resolve({ pathname, search }) {
+async function resolve({ pathname, search, href }) {
+  if (isGymPath(pathname)) {
+    leaveForGym(href);
+    return <main className="p-8 text-mut">Agent Gym opens in the SILEX console. <a className="text-acc-text underline" href={GYM_HOME} target="_top">Open Agent Gym</a> or <a className="text-acc-text underline" href="#/speedrun">go back to Speedrun</a>.</main>;
+  }
   const hit = match(pageTable, pathname);
   if (!hit) throw new NotFound();
   const page = await pages[hit.key].default({ params: Promise.resolve(hit.params), searchParams: Promise.resolve(search) });
@@ -36,8 +41,9 @@ window.fetch = async (input, init) => {
 function App() {
   const [view, setView] = useState(null);
   useEffect(() => {
-    let last = null, gen = 0;
-    const show = async ({ keepScroll } = {}) => {
+    let last = null, gen = 0, remounts = 0;
+    const show = async ({ keepScroll, remount } = {}) => {
+      if (remount) remounts++;
       const loc = parseHash(location.hash), mine = ++gen;
       let el;
       try { el = await resolve(loc); }
@@ -47,8 +53,9 @@ function App() {
         el = <main className="p-8 text-mut">{e instanceof NotFound ? 'Not found' : 'This screen failed to load'}: {loc.href}. <a className="text-acc-text underline" href="#/speedrun">Back to Speedrun</a></main>;
       }
       if (mine !== gen) return;
-      /* Keyed by the full route, so a page's inputs and client state reset when the route or query changes, as in Next. */
-      setView(<Fragment key={loc.href}>{el}</Fragment>);
+      /* Keyed by the full route, so a page's inputs and client state reset when the route or query changes, as in Next.
+         A remount (the visitor left for Agent Gym) resets them too. */
+      setView(<Fragment key={`${loc.href}#${remounts}`}>{el}</Fragment>);
       if (last !== null && last !== loc.href && !keepScroll) window.scrollTo(0, 0);
       last = loc.href;
     };

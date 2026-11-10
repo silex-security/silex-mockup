@@ -2,7 +2,7 @@
 // docs/agent-gym-v2-contract.md names which module owns each shape.
 
 export const SCHEMA_VERSION = 2;
-export const FIXTURE_VERSION = 'gym-fx-2';
+export const FIXTURE_VERSION = 'gym-fx-3';
 export const STORAGE_KEY = 'silex.gym.demo.v2';
 export const DEMO_SEED = 29;
 
@@ -12,6 +12,8 @@ export const REVIEW_DECISION = Object.freeze(['pass_for_demo', 'needs_iteration'
 export const REVIEW_LABEL = Object.freeze({ pass_for_demo: 'Pass for demo', needs_iteration: 'Needs iteration', reject: 'Reject' });
 export const OBJECTIVE = Object.freeze(['success', 'policy_violations', 'steps']);
 export const SOURCE_KIND = Object.freeze(['manual', 'speedrun', 'studio']);
+/** A Speedrun route an experiment came from: /speedrun/ then route-safe segments, no query, no dots. */
+export const SPEEDRUN_REF = /^\/speedrun(\/[A-Za-z0-9_-]+)+$/;
 export const MIN_IMPROVED_PAIRS = Object.freeze({ min: 0, max: 99 });
 export const SCENARIO_REVIEW = Object.freeze(['draft', 'needs_review', 'reviewed']);
 export const ENV_DRAFT_STATUS = Object.freeze(['draft', 'invalid', 'needs_review', 'validated']);
@@ -172,7 +174,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {number} repetitions
  * @property {'success'|'policy_violations'|'steps'} objective        what the variant is meant to improve; measured by metrics.js OBJECTIVES
  * @property {{noRegression: boolean, minImprovedPairs: number}} acceptance   what a comparison must show to be accepted
- * @property {{kind: 'manual'|'speedrun'|'studio', label: string}} source     where the experiment came from
+ * @property {{kind: 'manual'|'speedrun'|'studio', label: string, ref: string|null}} source     where the experiment came from; ref is a Speedrun route (SPEEDRUN_REF) or null
  *
  * @typedef {{id:string, versionId:'baseline'|'variant', scenarioId:string, repeatIndex:number}} PlanItem
  *

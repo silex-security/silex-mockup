@@ -1,7 +1,7 @@
 // Referential integrity of a whole GymState. Pure. The store runs it on saved data before trusting it, and the
 // reducers that write scenario-set refs share setRefsProblem, so a state that fails here is never produced inside.
 // Attempt triggers and regression state came later: saved data without them is valid and reads as their defaults.
-import { TERMINAL_STATE, refKey } from './model.js';
+import { SPEEDRUN_REF, TERMINAL_STATE, refKey } from './model.js';
 
 export const TRIGGER_KIND = Object.freeze(['manual', 'change', 'regression']);
 export const CADENCE = Object.freeze(['biweekly', 'monthly', 'quarterly']);
@@ -50,6 +50,7 @@ export function stateProblems(state) {
     if (!state.workflows[refKey(exp.workflowRef ?? {})]) out.push(`${id}: workflow does not exist`);
     if (!state.scenarioSets[refKey(exp.scenarioSetRef ?? {})]) out.push(`${id}: scenario set does not exist`);
     if (exp.variantId != null && !state.variants[exp.variantId]) out.push(`${id}: variant does not exist`);
+    if (exp.source?.ref !== null && !SPEEDRUN_REF.test(exp.source?.ref ?? '')) out.push(`${id}: source ref is not a Speedrun route`);
     if (!Array.isArray(exp.selectedScenarioIds)) out.push(`${id}: selected scenarios are not a list`);
   }
   for (const [key, set] of Object.entries(state.scenarioSets)) {

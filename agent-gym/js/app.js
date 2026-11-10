@@ -14,6 +14,7 @@ import { icon, logoMark } from './components/icons.js';
 import { button, notice, popoverMenu, confirmDialog, openDialog } from './components/ui.js';
 import * as experimentQueue from './views/experiment-queue.js';
 import * as workbench from './views/workbench.js';
+import * as handoff from './views/handoff.js';
 import * as environmentLibrary from './views/environment-library.js';
 import * as environmentBuilder from './views/environment-builder.js';
 import * as environmentRevision from './views/environment-revision.js';
@@ -29,6 +30,7 @@ import * as kit from './views/kit.js';
 const VIEWS = {
   'experiment-queue': { view: experimentQueue, title: 'Experiment queue' },
   workbench: { view: workbench, title: 'Workbench' },
+  handoff: { view: handoff, title: 'Speedrun handoff' },
   'environment-library': { view: environmentLibrary, title: 'Environments' },
   'environment-builder': { view: environmentBuilder, title: 'Create environment' },
   'environment-revision': { view: environmentRevision, title: 'Environment' },

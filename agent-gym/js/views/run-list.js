@@ -155,7 +155,7 @@ export function mount(root, ctx) {
       }),
       h('div', { class: 'run-panels' }, gatePanel(state), regressionPanel(state)),
       panel({
-        class: 'run-list', title: 'Experiment queue',
+        class: 'run-list', title: 'All runs',
         subtitle: 'Completed means every planned execution finished. It does not mean every check passed.',
         actions: [
           select({ value: trigger, ariaLabel: 'Filter by trigger', focusKey: 'runs:trigger', class: 'run-list__trigger', options: TRIGGERS,

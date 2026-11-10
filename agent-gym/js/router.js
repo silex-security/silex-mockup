@@ -6,6 +6,7 @@
 //     current()                                the route for the present hash
 //     href(name, params, query)
 //     go(name, params, query)                  navigate, adding a history entry
+//     replace(name, params, query)             navigate without adding a history entry
 //     replaceQuery(patch)                      merge view state (tab, selection) into the query, no history entry;
 //                                              a null or '' value removes the key
 //     subscribe(fn) -> unsubscribe             fn(route) after every change, Back and Forward included
@@ -33,6 +34,7 @@ const isRef = v => { const i = v.lastIndexOf('@'); return i > 0 && isId(v.slice(
 export const ROUTES = Object.freeze([
   { name: 'experiment-queue', path: '/experiments', query: { status: oneOf('all', 'pending', 'queued', 'running', 'needs_review', 'done'), q: isSearch } },
   { name: 'workbench', path: '/workbench/:experimentId' },
+  { name: 'handoff', path: '/handoff/speedrun/:handoffId' },
   { name: 'environment-library', path: '/environments' },
   { name: 'environment-builder', path: '/environments/new', query: { focus: oneOf('describe') } },
   { name: 'environment-revision', path: '/environments/:id/revisions/:rev' },
@@ -140,6 +142,7 @@ export function createRouter(win = globalThis.window) {
   return {
     current, href,
     go(name, params, query) { win.location.hash = href(name, params, query); sync(); },
+    replace(name, params, query) { win.history.replaceState(win.history.state, '', href(name, params, query)); sync(); },
     replaceQuery(patch) {
       const route = current();
       if (route.name === 'not-found') return;
