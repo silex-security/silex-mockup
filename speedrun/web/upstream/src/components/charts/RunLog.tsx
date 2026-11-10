@@ -8,7 +8,7 @@ import type { LaneView } from "./Gantt";
 const VERB: Record<ReplayKind, string> = {
   start: "Started",
   done: "Finished",
-  timeout: "Timed out",
+  timeout: "",
   wait: "Waiting",
   blocked: "",
   unblocked: "Unblocked",

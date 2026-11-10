@@ -323,7 +323,7 @@ export const traceRuns: TraceRun[] = [
         summary: "T1 Parse · create tasks",
         segments: [
           { start: 0, end: 3, kind: "lead", label: "T1 Parse & create tasks" },
-          { start: 3, end: 29, kind: "blocked", label: "Idle — monitoring" },
+          { start: 3, end: 29, kind: "idle", label: "Idle — monitoring" },
           { start: 29, end: 30, kind: "lead", label: "Close case" },
         ],
         markers: [],

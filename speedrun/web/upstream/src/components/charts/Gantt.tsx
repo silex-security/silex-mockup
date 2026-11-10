@@ -21,6 +21,7 @@ const SEG: Record<SegmentKind, string> = {
   timeout: "border-2 border-amb bg-transparent",
   wait: "hatch-amb",
   blocked: "blocked !top-[15px] !h-1.5",
+  idle: "blocked !top-[15px] !h-1.5",
   reusable: "border-[1.5px] border-dashed border-acc2 bg-acc-wash",
 };
 
@@ -29,6 +30,7 @@ const STATE: Record<LaneState, { label: string; tone: TagTone }> = {
   working: { label: "Working", tone: "acc" },
   waiting: { label: "Waiting", tone: "amb" },
   blocked: { label: "Blocked", tone: "rose" },
+  idle: { label: "Idle", tone: "mut" },
   done: { label: "Done", tone: "mint" },
 };
 

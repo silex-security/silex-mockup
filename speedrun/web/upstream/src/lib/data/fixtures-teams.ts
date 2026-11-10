@@ -379,7 +379,7 @@ export const traceRuns: TraceRun[] = [
         summary: "T1 Triage · fetches order · T5 Lead review",
         segments: [
           { start: 0, end: 4, kind: "lead", label: "T1 Triage & route · fetches order" },
-          { start: 4, end: 33, kind: "blocked", label: "Idle — monitoring" },
+          { start: 4, end: 33, kind: "idle", label: "Idle — monitoring" },
           { start: 33, end: 38, kind: "lead", label: "T5 Lead review — reply rejected" },
         ],
         markers: [{ at: 2, candidateId: "02" }],
@@ -472,7 +472,7 @@ export const traceRuns: TraceRun[] = [
         summary: "T1 Triage · T5 Send & close",
         segments: [
           { start: 0, end: 2, kind: "lead", label: "T1 Triage question" },
-          { start: 2, end: 20, kind: "blocked", label: "Idle — monitoring" },
+          { start: 2, end: 20, kind: "idle", label: "Idle — monitoring" },
           { start: 20, end: 22, kind: "lead", label: "T5 Send & close" },
         ],
         markers: [],
@@ -561,7 +561,7 @@ export const traceRuns: TraceRun[] = [
         summary: "T1 Assign · close invoice",
         segments: [
           { start: 0, end: 2, kind: "lead", label: "T1 Assign invoice" },
-          { start: 2, end: 43, kind: "blocked", label: "Idle — monitoring" },
+          { start: 2, end: 43, kind: "idle", label: "Idle — monitoring" },
           { start: 43, end: 45, kind: "lead", label: "Close invoice" },
         ],
         markers: [],
@@ -666,7 +666,7 @@ export const traceRuns: TraceRun[] = [
         summary: "T1 Assign · T5 Approve & notify",
         segments: [
           { start: 0, end: 2, kind: "lead", label: "T1 Assign claim" },
-          { start: 2, end: 26, kind: "blocked", label: "Idle — monitoring" },
+          { start: 2, end: 26, kind: "idle", label: "Idle — monitoring" },
           { start: 26, end: 28, kind: "lead", label: "T5 Approve & notify" },
         ],
         markers: [],
@@ -756,7 +756,7 @@ export const traceRuns: TraceRun[] = [
         summary: "T1 Assign · escalate to controller",
         segments: [
           { start: 0, end: 2, kind: "lead", label: "T1 Assign account 2100" },
-          { start: 2, end: 46, kind: "blocked", label: "Idle — monitoring" },
+          { start: 2, end: 46, kind: "idle", label: "Idle — monitoring" },
           { start: 46, end: 50, kind: "lead", label: "Escalate to controller" },
         ],
         markers: [],

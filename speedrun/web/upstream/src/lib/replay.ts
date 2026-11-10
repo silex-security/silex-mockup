@@ -10,7 +10,7 @@ export interface ReplayEvent {
   toRoleId?: string;
 }
 
-export type LaneState = "pending" | "working" | "waiting" | "blocked" | "done";
+export type LaneState = "pending" | "working" | "waiting" | "blocked" | "idle" | "done";
 
 export interface LaneStatus {
   status: LaneState;
@@ -26,7 +26,9 @@ export function replayEvents(lanes: ReplayLane[], { markers }: { markers: boolea
     for (const sg of segments) {
       switch (sg.kind) {
         case "timeout":
-          events.push({ at: sg.start, roleId, kind: "start", text: sg.label }, { at: sg.end, roleId, kind: "timeout", text: sg.label });
+          events.push({ at: sg.start, roleId, kind: "start", text: sg.label.split(" — ")[0] }, { at: sg.end, roleId, kind: "timeout", text: sg.label });
+          break;
+        case "idle":
           break;
         case "wait":
           events.push({ at: sg.start, roleId, kind: "wait", text: sg.label });
@@ -45,7 +47,7 @@ export function replayEvents(lanes: ReplayLane[], { markers }: { markers: boolea
   return events.sort((a, b) => a.at - b.at);
 }
 
-const STATE_OF = { timeout: "working", wait: "waiting", blocked: "blocked" } as const;
+const STATE_OF = { timeout: "working", wait: "waiting", blocked: "blocked", idle: "idle" } as const;
 
 export function laneStatus(lane: Pick<TraceLane, "segments">, at: number): LaneStatus {
   const { segments } = lane;
@@ -53,5 +55,5 @@ export function laneStatus(lane: Pick<TraceLane, "segments">, at: number): LaneS
   const sg = segments.find((s) => at >= s.start && at < s.end);
   if (sg) return { status: STATE_OF[sg.kind as keyof typeof STATE_OF] ?? "working", label: sg.label };
   if (at >= segments[segments.length - 1].end) return { status: "done", label: "Finished" };
-  return { status: "waiting", label: "Idle" };
+  return { status: "idle", label: "Idle" };
 }

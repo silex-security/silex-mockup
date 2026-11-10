@@ -1293,7 +1293,7 @@ try {
     assert.ok(first.length>=8&&first.every(e=>e.t<=18),'the log holds only events at or before 18s: '+Q(first));
     assert.ok(first.every(e=>e.kind!=='message'),'no message has been sent by 18s');
     assert.deepEqual(first.map(e=>e.t),[...first.map(e=>e.t)].sort((a,b)=>a-b),'log is in time order');
-    assert.deepEqual(await se(`return [...document.querySelectorAll('[data-lane-status]')].map(e=>e.dataset.laneStatus)`),['blocked','working','blocked','blocked'],'lane chips at 18s');
+    assert.deepEqual(await se(`return [...document.querySelectorAll('[data-lane-status]')].map(e=>e.dataset.laneStatus)`),['idle','working','blocked','blocked'],'lane chips at 18s');
     await press('Play');
     await until(async()=>(await clock())>21&&(await log()).length>first.length,'time advances and the log grows');
     await press('Pause');
@@ -1312,7 +1312,7 @@ try {
     await press('Play');
     await until(async()=>(await clock())>=t0+4,'10× advances faster than real time',5000);
     await press('Pause');
-    return `opened at 18s with ${first.length} log rows and chips blocked/working/blocked/blocked; played to ${paused.toFixed(1)}s, row click back to ${target}s (${rows.length} -> ${after.length} rows), 10× selected`;
+    return `opened at 18s with ${first.length} log rows and chips idle/working/blocked/blocked; played to ${paused.toFixed(1)}s, row click back to ${target}s (${rows.length} -> ${after.length} rows), 10× selected`;
   });
 
   await probe('S49','Incidents & Decisions: no Overview or PCP sidebar item, pending count, decisions panel, retired and deep routes, Overview still renders',async()=>{

@@ -5,7 +5,7 @@ import { replayEvents, laneStatus } from '../../speedrun/web/upstream/src/lib/re
 const refund = [
   { roleId: 'refund-lead', segments: [
     { start: 0, end: 3, kind: 'lead', label: 'T1 Parse' },
-    { start: 3, end: 29, kind: 'blocked', label: 'Idle' },
+    { start: 3, end: 29, kind: 'idle', label: 'Idle' },
     { start: 29, end: 30, kind: 'lead', label: 'Close case' }], markers: [], messages: [] },
   { roleId: 'order-specialist', segments: [
     { start: 3, end: 11, kind: 'timeout', label: 'Attempt 1' },
@@ -18,9 +18,9 @@ const refund = [
     { start: 24, end: 27, kind: 'critical', label: 'T4 Check' }], markers: [], messages: [] },
 ];
 
-test('refund run at 18s: order-specialist works, the other two are blocked', () => {
+test('refund run at 18s: order-specialist works, the reviewer is blocked on it, the lead is idle', () => {
   const at = Object.fromEntries(refund.map((l) => [l.roleId, laneStatus(l, 18).status]));
-  assert.deepEqual(at, { 'refund-lead': 'blocked', 'order-specialist': 'working', 'policy-reviewer': 'blocked' });
+  assert.deepEqual(at, { 'refund-lead': 'idle', 'order-specialist': 'working', 'policy-reviewer': 'blocked' });
 });
 
 test('lane status covers pending, timeout, wait and done', () => {
@@ -36,7 +36,7 @@ test('events are sorted by time and follow the per-kind rules', () => {
   assert.deepEqual(ev.map((e) => e.at), ev.map((e) => e.at).sort((a, b) => a - b));
   const kinds = (role) => ev.filter((e) => e.roleId === role).map((e) => `${e.at}:${e.kind}`);
   assert.deepEqual(kinds('order-specialist'), ['3:start', '11:timeout', '11:wait', '11.5:opportunity', '13:start', '24:done', '24:message']);
-  assert.deepEqual(kinds('refund-lead'), ['0:start', '3:done', '3:blocked', '29:unblocked', '29:start', '30:done']);
+  assert.deepEqual(kinds('refund-lead'), ['0:start', '3:done', '29:start', '30:done'], 'idle time emits no events');
   assert.ok(!kinds('policy-reviewer').includes('9:start'), 'blocked emits no start');
 });
 
