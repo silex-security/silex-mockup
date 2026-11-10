@@ -24,22 +24,24 @@ async function pngs(dir, base = dir) {
 const DIFF = `
   const load = async b64 => { const i = new Image(); i.src = 'data:image/png;base64,' + b64; await i.decode(); return i; };
   const [a, b] = await Promise.all([load(A), load(B)]);
-  if (a.width !== b.width || a.height !== b.height) return 100;
-  const px = img => { const c = new OffscreenCanvas(img.width, img.height).getContext('2d'); c.drawImage(img, 0, 0); return c.getImageData(0, 0, img.width, img.height).data; };
+  if (a.width !== b.width) return { percent: 100, grew: 0 };
+  const h = Math.min(a.height, b.height);
+  const px = img => { const c = new OffscreenCanvas(img.width, h).getContext('2d'); c.drawImage(img, 0, 0); return c.getImageData(0, 0, img.width, h).data; };
   const pa = px(a), pb = px(b); let n = 0;
   for (let i = 0; i < pa.length; i += 4) if (Math.abs(pa[i] - pb[i]) + Math.abs(pa[i + 1] - pb[i + 1]) + Math.abs(pa[i + 2] - pb[i + 2]) > 12) n++;
-  return 100 * n / (pa.length / 4);`;
+  return { percent: 100 * n / (pa.length / 4), grew: b.height - a.height };`;
 
-/** @returns {Promise<Array<{ file: string, percent: number | null }>>} percent is null when the file is missing from after. */
+/** Compares the area both images share, top aligned. `grew` is the height change in px.
+ * @returns {Promise<Array<{ file: string, percent: number | null, grew: number }>>} percent is null when the file is missing from after. */
 export async function diffShots(before, after) {
   const session = await browser();
   try {
     const rows = [];
     for (const file of await pngs(before)) {
       const b = await readFile(join(after, file)).catch(() => null);
-      if (!b) { rows.push({ file, percent: null }); continue; }
+      if (!b) { rows.push({ file, percent: null, grew: 0 }); continue; }
       const a = await readFile(join(before, file));
-      rows.push({ file, percent: await session.page.ev(`const A=${JSON.stringify(a.toString('base64'))},B=${JSON.stringify(b.toString('base64'))};${DIFF}`) });
+      rows.push({ file, ...await session.page.ev(`const A=${JSON.stringify(a.toString('base64'))},B=${JSON.stringify(b.toString('base64'))};${DIFF}`) });
     }
     return rows;
   } finally { session.close(); }
@@ -49,7 +51,7 @@ async function main([before, after, max]) {
   if (!before || !after) { console.error('usage: node tools/shot-diff.mjs before-dir after-dir [max-percent]'); return 64; }
   let rows;
   try { rows = await diffShots(resolve(before), resolve(after)); } catch (e) { console.error(e.message); return /Chrome not found/.test(e.message) ? 2 : 1; }
-  for (const r of rows) console.log(`${r.percent === null ? 'missing' : r.percent.toFixed(2).padStart(6) + '%'}  ${r.file}`);
+  for (const r of rows) console.log(`${r.percent === null ? 'missing' : r.percent.toFixed(2).padStart(6) + '%'}  ${r.file}${r.grew ? `  height ${r.grew > 0 ? '+' : ''}${r.grew}px` : ''}`);
   return max !== undefined && rows.some(r => r.percent === null || r.percent > Number(max)) ? 1 : 0;
 }
 

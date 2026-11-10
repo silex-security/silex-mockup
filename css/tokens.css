@@ -1,0 +1,75 @@
+/* Design tokens for the console (index.html, css/, swm/css) and, by alias, Agent Gym. The one place a colour,
+   type size, radius or shadow value is written. tools/style-audit.mjs and tests/site/style-budget.test.mjs
+   keep raw values from coming back. Text colours pass 4.5:1 on --panel and on --bg. */
+:root {
+  --ink: #17191d;
+  --ink-2: #343740;
+  --muted: #606975;
+  --faint: #9aa1ad;           /* arrows, separators and marks. Not for text. */
+
+  --bg: #eef0f3;
+  --panel: #fff;
+  --soft: #f5f6f8;
+  --soft-2: #fafbfc;
+  --line: #e3e6ea;
+  --line-strong: #cfd4db;
+
+  --nav: #26282d;
+  --nav-2: #34373f;
+  --nav-deep: #1f2227;
+  --nav-text: #aeb4bf;
+  --nav-muted: #9197a3;
+
+  --blue: #718aff;            /* borders, focus and marks */
+  --blue2: #4a61d2;           /* text, links and fills that carry text */
+  --blue3: #3d51b8;
+  --blue-line: #aebaff;
+  --blue-line-soft: #cdd5ff;
+  --lav: #e9edff;
+  --lav-2: #f7f8ff;
+
+  --green: #1f6f53;
+  --green-dot: #2b8766;
+  --green-line: #b9decf;
+  --green-bg: #e5f4ee;
+  --green-soft: #f8fcfa;
+  --amber: #8a560c;
+  --amber-dot: #c98a1e;
+  --amber-line: #f0dfb4;
+  --amber-bg: #fff3d8;
+  --amber-soft: #fffaf2;
+  --red: #b03a3a;
+  --red-dot: #c54545;
+  --red-line: #efbaba;
+  --red-bg: #fcebea;
+  --red-soft: #fff8f8;
+  --violet: #50339c;
+  --violet-dot: #9a72d4;
+  --violet-line: #c9c2ee;
+  --violet-bg: #f1ecfb;
+
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 26px;
+  --text-4xl: 30px;
+
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --radius: 16px;
+  --r-pill: 999px;
+
+  --shadow-sm: 0 1px 3px rgba(22, 28, 45, .08);
+  --shadow-md: 0 5px 15px rgba(29, 35, 52, .07);
+  --shadow: 0 10px 30px rgba(22, 28, 45, .07);
+  --shadow-pop: 0 24px 80px rgba(0, 0, 0, .3);
+  --ring: 0 0 0 3px rgba(113, 138, 255, .15);
+
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}

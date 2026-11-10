@@ -4,7 +4,8 @@
 //   node tools/style-audit.mjs            a table
 //   node tools/style-audit.mjs --json     the same counts as JSON
 //
-// Covers the inline <style> blocks of index.html, css/, swm/css/ and agent-gym/css/. Embedded apps that are
+// Covers the style attributes of index.html, css/, swm/css/ and agent-gym/css/. A font size under 12px counts
+// whether it is written in px or through the --text-2xs and --text-xs tokens. Embedded apps that are
 // built or vendored (speedrun/app, blueprint_studio/app, jev-runtime) are not the console's styles and are left out.
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
@@ -12,6 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CSS_DIRS = ['css', 'swm/css', 'agent-gym/css'];
+const TOKEN_FILES = new Set(['css/tokens.css']);
 
 const distinct = (css, re, pick = m => m[1]) => new Set([...css.matchAll(re)].map(m => pick(m).toLowerCase().replace(/\s+/g, ' ').trim()));
 
@@ -20,7 +22,7 @@ export function auditCss(css) {
   return {
     colors: distinct(body, /(#[0-9a-f]{3,8})\b/gi).size,
     fontSizes: distinct(body, /font-size:\s*([^;}]+)/gi).size,
-    under12px: [...body.matchAll(/font-size:\s*([0-9.]+)px/gi)].filter(m => Number(m[1]) < 12).length,
+    under12px: [...body.matchAll(/font-size:\s*([0-9.]+)px/gi)].filter(m => Number(m[1]) < 12).length + (body.match(/font-size:\s*var\(--text-(2xs|xs)\)/gi) || []).length,
     radii: distinct(body, /border-radius:\s*([^;}]+)/gi).size,
     shadows: distinct(body, /box-shadow:\s*([^;}]+)/gi).size,
   };
@@ -28,11 +30,11 @@ export function auditCss(css) {
 
 export async function auditSite() {
   const html = await readFile(join(ROOT, 'index.html'), 'utf8');
-  const rows = { 'index.html <style>': auditCss([...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]).join('\n')) };
-  rows['index.html <style>'].inlineStyleAttrs = (html.match(/\sstyle="/g) || []).length;
+  const attrs = [...html.matchAll(/\sstyle="([^"]*)"/g)].map(m => m[1]);
+  const rows = { 'index.html style attributes': { ...auditCss(attrs.join(';\n')), inlineStyleAttrs: attrs.length } };
   for (const dir of CSS_DIRS) {
     for (const file of (await readdir(join(ROOT, dir))).filter(f => f.endsWith('.css')).sort()) {
-      rows[`${dir}/${file}`] = auditCss(await readFile(join(ROOT, dir, file), 'utf8'));
+      if (!TOKEN_FILES.has(`${dir}/${file}`)) rows[`${dir}/${file}`] = auditCss(await readFile(join(ROOT, dir, file), 'utf8'));
     }
   }
   return rows;

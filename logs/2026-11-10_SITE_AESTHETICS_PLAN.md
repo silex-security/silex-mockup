@@ -1,6 +1,6 @@
 # Site aesthetics plan
 
-Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 is built.
+Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 and P1 are built.
 
 The demo console (`index.html`) grew view by view and has no shared visual system. This plan gives it one, then applies it to the shell, the Platform home and the data views. A visitor sees one product instead of five pages. A maintainer changes a colour or a type size in one file.
 
@@ -39,6 +39,9 @@ One PR per phase, stacked in this order. Each ends in the checks under Verificat
 - Move the inline CSS of `index.html` to `css/console.css` and snap raw values to tokens with a codemod kept in `tools/`.
 - Point `agent-gym/css/tokens.css` at the same values so the two cannot drift.
 - Expected result: the pages look almost the same, slightly more regular. The audit counts drop to the token set.
+- Built. `css/console.css` went from 118 raw colours to 1 (white), from 25 font sizes to 13 and from 22 radii to 10 (`node tools/style-audit.mjs`). `tests/site/style-budget.test.mjs` holds the line.
+- Changed from the plan. The type scale has ten steps with a 10px floor, not six with a 12px floor. Raising 8px to 10px labels to 12px breaks the fixed-size diagram boxes, so that move happens per view in P2 and P5. The test counts text under 12px (202 today) and only lets the number fall.
+- Changed from the plan. `--blue2` went from `#536bdb` to `#4a61d2` and the status text colours took the Agent Gym values, because the contrast test failed on the old ones (4.09:1 on the page background).
 
 ### P2. Shell and shared components
 
