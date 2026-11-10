@@ -314,10 +314,10 @@ export function mount(root, ctx) {
   }
 
   function textWithChips(text, chips = []) {
-    const names = chips.map(id => catalogEntry(id)?.component.name).filter(Boolean).sort((a, b) => b.length - a.length);
+    const names = chips.map(id => catalogEntry(id)?.appName).filter(Boolean).sort((a, b) => b.length - a.length);
     if (!names.length) return text;
     return text.split(new RegExp(`(${names.join('|')})`)).map(part => {
-      const entry = names.includes(part) && CATALOG.find(e => e.component.name === part);
+      const entry = names.includes(part) && CATALOG.find(e => e.appName === part);
       return entry ? ui.appChip({ app: entry.component.app, label: part, class: 'env-inline-chip' }) : part;
     });
   }
@@ -325,10 +325,11 @@ export function mount(root, ctx) {
   // A chip that shows the full app name, over a transparent native select that keeps keyboard and screen-reader use.
   function appSelect(draft, component) {
     const used = new Set(draft.components.map(c => c.id));
-    return h('label', { class: 'env-appselect', title: `Change ${component.name}` },
-      appIcon(component.app, { size: 16 }), h('span', { class: 'env-appselect__label' }, component.name), icon('chevron-down', { size: 12 }),
+    const appName = catalogEntry(component.id)?.appName ?? component.name;
+    return h('label', { class: 'env-appselect', title: `Change ${appName}` },
+      appIcon(component.app, { size: 16 }), h('span', { class: 'env-appselect__label' }, appName), icon('chevron-down', { size: 12 }),
       h('select', {
-        class: 'env-appselect__native', value: component.id, 'aria-label': `Change ${component.name}`, dataset: { focusKey: `env:app:${component.id}` },
+        class: 'env-appselect__native', value: component.id, 'aria-label': `Change ${appName}`, dataset: { focusKey: `env:app:${component.id}` },
         onChange: e => {
           const id = e.target.value;
           if (!command({ type: 'replaceComponent', componentId: component.id, catalogId: id }).ok) return;
@@ -336,7 +337,7 @@ export function mount(root, ctx) {
           announce(`Replaced ${component.name} with ${catalogEntry(id).component.name}.${broken ? ` ${plural(broken, 'relationship')} now point at a missing component.` : ''} You can undo.`);
         },
       },
-      CATALOG.filter(e => e.origin === 'app').map(e => h('option', { value: e.id, disabled: used.has(e.id) && e.id !== component.id }, e.component.name)),
+      CATALOG.filter(e => e.origin === 'app').map(e => h('option', { value: e.id, disabled: used.has(e.id) && e.id !== component.id }, e.appName)),
       h('option', { value: 'other', disabled: true }, 'Other apps: not simulated in this preview')));
   }
 

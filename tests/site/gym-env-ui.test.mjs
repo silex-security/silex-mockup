@@ -56,10 +56,10 @@ test('Create environment shows the N2 draft, and the chat, undo, tabs, selection
   assert.equal(first.counts, '4 systems · 12 tools · 4 relationships');
   assert.match(first.footer, /3 components ready.*1 assumption to confirm/);
   assert.equal(first.focus, 'env:message', 'focus=describe focuses the chat input on a direct load');
-  assert.deepEqual(first.rows, ['Salesforce 4 tools Ready', 'Gmail 3 tools Needs review', 'Google Calendar 3 tools Ready', 'Customer DB 2 tools Ready']);
+  assert.deepEqual(first.rows, ['Salesforce 4 tools Ready', 'Gmail simulator 3 tools Needs review', 'Google Calendar 3 tools Ready', 'Customer DB 2 tools Ready']);
   assert.deepEqual([first.nodes, first.edges.sort()], [4, ['contact_id', 'email', 'email', 'email']]);
   assert.deepEqual(first.save, ['true', 'Validate the environment first.']);
-  assert.deepEqual([first.side, first.demo, first.turns], ['Gmail', 'Scripted assistant demo', 2]);
+  assert.deepEqual([first.side, first.demo, first.turns], ['Gmail simulator', 'Scripted assistant demo', 2]);
 
   const edge = await run(gym, `await press('contact_id'); await new Promise(r => setTimeout(r, 30));
     return { hash: location.hash, side: text(main.querySelector('.env-side')), pressed: document.querySelector('.env-edge.is-selected')?.textContent };`);
@@ -104,7 +104,7 @@ test('Create environment shows the N2 draft, and the chat, undo, tabs, selection
     await press('Undo');
     return { applyOn, asked, after, applied, restored: comp('gmail').enabledTools.length };`);
   assert.equal(edits.applyOn, null, 'an edit enables Apply changes');
-  assert.equal(edits.asked, 'Unapplied changes to Gmail');
+  assert.equal(edits.asked, 'Unapplied changes to Gmail simulator');
   assert.deepEqual([/select=node\.salesforce/.test(edits.after.hash), edits.after.tools], [true, 3], 'discarding drops the edit and moves on');
   assert.deepEqual([edits.applied, edits.restored], [['search_messages', 'send_email'], 3]);
 
@@ -132,7 +132,7 @@ test('path A: confirm the adapter, validate, save as template, use it in Experim
   assert.match(flow.early, /3 components ready.*1 assumption to confirm/);
   assert.match(flow.confirmed.footer, /4 components ready.*No assumptions to confirm/);
   assert.equal(flow.confirmed.status, 'Draft', 'confirming changes behavior, so the draft needs a fresh validation');
-  assert.equal(flow.confirmed.row, 'Gmail 3 tools Ready');
+  assert.equal(flow.confirmed.row, 'Gmail simulator 3 tools Ready');
   assert.deepEqual([flow.validated.status, flow.validated.save], ['Validated', null]);
   assert.match(flow.validated.notice, /Validated\. Report digest [0-9a-f]{8}/);
   assert.equal(flow.saved.title, 'Template saved');
