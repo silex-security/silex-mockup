@@ -274,7 +274,7 @@
     #assurance .en-card p{margin:0;font-size:var(--text-sm);color:var(--muted);flex:1}
     #assurance .en-card .as-open{margin:0;font-size:var(--text-sm);width:100%;justify-content:center;text-align:center}
     .sr-head{display:flex;align-items:center;gap:10px}
-    .studio-frame-wrap.gym-frame-wrap{border:0;border-radius:0;background:none}
+    .studio-frame-wrap.gym-frame-wrap,#speedrunFrameWrap{border:0;border-radius:0;background:none}
     .gym-view .title-row{margin-bottom:6px}.gym-view .title-row .btn{text-decoration:none;white-space:nowrap}
     @media(max-width:760px){.gym-view .title-row{flex-wrap:wrap}}
     @media(max-width:1400px){.app[data-nav-mode="pinned"] .suite-rail{display:none}}
@@ -284,11 +284,11 @@
     #assurance{max-width:1180px;margin-inline:auto}
     #assurance .as-eyebrow{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue2)}
     #assurance h1{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.02em;margin:.3em 0 .2em;max-width:20ch}
-    #assurance .as-lede{font-size:clamp(15px,1.7vw,17px);color:var(--muted);max-width:64ch;margin:0}
+
     #assurance .as-sec{margin-top:34px}
     #assurance .as-sechead{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
     #assurance .as-sn{font-family:var(--mono);font-size:var(--text-sm);color:var(--muted);font-weight:700}
-    #assurance .as-sub{color:var(--muted);font-size:var(--text-base);margin:2px 0 0}
+
     #assurance .as-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}
     #assurance .as-kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;box-shadow:var(--shadow-sm)}
     #assurance .as-kpi .v{font-weight:760;font-size:var(--text-3xl);letter-spacing:-.02em}
@@ -526,7 +526,7 @@
 #assurance .as-hero .title-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:36px;align-items:center;margin-bottom:34px}
 #assurance .as-hero h1{font-size:clamp(30px,3.6vw,44px);line-height:1.06;letter-spacing:-.03em;margin:.35em 0 .35em;max-width:17ch}
 #assurance .as-hero .as-eyebrow{color:var(--blue-line)}
-#assurance .as-hero .as-lede{color:var(--nav-text);max-width:56ch}
+
 #assurance .as-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
 #assurance .as-actions{align-items:center}
 #assurance .as-actions .btn{padding:12px 18px;font-size:var(--text-md);border:1px solid transparent;margin:0}
@@ -564,25 +564,30 @@
 @media(max-width:760px){#assurance .as-hero{padding:28px 20px 0}#assurance .as-hero .as-kpis{margin:0 -20px;padding:0 8px}#assurance .as-hero .as-kpi:nth-child(3){border-left:0}}
 
 /* Embedded apps (Agent Gym, Speedrun). The app has its own page header, so the console's title row shrinks to one
-   line of context: product, status, one sentence, one action. */
+   line of context: product, status, one action. */
 .gym-view .title-row,#speedrun .title-row{align-items:center;flex-wrap:nowrap;margin-bottom:10px}
 .gym-view .title-row>div,#speedrun .title-row>div{display:flex;align-items:baseline;gap:14px;min-width:0}
 .gym-view .title-row .sr-head,#speedrun .title-row .sr-head{flex:none;align-items:center;gap:8px}
 .gym-view .title-row h1,#speedrun .title-row h1{font-size:var(--text-lg);letter-spacing:-.01em;margin:0}
-.gym-view .title-row p,#speedrun .title-row p{font-size:var(--text-base);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .gym-view .title-row .btn,#speedrun .title-row .btn{flex:none;padding:6px 11px;font-size:var(--text-sm)}
-@media(max-width:760px){.gym-view .title-row p,#speedrun .title-row p{display:none}}
 .studio-frame-wrap{border-radius:var(--radius)}
-.studio-frame-wrap.dark{background:var(--app-dark);border-color:var(--nav-2)}
 /* The placeholder a frame shows until its app mounts: a ring and the outline of a page. */
 .studio-frame-loading{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;--bone:var(--soft);background:linear-gradient(var(--bone),var(--bone)) 24px 22px/180px 18px no-repeat,linear-gradient(var(--bone),var(--bone)) right 24px top 22px/120px 18px no-repeat,linear-gradient(var(--bone),var(--bone)) 24px 64px/calc(100% - 48px) 1px no-repeat,linear-gradient(var(--bone),var(--bone)) 24px 88px/26% 120px no-repeat,linear-gradient(var(--bone),var(--bone)) right 24px top 88px/calc(74% - 64px) 120px no-repeat}
 .studio-frame-loading::before{content:"";width:22px;height:22px;border-radius:50%;border:2px solid var(--line-strong);border-top-color:var(--blue2);animation:frame-spin .8s linear infinite}
-.studio-frame-wrap.dark .studio-frame-loading{--bone:rgba(255,255,255,.06);color:var(--nav-text)}
-.studio-frame-wrap.dark .studio-frame-loading::before{border-color:rgba(255,255,255,.18);border-top-color:var(--blue)}
 .rt-frame-wrap .studio-frame-loading{background:none}
 .rt-frame-wrap .studio-frame-loading::before{content:none}
 @keyframes frame-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.studio-frame-loading::before{animation:none}}
+/* A description under a heading shows while the pointer is over that heading, or anywhere on a view's title.
+   It stays in the page for readers and search. */
+:has(>.hover-note){position:relative}
+:has(+.hover-note)::after{content:"i";display:inline-grid;place-items:center;flex:none;width:16px;height:16px;margin-left:6px;border-radius:50%;background:var(--soft);border:1px solid var(--line);color:var(--muted);font:700 var(--text-2xs)/1 var(--mono);letter-spacing:0;vertical-align:middle;cursor:help}
+p.hover-note{position:absolute;z-index:40;width:max-content;max-width:min(440px,calc(100vw - 48px));margin:6px 0 0;padding:9px 11px;border-radius:var(--r-sm);background:var(--nav-deep);color:#fff;font-size:var(--text-xs);font-weight:400;line-height:1.45;letter-spacing:0;text-align:left;box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transition:opacity 120ms}
+:has(+.hover-note):hover+.hover-note,.title-row>div:hover>.hover-note{opacity:1}
+.gym-view .title-row .hover-note,#speedrun .title-row .hover-note{left:0;top:100%}
+#assurance .as-hero p.hover-note{background:var(--panel);color:var(--ink)}
+.brand-mark{flex:none;width:28px;height:28px}
+.app[data-nav-mode="pinned"] .top-left .brand-mark{display:none}
 
 /* Dark fog. The page carries the fog and cards are glass over it, the look of the Platform hero. */
 html{background:var(--bg)}

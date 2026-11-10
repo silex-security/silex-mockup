@@ -45,3 +45,6 @@ html:not([data-embedded]) [data-host-hash] { display: none; }
 .sr-handoff[data-dir="up"]::after { bottom: auto; top: -3px; }
 .sr-handoff[hidden] { display: none; }
 .sr-handoff-key { background: none !important; border-left: 1px dashed var(--tw-muted); width: 0 !important; height: 12px !important; border-radius: 0 !important; margin: 0 7px; }
+
+/* The demo site's top bar already names the product and links the others, so the app's own header row is left out there. */
+html[data-embedded] header:has(nav[aria-label="Products"]) { display: none; }

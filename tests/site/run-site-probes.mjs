@@ -1164,7 +1164,7 @@ try {
     await load();await nav('speedrun');
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
     await h1('Organization overview');
-    assert.equal(await se('return document.documentElement.classList.contains("dark")'),true,'opens in the dark theme');
+    assert.equal(await se('return document.documentElement.classList.contains("dark")'),true,'opens in the dark theme, like the console');
     const fill=await ev('const r=document.querySelector("#speedrunFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
     assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
     await se(`document.querySelector('a[href="#/speedrun/teams/refund"]').click()`);await h1('Refund Team');
@@ -1180,13 +1180,12 @@ try {
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'deep link frame rendered',30000);
     await h1('Agent Team Explorer');
     assert.equal(await se(`return document.querySelectorAll('a[href^="#/speedrun/teams/"]').length`),1,'a deep link opens the named screen with its query');
-    await se(`document.querySelector('header a[href="#/speedrun"]').click()`);await h1('Organization overview');
+    await se(`location.hash='/speedrun'`);await h1('Organization overview');
     await until(()=>ev('return location.hash==="#view=speedrun"'),'the overview is the plain view link');
     await ev(`location.hash='view=speedrun&path='+encodeURIComponent('/speedrun/teams/invoice/trace')`);
     await until(()=>se(`return location.hash==='#/speedrun/teams/invoice/trace'`),'a path link drives the open frame');
-    await se(`[...document.querySelectorAll('header a')].find(a=>a.textContent.trim()==='Agent Studio').click()`);
-    await until(()=>ev('return document.querySelector(".view.active").id==="blueprint"'),'Agent Studio link opens the Studio view');
-    return `frame ${fill.h}px; team, search, variant form; URL mirror and deep link; Studio link`;
+    assert.equal(await se(`return document.querySelector('header nav[aria-label="Products"]').getClientRects().length`),0,'the app header row is not shown inside the site');
+    return `frame ${fill.h}px; team, search, variant form; URL mirror and deep link; no app header row`;
   });
 
   await probe('S47','Agent Gym: one embedded app behind four views, followed both ways, deep links and old links',async()=>{
@@ -1315,8 +1314,8 @@ try {
     assert.equal(await ge(`return Object.keys(w.__gym.store.getState().experiments).length`),10,'nine seeded plus one');
 
     await nav('speedrun');await until(async()=>(await activeView())==='speedrun','Speedrun again');
-    await se(`[...document.querySelectorAll('header nav[aria-label="Products"] a')].find(a=>a.textContent.trim()==='Agent Gym').click();return true`);
-    await until(async()=>(await activeView())==='gym','the Speedrun header Agent Gym link opens the console Gym');
+    await se(`location.hash='/gym';return true`);
+    await until(async()=>(await activeView())==='gym','a Speedrun /gym route opens the console Gym');
     await until(()=>ge(`return w.location.hash==='#/experiments'`),'on the experiment queue');
     assert.equal(await ev('return location.hash'),'#view=gym','the plain Gym link');
 
