@@ -45,7 +45,7 @@ test('each product holds the views its stage promises', () => {
   assert.deepEqual(ids('foundry'), ['security-model']);
   assert.deepEqual(ids('studio'), ['blueprint', 'library']);
   assert.deepEqual(ids('gym'), ['short-term', 'scenario-expansion', 'long-term']);
-  assert.deepEqual(ids('runtime'), ['runtime-observation', 'policies', 'incidents', 'overview']);
+  assert.deepEqual(ids('runtime'), ['runtime-observation', 'policies', 'incidents']);
   assert.deepEqual(ids('speedrun'), ['speedrun']);
 });
 
@@ -72,4 +72,12 @@ test('the rail and the map are rendered from the groups', () => {
   for (const v of sidebarViews.filter(v => v.id !== 'assurance')) assert.match(map, new RegExp(`data-jump="${v.id}"`), `${v.id} has a button on the map`);
   assert.equal([...map.matchAll(/class="suite-card"/g)].length, 4);
   assert.match(map, /Execution evidence → Validate → Reusable knowledge/);
+});
+
+test('Operations Overview has no sidebar entry but keeps the bridge targets', () => {
+  assert.ok(!sidebarViews.some(v => v.id === 'overview'), 'no sidebar button opens the Overview');
+  assert.ok(sections.includes('overview'), 'the Overview page stays reachable by #view=overview');
+  const overview = html.match(/<section class="view" id="overview">([\s\S]*?)<section class="view"/)[1];
+  assert.match(overview, /id="ovStudioPending"/);
+  assert.match(overview, /id="ovPendingCount"/);
 });

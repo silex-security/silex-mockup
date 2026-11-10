@@ -582,7 +582,6 @@
 <button data-view="runtime-observation"><span class="ico">◉</span>Runtime Observation</button>
 <button data-view="policies"><span class="ico">◈</span>PCP · Policy</button>
 <button data-view="incidents"><span class="ico">▲</span>Incident Queue</button>
-<button data-view="overview"><span class="ico">◫</span>Operations Overview</button>
 </nav>
 <div class="section-label" data-suite="speedrun" data-stage="Performance" data-status="Roadmap" data-desc="Improve selected performance goals within business and safety constraints. Quality and task success, cost and inference efficiency, latency and execution paths.">SILEX Speedrun</div>
 <nav class="nav">
@@ -1907,7 +1906,7 @@ const incidentData={
   /* the loader is a later classic script, so this listener (registered first, by document order) receives its ready event */
   window.addEventListener('swm:loader-ready',resumePending);window.addEventListener('load',resumePending);
   /* explicit in-page navigation to a route: keep a meaningful origin, then push the new route */
-  function stateHash(){const v=[...views].find(x=>x.classList.contains('active')),id=v?v.id:'overview';
+  function stateHash(){const v=[...views].find(x=>x.classList.contains('active')),id=v?v.id:'assurance';
     if(id==='incident')return '#view=incident&incident='+encodeURIComponent(currentIncident);
     if(id==='workflow'&&typeof currentWorkflow!=='undefined'&&currentWorkflow)return '#view=workflow&workflow='+encodeURIComponent(currentWorkflow);
     if(id==='security-model'){const t=wmTabs.find(x=>x.classList.contains('active')),tab=t?t.dataset.wmPanel:'wm-architecture',n=window.SWM&&SWM.currentNode();

@@ -96,6 +96,7 @@ async function clickSel(sel, frame = false) {
 }
 async function keyEscape() { for (const type of ['keyDown', 'keyUp']) await page.send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await sleep(100); }
 async function nav(view) {
+  if(!await ev(`return !!document.querySelector('.nav [data-view="${view}"]')`)){await ev(`window.__siteShowView(${Q(view)}); true`);await sleep(150);return}
   const floating=await ev('return !!window.__siteNav&&window.__siteNav.state().desktop');
   let temporaryDock=false;
   if(floating){
@@ -360,7 +361,7 @@ try {
     const at=id=>order.findIndex(e=>e.id===id),text=id=>order[at(id)].label;
     assert.ok(at('security-model')>=0);
     assert.ok(text('security-model').includes('Enterprise World Model'),'world model label');assert.ok(text('runtime-observation').includes('Runtime Observation'),'runtime observation label');assert.ok(text('blueprint').includes('Blueprint Studio'),'blueprint label');assert.ok(text('long-term').includes('System Validation'));
-    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','short-term','scenario-expansion','long-term','runtime-observation','policies','incidents','overview','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
+    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','short-term','scenario-expansion','long-term','runtime-observation','policies','incidents','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
     await load({path:'/index.html#view=long-term&tab=runtime'});await rtReady();await viewIs('runtime-observation');
     assert.equal(await ev('return location.hash'),'#view=runtime-observation','cold legacy redirect');
     await ev("location.hash='view=long-term&tab=periodic'");await viewIs('long-term');
@@ -747,16 +748,16 @@ try {
       await move(2,450);await sleep(40);await key('Escape');await sleep(300);await closed();
       await peek();await geometry(0);await aria('auto',true);
       await move(600,450);await sleep(100);await move(150,450);await sleep(450);assert.equal((await st()).open,true,'re-entry cancels hide');
-      await nav('overview');await move(600,450);await closed();assert.equal(await ev('return document.querySelector(".view.active").id'),'overview');
+      await nav('incidents');await move(600,450);await closed();assert.equal(await ev('return document.querySelector(".view.active").id'),'incidents');
       await peek();await tap(700,80);await closed();
       phase='click show/hide';
       for(let i=0;i<2;i++){
         await show();await geometry(244);await aria('pinned',true);
         await move(900,700);await key('Escape');await tap(900,80);assert.equal((await st()).mode,'pinned','dock ignores leave/Esc/outside');
-        await nav('overview');assert.equal((await st()).mode,'pinned','nav helper preserves prior dock');
+        await nav('incidents');assert.equal((await st()).mode,'pinned','nav helper preserves prior dock');
         await hide();await geometry(0);await aria('auto',false);assert.equal(await ev('return document.activeElement.id'),'navToggle');
       }
-      await nav('overview');await closed();assert.equal(await ev('return localStorage.getItem("silex.nav.pinned")'),'false','nav helper restores temporary dock');
+      await nav('incidents');await closed();assert.equal(await ev('return localStorage.getItem("silex.nav.pinned")'),'false','nav helper restores temporary dock');
       phase='keyboard icons';
       await ev('document.querySelector("#navToggle").focus()');await key('Tab');assert.equal(await ev('return document.querySelector("#sidebar").contains(document.activeElement)'),false,'hidden nav omitted from tab order');
       for(const activation of ['Enter',' ']){
@@ -813,7 +814,7 @@ try {
       assert.ok(Number(worldBefore.split(' ')[2])>Number(worldAfter.split(' ')[2]),'World Model remeasures');await hide();await sleep(500);
       phase='short viewport';
       await viewport(1440,600);await show();
-      for(const id of ['assurance','blueprint','short-term','policies','incidents','security-model','runtime-observation','long-term','scenario-expansion','overview','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
+      for(const id of ['assurance','blueprint','short-term','policies','incidents','security-model','runtime-observation','long-term','scenario-expansion','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
       await hide();await viewport();
       phase='host modal';
       await peek();await ev('document.querySelector("#defsModal").classList.add("open")');await key('Escape');await waitState('auto',true);

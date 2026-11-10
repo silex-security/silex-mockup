@@ -200,7 +200,7 @@ test('sub-tabs: deep links, keyboard, Next, lifecycle and visible notes', { time
     // Real bar: leaving the Runtime Observation view (rt:view) stops the fleet's guided demo; coming back does not replay it.
     await go('#view=runtime-observation&tab=fleet');
     await until(() => ev('return document.querySelector("[data-rt-fx1]")?.dataset.state === "playing"'), 'the X1 demo plays on first show');
-    await ev(`document.querySelector('button[data-view="overview"]').click()`);
+    await ev(`document.querySelector('button[data-view="incidents"]').click()`);
     await sleep(300);
     assert.notEqual(await ev('return document.querySelector("[data-rt-fx1]").dataset.state'), 'playing', 'leaving the view pauses it');
     const before = await ev('return document.querySelector("[data-rt-fx1]").dataset.mode + "/" + document.querySelector("[data-rt-fx1]").dataset.state');

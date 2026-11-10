@@ -7,7 +7,7 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 | SILEX Foundry | Shared knowledge, the common foundation | Enterprise World Model | `#view=security-model` |
 | Agent Studio | Pre-deployment | Blueprint Studio, Workflow Library | `#view=blueprint`, `#view=library` |
 | Agent Gym | Verify and validate | Pre-release, Scenario Expansion, System Validation | `#view=short-term`, `#view=scenario-expansion`, `#view=long-term` |
-| SILEX Runtime | Production | Runtime Observation, PCP · Policy, Incident Queue, Operations Overview | `#view=runtime-observation`, `#view=policies`, `#view=incidents`, `#view=overview` |
+| SILEX Runtime | Production | Runtime Observation, PCP · Policy, Incident Queue | `#view=runtime-observation`, `#view=policies`, `#view=incidents` |
 | SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
 
 The home view, **Platform** (`#view=assurance`), shows the product suite as a map, five outcomes the suite enables, and the evidence base. Each product card carries its status today (Designed, Building or Roadmap).
