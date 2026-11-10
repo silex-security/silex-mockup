@@ -108,3 +108,15 @@ test('the gate re-reviews each scenario against the experiment workflow: an inst
   assert.equal(e?.code, 'drops_approval');
   assert.equal(e.fix.action, 'review-scenario');
 });
+
+test('the gate rejects an initial-state patch or data override the environment cannot hold, and unknown patch keys', () => {
+  const s = fixtureState();
+  const withBase = edit => ({ ...s, scenarios: { ...s.scenarios, 'sc-base-case@1': edit(structuredClone(s.scenarios['sc-base-case@1'])) } });
+  const errorFor = state => validateExperiment(state, EXP).errors.filter(e => e.scenarioId === 'sc-base-case').map(e => e.code);
+  assert.deepEqual(errorFor(withBase(sc => { sc.initialState.patch = { 'charge.refundable': false }; return sc; })), ['unknown_patch'], 'the sales environment has no charge');
+  assert.deepEqual(errorFor(withBase(sc => { sc.initialState.patch = { 'contact.vip': true }; return sc; })), ['unknown_patch']);
+  const env = structuredClone(s.environments['env-sales@1.2']);
+  env.dataSeed.db.contacts = [];
+  const noConsent = { ...withBase(sc => { sc.overrides = [{ kind: 'data', target: 'contact.optOut', value: true, label: 'Opted out' }]; return sc; }), environments: { ...s.environments, 'env-sales@1.2': env } };
+  assert.deepEqual(errorFor(noConsent), ['unknown_override'], 'the DB holds no record for the primary contact');
+});

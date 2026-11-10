@@ -125,6 +125,18 @@ test('situationOf reads the request side only and every situation is reachable',
   for (const s of SCENARIOS) assert.ok(s.expectedBehavior.outcome in EXPECTED_OUTCOME, `${s.id} uses a known outcome`);
 });
 
+test('data the environment cannot hold ends in an error execution with a note, never a throw', () => {
+  const thin = { ...env, dataSeed: { ...env.dataSeed, db: { ...env.dataSeed.db, contacts: [] } } };
+  const scenario = { ...byId('sc-base-case'), initialState: { summary: 'Opted out', patch: { 'contact.optOut': true } } };
+  const item = { id: 'sc-base-case#1:baseline', versionId: 'baseline', scenarioId: 'sc-base-case', repeatIndex: 1 };
+  const out = runExecution({ ...snapshotOf([scenario]), environment: thin }, item, 29);
+  assert.equal(out.terminalState, 'error');
+  assert.match(out.events.at(-1).note, /^Simulation error: /);
+  assert.deepEqual([out.finalState.outbox, out.finalState.violations, out.assertionResults], [[], [], []]);
+  const missing = runExecution(snapshotOf([]), item, 29);
+  assert.equal(missing.terminalState, 'error', 'a plan item whose scenario is not in the snapshot');
+});
+
 test('a broken workflow records an error terminal state instead of throwing', () => {
   const broken = { ...snapshotOf([byId('sc-base-case')]), workflow: { ...WORKFLOWS[0], nodes: WORKFLOWS[0].nodes.map(n => n.step === 'guard' ? { ...n, guard: 'missing' } : n) } };
   const out = runExecution(broken, { id: 'x', versionId: 'baseline', scenarioId: 'sc-base-case', repeatIndex: 1 }, 29);

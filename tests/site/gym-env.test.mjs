@@ -251,3 +251,19 @@ test('an imported file can never deliver a confirmed or downgraded Custom adapte
     assert.equal(draftStatus(draftOf(s)), 'validated', 'only the confirm command confirms it');
   }
 });
+
+test('the data seed must hold the records the components and their relations read', () => {
+  const draft = draftOf(confirmAdapter(start()));
+  const seedErrors = mutate => validateEnvironment(mutate(clone(draft))).errors.filter(e => e.code === 'data_seed');
+  assert.deepEqual(seedErrors(d => d), []);
+  assert.deepEqual(seedErrors(d => { d.dataSeed.db.contacts = []; return d; }).map(e => e.componentId), ['customdb'], 'the DB has no record for the primary contact');
+  assert.deepEqual(seedErrors(d => { d.dataSeed.crm.opportunities = []; return d; }).map(e => e.componentId), ['salesforce']);
+  assert.deepEqual(seedErrors(d => { delete d.dataSeed.calendar; return d; }).map(e => e.componentId), ['gcal']);
+  assert.equal(seedErrors(d => { delete d.dataSeed.primary; return d; }).length > 0, true);
+  assert.equal(validateEnvironment((d => { d.dataSeed.db.contacts = []; return d; })(clone(draft))).status, 'invalid');
+});
+
+test('adding a catalog component brings the records its adapter reads, so the draft stays valid', () => {
+  const s = validate(confirmAdapter(run(start(), { type: 'addComponent', catalogId: 'payments' })));
+  assert.deepEqual(draftOf(s).validation.errors.filter(e => e.code === 'data_seed'), []);
+});

@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { seedState } from '../../agent-gym/js/fixtures/index.js';
-import { cancelAttempt, pauseAttempt } from '../../agent-gym/js/simulation/attempts.js';
+import { advanceAttempt, cancelAttempt, pauseAttempt } from '../../agent-gym/js/simulation/attempts.js';
 import { startScheduler } from '../../agent-gym/js/simulation/scheduler.js';
 
 function fakeStore(initial) {
@@ -97,5 +97,26 @@ test('a paused running attempt holds the slot; cancelling it lets the queue move
   const support = byTitle(store.getState(), 'Support triage comparison');
   assert.deepEqual([support.status, store.getState().executions[support.id].length], ['running', 1]);
   assert.equal(store.getState().executions[sales.id].length, 12, 'the cancelled attempt keeps its 12 executions');
+  stop();
+});
+
+test('a tick whose dispatch faults fails that attempt and the scheduler keeps ticking for the next one', () => {
+  const real = fakeStore(seedState());
+  const sales = byTitle(real.getState(), 'Sales follow-up · Variant A');
+  const support = byTitle(real.getState(), 'Support triage comparison');
+  let faults = 0;
+  const store = { ...real, dispatch(reducer, command) {
+    if (reducer === advanceAttempt && command.attemptId === sales.id && faults++ === 0) throw Error('runner fault');
+    return real.dispatch(reducer, command);
+  } };
+  const timers = fakeTimers();
+  const reported = [];
+  const stop = startScheduler(store, { ...timers, onFault: e => reported.push(e.message) });
+  timers.tick();
+  assert.deepEqual(reported, ['runner fault']);
+  assert.deepEqual([real.getState().attempts[sales.id].status, real.getState().attempts[support.id].status], ['failed', 'running']);
+  assert.equal(timers.pending.size, 1, 'the scheduler keeps a timer for the next attempt');
+  timers.tick();
+  assert.equal(real.getState().executions[support.id].length, 1);
   stop();
 });

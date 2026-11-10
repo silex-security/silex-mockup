@@ -168,3 +168,18 @@ test('switching workflow picks that workflow\'s variant and keeps the scenarios'
   assert.equal(s.experiments[EXP].variantId, 'variant-meeting-a');
   assert.equal(s.experiments[EXP].selectedScenarioIds.length, 3);
 });
+
+test('an attempt whose runner faults becomes failed, releases the slot and compares as inconclusive', () => {
+  let s = enqueue(enqueue(fixtureState(), EXP), 'exp-027');
+  const [a, b] = s.attemptOrder;
+  const snap = structuredClone(s.attempts[a].inputSnapshot);
+  snap.environment.dataSeed.db.contacts = [];
+  snap.scenarios[0].initialState.patch = { 'contact.optOut': true };
+  s = { ...s, attempts: { ...s.attempts, [a]: { ...s.attempts[a], inputSnapshot: snap } } };
+  s = advance(s, a);
+  assert.deepEqual([s.attempts[a].status, s.executions[a].length, s.executions[a][0].terminalState], ['failed', 1, 'error']);
+  assert.equal(s.attempts[b].status, 'running', 'the slot passes to the next queued attempt');
+  assert.equal(runnableAttemptId(s), b);
+  assert.equal(advanceAttempt(s, { attemptId: a }).error.code, 'attempt_finished');
+  assert.equal(compareAttempt(s.attempts[a], s.executions[a]).verdict, 'inconclusive');
+});
