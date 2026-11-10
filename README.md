@@ -1,24 +1,40 @@
 # silex-mockup
 
-Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (Web UX / Investor Demo) on 2026-09-15.
+Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a shared, self-evolving ontology and runtime knowledge graph, delivered as a product suite across the agent lifecycle on a common foundation. The demo walks that suite, view by view, with illustrative data. It is a single self-contained page, [`index.html`](index.html), live at [demo.opensilex.ai](https://demo.opensilex.ai/).
 
-- **Page:** [`index.html`](index.html), a single self-contained HTML file. Live at [demo.opensilex.ai](https://demo.opensilex.ai/).
-- **Registers:** a top-bar toggle switches between two registers:
-  - **Assurance** (investor / technical): Continuous Production Assurance, the Agent V&V matrix, the Enterprise World Model;
-  - **Operations**: the security-team dashboard.
+| Product | Lifecycle stage | Demo views | Deep link |
+|---|---|---|---|
+| SILEX Foundry | Shared knowledge, the common foundation | Enterprise World Model | `#view=security-model` |
+| Agent Studio | Pre-deployment | Blueprint Studio, Workflow Library | `#view=blueprint`, `#view=library` |
+| Agent Gym | Verify and validate | Pre-release, Scenario Expansion, System Validation | `#view=short-term`, `#view=scenario-expansion`, `#view=long-term` |
+| SILEX Runtime | Production | Runtime Observation, PCP · Policy, Incident Queue, Operations Overview | `#view=runtime-observation`, `#view=policies`, `#view=incidents`, `#view=overview` |
+| SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
 
-  The left nav is an **Agent Lifecycle** rail: Blueprint Studio → Pre-release → PCP · Policy → Incident Queue.
-- **Blueprint Studio:** the computed Blueprint Studio from [`blueprint_studio/`](blueprint_studio/README.md), embedded in the Blueprint Studio view.
-  - It includes the editor, templates, Ask AI, Validate → Optimize → Decide → Register, and the Decision Trace.
-  - Its pending decisions, PCP cards and registrations appear on Overview, PCP · Policy and the Workflow Library, stored in this browser.
-  - How it is wired: [`js/STUDIO_BRIDGE_CONTRACT.md`](js/STUDIO_BRIDGE_CONTRACT.md), plan [`logs/2026-09-24_STUDIO_CUTOVER_PLAN.md`](logs/2026-09-24_STUDIO_CUTOVER_PLAN.md).
+The home view, **Platform** (`#view=assurance`), shows the product suite as a map, five outcomes the suite enables, and the evidence base. Each product card carries its status today (Designed, Building or Roadmap).
+
+### SILEX Foundry
+
 - **Enterprise World Model:** the sub-tabs are *Ontology Layers* (default), *Ontology Graph*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
   - The first three are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists; *Domain Suites* and *Coverage Gaps* are static, illustrative markup.
   - The Ontology Graph opens on the animated **Network** view (WebVOWL-style).
   - Domain packs are grounded in public standards and benchmarks; L4 adds a labelled partition of public benchmark runs (AgentDojo, τ²-bench), shown by default through a *Public benchmark runs* toggle. The bundle carries a 1-in-3 business-stratified sample: 346 of 946 runs, with all 135 incidents and every typical example kept; agent inspectors report the full counts.
   - *World Model Coverage* uses the site's indigo palette; hovering an arc or list row explains why coverage is low (weakest dimensions, children that pull it down, recorded gaps, suggested steps labelled illustrative). Plan: [`logs/2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md`](logs/2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md).
   - What was built and why: [`SECURITY_WORLD_MODEL.md`](SECURITY_WORLD_MODEL.md). Code and data pipeline: [`swm/`](swm/README.md).
-- **Runtime Observation (Jev runtime demo):** its own entry in the left nav's Environment group, between Enterprise World Model and System Validation. It shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.
+
+### Agent Studio
+
+- **Blueprint Studio:** the computed Blueprint Studio from [`blueprint_studio/`](blueprint_studio/README.md), embedded in the Blueprint Studio view.
+  - It includes the editor, templates, Ask AI, Validate → Optimize → Decide → Register, and the Decision Trace.
+  - Its pending decisions, PCP cards and registrations appear on Overview, PCP · Policy and the Workflow Library, stored in this browser.
+  - How it is wired: [`js/STUDIO_BRIDGE_CONTRACT.md`](js/STUDIO_BRIDGE_CONTRACT.md), plan [`logs/2026-09-24_STUDIO_CUTOVER_PLAN.md`](logs/2026-09-24_STUDIO_CUTOVER_PLAN.md).
+
+### Agent Gym
+
+- **Pre-release, Scenario Expansion, System Validation:** the three Agent Gym views. They keep their view ids and deep links (`#view=short-term`, `#view=scenario-expansion`, `#view=long-term`).
+
+### SILEX Runtime
+
+- **Runtime Observation (Jev runtime demo):** the first entry under SILEX Runtime in the left nav. It shows each agent action checked before it runs (hard rules → Jev judgment battery → policy), with reference figures, scripted AP and SOC scenarios and the embedded demo.
   - Five sub-tabs: *Scenarios* (default), *Decision plane*, *Learning loop*, *Ontology*, *Judge latency*. Each tab opens with a plain-language intro and how to read it, shows numbers with plain captions, and ends with a takeaway; technical detail (p-values, CIs, sample sizes, hardware, sources) sits behind ⓘ hover text (hover, focus or tap). Deep link: `#view=runtime-observation&tab=ontology`. Plan: [`logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md`](logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md).
   - *Scenarios*: pick one of the 12 scripted scenarios from a dropdown (it runs at once; **Run** repeats it) and watch it go through the pipeline animation. Clicking one of the six pipeline stages pauses the animation there, and clicking it again resumes. *See this run in the decision plane* opens the Decision plane tab.
   - **Ontology** (*What the ontology adds*): the same runtime provenance graph with and without ontology types, on real benchmark runs of held-out agent models. It shows the pre-registered AgentDojo test and the example runs:
@@ -32,7 +48,15 @@ Clickable demo of the SILEX agentic security platform, aligned with the V1 PRD (
   - Plain-language guide (Chinese, screenshots of every page): [`docs/jev-runtime-guide/`](docs/jev-runtime-guide/README.md).
   - Deep link: `index.html#view=runtime-observation`; the old `#view=long-term&tab=runtime` redirects there. Plans: [`logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md`](logs/2026-09-30_JEV_RUNTIME_VALIDATION_PLAN.md) (built as a System Validation tab), then [`logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md`](logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md) (moved to its own view).
 - **Older Jev observability demo:** [`jev-observability/`](jev-observability/README.md) is the first, AP-only standalone page. It stays live, unchanged, and `jev-runtime/` supersedes it.
-- **Left navigation:** on desktop it starts hidden so the content uses the full window. The sidebar icon (top left) shows it docked; the same icon in its header hides it again, like chatgpt.com, and the choice is remembered per browser. Hovering the far-left edge peeks it over the content and it slides away when the pointer leaves. Phones keep the icon strip. Plan: [`logs/2026-09-30_FLOATING_NAV_PLAN.md`](logs/2026-09-30_FLOATING_NAV_PLAN.md).
+
+### SILEX Speedrun
+
+- **Speedrun:** a roadmap view (`#view=speedrun`) with three goals (quality and task success, cost and inference efficiency, latency and execution paths) and one piece of evidence that exists today, the runtime judge's measured latency, which links to the Judge latency tab.
+
+### Site shell
+
+- **Navigation:** the left nav groups the views by product, in lifecycle order: Platform, SILEX Foundry, Agent Studio, Agent Gym, SILEX Runtime, SILEX Speedrun. The top bar shows the same products as a lifecycle rail (Foundry · Studio → Gym → Runtime → Speedrun). The rail highlights the product that owns the open view, and a click opens that product's first view. The nav, the rail and the home product map are all rendered from one source, the sidebar markup, by [`js/suite-nav.js`](js/suite-nav.js). The earlier Assurance / Operations toggle is gone, and `assurance.html` keeps the earlier page unchanged.
+- **Sidebar behaviour:** on desktop it starts hidden so the content uses the full window. The sidebar icon (top left) shows it docked; the same icon in its header hides it again, like chatgpt.com, and the choice is remembered per browser. Hovering the far-left edge peeks it over the content and it slides away when the pointer leaves. Phones keep the icon strip. Plan: [`logs/2026-09-30_FLOATING_NAV_PLAN.md`](logs/2026-09-30_FLOATING_NAV_PLAN.md).
 - **Figures are illustrative, except in Blueprint Studio.**
   - Blueprint Studio runs a deterministic engine on the declared graph: simulated outcomes under a declared adversary model, with no real agents or tools.
   - Every other panel is illustrative.
