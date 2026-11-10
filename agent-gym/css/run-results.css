@@ -7,7 +7,7 @@
 .gym-app .run-lost__actions { justify-content: center; }
 
 /* Tables (run list, by-scenario) */
-.gym-app .run-list__wrap, .gym-app .run-byscenario__wrap, .gym-app .run-matrix__wrap { max-width: 100%; overflow-x: auto; }
+.gym-app .run-list__wrap, .gym-app .run-byscenario__wrap, .gym-app .run-matrix__wrap { position: relative; max-width: 100%; overflow-x: auto; }
 .gym-app .run-table { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-md); }
 .gym-app .run-table th { text-align: left; padding: 8px 12px; background: var(--gym-surface-2); color: var(--gym-ink-2); font-size: var(--gym-fs-xs); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
 .gym-app .run-table thead th:first-child { border-radius: var(--gym-r-sm) 0 0 var(--gym-r-sm); }
@@ -31,7 +31,11 @@
 .gym-app .run-review-none { font-size: var(--gym-fs-sm); }
 
 @media (max-width: 899.98px) {
-  .gym-app .run-table--stack thead, .gym-app .run-list .run-table thead { display: none; }
+  .gym-app .run-table--stack thead { display: none; }
+}
+/* The run list table needs about 1180px; below that each attempt becomes a labelled card, so no column hides. */
+@media (max-width: 1279.98px) {
+  .gym-app .run-list .run-table thead { display: none; }
   .gym-app .run-list .run-table, .gym-app .run-list .run-table tbody { display: block; }
   .gym-app .run-list .run-table tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 12px; padding: 12px 4px; border-bottom: 1px solid var(--gym-line); }
   .gym-app .run-list .run-table tbody tr:last-child { border-bottom: 0; }
@@ -41,6 +45,9 @@
   .gym-app .run-list .run-table td[data-label="Experiment"]::before, .gym-app .run-list .run-table td[data-label="Action"]::before { content: none; }
   .gym-app .run-list__progress { min-width: 0; width: 100%; }
   .gym-app .run-list .gym-panel__head { flex-wrap: wrap; }
+}
+@media (min-width: 900px) and (max-width: 1279.98px) {
+  .gym-app .run-list .run-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 /* Run detail: summary */

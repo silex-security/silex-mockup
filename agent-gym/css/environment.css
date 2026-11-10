@@ -181,6 +181,14 @@
 .gym-app .env-caps { display: flex; flex-wrap: wrap; gap: 6px; }
 .gym-app .env-caps code { padding: 2px 6px; border-radius: var(--gym-r-sm); background: var(--gym-surface-2); font-family: var(--gym-mono); font-size: 12px; }
 
+/* Three columns need about 1280px. Narrower, the chat keeps the left column and the settings sit under the preview. */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  .gym-app .env-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); grid-template-areas: "chat preview" "chat side"; }
+  .gym-app .env-chat { grid-area: chat; }
+  .gym-app .env-preview { grid-area: preview; }
+  .gym-app .env-side { grid-area: side; }
+  .gym-app .env-apps { flex-wrap: wrap; }
+}
 @media (max-width: 1023.98px) {
   .gym-app .env-cols { grid-template-columns: minmax(0, 1fr); }
   .gym-app .env-chat__log { flex: none; max-height: 420px; min-height: 0; }

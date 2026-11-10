@@ -162,7 +162,7 @@
 .gym-app .gym-tabs--solid .gym-tab { min-height: 32px; padding: 0 18px; border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r); background: var(--gym-surface); flex: 1 1 auto; }
 .gym-app .gym-tabs--solid .gym-tab:hover { border-color: var(--gym-primary-line); background: var(--gym-primary-softer); }
 .gym-app .gym-tabs--solid .gym-tab[aria-selected="true"] { background: var(--gym-primary); border-color: var(--gym-primary); color: #fff; font-weight: 600; }
-.gym-app .gym-tabs--pill { padding: 2px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill); background: var(--gym-surface-2); }
+.gym-app .gym-tabs--pill { padding: 2px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill); background: var(--gym-surface-2); overflow-x: auto; }
 .gym-app .gym-tabs--pill .gym-tab { min-height: 22px; padding: 0 18px; border-radius: var(--gym-r-pill); font-size: var(--gym-fs-xs); color: var(--gym-muted); }
 .gym-app .gym-tabs--pill .gym-tab[aria-selected="true"] { background: var(--gym-primary); color: #fff; font-weight: 600; }
 .gym-app .gym-tab:focus-visible { box-shadow: var(--gym-ring); position: relative; z-index: 1; }
