@@ -65,7 +65,7 @@ test('history rows count planned and finished runs and attempts by verdict, newe
   const live = ok(runRegression(seedState()));
   const [row] = regressionHistory(live);
   assert.deepEqual({ number: row.number, startedSeq: row.startedSeq, planned: row.planned, finished: row.finished, running: row.running, experiments: row.experiments.map(e => e.title), skipped: row.skipped.length },
-    { number: 1, startedSeq: 7, planned: 38, finished: 0, running: 4, experiments: ['Duplicate-send guard', 'Smaller model for refund replies', 'Refund timeout steps', 'Meeting scheduling'], skipped: 5 });
+    { number: 1, startedSeq: 11, planned: 38, finished: 0, running: 4, experiments: ['Duplicate-send guard', 'Smaller model for refund replies', 'Refund timeout steps', 'Meeting scheduling'], skipped: 5 });
   const done = finishAll(live);
   assert.deepEqual([regressionHistory(done)[0].finished, regressionHistory(done)[0].verdicts], [38, { pass: 3, fail: 0, regression: 1, inconclusive: 0 }]);
   const cancelled = ok(cancelAttempt(live, { attemptId: row.experiments[0].attemptId }));

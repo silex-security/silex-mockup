@@ -37,7 +37,7 @@ test('a what-changes strip names the two versions and shows the differing fields
   assert.equal(v.title, 'Sales follow-up · rev 1 → Variant A');
   assert.equal(v.count, '2 changes');
   assert.deepEqual(v.rows, [
-    ['Draft email', 'model', 'simulated-model-baseline', 'simulated-model-variant-a'],
+    ['Draft emailShared · 2 other workflows', 'model', 'simulated-model-baseline', 'simulated-model-variant-a'],
     ['Draft email', 'timeoutRecovery', 'retry_new_key', 'check_status_reuse_key'],
     ['Draft email', 'tone', 'concise', 'concise'],
   ]);
@@ -58,7 +58,7 @@ test('experiment settings: the objective and acceptance rules are draft edits th
   await page(`$('[data-focus-key="wb:accept-noregression"]').click(); await frame();`);
   await page(`await change($('[data-focus-key="wb:accept-min"]'), '3');`);
   const after = await page(`return { exp: [E().objective, E().acceptance], rev: E().draftRevision, dirty: txt($('.wb-save-state')) };`);
-  assert.deepEqual(after.exp, ['steps', { noRegression: false, minImprovedPairs: 3 }]);
+  assert.deepEqual(after.exp, ['steps', { noRegression: false, minImprovedPairs: 3, noSharedRegression: true }]);
   assert.equal(after.rev, before.rev + 3, 'each edit is a draft revision');
   assert.match(after.dirty, /^Unsaved changes/);
 

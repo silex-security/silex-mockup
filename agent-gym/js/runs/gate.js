@@ -2,7 +2,7 @@
 // simulated evidence behind it. Pure. "Cleared for demo" is the strongest state; nothing here is released or deployed.
 import { REVIEW_LABEL, refKey } from '../model.js';
 import { attemptProgress, comparisonFor } from '../selectors.js';
-import { variantChange } from '../simulation/attempts.js';
+import { experimentAttempts, variantChange } from '../simulation/attempts.js';
 import { isLive } from './facts.js';
 
 export const GATE = Object.freeze({
@@ -36,8 +36,7 @@ export function gateState(facts) {
 export function latestSavedAttempt(state, experimentId) {
   const exp = state.experiments[experimentId];
   if (exp.savedRevision == null) return null;
-  return state.attemptOrder.map(id => state.attempts[id])
-    .filter(a => a.experimentId === experimentId && a.inputSnapshot.experiment.draftRevision === exp.savedRevision).at(-1) ?? null;
+  return experimentAttempts(state, experimentId).filter(a => a.inputSnapshot.experiment.draftRevision === exp.savedRevision).at(-1) ?? null;
 }
 
 /** One gate row per experiment, newest experiment first. */

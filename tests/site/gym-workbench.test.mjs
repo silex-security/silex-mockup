@@ -88,11 +88,14 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
   assert.deepEqual(v.scenarios, ['Base case', 'Timeout after send', 'Contact opted out']);
   assert.equal(v.opened, 'Initial state: opted out Expected: skip email; log reason');
   assert.equal(v.queueTitle, 'Run queue', 'the queue page owns the title Experiment queue');
-  assert.deepEqual(v.counts, ['1 running', '1 queued', '4 completed'], 'the queue lists every experiment\'s attempts, not only this one\'s');
+  assert.deepEqual(v.counts, ['1 running', '1 queued', '8 completed'], 'the queue lists every experiment\'s attempts, not only this one\'s');
   assert.deepEqual(v.rows, [
     ['Sales follow-up · Variant A, rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18'],
     ['Support triage comparison, rev 1 · attempt 1', 'Customer support', '8', 'Queued', '–'],
-    ...[['Refund timeout steps', 'Customer support', '2', 1, 'Steps per run 8.5 → 9.0 · 2 improved · 0 regressed Needs iteration'], ['Smaller model for refund replies', 'Customer support', '3', 1, 'Success rate 100% → 67% · 0 improved · 2 regressed Reject'],
+    ...[['Invoice review', 'exp-025', 'Finance operations', '5', 'Success rate 100% → 80% · 0 improved · 1 regressed'], ['Sales follow-up', 'exp-025', 'Sales operations', '3', 'Success rate 67% → 67% · 0 improved · 0 regressed'],
+      ['Invoice review', 'exp-024', 'Finance operations', '5', 'Policy violations 0 → 0 · 0 improved · 0 regressed'], ['Support triage v2', 'exp-024', 'Customer support', '8', 'Policy violations 0 → 0 · 0 improved · 0 regressed']]
+      .map(([title, of, env, n, result]) => [`${title} · shared-agent check, Impact of ${of} Shared check · ${of}`, env, n, 'Completed, every run finished; open results to see which checks passed', `${result} View results`]),
+    ...[['Refund timeout steps', 'Customer support', '2', 1, 'Steps per run 8.5 → 9.0 · 2 improved · 0 regressed Needs iteration'], ['Smaller model for refund replies', 'Customer support', '3', 1, 'Success rate 100% → 67% · 0 improved · 2 regressed · shared workflows: 1 regressed Reject'],
       ['Duplicate-send guard', 'Sales operations', '3', 2, 'Policy violations 1 → 0 · 1 improved · 0 regressed Pass for demo'], ['Meeting scheduling', 'Sales operations', '6', 2, 'Success rate 100% → 100% · 0 improved · 0 regressed']]
       .map(([title, env, n, rev, result]) => [`${title}, rev ${rev} · attempt 1`, env, n, 'Completed, every run finished; open results to see which checks passed', `${result} View results`]),
   ]);
@@ -275,7 +278,7 @@ test('Run validates, saves, freezes and enqueues once per draft revision; Save o
   assert.deepEqual([run.key, run.label, run.status, run.plan, run.title, run.saved], ['wb-exp-029-r5', 'rev 5 · attempt 2', 'queued', 18, 'Experiment 029 · retry', 5]);
   assert.equal(run.flash, 'rev 5 · attempt 2 is already in the queue for this revision. It can run again once that attempt finishes or is cancelled. Open run');
   assert.deepEqual(run.row, ['Experiment 029 · retry, rev 5 · attempt 2', 'Sales operations', '3', 'Queued', '–']);
-  assert.deepEqual(run.counts, ['1 running', '2 queued', '4 completed']);
+  assert.deepEqual(run.counts, ['1 running', '2 queued', '8 completed']);
 
   const edit = await page(`$('.wb-scenario[data-scenario="sc-base-case"] input').click(); await frame();
     const frozen = S().attempts[S().attemptOrder.at(-1)].inputSnapshot.scenarios.length; return [E().selectedScenarioIds.length, frozen, E().draftRevision];`);
@@ -366,7 +369,7 @@ test('entry points carry their context to the other screens', async t => withGym
     ['Describe scenario', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&source=chat'],
     ['Generate variations', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&mode=prompt'],
   ]);
-  assert.equal(links.results, '#/experiments/exp-026/attempts/attempt-006/results', 'the first View results link is the newest finished attempt');
+  assert.equal(links.results, '#/experiments/exp-025/attempts/attempt-010/results', 'the first View results link is the newest finished attempt');
   await page(`$$('.wb-qrow')[1].cells[2].click(); await frame();`);
   assert.equal(await page(`return location.hash`), '#/experiments/exp-028/attempts/attempt-003', 'a row click opens that attempt');
   await gym.ev(`history.back(); await new Promise(r => setTimeout(r, 150));`);

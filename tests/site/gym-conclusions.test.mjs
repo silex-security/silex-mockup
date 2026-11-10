@@ -29,13 +29,13 @@ test('Results lists each acceptance check with its detail, and names the objecti
   assert.equal(pass.badge, 'Meets acceptance');
   assert.match(pass.objective, /Objective: Policy violations/);
   assert.match(pass.objective, /Fewer is better/);
-  assert.deepEqual(pass.checks.map(c => [c[0], c[1]]), [['complete', 'true'], ['no-regression', 'true'], ['min-improved', 'true'], ['objective', 'true']]);
+  assert.deepEqual(pass.checks.map(c => [c[0], c[1]]), [['complete', 'true'], ['no-regression', 'true'], ['min-improved', 'true'], ['objective', 'true'], ['shared-agents', 'true']]);
   assert.match(pass.checks[3][2], /Policy violations no worse than baseline.*1 → 0/);
 
   await gym.go('#/experiments/exp-025/attempts/attempt-005/results');
   const fail = await acceptance(gym);
   assert.equal(fail.badge, 'Does not meet acceptance');
-  assert.deepEqual(fail.checks.map(c => [c[0], c[1]]), [['complete', 'true'], ['no-regression', 'false'], ['min-improved', 'false'], ['objective', 'false']]);
+  assert.deepEqual(fail.checks.map(c => [c[0], c[1]]), [['complete', 'true'], ['no-regression', 'false'], ['min-improved', 'false'], ['objective', 'false'], ['shared-agents', 'false']]);
   assert.match(fail.checks[1][2], /No regressed pairs.*2 regressed/);
   assert.match(fail.checks[3][2], /Success rate no worse than baseline.*100% → 67%/);
   assert.match(await gym.ev('return document.querySelector(".run-accept").textContent'), /nothing is adopted or deployed/i);
@@ -53,8 +53,12 @@ test('the Runs list and the workbench queue show one result line per finished at
   const rows = await gym.ev(`return [...document.querySelectorAll('.run-list__row')].map(tr => [tr.querySelector('.run-list__title').textContent,
     tr.querySelector('td[data-label="Progress"] .run-list__result')?.textContent.trim() ?? null, tr.querySelector('td[data-label="Review decision"]').textContent.trim()])`);
   assert.deepEqual(rows, [
+    ['Invoice review · shared-agent check', 'Success rate 100% → 80% · 0 improved · 1 regressed', 'Not reviewed'],
+    ['Sales follow-up · shared-agent check', 'Success rate 67% → 67% · 0 improved · 0 regressed', 'Not reviewed'],
+    ['Invoice review · shared-agent check', 'Policy violations 0 → 0 · 0 improved · 0 regressed', 'Not reviewed'],
+    ['Support triage v2 · shared-agent check', 'Policy violations 0 → 0 · 0 improved · 0 regressed', 'Not reviewed'],
     ['Refund timeout steps', 'Steps per run 8.5 → 9.0 · 2 improved · 0 regressed', 'Needs iteration'],
-    ['Smaller model for refund replies', 'Success rate 100% → 67% · 0 improved · 2 regressed', 'Reject'],
+    ['Smaller model for refund replies', 'Success rate 100% → 67% · 0 improved · 2 regressed · shared workflows: 1 regressed', 'Reject'],
     ['Duplicate-send guard', 'Policy violations 1 → 0 · 1 improved · 0 regressed', 'Pass for demo'],
     ['Meeting scheduling', 'Success rate 100% → 100% · 0 improved · 0 regressed', 'Not reviewed'],
   ]);
@@ -63,9 +67,9 @@ test('the Runs list and the workbench queue show one result line per finished at
 
   await gym.go('#/workbench/exp-029');
   const queue = await gym.ev(`return [...document.querySelectorAll('.wb-qrow')].map(tr => [tr.querySelector('.wb-qtitle span').textContent, tr.querySelector('.wb-qres').innerText.trim().replace(/\\s+/g, ' ')])`);
-  assert.deepEqual(queue.slice(2), [
+  assert.deepEqual(queue.slice(6), [
     ['Refund timeout steps', 'Steps per run 8.5 → 9.0 · 2 improved · 0 regressed Needs iteration View results'],
-    ['Smaller model for refund replies', 'Success rate 100% → 67% · 0 improved · 2 regressed Reject View results'],
+    ['Smaller model for refund replies', 'Success rate 100% → 67% · 0 improved · 2 regressed · shared workflows: 1 regressed Reject View results'],
     ['Duplicate-send guard', 'Policy violations 1 → 0 · 1 improved · 0 regressed Pass for demo View results'],
     ['Meeting scheduling', 'Success rate 100% → 100% · 0 improved · 0 regressed View results'],
   ]);

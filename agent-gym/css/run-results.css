@@ -290,3 +290,8 @@
 .gym-app .run-list__result--green { color: var(--gym-green); }
 .gym-app .run-list__result--amber { color: var(--gym-amber); }
 .gym-app .run-list__result--red { color: var(--gym-red); }
+
+/* Shared-agent checks in the run list, on a run's page and in the acceptance panel */
+.gym-app .run-list__expbody { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gym-app .run-list__impact { font-size: var(--gym-fs-xs); color: var(--gym-primary-ink); }
+.gym-app .run-accept__runs { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 2px; font-size: var(--gym-fs-sm); }

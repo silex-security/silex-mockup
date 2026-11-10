@@ -11,7 +11,7 @@ const STEP_OF_ROUTE = Object.freeze({ workbench: 'configure', 'run-detail': 'run
 /** The attempt the steps point at: the one in the route when it is this experiment's, else the stage attempt. */
 function targetAttempt(state, experimentId, route) {
   const named = state.attempts[route.params.attemptId];
-  return named?.experimentId === experimentId ? named : stageAttempt(state, experimentId);
+  return named?.experimentId === experimentId && !named.impactOf ? named : stageAttempt(state, experimentId);
 }
 
 /**

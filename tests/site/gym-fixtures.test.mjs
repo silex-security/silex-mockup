@@ -90,12 +90,16 @@ test('scenario sets: 3 follow-up, 8 support for each support workflow revision, 
   }
 });
 
-test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 4 completed', () => {
+test('seedState: 1 running at 12/18, 1 queued with 8 scenarios, 4 completed experiment runs and 4 completed shared-agent checks', () => {
   const s = seedState();
-  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 4, cancelled: 0, failed: 0, total: 6 });
+  assert.deepEqual(queueCounts(s), { queued: 1, running: 1, completed: 8, cancelled: 0, failed: 0, total: 10 });
   assert.deepEqual(queueRows(s).map(r => [r.title, r.environmentName, r.scenarioCount, r.status, r.progress.text, r.canViewResults]), [
     ['Sales follow-up · Variant A', 'Sales operations', 3, 'running', '12/18', false],
     ['Support triage comparison', 'Customer support', 8, 'queued', '0/48', false],
+    ['Invoice review · shared-agent check', 'Finance operations', 5, 'completed', '10/10', true],
+    ['Sales follow-up · shared-agent check', 'Sales operations', 3, 'completed', '6/6', true],
+    ['Invoice review · shared-agent check', 'Finance operations', 5, 'completed', '10/10', true],
+    ['Support triage v2 · shared-agent check', 'Customer support', 8, 'completed', '16/16', true],
     ['Refund timeout steps', 'Customer support', 2, 'completed', '8/8', true],
     ['Smaller model for refund replies', 'Customer support', 3, 'completed', '12/12', true],
     ['Duplicate-send guard', 'Sales operations', 3, 'completed', '6/6', true],

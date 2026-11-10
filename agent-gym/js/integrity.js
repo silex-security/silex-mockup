@@ -57,6 +57,8 @@ export function stateProblems(state) {
     const problem = setRefsProblem(state.scenarios, set.scenarioRefs);
     if (problem) out.push(`${key}: ${problem}`);
   }
+  for (const [key, w] of Object.entries(state.workflows))
+    for (const n of w.nodes) if (!state.agents[n.agentId]) out.push(`${key}: ${n.label} names agent ${n.agentId}, which does not exist`);
   out.push(...regressionProblems(state.regression, state.attempts));
   const batchIds = new Set(Array.isArray(state.regression?.batches) ? state.regression.batches.map(b => b?.id) : []);
   const order = state.attemptOrder;
@@ -65,6 +67,7 @@ export function stateProblems(state) {
   for (const [id, a] of Object.entries(state.attempts)) {
     if (a.id !== id) out.push(`${id}: stored under another id`);
     if (!state.experiments[a.experimentId]) out.push(`${id}: experiment does not exist`);
+    if (a.impactOf && !state.experiments[a.impactOf.experimentId]) out.push(`${id}: is an impact run of ${a.impactOf.experimentId}, which does not exist`);
     if (!isObject(a.inputSnapshot) || SNAPSHOT_PARTS.some(k => !isObject(a.inputSnapshot[k])) || !Array.isArray(a.inputSnapshot.scenarios)) out.push(`${id}: no input snapshot`);
     if (!Array.isArray(a.plan)) out.push(`${id}: no plan`);
     if (!Array.isArray(state.executions[id])) out.push(`${id}: no execution list`);

@@ -53,7 +53,7 @@ test('the Runs page reads header, Release gate, Regression, then the queue; the 
 
   await gym.ev(`const s = document.querySelector('[data-focus-key="runs:trigger"]'); s.value = 'change'; s.dispatchEvent(new Event('change', { bubbles: true })); ${frame}`);
   assert.equal(await gym.ev('return location.hash'), '#/runs?status=all&trigger=change');
-  assert.deepEqual(await queueTitles(gym), ['Sales follow-up · Variant A']);
+  assert.deepEqual(await queueTitles(gym), ['Sales follow-up · Variant A', 'Invoice review · shared-agent check', 'Sales follow-up · shared-agent check', 'Invoice review · shared-agent check', 'Support triage v2 · shared-agent check']);
   await gym.go('#/runs?status=all&trigger=manual');
   assert.deepEqual(await queueTitles(gym), ['Support triage comparison', 'Refund timeout steps', 'Smaller model for refund replies', 'Duplicate-send guard', 'Meeting scheduling'], 'the trigger filter survives a refresh');
 
@@ -96,7 +96,7 @@ test('Run regression now adds the batch\'s attempts and a history row, and is he
   const run = await gym.ev('const b = document.querySelector("[data-focus-key=\'reg:run\']"); return [b.getAttribute("aria-disabled"), b.title]');
   assert.deepEqual(run, ['true', 'Regression batch 1 is still running: 0 of 38 runs finished']);
   const history = await gym.ev(`return [...document.querySelectorAll('.run-reg__history tbody tr')].map(tr => [...tr.cells].map(td => td.innerText.trim().replace(/\\s+/g, ' ')))`);
-  assert.deepEqual(history, [['Batch 1 queue seq 7', 'Duplicate-send guard Smaller model for refund replies Refund timeout steps Meeting scheduling 5 skipped', '0/38', '4 running', 'Show runs']]);
+  assert.deepEqual(history, [['Batch 1 queue seq 11', 'Duplicate-send guard Smaller model for refund replies Refund timeout steps Meeting scheduling 5 skipped', '0/38', '4 running', 'Show runs']]);
 
   const row = await gym.ev(`const tr = [...document.querySelectorAll('.run-list__row')].find(r => r.querySelector('td[data-label="Trigger"]').innerText.trim() === 'Regression batch 1'); return tr && tr.querySelector('.run-list__title').textContent`);
   assert.equal(row, 'Duplicate-send guard', 'the first queued attempt of the batch, found by its trigger label');

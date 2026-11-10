@@ -9,7 +9,7 @@ import { icon } from '../components/icons.js';
 import { attemptFacts, resolveAttempt } from '../runs/facts.js';
 import { VERDICT, defaultPairKey, pairKey, pairSides, unresolvedItems, verdictReason } from '../runs/compare.js';
 import { assertionList, finalStateView, nodeLabelsOf, toolRequests, traceList } from '../runs/trace.js';
-import { attemptNotFound, evidenceTag, grid, reviewBadge, runsCrumbs, statusBadges } from '../runs/page.js';
+import { attemptNotFound, evidenceTag, grid, impactNotice, reviewBadge, runsCrumbs, statusBadges } from '../runs/page.js';
 import { stepIndicator } from '../components/steps.js';
 import { experimentSteps } from '../experiments/steps.js';
 
@@ -104,15 +104,18 @@ export function mount(root, ctx) {
     });
   }
 
-  function acceptancePanel(attempt, verdict) {
+  function acceptancePanel(attempt, verdict, state) {
     const def = OBJECTIVES[attempt.inputSnapshot.experiment.objective];
     return panel({
       class: 'run-accept', title: 'Acceptance', subtitle: 'The rules this experiment set before it ran. Nothing is adopted or deployed.',
       actions: badge({ label: verdict.passed ? 'Meets acceptance' : 'Does not meet acceptance', tone: verdict.passed ? 'green' : 'amber', class: 'run-accept__verdict' }),
       children: [
         h('p', { class: 'run-accept__objective' }, h('strong', 'Objective: '), `${def.label}. ${def.hint}`),
-        h('ul', { class: 'run-accept__checks', 'aria-label': 'Acceptance checks' }, verdict.checks.map(c => h('li', { class: `run-accept__check${c.passed ? '' : ' is-failed'}`, dataset: { check: c.id, passed: String(c.passed) } },
-          icon(c.passed ? 'check-circle' : 'alert', { size: 16 }), h('span', { class: 'run-accept__text' }, h('span', { class: 'run-accept__label' }, c.label), h('span', { class: 'run-accept__detail' }, c.detail)),
+        h('ul', { class: 'run-accept__checks', 'aria-label': 'Acceptance checks' }, verdict.checks.map(c => h('li', { class: `run-accept__check${c.passed ? '' : ' is-failed'}`, dataset: { check: c.id, passed: String(c.passed), ...(c.state && { state: c.state }) } },
+          icon(c.passed ? 'check-circle' : 'alert', { size: 16 }), h('span', { class: 'run-accept__text' }, h('span', { class: 'run-accept__label' }, c.label), h('span', { class: 'run-accept__detail' }, c.detail),
+            c.runs?.length > 0 && h('span', { class: 'run-accept__runs' }, c.runs.map(r => h('a', {
+              href: router.href(state.attempts[r.attemptId].status === 'completed' ? 'results' : 'run-detail', { experimentId: attempt.experimentId, attemptId: r.attemptId }), dataset: { focusKey: `res:impact:${r.attemptId}` },
+            }, `${r.name} run`)))),
           h('span', { class: 'gym-sr' }, c.passed ? ' Passed' : ' Not passed')))),
       ],
     });
@@ -196,6 +199,7 @@ export function mount(root, ctx) {
         meta: statusBadges(facts),
       }),
       stepIndicator({ steps: experimentSteps(state, attempt.experimentId, route), router }),
+      impactNotice(router, attempt),
       facts.live && notice({
         tone: 'warning', class: 'run-notice', title: `Still ${facts.status}.`,
         text: `This is a partial comparison of ${facts.progress.done} of ${facts.progress.total} executions. It reads Inconclusive until every pair is complete.`,
@@ -203,7 +207,7 @@ export function mount(root, ctx) {
       }),
       verdictPanel(attempt, comparison, executions, facts),
       grid('62fr 38fr', [h('div', { class: 'gym-stack' }, scenarioPanel(attempt, comparison, facts, chosen), unresolvedPanel(attempt, comparison, executions)),
-        h('div', { class: 'gym-stack' }, acceptancePanel(attempt, acceptanceVerdict(state, attempt.id)), reviewPanel(attempt, comparison, facts))], 'run-cols'),
+        h('div', { class: 'gym-stack' }, acceptancePanel(attempt, acceptanceVerdict(state, attempt.id), state), reviewPanel(attempt, comparison, facts))], 'run-cols'),
       pairPanel(attempt, executions, comparison, chosen),
     ];
   };

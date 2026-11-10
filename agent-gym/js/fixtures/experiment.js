@@ -13,5 +13,5 @@ export const INVOICE = { workflow: { id: 'wf-invoice-review' }, variant: 'varian
 export const experiment = (id, number, title, { workflow, variant, environment, set, scenarios, repetitions, revision, objective = 'success', acceptance = { noRegression: true, minImprovedPairs: 1 }, source, saved = true }) => ({
   id, number, title, draftRevision: revision, savedRevision: saved ? revision : null,
   workflowRef: { id: workflow.id, rev: workflow.rev ?? '1' }, variantId: variant, environmentRef: environment, scenarioSetRef: { id: set.id, rev: set.rev ?? '1' },
-  selectedScenarioIds: scenarios, repetitions, objective, acceptance, source,
+  selectedScenarioIds: scenarios, repetitions, objective, acceptance: { noSharedRegression: true, ...acceptance }, source,
 });

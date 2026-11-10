@@ -297,3 +297,34 @@
 .gym-app .wb-qsummary--green { color: var(--gym-green); }
 .gym-app .wb-qsummary--amber { color: var(--gym-amber); }
 .gym-app .wb-qsummary--red { color: var(--gym-red); }
+
+/* Shared agents: the impact panel and the chip in the What changes strip */
+.gym-app .wb-chip-shared { margin-left: 8px; vertical-align: middle; font-weight: 600; }
+.gym-app .wb-impact { margin-bottom: 12px; padding: 12px 16px; display: grid; gap: 8px; }
+.gym-app .wb-impact--none { display: block; }
+.gym-app .wb-impact__empty { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: var(--gym-muted); font-size: var(--gym-fs-md); }
+.gym-app .wb-impact__head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.gym-app .wb-impact__title { font-size: var(--gym-fs-lg); font-weight: 600; }
+.gym-app .wb-impact__lead { margin: 0; color: var(--gym-muted); font-size: var(--gym-fs-sm); max-width: 90ch; }
+.gym-app .wb-impact__agents { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; padding: 0; list-style: none; font-size: var(--gym-fs-sm); }
+.gym-app .wb-impact__agents code, .gym-app .wb-impact__table code { font-family: var(--gym-mono); font-size: var(--gym-fs-xs); }
+.gym-app .wb-impact__wrap { max-width: 100%; overflow-x: auto; }
+.gym-app .wb-impact__table { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-sm); }
+.gym-app .wb-impact__table th, .gym-app .wb-impact__table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--gym-line); vertical-align: top; }
+.gym-app .wb-impact__table thead th { color: var(--gym-ink-2); font-size: var(--gym-fs-xs); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.gym-app .wb-impact__table tbody th { font-weight: 600; }
+.gym-app .wb-impact__table tbody tr:last-child > * { border-bottom: 0; }
+.gym-app .wb-impact__result { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.gym-app .wb-impact__line--green { color: var(--gym-green); }
+.gym-app .wb-impact__line--red { color: var(--gym-red); font-weight: 600; }
+.gym-app .wb-impact__reason { color: var(--gym-muted); overflow-wrap: anywhere; }
+.gym-app .wb-impact__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.gym-app .wb-impact__count, .gym-app .wb-impact__why { color: var(--gym-muted); font-size: var(--gym-fs-sm); }
+.gym-app .wb-impact__foot .wb-flash { flex-basis: 100%; margin: 0; }
+.gym-app .wb-qimpact { margin-left: 8px; }
+@media (max-width: 767.98px) {
+  .gym-app .wb-impact__table thead { display: none; }
+  .gym-app .wb-impact__table, .gym-app .wb-impact__table tbody, .gym-app .wb-impact__table tr, .gym-app .wb-impact__table th, .gym-app .wb-impact__table td { display: block; }
+  .gym-app .wb-impact__table tr { padding: 6px 0; border-bottom: 1px solid var(--gym-line); }
+  .gym-app .wb-impact__table th, .gym-app .wb-impact__table td { border: 0; padding: 2px 0; }
+}

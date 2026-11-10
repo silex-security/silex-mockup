@@ -40,7 +40,10 @@ export function mount(root, ctx) {
     const detail = router.href('run-detail', params);
     return h('tr', { class: 'run-list__row', dataset: { attempt: r.attemptId, status: r.status }, onClick: e => { if (!e.target.closest('a, button')) router.go('run-detail', params); } },
       cell('Experiment', h('span', { class: 'run-list__exp' }, icon('workflow', { size: 18 }),
-        h('a', { href: detail, class: 'run-list__title', dataset: { focusKey: `runs:open:${r.attemptId}` } }, r.title))),
+        h('span', { class: 'run-list__expbody' },
+          h('a', { href: detail, class: 'run-list__title', dataset: { focusKey: `runs:open:${r.attemptId}` } }, r.title),
+          r.impactOf && h('span', { class: 'run-list__impact' }, 'Shared check for ',
+            h('a', { href: router.href('workbench', { experimentId: r.impactOf.experimentId }), dataset: { focusKey: `runs:impact:${r.attemptId}` } }, r.impactOf.experimentId))))),
       cell('Trigger', triggerBadge(r.trigger)),
       cell('Frozen revision', h('span', { class: 'gym-mono run-list__rev' }, r.label)),
       cell('Environment', h('span', { class: 'run-list__env' }, icon(r.environmentIcon, { size: 18 }), r.environmentName)),

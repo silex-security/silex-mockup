@@ -23,17 +23,21 @@ test('an attempt enqueued without a trigger is a manual run, and a given trigger
   assert.deepEqual(changed.attempts[changed.attemptOrder[0]].trigger, change);
 });
 
-test('the seeded Sales follow-up attempt is a change on Draft email; the others were started by hand', () => {
+test('the seeded Sales follow-up attempt is a change on Draft email, the shared-agent checks are changes of their own, the others were started by hand', () => {
   const rows = queueRows(seedState()).map(r => [r.title, r.trigger.kind, r.trigger.label]);
   assert.deepEqual(rows, [
     ['Sales follow-up · Variant A', 'change', 'Model configuration change on Draft email'],
     ['Support triage comparison', 'manual', 'Manual run'],
+    ['Invoice review · shared-agent check', 'change', 'Shared agent change from exp-025: Correspondence agent'],
+    ['Sales follow-up · shared-agent check', 'change', 'Shared agent change from exp-025: Correspondence agent'],
+    ['Invoice review · shared-agent check', 'change', 'Shared agent change from exp-024: Correspondence agent'],
+    ['Support triage v2 · shared-agent check', 'change', 'Shared agent change from exp-024: Correspondence agent'],
     ['Refund timeout steps', 'manual', 'Manual run'],
     ['Smaller model for refund replies', 'manual', 'Manual run'],
     ['Duplicate-send guard', 'manual', 'Manual run'],
     ['Meeting scheduling', 'manual', 'Manual run'],
   ]);
-  assert.deepEqual(attemptsByStatus(seedState(), 'all', 'change').map(r => r.attemptId), ['attempt-002']);
+  assert.deepEqual(attemptsByStatus(seedState(), 'all', 'change').map(r => r.attemptId).sort(), ['attempt-002', 'attempt-007', 'attempt-008', 'attempt-009', 'attempt-010']);
   assert.deepEqual(attemptsByStatus(seedState(), 'running', 'manual'), []);
 });
 
@@ -45,8 +49,8 @@ test('saved data from before triggers and regression loads in local mode and rea
   assert.deepEqual({ mode: store.persistence.mode, error: store.persistence.error }, { mode: 'local', error: null });
   const state = store.getState();
   assert.equal(state.experiments['exp-029'].title, 'Experiment 029', 'the saved state was loaded, not re-seeded');
-  assert.deepEqual(Object.values(state.attempts).map(triggerOf), Array(6).fill({ kind: 'manual', label: 'Manual run' }));
-  assert.equal(attemptsByStatus(state, 'all', 'manual').length, 6);
+  assert.deepEqual(Object.values(state.attempts).map(triggerOf), Array(10).fill({ kind: 'manual', label: 'Manual run' }));
+  assert.equal(attemptsByStatus(state, 'all', 'manual').length, 10);
 });
 
 test('a saved trigger of an unknown kind, or naming a missing regression batch, is refused at load', () => {

@@ -80,11 +80,11 @@ test('the result summary is read from the comparison, and absent until an attemp
 test('the acceptance verdict lists a check for each rule the experiment set, and passes only when all hold', () => {
   let s = finish(ok(enqueueAttempt(fixtureState(), { experimentId: 'exp-029', idempotencyKey: 'a' })), 'attempt-001');
   const verdict = acceptanceVerdict(s, 'attempt-001');
-  assert.deepEqual(verdict.checks.map(c => c.id), ['complete', 'no-regression', 'min-improved', 'objective']);
+  assert.deepEqual(verdict.checks.map(c => c.id), ['complete', 'no-regression', 'min-improved', 'objective', 'shared-agents']);
   assert.ok(verdict.checks.every(c => c.label && c.detail));
   assert.equal(verdict.passed, verdict.checks.every(c => c.passed));
 
-  s = ok(setExperimentSettings(fixtureState(), { experimentId: 'exp-027', noRegression: false, minImprovedPairs: 0 }));
+  s = ok(setExperimentSettings(fixtureState(), { experimentId: 'exp-027', noRegression: false, minImprovedPairs: 0, noSharedRegression: false }));
   s = finish(ok(enqueueAttempt(s, { experimentId: 'exp-027', idempotencyKey: 'b' })), 'attempt-001');
   assert.deepEqual(acceptanceVerdict(s, 'attempt-001').checks.map(c => c.id), ['complete', 'objective'], 'rules switched off are not checked');
 
@@ -126,7 +126,7 @@ test('setExperimentSettings is a draft edit: it bumps the draft revision and rej
   const s0 = fixtureState();
   const rev = s0.experiments['exp-029'].draftRevision;
   const s1 = ok(setExperimentSettings(s0, { experimentId: 'exp-029', objective: 'steps', noRegression: false, minImprovedPairs: 4 }));
-  assert.deepEqual([s1.experiments['exp-029'].objective, s1.experiments['exp-029'].acceptance], ['steps', { noRegression: false, minImprovedPairs: 4 }]);
+  assert.deepEqual([s1.experiments['exp-029'].objective, s1.experiments['exp-029'].acceptance], ['steps', { noRegression: false, minImprovedPairs: 4, noSharedRegression: true }]);
   assert.equal(s1.experiments['exp-029'].draftRevision, rev + 1);
   assert.equal(ok(setExperimentSettings(s1, { experimentId: 'exp-029', objective: 'steps' })), s1, 'no change, no new revision');
   assert.equal(setExperimentSettings(s0, { experimentId: 'exp-029', objective: 'latency' }).error.code, 'invalid_objective');

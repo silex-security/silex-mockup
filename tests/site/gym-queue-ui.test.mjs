@@ -53,7 +53,7 @@ test('the app opens on the experiment queue: four cards, counted tabs, and one r
   assert.equal(byId['exp-027'].action, '#/experiments/exp-027/attempts/attempt-001/results');
   assert.equal(byId['exp-024'].action, '#/experiments/exp-024/attempts/attempt-004/results');
   assert.match(byId['exp-029'].cells['Progress or result'], /12\/18/);
-  assert.match(byId['exp-025'].cells['Progress or result'], /Success rate 100% → 67% · 0 improved · 2 regressed Reject/);
+  assert.match(byId['exp-025'].cells['Progress or result'], /Success rate 100% → 67% · 0 improved · 2 regressed · shared workflows: 1 regressed Reject/);
   assert.match(byId['exp-024'].cells['Progress or result'], /Policy violations 1 → 0 · 1 improved · 0 regressed Pass for demo/);
   assert.match(byId['exp-024'].cells.Source, /Speedrun Speedrun trace: duplicate follow-up emails/);
   assert.match(byId['exp-031'].cells.Experiment, /Meeting scheduling/, 'the workflow sits under the name');
