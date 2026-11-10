@@ -1,12 +1,14 @@
 // Agent Gym v2 shell: header, page frame, routing and the view lifecycle (docs/agent-gym-v2-contract.md).
 // Tests and tools/gym-shot.mjs wait for window.__gym.ready.
+// A view's mount ctx also carries setLeaveGuard({ pending, apply, discard }): while pending() names something, a route
+// change to another view is held and the shell asks Keep editing, Discard and leave or Apply and leave.
 import { seedState } from './fixtures/index.js';
 import { startScheduler } from './simulation/scheduler.js';
 import { createStore } from './store.js';
 import { createRouter } from './router.js';
 import { h } from './components/dom.js';
 import { icon, logoMark } from './components/icons.js';
-import { notice, popoverMenu, confirmDialog } from './components/ui.js';
+import { button, notice, popoverMenu, confirmDialog, openDialog } from './components/ui.js';
 import * as workbench from './views/workbench.js';
 import * as environmentLibrary from './views/environment-library.js';
 import * as environmentBuilder from './views/environment-builder.js';
@@ -97,15 +99,45 @@ function renderBanners() {
 }
 
 let mounted = null;
+// The mounted view's { pending() -> name | null, apply() -> boolean, discard() }, consulted before the route leaves it.
+let leaveGuard = null, asking = false;
+
+function askToLeave(guard, pending, proceed) {
+  asking = true;
+  openDialog({
+    title: `Leave with unapplied changes to ${pending}?`,
+    description: 'They are not part of the draft yet. Apply them as one undoable change, discard them, or keep editing.',
+    actions: close => [
+      button({ label: 'Keep editing', onClick: () => close(), autofocus: true }),
+      button({ label: 'Discard and leave', onClick: () => close('discard') }),
+      button({ label: 'Apply and leave', variant: 'primary', onClick: () => close('apply') }),
+    ],
+    onClose: choice => {
+      asking = false;
+      if (choice === 'discard') { guard.discard(); proceed(); } else if (choice === 'apply' && guard.apply()) proceed();
+    },
+  });
+}
+
+router.setLeaveGuard((next, proceed) => {
+  if (asking) return true;
+  const pending = mounted && next.name !== mounted.name ? leaveGuard?.pending() : null;
+  if (!pending) return false;
+  askToLeave(leaveGuard, pending, proceed);
+  return true;
+});
+
 function show(route) {
   const entry = VIEWS[route.name];
   document.title = `${entry.title} · Agent Gym · SILEX`;
   if (mounted?.name === route.name) { mounted.handle.update(route); return; }
   const first = !mounted;
   mounted?.handle.destroy();
+  leaveGuard = null;
   main.replaceChildren();
   window.scrollTo(0, 0);
-  mounted = { name: route.name, handle: entry.view.mount(main, { store, router, announce, route }) };
+  const setLeaveGuard = guard => { leaveGuard = guard; };
+  mounted = { name: route.name, handle: entry.view.mount(main, { store, router, announce, route, setLeaveGuard }) };
   if (!first) { main.focus({ preventScroll: true }); announce(entry.title); }
 }
 

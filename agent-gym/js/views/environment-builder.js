@@ -643,6 +643,12 @@ export function mount(root, ctx) {
   }
 
   const view = mountView(root, render, store);
+  const dirtyComponent = () => (working ? draftNow()?.components.find(c => c.id === working.componentId && isDirty(c)) : null);
+  ctx.setLeaveGuard({
+    pending: () => dirtyComponent()?.name ?? null,
+    apply: () => { const c = dirtyComponent(); return !c || applyWorking(c); },
+    discard: () => { working = null; },
+  });
   // On an in-app navigation the shell has just focused the main region (root) to announce the new page; that wins.
   if (route.query.focus === 'describe') queueMicrotask(() => { if (document.activeElement !== root) root.querySelector('[data-focus-key="env:message"]')?.focus(); });
 
