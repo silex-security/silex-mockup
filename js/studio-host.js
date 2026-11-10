@@ -85,7 +85,8 @@ function deepLink() {
 
 window.studioShown = studioShown;
 window.openStudio = openStudio;
-window.studioHostReady = () => { render(); deepLink(); };
+/* On a fresh load of #view=blueprint the site's showView ran before this module defined studioShown, so open it here. */
+window.studioHostReady = () => { render(); deepLink(); if (document.getElementById('blueprint')?.classList.contains('active')) studioShown(); };
 window.addEventListener('storage', e => { if (!e.key || e.key.startsWith('bs.')) render(); });
 window.addEventListener('hashchange', deepLink);
 document.addEventListener('click', e => { if (e.target.closest('.nav button, [data-go], [data-jump]')) setTimeout(render, 0); });
