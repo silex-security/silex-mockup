@@ -27,13 +27,18 @@ export function draftStatus(draft) {
   return report && report.digest === behaviourDigest(draft) ? report.status : 'draft';
 }
 
-export const dedupAssumptionId = componentId => `dedup-${componentId}`;
+export const DERIVED_ASSUMPTION_PREFIX = 'dedup-';
+export const dedupAssumptionId = componentId => `${DERIVED_ASSUMPTION_PREFIX}${componentId}`;
 
-/** A Custom adapter is a behavior claim, so each one carries a pending assumption until someone confirms it. */
+/**
+ * A Custom adapter is a behavior claim, so each one carries a pending assumption until someone confirms it. The derived
+ * id is reserved: only a pending or confirmed behavior assumption of a Custom adapter component may hold it.
+ */
 function syncDedupAssumptions(content) {
   const custom = content.components.filter(c => c.dedup === 'custom_adapter');
-  const isDedup = a => a.id === dedupAssumptionId(a.componentId);
-  const kept = content.assumptions.filter(a => !isDedup(a) || custom.some(c => c.id === a.componentId));
+  const derived = a => a.id.startsWith(DERIVED_ASSUMPTION_PREFIX);
+  const legit = a => a.kind === 'behavior' && custom.some(c => a.id === dedupAssumptionId(c.id) && a.componentId === c.id);
+  const kept = content.assumptions.filter(a => !derived(a) || legit(a));
   const added = custom.filter(c => !kept.some(a => a.id === dedupAssumptionId(c.id)))
     .map(c => ({ id: dedupAssumptionId(c.id), componentId: c.id, text: DEDUP_ASSUMPTION_TEXT(c.name), kind: 'behavior', state: 'pending' }));
   return added.length || kept.length !== content.assumptions.length ? { ...content, assumptions: [...kept, ...added] } : content;
@@ -120,8 +125,9 @@ export const COMMANDS = Object.freeze({
     if (!a || a.kind !== 'behavior') return fail('assumption_missing', `No behavior assumption ${assumptionId}`);
     return { ...content, assumptions: content.assumptions.map(x => x.id === assumptionId ? { ...x, state: 'confirmed' } : x) };
   },
+  /** Imported notes stay; behavior assumptions are never imported, so every derived one starts pending. */
   importFixture(content, { content: imported }) {
-    return clone(imported);
+    return { ...clone(imported), assumptions: clone(imported.assumptions).filter(a => a.kind === 'info' && !a.id.startsWith(DERIVED_ASSUMPTION_PREFIX)) };
   },
   batch(content, { commands }) {
     let next = content;

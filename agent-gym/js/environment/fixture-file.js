@@ -2,6 +2,7 @@
 // The boundary for the attach button: a local JSON fixture file is parsed into draft content with strict field,
 // size and enum limits. Nothing is uploaded and nothing connects; the result only becomes an importFixture command.
 import { DEDUP_LABEL, FAILURE_LABEL, LINK_FIELDS, PERMISSION_LABEL } from './catalog.js';
+import { DERIVED_ASSUMPTION_PREFIX } from './commands.js';
 
 export const FIXTURE_LIMITS = Object.freeze({ bytes: 64 * 1024, components: 12, tools: 12, relations: 24, assumptions: 24, text: 200 });
 
@@ -73,8 +74,8 @@ export function parseEnvironmentFixture(source, byteLength = source.length) {
   const assumptions = raw.assumptions ?? [];
   if (!Array.isArray(assumptions) || assumptions.length > FIXTURE_LIMITS.assumptions) errors.push(`assumptions must list at most ${FIXTURE_LIMITS.assumptions} items`);
   const parsedAssumptions = (Array.isArray(assumptions) ? assumptions.slice(0, FIXTURE_LIMITS.assumptions) : []).map((a, i) => {
-    const ok = isObject(a) && ID.test(a.id ?? '') && text(a.text) && ['info', 'behavior'].includes(a.kind) && (a.componentId == null || ids.includes(a.componentId));
-    if (!ok) { errors.push(`assumptions[${i}] needs an id, text, kind "info" or "behavior", and a listed componentId or null`); return null; }
+    const ok = isObject(a) && ID.test(a.id ?? '') && !a.id.startsWith(DERIVED_ASSUMPTION_PREFIX) && text(a.text) && a.kind === 'info' && (a.componentId == null || ids.includes(a.componentId));
+    if (!ok) { errors.push(`assumptions[${i}] needs an id not starting with "${DERIVED_ASSUMPTION_PREFIX}", text, kind "info", and a listed componentId or null; behavior assumptions come from the components`); return null; }
     return { id: a.id, componentId: a.componentId ?? null, text: a.text, kind: a.kind, state: 'pending' };
   }).filter(Boolean);
   if (errors.length) return { ok: false, errors: errors.slice(0, 12) };
