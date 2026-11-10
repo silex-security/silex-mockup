@@ -258,3 +258,21 @@ test('prefers-reduced-motion turns shell transitions off', async t => withGym(t,
   await gym.page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
   assert.equal(await gym.ev(duration), '0s');
 }));
+
+test('the memory-mode banner offers Reset demo data, and after Dismiss a quiet marker beside the preview marker says nothing is saved', async t => withGym(t, async gym => {
+  await gym.ev(`localStorage.setItem(${KEY}, '{broken');`);
+  await gym.go('#/workbench/exp-029');
+  const marks = `[...document.querySelectorAll('.gym-foot > *')].map(el => el.textContent)`;
+  const banner = await gym.ev(`const el = document.querySelector('.gym-persistence'); return { buttons: [...el.querySelectorAll('button')].map(b => b.textContent || b.getAttribute('aria-label')), marks: ${marks} }`);
+  assert.deepEqual(banner, { buttons: ['Reset demo data', 'Dismiss'], marks: ['Concept preview · Simulated data'] });
+
+  await gym.ev(`document.querySelector('.gym-persistence [aria-label="Dismiss"]').click()`);
+  const dismissed = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode }`);
+  assert.deepEqual(dismissed, { banner: false, marks: ['Concept preview · Simulated data', 'Not saving · memory only'], mode: 'memory' });
+
+  await gym.go('#/workbench/exp-029');
+  await gym.ev(`[...document.querySelectorAll('.gym-persistence button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}
+    [...document.querySelectorAll('dialog.gym-dialog button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}`);
+  const reset = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode, saved: JSON.parse(localStorage.getItem(${KEY})).schemaVersion }`);
+  assert.deepEqual(reset, { banner: false, marks: ['Concept preview · Simulated data'], mode: 'local', saved: 2 });
+}));
