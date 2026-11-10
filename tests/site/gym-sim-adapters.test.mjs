@@ -104,3 +104,10 @@ test('overrideProblem accepts the documented overrides and rejects unknown ones'
   ];
   for (const o of bad) assert.ok(overrideProblem(sales, o), JSON.stringify(o));
 });
+
+test('a permission override names a write tool; on a read tool it would be ignored, so it is rejected', () => {
+  for (const value of ['denied', 'requires_approval', 'allowed']) {
+    const problem = overrideProblem(sales, { kind: 'permission', target: 'salesforce.find_opportunity', value });
+    assert.match(problem ?? '', /read tool/, value);
+  }
+});
