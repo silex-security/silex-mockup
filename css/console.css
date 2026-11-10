@@ -520,3 +520,45 @@
 .nav button[data-view="runtime-observation"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h4l3-8 4 16 3-8h4'/%3E%3C/svg%3E")}
 .nav button[data-view="incidents"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.5 20h19zM12 10v4M12 17.2v.1'/%3E%3C/svg%3E")}
 .nav button[data-view="speedrun"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7z'/%3E%3C/svg%3E")}
+
+/* Platform home. A dark hero that carries the headline, a drawing of the four ontology tiers and the four figures. */
+#assurance .as-hero{position:relative;overflow:hidden;border-radius:var(--radius);padding:44px 44px 0;color:#fff;background:radial-gradient(760px 380px at 88% 8%,rgba(113,138,255,.34),transparent 62%),radial-gradient(520px 300px at 0% 100%,rgba(154,114,212,.16),transparent 70%),linear-gradient(135deg,var(--nav-deep),var(--nav))}
+#assurance .as-hero .title-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:36px;align-items:center;margin-bottom:34px}
+#assurance .as-hero h1{font-size:clamp(30px,3.6vw,44px);line-height:1.06;letter-spacing:-.03em;margin:.35em 0 .35em;max-width:17ch}
+#assurance .as-hero .as-eyebrow{color:var(--blue-line)}
+#assurance .as-hero .as-lede{color:var(--nav-text);max-width:56ch}
+#assurance .as-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+#assurance .as-actions{align-items:center}
+#assurance .as-actions .btn{padding:12px 18px;font-size:var(--text-md);border:1px solid transparent;margin:0}
+#assurance .as-actions .btn.ghost{border-color:rgba(255,255,255,.22)}
+.btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.22)}
+.btn.ghost:hover{background:rgba(255,255,255,.14)}
+#assurance .as-graph{width:100%;height:auto;display:block}
+.as-graph .hg-tier{stroke:rgba(255,255,255,.07);stroke-width:1;stroke-dasharray:2 5}
+.as-graph .hg-label{fill:var(--nav-muted);font-family:var(--mono);font-size:var(--text-sm);font-weight:600}
+.as-graph .hg-edge{stroke:rgba(255,255,255,.16);stroke-width:1}
+.as-graph .hg-path{stroke:var(--blue);stroke-width:2}
+.as-graph .hg-node{fill:var(--nav-muted)}
+.as-graph .hg-node.hot{fill:var(--blue);stroke:rgba(113,138,255,.3);stroke-width:8}
+#assurance .as-hero .as-kpis{margin:0 -44px;padding:0 28px;gap:0;border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+#assurance .as-hero .as-kpi{background:none;border:0;border-radius:0;box-shadow:none;padding:20px 16px;border-left:1px solid rgba(255,255,255,.1)}
+#assurance .as-hero .as-kpi:first-child{border-left:0}
+#assurance .as-hero .as-kpi .v{font-size:var(--text-4xl);line-height:1.1}
+#assurance .as-hero .as-kpi .l{color:var(--nav-text)}
+#assurance .as-hero .as-kpi .d.up{color:var(--nav-green)}
+#assurance .as-hero .as-kpi .d.down{color:var(--nav-amber)}
+#assurance .as-hero .as-kpi .d.flat{color:var(--nav-muted)}
+#assurance .as-sec{margin-top:48px}
+#assurance .as-sechead{align-items:flex-start;gap:14px;margin-bottom:16px}
+#assurance .as-sechead h2{font-size:var(--text-2xl);letter-spacing:-.02em}
+#assurance .as-sn{background:var(--lav);color:var(--blue2);border-radius:var(--r-sm);padding:5px 8px;line-height:1}
+#assurance .as-card,.suite-card,.suite-band{box-shadow:var(--shadow-sm)}
+#assurance .en-card{padding:18px;border-top:3px solid var(--blue-line-soft)}
+#assurance .en-card .as-open{border:0;background:none;padding:0;width:auto;justify-content:flex-start;text-align:left;margin-top:6px}
+#assurance .en-card .as-open::after{content:"→"}
+#assurance .en-card .as-open:hover{color:var(--blue3)}
+#assurance .as-wm{grid-template-columns:1.15fr 1fr;align-items:start}
+#assurance .recon-assurance-link{margin:12px 0 0;font-size:var(--text-sm)}
+#assurance .recon-assurance-link a{color:var(--blue2);font-weight:600}
+@media(max-width:1100px){#assurance .as-hero .title-row{grid-template-columns:1fr}#assurance .as-graph{display:none}#assurance .as-wm{grid-template-columns:1fr}}
+@media(max-width:760px){#assurance .as-hero{padding:28px 20px 0}#assurance .as-hero .as-kpis{margin:0 -20px;padding:0 8px}#assurance .as-hero .as-kpi:nth-child(3){border-left:0}}
