@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openGym } from '../../tools/gym-shot.mjs';
+import { until } from './ontology-card/browser.mjs';
 
 async function withGym(t, fn) {
   let gym;
@@ -70,8 +71,8 @@ test('Check shared workflows: pressing twice queues once, the scheduler runs the
   assert.deepEqual((await impactAttempts(gym)).map(a => a[0]).sort(), ['Invoice review', 'Support triage v2'], 'two presses, one check per workflow');
   assert.deepEqual((await impactRows(gym)).map(r => r[1]).sort(), ['queued', 'queued']);
   assert.equal(await gym.ev(`return document.querySelector('[data-focus-key="wb:impact-check"]').getAttribute('aria-disabled')`), 'true', 'the button is held while the check is queued');
-  await gym.ev(`const until = Date.now() + 90000;
-    while (Date.now() < until) { const s = window.__gym.store.getState(); const a = Object.values(s.attempts); if (a.filter(x => x.impactOf).length >= 6 && a.every(x => !['queued', 'running'].includes(x.status))) break; await new Promise(r => setTimeout(r, 500)); }`);
+  // Polled from here in short calls: one browser call is cut off at 30 s, about what the scheduler needs.
+  await until(() => gym.ev(`const a = Object.values(window.__gym.store.getState().attempts); return a.filter(x => x.impactOf).length >= 6 && a.every(x => !['queued', 'running'].includes(x.status))`), 'the scheduler finishes the impact runs', 90000);
   assert.deepEqual((await impactAttempts(gym)).map(a => a[1]), ['completed', 'completed']);
   assert.deepEqual((await impactRows(gym)).map(r => r[1]).sort(), ['done', 'done']);
 
