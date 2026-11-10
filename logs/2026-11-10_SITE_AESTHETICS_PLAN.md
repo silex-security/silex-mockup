@@ -1,6 +1,6 @@
 # Site aesthetics plan
 
-Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 and P1 are built. P2 is built and waits for review.
+Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 and P1 are built. P2 and P3 are built and wait for review.
 
 The demo console (`index.html`) grew view by view and has no shared visual system. This plan gives it one, then applies it to the shell, the Platform home and the data views. A visitor sees one product instead of five pages. A maintainer changes a colour or a type size in one file.
 
@@ -57,6 +57,7 @@ One PR per phase, stacked in this order. Each ends in the checks under Verificat
 - Give the hero a visual (the lifecycle rail as a diagram) and a clear primary action.
 - Vary section weight so 01 to 04 do not read as four identical grids. Fill or remove the empty column.
 - Review gate: before and after screenshots.
+- Built, waiting for review. The hero is a dark band with the headline, a drawing of the four ontology tiers with one path lit, two actions and the four figures as one strip. Section numbers are chips, the five outcome cards end in text links, and the evidence section is two even columns with the I-1042 link inside the first card. After shots are in `logs/site-aesthetics-2026-11-10/p3-1440/`.
 
 ### P4. Embedded app frames
 
