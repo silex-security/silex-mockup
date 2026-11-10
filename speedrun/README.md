@@ -40,9 +40,19 @@ The upstream root layout is not used. `web/index.html` carries its theme script,
 `js/speedrun-host.js` mirrors the app's route in the demo URL as `#view=speedrun&path=<route>`, with the route URL-encoded. A reload or a shared link reopens that screen. Examples:
 
 - `index.html#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund%2Ftrace` opens the Refund Team trace replay.
-- `index.html#view=speedrun&path=%2Fgym` opens the Agent Gym experiment queue.
 
 The overview is plain `#view=speedrun`. What a visitor created is not in the URL and still resets on reload.
+
+## Links to Agent Gym
+
+Agent Gym is the console's, not this app's. The app still carries its older `app/gym/**` pages, but the shell never renders them. `web/src/gym.js` and the stand-ins send every path under `/gym` to the console instead.
+
+- `next/link` renders a link to `/gym` as `<a href="../../index.html#view=gym" target="_top">`.
+- `useRouter().push('/gym/experiments/<id>')` (the *Send to Agent Gym* button) looks the experiment up in the mock API, builds the handoff id `<team>-<kind of change>` from its team and `<change>-v<id>` variant name, and sets the top window's hash to `#view=gym&path=%2Fhandoff%2Fspeedrun%2F<handoff id>`. An experiment it cannot map (a seeded one) opens `#view=gym`. The page is rebuilt afterwards, so the form is fresh when the visitor returns.
+- A direct hash to `/gym…` (an old shared link) does the same from `resolve()` in `web/src/main.jsx`.
+- The URL is relative to this page, so it also works when the app is opened on its own, where the top window is the app itself.
+
+The handoff ids and the Gym experiment each one creates are in `agent-gym/js/fixtures/handoffs.js`. `tests/site/speedrun-gym-link.test.mjs` checks that every team and kind of change Speedrun can send has a template.
 
 ## Links to the Workflow Library
 
