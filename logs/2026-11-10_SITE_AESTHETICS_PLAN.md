@@ -1,6 +1,6 @@
 # Site aesthetics plan
 
-Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 to P3 are merged. P4 is built.
+Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 to P4 are merged. P5 is built.
 
 The demo console (`index.html`) grew view by view and has no shared visual system. This plan gives it one, then applies it to the shell, the Platform home and the data views. A visitor sees one product instead of five pages. A maintainer changes a colour or a type size in one file.
 
@@ -70,6 +70,9 @@ One PR per phase, stacked in this order. Each ends in the checks under Verificat
 ### P5. Data views
 
 - Workflow Library table, Incidents & Decisions, Runtime Observation, Operations Overview and the World Model side panels move to the shared components. Fix spacing and empty states.
+
+- Built. The codemod now covers `css/rt-*.css` and `swm/css`. The two smallest type steps rose by 1px (`--text-2xs` 10 to 11, `--text-xs` 11 to 12), which cut text under 12px in `css/console.css` from 202 declarations to 121. `tools/site-shot.mjs` also shoots every sub-tab of Runtime Observation, the World Model and Incidents, 22 screens in all. After shots are in `logs/site-aesthetics-2026-11-10/p5-1440/`.
+- Left open. `swm/css/swm.css` keeps 36 raw colours, the palette of the dark ontology canvas. The 121 remaining 11px labels sit mostly in diagrams. KPI cards and badges were already close enough after P1 and P2 that a rewrite did not earn its place. The World Model's left column ends above its right column and leaves a blank area. The Workflow Library table scrolls sideways inside its card at 1280px.
 
 ## Verification, every phase
 

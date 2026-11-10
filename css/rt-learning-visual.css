@@ -4,7 +4,7 @@
 
 .rt-learn-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 6px}
 .rt-learn-ctrl{display:flex;gap:6px;flex-wrap:wrap}
-.rt-learn-ctrl .btn{padding:6px 11px;font-size:12px}
+.rt-learn-ctrl .btn{padding:6px 11px;font-size:var(--text-sm)}
 .rt-learn-ctrl .btn:focus-visible{outline:2px solid var(--blue2);outline-offset:2px}
 
 /* ---- loop ring ---- */
@@ -54,13 +54,13 @@
 #rtLearning .rt-learning-tiles .kicker{margin-bottom:4px}
 #rtLearning .rt-learning-tiles .rt-plain{margin-top:auto;padding-top:4px}
 
-.rt-lbars{display:grid;grid-template-columns:minmax(0,7.5em) minmax(0,1fr) max-content;align-items:center;gap:6px 8px;font-size:12px;margin:2px 0}
+.rt-lbars{display:grid;grid-template-columns:minmax(0,7.5em) minmax(0,1fr) max-content;align-items:center;gap:6px 8px;font-size:var(--text-sm);margin:2px 0}
 .rt-lbars.stack{grid-template-columns:minmax(0,1fr) max-content;row-gap:3px}
 .rt-lbars.stack .rt-lbar-name{grid-column:1/-1;margin-top:4px}
 .rt-lbar-name{color:var(--ink);line-height:1.25;overflow-wrap:anywhere}
-.rt-lbar-val{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:12.5px;white-space:nowrap}
-.rt-lbar-track{position:relative;height:14px;border-radius:4px;background:var(--soft);box-shadow:inset 0 0 0 1px var(--line)}
-.rt-lbar-fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v) * 100%);border-radius:4px;background:var(--muted);opacity:.55;
+.rt-lbar-val{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:var(--text-sm);white-space:nowrap}
+.rt-lbar-track{position:relative;height:14px;border-radius:var(--r-xs);background:var(--soft);box-shadow:inset 0 0 0 1px var(--line)}
+.rt-lbar-fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v) * 100%);border-radius:var(--r-xs);background:var(--muted);opacity:.55;
   transform-origin:left center;transform:scaleX(1);transition:transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
 .rt-lbar-track.after .rt-lbar-fill{background:var(--blue);opacity:1}
 .rt-lbar-track.good .rt-lbar-fill{background:var(--green);opacity:1}
@@ -73,7 +73,7 @@
 .rt-lbar-ci::before{left:0}.rt-lbar-ci::after{right:0}
 /* 0.5 "coin flip" mark on every AUROC track; the axis names it. */
 .rt-lbars.coin .rt-lbar-track::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;border-left:2px dashed var(--ink);opacity:.45}
-.rt-lbar-axis{grid-column:2;position:relative;height:14px;font-size:10.5px;color:var(--muted)}
+.rt-lbar-axis{grid-column:2;position:relative;height:14px;font-size:var(--text-2xs);color:var(--muted)}
 .rt-lbars.stack .rt-lbar-axis{grid-column:1}
 .rt-lbar-axis b{position:absolute;left:calc(var(--at) * 100%);transform:translateX(-50%);font-weight:500;white-space:nowrap}
 .rt-lbar-axis b:first-child{transform:none}
@@ -82,20 +82,20 @@
 [data-state="idle"] .rt-lbar-ci{opacity:0;transition:none}
 
 #rtLearningGate .rt-learn-gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
-.rt-learn-gatecard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
+.rt-learn-gatecard{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;background:var(--panel)}
 .rt-learn-gatecard[data-kind="ran"]{border-color:var(--green)}
 .rt-learn-gatecard[data-kind="blocked"]{border-color:var(--red)}
-.rt-learn-gatehead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;font-size:13.5px}
-.rt-learn-vs{color:var(--muted);font-size:12px}
-.rt-learn-stamp{margin-left:auto;font:800 14px/1 var(--mono);letter-spacing:.12em;padding:5px 9px;border:2.5px solid currentColor;border-radius:6px;
+.rt-learn-gatehead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;font-size:var(--text-base)}
+.rt-learn-vs{color:var(--muted);font-size:var(--text-sm)}
+.rt-learn-stamp{margin-left:auto;font:800 14px/1 var(--mono);letter-spacing:.12em;padding:5px 9px;border:2.5px solid currentColor;border-radius:var(--r-sm);
   transform:rotate(-7deg);color:var(--muted);transition:transform .35s cubic-bezier(.3,1.6,.5,1) var(--d,0ms),opacity .25s var(--d,0ms)}
 .rt-learn-stamp[data-kind="ran"]{color:var(--green);background:var(--green-bg)}
 .rt-learn-stamp[data-kind="blocked"]{color:var(--red);background:var(--red-bg)}
 .rt-learn-stamp[data-kind="review"]{color:var(--amber);background:var(--amber-bg)}
 [data-state="idle"] .rt-learn-stamp{opacity:0;transform:rotate(-7deg) scale(1.8);transition:none}
-#rtLearningGate .rt-learn-gatecard p[data-evidence-gate]{font-size:13px;margin:8px 0 0}
+#rtLearningGate .rt-learn-gatecard p[data-evidence-gate]{font-size:var(--text-base);margin:8px 0 0}
 
-#rtJudgeRealNote h4{margin:0 0 6px;font-size:14px;font-weight:500;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+#rtJudgeRealNote h4{margin:0 0 6px;font-size:var(--text-md);font-weight:500;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
 #rtJudgeRealNote .rt-lbars{max-width:640px}
 #rtJudgeRealNote .rt-lbar-name{color:inherit}
 .rt-learn-unit{font-weight:700;text-decoration:underline dotted;text-underline-offset:3px}

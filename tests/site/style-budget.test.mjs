@@ -1,7 +1,7 @@
 // The console's styles stay on the tokens of css/tokens.css, and the text tokens stay readable.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { tokenize, tokenizeHtml } from '../../tools/codemods/tokenize-css.mjs';
 import { auditCss } from '../../tools/style-audit.mjs';
 
@@ -21,6 +21,13 @@ test('console.css and the style attributes of index.html hold no raw value the c
   assert.equal(tokenizeHtml(html), html, 'run: node tools/codemods/tokenize-css.mjs index.html');
 });
 
+test('the Runtime and World Model stylesheets hold no raw value the codemod knows', async () => {
+  const files = [...(await readdir(new URL('../../css/', import.meta.url))).filter(f => f.startsWith('rt-')).map(f => 'css/' + f), 'swm/css/swm.css', 'swm/css/swm-vowl.css'];
+  const stale = [];
+  for (const file of files) { const css = await read(file); if (tokenize(css) !== css) stale.push(file); }
+  assert.deepEqual(stale, [], 'run: node tools/codemods/tokenize-css.mjs <file>');
+});
+
 test('console.css writes no raw colour except white and no font size in px', async () => {
   const css = (await read('css/console.css')).replace(/\/\*[\s\S]*?\*\//g, '');
   assert.deepEqual([...new Set(css.match(/#[0-9a-f]{3,8}\b/gi))], ['#fff']);
@@ -35,8 +42,9 @@ test('every token console.css uses is defined in css/tokens.css', async () => {
 });
 
 test('text under 12px in console.css does not grow in number', async () => {
-  // 202 when the tokens landed on 2026-11-10. Lower this as views move to the 12px floor. Never raise it.
-  assert.ok(auditCss(await read('css/console.css')).under12px <= 202);
+  // 202 when the tokens landed on 2026-11-10, 121 once --text-xs became 12px. What is left is 11px.
+  // Lower this as views move to the 12px floor. Never raise it.
+  assert.ok(auditCss(await read('css/console.css')).under12px <= 121);
 });
 
 test('text tokens reach 4.5:1 on the surfaces they sit on', () => {
