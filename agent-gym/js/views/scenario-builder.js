@@ -38,12 +38,16 @@ const envRefOf = route => (route.query.environment ? parseRef(route.query.enviro
 const fieldRow = (label, control) =>
   h('div', { class: 'sc-field' }, h('span', { class: 'sc-field__label' }, label), h('div', { class: 'sc-field__control' }, control));
 
-function numberInput({ value, min, max, onChange, ariaLabel, focusKey, disabled, reason }) {
-  return h('span', { class: `gym-input sc-count${disabled ? ' is-disabled' : ''}`, title: disabled ? reason : null },
-    h('input', {
-      class: 'gym-input__control', type: 'number', min, max, step: 1, value: String(value), disabled,
-      'aria-label': ariaLabel, dataset: { focusKey }, onChange: e => onChange(e.target.value),
-    }));
+function numberInput({ value, min, max, onChange, ariaLabel, focusKey, disabled, reason, error, errorId }) {
+  return [
+    h('span', { class: `gym-input sc-count${disabled ? ' is-disabled' : ''}${error ? ' has-error' : ''}`, title: disabled ? reason : null },
+      h('input', {
+        class: 'gym-input__control', type: 'number', min, max, step: 1, value: String(value), disabled,
+        'aria-label': ariaLabel, 'aria-invalid': error ? 'true' : null, 'aria-describedby': error ? errorId : null,
+        dataset: { focusKey }, onChange: e => onChange(e.target.value),
+      })),
+    error && h('span', { id: errorId, class: 'gym-field__error sc-count__error' }, error),
+  ];
 }
 
 /** A rule builder over CHECK_PATHS and CHECK_OPS. Never free text that runs. */
@@ -81,6 +85,7 @@ export function mount(root, ctx) {
   let ensureError = null;
   let chatInput = '';
   let upload = null;
+  let refusedCount = null;
 
   const view = { refresh() {}, destroy() {} };
   const returnTo = () => route.query.returnTo || 'exp-029';
@@ -540,9 +545,15 @@ export function mount(root, ctx) {
           h('div', { class: 'sc-gen__row' },
             h('label', { class: 'sc-gen__inline' }, h('span', { class: 'sc-gen__label' }, 'Count'),
               numberInput({
-                value: settings.count, min: VARIATION_COUNT.min, max: VARIATION_COUNT.max, ariaLabel: `Count, ${VARIATION_COUNT.min} to ${VARIATION_COUNT.max}`, focusKey: 'sc:count',
+                value: refusedCount?.mode === mode ? refusedCount.text : settings.count, min: VARIATION_COUNT.min, max: VARIATION_COUNT.max,
+                ariaLabel: `Count, ${VARIATION_COUNT.min} to ${VARIATION_COUNT.max}`, focusKey: 'sc:count',
                 disabled: !isPrompt, reason: 'One example per type in this dimension.',
-                onChange: v => { if (!dispatch(setGenerator, { dimension: mode, patch: { count: Number(v) } }).ok) view.refresh(); },
+                error: refusedCount?.mode === mode && `Count must be a whole number from ${VARIATION_COUNT.min} to ${VARIATION_COUNT.max}.`, errorId: 'sc-count-error',
+                onChange: v => {
+                  const ok = v.trim() !== '' && dispatch(setGenerator, { dimension: mode, patch: { count: Number(v) } }).ok;
+                  refusedCount = ok ? null : { mode, text: v };
+                  view.refresh();
+                },
               })),
             h('label', { class: 'sc-gen__inline' }, h('span', { class: 'sc-gen__label' }, 'Intensity'),
               ui.select({
