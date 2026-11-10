@@ -1210,13 +1210,14 @@ try {
     await load();await nav('library');
     assert.equal(await ev('return document.querySelectorAll("#libRows [data-speedrun-team]").length'),5,'five registered rows link to a team');
     assert.equal(await ev('return document.querySelector("#libRows [data-open-workflow=\'WF-021\'] td:last-child").textContent'),'—','an unlinked row shows a dash');
+    assert.equal(await ev('return document.querySelector("#libRows [data-speedrun-team=refund]").textContent'),'Refund Team →','the link names the agent team');
     await clickSel('#libRows [data-speedrun-team="refund"]');
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
     await h1('Refund Team');
     assert.equal(await activeView(),'speedrun','the row link does not also open the workflow');
     assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'speedrun','the nav highlights Speedrun');
     await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund"'),'the site URL names the team page');
-    await governance('Workflow WF-014');
+    await governance('Runs workflow WF-014');
     await until(async()=>(await activeView())==='workflow'&&(await ev('return document.getElementById("wfId").textContent'))==='WF-014','the Governance link opens Workflow Detail WF-014');
     assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'library','the nav highlights the Library');
     await se(`location.hash='/gym'`);await h1('Agent Gym');

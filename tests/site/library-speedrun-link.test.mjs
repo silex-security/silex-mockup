@@ -21,9 +21,10 @@ const unregistered = [...between(html, 'const UNREGISTERED=', '\n').matchAll(/\[
 
 const teams = between(fixtures, 'export const teams: AgentTeam[] = [', '\n];').split(/\n  \{\n/).slice(1).map(chunk => {
   const w = chunk.match(/workflow: \{ status: "(registered|unregistered)",(?: id: "([^"]+)",)? name: "([^"]+)" \}/);
-  return { id: chunk.match(/\bid: "([^"]+)"/)[1], members: chunk.match(/members: \[(.*)\],/)[1].split('m("').length - 1, workflow: w && { status: w[1], id: w[2], name: w[3] } };
+  return { id: chunk.match(/\bid: "([^"]+)"/)[1], name: chunk.match(/\bname: "([^"]+)"/)[1], members: chunk.match(/members: \[(.*)\],/)[1].split('m("').length - 1, workflow: w && { status: w[1], id: w[2], name: w[3] } };
 });
 const teamIds = new Set(teams.map(t => t.id));
+const teamNames = Object.fromEntries([...between(html, 'const TEAM_NAMES={', '}').matchAll(/'?([\w-]+)'?:'([^']*)'/g)].map(m => [m[1], m[2]]));
 
 test('the parsers found the data', () => {
   assert.ok(Object.keys(registered).length >= 6 && unregistered.length >= 3 && teams.length >= 6);
@@ -57,4 +58,7 @@ test('every Library entry with a team is the one that team names', () => {
     assert.deepEqual(teams.find(t => t.id === w.team).workflow, { status: 'registered', id, name: w.name }, id);
   for (const u of unregistered.filter(u => u.team))
     assert.equal(teams.find(t => t.id === u.team).workflow?.status, 'unregistered', u.name);
+});
+test('the Library names each Speedrun team as Speedrun does', () => {
+  assert.deepEqual(teamNames, Object.fromEntries(teams.map(t => [t.id, t.name])));
 });

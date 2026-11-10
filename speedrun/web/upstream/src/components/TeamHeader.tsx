@@ -47,7 +47,7 @@ export function TeamHeader({ team, tab, crumb }: { team: AgentTeam; tab: TeamTab
         title={team.workflow.name}
         className="lbl !text-acc-text hover:underline"
       >
-        {team.workflow.status === "registered" ? `Workflow ${team.workflow.id} →` : "Not in the Workflow Library →"}
+        {team.workflow.status === "registered" ? `Runs workflow ${team.workflow.id} →` : "Not in the Workflow Library →"}
       </Link>
       <div className="flex-1" />
       <TeamTabs teamId={team.id} active={tab} />
