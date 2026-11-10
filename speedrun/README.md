@@ -60,4 +60,4 @@ Each team has a required `workflow` field (`registered` with the Library id and 
 
 ## Theme
 
-The app follows the theme saved by its own header toggle. With nothing saved it uses `?theme=dark|light`, then the system setting. The demo passes `?theme=dark`.
+The app uses `?theme=dark|light` when the URL carries it, then the theme saved by its own header toggle, then the system setting. The demo passes `?theme=light` to match the console, and hides the app header, so the toggle exists only when the app runs alone.
