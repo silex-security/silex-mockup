@@ -12,7 +12,7 @@ Agent Gym is a static page at `agent-gym/index.html`. It uses native ES modules 
 | Fixtures | `js/fixtures/*.js` | Pure data builders. `js/fixtures/index.js` exports `seedState()` returning a full `GymState`. |
 | Domain | `js/environment/*`, `js/scenario/*`, `js/simulation/*`, `js/validators.js`, `js/metrics.js`, `js/selectors.js` | Pure functions. No DOM, no storage, no timers (the scheduler is the one exception, see below). |
 | Store | `js/store.js` | The only writer of state and of `localStorage`. |
-| Shell | `js/app.js`, `js/router.js`, `js/components/*`, `css/tokens.css`, `css/shell.css` | Header, routing, shared widgets. |
+| Shell | `js/app.js`, `js/router.js`, `js/sections.js`, `js/components/*`, `css/tokens.css`, `css/shell.css` | Header, section tabs, routing, shared widgets. |
 | Views | `js/views/*.js` with one CSS file per screen | Read through selectors, write through reducers. |
 
 ## State and reducers
@@ -63,6 +63,14 @@ View-only state that must survive a refresh (the selected tab, node, component, 
 ```
 
 The default route is `#/workbench/exp-029`. An unknown route renders a not-found panel with a link back to the workbench.
+
+## Sections and embedding
+
+`js/sections.js` splits the routes into four sections: Workbench (`workbench`), Environments (the environment library, builder and revision), Scenarios (the scenario library, builder and set) and Runs & results (the run list, run detail and results). Each section has a root route. The UI kit and the not-found page belong to no section. A new route joins exactly one section, and `tests/site/gym-host.test.mjs` fails until it does.
+
+The shell shows the four sections as one row of tabs under the header. The tab whose section owns the current route carries `aria-current="page"`.
+
+The SILEX console (`index.html`) shows the app in one iframe behind four views, one per section, through `js/gym-host.js`. It loads `agent-gym/index.html?embed=1`. In embed mode the shell leaves out its product header, because the console has its own, and the preview marker moves from the footer to the end of the section tabs, where it opens a menu with Reset demo data. The console reads `window.__gym.router` to follow navigation inside the app, so a view must change the route only through the router.
 
 ## View interface
 
