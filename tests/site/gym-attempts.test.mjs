@@ -229,3 +229,13 @@ test('a dangling or duplicate scenario ref is a typed error, never a throw', () 
   assert.equal(setScenarioSet(dup, { experimentId: EXP, scenarioSetRef: { id: set.id, rev: set.rev } }).error?.code, 'scenario_set_invalid');
   assert.equal(setScenarioSet(dangling, { experimentId: 'exp-027', scenarioSetRef: { id: 'set-follow-up-resilience', rev: '1' } }).error?.code, 'scenario_set_invalid');
 });
+
+test('only the attempt the queue names next may advance', () => {
+  const s = enqueue(enqueue(fixtureState(), EXP), 'exp-027');
+  const [first, second] = s.attemptOrder;
+  assert.equal(runnableAttemptId(s), first);
+  assert.equal(advanceAttempt(s, { attemptId: second }).error?.code, 'queue_order');
+  const paused = ok(pauseAttempt(s, { attemptId: first }));
+  assert.equal(runnableAttemptId(paused), second, 'a paused queued attempt lets the next one go first');
+  assert.equal(advance(paused, second).attempts[second].status, 'running');
+});
