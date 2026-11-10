@@ -357,9 +357,10 @@ try {
     async function viewIs(id){await until(()=>ev(`return document.querySelector('.view.active')?.id===${Q(id)}`),'active '+id);assert.equal(await ev('return document.querySelector(".nav button.active")?.dataset.view'),id);assert.equal(await ev('return document.querySelector("#crumb").textContent'),id==='runtime-observation'?'Runtime Observation':id==='long-term'?'System Validation':'Agentic Blueprint Studio');}
     await load({path:'/index.html#view=runtime-observation'});await rtReady();await viewIs('runtime-observation');
     const order=await ev(`return [...document.querySelectorAll('.nav button[data-view]')].map(e=>({id:e.dataset.view,label:e.textContent.trim()}))`);
-    const world=order.findIndex(e=>e.id==='security-model');assert.ok(world>=0);
-    assert.deepEqual(order.slice(world,world+3).map(e=>e.id),['security-model','runtime-observation','long-term']);
-    assert.ok(order[world].label.includes('Enterprise World Model'));assert.ok(order[world+1].label.includes('Runtime Observation'));assert.ok(order[world+2].label.includes('System Validation'));
+    const at=id=>order.findIndex(e=>e.id===id),text=id=>order[at(id)].label;
+    assert.ok(at('security-model')>=0);
+    assert.ok(text('security-model').includes('Enterprise World Model'),'world model label');assert.ok(text('runtime-observation').includes('Runtime Observation'),'runtime observation label');assert.ok(text('blueprint').includes('Blueprint Studio'),'blueprint label');assert.ok(text('long-term').includes('System Validation'));
+    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','short-term','scenario-expansion','long-term','runtime-observation','policies','incidents','overview','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
     await load({path:'/index.html#view=long-term&tab=runtime'});await rtReady();await viewIs('runtime-observation');
     assert.equal(await ev('return location.hash'),'#view=runtime-observation','cold legacy redirect');
     await ev("location.hash='view=long-term&tab=periodic'");await viewIs('long-term');
@@ -767,7 +768,7 @@ try {
       phase='peek keyboard focus';
       await peek();await ev('document.querySelector(".nav button.active").focus()');await key('Tab');await move(600,450);await sleep(450);await waitState('auto',true);
       await key('Escape');await closed();assert.equal(await ev('return document.activeElement.id'),'navToggle','peek Esc restores visible toggle');
-      await peek();await ev('document.querySelector(".nav [data-view=library]").focus()');await key('Tab');await closed();
+      await peek();await ev('document.querySelector(".nav [data-view=speedrun]").focus()');await key('Tab');await closed();
       await peek();await ev('document.querySelector("#navPin").focus()');await key('Tab',true);await closed();
       await ev('document.querySelector("#main").focus()');await key('Escape');assert.equal(await ev('return document.activeElement.id'),'main','outside focus not stolen');
       phase='peek docks';
@@ -812,7 +813,7 @@ try {
       assert.ok(Number(worldBefore.split(' ')[2])>Number(worldAfter.split(' ')[2]),'World Model remeasures');await hide();await sleep(500);
       phase='short viewport';
       await viewport(1440,600);await show();
-      for(const id of ['assurance','blueprint','short-term','policies','incidents','security-model','runtime-observation','long-term','overview','library']){await nav(id);assert.equal((await st()).mode,'pinned');}
+      for(const id of ['assurance','blueprint','short-term','policies','incidents','security-model','runtime-observation','long-term','scenario-expansion','overview','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
       await hide();await viewport();
       phase='host modal';
       await peek();await ev('document.querySelector("#defsModal").classList.add("open")');await key('Escape');await waitState('auto',true);
@@ -1150,7 +1151,7 @@ try {
     await load({ path: '/index.html' });
     await nav('assurance');
     await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="assurance"'),'Assurance view',10000);
-    await clickSel('#assurance [data-wm-route]');
+    await clickSel('#assurance .as-wm [data-wm-route]');
     await until(wmActive,'World Model active',12000);
     assert.equal(await wmTab(),'wmtab-ontology','the button opens the Ontology Graph');
     assert.equal(await wmPanel(),'wm-ontology','wm-ontology panel active');
