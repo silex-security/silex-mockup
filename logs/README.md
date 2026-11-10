@@ -2,6 +2,14 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-10 — Agent Gym is one app in four console views
+
+- **Why:** the Agent Gym group mixed a link out to the new Experiment Workbench with three older views that did not belong with it. The owner asked to make the workbench the core of Agent Gym.
+- **Views:** Experiment Workbench (`#view=gym`), Environments (`#view=gym-environments`), Scenarios (`#view=gym-scenarios`) and Runs & Results (`#view=gym-runs`) show one embedded Agent Gym app, each at its own route. Switching between them never reloads the app, so a running simulation keeps running. A link inside the app that opens another part moves the sidebar highlight, the rail and the breadcrumb with it. The site URL carries the app's route as `&path=`.
+- **App:** a row of section tabs in both modes, and an embed mode without the product header that matches the console's background and type scale.
+- **Removed:** Pre-release, Scenario Expansion and System Validation, with their CSS, script wiring and the Scenario Expansion modules and tests. Their old links open Runs & Results or Scenarios.
+- **Record:** [`2026-11-10_AGENT_GYM_WORKBENCH_IA.md`](2026-11-10_AGENT_GYM_WORKBENCH_IA.md).
+
 ## 2026-11-09 — Speedrun view runs the Speedrun app
 
 - **Why:** the Speedrun view was a roadmap placeholder with three goal cards. The product design for Speedrun now exists as a working front end in [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun), which implements the Speedrun and Agent Gym screens of the UI demo doc with agent teams in place of workflows. The demo now shows that app.

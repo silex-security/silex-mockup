@@ -43,6 +43,35 @@
 .gym-app .gym-workspace { min-width: 196px; justify-content: flex-start; font-weight: 500; }
 .gym-app .gym-workspace .gym-btn__label { flex: 1; text-align: left; }
 
+/* Section tabs: the four parts of Agent Gym, under the header, or at the top when embedded */
+.gym-app .gym-sections {
+  flex: none; display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 var(--gym-gutter);
+  background: var(--gym-surface); border-bottom: 1px solid var(--gym-line);
+}
+.gym-app .gym-sections__nav { display: flex; align-self: stretch; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.gym-app .gym-sections__link {
+  display: inline-flex; align-items: center; padding: 0 12px; border-bottom: 2px solid transparent;
+  color: var(--gym-muted); font-size: var(--gym-fs-sm); font-weight: 500; text-decoration: none; white-space: nowrap;
+  transition: color var(--gym-ease), border-color var(--gym-ease);
+}
+.gym-app .gym-sections__link:hover { color: var(--gym-primary-ink); }
+.gym-app .gym-sections__link:focus-visible { box-shadow: none; outline: 2px solid var(--gym-primary); outline-offset: -2px; border-radius: 4px; }
+.gym-app .gym-sections__link[aria-current="page"] { border-bottom-color: var(--gym-primary); color: var(--gym-primary-ink); font-weight: 600; }
+/* Embedded, the console's title row is the page heading, so the app's own page titles step down to the console's
+   card-heading scale and its subtitles to the console's 13px lead. */
+.gym-app.gym-embed { --gym-gutter: 0px; --gym-fs-2xl: 22px; }
+.gym-app.gym-embed .gym-pagehead { padding-top: 12px; }
+.gym-app.gym-embed h1.gym-pagehead__title { font-size: var(--gym-fs-2xl); }
+.gym-app.gym-embed p.gym-pagehead__subtitle { font-size: var(--gym-fs-sm); }
+.gym-app.gym-embed .gym-breadcrumb { margin-bottom: 2px; font-size: var(--gym-fs-sm); }
+.gym-app.gym-embed .gym-sections { background: none; border-bottom-color: var(--gym-line-strong); }
+.gym-app .gym-sections__menu { flex: 0 1 auto; min-width: 0; margin-left: auto; }
+.gym-app .gym-sections__mark.gym-btn {
+  min-height: 24px; padding: 0 8px 0 12px; gap: 4px; border-color: var(--gym-line); border-radius: var(--gym-r-pill);
+  background: var(--gym-surface-2); color: var(--gym-muted); font-size: var(--gym-fs-xs); font-style: italic; font-weight: 400;
+}
+.gym-app .gym-sections__mark.gym-btn:hover { background: var(--gym-primary-softer); color: var(--gym-primary-ink); }
+
 /* Page frame */
 .gym-app .gym-banners { padding: 0 var(--gym-gutter); }
 .gym-app .gym-banners > * { margin-top: 10px; }
@@ -94,8 +123,8 @@
 .gym-app .gym-btn--sm { min-height: 30px; padding: 0 11px; font-size: var(--gym-fs-sm); gap: 6px; }
 .gym-app .gym-btn--lg { min-height: 40px; padding: 0 22px; font-size: 15px; }
 .gym-app .gym-btn--block { display: flex; width: 100%; }
-.gym-app .gym-btn--primary { background: var(--gym-primary); color: #fff; box-shadow: var(--gym-shadow-sm); }
-.gym-app .gym-btn--primary:hover { background: var(--gym-primary-hover); }
+.gym-app .gym-btn--primary { background: var(--gym-ink); color: #fff; box-shadow: var(--gym-shadow-sm); }
+.gym-app .gym-btn--primary:hover { background: var(--gym-ink-2); }
 .gym-app .gym-btn--secondary { background: var(--gym-surface); border-color: var(--gym-line-strong); box-shadow: var(--gym-shadow-sm); }
 .gym-app .gym-btn--secondary:hover { background: var(--gym-primary-softer); border-color: var(--gym-primary-line); }
 .gym-app .gym-btn--outline { background: var(--gym-surface); border-color: var(--gym-primary-line); color: var(--gym-primary-ink); }
@@ -144,7 +173,7 @@
 .gym-app .gym-chip--app { min-height: 30px; padding: 3px 10px; font-weight: 600; box-shadow: var(--gym-shadow-sm); }
 .gym-app .gym-chip__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gym-app .gym-chip__remove { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: -4px; padding: 0; border: 0; border-radius: 50%; background: none; color: inherit; cursor: pointer; }
-.gym-app .gym-chip__remove:hover { background: rgba(21, 19, 45, .1); }
+.gym-app .gym-chip__remove:hover { background: var(--gym-gray-soft); }
 
 .gym-app .gym-appicon { flex: none; display: inline-grid; place-items: center; line-height: 0; }
 .gym-app .gym-appicon--kind { color: var(--gym-primary-ink); }
@@ -191,7 +220,7 @@
 .gym-app .gym-input {
   display: flex; align-items: center; gap: 10px; min-height: 34px; min-width: 0; padding: 0 12px;
   border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r); background: var(--gym-surface); color: var(--gym-ink-2);
-  box-shadow: inset 0 1px 2px rgba(31, 22, 84, .05); transition: border-color var(--gym-ease), box-shadow var(--gym-ease);
+  box-shadow: inset 0 1px 2px rgba(22, 28, 45, .05); transition: border-color var(--gym-ease), box-shadow var(--gym-ease);
 }
 .gym-app .gym-input:hover { border-color: var(--gym-primary-line); }
 .gym-app .gym-input:focus-within { border-color: var(--gym-primary); box-shadow: var(--gym-ring); }
@@ -242,11 +271,11 @@
 .gym-app .gym-notice__actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .gym-app .gym-notice--info { background: var(--gym-primary-softer); border-color: var(--gym-primary-soft); color: var(--gym-ink); }
 .gym-app .gym-notice--info > .gym-icon { color: var(--gym-primary-ink); }
-.gym-app .gym-notice--warning { background: var(--gym-amber-soft); border-color: var(--gym-amber-line); color: #4d2a03; }
+.gym-app .gym-notice--warning { background: var(--gym-amber-soft); border-color: var(--gym-amber-line); color: var(--gym-amber); }
 .gym-app .gym-notice--warning > .gym-icon { color: var(--gym-amber-dot); }
-.gym-app .gym-notice--error { background: var(--gym-red-soft); border-color: var(--gym-red-line); color: #5c0f0a; }
+.gym-app .gym-notice--error { background: var(--gym-red-soft); border-color: var(--gym-red-line); color: var(--gym-red); }
 .gym-app .gym-notice--error > .gym-icon { color: var(--gym-red-dot); }
-.gym-app .gym-notice--success { background: var(--gym-green-soft); border-color: #bfe8cb; color: #0d3d20; }
+.gym-app .gym-notice--success { background: var(--gym-green-soft); border-color: rgba(43, 135, 102, .28); color: var(--gym-green); }
 .gym-app .gym-notice--success > .gym-icon { color: var(--gym-green-dot); }
 
 .gym-app .gym-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 16px; border: 1px dashed var(--gym-line-strong); border-radius: var(--gym-r-lg); background: var(--gym-surface-2); text-align: center; }
@@ -273,7 +302,7 @@
 .gym-app .gym-dialog { width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; border: 1px solid var(--gym-line); border-radius: var(--gym-r-xl); background: var(--gym-surface); color: var(--gym-ink); box-shadow: var(--gym-shadow); }
 .gym-app .gym-dialog--md { width: min(640px, calc(100vw - 32px)); }
 .gym-app .gym-dialog--lg { width: min(880px, calc(100vw - 32px)); }
-.gym-app .gym-dialog::backdrop { background: rgba(21, 19, 45, .42); }
+.gym-app .gym-dialog::backdrop { background: rgba(20, 22, 27, .48); }
 .gym-app .gym-dialog__box { display: flex; flex-direction: column; gap: 10px; padding: 20px; }
 .gym-app .gym-dialog__title { font-size: 18px; font-weight: 700; }
 .gym-app .gym-dialog__desc { color: var(--gym-muted); }

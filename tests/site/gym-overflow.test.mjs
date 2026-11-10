@@ -32,6 +32,27 @@ test('no route scrolls sideways at 320, 800, 1024 and 1280px', async t => {
   } finally { await gym.close(); }
 });
 
+test('in embed mode no route scrolls sideways at 320, 390 and 1280px', async t => {
+  let gym;
+  try { gym = await openGym(); } catch (e) {
+    if (/Chrome not found/.test(e.message)) return t.skip('no Chrome binary (set CHROME); headless check skipped');
+    throw e;
+  }
+  try {
+    const wide = [];
+    for (const width of [320, 390, 1280]) {
+      await gym.size(width, 900);
+      for (const hash of ROUTES) {
+        await gym.go(hash, { search: '?clock=frozen&embed=1' });
+        const { win, doc } = await gym.overflow();
+        if (doc > win) wide.push(`${hash} at ${width}px: ${doc} > ${win}`);
+      }
+    }
+    assert.deepEqual(wide, []);
+    assert.deepEqual(gym.problems(), [], 'no page errors and no failed requests');
+  } finally { await gym.close(); }
+});
+
 test('the run list shows every column, Review included, without an inner scroll from 770 to 1280px', async t => {
   let gym;
   try { gym = await openGym(); } catch (e) {
