@@ -65,7 +65,8 @@ export async function openGym() {
     async go(hash = '', { search = '?clock=frozen' } = {}) {
       await p.send('Page.navigate', { url: 'about:blank' });
       await p.send('Page.navigate', { url: `${server.origin}/agent-gym/index.html${search}${hash}` });
-      await until(() => p.ev('return document.readyState === "complete" && window.__gym?.ready === true'), `window.__gym.ready on ${hash || '(no hash)'}; ${api.problems().join(' | ')}`, 20000);
+      await until(() => p.ev('return document.readyState === "complete" && window.__gym?.ready === true'), `window.__gym.ready on ${hash || '(no hash)'}`, 20000)
+        .catch(e => { throw Error([e.message, ...api.problems()].join('\n  problem: ')); });
       await p.ev('await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 3000))]); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));');
     },
     async key(key, { shift = false } = {}) {
