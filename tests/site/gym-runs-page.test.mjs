@@ -86,7 +86,7 @@ test('Run regression now adds the batch\'s attempts and a history row, and is he
   assert.match(await gym.ev('return document.querySelector(".run-reg").innerText'), /No regression batch yet\./);
   const skipped = await gym.ev('return [...document.querySelectorAll(".run-reg__skipped li")].map(li => li.textContent)');
   assert.deepEqual(skipped, ['Support triage comparison: rev 1 · attempt 1 is already queued', 'Experiment 029: Draft rev 4 has unsaved changes; save it in the workbench to include it',
-    'Opt-out wording check: Never saved', 'Meeting no-slot handling: Never saved']);
+    'Opt-out wording check: Never saved', 'Meeting no-slot handling: Never saved', 'Invoice review · Variant A: Never saved']);
 
   const before = await gym.ev('return window.__gym.store.getState().attemptOrder.length');
   await click(gym, '[data-focus-key="reg:run"]');
@@ -96,7 +96,7 @@ test('Run regression now adds the batch\'s attempts and a history row, and is he
   const run = await gym.ev('const b = document.querySelector("[data-focus-key=\'reg:run\']"); return [b.getAttribute("aria-disabled"), b.title]');
   assert.deepEqual(run, ['true', 'Regression batch 1 is still running: 0 of 38 runs finished']);
   const history = await gym.ev(`return [...document.querySelectorAll('.run-reg__history tbody tr')].map(tr => [...tr.cells].map(td => td.innerText.trim().replace(/\\s+/g, ' ')))`);
-  assert.deepEqual(history, [['Batch 1 queue seq 7', 'Duplicate-send guard Smaller model for refund replies Refund timeout steps Meeting scheduling 4 skipped', '0/38', '4 running', 'Show runs']]);
+  assert.deepEqual(history, [['Batch 1 queue seq 7', 'Duplicate-send guard Smaller model for refund replies Refund timeout steps Meeting scheduling 5 skipped', '0/38', '4 running', 'Show runs']]);
 
   const row = await gym.ev(`const tr = [...document.querySelectorAll('.run-list__row')].find(r => r.querySelector('td[data-label="Trigger"]').innerText.trim() === 'Regression batch 1'); return tr && tr.querySelector('.run-list__title').textContent`);
   assert.equal(row, 'Duplicate-send guard', 'the first queued attempt of the batch, found by its trigger label');

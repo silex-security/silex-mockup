@@ -65,7 +65,7 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
   assert.equal(v.sub, 'Assemble an experiment. Test what changes.');
   assert.equal(v.runs, '#/runs?status=all');
   assert.ok(Math.abs(v.share[0] - 24) <= 2 && Math.abs(v.share[1] - 51) <= 2 && Math.abs(v.share[2] - 24) <= 2, `columns ${v.share}`);
-  assert.deepEqual(v.envs, ['Sales operations', 'Customer support', 'IT operations']);
+  assert.deepEqual(v.envs, ['Sales operations', 'Customer support', 'IT operations', 'Finance operations']);
   assert.equal(v.selected, 'Sales operations');
   assert.deepEqual(v.chips, ['CRM', 'Email', 'Calendar']);
   assert.equal(v.notes, 'Shared contacts · Permissions · Tool behavior');
@@ -378,7 +378,7 @@ test('the workflow selector lists fixture workflows and switching keeps the draf
     const options = [...sel.options].map(o => o.textContent);
     sel.value = 'wf-support-triage@1'; sel.dispatchEvent(new Event('change', { bubbles: true })); await frame();
     return { options, wf: E().workflowRef.id, variant: E().variantId, name: txt($('.wb-workflow__name')), nodes: $$('.wb-node .wb-node__label').map(txt), selected: $$('.wb-node[aria-pressed="true"]').map(n => n.dataset.node) };`);
-  assert.deepEqual(v.options, ['Sales follow-up · From Speedrun · fixture', 'Support triage · From Speedrun · fixture', 'Support triage v2 · From Speedrun · fixture', 'Meeting scheduling · From Speedrun · fixture']);
+  assert.deepEqual(v.options, ['Sales follow-up · From Speedrun · fixture', 'Support triage · From Speedrun · fixture', 'Support triage v2 · From Speedrun · fixture', 'Meeting scheduling · From Speedrun · fixture', 'Invoice review · From Speedrun · fixture']);
   assert.deepEqual([v.wf, v.variant, v.name], ['wf-support-triage', 'variant-support-a', 'Support triage']);
   assert.deepEqual(v.nodes, ['Read ticket', 'Draft reply', 'Refund eligible?', 'Issue refund', 'Reply to customer', 'Tag not eligible']);
   assert.deepEqual(v.selected, ['draft-reply']);

@@ -30,7 +30,7 @@ test('queue, Configure, workbench, Run, queue: a pending experiment is queued an
   await gym.go('#/experiments');
   assert.deepEqual(await row(gym, 'exp-030'), { stage: 'pending', action: 'Configure' });
   const before = await tabs(gym);
-  assert.deepEqual([before.Pending, before.Queued], ['2', '1']);
+  assert.deepEqual([before.Pending, before.Queued], ['3', '1']);
 
   await gym.ev(`document.querySelector('[data-focus-key="xq:action:exp-030"]').click(); ${settle}`);
   assert.equal(await gym.ev('return location.hash'), '#/workbench/exp-030', 'Configure opens the workbench of that experiment');
@@ -47,7 +47,7 @@ test('queue, Configure, workbench, Run, queue: a pending experiment is queued an
   await gym.ev(`window.__gym.router.go('experiment-queue'); ${settle}`);
   assert.deepEqual(await row(gym, 'exp-030'), { stage: 'queued', action: 'View' });
   const after = await tabs(gym);
-  assert.deepEqual([after.Pending, after.Queued, after.All], ['1', '2', '8']);
+  assert.deepEqual([after.Pending, after.Queued, after.All], ['2', '2', '9']);
   assert.match(await gym.ev('return document.querySelector(".xq-card[data-focus-key=\\"xq:card:queued\\"]").textContent'), /Queued2/);
   assert.match(await gym.ev('return document.querySelector(".xq-row[data-experiment=\\"exp-030\\"] td[data-label=\\"Progress or result\\"]").innerText'), /Position 2 of 2/);
 }));

@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openGym } from '../../tools/gym-shot.mjs';
+import { FIXTURE_VERSION } from '../../agent-gym/js/model.js';
 
 const SALES = '#/experiments/exp-029/attempts/attempt-002';
 const frame = 'await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));';
@@ -103,7 +104,7 @@ test('run detail on the frozen clock shows 12 of 18, the frozen inputs, the matr
   assert.equal(store.draft, 'Experiment 029');
   assert.match(page.text, /12 of 18 executions finished/);
   assert.deepEqual(page.bar, ['12', '18']);
-  for (const fact of ['rev 3 · attempt 1', 'Sales operations v1.2', 'Follow-up resilience · rev 1', 'Baseline vs Variant A', store.digest, 'gym-fx-3', '2 versions × 3 scenarios × 3 repetitions = 18 runs'])
+  for (const fact of ['rev 3 · attempt 1', 'Sales operations v1.2', 'Follow-up resilience · rev 1', 'Baseline vs Variant A', store.digest, FIXTURE_VERSION, '2 versions × 3 scenarios × 3 repetitions = 18 runs'])
     assert.ok(page.text.includes(fact), `shows ${fact}`);
   assert.match(page.text, /SEED\s+29/);
   assert.deepEqual(page.cells, [

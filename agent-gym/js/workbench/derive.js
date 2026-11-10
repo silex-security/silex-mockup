@@ -11,6 +11,7 @@ const CHECK_CAPABILITY = {
   'crm.updates': 'crm.update_opportunity', 'crm.skipReasons': 'crm.log_activity', 'crm.activities': 'crm.log_activity',
   'calendar.created': 'calendar.create_event', 'payments.refunds': 'payments.issue_refund',
   'tickets.replies': 'tickets.reply_to_ticket', 'tickets.skipReasons': 'tickets.update_ticket',
+  'payables.scheduled': 'payables.schedule_payment', 'ledger.notes': 'erp.annotate_invoice', 'ledger.skipReasons': 'erp.annotate_invoice',
 };
 
 const experimentOf = (state, experimentId) => state.experiments[experimentId];

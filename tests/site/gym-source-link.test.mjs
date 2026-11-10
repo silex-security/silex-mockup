@@ -60,7 +60,7 @@ test('the queue shows View source in Speedrun on Speedrun rows only, as a real t
     return [tr.dataset.experiment, a.map(x => [x.textContent.trim(), x.getAttribute('href'), x.getAttribute('target')])]; })`);
   const byId = Object.fromEntries(rows);
   const links = Object.entries(byId).filter(([, a]) => a.length).map(([id]) => id).sort();
-  assert.deepEqual(links, ['exp-024', 'exp-027', 'exp-030'], 'only the three Speedrun experiments link back');
+  assert.deepEqual(links, ['exp-024', 'exp-027', 'exp-030', 'exp-032'], 'only the four Speedrun experiments link back');
   const [[text, href, target]] = byId['exp-024'];
   assert.equal(text, LINK);
   assert.match(href, /^\.\.\/index\.html#view=speedrun&path=%2Fspeedrun%2Fteams%2F[a-z-]+%2Ftrace$/);

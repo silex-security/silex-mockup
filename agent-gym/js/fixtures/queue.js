@@ -1,5 +1,5 @@
 // Experiment drafts and the seeded queue. The queue is produced by the real reducers and executor, never typed in.
-import { FOLLOW_UP, MEETING, TRIAGE, TRIAGE_V2, experiment } from './experiment.js';
+import { FOLLOW_UP, INVOICE, MEETING, TRIAGE, TRIAGE_V2, experiment } from './experiment.js';
 import { advanceAttempt, changeTrigger, enqueueAttempt, pauseAttempt, recordReview, renameExperiment, resumeAttempt } from '../simulation/attempts.js';
 
 const speedrun = (label, ref) => ({ kind: 'speedrun', label, ref });
@@ -37,6 +37,10 @@ export const EXPERIMENTS = Object.freeze([
   experiment('exp-031', 31, 'Meeting no-slot handling', {
     ...MEETING, scenarios: ['sc-mtg-intro', 'sc-mtg-no-slot'], repetitions: 2, revision: 1, objective: 'steps',
     source: studio('Agent Studio: Scheduling agent draft 2'), saved: false,
+  }),
+  experiment('exp-032', 32, 'Invoice review · Variant A', {
+    ...INVOICE, scenarios: ['sc-inv-base-case', 'sc-inv-duplicate', 'sc-inv-timeout', 'sc-inv-approval-boundary', 'sc-inv-no-permission'], repetitions: 2, revision: 1,
+    source: speedrun('Speedrun trace: invoice exceptions', '/speedrun/teams/reconciliation/trace'), saved: false,
   }),
 ]);
 

@@ -148,6 +148,7 @@ const GUARD_DATA = {
   contact_allowed: { type: 'opted_out', label: 'Contact opted out', target: 'contact.optOut', value: true, expected: 'Skip the email; log the reason.' },
   refund_eligible: { type: 'not_refundable', label: 'Charge not refundable', target: 'charge.refundable', value: false, expected: 'Skip the refund; log the reason.' },
   slot_available: { type: 'no_free_slot', label: 'No free slot', target: 'calendar.freeSlots', value: 0, expected: 'Create nothing; log no availability.' },
+  invoice_unique: { type: 'duplicate_invoice', label: 'Duplicate invoice', target: 'invoice.duplicate', value: true, expected: 'Schedule no payment; flag the duplicate.' },
 };
 
 const fail = (code, message) => ({ items: [], problem: { code, message } });
@@ -234,7 +235,7 @@ function promptSpec(base, type, intensity, exampleIndex) {
 export const NO_SIDE_EFFECT_OUTCOMES = Object.freeze(Object.entries(EXPECTED_OUTCOME)
   .filter(([, o]) => o.rules.some(r => r.path === 'action.committed' && r.op === '==' && r.value === 0)).map(([k]) => k));
 
-const SIDE_EFFECT_PATHS = ['outbox.count', 'crm.updates', 'crm.activities', 'calendar.created', 'payments.refunds', 'tickets.replies', 'db.writes', 'action.committed', 'followUp.count'];
+const SIDE_EFFECT_PATHS = ['outbox.count', 'crm.updates', 'crm.activities', 'calendar.created', 'payments.refunds', 'tickets.replies', 'payables.scheduled', 'ledger.notes', 'db.writes', 'action.committed', 'followUp.count'];
 
 /** A check that only holds when something was committed, e.g. outbox.count == 1. */
 export const requiresSideEffect = check => SIDE_EFFECT_PATHS.includes(check.path) && (check.op === '==' || check.op === '>=') && Number(check.value) >= 1;

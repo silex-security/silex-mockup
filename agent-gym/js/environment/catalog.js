@@ -37,6 +37,8 @@ export const LINK_FIELDS = Object.freeze({
   identity: { user_id: 'User.id', email: 'User.email' },
   logs: { user_id: 'LogEvent.userId', resource_id: 'LogEvent.resourceId' },
   cloud: { resource_id: 'Instance.id' },
+  erp: { invoice_id: 'Invoice.id', vendor: 'Invoice.vendor' },
+  payables: { invoice_id: 'Payment.invoiceId' },
 });
 
 export const MATCH_RULE = Object.freeze({

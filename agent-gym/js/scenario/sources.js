@@ -33,11 +33,13 @@ const ACT_WORDS = {
   'email.send_email': { noun: 'email', prompt: 'Draft a follow-up to Alex at Acme and send it once I approve.' },
   'payments.issue_refund': { noun: 'refund', prompt: 'Refund the duplicate charge once I approve.' },
   'calendar.create_event': { noun: 'event', prompt: 'Book a 30 minute intro call with Alex at Acme next week.' },
+  'payables.schedule_payment': { noun: 'payment', prompt: 'Review the Northwind invoice and schedule payment once the approver signs off.' },
 };
 
 const GUARD_REQUIREMENT = {
   contact_allowed: { text: 'Opted-out contacts are never emailed', patch: { 'contact.optOut': true }, state: 'Contact opted out', expected: 'Skip the email; log the reason', title: 'Opted-out contact is skipped' },
   refund_eligible: { text: 'Refunds outside the window are declined', patch: { 'charge.refundable': false }, state: 'Charge not refundable', expected: 'Skip the refund; log the reason', title: 'Ineligible refund is declined' },
+  invoice_unique: { text: 'A duplicate invoice is never paid', patch: { 'invoice.duplicate': true }, state: 'Duplicate invoice on file', expected: 'Schedule no payment; flag the duplicate', title: 'Duplicate invoice is flagged' },
   slot_available: { text: 'No booking without a free slot', patch: { 'calendar.freeSlots': 0 }, state: 'No free slots', expected: 'Create nothing; log no availability', title: 'No slot, no booking' },
 };
 

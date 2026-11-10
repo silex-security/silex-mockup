@@ -91,13 +91,35 @@ const meetingScheduling = buildWorkflow({
   modelConfig: { 'propose-times': { model: 'simulated-model-baseline', traits: baselineTraits } },
 });
 
-export const WORKFLOWS = Object.freeze([salesFollowUp, supportTriage, supportTriageV2, meetingScheduling]);
+const invoiceReview = buildWorkflow({
+  id: 'wf-invoice-review', rev: '1', name: 'Invoice review',
+  nodes: [
+    node('read-invoice', 'Read invoice', 'tool', 'Ledger', 'erp.get_invoice', 'fetch', { col: 1, row: 0 }, { inputs: 'Invoice id', outputs: 'Invoice' }),
+    node('draft-note', 'Draft approver note', 'model', 'Model', null, 'compose', { col: 1, row: 1 }, { inputs: 'Invoice', outputs: 'Approver note' }),
+    node('not-duplicate', 'Not a duplicate?', 'decision', '', 'erp.find_duplicates', 'guard', { col: 1, row: 2 }, { guard: 'invoice_unique', inputs: 'Invoice, ledger history', outputs: 'Yes / No' }),
+    node('schedule-payment', 'Schedule payment', 'tool', 'Payables', 'payables.schedule_payment', 'act', { col: 0, row: 3 }, { statusCapability: 'payables.get_payment_status', inputs: 'Invoice, approval', outputs: 'Payment id' }),
+    node('record-payment', 'Record payment', 'tool', 'Ledger', 'erp.annotate_invoice', 'follow_up', { col: 0, row: 4 }, { inputs: 'Payment id', outputs: 'Ledger note' }),
+    node('flag-duplicate', 'Flag duplicate', 'tool', 'Ledger', 'erp.annotate_invoice', 'skip', { col: 2, row: 3 }, { inputs: 'Duplicate reason', outputs: 'Ledger note' }),
+  ],
+  edges: [
+    { from: 'read-invoice', to: 'draft-note' },
+    { from: 'draft-note', to: 'not-duplicate' },
+    { from: 'not-duplicate', to: 'schedule-payment', label: 'Yes' },
+    { from: 'not-duplicate', to: 'flag-duplicate', label: 'No' },
+    { from: 'schedule-payment', to: 'record-payment' },
+  ],
+  policySnapshot: { approvalRequiredFor: ['payables.schedule_payment'], optOutGuard: false },
+  modelConfig: { 'draft-note': { model: 'simulated-model-baseline', traits: variantTraits } },
+});
+
+export const WORKFLOWS = Object.freeze([salesFollowUp, supportTriage, supportTriageV2, meetingScheduling, invoiceReview]);
 
 export const VARIANTS = Object.freeze([
   buildVariant(salesFollowUp, { id: 'variant-a', name: 'Variant A', patch: [{ nodeId: 'draft-email', model: 'simulated-model-variant-a', traits: variantTraits }] }),
   buildVariant(supportTriage, { id: 'variant-support-a', name: 'Variant A', patch: [{ nodeId: 'draft-reply', model: 'simulated-model-variant-a', traits: variantTraits }] }),
   buildVariant(supportTriageV2, { id: 'variant-support-small', name: 'Small model', patch: [{ nodeId: 'draft-reply', model: 'simulated-model-small', traits: smallModelTraits }] }),
   buildVariant(meetingScheduling, { id: 'variant-meeting-a', name: 'Variant A', patch: [{ nodeId: 'propose-times', model: 'simulated-model-variant-a', traits: variantTraits }] }),
+  buildVariant(invoiceReview, { id: 'variant-invoice-a', name: 'Variant A', patch: [{ nodeId: 'draft-note', model: 'simulated-model-variant-a', traits: variantTraits }] }),
 ]);
 
 /** The default Variant A for a workflow: every model node moves to the variant model and its traits. */

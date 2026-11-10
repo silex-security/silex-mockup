@@ -25,7 +25,7 @@ const SCENARIO_ENTRIES = [
   { label: 'Describe scenario', icon: 'wand', query: { source: 'chat' } },
   { label: 'Generate variations', icon: 'sliders', query: { mode: 'prompt' } },
 ];
-const CAP_KIND = { CRM: 'crm', Email: 'email', Calendar: 'calendar', Tickets: 'tickets', Payments: 'payments', 'Knowledge base': 'kb', Identity: 'identity', Logs: 'logs', Cloud: 'cloud' };
+const CAP_KIND = { CRM: 'crm', Email: 'email', Calendar: 'calendar', Tickets: 'tickets', Payments: 'payments', 'Knowledge base': 'kb', Identity: 'identity', Logs: 'logs', Cloud: 'cloud', Ledger: 'erp', Payables: 'payables' };
 const QUEUE_TONE = { running: 'violet', queued: 'gray', completed: 'green', cancelled: 'gray', failed: 'red' };
 const DRAG_OFF = 'Drag to reorder is not enabled in this preview.';
 

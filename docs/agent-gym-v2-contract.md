@@ -116,7 +116,20 @@ startScheduler(store, { tickMs, frozen }) -> stop()                  // one runn
 
 `Completed` means every planned execution has a terminal state. It does not mean every check passed. A cancelled or incomplete attempt compares as `inconclusive`. The page query `?clock=frozen` starts the scheduler frozen, which holds the seeded queue at 12/18 for screenshots.
 
-The seed has eight experiments, exp-024 to exp-031. It is built by the real reducers: the experiments that finished are enqueued while exp-029 and exp-028 are held (paused), then the queue order is set to run order and the two are resumed, so exactly one attempt is running. exp-029 keeps the attempt ids and the 12/18 position it had before the queue page existed.
+The seed has nine experiments, exp-024 to exp-032. exp-032 is an unsaved Invoice review draft with no attempt. The seed is built by the real reducers: the experiments that finished are enqueued while exp-029 and exp-028 are held (paused), then the queue order is set to run order and the two are resumed, so exactly one attempt is running. exp-029 keeps the attempt ids and the 12/18 position it had before the queue page existed.
+
+## Workflows
+
+Four workflows are seeded, each with a variant, a matching environment template and a reviewed scenario set. The executor runs all of them through the same step table (`fetch`, `compose`, `guard`, `act`, `follow_up`, `skip`). A new workflow adds entries to the registries below and no branch to the executor.
+
+| Workflow | Environment | Scenario set | Registry entries it needed |
+| --- | --- | --- | --- |
+| Sales follow-up | Sales operations | Follow-up resilience (3) | none, the original |
+| Support triage (rev 1, rev 2) | Customer support | Refund triage (8) each | none |
+| Meeting scheduling | Sales operations | Meeting scheduling (6) | none |
+| Invoice review | Finance operations | Invoice review (5) | `SEED_NEEDS`, `DATA_TARGETS` and `ADAPTERS` for the `erp` and `payables` component kinds (`simulation/adapters.js`), `GUARDS` (`invoice_unique`) in `simulation/executor.js`, check paths `payables.scheduled`, `ledger.notes` and `ledger.skipReasons` in `simulation/assertions.js`, and the scenario builder tables in `scenario/` |
+
+Invoice review reads an invoice, drafts an approver note, checks the ledger for a duplicate, schedules the payment after a trusted approval, and records it. The scenario set has a base case, a duplicate invoice, a timeout after scheduling, an approval boundary (a prompt that says the lead already agreed) and a missing scheduling permission. Nothing in the finance data holds a price or an amount.
 
 ## Experiments, stages and conclusions
 
@@ -182,7 +195,7 @@ Class prefix `xq-`, styles in `css/queue.css`. The table reuses the `run-table` 
 
 ### Handoff from Speedrun
 
-Speedrun's "Send to Agent Gym" and its Agent Gym links leave the Speedrun app and open the console's Gym. `fixtures/handoffs.js` is the registry: one template per handoff id `<team>-<change>` (six Speedrun teams by four kinds of change, `retry-timeout`, `switch-tool`, `switch-model`, `prompt-context`). A template names a workflow, a variant, an environment, a scenario set and a scenario selection that Gym already has, an objective and a `source` of kind `speedrun` with its `ref`. Gym keeps no model of Speedrun teams beyond the name and the trace route that the source carries.
+Speedrun's "Send to Agent Gym" and its Agent Gym links leave the Speedrun app and open the console's Gym. `fixtures/handoffs.js` is the registry: one template per handoff id `<team>-<change>` (six Speedrun teams by four kinds of change, `retry-timeout`, `switch-tool`, `switch-model`, `prompt-context`). A template names a workflow, a variant, an environment, a scenario set and a scenario selection that Gym already has. The three support-like teams (refund, order-support, escalation) map to Support triage and the three finance teams (invoice, expense-review, reconciliation) map to Invoice review, an objective and a `source` of kind `speedrun` with its `ref`. Gym keeps no model of Speedrun teams beyond the name and the trace route that the source carries.
 
 ```js
 acceptHandoff(state, { handoffId })     // -> { state } | { error: { code: 'handoff_unknown' } }

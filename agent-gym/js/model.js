@@ -2,7 +2,7 @@
 // docs/agent-gym-v2-contract.md names which module owns each shape.
 
 export const SCHEMA_VERSION = 2;
-export const FIXTURE_VERSION = 'gym-fx-3';
+export const FIXTURE_VERSION = 'gym-fx-4';
 export const STORAGE_KEY = 'silex.gym.demo.v2';
 export const DEMO_SEED = 29;
 
@@ -33,7 +33,7 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  *
  * @typedef {Object} Component                            one simulated system inside an environment
  * @property {string} id                                 'salesforce' | 'gmail' | 'gcal' | 'customdb' | ...
- * @property {'crm'|'email'|'calendar'|'db'|'tickets'|'payments'|'kb'|'identity'|'logs'|'cloud'} kind
+ * @property {'crm'|'email'|'calendar'|'db'|'tickets'|'payments'|'kb'|'identity'|'logs'|'cloud'|'erp'|'payables'} kind
  * @property {string} app                                icon key, see components/icons.js
  * @property {string} name
  * @property {string} category                           'CRM', 'Email', ...

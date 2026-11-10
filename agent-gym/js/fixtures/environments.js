@@ -186,5 +186,42 @@ const it = buildEnvironmentRevision({
   },
 });
 
-export const ENVIRONMENTS = Object.freeze([sales, support, it]);
+const finance = buildEnvironmentRevision({
+  id: 'env-finance', rev: '1.0', name: 'Finance operations', icon: 'card',
+  caps: ['Ledger', 'Payables'], notes: ['Approval before payment', 'Duplicate checks', 'Payment timeouts'],
+  components: [
+    component({
+      id: 'ledger', kind: 'erp', app: 'erp', name: 'Finance ledger', category: 'Ledger', pos: { x: 0, y: 0 },
+      description: 'Simulated accounts-payable ledger with invoices and notes.',
+      tools: [
+        tool('get_invoice', 'read', { invoiceId: 'string' }, { invoice: 'Invoice' }),
+        tool('find_duplicates', 'read', { invoiceId: 'string' }, { invoices: 'Invoice[]' }),
+        tool('annotate_invoice', 'write', { invoiceId: 'string', kind: 'string', reason: 'string' }, { noteId: 'string' }),
+      ],
+    }),
+    component({
+      id: 'payables', kind: 'payables', app: 'payables', name: 'Payment runs', category: 'Payables', pos: { x: 1, y: 0 },
+      description: 'Simulated payment scheduler. Scheduling needs a trusted approval grant; dedup by idempotency key.',
+      tools: [
+        tool('schedule_payment', 'write', { actionId: 'string', idempotencyKey: 'string', invoiceId: 'string' }, { paymentId: 'string' }),
+        tool('get_payment_status', 'read', { actionId: 'string', idempotencyKey: 'string' }, { state: 'string', paymentId: 'string' }),
+      ],
+      permission: 'send_requires_approval', failureBehavior: 'timeout_after_send', dedup: 'idempotency_key',
+    }),
+  ],
+  relations: [{ id: 'rel-ledger-payables', from: 'ledger', to: 'payables', field: 'invoice_id' }],
+  dataSeed: {
+    primary: { invoice: 'inv-2207' },
+    erp: {
+      invoices: [
+        { id: 'inv-2207', vendor: 'Northwind Supplies', reference: 'NW-4471', status: 'received' },
+        { id: 'inv-2190', vendor: 'Birchwood Freight', reference: 'BF-0902', status: 'paid' },
+      ],
+      notes: [],
+    },
+    payables: { payments: [] },
+  },
+});
+
+export const ENVIRONMENTS = Object.freeze([sales, support, it, finance]);
 export const environmentsByKey = () => Object.fromEntries(ENVIRONMENTS.map(e => [refKey(e), e]));
