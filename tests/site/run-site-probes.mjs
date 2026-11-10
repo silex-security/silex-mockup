@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + Workflow Library <-> Speedrun agent-team links S47. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + Workflow Library <-> Speedrun agent-team links S47 + Incidents & Decisions page S48. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (restored validation), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -96,7 +96,7 @@ async function clickSel(sel, frame = false) {
 }
 async function keyEscape() { for (const type of ['keyDown', 'keyUp']) await page.send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await sleep(100); }
 async function nav(view) {
-  if(!await ev(`return !!document.querySelector('.nav [data-view="${view}"]')`)){await ev(`window.__siteShowView(${Q(view)}); true`);await sleep(150);return}
+  if(!await ev(`return !!document.querySelector('.nav [data-view="${view}"]')`)){await ev(`const b=document.createElement('button');b.dataset.jump=${Q(view)};document.body.append(b);b.click();b.remove();true`);await sleep(150);return}
   const floating=await ev('return !!window.__siteNav&&window.__siteNav.state().desktop');
   let temporaryDock=false;
   if(floating){
@@ -361,7 +361,7 @@ try {
     const at=id=>order.findIndex(e=>e.id===id),text=id=>order[at(id)].label;
     assert.ok(at('security-model')>=0);
     assert.ok(text('security-model').includes('Enterprise World Model'),'world model label');assert.ok(text('runtime-observation').includes('Runtime Observation'),'runtime observation label');assert.ok(text('blueprint').includes('Blueprint Studio'),'blueprint label');assert.ok(text('long-term').includes('System Validation'));
-    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','short-term','scenario-expansion','long-term','runtime-observation','policies','incidents','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
+    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','short-term','scenario-expansion','long-term','runtime-observation','incidents','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
     await load({path:'/index.html#view=long-term&tab=runtime'});await rtReady();await viewIs('runtime-observation');
     assert.equal(await ev('return location.hash'),'#view=runtime-observation','cold legacy redirect');
     await ev("location.hash='view=long-term&tab=periodic'");await viewIs('long-term');
@@ -814,7 +814,7 @@ try {
       assert.ok(Number(worldBefore.split(' ')[2])>Number(worldAfter.split(' ')[2]),'World Model remeasures');await hide();await sleep(500);
       phase='short viewport';
       await viewport(1440,600);await show();
-      for(const id of ['assurance','blueprint','short-term','policies','incidents','security-model','runtime-observation','long-term','scenario-expansion','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
+      for(const id of ['assurance','blueprint','short-term','incidents','security-model','runtime-observation','long-term','scenario-expansion','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
       await hide();await viewport();
       phase='host modal';
       await peek();await ev('document.querySelector("#defsModal").classList.add("open")');await key('Escape');await waitState('auto',true);
@@ -1235,6 +1235,42 @@ try {
     await governance('Not in the Workflow Library');
     await until(async()=>(await activeView())==='library','the Governance link of an unregistered workflow opens the Library');
     return 'row link -> Refund Team; Governance -> WF-014; detail button -> Refund Team; unregistered row -> Expense Review Team -> Library';
+  });
+
+  await probe('S48','Incidents & Decisions: no Overview or PCP sidebar item, pending count, decisions panel, retired and deep routes, Overview still renders',async()=>{
+    const panel=()=>ev('return {inc:!document.querySelector("#incView").hidden,dec:!document.querySelector("#policies").hidden,active:document.querySelector(".view.active").id}');
+    await load();
+    assert.deepEqual(await ev('return [...document.querySelectorAll(".nav button[data-view]")].map(b=>b.dataset.view).filter(v=>v==="overview"||v==="policies")'),[],'no Overview or PCP sidebar item');
+    await nav('incidents');
+    assert.equal(await ev('return [...document.querySelectorAll("#incidents h1")].map(h=>h.textContent).join("|")'),'Incidents & Decisions','one h1');
+    assert.equal(await ev('return document.getElementById("crumb").textContent'),'Incidents & Decisions','breadcrumb');
+    assert.deepEqual(await panel(),{inc:true,dec:false,active:'incidents'},'Incidents panel first');
+    assert.equal(await ev('return document.getElementById("incPendingCount").textContent'),'2','pending count on a clean load');
+    await clickSel('[data-inc-switch="decisions"]');
+    assert.deepEqual(await panel(),{inc:false,dec:true,active:'incidents'},'Pending decisions panel');
+    assert.deepEqual(await ev('return [...document.querySelectorAll("#policies button[data-review-inc]")].filter(b=>b.offsetParent).map(b=>b.dataset.reviewInc)'),['I-1042','I-1038'],'two incident cards');
+    await clickSel('#policies button[data-review-inc="I-1038"]');
+    await until(()=>ev('return document.querySelector(".view.active").id==="incident"&&document.getElementById("incId").textContent==="I-1038"'),'incident detail opens');
+    assert.equal(await ev('return document.querySelector("#incident .back-link").textContent'),'← Incidents & Decisions','back link names the page');
+    await clickSel('#incident .back-link');
+    assert.equal((await panel()).active,'incidents','back link returns to the page');
+    await load({path:'/index.html#view=policies'});
+    await until(async()=>(await panel()).dec,'#view=policies lands on decisions');
+    assert.equal(await ev('return location.hash'),'#view=incidents&tab=decisions','retired route rewritten');
+    await load({path:'/index.html#view=incidents&tab=decisions'});
+    await until(async()=>(await panel()).dec,'deep link opens decisions');
+    await navigate('/index.html#view=incidents&tab=decisions');await ev('location.reload(); true');
+    await until(()=>ev('return document.readyState==="complete"&&!document.querySelector("#policies").hidden'),'decisions survive a reload');
+    assert.equal(await ev('return location.hash'),'#view=incidents&tab=decisions');
+    await clickSel('[data-inc-switch="incidents"]');
+    assert.equal(await ev('return location.hash'),'#view=incidents','switching back updates the route');
+    await load({path:'/index.html#view=incidents'});
+    assert.deepEqual(await panel(),{inc:true,dec:false,active:'incidents'},'#view=incidents opens Incidents');
+    await load({path:'/index.html#view=overview'});
+    assert.equal(await ev('return document.querySelector(".view.active").id'),'overview','Overview renders');
+    assert.ok(await ev('return !!document.querySelector("#overview #ovStudioPending")&&/pending/.test(document.getElementById("ovPendingCount").textContent)'),'Overview bridge targets');
+    assert.equal(await ev('return document.querySelectorAll(".nav button.active").length'),0,'no sidebar item highlighted on the Overview');
+    return 'sidebar, count 2, decisions cards, Review in context, back link, retired route, deep link + reload, Overview';
   });
 
 } finally {

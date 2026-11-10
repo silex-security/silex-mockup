@@ -2,6 +2,14 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-09 — Runtime sidebar cut to two items: Observation and Incidents & Decisions
+
+- **Why:** the owner judged Operations Overview and PCP · Policy redundant.
+- **Overview:** no sidebar button. The page stays for the Studio bridge targets (`#ovStudioPending`, `#ovPendingCount`) and for `#view=overview`. A cleared route now falls back to the home view.
+- **Incidents & Decisions:** one page with a switch, Incidents and Pending decisions (with the pending count). The PCP content keeps `id="policies"` as a panel, so the bridge ids and selectors are unchanged. One `h1` per view.
+- **Routes:** `#view=incidents` opens Incidents. `#view=incidents&tab=decisions` opens Pending decisions. The retired `#view=policies` is rewritten to that, and `showView('policies')`, `data-jump` and `data-go` land on the same panel through one alias table.
+- **Tests:** `tests/site/suite-nav.test.mjs` checks the sidebar and the bridge ids. Probe S48 walks the page. The probe `nav()` helper reaches views without a sidebar button through a `data-jump` click, the same path the UI uses.
+
 ## 2026-11-09 — Workflow Library and Speedrun agent teams link both ways
 
 - **Why:** the Library (governance) and Speedrun (performance) list the same entity, a multi-agent workflow run by an agent team, and did not link or agree.

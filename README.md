@@ -7,7 +7,7 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 | SILEX Foundry | Shared knowledge, the common foundation | Enterprise World Model | `#view=security-model` |
 | Agent Studio | Pre-deployment | Blueprint Studio, Workflow Library | `#view=blueprint`, `#view=library` |
 | Agent Gym | Verify and validate | Pre-release, Scenario Expansion, System Validation | `#view=short-term`, `#view=scenario-expansion`, `#view=long-term` |
-| SILEX Runtime | Production | Runtime Observation, PCP · Policy, Incident Queue | `#view=runtime-observation`, `#view=policies`, `#view=incidents` |
+| SILEX Runtime | Production | Runtime Observation, Incidents & Decisions | `#view=runtime-observation`, `#view=incidents`, `#view=incidents&tab=decisions` |
 | SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
 
 The home view, **Platform** (`#view=assurance`), shows the product suite as a map, five outcomes the suite enables, and the evidence base. Each product card carries its status today (Designed, Building or Roadmap).
@@ -25,7 +25,7 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 - **Blueprint Studio:** the computed Blueprint Studio from [`blueprint_studio/`](blueprint_studio/README.md), embedded in the Blueprint Studio view.
   - It includes the editor, templates, Ask AI, Validate → Optimize → Decide → Register, and the Decision Trace.
-  - Its pending decisions, PCP cards and registrations appear on Overview, PCP · Policy and the Workflow Library, stored in this browser.
+  - Its pending decisions, PCP cards and registrations appear on the Overview (`#view=overview`, not in the sidebar), the Pending decisions panel of Incidents & Decisions and the Workflow Library, stored in this browser.
   - How it is wired: [`js/STUDIO_BRIDGE_CONTRACT.md`](js/STUDIO_BRIDGE_CONTRACT.md), plan [`logs/2026-09-24_STUDIO_CUTOVER_PLAN.md`](logs/2026-09-24_STUDIO_CUTOVER_PLAN.md).
 
 ### Agent Gym

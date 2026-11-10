@@ -45,9 +45,9 @@ export function renderUnavailable(container, reason)
 | Selector | Where | Content |
 |---|---|---|
 | `section#blueprint > #studioFrameWrap > iframe#studioFrame` | Studio view | `src` set on first show: `blueprint_studio/app/index.html?embed=1#cmd=…&n=…` |
-| `#ovStudioPending` | Overview · Policy Decisions | rows `[data-studio-pending="<key>"]`, with a button `[data-studio-open]`; stale rows carry `[data-studio-stale]` |
+| `#ovStudioPending` | Overview (`#view=overview`) · Policy Decisions | rows `[data-studio-pending="<key>"]`, with a button `[data-studio-open]`; stale rows carry `[data-studio-stale]` |
 | `#ovPendingCount` (existing) | Overview | incident pending + Studio awaiting |
-| `#pcpStudioCards` | PCP page | cards `[data-studio-pcp="<key>"][data-state="awaiting\|approved\|accepted"]`, with `[data-studio-open]` and `[data-studio-trace]` |
+| `#pcpStudioCards` | Incidents & Decisions · Pending decisions panel | cards `[data-studio-pcp="<key>"][data-state="awaiting\|approved\|accepted"]`, with `[data-studio-open]` and `[data-studio-trace]` |
 | `#libStudioGroup` | Workflow Library | rows `[data-studio-reg="<key>"]`, with `[data-studio-open]` (disabled when `[data-source-replaced]`) and `[data-studio-trace]` |
 | `[data-studio-summary="unavailable"]` | any of the three containers | shown when `readSummary` fails; no numbers are rendered |
 | `window.openStudio(cmd, params)` | global, from `studio-host.js` | `cmd` ∈ `resume` \| `new` \| `open` |
