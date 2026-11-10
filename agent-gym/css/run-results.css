@@ -111,7 +111,7 @@
 .gym-app .run-node--decision { border-style: dashed; }
 .gym-app .run-node[data-state="idle"] { opacity: .55; }
 .gym-app .run-node[data-state="visited"] { border-color: var(--gym-primary-line); }
-.gym-app .run-node[data-state="current"] { border-color: var(--gym-primary); box-shadow: 0 0 0 3px rgba(90, 34, 239, .2); }
+.gym-app .run-node[data-state="current"] { border-color: var(--gym-primary); box-shadow: var(--gym-ring); }
 .gym-app .run-node__icon { color: var(--gym-primary-ink); display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: var(--gym-r-sm); background: var(--gym-primary-softer); flex: none; }
 .gym-app .run-node__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
 .gym-app .run-node__text strong { font-size: var(--gym-fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -159,7 +159,7 @@
 .gym-app .run-state .gym-muted { font-size: var(--gym-fs-xs); }
 .gym-app .run-asserts { display: flex; flex-direction: column; gap: 8px; }
 .gym-app .run-assert { padding: 8px 10px; border-radius: var(--gym-r); border: 1px solid var(--gym-line); background: var(--gym-surface); }
-.gym-app .run-assert.is-fail { border-color: var(--gym-red-line); background: #fffafa; }
+.gym-app .run-assert.is-fail { border-color: var(--gym-red-line); background: color-mix(in srgb, var(--gym-red-soft) 40%, var(--gym-surface)); }
 .gym-app .run-assert__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--gym-fs-sm); }
 .gym-app .run-assert__facts { display: grid; gap: 2px; margin: 6px 0 0; font-size: var(--gym-fs-xs); }
 .gym-app .run-assert__facts div { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; }
@@ -181,7 +181,7 @@
 
 .gym-app .run-pairs { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .gym-app .run-pairbtn { min-width: 34px; height: 26px; padding: 0 7px; border-radius: var(--gym-r-sm); border: 1px solid var(--gym-line-strong); background: var(--gym-surface); font-size: var(--gym-fs-xs); font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
-.gym-app .run-pairbtn--green { color: var(--gym-green); border-color: #bfe6c9; background: var(--gym-green-soft); }
+.gym-app .run-pairbtn--green { color: var(--gym-green); border-color: color-mix(in srgb, var(--gym-green-dot) 35%, var(--gym-surface)); background: var(--gym-green-soft); }
 .gym-app .run-pairbtn--red { color: var(--gym-red); border-color: var(--gym-red-line); background: var(--gym-red-soft); }
 .gym-app .run-pairbtn--amber { color: var(--gym-amber); border-color: var(--gym-amber-line); background: var(--gym-amber-soft); }
 .gym-app .run-pairbtn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--gym-primary); }
