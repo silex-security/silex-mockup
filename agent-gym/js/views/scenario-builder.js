@@ -35,20 +35,6 @@ const dimensionLabel = id => DIMENSIONS.find(d => d.id === id).label;
 
 const envRefOf = route => (route.query.environment ? parseRef(route.query.environment) : { ...DEFAULT_ENVIRONMENT });
 
-// Re-render only when this screen's slice changes, so scheduler ticks elsewhere never touch a field being typed in.
-function sliceStore(store, pick) {
-  return {
-    getState: store.getState,
-    subscribe(fn) {
-      let last = pick(store.getState());
-      return store.subscribe(state => {
-        const next = pick(state);
-        if (next.some((v, i) => v !== last[i])) { last = next; fn(state); }
-      });
-    },
-  };
-}
-
 const fieldRow = (label, control) =>
   h('div', { class: 'sc-field' }, h('span', { class: 'sc-field__label' }, label), h('div', { class: 'sc-field__control' }, control));
 
@@ -96,7 +82,6 @@ export function mount(root, ctx) {
   let chatInput = '';
   let upload = null;
 
-  const pick = s => [s.scenarioDrafts[draftId], s.environments, s.workflows, s.scenarioSets, s.experiments];
   const view = { refresh() {}, destroy() {} };
   const returnTo = () => route.query.returnTo || 'exp-029';
   const draftOf = () => store.getState().scenarioDrafts[draftId];
@@ -321,7 +306,7 @@ export function mount(root, ctx) {
               },
             }))),
       ];
-    }, sliceStore(store, pick));
+    }, store);
     dialogRef = ui.openDialog({
       title: 'Review & save', size: 'lg', class: 'sc-review-dialog',
       description: 'Check what each scenario changes against the base. Items marked Review need your confirmation or an edit. Nothing runs until you use the set in an experiment.',
@@ -623,7 +608,7 @@ export function mount(root, ctx) {
   }
 
   ensure();
-  Object.assign(view, mountView(root, render, sliceStore(store, pick)));
+  Object.assign(view, mountView(root, render, store));
 
   return {
     update(next) {

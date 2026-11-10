@@ -34,7 +34,6 @@ export function mount(root, ctx) {
   const { store, router, announce } = ctx;
   let route = ctx.route;
   let message = '';
-  let nameDraft = null;
   let working = null;
   let savedAt = null;
   let lastSelect = route.query.select;
@@ -149,7 +148,6 @@ export function mount(root, ctx) {
   }
 
   function commitName(value) {
-    nameDraft = null;
     if (value.trim() === draftNow().name) { view.refresh(); return; }
     if (command({ type: 'rename', name: value }).ok) announce(`Environment renamed to ${draftNow().name}.`);
     else view.refresh();
@@ -308,7 +306,7 @@ export function mount(root, ctx) {
         ui.button({ label: 'Validate environment', variant: 'primary', onClick: validateNow, focusKey: 'env:validate-head' }),
       ],
       meta: [
-        ui.textInput({ value: nameDraft ?? draft.name, icon: 'pencil', ariaLabel: 'Environment name', class: 'env-name', focusKey: 'env:name', onInput: v => { nameDraft = v; }, onChange: commitName }),
+        ui.textInput({ value: draft.name, icon: 'pencil', ariaLabel: 'Environment name', class: 'env-name', focusKey: 'env:name', onChange: commitName }),
         ui.badge({ status: summary.status, class: 'env-status' }),
         savedAt === draft.revision && h('span', { class: 'env-saved' }, icon('check', { size: 14 }), store.persistence.mode === 'local' ? 'Draft saved in this browser' : 'Kept for this session only'),
       ],

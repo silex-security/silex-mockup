@@ -194,14 +194,14 @@ test('the kit page renders every shared widget, and tabs, menus and disabled con
   assert.deepEqual(await gym.ev(`return [document.querySelectorAll('dialog').length, document.activeElement.dataset.focusKey, document.querySelector('[data-kit-out]').textContent]`), [0, 'kit:dialog', 'Dialog cancelled']);
 }));
 
-test('mountView keeps focus, caret and scroll across a store-driven re-render', async t => withGym(t, async gym => {
+test('mountView restores focus, caret and scroll by key when a re-render replaces the elements', async t => withGym(t, async gym => {
   const out = await gym.ev(`
     const { h, mountView } = await import('./js/components/dom.js');
     const root = document.createElement('div'); document.querySelector('.gym-main').append(root);
     let renders = 0;
-    const view = mountView(root, state => { renders++; return [
+    const view = mountView(root, state => { renders++; return h(state.seq % 2 ? 'section' : 'div',
       h('input', { value: 'seq ' + state.seq + ' typed', dataset: { focusKey: 'probe:input' } }),
-      h('div', { dataset: { scrollKey: 'probe:list' }, style: { height: '40px', overflow: 'auto' } }, h('div', { style: { height: '400px' } }, 'tall')) ]; }, window.__gym.store);
+      h('div', { dataset: { scrollKey: 'probe:list' }, style: { height: '40px', overflow: 'auto' } }, h('div', { style: { height: '400px' } }, 'tall'))); }, window.__gym.store);
     const input = root.querySelector('input'); input.focus(); input.setSelectionRange(2, 4);
     root.querySelector('[data-scroll-key]').scrollTop = 120;
     window.__gym.store.dispatch(state => ({ state: { ...state, seq: state.seq + 1 } }), {});
@@ -221,7 +221,7 @@ test('a dialog returns focus to its opener by focus key when a re-render replace
     const { h, mountView } = await import('./js/components/dom.js');
     const { openDialog, button } = await import('./js/components/ui.js');
     const root = document.createElement('div'); document.querySelector('.gym-main').append(root);
-    const view = mountView(root, () => button({ label: 'Opener', focusKey: 'probe:opener' }), window.__gym.store);
+    const view = mountView(root, state => h(state.seq % 2 ? 'section' : 'div', button({ label: 'Opener', focusKey: 'probe:opener' })), window.__gym.store);
     const before = root.querySelector('button'); before.focus();
     const dlg = openDialog({ title: 'Probe', actions: close => [button({ label: 'Done', onClick: () => close('done') })] });
     window.__gym.store.dispatch(state => ({ state: { ...state, seq: state.seq + 1 } }), {});
