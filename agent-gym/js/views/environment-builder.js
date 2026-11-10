@@ -5,7 +5,6 @@ import { h, s, mountView } from '../components/dom.js';
 import { icon, appIcon } from '../components/icons.js';
 import * as ui from '../components/ui.js';
 import { digestOf } from '../model.js';
-import { setEnvironment } from '../simulation/attempts.js';
 import {
   CATALOG, DEDUP_CONTRACT, DEDUP_LABEL, FAILURE_LABEL, LINK_FIELDS, PERMISSION_LABEL, catalogEntry, matchRuleOf,
 } from '../environment/catalog.js';
@@ -16,7 +15,7 @@ import { MAX_MESSAGE, sendAssistantMessage } from '../environment/assistant.js';
 import { ensureEnvironmentDraft, seedDraft } from '../environment/seed.js';
 import { agentContext, draftSummary, plural } from '../environment/selectors.js';
 import { SALES_FOLLOW_UP } from '../environment/validate.js';
-import { environmentDependencyCheck, saveEnvironmentTemplate, templateRefFor } from '../environment/templates.js';
+import { saveEnvironmentTemplate, templateRefFor, useEnvironmentInExperiment } from '../environment/templates.js';
 import { FIXTURE_LIMITS, parseEnvironmentFixture } from '../environment/fixture-file.js';
 
 const TABS = [{ id: 'topology', label: 'Topology' }, { id: 'tools', label: 'Tools' }, { id: 'data', label: 'Data' }, { id: 'permissions', label: 'Permissions' }];
@@ -179,12 +178,12 @@ export function mount(root, ctx) {
 
   function useInExperiment(ref) {
     const id = experimentId();
-    const check = environmentDependencyCheck(store.getState(), id, ref);
-    if (!check.ok) {
-      ui.openDialog({ title: 'Dependencies not matched', description: 'The experiment keeps its current environment.', children: h('ul', { class: 'env-list' }, check.errors.map(e => h('li', e.message))), actions: closeButton });
+    const result = store.dispatch(useEnvironmentInExperiment, { experimentId: id, environmentRef: ref });
+    if (!result.ok) {
+      announce('Dependencies not matched. The experiment keeps its current environment.');
+      ui.openDialog({ title: 'Dependencies not matched', description: 'The experiment keeps its current environment.', children: h('ul', { class: 'env-list' }, (result.error.errors ?? [result.error]).map(e => h('li', e.message))), actions: closeButton });
       return;
     }
-    if (!send(setEnvironment, { experimentId: id, environmentRef: ref }).ok) return;
     const env = store.getState().environments[`${ref.id}@${ref.rev}`];
     announce(`${store.getState().experiments[id].title} now uses ${env.name} v${env.rev}. Dependencies matched.`);
     router.go('workbench', { experimentId: id });
@@ -646,8 +645,8 @@ export function mount(root, ctx) {
   }
 
   const view = mountView(root, render, store);
-  // After app.js has moved focus to the main region for the navigation.
-  if (route.query.focus === 'describe') queueMicrotask(() => root.querySelector('[data-focus-key="env:message"]')?.focus());
+  // On an in-app navigation the shell has just focused the main region (root) to announce the new page; that wins.
+  if (route.query.focus === 'describe') queueMicrotask(() => { if (document.activeElement !== root) root.querySelector('[data-focus-key="env:message"]')?.focus(); });
 
   return {
     async update(next) {

@@ -62,3 +62,10 @@ export function environmentDependencyCheck(state, experimentId, ref) {
   const errors = report.errors.filter(e => ENVIRONMENT_CODES.includes(e.code));
   return { ok: errors.length === 0, errors, missing: report.dependencyReport.missing, warnings: report.warnings.filter(w => w.code === 'set_environment_differs') };
 }
+
+/** Switches the experiment to `environmentRef` only when the run gate's environment checks pass. */
+export function useEnvironmentInExperiment(state, { experimentId, environmentRef }) {
+  const check = environmentDependencyCheck(state, experimentId, environmentRef);
+  if (!check.ok) return { error: { code: 'dependency_unmatched', message: check.errors.map(e => e.message).join('; '), errors: check.errors } };
+  return setEnvironment(state, { experimentId, environmentRef });
+}
