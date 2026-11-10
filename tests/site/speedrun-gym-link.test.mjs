@@ -4,7 +4,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { HANDOFFS } from '../../agent-gym/js/fixtures/handoffs.js';
-import { GYM_HOME, gymUrl, handoffIdOf, isGymPath } from '../../speedrun/web/src/gym.js';
+import { existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { GYM_HOME, gymUrl, handoffIdFromPath, isGymPath } from '../../speedrun/web/src/gym.js';
+
+const SRC = resolve(dirname(fileURLToPath(import.meta.url)), '../../speedrun/web/upstream/src');
 
 const TEAMS = ['refund', 'order-support', 'escalation', 'invoice', 'expense-review', 'reconciliation'];
 const CHANGES = ['retry-timeout', 'switch-tool', 'switch-model', 'prompt-context'];
@@ -14,19 +19,23 @@ test('only the app\'s own Agent Gym pages leave the app', () => {
   for (const p of ['/speedrun', '/gymnastics', '/speedrun/teams/refund/trace', '/api/gym/experiments', '/']) assert.equal(isGymPath(p), false, p);
 });
 
-test('an experiment created by Create variant maps to the handoff for its team and kind of change', () => {
+test('the variant form names the handoff from its team and kind of change, and Gym has a template for each', () => {
   for (const teamId of TEAMS) for (const change of CHANGES) {
-    const id = handoffIdOf({ teamId, config: { variantName: `${change}-v031` } });
+    const id = handoffIdFromPath(`/gym/handoff/${teamId}-${change}`);
     assert.equal(id, `${teamId}-${change}`);
     assert.ok(Object.hasOwn(HANDOFFS, id), `Gym has a template for ${id}`);
   }
 });
 
-test('an experiment the shell cannot map, such as a seeded one, opens the Gym queue instead', () => {
-  assert.equal(handoffIdOf({ teamId: 'refund', config: { variantName: 'retry-policy-v2' } }), null);
-  assert.equal(handoffIdOf({ teamId: 'invoice' }), null);
-  assert.equal(handoffIdOf(undefined), null);
-  assert.equal(handoffIdOf({ teamId: 'refund/../x', config: { variantName: 'retry-timeout-v1' } }), null, 'a team id that is not an id never builds a handoff');
+test('any other Gym path, including the old experiment pages, opens the Gym queue instead', () => {
+  for (const p of ['/gym', '/gym/experiments/029', '/gym/handoff', '/gym/handoff/', '/gym/handoff/refund/../x', '/gym/handoff/Refund Team', '/speedrun/handoff/refund-retry-timeout'])
+    assert.equal(handoffIdFromPath(p), null, p);
+});
+
+test('Speedrun no longer carries its own Gym pages or Gym API', () => {
+  assert.equal(existsSync(resolve(SRC, 'app/gym')), false);
+  assert.equal(existsSync(resolve(SRC, 'app/api/gym')), false);
+  assert.equal(existsSync(resolve(SRC, 'components/ExperimentConfigurator.tsx')), false);
 });
 
 test('the console URL is a plain relative link that works with or without a parent window', () => {

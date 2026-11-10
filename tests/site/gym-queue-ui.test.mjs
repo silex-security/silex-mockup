@@ -37,14 +37,14 @@ test('the app opens on the experiment queue: four cards, counted tabs, and one r
   assert.equal(page.h1, 'Experiment queue');
   assert.equal(page.section, 'Workbench');
   assert.deepEqual(page.cards, [
-    'Pending 2 2 to configure and run', 'Queued 1 Waiting for the runner: Support triage comparison',
+    'Pending 3 3 to configure and run', 'Queued 1 Waiting for the runner: Support triage comparison',
     'Running 1 Experiment 029 · 12/18 runs', 'Needs review 1 Meeting scheduling awaiting a decision']);
-  assert.deepEqual(page.tabs, [['All · 8', 'true'], ['Pending · 2', 'false'], ['Queued · 1', 'false'], ['Running · 1', 'false'], ['Needs review · 1', 'false'], ['Done · 3', 'false']]);
+  assert.deepEqual(page.tabs, [['All · 9', 'true'], ['Pending · 3', 'false'], ['Queued · 1', 'false'], ['Running · 1', 'false'], ['Needs review · 1', 'false'], ['Done · 3', 'false']]);
   assert.deepEqual(page.head, ['Experiment', 'Source', 'Objective', 'Stage', 'Progress or result', 'Last activity', 'Action']);
 
   const all = await rows(gym);
   assert.deepEqual(all.map(r => [r.id, r.stage, r.cells.Action]), [
-    ['exp-031', 'pending', 'Configure'], ['exp-030', 'pending', 'Configure'], ['exp-029', 'running', 'Open'], ['exp-028', 'queued', 'View'],
+    ['exp-032', 'pending', 'Configure'], ['exp-031', 'pending', 'Configure'], ['exp-030', 'pending', 'Configure'], ['exp-029', 'running', 'Open'], ['exp-028', 'queued', 'View'],
     ['exp-027', 'needs_review', 'Review'], ['exp-026', 'done', 'Results'], ['exp-025', 'done', 'Results'], ['exp-024', 'done', 'Results']]);
   const byId = Object.fromEntries(all.map(r => [r.id, r]));
   assert.equal(byId['exp-030'].action, '#/workbench/exp-030');
@@ -53,7 +53,7 @@ test('the app opens on the experiment queue: four cards, counted tabs, and one r
   assert.equal(byId['exp-027'].action, '#/experiments/exp-027/attempts/attempt-001/results');
   assert.equal(byId['exp-024'].action, '#/experiments/exp-024/attempts/attempt-004/results');
   assert.match(byId['exp-029'].cells['Progress or result'], /12\/18/);
-  assert.match(byId['exp-025'].cells['Progress or result'], /Success rate 100% → 67% · 0 improved · 2 regressed Reject/);
+  assert.match(byId['exp-025'].cells['Progress or result'], /Success rate 100% → 67% · 0 improved · 2 regressed · shared workflows: 1 regressed Reject/);
   assert.match(byId['exp-024'].cells['Progress or result'], /Policy violations 1 → 0 · 1 improved · 0 regressed Pass for demo/);
   assert.match(byId['exp-024'].cells.Source, /Speedrun Speedrun trace: duplicate follow-up emails/);
   assert.match(byId['exp-031'].cells.Experiment, /Meeting scheduling/, 'the workflow sits under the name');
@@ -69,7 +69,7 @@ test('a stage tab and the search live in the route query, survive a refresh, and
   assert.equal(await gym.ev('return location.hash'), '#/experiments?status=done&q=support');
   assert.deepEqual((await rows(gym)).map(r => r.id), ['exp-026', 'exp-025'], 'workflow name');
   assert.equal(await gym.ev('return document.activeElement.dataset.focusKey'), 'xq:search', 'typing keeps focus in the search');
-  assert.equal(await gym.ev('return document.querySelector(".xq-list .gym-panel__subtitle").textContent'), '2 of 8 shown');
+  assert.equal(await gym.ev('return document.querySelector(".xq-list .gym-panel__subtitle").textContent'), '2 of 9 shown');
 
   await gym.go('#/experiments?status=done&q=support');
   assert.deepEqual((await rows(gym)).map(r => r.id), ['exp-026', 'exp-025'], 'a reload reads both back');
@@ -80,7 +80,7 @@ test('a stage tab and the search live in the route query, survive a refresh, and
   assert.match(await gym.ev('return document.querySelector(".xq-list").innerText'), /No experiment matches/);
   await gym.ev(`document.querySelector('[data-focus-key="xq:clear"]').click(); ${frame}`);
   assert.equal(await gym.ev('return location.hash'), '#/experiments');
-  assert.equal((await rows(gym)).length, 8);
+  assert.equal((await rows(gym)).length, 9);
 }));
 
 test('a card filters to its stage and a second press clears it; a row click follows the stage action', async t => withGym(t, async gym => {

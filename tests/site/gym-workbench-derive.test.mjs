@@ -148,5 +148,5 @@ test('the change set lists every field of each changed step and marks the ones t
 test('the change set follows the variant the experiment uses', () => {
   const small = changeSet(seedState(), 'exp-025');
   assert.deepEqual([small.baselineLabel, small.variantLabel, small.changeCount], ['Support triage v2 · rev 2', 'Small model', 2]);
-  assert.deepEqual(small.rows.find(r => r.field === 'timeoutRecovery'), { nodeId: 'draft-reply', node: 'Draft reply', field: 'timeoutRecovery', baseline: 'check_status_reuse_key', variant: 'stop', changed: true });
+  assert.deepEqual(small.rows.find(r => r.field === 'timeoutRecovery'), { nodeId: 'draft-reply', node: 'Draft reply', agentId: 'agent-correspondence', field: 'timeoutRecovery', baseline: 'check_status_reuse_key', variant: 'stop', changed: true });
 });

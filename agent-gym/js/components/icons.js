@@ -6,7 +6,7 @@
 //   ICON_NAMES, APP_NAMES                               every valid key, for the kit page and tests
 //
 // App keys: salesforce, gmail, gcal, customdb, and the kinds crm, email, calendar, db, tickets, payments, kb,
-// identity, logs, cloud, workflow, model. An unknown key draws the generic `box` mark.
+// identity, logs, cloud, erp, payables, workflow, model. An unknown key draws the generic `box` mark.
 import { h, s } from './dom.js';
 
 const c = (x, y, r) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`;
@@ -105,7 +105,7 @@ const MARKS = {
   gcal: [fill(rr(3.5, 4.5, 17, 16, 2.5), '#ffffff'), line(rr(3.5, 4.5, 17, 16, 2.5), '#2f74e6', 1.8), fill('M3.5 7a2.5 2.5 0 0 1 2.5-2.5h12A2.5 2.5 0 0 1 20.5 7v2.5h-17V7z', '#2f74e6'), line('M8 13h2.5M13.5 13H16M8 16.5h2.5M13.5 16.5H16', '#2f74e6', 1.8)],
   customdb: CYLINDER.map(d => line(d, '#5b23f0')),
 };
-const KIND_ICON = { crm: 'users', email: 'mail', calendar: 'calendar', db: 'database', tickets: 'ticket', payments: 'card', kb: 'book', identity: 'id', logs: 'logs', cloud: 'cloud', workflow: 'workflow', model: 'sparkle' };
+const KIND_ICON = { crm: 'users', email: 'mail', calendar: 'calendar', db: 'database', tickets: 'ticket', payments: 'card', kb: 'book', identity: 'id', logs: 'logs', cloud: 'cloud', erp: 'file', payables: 'card', workflow: 'workflow', model: 'sparkle' };
 
 export const APP_NAMES = Object.freeze([...Object.keys(MARKS), ...Object.keys(KIND_ICON)]);
 

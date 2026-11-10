@@ -1,21 +1,27 @@
 // The experiment templates a Speedrun "Send to Agent Gym" can name, keyed by handoff id `<team>-<change>`.
 // Speedrun sends a team and one of four kinds of change. Agent Gym has no model of Speedrun teams, so each team is
-// mapped to the Gym workflow closest to the work it does, and each kind of change to the Gym variant that is closest.
+// mapped to the Gym workflow closest to the work it does (the finance teams to Invoice review), and each kind of change to the Gym variant that is closest.
 // Gym v1 variants patch model configuration only, so a tool or prompt change maps to the default model-configuration
 // variant, and latency and cost both read as the one measure the executor records for every run, steps.
-import { FOLLOW_UP, TRIAGE, TRIAGE_V2 } from './experiment.js';
+import { FOLLOW_UP, INVOICE, TRIAGE, TRIAGE_V2 } from './experiment.js';
 
 const TEAMS = Object.freeze({
   refund: { name: 'Refund Team', flow: TRIAGE },
   'order-support': { name: 'Order Support Team', flow: TRIAGE },
   escalation: { name: 'Escalation Team', flow: TRIAGE },
-  invoice: { name: 'Invoice Team', flow: FOLLOW_UP },
-  'expense-review': { name: 'Expense Review Team', flow: FOLLOW_UP },
-  reconciliation: { name: 'Reconciliation Team', flow: FOLLOW_UP },
+  invoice: { name: 'Invoice Team', flow: INVOICE },
+  'expense-review': { name: 'Expense Review Team', flow: INVOICE },
+  reconciliation: { name: 'Reconciliation Team', flow: INVOICE },
 });
 
-const TIMEOUT = { [TRIAGE.set.id]: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout'], [FOLLOW_UP.set.id]: ['sc-base-case', 'sc-timeout-after-send'] };
-const ALL = { [TRIAGE.set.id]: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout', 'sc-sup-outside-window'], [FOLLOW_UP.set.id]: ['sc-base-case', 'sc-timeout-after-send', 'sc-contact-opted-out'] };
+const TIMEOUT = {
+  [TRIAGE.set.id]: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout'], [FOLLOW_UP.set.id]: ['sc-base-case', 'sc-timeout-after-send'],
+  [INVOICE.set.id]: ['sc-inv-base-case', 'sc-inv-timeout'],
+};
+const ALL = {
+  [TRIAGE.set.id]: ['sc-sup-refund-in-window', 'sc-sup-refund-timeout', 'sc-sup-outside-window'], [FOLLOW_UP.set.id]: ['sc-base-case', 'sc-timeout-after-send', 'sc-contact-opted-out'],
+  [INVOICE.set.id]: ['sc-inv-base-case', 'sc-inv-duplicate', 'sc-inv-timeout'],
+};
 
 const CHANGES = Object.freeze({
   'retry-timeout': { title: 'Retry & timeout', phrase: 'retry and timeout', flow: flow => flow, scenarios: TIMEOUT },

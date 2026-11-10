@@ -47,7 +47,7 @@ test('a set that ran to completion shows each scenario\'s latest baseline and va
 test('cards list the workbench experiment\'s set first, carry usage and review counts, and the search hides non-matching sets', () => {
   const cards = scenarioLibrary(seedState(), { experimentId: 'exp-029' });
   assert.deepEqual(cards.map(c => [c.name, c.rev, c.count, c.reviewed, c.usedBy.map(u => u.id)]), [
-    ['Follow-up resilience', '1', 3, 3, ['exp-024', 'exp-029', 'exp-030']], ['Meeting scheduling', '1', 6, 6, ['exp-027', 'exp-031']],
+    ['Follow-up resilience', '1', 3, 3, ['exp-024', 'exp-029', 'exp-030']], ['Invoice review', '1', 5, 5, ['exp-032']], ['Meeting scheduling', '1', 6, 6, ['exp-027', 'exp-031']],
     ['Refund triage v2', '1', 8, 8, ['exp-025']], ['Refund triage', '1', 8, 8, ['exp-026', 'exp-028']],
   ]);
   assert.deepEqual(scenarioLibrary(seedState(), { query: 'refund', experimentId: 'exp-029' }).filter(c => c.visible).map(c => c.name), ['Refund triage v2', 'Refund triage']);

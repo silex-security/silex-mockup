@@ -43,10 +43,10 @@ test('the library lists the seeded sets with condition coverage, named gaps and 
     ['Generate variations', '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&mode=prompt'],
   ]);
   assert.equal(page.truth, 'Generated variations are proposals until an expert reviews them. Only reviewed scenarios run.');
-  assert.equal(page.count, '4 saved sets · 25 scenarios');
+  assert.equal(page.count, '5 saved sets · 30 scenarios');
 
-  const [followUp, meeting, refundV2, refund] = await cards(gym);
-  assert.deepEqual([followUp.name, meeting.name, refundV2.name, refund.name], ['Follow-up resilience', 'Meeting scheduling', 'Refund triage v2', 'Refund triage']);
+  const [followUp, invoice, meeting, refundV2, refund] = await cards(gym);
+  assert.deepEqual([followUp.name, invoice.name, meeting.name, refundV2.name, refund.name], ['Follow-up resilience', 'Invoice review', 'Meeting scheduling', 'Refund triage v2', 'Refund triage']);
   assert.equal(followUp.meta, 'Sales follow-up · Sales operations v1.2 · 3 scenarios');
   assert.deepEqual(followUp.coverage, { prompt: 'No prompt scenario', tool_failure: '1 scenario', permission: 'No permission scenario', data_state: '1 scenario' });
   assert.deepEqual(followUp.gaps, [

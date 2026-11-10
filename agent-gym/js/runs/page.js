@@ -1,6 +1,6 @@
 // Page furniture shared by the run list, run detail and results views.
 import { h } from '../components/dom.js';
-import { badge, button, columns, emptyState, pageHeader, panel } from '../components/ui.js';
+import { badge, button, columns, emptyState, notice, pageHeader, panel } from '../components/ui.js';
 import { REVIEW_LABEL } from '../model.js';
 
 export const EVIDENCE = 'Simulated evidence · Not deployed';
@@ -48,3 +48,10 @@ export function attemptNotFound(router, { title, routeName, params, resolved }) 
     })),
   ];
 }
+
+/** On the run detail and results of a shared-agent check: whose check it is, and that its runs are counted apart. */
+export const impactNotice = (router, attempt) => attempt.impactOf && notice({
+  tone: 'info', class: 'run-notice run-impact-notice', title: `Shared-agent check for ${attempt.impactOf.experimentId}.`,
+  text: `This run asks whether the change in ${attempt.impactOf.experimentId} reaches ${attempt.inputSnapshot.workflow.name} through an agent both workflows share. It is not one of that experiment's own runs.`,
+  actions: button({ label: 'Open the experiment', size: 'sm', focusKey: 'run:impact-of', href: router.href('workbench', { experimentId: attempt.impactOf.experimentId }) }),
+});

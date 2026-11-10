@@ -25,6 +25,7 @@ test('the seeded plan includes the four saved experiments that finished and skip
     { experimentId: 'exp-029', title: 'Experiment 029', reason: 'Draft rev 4 has unsaved changes; save it in the workbench to include it' },
     { experimentId: 'exp-030', title: 'Opt-out wording check', reason: 'Never saved' },
     { experimentId: 'exp-031', title: 'Meeting no-slot handling', reason: 'Never saved' },
+    { experimentId: 'exp-032', title: 'Invoice review · Variant A', reason: 'Never saved' },
   ]);
 });
 
@@ -34,7 +35,7 @@ test('Run regression now enqueues one attempt per included experiment, tagged wi
   const added = after.attemptOrder.slice(before.attemptOrder.length).map(id => after.attempts[id]);
   assert.deepEqual(added.map(a => [a.experimentId, a.status, a.trigger]), ['exp-024', 'exp-025', 'exp-026', 'exp-027', 'exp-028', 'exp-029'].map(exp =>
     [exp, 'queued', { kind: 'regression', label: 'Regression batch 1', batchId: 'regression-1' }]));
-  assert.deepEqual(regressionOf(after).batches.map(b => [b.id, b.number, b.attemptIds, b.skipped.map(x => x.experimentId)]), [['regression-1', 1, added.map(a => a.id), ['exp-030', 'exp-031']]]);
+  assert.deepEqual(regressionOf(after).batches.map(b => [b.id, b.number, b.attemptIds, b.skipped.map(x => x.experimentId)]), [['regression-1', 1, added.map(a => a.id), ['exp-030', 'exp-031', 'exp-032']]]);
   assert.deepEqual(stateProblems(after), [], 'the batch state passes the load check');
 });
 
@@ -64,7 +65,7 @@ test('history rows count planned and finished runs and attempts by verdict, newe
   const live = ok(runRegression(seedState()));
   const [row] = regressionHistory(live);
   assert.deepEqual({ number: row.number, startedSeq: row.startedSeq, planned: row.planned, finished: row.finished, running: row.running, experiments: row.experiments.map(e => e.title), skipped: row.skipped.length },
-    { number: 1, startedSeq: 7, planned: 38, finished: 0, running: 4, experiments: ['Duplicate-send guard', 'Smaller model for refund replies', 'Refund timeout steps', 'Meeting scheduling'], skipped: 4 });
+    { number: 1, startedSeq: 11, planned: 38, finished: 0, running: 4, experiments: ['Duplicate-send guard', 'Smaller model for refund replies', 'Refund timeout steps', 'Meeting scheduling'], skipped: 5 });
   const done = finishAll(live);
   assert.deepEqual([regressionHistory(done)[0].finished, regressionHistory(done)[0].verdicts], [38, { pass: 3, fail: 0, regression: 1, inconclusive: 0 }]);
   const cancelled = ok(cancelAttempt(live, { attemptId: row.experiments[0].attemptId }));

@@ -15,6 +15,8 @@ import {
 } from '../simulation/attempts.js';
 import { blueprintDiagram } from '../workbench/diagram.js';
 import { openCompare, openInspect, openRunSettings } from '../workbench/dialogs.js';
+import { impactPanel, sharedChip } from '../workbench/impact-panel.js';
+import { checkSharedImpact } from '../runs/impact.js';
 import {
   attemptByKey, changeSet, missingDependencies, nodeDetail, replayView, revisionNote, runKey, scenarioBuilderQuery, selectedNodeId, viewedVersion,
 } from '../workbench/derive.js';
@@ -25,7 +27,7 @@ const SCENARIO_ENTRIES = [
   { label: 'Describe scenario', icon: 'wand', query: { source: 'chat' } },
   { label: 'Generate variations', icon: 'sliders', query: { mode: 'prompt' } },
 ];
-const CAP_KIND = { CRM: 'crm', Email: 'email', Calendar: 'calendar', Tickets: 'tickets', Payments: 'payments', 'Knowledge base': 'kb', Identity: 'identity', Logs: 'logs', Cloud: 'cloud' };
+const CAP_KIND = { CRM: 'crm', Email: 'email', Calendar: 'calendar', Tickets: 'tickets', Payments: 'payments', 'Knowledge base': 'kb', Identity: 'identity', Logs: 'logs', Cloud: 'cloud', Ledger: 'erp', Payables: 'payables' };
 const QUEUE_TONE = { running: 'violet', queued: 'gray', completed: 'green', cancelled: 'gray', failed: 'red' };
 const DRAG_OFF = 'Drag to reorder is not enabled in this preview.';
 
@@ -91,6 +93,17 @@ export function mount(root, ctx) {
       flash(existing ? 'info' : 'success', existing
         ? `${attempt.label} is already in the queue for this revision. It can run again once that attempt finishes or is cancelled.`
         : `Queued ${attempt.title} · ${attempt.label}: ${attempt.plan.length} runs.`, { attemptId: attempt.id });
+    }
+    refresh();
+  }
+
+  function checkShared() {
+    const before = store.getState().attemptOrder.length;
+    const result = store.dispatch(checkSharedImpact, { experimentId: expId() });
+    if (!result.ok) flash('error', result.error.message, { where: 'impact' });
+    else {
+      const added = result.state.attemptOrder.length - before;
+      flash(added ? 'success' : 'info', added ? `Queued ${added} shared-workflow check${added === 1 ? '' : 's'}. They run after the attempts already in the queue.` : 'Nothing new to queue: the check is already queued, running or finished.', { where: 'impact' });
     }
     refresh();
   }
@@ -316,8 +329,8 @@ export function mount(root, ctx) {
         badge({ label: `${set.changeCount} change${set.changeCount === 1 ? '' : 's'}`, tone: set.changeCount ? 'violet' : 'gray', class: 'wb-changes__count' })),
       h('div', { class: 'wb-changes__wrap' }, h('table', { class: 'wb-changes__table' },
         h('thead', h('tr', ['Step', 'Field', 'Baseline', set.variantLabel].map(c => h('th', { scope: 'col' }, c)))),
-        h('tbody', set.rows.map(r => h('tr', { class: r.changed ? 'is-changed' : null, dataset: { field: `${r.nodeId}.${r.field}` } },
-          h('th', { scope: 'row' }, r.node), h('td', h('code', r.field)),
+        h('tbody', set.rows.map((r, i) => h('tr', { class: r.changed ? 'is-changed' : null, dataset: { field: `${r.nodeId}.${r.field}` } },
+          h('th', { scope: 'row' }, r.node, set.rows.findIndex(x => x.nodeId === r.nodeId) === i && sharedChip(state, exp.id, r.agentId)), h('td', h('code', r.field)),
           h('td', { class: r.changed ? 'is-changed' : null }, h('code', r.baseline)),
           h('td', { class: r.changed ? 'is-changed' : null }, h('code', r.variant))))))));
   }
@@ -341,6 +354,7 @@ export function mount(root, ctx) {
         h('fieldset', { class: 'wb-settings__accept' },
           h('legend', 'Accepted when'),
           checkbox({ checked: exp.acceptance.noRegression, label: 'No pair regresses', focusKey: 'wb:accept-noregression', onChange: on => commit({ noRegression: on }) }),
+          checkbox({ checked: exp.acceptance.noSharedRegression, label: 'No pair regresses in shared workflows', focusKey: 'wb:accept-noshared', onChange: on => commit({ noSharedRegression: on }) }),
           textInput({
             label: 'Minimum improved pairs', type: 'number', value: String(exp.acceptance.minImprovedPairs), focusKey: 'wb:accept-min',
             hint: `A whole number from ${MIN_IMPROVED_PAIRS.min} to ${MIN_IMPROVED_PAIRS.max}. Every pair must also finish, and the objective must not get worse.`,
@@ -487,7 +501,8 @@ export function mount(root, ctx) {
         h('a', { class: 'wb-qresult', href: router.href('results', { experimentId: r.experimentId, attemptId: r.attemptId }), dataset: { focusKey: `wb:qr:${r.attemptId}` } }, 'View results', icon('arrow-right', { size: 16 })))
       : h('span', { class: 'wb-qdash', 'aria-label': 'No result yet' }, '–');
     return h('tr', { class: 'wb-qrow', dataset: { attempt: r.attemptId }, onClick: e => { if (!e.target.closest('a')) router.go('run-detail', { experimentId: r.experimentId, attemptId: r.attemptId }); } },
-      h('td', h('a', { class: 'wb-qtitle', href: detail, dataset: { focusKey: `wb:q:${r.attemptId}` }, title: `${r.label}. Open the attempt.` }, icon('workflow', { size: 18 }), h('span', r.title), h('span', { class: 'gym-sr' }, `, ${r.label}`))),
+      h('td', h('a', { class: 'wb-qtitle', href: detail, dataset: { focusKey: `wb:q:${r.attemptId}` }, title: `${r.label}. Open the attempt.` }, icon('workflow', { size: 18 }), h('span', r.title), h('span', { class: 'gym-sr' }, `, ${r.label}`)),
+        r.impactOf && badge({ label: `Shared check · ${r.impactOf.experimentId}`, tone: 'violet', class: 'wb-qimpact', title: `Checks whether ${r.impactOf.experimentId} reaches this workflow through a shared agent. Not one of its own runs.` })),
       h('td', h('span', { class: 'wb-qenv' }, icon(r.environmentIcon, { size: 18 }), r.environmentName)),
       h('td', { class: 'wb-qnum' }, r.scenarioCount),
       h('td', badge({ status, title: r.status === 'completed' ? 'Every planned run finished. Completed does not mean every check passed.' : null }),
@@ -504,6 +519,7 @@ export function mount(root, ctx) {
       header(exp),
       stepIndicator({ steps: experimentSteps(state, exp.id, route), router }),
       changesStrip(state, exp),
+      impactPanel({ state, exp, router, onCheck: checkShared, flash: local.flash?.where === 'impact' ? local.flash : null }),
       h('div', { class: 'gym-cols wb-cols', style: { '--gym-cols': '24fr 51fr 24fr' } }, envColumn(state, exp), centre(state, exp), scenarioColumn(state, exp)),
       queue(state));
   }

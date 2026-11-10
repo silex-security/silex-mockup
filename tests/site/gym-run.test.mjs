@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openGym } from '../../tools/gym-shot.mjs';
+import { FIXTURE_VERSION } from '../../agent-gym/js/model.js';
 
 const SALES = '#/experiments/exp-029/attempts/attempt-002';
 const frame = 'await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));';
@@ -59,22 +60,26 @@ test('the run list shows every attempt with counts from the queue and filters by
     rows: [...document.querySelectorAll('.run-list__row')].map(tr => [...tr.cells].map(td => td.innerText.trim().replace(/\\s+/g, ' '))),
     results: [...document.querySelectorAll('.run-list__row a')].filter(a => a.textContent === 'View results').map(a => a.getAttribute('href')) }`);
   assert.equal(page.h1, 'Runs');
-  assert.deepEqual(page.tabs, [['All · 6', 'true'], ['Running · 1', 'false'], ['Queued · 1', 'false'], ['Completed · 4', 'false'], ['Cancelled · 0', 'false']]);
+  assert.deepEqual(page.tabs, [['All · 10', 'true'], ['Running · 1', 'false'], ['Queued · 1', 'false'], ['Completed · 8', 'false'], ['Cancelled · 0', 'false']]);
   assert.deepEqual(page.head, ['Experiment', 'Trigger', 'Frozen revision', 'Environment', 'Scenarios', 'Status', 'Progress', 'Review decision', 'Action']);
   assert.deepEqual(page.rows.map(r => r.slice(0, 8)), [
     ['Sales follow-up · Variant A', 'Change', 'rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18', 'Not reviewed'],
     ['Support triage comparison', 'Manual', 'rev 1 · attempt 1', 'Customer support', '8', 'Queued', '0/48', 'Not reviewed'],
+    ['Invoice review · shared-agent check Shared check for exp-025', 'Change', 'Impact of exp-025', 'Finance operations', '5', 'Completed', '10/10 Success rate 100% → 80% · 0 improved · 1 regressed', 'Not reviewed'],
+    ['Sales follow-up · shared-agent check Shared check for exp-025', 'Change', 'Impact of exp-025', 'Sales operations', '3', 'Completed', '6/6 Success rate 67% → 67% · 0 improved · 0 regressed', 'Not reviewed'],
+    ['Invoice review · shared-agent check Shared check for exp-024', 'Change', 'Impact of exp-024', 'Finance operations', '5', 'Completed', '10/10 Policy violations 0 → 0 · 0 improved · 0 regressed', 'Not reviewed'],
+    ['Support triage v2 · shared-agent check Shared check for exp-024', 'Change', 'Impact of exp-024', 'Customer support', '8', 'Completed', '16/16 Policy violations 0 → 0 · 0 improved · 0 regressed', 'Not reviewed'],
     ['Refund timeout steps', 'Manual', 'rev 1 · attempt 1', 'Customer support', '2', 'Completed', '8/8 Steps per run 8.5 → 9.0 · 2 improved · 0 regressed', 'Needs iteration'],
-    ['Smaller model for refund replies', 'Manual', 'rev 1 · attempt 1', 'Customer support', '3', 'Completed', '12/12 Success rate 100% → 67% · 0 improved · 2 regressed', 'Reject'],
+    ['Smaller model for refund replies', 'Manual', 'rev 1 · attempt 1', 'Customer support', '3', 'Completed', '12/12 Success rate 100% → 67% · 0 improved · 2 regressed · shared workflows: 1 regressed', 'Reject'],
     ['Duplicate-send guard', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '3', 'Completed', '6/6 Policy violations 1 → 0 · 1 improved · 0 regressed', 'Pass for demo'],
     ['Meeting scheduling', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '6', 'Completed', '12/12 Success rate 100% → 100% · 0 improved · 0 regressed', 'Not reviewed'],
   ]);
   assert.ok(page.rows.every(r => !/pass/i.test(r[5])), 'Completed is a status, never shown as passed');
-  assert.deepEqual(page.results, ['attempt-006', 'attempt-005', 'attempt-004', 'attempt-001'].map(a => `#/experiments/${{ 'attempt-006': 'exp-026', 'attempt-005': 'exp-025', 'attempt-004': 'exp-024', 'attempt-001': 'exp-027' }[a]}/attempts/${a}/results`), 'only the completed rows link to results');
+  assert.deepEqual(page.results, ['attempt-010', 'attempt-009', 'attempt-008', 'attempt-007', 'attempt-006', 'attempt-005', 'attempt-004', 'attempt-001'].map(a => `#/experiments/${{ 'attempt-010': 'exp-025', 'attempt-009': 'exp-025', 'attempt-008': 'exp-024', 'attempt-007': 'exp-024', 'attempt-006': 'exp-026', 'attempt-005': 'exp-025', 'attempt-004': 'exp-024', 'attempt-001': 'exp-027' }[a]}/attempts/${a}/results`), 'only the completed rows link to results');
 
-  await clickText(gym, '.run-list [role="tab"]', 'Completed · 4');
+  await clickText(gym, '.run-list [role="tab"]', 'Completed · 8');
   assert.equal(await gym.ev('return location.hash'), '#/runs?status=completed');
-  assert.deepEqual(await gym.ev('return [...document.querySelectorAll(".run-list__row .run-list__title")].map(a => a.textContent)'), ['Refund timeout steps', 'Smaller model for refund replies', 'Duplicate-send guard', 'Meeting scheduling']);
+  assert.deepEqual(await gym.ev('return [...document.querySelectorAll(".run-list__row .run-list__title")].map(a => a.textContent)'), ['Invoice review · shared-agent check', 'Sales follow-up · shared-agent check', 'Invoice review · shared-agent check', 'Support triage v2 · shared-agent check', 'Refund timeout steps', 'Smaller model for refund replies', 'Duplicate-send guard', 'Meeting scheduling']);
   await clickText(gym, '.run-list [role="tab"]', 'Cancelled · 0');
   assert.match(await main(gym), /No cancelled runs/);
   await gym.go('#/runs?status=running');
@@ -103,7 +108,7 @@ test('run detail on the frozen clock shows 12 of 18, the frozen inputs, the matr
   assert.equal(store.draft, 'Experiment 029');
   assert.match(page.text, /12 of 18 executions finished/);
   assert.deepEqual(page.bar, ['12', '18']);
-  for (const fact of ['rev 3 · attempt 1', 'Sales operations v1.2', 'Follow-up resilience · rev 1', 'Baseline vs Variant A', store.digest, 'gym-fx-3', '2 versions × 3 scenarios × 3 repetitions = 18 runs'])
+  for (const fact of ['rev 3 · attempt 1', 'Sales operations v1.2', 'Follow-up resilience · rev 1', 'Baseline vs Variant A', store.digest, FIXTURE_VERSION, '2 versions × 3 scenarios × 3 repetitions = 18 runs'])
     assert.ok(page.text.includes(fact), `shows ${fact}`);
   assert.match(page.text, /SEED\s+29/);
   assert.deepEqual(page.cells, [

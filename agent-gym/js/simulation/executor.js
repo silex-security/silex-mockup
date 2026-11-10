@@ -29,7 +29,7 @@
 //
 // SCRIPTED_TRIGGERS are the legal `after` values of scriptedEvents. Prompt text never creates an approval grant.
 import { digestOf } from '../model.js';
-import { ACT_REQUEST, callTool, createWorld, emptyWorld, finalStateOf, primaryCharge, primaryConsent, primaryContact } from './adapters.js';
+import { ACT_REQUEST, callTool, createWorld, duplicatesOf, emptyWorld, finalStateOf, primaryCharge, primaryConsent, primaryContact, primaryInvoice } from './adapters.js';
 import { evaluateRun } from './assertions.js';
 
 export const SITUATION = Object.freeze(['standard', 'noisy_context', 'ambiguous_request', 'instruction_conflict', 'cancel_after_draft']);
@@ -58,10 +58,12 @@ const GUARDS = {
   contact_allowed: w => !(primaryConsent(w) ?? primaryContact(w)).optOut,
   refund_eligible: w => primaryCharge(w).refundable,
   slot_available: w => w.calendar.freeSlots.length > 0,
+  invoice_unique: w => duplicatesOf(w).length === 0,
 };
 
 const GUARD_REQUEST = {
   'db.lookup_contact': w => ({ email: primaryContact(w).email }),
+  'erp.find_duplicates': w => ({ invoiceId: primaryInvoice(w).id }),
 };
 
 export function versionModelConfig(snapshot, versionId) {

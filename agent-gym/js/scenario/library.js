@@ -34,7 +34,7 @@ export function setCoverage(scenarios) {
  * per-scenario baseline and variant pass counts; `live` is a queued or running attempt still producing evidence.
  */
 export function setEvidence(state, ref, scenarios) {
-  const runs = state.attemptOrder.map(id => state.attempts[id]).filter(a => sameRef(a.inputSnapshot.scenarioSet, ref));
+  const runs = state.attemptOrder.map(id => state.attempts[id]).filter(a => !a.impactOf && sameRef(a.inputSnapshot.scenarioSet, ref));
   const done = runs.filter(a => a.status === 'completed').at(-1);
   const live = runs.find(a => LIVE.includes(a.status));
   const comparison = done && comparisonFor(state, done.id);
