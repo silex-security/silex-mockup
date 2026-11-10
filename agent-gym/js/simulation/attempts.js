@@ -19,6 +19,26 @@ const deepFreeze = value => {
 const ordered = state => state.attemptOrder.map(id => state.attempts[id]);
 const LIVE = ['queued', 'running'];
 
+export const MANUAL_TRIGGER = Object.freeze({ kind: 'manual', label: 'Manual run' });
+
+/** Why an attempt was enqueued. Attempts saved before triggers existed read as manual runs. */
+export const triggerOf = attempt => attempt.trigger ?? MANUAL_TRIGGER;
+
+/** What a variant changes against its baseline: the changed steps and the kind of change. v1 variants patch model configuration only. */
+export function variantChange(workflow, variant) {
+  if (!variant) return null;
+  const steps = variant.changedNodeIds.map(id => workflow?.nodes.find(n => n.id === id)?.label ?? id);
+  const kind = 'Model configuration';
+  return { steps, kind, text: `${kind} change on ${steps.join(', ')}` };
+}
+
+/** The trigger for a run that tests the experiment's variant as a change. */
+export function changeTrigger(state, experimentId) {
+  const exp = state.experiments[experimentId];
+  const change = variantChange(state.workflows[refKey(exp.workflowRef)], exp.variantId ? state.variants[exp.variantId] : null);
+  return change ? { kind: 'change', label: change.text } : MANUAL_TRIGGER;
+}
+
 /** The attempt the scheduler should advance next, or null. One running attempt at most, fixed queue order. */
 export function runnableAttemptId(state) {
   const running = ordered(state).find(a => a.status === 'running');
@@ -35,7 +55,7 @@ function releaseSlot(state) {
 }
 
 /** Deep-copies every revision the experiment uses into an immutable snapshot. */
-export function freezeAttempt(state, experimentId, idempotencyKey) {
+export function freezeAttempt(state, experimentId, idempotencyKey, trigger = MANUAL_TRIGGER) {
   const exp = state.experiments[experimentId];
   const set = state.scenarioSets[refKey(exp.scenarioSetRef)];
   const snapshot = deepFreeze(clone({
@@ -56,6 +76,7 @@ export function freezeAttempt(state, experimentId, idempotencyKey) {
     label: `rev ${exp.draftRevision} · attempt ${attemptNo}`, idempotencyKey,
     inputSnapshot: snapshot, inputDigest: digestOf(snapshot), seed: DEMO_SEED, fixtureVersion: FIXTURE_VERSION,
     plan: deepFreeze(planExecutions(snapshot)), cursor: 0, status: 'queued', runner: 'active', enqueuedSeq: seq, review: null,
+    trigger: { ...trigger },
   };
 }
 
@@ -144,13 +165,13 @@ export function addVariant(state, { experimentId }) {
   return withNewVariant(state, experimentId);
 }
 
-export function enqueueAttempt(state, { experimentId, idempotencyKey }) {
+export function enqueueAttempt(state, { experimentId, idempotencyKey, trigger = MANUAL_TRIGGER }) {
   if (!idempotencyKey) return fail('idempotency_key_required', 'Run needs an idempotency key');
   if (Object.values(state.attempts).some(a => a.experimentId === experimentId && a.idempotencyKey === idempotencyKey)) return { state };
   const report = validateExperiment(state, experimentId);
   if (report.errors.length) return { error: { code: 'experiment_invalid', message: report.errors.map(e => e.message).join('; '), fix: report.errors[0].fix, errors: report.errors } };
   const saved = saveExperiment(state, { experimentId }).state;
-  const attempt = freezeAttempt(saved, experimentId, idempotencyKey);
+  const attempt = freezeAttempt(saved, experimentId, idempotencyKey, trigger);
   return { state: { ...putAttempt(saved, attempt), attemptOrder: [...saved.attemptOrder, attempt.id], executions: { ...saved.executions, [attempt.id]: [] }, seq: attempt.enqueuedSeq } };
 }
 

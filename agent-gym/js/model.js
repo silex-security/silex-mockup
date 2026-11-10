@@ -194,6 +194,12 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {'active'|'paused'} runner                  'paused' after a refresh or a user pause
  * @property {number} enqueuedSeq
  * @property {{decision:string, note:string, reviewedAt:string, deploymentState:'not_deployed'}|null} review
+ * @property {AttemptTrigger} [trigger]                  absent on attempts saved before triggers; read through triggerOf
+ *
+ * @typedef {Object} AttemptTrigger                       why an attempt was enqueued
+ * @property {'manual'|'change'|'regression'} kind
+ * @property {string} label                              'Manual run', 'Model configuration change on Draft email', 'Regression batch 2'
+ * @property {string} [batchId]                          the RegressionBatch id, for kind 'regression'
  *
  * @typedef {Object} TraceEvent
  * @property {number} seq
@@ -250,6 +256,18 @@ export const VARIATION_COUNT = Object.freeze({ min: 1, max: 20, default: 4 });
  * @property {string[]} attemptOrder                                 queue order
  * @property {Record<string,Execution[]>} executions                 by attempt id, in plan order
  * @property {number} seq                                            monotonic id and enqueue counter
+ * @property {RegressionState} [regression]                          absent before regression existed; read through regressionOf
+ *
+ * @typedef {Object} RegressionState
+ * @property {'biweekly'|'monthly'|'quarterly'} cadence             a setting only: this preview has no timer
+ * @property {RegressionBatch[]} batches                             oldest first
+ *
+ * @typedef {Object} RegressionBatch                      one "Run regression now" press
+ * @property {string} id                                 'regression-1'
+ * @property {number} number                             1-based, in press order
+ * @property {number} startedSeq                         state.seq when the batch was enqueued; no wall-clock time
+ * @property {string[]} attemptIds                       one attempt per included experiment, in enqueue order
+ * @property {{experimentId:string, title:string, reason:string}[]} skipped   experiments left out, with the reason
  */
 
 export const refKey = ref => `${ref.id}@${ref.rev}`;

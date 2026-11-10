@@ -1,5 +1,5 @@
 // Experiment drafts and the seeded queue. The queue is produced by the real reducers and executor, never typed in.
-import { advanceAttempt, enqueueAttempt, renameExperiment } from '../simulation/attempts.js';
+import { advanceAttempt, changeTrigger, enqueueAttempt, renameExperiment } from '../simulation/attempts.js';
 
 const experiment = (id, number, title, workflowId, variantId, environmentRef, setId, selectedScenarioIds, repetitions, revision) => ({
   id, number, title, draftRevision: revision, savedRevision: revision,
@@ -34,12 +34,13 @@ function advanceWhile(state, attemptId, keepGoing) {
 /**
  * Meeting scheduling runs to completion, Sales follow-up runs to 12 of 18, Support triage waits in the queue.
  * exp-029 is then renamed, so its draft is one revision ahead of the frozen revision that is running.
+ * Meeting scheduling and Support triage were started by hand; Sales follow-up tests its Variant A as a change.
  */
 export function buildQueue(state) {
   let s = must(enqueueAttempt(state, { experimentId: 'exp-027', idempotencyKey: 'seed-exp-027-1' }));
   const meeting = s.attemptOrder.at(-1);
   s = advanceWhile(s, meeting, a => a.status !== 'completed');
-  s = must(enqueueAttempt(s, { experimentId: 'exp-029', idempotencyKey: 'seed-exp-029-1' }));
+  s = must(enqueueAttempt(s, { experimentId: 'exp-029', idempotencyKey: 'seed-exp-029-1', trigger: changeTrigger(s, 'exp-029') }));
   const sales = s.attemptOrder.at(-1);
   s = advanceWhile(s, sales, a => a.cursor < SEED_CURSOR);
   s = must(enqueueAttempt(s, { experimentId: 'exp-028', idempotencyKey: 'seed-exp-028-1' }));

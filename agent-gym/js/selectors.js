@@ -3,6 +3,7 @@ import { ATTEMPT_STATUS, refKey, sameRef, uniqueIds } from './model.js';
 import { compareAttempt } from './metrics.js';
 import { validateExperiment } from './validators.js';
 import { versionModelConfig } from './simulation/executor.js';
+import { triggerOf } from './simulation/attempts.js';
 
 const STATUS_RANK = { running: 0, queued: 1 };
 const FAULT_MARKER = { timeout_after_send: 'Timeout injection' };
@@ -22,7 +23,7 @@ export function queueRows(state) {
     return {
       attemptId: id, experimentId: a.experimentId, title: a.title, label: a.label,
       environmentName: environment.name, environmentIcon: environment.icon, scenarioCount: scenarios.length,
-      status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
+      trigger: triggerOf(a), status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
       progress: attemptProgress(state, id), canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
     };
   });
@@ -36,8 +37,8 @@ export function queueCounts(state) {
   return { ...counts, total: state.attemptOrder.length };
 }
 
-export const attemptsByStatus = (state, status = 'all') =>
-  queueRows(state).filter(r => status === 'all' || r.status === status);
+export const attemptsByStatus = (state, status = 'all', trigger = 'all') =>
+  queueRows(state).filter(r => (status === 'all' || r.status === status) && (trigger === 'all' || r.trigger.kind === trigger));
 
 export function experimentSummary(state, experimentId) {
   const exp = state.experiments[experimentId];
