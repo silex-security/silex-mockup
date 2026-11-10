@@ -67,5 +67,6 @@ export function impactPanel({ state, exp, router, onCheck, flash }) {
       h('span', { class: 'wb-impact__count', dataset: { impactRuns: String(impactRunCount(state, exp.id)) } },
         `${plural(impactRunCount(state, exp.id), 'check run')}, counted apart from this experiment's ${plural(own, 'run')}`),
       !check.canRun && check.reason && h('span', { class: 'wb-impact__why' }, check.reason),
-      flash && h('p', { class: `wb-flash wb-flash--${flash.tone}`, role: 'status' }, flash.text)));
+      // "Queued N checks" stops being true once they finish; the rows then carry the result.
+      flash && (flash.tone !== 'success' || rows.some(r => r.state === 'queued' || r.state === 'running')) && h('p', { class: `wb-flash wb-flash--${flash.tone}`, role: 'status' }, flash.text)));
 }
