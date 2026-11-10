@@ -206,3 +206,31 @@ test('no horizontal page scroll at 390 and 768px on the three environment screen
     assert.equal(await gym.ev(`return getComputedStyle(document.querySelector('.env-cols')).gridTemplateColumns.split(' ').length`), 1, `columns stack at ${width}px`);
   }
 }));
+
+test('leaving with unapplied component edits asks first: Keep editing stays, Apply and leave commits, Discard and leave drops; Back asks too', async t => withGym(t, async gym => {
+  await gym.go('#/workbench/exp-029');
+  const edit = value => `const n = main.querySelector('[data-focus-key="env:f:name"]'); n.focus(); n.value = ${JSON.stringify(value)}; n.dispatchEvent(new Event('input', { bubbles: true })); ${frame}`;
+  const settle = `${frame} await new Promise(r => setTimeout(r, 120));`;
+  const asked = `const d = document.querySelector('dialog.gym-dialog[open]'); return { hash: location.hash, title: text(d?.querySelector('h2')), buttons: d ? [...d.querySelectorAll('button')].map(text) : [] };`;
+  const before = await run(gym, `location.hash = '#/environments/new?returnTo=exp-029'; ${settle} return comp('gmail').name;`);
+
+  const away = await run(gym, `${edit('Mail edited')} location.hash = '#/runs?status=all'; ${settle} ${asked}`);
+  assert.deepEqual(away, { hash: '#/environments/new?returnTo=exp-029', title: `Leave with unapplied changes to ${before}?`, buttons: ['Keep editing', 'Discard and leave', 'Apply and leave'] });
+
+  const kept = await run(gym, `await press('Keep editing', document.querySelector('dialog.gym-dialog')); ${settle}
+    return { hash: location.hash, dialogs: document.querySelectorAll('dialog').length, value: main.querySelector('[data-focus-key="env:f:name"]').value, name: comp('gmail').name };`);
+  assert.deepEqual(kept, { hash: '#/environments/new?returnTo=exp-029', dialogs: 0, value: 'Mail edited', name: before });
+
+  const back = await run(gym, `history.back(); ${settle} ${asked}`);
+  assert.equal(back.hash, '#/environments/new?returnTo=exp-029', 'Back is held too');
+  assert.deepEqual(back.buttons, ['Keep editing', 'Discard and leave', 'Apply and leave']);
+  const applied = await run(gym, `await press('Apply and leave', document.querySelector('dialog.gym-dialog')); ${settle} return { hash: location.hash, name: comp('gmail').name, h1: text(main.querySelector('h1')) };`);
+  assert.deepEqual(applied, { hash: '#/workbench/exp-029', name: 'Mail edited', h1: 'Agent Gym' }, 'Apply and leave commits the edit and finishes the Back');
+
+  const dropped = await run(gym, `history.forward(); ${settle} ${edit('Mail dropped')} location.hash = '#/runs?status=all'; ${settle}
+    await press('Discard and leave', document.querySelector('dialog.gym-dialog')); ${settle} return { hash: location.hash, name: comp('gmail').name };`);
+  assert.deepEqual(dropped, { hash: '#/runs?status=all', name: 'Mail edited' });
+
+  const free = await run(gym, `location.hash = '#/environments/new?returnTo=exp-029'; ${settle} location.hash = '#/workbench/exp-029'; ${settle} return { hash: location.hash, dialogs: document.querySelectorAll('dialog').length };`);
+  assert.deepEqual(free, { hash: '#/workbench/exp-029', dialogs: 0 }, 'with nothing unapplied, leaving asks nothing');
+}));
