@@ -262,7 +262,7 @@ test('prefers-reduced-motion turns shell transitions off', async t => withGym(t,
 test('the memory-mode banner offers Reset demo data, and after Dismiss a quiet marker beside the preview marker says nothing is saved', async t => withGym(t, async gym => {
   await gym.ev(`localStorage.setItem(${KEY}, '{broken');`);
   await gym.go('#/workbench/exp-029');
-  const marks = `[...document.querySelectorAll('.gym-foot > *')].map(el => el.textContent)`;
+  const marks = `[...document.querySelectorAll('.gym-foot > *')].filter(el => el.checkVisibility()).map(el => el.textContent)`;
   const banner = await gym.ev(`const el = document.querySelector('.gym-persistence'); return { buttons: [...el.querySelectorAll('button')].map(b => b.textContent || b.getAttribute('aria-label')), marks: ${marks} }`);
   assert.deepEqual(banner, { buttons: ['Reset demo data', 'Dismiss'], marks: ['Concept preview · Simulated data'] });
 

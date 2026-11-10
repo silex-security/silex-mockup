@@ -48,7 +48,8 @@
 .gym-app .gym-banners > * { margin-top: 10px; }
 .gym-app .gym-main { flex: 1; min-width: 0; padding: 0 var(--gym-gutter); }
 .gym-app .gym-main:focus-visible { box-shadow: none; }
-.gym-app .gym-foot { flex: none; display: flex; justify-content: flex-end; padding: 8px var(--gym-gutter) 10px; }
+.gym-app .gym-foot { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 8px var(--gym-gutter) 10px; }
+.gym-app .gym-saving-mark[hidden] { display: none; }
 .gym-app .gym-preview-mark {
   display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: var(--gym-r-pill);
   border: 1px solid var(--gym-line); background: var(--gym-surface-2); color: var(--gym-muted); font-size: var(--gym-fs-xs); font-style: italic;

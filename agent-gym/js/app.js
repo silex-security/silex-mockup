@@ -86,14 +86,19 @@ const header = h('header', { class: 'gym-header' },
 
 const banners = h('div', { class: 'gym-banners' });
 const main = h('main', { class: 'gym-main', id: 'gym-main', tabIndex: -1 });
-const foot = h('footer', { class: 'gym-foot' }, h('span', { class: 'gym-preview-mark' }, PREVIEW_MARK));
+const notSaving = h('span', { class: 'gym-preview-mark gym-saving-mark', title: 'Changes last until this page reloads. Reset demo data starts saving again.', hidden: true }, 'Not saving · memory only');
+const foot = h('footer', { class: 'gym-foot' }, h('span', { class: 'gym-preview-mark' }, PREVIEW_MARK), notSaving);
+const FIXES = { reset: resetDemo };
 
 function renderBanners() {
   const { mode, error } = store.persistence;
+  notSaving.hidden = mode !== 'memory' || !!error;
   banners.replaceChildren();
   if (mode !== 'memory' || !error) return;
+  const fix = error.fix && FIXES[error.fix.action];
   banners.append(notice({
     tone: 'warning', role: 'alert', class: 'gym-persistence', title: 'Not saving.', text: error.message,
+    actions: fix && button({ label: error.fix.label, size: 'sm', onClick: fix }),
     onDismiss: () => store.persistence.dismissError(),
   }));
 }
