@@ -271,8 +271,7 @@ export function mount(root, ctx) {
       h('header', { class: 'sc-rcard__head' },
         h('strong', row.title),
         row.dimension && ui.badge({ label: dimensionLabel(row.dimension), tone: 'gray' }),
-        row.badge && row.reviewState !== 'reviewed' && ui.badge({ status: row.badge }),
-        ui.badge({ status: row.reviewState === 'reviewed' ? 'reviewed' : 'needs_review' }),
+        ui.badge({ status: row.reviewState === 'reviewed' ? 'reviewed' : row.badge === 'review' ? 'review' : 'needs_review' }),
         h('span', { class: 'gym-spacer' }),
         row.key !== 'base' && ui.button({ label: 'Edit', icon: 'pencil', size: 'sm', focusKey: `sc-review:edit:${row.key}`, onClick: () => openEditItemDialog(row.key) }),
         row.reviewState !== 'reviewed' && ui.button({

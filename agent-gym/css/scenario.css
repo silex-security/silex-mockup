@@ -77,15 +77,15 @@
 .gym-app .sc-title { min-height: 38px; }
 .gym-app .sc-title .gym-input__control { font-weight: 600; font-size: 15px; }
 .gym-app .sc-pencil { display: inline-grid; color: var(--gym-ink-2); }
-.gym-app .sc-trail.gym-btn--icon { width: 26px; min-height: 26px; margin-right: -6px; }
+.gym-app .sc-trail.gym-btn--icon { width: 24px; min-height: 24px; margin-right: -4px; }
 .gym-app .sc-prompt { display: flex; flex-direction: column; gap: 10px; padding: 12px 12px 14px; border: 1px solid var(--gym-primary-line); border-radius: var(--gym-r); background: var(--gym-primary-softer); }
 .gym-app .sc-prompt__head { display: flex; align-items: center; gap: 10px; color: var(--gym-primary-ink); }
 .gym-app .sc-prompt__head strong { color: var(--gym-ink); font-size: 16px; }
 .gym-app .sc-prompt .gym-input__control { font-size: 15px; }
 .gym-app .sc-fields { display: grid; gap: 12px; margin-top: 8px; }
-.gym-app .sc-field { display: grid; grid-template-columns: 80px minmax(0, 1fr); align-items: center; gap: 8px; }
-.gym-app .sc-field__label { font-size: var(--gym-fs-md); font-weight: 600; line-height: 1.15; }
-.gym-app .sc-field .gym-input { min-height: 36px; padding: 0 10px; gap: 4px; }
+.gym-app .sc-field { display: grid; grid-template-columns: 86px minmax(0, 1fr); align-items: center; gap: 8px; }
+.gym-app .sc-field__label { font-size: var(--gym-fs-sm); font-weight: 600; line-height: 1.15; }
+.gym-app .sc-field .gym-input { min-height: 36px; padding: 0 8px 0 10px; gap: 2px; }
 .gym-app .sc-field .gym-input__control { font-size: var(--gym-fs-sm); }
 .gym-app .sc-checks__text { font-size: var(--gym-fs-sm); }
 .gym-app .sc-checks { width: 100%; justify-content: space-between; text-align: left; cursor: pointer; color: var(--gym-ink-2); }
@@ -161,6 +161,7 @@
 .gym-app .sc-rule { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.5fr) 74px 84px 30px; gap: 6px; align-items: center; }
 .gym-app .sc-rule__value { min-width: 0; }
 .gym-app .sc-rules > .gym-btn { justify-self: start; }
+.gym-app .gym-dialog .gym-stack > .gym-btn { align-self: flex-start; }
 .gym-app .sc-turn { display: flex; align-items: flex-end; gap: 6px; }
 .gym-app .sc-turn > .gym-field { flex: 1; }
 .gym-app .sc-patch__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

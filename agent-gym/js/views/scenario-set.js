@@ -14,7 +14,7 @@ function scenarioCard(s, n) {
   const kind = s.variation ? s.variation.label : 'Base scenario';
   return h('div', { dataset: { scenario: s.id } }, ui.panel({
     class: 'sc-setcard', level: 3, title: `${n}. ${s.title}`, subtitle: `${kind} · ${s.source.label} · ${s.id} rev ${s.rev}`,
-    actions: [s.badge && ui.badge({ status: s.badge }), ui.badge({ status: s.reviewState === 'reviewed' ? 'reviewed' : 'needs_review' })],
+    actions: [s.badge === 'same_intent' && ui.badge({ status: 'same_intent' }), ui.badge({ status: s.reviewState === 'reviewed' ? 'reviewed' : 'needs_review' })],
     children: h('dl', { class: 'sc-rcard__grid' },
       h('dt', s.messages.length > 1 ? 'Messages' : 'Message'),
       h('dd', h('ol', { class: 'sc-setcard__messages' }, s.messages.map(m => h('li', s.messages.length > 1 ? `Turn ${m.turn}: ${m.text}` : m.text)))),
