@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { parse, href, createRouter, ROUTES } from '../../agent-gym/js/router.js';
 
 const CONTRACT = [
+  ['#/experiments?status=needs_review&q=sales%20follow', 'experiment-queue', {}, { status: 'needs_review', q: 'sales follow' }],
   ['#/workbench/exp-029', 'workbench', { experimentId: 'exp-029' }, {}],
   ['#/environments', 'environment-library', {}, {}],
   ['#/environments/new?returnTo=exp-029&focus=describe', 'environment-builder', {}, { returnTo: 'exp-029', focus: 'describe' }],
@@ -24,8 +25,8 @@ test('every contract route parses to its name, params and query, and href builds
   assert.deepEqual(ROUTES.map(r => r.name).filter(n => n !== 'kit').sort(), CONTRACT.map(c => c[1]).sort());
 });
 
-test('an empty hash is the default workbench, and an unknown path is not-found', () => {
-  for (const hash of ['', '#', '#/']) assert.deepEqual(parse(hash), { name: 'workbench', params: { experimentId: 'exp-029' }, query: {} });
+test('an empty hash is the default experiment queue, and an unknown path is not-found', () => {
+  for (const hash of ['', '#', '#/']) assert.deepEqual(parse(hash), { name: 'experiment-queue', params: {}, query: {} });
   for (const hash of ['#/nope', '#view=blueprint', '#/workbench', '#/workbench/exp-029/extra', '#/environments/env-sales', '#/experiments/exp-029/attempts'])
     assert.equal(parse(hash).name, 'not-found', hash);
 });
@@ -88,9 +89,9 @@ test('start puts the default route on an empty hash without adding a history ent
   const win = fakeWindow('');
   const router = createRouter(win);
   router.start();
-  assert.equal(win.location.hash, '#/workbench/exp-029');
+  assert.equal(win.location.hash, '#/experiments');
   assert.equal(win.stack.length, 1);
-  assert.equal(router.current().name, 'workbench');
+  assert.equal(router.current().name, 'experiment-queue');
 });
 
 test('a deep link is left exactly as it arrived', () => {
@@ -197,4 +198,12 @@ test('Back and Forward go through the leave guard, and proceed repeats the same 
   router.setLeaveGuard(null);
   win.history.back();
   assert.equal(seen.at(-1), 'environment-builder', 'without a guard nothing is held');
+});
+
+test('the queue route keeps a known status and a plain search text, and drops anything else', () => {
+  assert.deepEqual(parse('#/experiments?status=running').query, { status: 'running' });
+  assert.deepEqual(parse('#/experiments?status=cancelled&q=sales%20follow').query, { q: 'sales follow' }, 'an unknown status is dropped');
+  assert.deepEqual(parse('#/experiments?q=%3Cimg%20onerror%3D1%3E').query, {}, 'markup characters are not search text');
+  assert.deepEqual(parse(`#/experiments?q=${'a'.repeat(65)}`).query, {}, 'longer than the search box allows');
+  assert.equal(href('experiment-queue', {}, { status: 'pending', q: 'sales follow' }), '#/experiments?status=pending&q=sales%20follow');
 });

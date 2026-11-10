@@ -71,6 +71,8 @@ export function iconButton({ icon: name, label, variant = 'secondary', ...rest }
 
 export const STATUS = Object.freeze({
   ready: { label: 'Ready', tone: 'green', dot: true },
+  pending: { label: 'Pending', tone: 'gray', dot: true },
+  done: { label: 'Done', tone: 'green', icon: 'check' },
   draft: { label: 'Draft', tone: 'gray', dot: true },
   running: { label: 'Running', tone: 'violet', dot: true },
   queued: { label: 'Queued', tone: 'gray', dot: true },

@@ -56,8 +56,8 @@ test('the header, the preview marker and the default route', async t => withGym(
       h1: document.querySelectorAll('h1').length, title: document.title, mode: window.__gym.store.persistence.mode,
       api: [typeof window.__gym.router.go, typeof window.__gym.store.dispatch], bodyClass: document.body.className,
       font: getComputedStyle(document.body).fontFamily.split(',')[0] };`);
-  assert.equal(page.hash, '#/workbench/exp-029');
-  assert.deepEqual(page.links, [['Agent Studio', '../index.html#view=blueprint', null], ['Speedrun', '../index.html#view=speedrun', null], ['Agent Gym', '#/workbench/exp-029', 'page']]);
+  assert.equal(page.hash, '#/experiments');
+  assert.deepEqual(page.links, [['Agent Studio', '../index.html#view=blueprint', null], ['Speedrun', '../index.html#view=speedrun', null], ['Agent Gym', '#/experiments', 'page']]);
   assert.equal(page.logo, 'SILEX');
   assert.equal(page.workspace, 'Acme workspace');
   assert.equal(page.mark, 'Concept preview · Simulated data');
@@ -69,7 +69,7 @@ test('the header, the preview marker and the default route', async t => withGym(
 }));
 
 test('every route mounts a view with the marker, and refresh, Back and Forward restore the same route and query', async t => withGym(t, async gym => {
-  const routes = ['#/workbench/exp-029', '#/environments', '#/environments/new?returnTo=exp-029&focus=describe', '#/environments/env-sales/revisions/1.2',
+  const routes = ['#/experiments?status=all', '#/workbench/exp-029', '#/environments', '#/environments/new?returnTo=exp-029&focus=describe', '#/environments/env-sales/revisions/1.2',
     '#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up&source=chat&mode=prompt', '#/scenario-sets/set-follow-up-resilience/revisions/1',
     '#/runs?status=all', '#/experiments/exp-029/attempts/attempt-001', '#/experiments/exp-029/attempts/attempt-001/results'];
   const seen = [];
@@ -83,7 +83,7 @@ test('every route mounts a view with the marker, and refresh, Back and Forward r
   assert.ok(seen.slice(1).every(s => s.focus === 'gym-main'), 'focus moves to the main region on navigation');
 
   await gym.ev(`history.back(); ${frame} await new Promise(r => setTimeout(r, 150));`);
-  assert.equal(await gym.ev('return location.hash + " | " + document.querySelector(".gym-main h1").textContent'), `${routes[7]} | Run`);
+  assert.equal(await gym.ev('return location.hash + " | " + document.querySelector(".gym-main h1").textContent'), `${routes[8]} | Run`);
   await gym.ev(`history.forward(); ${frame} await new Promise(r => setTimeout(r, 150));`);
   assert.equal(await gym.ev('return document.querySelector(".gym-main h1").textContent'), 'Results');
 
@@ -94,7 +94,7 @@ test('every route mounts a view with the marker, and refresh, Back and Forward r
   await gym.go('#/workbench/%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E');
   const lost = await gym.ev('return { text: document.querySelector(".gym-main").textContent, back: document.querySelector(".gym-main a").getAttribute("href"), imgs: document.querySelectorAll("img").length }');
   assert.match(lost.text, /Page not found/);
-  assert.equal(lost.back, '#/workbench/exp-029');
+  assert.equal(lost.back, '#/experiments');
   assert.equal(lost.imgs, 0);
 }));
 
@@ -278,7 +278,7 @@ test('the memory-mode banner offers Reset demo data, and after Dismiss a quiet m
 }));
 
 test('the section tabs link the four parts of Agent Gym and mark the one that owns the route', async t => withGym(t, async gym => {
-  const owners = [['#/workbench/exp-029', 'Workbench'], ['#/environments', 'Environments'], ['#/environments/new?returnTo=exp-029', 'Environments'],
+  const owners = [['#/experiments', 'Workbench'], ['#/workbench/exp-029', 'Workbench'], ['#/environments', 'Environments'], ['#/environments/new?returnTo=exp-029', 'Environments'],
     ['#/environments/env-sales/revisions/1.2', 'Environments'], ['#/scenarios', 'Scenarios'], ['#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up', 'Scenarios'],
     ['#/scenario-sets/set-follow-up-resilience/revisions/1', 'Scenarios'], ['#/runs?status=all', 'Runs & results'], ['#/experiments/exp-029/attempts/attempt-001', 'Runs & results'],
     ['#/experiments/exp-029/attempts/attempt-001/results', 'Runs & results'], ['#/kit', null], ['#/nope', null]];
@@ -286,7 +286,7 @@ test('the section tabs link the four parts of Agent Gym and mark the one that ow
   const bar = await gym.ev(`const nav = document.querySelector('nav.gym-sections__nav');
     return { label: nav.getAttribute('aria-label'), links: [...nav.querySelectorAll('a')].map(a => [a.textContent, a.getAttribute('href')]),
       below: Math.round(nav.getBoundingClientRect().top) >= Math.round(document.querySelector('.gym-header').getBoundingClientRect().bottom) };`);
-  assert.deepEqual(bar, { label: 'Agent Gym', below: true, links: [['Workbench', '#/workbench/exp-029'], ['Environments', '#/environments'], ['Scenarios', '#/scenarios'], ['Runs & results', '#/runs?status=all']] });
+  assert.deepEqual(bar, { label: 'Agent Gym', below: true, links: [['Workbench', '#/experiments'], ['Environments', '#/environments'], ['Scenarios', '#/scenarios'], ['Runs & results', '#/runs?status=all']] });
   const marked = [];
   for (const [hash] of owners) {
     await gym.ev(`location.hash = ${JSON.stringify(hash)}; ${frame}`);

@@ -14,7 +14,7 @@ export function grid(template, children, cls) {
 }
 
 export const runsCrumbs = (router, ...rest) => [
-  { label: 'Agent Gym', href: router.href('workbench', { experimentId: 'exp-029' }) },
+  { label: 'Agent Gym', href: router.href('experiment-queue') },
   { label: 'Runs', href: router.href('run-list', {}, { status: 'all' }) },
   ...rest,
 ];

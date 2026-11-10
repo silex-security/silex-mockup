@@ -150,7 +150,7 @@ export function mount(root, ctx) {
       pageHeader({
         title: 'Runs', subtitle: 'Every simulated experiment attempt, frozen at the revision it ran.',
         breadcrumb: runsCrumbs(router).slice(0, 1).concat({ label: 'Runs' }),
-        actions: button({ label: 'Back to workbench', variant: 'outline', icon: 'arrow-left', focusKey: 'runs:workbench', href: router.href('workbench', { experimentId: 'exp-029' }) }),
+        actions: button({ label: 'Back to experiments', variant: 'outline', icon: 'arrow-left', focusKey: 'runs:workbench', href: router.href('experiment-queue') }),
       }),
       h('div', { class: 'run-panels' }, gatePanel(state), regressionPanel(state)),
       panel({

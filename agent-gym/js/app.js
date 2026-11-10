@@ -7,11 +7,12 @@
 import { seedState } from './fixtures/index.js';
 import { startScheduler } from './simulation/scheduler.js';
 import { createStore } from './store.js';
-import { createRouter } from './router.js';
+import { DEFAULT_ROUTE, createRouter } from './router.js';
 import { SECTIONS, sectionOf } from './sections.js';
 import { h } from './components/dom.js';
 import { icon, logoMark } from './components/icons.js';
 import { button, notice, popoverMenu, confirmDialog, openDialog } from './components/ui.js';
+import * as experimentQueue from './views/experiment-queue.js';
 import * as workbench from './views/workbench.js';
 import * as environmentLibrary from './views/environment-library.js';
 import * as environmentBuilder from './views/environment-builder.js';
@@ -26,6 +27,7 @@ import * as notFound from './views/not-found.js';
 import * as kit from './views/kit.js';
 
 const VIEWS = {
+  'experiment-queue': { view: experimentQueue, title: 'Experiment queue' },
   workbench: { view: workbench, title: 'Workbench' },
   'environment-library': { view: environmentLibrary, title: 'Environments' },
   'environment-builder': { view: environmentBuilder, title: 'Create environment' },
@@ -78,7 +80,7 @@ const header = h('header', { class: 'gym-header' },
   h('nav', { class: 'gym-nav', 'aria-label': 'Products' },
     navLink('Agent Studio', 'layers', '../index.html#view=blueprint'),
     navLink('Speedrun', 'bolt', '../index.html#view=speedrun'),
-    navLink('Agent Gym', 'gamepad', router.href('workbench', { experimentId: 'exp-029' }), true)),
+    navLink('Agent Gym', 'gamepad', router.href(DEFAULT_ROUTE.name, DEFAULT_ROUTE.params), true)),
   h('div', { class: 'gym-header__right' },
     popoverMenu({
       align: 'end', label: 'Workspace',
