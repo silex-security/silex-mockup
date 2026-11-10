@@ -43,6 +43,7 @@ const VIEWS = {
 const PREVIEW_MARK = 'Concept preview · Simulated data';
 const TICK_MS = 900;
 const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+document.body.classList.toggle('gym-embed', EMBED);
 
 function browserStorage() {
   try { return window.localStorage; } catch { return null; }
