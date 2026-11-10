@@ -2,6 +2,15 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-10 — Dark theme with fog, and one trace waterfall for three products
+
+- **Why:** the owner asked for the whole site in a dark style with the foggy look of the Platform hero, and for agent runs to read as a live trace waterfall instead of a step list.
+- **Dark:** `tools/codemods/dark-fog.mjs` rewrote the colour tokens in `css/tokens.css` and moved raw white surfaces onto tokens. The page carries the fog and cards are translucent over it. Blueprint Studio was rebuilt with dark tokens. The World Model inspectors use the stage ramps, because their paper is now dark.
+- **Jev runtime demo:** `jev-runtime/` is now the canonical source, forked from jev-runtime-observability, and is dark. The sync tool and the byte-identity test are gone.
+- **Waterfall:** `css/trace-waterfall.css` is the one stylesheet. Runtime Observation gained a gate trace under the pipeline (`js/rt-trace.js`), driven by the engine's own gate latencies. The Agent Gym run page gained a run trace on a step axis, because its events carry no timestamps. The Speedrun trace replay drew four swimlanes and now draws members and their tasks as a waterfall.
+- **Changed behaviour:** the Speedrun replay starts at 0 when it scrolls into view. It used to open paused at 18s. The lane status chips and the opportunity and message markers are no longer drawn; the run log still lists those events.
+- **Tests:** `rt-trace`, `gym-waterfall` and `speedrun-trace-waterfall` cover the three layouts. Probe S50 was rewritten for the new replay. Probe S20 (sidebar width) fails on `main` as well and was left alone.
+
 ## 2026-11-10 — Speedrun trace replay replays the run
 
 - **Why:** the Trace replay tab only slid a playhead over static bars. Nothing on the page changed as it played.
