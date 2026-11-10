@@ -48,7 +48,8 @@
 .gym-app .gym-banners > * { margin-top: 10px; }
 .gym-app .gym-main { flex: 1; min-width: 0; padding: 0 var(--gym-gutter); }
 .gym-app .gym-main:focus-visible { box-shadow: none; }
-.gym-app .gym-foot { flex: none; display: flex; justify-content: flex-end; padding: 8px var(--gym-gutter) 10px; }
+.gym-app .gym-foot { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 8px var(--gym-gutter) 10px; }
+.gym-app .gym-saving-mark[hidden] { display: none; }
 .gym-app .gym-preview-mark {
   display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: var(--gym-r-pill);
   border: 1px solid var(--gym-line); background: var(--gym-surface-2); color: var(--gym-muted); font-size: var(--gym-fs-xs); font-style: italic;
@@ -162,7 +163,7 @@
 .gym-app .gym-tabs--solid .gym-tab { min-height: 32px; padding: 0 18px; border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r); background: var(--gym-surface); flex: 1 1 auto; }
 .gym-app .gym-tabs--solid .gym-tab:hover { border-color: var(--gym-primary-line); background: var(--gym-primary-softer); }
 .gym-app .gym-tabs--solid .gym-tab[aria-selected="true"] { background: var(--gym-primary); border-color: var(--gym-primary); color: #fff; font-weight: 600; }
-.gym-app .gym-tabs--pill { padding: 2px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill); background: var(--gym-surface-2); }
+.gym-app .gym-tabs--pill { padding: 2px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill); background: var(--gym-surface-2); overflow-x: auto; }
 .gym-app .gym-tabs--pill .gym-tab { min-height: 22px; padding: 0 18px; border-radius: var(--gym-r-pill); font-size: var(--gym-fs-xs); color: var(--gym-muted); }
 .gym-app .gym-tabs--pill .gym-tab[aria-selected="true"] { background: var(--gym-primary); color: #fff; font-weight: 600; }
 .gym-app .gym-tab:focus-visible { box-shadow: var(--gym-ring); position: relative; z-index: 1; }

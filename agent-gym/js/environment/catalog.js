@@ -3,18 +3,21 @@
 import { clone } from '../model.js';
 import { ENVIRONMENTS } from '../fixtures/environments.js';
 
-// N2 shows these four with shorter taglines, Gmail with the Custom adapter, and the database as "Customer DB".
+// N2 shows these four with shorter taglines, Gmail named "Gmail simulator" with the Custom adapter, and the database as
+// "Customer DB".
 const N2_OVERRIDES = {
   salesforce: { description: 'Customer relationship management' },
-  gmail: { description: 'Email sending and message management', dedup: 'custom_adapter' },
+  gmail: { name: 'Gmail simulator', description: 'Email sending and message management', dedup: 'custom_adapter' },
   gcal: { description: 'Scheduling and meetings' },
   customdb: { name: 'Customer DB', app: 'customdb', description: 'Customer and contact data' },
 };
 
-/** @type {ReadonlyArray<{ id: string, origin: 'app'|'custom', component: import('../model.js').Component, seed: Object }>} */
+// appName is what people call the product ("Gmail"); component.name is this simulated component ("Gmail simulator").
+/** @type {ReadonlyArray<{ id: string, origin: 'app'|'custom', appName: string, component: import('../model.js').Component, seed: Object }>} */
 export const CATALOG = Object.freeze(ENVIRONMENTS.flatMap(env => env.components.map(c => Object.freeze({
   id: c.id,
   origin: c.id === 'customdb' ? 'custom' : 'app',
+  appName: c.name,
   component: Object.freeze({ ...clone(c), ...N2_OVERRIDES[c.id] }),
   seed: Object.freeze({ [c.kind]: clone(env.dataSeed[c.kind] ?? {}) }),
 }))));

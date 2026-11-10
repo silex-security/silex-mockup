@@ -194,14 +194,14 @@ test('the kit page renders every shared widget, and tabs, menus and disabled con
   assert.deepEqual(await gym.ev(`return [document.querySelectorAll('dialog').length, document.activeElement.dataset.focusKey, document.querySelector('[data-kit-out]').textContent]`), [0, 'kit:dialog', 'Dialog cancelled']);
 }));
 
-test('mountView keeps focus, caret and scroll across a store-driven re-render', async t => withGym(t, async gym => {
+test('mountView restores focus, caret and scroll by key when a re-render replaces the elements', async t => withGym(t, async gym => {
   const out = await gym.ev(`
     const { h, mountView } = await import('./js/components/dom.js');
     const root = document.createElement('div'); document.querySelector('.gym-main').append(root);
     let renders = 0;
-    const view = mountView(root, state => { renders++; return [
+    const view = mountView(root, state => { renders++; return h(state.seq % 2 ? 'section' : 'div',
       h('input', { value: 'seq ' + state.seq + ' typed', dataset: { focusKey: 'probe:input' } }),
-      h('div', { dataset: { scrollKey: 'probe:list' }, style: { height: '40px', overflow: 'auto' } }, h('div', { style: { height: '400px' } }, 'tall')) ]; }, window.__gym.store);
+      h('div', { dataset: { scrollKey: 'probe:list' }, style: { height: '40px', overflow: 'auto' } }, h('div', { style: { height: '400px' } }, 'tall'))); }, window.__gym.store);
     const input = root.querySelector('input'); input.focus(); input.setSelectionRange(2, 4);
     root.querySelector('[data-scroll-key]').scrollTop = 120;
     window.__gym.store.dispatch(state => ({ state: { ...state, seq: state.seq + 1 } }), {});
@@ -221,7 +221,7 @@ test('a dialog returns focus to its opener by focus key when a re-render replace
     const { h, mountView } = await import('./js/components/dom.js');
     const { openDialog, button } = await import('./js/components/ui.js');
     const root = document.createElement('div'); document.querySelector('.gym-main').append(root);
-    const view = mountView(root, () => button({ label: 'Opener', focusKey: 'probe:opener' }), window.__gym.store);
+    const view = mountView(root, state => h(state.seq % 2 ? 'section' : 'div', button({ label: 'Opener', focusKey: 'probe:opener' })), window.__gym.store);
     const before = root.querySelector('button'); before.focus();
     const dlg = openDialog({ title: 'Probe', actions: close => [button({ label: 'Done', onClick: () => close('done') })] });
     window.__gym.store.dispatch(state => ({ state: { ...state, seq: state.seq + 1 } }), {});
@@ -257,4 +257,22 @@ test('prefers-reduced-motion turns shell transitions off', async t => withGym(t,
   assert.notEqual(await gym.ev(duration), '0s');
   await gym.page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
   assert.equal(await gym.ev(duration), '0s');
+}));
+
+test('the memory-mode banner offers Reset demo data, and after Dismiss a quiet marker beside the preview marker says nothing is saved', async t => withGym(t, async gym => {
+  await gym.ev(`localStorage.setItem(${KEY}, '{broken');`);
+  await gym.go('#/workbench/exp-029');
+  const marks = `[...document.querySelectorAll('.gym-foot > *')].filter(el => el.checkVisibility()).map(el => el.textContent)`;
+  const banner = await gym.ev(`const el = document.querySelector('.gym-persistence'); return { buttons: [...el.querySelectorAll('button')].map(b => b.textContent || b.getAttribute('aria-label')), marks: ${marks} }`);
+  assert.deepEqual(banner, { buttons: ['Reset demo data', 'Dismiss'], marks: ['Concept preview · Simulated data'] });
+
+  await gym.ev(`document.querySelector('.gym-persistence [aria-label="Dismiss"]').click()`);
+  const dismissed = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode }`);
+  assert.deepEqual(dismissed, { banner: false, marks: ['Concept preview · Simulated data', 'Not saving · memory only'], mode: 'memory' });
+
+  await gym.go('#/workbench/exp-029');
+  await gym.ev(`[...document.querySelectorAll('.gym-persistence button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}
+    [...document.querySelectorAll('dialog.gym-dialog button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}`);
+  const reset = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode, saved: JSON.parse(localStorage.getItem(${KEY})).schemaVersion }`);
+  assert.deepEqual(reset, { banner: false, marks: ['Concept preview · Simulated data'], mode: 'local', saved: 2 });
 }));

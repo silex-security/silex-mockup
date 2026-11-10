@@ -56,10 +56,10 @@ test('Create environment shows the N2 draft, and the chat, undo, tabs, selection
   assert.equal(first.counts, '4 systems · 12 tools · 4 relationships');
   assert.match(first.footer, /3 components ready.*1 assumption to confirm/);
   assert.equal(first.focus, 'env:message', 'focus=describe focuses the chat input on a direct load');
-  assert.deepEqual(first.rows, ['Salesforce 4 tools Ready', 'Gmail 3 tools Needs review', 'Google Calendar 3 tools Ready', 'Customer DB 2 tools Ready']);
+  assert.deepEqual(first.rows, ['Salesforce 4 tools Ready', 'Gmail simulator 3 tools Needs review', 'Google Calendar 3 tools Ready', 'Customer DB 2 tools Ready']);
   assert.deepEqual([first.nodes, first.edges.sort()], [4, ['contact_id', 'email', 'email', 'email']]);
   assert.deepEqual(first.save, ['true', 'Validate the environment first.']);
-  assert.deepEqual([first.side, first.demo, first.turns], ['Gmail', 'Scripted assistant demo', 2]);
+  assert.deepEqual([first.side, first.demo, first.turns], ['Gmail simulator', 'Scripted assistant demo', 2]);
 
   const edge = await run(gym, `await press('contact_id'); await new Promise(r => setTimeout(r, 30));
     return { hash: location.hash, side: text(main.querySelector('.env-side')), pressed: document.querySelector('.env-edge.is-selected')?.textContent };`);
@@ -104,7 +104,7 @@ test('Create environment shows the N2 draft, and the chat, undo, tabs, selection
     await press('Undo');
     return { applyOn, asked, after, applied, restored: comp('gmail').enabledTools.length };`);
   assert.equal(edits.applyOn, null, 'an edit enables Apply changes');
-  assert.equal(edits.asked, 'Unapplied changes to Gmail');
+  assert.equal(edits.asked, 'Unapplied changes to Gmail simulator');
   assert.deepEqual([/select=node\.salesforce/.test(edits.after.hash), edits.after.tools], [true, 3], 'discarding drops the edit and moves on');
   assert.deepEqual([edits.applied, edits.restored], [['search_messages', 'send_email'], 3]);
 
@@ -132,7 +132,7 @@ test('path A: confirm the adapter, validate, save as template, use it in Experim
   assert.match(flow.early, /3 components ready.*1 assumption to confirm/);
   assert.match(flow.confirmed.footer, /4 components ready.*No assumptions to confirm/);
   assert.equal(flow.confirmed.status, 'Draft', 'confirming changes behavior, so the draft needs a fresh validation');
-  assert.equal(flow.confirmed.row, 'Gmail 3 tools Ready');
+  assert.equal(flow.confirmed.row, 'Gmail simulator 3 tools Ready');
   assert.deepEqual([flow.validated.status, flow.validated.save], ['Validated', null]);
   assert.match(flow.validated.notice, /Validated\. Report digest [0-9a-f]{8}/);
   assert.equal(flow.saved.title, 'Template saved');
@@ -205,4 +205,42 @@ test('no horizontal page scroll at 390 and 768px on the three environment screen
     await gym.go(BUILDER);
     assert.equal(await gym.ev(`return getComputedStyle(document.querySelector('.env-cols')).gridTemplateColumns.split(' ').length`), 1, `columns stack at ${width}px`);
   }
+}));
+
+test('leaving with unapplied component edits asks first: Keep editing stays, Apply and leave commits, Discard and leave drops; Back asks too', async t => withGym(t, async gym => {
+  await gym.go('#/workbench/exp-029');
+  const edit = value => `const n = main.querySelector('[data-focus-key="env:f:name"]'); n.focus(); n.value = ${JSON.stringify(value)}; n.dispatchEvent(new Event('input', { bubbles: true })); ${frame}`;
+  const settle = `${frame} await new Promise(r => setTimeout(r, 120));`;
+  const asked = `const d = document.querySelector('dialog.gym-dialog[open]'); return { hash: location.hash, title: text(d?.querySelector('h2')), buttons: d ? [...d.querySelectorAll('button')].map(text) : [] };`;
+  const before = await run(gym, `location.hash = '#/environments/new?returnTo=exp-029'; ${settle} return comp('gmail').name;`);
+
+  const away = await run(gym, `${edit('Mail edited')} location.hash = '#/runs?status=all'; ${settle} ${asked}`);
+  assert.deepEqual(away, { hash: '#/environments/new?returnTo=exp-029', title: `Leave with unapplied changes to ${before}?`, buttons: ['Keep editing', 'Discard and leave', 'Apply and leave'] });
+
+  const kept = await run(gym, `await press('Keep editing', document.querySelector('dialog.gym-dialog')); ${settle}
+    return { hash: location.hash, dialogs: document.querySelectorAll('dialog').length, value: main.querySelector('[data-focus-key="env:f:name"]').value, name: comp('gmail').name };`);
+  assert.deepEqual(kept, { hash: '#/environments/new?returnTo=exp-029', dialogs: 0, value: 'Mail edited', name: before });
+
+  const back = await run(gym, `history.back(); ${settle} ${asked}`);
+  assert.equal(back.hash, '#/environments/new?returnTo=exp-029', 'Back is held too');
+  assert.deepEqual(back.buttons, ['Keep editing', 'Discard and leave', 'Apply and leave']);
+  const applied = await run(gym, `await press('Apply and leave', document.querySelector('dialog.gym-dialog')); ${settle} return { hash: location.hash, name: comp('gmail').name, h1: text(main.querySelector('h1')) };`);
+  assert.deepEqual(applied, { hash: '#/workbench/exp-029', name: 'Mail edited', h1: 'Agent Gym' }, 'Apply and leave commits the edit and finishes the Back');
+
+  const dropped = await run(gym, `history.forward(); ${settle} ${edit('Mail dropped')} location.hash = '#/runs?status=all'; ${settle}
+    await press('Discard and leave', document.querySelector('dialog.gym-dialog')); ${settle} return { hash: location.hash, name: comp('gmail').name };`);
+  assert.deepEqual(dropped, { hash: '#/runs?status=all', name: 'Mail edited' });
+
+  const free = await run(gym, `location.hash = '#/environments/new?returnTo=exp-029'; ${settle} location.hash = '#/workbench/exp-029'; ${settle} return { hash: location.hash, dialogs: document.querySelectorAll('dialog').length };`);
+  assert.deepEqual(free, { hash: '#/workbench/exp-029', dialogs: 0 }, 'with nothing unapplied, leaving asks nothing');
+}));
+
+test('the Gmail component settings read "Gmail simulator" as in N2, while the app chips still say Gmail', async t => withGym(t, async gym => {
+  await gym.go('#/environments/new?returnTo=exp-029');
+  const out = await run(gym, `return { field: main.querySelector('[data-focus-key="env:f:name"]').value, id: comp('gmail').id,
+    apps: [...main.querySelectorAll('.env-appselect__label')].map(text), chips: [...main.querySelectorAll('.env-turn--user .env-inline-chip')].map(text) };`);
+  assert.equal(out.field, 'Gmail simulator');
+  assert.equal(out.id, 'gmail');
+  assert.deepEqual(out.apps, ['Salesforce', 'Gmail', 'Google Calendar']);
+  assert.ok(out.chips.includes('Gmail'), out.chips.join());
 }));

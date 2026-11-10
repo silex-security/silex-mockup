@@ -120,21 +120,20 @@ export function tabs({ items, value, onChange, label, variant = 'segmented', ...
     }
     if (id !== value) { value = id; onChange?.(id); }
   };
-  const list = h('div', {
+  return h('div', {
     id: rest.id, title: rest.title, class: cx('gym-tabs', `gym-tabs--${variant}`, rest.class), role: 'tablist', 'aria-label': label,
     onKeydown: e => {
       const ids = items.map(i => i.id), at = ids.indexOf(value);
       const to = { ArrowRight: at + 1, ArrowDown: at + 1, ArrowLeft: at - 1, ArrowUp: at - 1, Home: 0, End: ids.length - 1 }[e.key];
       if (to === undefined) return;
       e.preventDefault();
-      select(list, ids[(to + ids.length) % ids.length], true);
+      select(e.currentTarget, ids[(to + ids.length) % ids.length], true);
     },
   }, items.map(item => h('button', {
     class: 'gym-tab', type: 'button', role: 'tab', 'aria-selected': String(item.id === value), 'aria-controls': item.panelId,
     tabIndex: item.id === value ? 0 : -1, dataset: { tab: item.id, focusKey: rest.focusKey && `${rest.focusKey}:${item.id}` },
-    onClick: () => select(list, item.id, false),
+    onClick: e => select(e.currentTarget.parentElement, item.id, false),
   }, item.icon && icon(item.icon, { size: 16 }), h('span', item.label))));
-  return list;
 }
 
 export function checkbox({ checked = false, label, onChange, disabled = false, reason, ariaLabel, ...rest }) {
@@ -143,8 +142,11 @@ export function checkbox({ checked = false, label, onChange, disabled = false, r
     label != null && h('span', { class: 'gym-check__label' }, label));
 }
 
-function field({ label, hint, error, class: extra, id }, control, makeInput) {
-  const hintId = hint || error ? nextId('hint') : null;
+// A control with a focus key keeps the same ids on every render, so a re-render does not touch its attributes.
+const stableId = (prefix, focusKey) => (focusKey ? `gym-${prefix}-${focusKey.replace(/[^\w-]/g, '-')}` : nextId(prefix));
+
+function field({ label, hint, error, class: extra, id, focusKey }, control, makeInput) {
+  const hintId = hint || error ? stableId('hint', focusKey) : null;
   const input = makeInput(hintId);
   const box = control(input);
   if (label == null && !hintId) { if (id) box.id = id; if (extra) box.className += ` ${extra}`; return box; }
@@ -246,47 +248,68 @@ export function emptyState({ icon: lead = 'box', title, text, action, ...rest })
     h('strong', { class: 'gym-empty__title' }, title), text != null && h('p', { class: 'gym-empty__text' }, text), action);
 }
 
-export function popoverMenu({ trigger, items, align = 'start', label, ...rest }) {
-  const menuId = nextId('menu');
-  const btn = trigger instanceof Node ? trigger : button(trigger);
-  const options = () => [...menu.querySelectorAll('[role="menuitem"]')];
-  const outside = e => { if (!wrap.isConnected || !wrap.contains(e.target)) close(false); };
-  function open(last) {
-    menu.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
-    document.addEventListener('pointerdown', outside, true);
-    options().at(last ? -1 : 0)?.focus();
-  }
-  function close(refocus) {
-    menu.hidden = true;
-    btn.setAttribute('aria-expanded', 'false');
-    document.removeEventListener('pointerdown', outside, true);
-    if (refocus) btn.focus();
-  }
-  btn.setAttribute('aria-haspopup', 'menu');
+// The one open menu. A re-render keeps the wrap element, and the trigger's focus key lets the new render stay open.
+let openMenu = null;
+const menuParts = wrap => ({ btn: wrap.firstElementChild, menu: wrap.lastElementChild });
+
+function closeMenu(refocus) {
+  if (!openMenu) return;
+  const { btn, menu } = menuParts(openMenu.wrap);
+  openMenu = null;
+  document.removeEventListener('pointerdown', closeOutside, true);
+  menu.hidden = true;
   btn.setAttribute('aria-expanded', 'false');
+  if (refocus) btn.focus();
+}
+
+function closeOutside(e) {
+  if (openMenu && (!openMenu.wrap.isConnected || !openMenu.wrap.contains(e.target))) closeMenu(false);
+}
+
+function openMenuIn(wrap, last) {
+  if (openMenu?.wrap !== wrap) closeMenu(false);
+  const { btn, menu } = menuParts(wrap);
+  openMenu = { wrap, key: btn.getAttribute('data-focus-key') };
+  menu.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+  document.addEventListener('pointerdown', closeOutside, true);
+  [...menu.querySelectorAll('[role="menuitem"]')].at(last ? -1 : 0)?.focus();
+}
+
+export function popoverMenu({ trigger, items, align = 'start', label, ...rest }) {
+  const btn = trigger instanceof Node ? trigger : button(trigger);
+  const key = btn.getAttribute('data-focus-key');
+  const menuId = stableId('menu', key);
+  const isOpen = key != null && openMenu?.key === key;
+  btn.setAttribute('aria-haspopup', 'menu');
+  btn.setAttribute('aria-expanded', String(isOpen));
   btn.setAttribute('aria-controls', menuId);
-  btn.addEventListener('click', () => { if (btn.getAttribute('aria-disabled') !== 'true') menu.hidden ? open(false) : close(true); });
-  btn.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(e.key === 'ArrowUp'); } });
+  const onTrigger = e => menuParts(e.currentTarget).btn.contains(e.target);
   const menu = h('div', {
-    id: menuId, class: cx('gym-menu', `gym-menu--${align}`), role: 'menu', 'aria-label': label, hidden: true,
+    id: menuId, class: cx('gym-menu', `gym-menu--${align}`), role: 'menu', 'aria-label': label, hidden: !isOpen,
     onKeydown: e => {
-      const list = options(), at = list.indexOf(document.activeElement);
+      const list = [...e.currentTarget.querySelectorAll('[role="menuitem"]')], at = list.indexOf(document.activeElement);
       const to = { ArrowDown: at + 1, ArrowUp: at - 1, Home: 0, End: list.length - 1 }[e.key];
       if (to !== undefined) { e.preventDefault(); list[(to + list.length) % list.length]?.focus(); }
-      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); }
-      else if (e.key === 'Tab') close(false);
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeMenu(true); }
+      else if (e.key === 'Tab') closeMenu(false);
     },
   }, items.map(item => item.separator ? h('div', { class: 'gym-menu__sep', role: 'separator' })
     : item.heading != null ? h('div', { class: 'gym-menu__heading', role: 'presentation' }, item.heading)
     : h('button', {
       class: cx('gym-menu__item', item.danger && 'is-danger'), type: 'button', role: 'menuitem', tabIndex: -1,
       'aria-disabled': item.disabled && 'true', title: item.disabled ? item.reason : null,
-      onClick: () => { if (item.disabled) return; close(true); item.onSelect?.(); },
+      onClick: () => { if (item.disabled) return; closeMenu(true); item.onSelect?.(); },
     }, item.icon && icon(item.icon, { size: 16 }),
       h('span', { class: 'gym-menu__text' }, h('span', item.label), item.description != null && h('small', item.description)))));
-  const wrap = h('div', { id: rest.id, class: cx('gym-menuwrap', rest.class) }, btn, menu);
-  return wrap;
+  return h('div', {
+    id: rest.id, class: cx('gym-menuwrap', rest.class),
+    onClick: e => {
+      if (!onTrigger(e) || menuParts(e.currentTarget).btn.getAttribute('aria-disabled') === 'true') return;
+      if (openMenu?.wrap === e.currentTarget) closeMenu(true); else openMenuIn(e.currentTarget, false);
+    },
+    onKeydown: e => { if (onTrigger(e) && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); openMenuIn(e.currentTarget, e.key === 'ArrowUp'); } },
+  }, btn, menu);
 }
 
 export function dialog({ title, description, children, actions, size = 'sm', ...rest }) {

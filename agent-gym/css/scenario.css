@@ -109,6 +109,8 @@
 .gym-app .sc-gen__row { display: flex; align-items: center; gap: 12px 24px; flex-wrap: wrap; }
 .gym-app .sc-gen__inline { display: inline-flex; align-items: center; gap: 18px; }
 .gym-app .sc-count { width: 76px; min-height: 32px; }
+.gym-app .sc-count.has-error { border-color: var(--gym-red-dot); }
+.gym-app .sc-count__error { max-width: 180px; }
 .gym-app .sc-gen__inline .gym-input--select { width: 152px; min-height: 32px; }
 .gym-app .sc-gen__go { margin-left: auto; min-width: 146px; }
 .gym-app .sc-gen__count { margin-top: 2px; padding-top: 6px; border-top: 1px solid var(--gym-line); font-size: 16px; font-weight: 600; }

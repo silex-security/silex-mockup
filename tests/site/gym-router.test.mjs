@@ -58,19 +58,22 @@ test('query values outside an enum or the safe pattern are dropped, and the rest
 
 function fakeWindow(hash = '') {
   const listeners = new Set();
-  const stack = [hash];
+  const stack = [{ hash, state: null }];
   let at = 0;
   const fire = () => { for (const fn of [...listeners]) fn(); };
   return {
     stack,
+    get at() { return at; },
     location: {
-      get hash() { return stack[at]; },
-      set hash(value) { const next = value.startsWith('#') ? value : `#${value}`; if (next === stack[at]) return; stack.splice(at + 1, Infinity, next); at++; fire(); },
+      get hash() { return stack[at].hash; },
+      set hash(value) { const next = value.startsWith('#') ? value : `#${value}`; if (next === stack[at].hash) return; stack.splice(at + 1, Infinity, { hash: next, state: null }); at++; fire(); },
     },
     history: {
-      replaceState(_state, _title, url) { stack[at] = url; },
-      back() { if (at > 0) { at--; fire(); } },
-      forward() { if (at < stack.length - 1) { at++; fire(); } },
+      get state() { return stack[at].state; },
+      replaceState(state, _title, url) { stack[at] = { hash: url ?? stack[at].hash, state }; },
+      go(n) { const to = at + n; if (n && to >= 0 && to < stack.length) { at = to; fire(); } },
+      back() { this.go(-1); },
+      forward() { this.go(1); },
     },
     addEventListener(type, fn) { if (type === 'hashchange') listeners.add(fn); },
     removeEventListener(type, fn) { listeners.delete(fn); },
@@ -141,4 +144,54 @@ test('replaceQuery on an unknown route leaves the address alone', () => {
   router.start();
   router.replaceQuery({ tab: 'x' });
   assert.equal(win.location.hash, '#/nope');
+});
+
+test('a leave guard holds a link away, puts the previous hash back, lets same-view changes through, and proceed finishes the trip', () => {
+  const win = fakeWindow('#/workbench/exp-029');
+  const router = createRouter(win);
+  const seen = [];
+  router.subscribe(route => seen.push(route.name));
+  router.start();
+  router.go('environment-builder', {}, { returnTo: 'exp-029' });
+  let held = null;
+  router.setLeaveGuard((next, proceed) => { if (next.name === 'environment-builder') return false; held = { name: next.name, proceed }; return true; });
+
+  win.location.hash = '#/runs?status=all';
+  assert.equal(win.location.hash, '#/environments/new?returnTo=exp-029', 'the address goes back to the builder');
+  assert.deepEqual(seen, ['environment-builder'], 'subscribers never saw the held route');
+  assert.equal(held.name, 'run-list');
+
+  router.replaceQuery({ tab: 'tools' });
+  assert.deepEqual(seen, ['environment-builder', 'environment-builder'], 'a change inside the view is not held');
+
+  held.proceed();
+  assert.equal(win.location.hash, '#/runs?status=all');
+  assert.deepEqual(seen.at(-1), 'run-list');
+});
+
+test('Back and Forward go through the leave guard, and proceed repeats the same step through history', () => {
+  const win = fakeWindow('#/workbench/exp-029');
+  const router = createRouter(win);
+  const seen = [];
+  router.subscribe(route => seen.push(route.name));
+  router.start();
+  router.go('environment-builder');
+  router.go('run-list', {}, { status: 'all' });
+  win.history.back();
+  assert.deepEqual([win.at, seen.at(-1)], [1, 'environment-builder']);
+
+  let held = null;
+  router.setLeaveGuard((next, proceed) => { held = { name: next.name, proceed }; return true; });
+  win.history.back();
+  assert.deepEqual([win.at, win.location.hash, held.name], [1, '#/environments/new', 'workbench'], 'Back was undone');
+  win.history.forward();
+  assert.deepEqual([win.at, win.location.hash, held.name], [1, '#/environments/new', 'run-list'], 'Forward was undone');
+  assert.equal(seen.at(-1), 'environment-builder');
+
+  held.proceed();
+  assert.deepEqual([win.at, win.location.hash, win.stack.length, seen.at(-1)], [2, '#/runs?status=all', 3, 'run-list'], 'proceed steps forward, adding no entry');
+
+  router.setLeaveGuard(null);
+  win.history.back();
+  assert.equal(seen.at(-1), 'environment-builder', 'without a guard nothing is held');
 });

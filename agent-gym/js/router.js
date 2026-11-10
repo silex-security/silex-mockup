@@ -9,6 +9,9 @@
 //     replaceQuery(patch)                      merge view state (tab, selection) into the query, no history entry;
 //                                              a null or '' value removes the key
 //     subscribe(fn) -> unsubscribe             fn(route) after every change, Back and Forward included
+//     setLeaveGuard(fn | null)                 fn(nextRoute, proceed) -> true holds the change: the previous hash comes
+//                                              back, no subscriber runs, and proceed() later makes the same change
+//                                              (a held Back or Forward steps through history again)
 //     start() -> stop                          listen for hashchange and put the default route on an empty hash
 //   }
 //
@@ -95,26 +98,54 @@ export function href(name, params = {}, query = {}) {
 
 export function createRouter(win = globalThis.window) {
   const subscribers = new Set();
-  let seen = null;
+  // Each history entry this router has seen carries its position, so a held Back or Forward can be stepped back exactly.
+  let seen = null, index = 0, guard = null, undoing = false, passing = false;
   const current = () => parse(win.location.hash);
-  const sync = () => {
-    if (win.location.hash === seen) return;
+  const positionHere = () => win.history.state?.gymIndex;
+  const stamp = (url) => win.history.replaceState({ ...win.history.state, gymIndex: index }, '', url);
+
+  function hold(next, step) {
+    const hash = win.location.hash;
+    const proceed = () => {
+      passing = true;
+      if (step) { win.history.go(step); return; }
+      if (step === 0) win.history.replaceState(win.history.state, '', hash); else win.location.hash = hash;
+      sync();
+    };
+    if (!guard(next, proceed)) return false;
+    if (step === 0) { win.history.replaceState(win.history.state, '', seen); return true; }
+    undoing = true;
+    if (step) win.history.go(-step); else win.history.back();
+    return true;
+  }
+
+  function sync() {
+    if (win.location.hash === seen) { undoing = false; return; }
+    if (undoing) return;
+    const at = positionHere();
+    const step = typeof at === 'number' ? at - index : null;
+    const next = current();
+    if (guard && !passing && hold(next, step)) return;
+    passing = false;
+    if (step === null) { index += 1; stamp(); } else index = at;
     seen = win.location.hash;
-    const route = current();
-    for (const fn of [...subscribers]) fn(route);
-  };
-  const replace = hash => { win.history.replaceState(null, '', hash); sync(); };
+    for (const fn of [...subscribers]) fn(next);
+  }
+
   return {
     current, href,
     go(name, params, query) { win.location.hash = href(name, params, query); sync(); },
     replaceQuery(patch) {
       const route = current();
       if (route.name === 'not-found') return;
-      replace(href(route.name, route.params, { ...route.query, ...patch }));
+      win.history.replaceState(win.history.state, '', href(route.name, route.params, { ...route.query, ...patch }));
+      sync();
     },
     subscribe(fn) { subscribers.add(fn); return () => subscribers.delete(fn); },
+    setLeaveGuard(fn) { guard = fn; },
     start() {
-      if (/^#?\/?$/.test(win.location.hash)) win.history.replaceState(null, '', href(DEFAULT_ROUTE.name, DEFAULT_ROUTE.params));
+      index = positionHere() ?? 0;
+      stamp(/^#?\/?$/.test(win.location.hash) ? href(DEFAULT_ROUTE.name, DEFAULT_ROUTE.params) : undefined);
       seen = win.location.hash;
       win.addEventListener('hashchange', sync);
       return () => win.removeEventListener('hashchange', sync);

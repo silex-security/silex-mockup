@@ -34,7 +34,6 @@ export function mount(root, ctx) {
   const { store, router, announce } = ctx;
   let route = ctx.route;
   let message = '';
-  let nameDraft = null;
   let working = null;
   let savedAt = null;
   let lastSelect = route.query.select;
@@ -149,7 +148,6 @@ export function mount(root, ctx) {
   }
 
   function commitName(value) {
-    nameDraft = null;
     if (value.trim() === draftNow().name) { view.refresh(); return; }
     if (command({ type: 'rename', name: value }).ok) announce(`Environment renamed to ${draftNow().name}.`);
     else view.refresh();
@@ -308,7 +306,7 @@ export function mount(root, ctx) {
         ui.button({ label: 'Validate environment', variant: 'primary', onClick: validateNow, focusKey: 'env:validate-head' }),
       ],
       meta: [
-        ui.textInput({ value: nameDraft ?? draft.name, icon: 'pencil', ariaLabel: 'Environment name', class: 'env-name', focusKey: 'env:name', onInput: v => { nameDraft = v; }, onChange: commitName }),
+        ui.textInput({ value: draft.name, icon: 'pencil', ariaLabel: 'Environment name', class: 'env-name', focusKey: 'env:name', onChange: commitName }),
         ui.badge({ status: summary.status, class: 'env-status' }),
         savedAt === draft.revision && h('span', { class: 'env-saved' }, icon('check', { size: 14 }), store.persistence.mode === 'local' ? 'Draft saved in this browser' : 'Kept for this session only'),
       ],
@@ -316,10 +314,10 @@ export function mount(root, ctx) {
   }
 
   function textWithChips(text, chips = []) {
-    const names = chips.map(id => catalogEntry(id)?.component.name).filter(Boolean).sort((a, b) => b.length - a.length);
+    const names = chips.map(id => catalogEntry(id)?.appName).filter(Boolean).sort((a, b) => b.length - a.length);
     if (!names.length) return text;
     return text.split(new RegExp(`(${names.join('|')})`)).map(part => {
-      const entry = names.includes(part) && CATALOG.find(e => e.component.name === part);
+      const entry = names.includes(part) && CATALOG.find(e => e.appName === part);
       return entry ? ui.appChip({ app: entry.component.app, label: part, class: 'env-inline-chip' }) : part;
     });
   }
@@ -327,10 +325,11 @@ export function mount(root, ctx) {
   // A chip that shows the full app name, over a transparent native select that keeps keyboard and screen-reader use.
   function appSelect(draft, component) {
     const used = new Set(draft.components.map(c => c.id));
-    return h('label', { class: 'env-appselect', title: `Change ${component.name}` },
-      appIcon(component.app, { size: 16 }), h('span', { class: 'env-appselect__label' }, component.name), icon('chevron-down', { size: 12 }),
+    const appName = catalogEntry(component.id)?.appName ?? component.name;
+    return h('label', { class: 'env-appselect', title: `Change ${appName}` },
+      appIcon(component.app, { size: 16 }), h('span', { class: 'env-appselect__label' }, appName), icon('chevron-down', { size: 12 }),
       h('select', {
-        class: 'env-appselect__native', value: component.id, 'aria-label': `Change ${component.name}`, dataset: { focusKey: `env:app:${component.id}` },
+        class: 'env-appselect__native', value: component.id, 'aria-label': `Change ${appName}`, dataset: { focusKey: `env:app:${component.id}` },
         onChange: e => {
           const id = e.target.value;
           if (!command({ type: 'replaceComponent', componentId: component.id, catalogId: id }).ok) return;
@@ -338,7 +337,7 @@ export function mount(root, ctx) {
           announce(`Replaced ${component.name} with ${catalogEntry(id).component.name}.${broken ? ` ${plural(broken, 'relationship')} now point at a missing component.` : ''} You can undo.`);
         },
       },
-      CATALOG.filter(e => e.origin === 'app').map(e => h('option', { value: e.id, disabled: used.has(e.id) && e.id !== component.id }, e.component.name)),
+      CATALOG.filter(e => e.origin === 'app').map(e => h('option', { value: e.id, disabled: used.has(e.id) && e.id !== component.id }, e.appName)),
       h('option', { value: 'other', disabled: true }, 'Other apps: not simulated in this preview')));
   }
 
@@ -645,6 +644,12 @@ export function mount(root, ctx) {
   }
 
   const view = mountView(root, render, store);
+  const dirtyComponent = () => (working ? draftNow()?.components.find(c => c.id === working.componentId && isDirty(c)) : null);
+  ctx.setLeaveGuard({
+    pending: () => dirtyComponent()?.name ?? null,
+    apply: () => { const c = dirtyComponent(); return !c || applyWorking(c); },
+    discard: () => { working = null; },
+  });
   // On an in-app navigation the shell has just focused the main region (root) to announce the new page; that wins.
   if (route.query.focus === 'describe') queueMicrotask(() => { if (document.activeElement !== root) root.querySelector('[data-focus-key="env:message"]')?.focus(); });
 

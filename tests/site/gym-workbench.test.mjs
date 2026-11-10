@@ -202,7 +202,7 @@ test('scenarios: checkboxes recompute everything, search hides rows only, zero s
   assert.equal(zero.focus, 'wb:sc:sc-base-case', 'the fix entry point focuses the first scenario checkbox');
 }));
 
-test('environments: search keeps the selection, an incompatible choice lists what is missing and keeps the draft', async t => withGym(t, async (gym, page) => {
+test('environments: search keeps the selection, an incompatible choice lists what is missing and says the draft now uses it', async t => withGym(t, async (gym, page) => {
   const search = await page(`const input = $('[data-focus-key="wb:env-search"]'); input.value = 'logs'; input.dispatchEvent(new Event('input', { bubbles: true })); await frame();
     const out = { cards: $$('.wb-env .wb-env__name').map(txt), env: E().environmentRef.id, hint: txt($('.wb-col--env .wb-hint')) };
     const i2 = $('[data-focus-key="wb:env-search"]'); i2.value = 'calendar'; i2.dispatchEvent(new Event('input', { bubbles: true })); await frame();
@@ -218,6 +218,7 @@ test('environments: search keeps the selection, an incompatible choice lists wha
     click('.wb-env', 'IT operations'); await frame();
     return { before, env: E().environmentRef, workflow: E().workflowRef.id, ids: E().selectedScenarioIds.join(), rev: E().draftRevision,
       selected: txt($('.wb-env.is-selected .wb-env__name')), warn: txt($('.wb-env__warn')), dep: txt($('.wb-dep')), missing: $$('.wb-missing__group').map(txt), fix: txt($('.wb-missing .gym-btn--link')),
+      title: txt($('.wb-missing .gym-notice__title')), says: txt($('.wb-missing .gym-notice__body > span')),
       run: $('.wb-run__go').getAttribute('aria-disabled'), card: txt($('[data-summary="environment"] strong')), dupe: !!$('.wb-errors li[data-code="dependency_unmatched"]'), override: txt($('.wb-errors li[data-code="unknown_override"]')) };`);
   assert.deepEqual(it.env, { id: 'env-it', rev: '1.1' });
   assert.deepEqual([it.workflow, it.ids, it.rev], [it.before.workflow, it.before.ids, it.before.rev + 1], 'the workflow and scenarios stay as they were');
@@ -229,6 +230,9 @@ test('environments: search keeps the selection, an incompatible choice lists wha
     'Fault hooks selected scenarios inject: email.timeout_after_send',
   ]);
   assert.equal(it.fix, 'Change environment');
+  assert.equal(it.title, 'IT operations v1.1 lacks what this experiment needs.');
+  assert.equal(it.says, `The draft now uses it at rev ${it.rev}. Nothing else was changed to fit it. Run stays blocked until the items below are resolved or another environment is chosen.`);
+  assert.doesNotMatch(it.title + it.says, /unchanged/, 'the draft did change, so the copy never says it did not');
   assert.equal(it.run, 'true');
   assert.equal(it.card, 'IT operations v1.1');
   assert.equal(it.dupe, false, 'the missing list is shown once');
@@ -236,6 +240,12 @@ test('environments: search keeps the selection, an incompatible choice lists wha
 
   const back = await page(`click('.wb-env', 'Sales operations'); await frame(); return [E().environmentRef.id, txt($('.wb-dep')), $('.wb-run__go').getAttribute('aria-disabled')]`);
   assert.deepEqual(back, ['env-sales', 'Dependencies matched', null]);
+
+  const gone = await page(`window.__gym.store.dispatch(s => ({ state: { ...s, experiments: { ...s.experiments, 'exp-029': { ...s.experiments['exp-029'], environmentRef: { id: 'env-gone', rev: '9' } } } } }), {}); await frame();
+    return { dep: txt($('.wb-dep')), notice: !!$('.wb-missing'), errors: $$('.wb-errors li').map(li => li.dataset.code) };`);
+  assert.equal(gone.dep, 'Dependencies not checked', 'no environment record means nothing was checked, not zero missing');
+  assert.equal(gone.notice, false);
+  assert.ok(gone.errors.includes('environment_missing'), gone.errors.join());
 }));
 
 test('Run validates, saves, freezes and enqueues once per draft revision; Save only saves', async t => withGym(t, async (gym, page) => {
@@ -309,10 +319,13 @@ test('Run replay plays a recorded execution and is disabled until one exists', a
     const out = { q: Q().view, head: txt($('#wb-blueprint-title')), events: $$('.wb-trace li').length, current: $$('.wb-node.is-current').map(n => n.dataset.node),
       dim: $$('.wb-node.is-dim').map(n => n.dataset.node), count: txt($('.wb-replay__count')), link: $('.wb-replay__link').getAttribute('href'),
       prev: $('[data-focus-key="wb:rp:prev"]').getAttribute('aria-disabled') };
+    out.node1 = Q().node;
     click('[data-focus-key="wb:rp:next"]'); await frame();
     out.step2 = [Q().step, $$('.wb-node.is-current').map(n => n.dataset.node).join(), txt($('.wb-trace li.is-current'))];
+    out.node2 = Q().node;
     const sc = $('[data-focus-key="wb:rp:scenario"]'); sc.value = 'sc-timeout-after-send'; sc.dispatchEvent(new Event('change', { bubbles: true })); await frame();
     out.timeout = [txt($('#wb-blueprint-title')), txt(node('send-email').querySelector('.wb-node__tag'))];
+    out.node3 = [Q().node ?? '', $$('.wb-node.is-current').map(n => n.dataset.node).join()];
     out.notRun = [...$('[data-focus-key="wb:rp:scenario"]').options].filter(o => o.disabled).map(o => o.textContent);
     return out;`);
   assert.equal(v.q, 'replay');
@@ -324,6 +337,8 @@ test('Run replay plays a recorded execution and is disabled until one exists', a
   assert.equal(v.link, '#/experiments/exp-029/attempts/attempt-002');
   assert.equal(v.prev, 'true');
   assert.deepEqual(v.step2, ['2', 'draft-email', '2 model simulated-model-variant-a: drafted']);
+  assert.deepEqual([v.node1, v.node2], ['find-opportunity', 'draft-email'], 'the node in the address follows the replay step');
+  assert.equal(v.node3[0], v.node3[1], 'after a scenario change the address names the highlighted node');
   assert.deepEqual(v.timeout, ['Run replay · Timeout after send · Variant A #1', 'Timeout injection']);
   assert.deepEqual(v.notRun, ['Contact opted out (not run yet)']);
 
@@ -390,4 +405,10 @@ test('with the live clock the queue advances while typing keeps its value and ca
   assert.ok(v.advanced >= 1, 'the scheduler ticked at least once');
   assert.equal(v.shown, `${v.total}/18`, 'the queue row reads the store');
   assert.deepEqual([v.focus, v.value, v.caret], ['wb:sc-search', 'tim', 2]);
+}));
+
+test('a replay link with a stale node puts the highlighted step\'s node in the address', async t => withGym(t, async (gym, page) => {
+  await gym.go(`${WB}?view=replay&node=log-skipped&step=2`);
+  const v = await page(`await frame(); return { node: Q().node, current: $$('.wb-node.is-current').map(n => n.dataset.node).join(), step: Q().step };`);
+  assert.deepEqual(v, { node: 'draft-email', current: 'draft-email', step: '2' });
 }));

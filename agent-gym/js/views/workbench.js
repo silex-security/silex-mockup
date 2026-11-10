@@ -111,6 +111,15 @@ export function mount(root, ctx) {
     else setQuery({ dialog: null });
   }
 
+  // In replay the highlighted node is the current step's node, so the address names that node and never a stale one.
+  function syncReplayNode() {
+    const state = store.getState();
+    if (!state.experiments[expId()] || query().view !== 'replay') return;
+    const replay = replayView(state, expId(), query(), viewedVersion(state, expId(), query()));
+    const node = replay?.currentNodeId ?? null;
+    if (replay && (query().node ?? null) !== node) setQuery({ node });
+  }
+
   const header = () => h('header', { class: 'gym-pagehead wb-head' },
     breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Workbench' }], class: 'gym-sr' }),
     h('div', { class: 'gym-pagehead__row' },
@@ -311,15 +320,19 @@ export function mount(root, ctx) {
     const errors = dep.errors;
     const blocking = errors.filter(e => e.code !== 'dependency_unmatched' || !missing.length);
     const runReason = errors.length ? `${errors[0].message}.${errors[0].fix ? ` Fix: ${errors[0].fix.label}.` : ''}` : null;
+    const env = state.environments[refKey(exp.environmentRef)];
+    const depState = dep.matched ? 'matched' : missing.length ? 'missing' : 'unchecked';
     return h('div', { class: 'wb-run' },
       h('div', { class: 'wb-run__meta' },
-        h('span', { class: `wb-dep ${dep.matched ? 'is-ok' : 'is-bad'}`, dataset: { dep: dep.matched ? 'matched' : 'missing' } },
-          icon(dep.matched ? 'check-circle' : 'alert', { size: 16 }), dep.matched ? 'Dependencies matched' : `Dependencies missing (${dep.missing.length})`),
+        h('span', { class: `wb-dep ${dep.matched ? 'is-ok' : 'is-bad'}`, dataset: { dep: depState } },
+          icon(dep.matched ? 'check-circle' : 'alert', { size: 16 }),
+          { matched: 'Dependencies matched', missing: `Dependencies missing (${missing.length})`, unchecked: 'Dependencies not checked' }[depState]),
         h('span', { class: 'wb-run__rule', 'aria-hidden': 'true' }),
         h('button', { type: 'button', class: 'wb-formula', title: 'Change repetitions and see how runs and pairs are counted', dataset: { focusKey: 'wb:formula' }, onClick: () => setQuery({ dialog: 'settings' }) },
           sum.formula, h('span', { class: 'gym-sr' }, `. ${sum.pairs} pairs. Open run settings.`))),
-      !dep.matched && missing.length > 0 && notice({
-        tone: 'error', class: 'wb-missing', title: `${state.environments[refKey(exp.environmentRef)]?.name ?? 'This environment'} lacks what this experiment needs. The draft is unchanged.`,
+      depState === 'missing' && notice({
+        tone: 'error', class: 'wb-missing', title: `${env.name} v${env.rev} lacks what this experiment needs.`,
+        text: `The draft now uses it at rev ${exp.draftRevision}. Nothing else was changed to fit it. Run stays blocked until the items below are resolved or another environment is chosen.`,
         children: [
           missingGroup('Tools the workflow calls', missing.filter(m => m.kind === 'tool')),
           missingGroup('Fault hooks selected scenarios inject', missing.filter(m => m.kind === 'fault')),
@@ -441,8 +454,9 @@ export function mount(root, ctx) {
 
   const view = mountView(root, render, store);
   syncDialog();
+  syncReplayNode();
   return {
-    update(next) { route = next; view.refresh(); syncDialog(); },
+    update(next) { route = next; view.refresh(); syncDialog(); syncReplayNode(); },
     destroy() { const d = local.dialog; local.dialog = null; d?.handle.close(); view.destroy(); },
   };
 }

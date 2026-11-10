@@ -210,3 +210,29 @@ for (const width of [390, 768]) {
     assert.deepEqual(dlg, [true, true]);
   }, [width, 900]));
 }
+
+test('in Review & save, each card is labelled by its scenario and its Edit and Confirm buttons name the scenario they act on', async t => withGym(t, async gym => {
+  await click(gym, byKey('sc:review'));
+  const cards = await gym.ev(`return [...document.querySelectorAll('dialog[open] .sc-rcard')].map(card => ({
+    title: card.querySelector('.sc-rcard__head strong').textContent, label: card.getAttribute('aria-label'),
+    buttons: [...card.querySelectorAll('.sc-rcard__head button')].map(b => [b.textContent.trim(), b.getAttribute('aria-label')]) }));`);
+  assert.ok(cards.length >= 5, `${cards.length} review cards`);
+  for (const card of cards) {
+    assert.equal(card.label, card.title, 'the card is named by its scenario');
+    for (const [visible, name] of card.buttons) assert.equal(name, `${visible} ${card.title}`, `${visible} on ${card.title}`);
+  }
+  assert.ok(cards.some(c => c.buttons.some(([v]) => v === 'Edit')) && cards.some(c => c.buttons.some(([v]) => v === 'Confirm')));
+}));
+
+test('an out-of-range Count stays in the field, marked invalid with the allowed range, and changes nothing until it is valid', async t => withGym(t, async gym => {
+  const tryCount = value => gym.ev(`const input = document.querySelector('${byKey('sc:count')}'); input.focus(); input.value = ${JSON.stringify(value)};
+    input.dispatchEvent(new Event('change', { bubbles: true })); input.blur(); ${frame}
+    const live = document.querySelector('${byKey('sc:count')}'), hint = document.getElementById(live.getAttribute('aria-describedby') || 'none');
+    return { value: live.value, invalid: live.getAttribute('aria-invalid'), hint: hint?.textContent ?? null,
+      stored: window.__gym.store.getState().scenarioDrafts[Object.keys(window.__gym.store.getState().scenarioDrafts)[0]].settings.prompt.count };`);
+  for (const bad of ['0', '25', '']) {
+    const out = await tryCount(bad);
+    assert.deepEqual(out, { value: bad, invalid: 'true', hint: 'Count must be a whole number from 1 to 20.', stored: 4 }, `Count "${bad}"`);
+  }
+  assert.deepEqual(await tryCount('6'), { value: '6', invalid: null, hint: null, stored: 6 });
+}));
