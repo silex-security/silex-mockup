@@ -171,7 +171,7 @@ export interface TeamStructure {
 
 /* ---------- Trace ---------- */
 
-export type SegmentKind = "work" | "lead" | "critical" | "timeout" | "wait" | "blocked" | "reusable";
+export type SegmentKind = "work" | "lead" | "critical" | "timeout" | "wait" | "blocked" | "idle" | "reusable";
 
 export interface TraceSegment {
   start: number;
