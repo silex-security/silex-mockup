@@ -24,7 +24,7 @@ export function mount(root, ctx) {
   let route = ctx.route;
   const expanded = new Set();
   let cursorKey = null, events = [], cursor = initialCursor(0);
-  let timer = null, replayEl = null;
+  let timer = null;
   let holding = false, missed = false;
 
   // While the scrubber is dragged, a re-render would replace it mid-drag, so store updates wait for the release.
@@ -37,14 +37,15 @@ export function mount(root, ctx) {
 
   const stopTimer = () => { if (timer !== null) { clearInterval(timer); timer = null; } };
 
-  function paint() {
-    if (!replayEl) return;
+  // A re-render keeps the live replay panel and drops the one it built, so a paint between renders finds it in root.
+  function paint(panelEl = root.querySelector('.run-replay')) {
+    if (!panelEl) return;
     const frame = replayFrame(events, cursor.position);
-    paintBlueprint(replayEl, frame);
-    paintTrace(replayEl, frame);
-    const scrub = replayEl.querySelector('.run-scrub__range');
+    paintBlueprint(panelEl, frame);
+    paintTrace(panelEl, frame);
+    const scrub = panelEl.querySelector('.run-scrub__range');
     if (scrub) scrub.value = String(cursor.position);
-    const where = replayEl.querySelector('.run-scrub__where');
+    const where = panelEl.querySelector('.run-scrub__where');
     if (where) where.textContent = `Event ${cursor.position} of ${events.length}`;
   }
 
@@ -157,7 +158,6 @@ export function mount(root, ctx) {
     const scenarioTitle = want && snap.scenarios.find(s => s.id === want.scenarioId)?.title;
     const heading = want ? `${scenarioTitle} · ${versionLabel(snap, want.versionId)} · repetition ${want.repeatIndex}` : 'No run selected';
     if (!execution) {
-      replayEl = null;
       const text = !selectedKey
         ? (facts.queue ? `This attempt is queued${facts.queue.behind ? ` behind ${facts.queue.behind}` : ''}. Runs appear here as they finish.` : 'No execution has finished yet.')
         : 'This run has no recorded events yet. Pick a finished repetition in the matrix.';
@@ -191,8 +191,7 @@ export function mount(root, ctx) {
         traceList(events, nodeLabels, { scrollKey: 'run:trace', label: 'Trace events' }),
       ],
     });
-    replayEl = el;
-    paint();
+    paint(el);
     return el;
   }
 
@@ -209,7 +208,7 @@ export function mount(root, ctx) {
 
   const render = state => {
     const resolved = resolveAttempt(state, route.params);
-    if (resolved.kind !== 'found') { stopTimer(); replayEl = null; return attemptNotFound(router, { title: 'Run', routeName: 'run-detail', params: route.params, resolved }); }
+    if (resolved.kind !== 'found') { stopTimer(); return attemptNotFound(router, { title: 'Run', routeName: 'run-detail', params: route.params, resolved }); }
     const attempt = resolved.attempt;
     const executions = state.executions[attempt.id] ?? [];
     const facts = attemptFacts(state, attempt.id);

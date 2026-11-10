@@ -66,7 +66,7 @@ The default route is `#/workbench/exp-029`. An unknown route renders a not-found
 ## View interface
 
 ```js
-/** @param {HTMLElement} root  @param {{ store, router, announce(text), route }} ctx */
+/** @param {HTMLElement} root  @param {{ store, router, announce(text), route, setLeaveGuard({ pending, apply, discard }) }} ctx */
 export function mount(root, ctx) { return { update(route) {}, destroy() {} }; }
 ```
 
@@ -74,7 +74,7 @@ export function mount(root, ctx) { return { update(route) {}, destroy() {} }; }
 
 ## DOM and components
 
-`js/components/dom.js` exports `h(tag, props, ...children)`. Strings become text nodes, so user and fixture text is never parsed as HTML. No view assigns `innerHTML` with dynamic content. `mountView(root, render, store)` re-renders on store changes and restores focus by `data-focus-key` and scroll position by `data-scroll-key`.
+`js/components/dom.js` exports `h(tag, props, ...children)`. Strings become text nodes, so user and fixture text is never parsed as HTML. No view assigns `innerHTML` with dynamic content. `mountView(root, render, store)` re-renders on store changes by reconciling the new tree into the live DOM. An element with the same tag and the same `data-focus-key` (else the same position) is kept, so open disclosures, the field being edited and held presses survive a scheduler tick. A replaced element gets focus back by `data-focus-key` and scroll by `data-scroll-key`. A view that holds unapplied edits registers `ctx.setLeaveGuard`, and the shell then holds a route change behind a Keep editing, Discard and leave, Apply and leave dialog.
 
 Shared widgets live in `js/components/` and are owned by the shell. A view that needs a new shared widget builds it locally first and reports it. CSS is scoped under `.gym-app`. Shared classes use the `gym-` prefix. Each screen prefixes its own classes: `wb-` workbench, `env-` environment builder, `sc-` scenario builder, `run-` run list, run detail and results. No selector may reach the old site's `:root`, `.card`, `.btn` or `.status`.
 

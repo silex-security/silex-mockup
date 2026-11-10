@@ -84,7 +84,7 @@ export function mount(root, ctx) {
     } else {
       const attempt = attemptByKey(result.state, key);
       flash(existing ? 'info' : 'success', existing
-        ? `${attempt.label} is already in the queue for this revision. Change the draft to run again.`
+        ? `${attempt.label} is already in the queue for this revision. It can run again once that attempt finishes or is cancelled.`
         : `Queued ${attempt.title} · ${attempt.label}: ${attempt.plan.length} runs.`, { attemptId: attempt.id });
     }
     refresh();
