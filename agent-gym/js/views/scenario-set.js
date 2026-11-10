@@ -54,7 +54,7 @@ export function mount(root, ctx) {
   const render = state => {
     const ref = { id: route.params.id, rev: route.params.rev };
     const detail = scenarioSetDetail(state, ref);
-    const crumbs = [{ label: 'Agent Gym', href: router.href('workbench', { experimentId: EXPERIMENT_ID }) }, { label: 'Scenarios' }, { label: detail?.set.name ?? 'Scenario set' }];
+    const crumbs = [{ label: 'Agent Gym', href: router.href('workbench', { experimentId: EXPERIMENT_ID }) }, { label: 'Scenarios', href: router.href('scenario-library') }, { label: detail?.set.name ?? 'Scenario set' }];
     if (!detail) return [
       ui.pageHeader({ title: 'Scenario set', breadcrumb: crumbs }),
       ui.emptyState({ icon: 'alert', title: 'Scenario set not found', text: `No saved revision ${refKey(ref)}.`, action: ui.button({ label: 'Create scenario', href: router.href('scenario-builder'), focusKey: 'set:create' }) }),

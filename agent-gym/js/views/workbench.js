@@ -124,7 +124,7 @@ export function mount(root, ctx) {
     breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Workbench' }], class: 'gym-sr' }),
     h('div', { class: 'gym-pagehead__row' },
       h('div', { class: 'gym-pagehead__titles' },
-        h('h1', { class: 'gym-pagehead__title' }, 'Agent Gym'),
+        h('h1', { class: 'gym-pagehead__title' }, 'Experiment Workbench'),
         h('p', { class: 'gym-pagehead__subtitle' }, 'Assemble an experiment. Test what changes.')),
       h('div', { class: 'gym-pagehead__actions' },
         button({ label: 'View all runs', variant: 'outline', href: router.href('run-list', {}, { status: 'all' }), focusKey: 'wb:runs' }))));

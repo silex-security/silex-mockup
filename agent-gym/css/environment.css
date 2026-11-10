@@ -40,7 +40,7 @@
 .gym-app .env-assume { margin-top: 4px; padding: 5px 8px 6px; border: 1px solid var(--gym-line); border-radius: var(--gym-r); background: var(--gym-surface); }
 .gym-app .env-assume strong { display: block; margin-bottom: 4px; font-size: var(--gym-fs-sm); }
 .gym-app .env-assume ul, .gym-app .env-changes { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
-.gym-app .env-assume li { display: flex; align-items: center; gap: 8px; padding: 2px 8px; border-radius: var(--gym-r-sm); background: var(--gym-amber-soft); color: #4d2a03; font-size: var(--gym-fs-sm); }
+.gym-app .env-assume li { display: flex; align-items: center; gap: 8px; padding: 2px 8px; border-radius: var(--gym-r-sm); background: var(--gym-amber-soft); color: var(--gym-amber); font-size: var(--gym-fs-sm); }
 .gym-app .env-assume li .gym-icon { color: var(--gym-amber-dot); }
 .gym-app .env-changes { margin-top: 4px; align-items: flex-start; }
 .gym-app .env-changes li { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: var(--gym-r-sm); background: var(--gym-green-soft); color: var(--gym-green); font-size: var(--gym-fs-sm); }
@@ -199,4 +199,9 @@
   .gym-app .env-footer .gym-btn, .gym-app .env-footer .gym-btn--primary { min-width: 0; flex: 1 1 auto; }
   .gym-app .env-footer__actions { width: 100%; }
   .gym-app .env-gen__row { grid-template-columns: 22px minmax(0, 1.4fr) minmax(0, .8fr) minmax(0, 1fr); padding: 2px 8px; gap: 6px; }
+}
+
+/* "Needs review" does not shrink, so on the narrowest phones the status column takes its own width. */
+@media (max-width: 420px) {
+  .gym-app .env-gen__row { grid-template-columns: 22px minmax(0, 1fr) auto auto; }
 }

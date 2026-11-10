@@ -61,7 +61,7 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
       progress: $('.wb-qrow .gym-progress__track').getAttribute('aria-valuenow') + '/' + $('.wb-qrow .gym-progress__track').getAttribute('aria-valuemax'),
       replay: $('[data-tab="replay"]').getAttribute('aria-disabled'),
     };`);
-  assert.equal(v.h1, 'Agent Gym');
+  assert.equal(v.h1, 'Experiment Workbench');
   assert.equal(v.sub, 'Assemble an experiment. Test what changes.');
   assert.equal(v.runs, '#/runs?status=all');
   assert.ok(Math.abs(v.share[0] - 24) <= 2 && Math.abs(v.share[1] - 51) <= 2 && Math.abs(v.share[2] - 24) <= 2, `columns ${v.share}`);

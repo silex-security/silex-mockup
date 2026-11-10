@@ -225,7 +225,7 @@ test('leaving with unapplied component edits asks first: Keep editing stays, App
   assert.equal(back.hash, '#/environments/new?returnTo=exp-029', 'Back is held too');
   assert.deepEqual(back.buttons, ['Keep editing', 'Discard and leave', 'Apply and leave']);
   const applied = await run(gym, `await press('Apply and leave', document.querySelector('dialog.gym-dialog')); ${settle} return { hash: location.hash, name: comp('gmail').name, h1: text(main.querySelector('h1')) };`);
-  assert.deepEqual(applied, { hash: '#/workbench/exp-029', name: 'Mail edited', h1: 'Agent Gym' }, 'Apply and leave commits the edit and finishes the Back');
+  assert.deepEqual(applied, { hash: '#/workbench/exp-029', name: 'Mail edited', h1: 'Experiment Workbench' }, 'Apply and leave commits the edit and finishes the Back');
 
   const dropped = await run(gym, `history.forward(); ${settle} ${edit('Mail dropped')} location.hash = '#/runs?status=all'; ${settle}
     await press('Discard and leave', document.querySelector('dialog.gym-dialog')); ${settle} return { hash: location.hash, name: comp('gmail').name };`);

@@ -57,7 +57,7 @@ View-only state that must survive a refresh (the selected tab, node, component, 
 #/scenarios/new?environment=:id@:rev&workflow=:id&source=chat|trace|blueprint|upload&mode=prompt|tool_failure|permission|data_state
 #/scenarios                                                 scenario library (saved sets)
 #/scenario-sets/:id/revisions/:rev                          scenario set revision (read-only detail)
-#/runs?status=all|running|queued|completed|cancelled        run list
+#/runs?status=all|running|queued|completed|cancelled&trigger=all|manual|change|regression   run list, release gate, regression
 #/experiments/:experimentId/attempts/:attemptId             run detail
 #/experiments/:experimentId/attempts/:attemptId/results     results
 ```
