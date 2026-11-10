@@ -64,7 +64,7 @@ export function mount(root, ctx) {
       panel({
         class: 'xq-list', title: 'Experiments', subtitle: `${view.rows.length} of ${view.counts.all} shown`,
         actions: [
-          searchField({ value: q, placeholder: 'Search experiments or workflows…', ariaLabel: 'Search experiments by name, workflow or source', focusKey: 'xq:search', class: 'xq-search', maxlength: 64,
+          searchField({ value: q, placeholder: 'Search experiments…', ariaLabel: 'Search experiments by name, workflow or source', focusKey: 'xq:search', class: 'xq-search', maxlength: 64,
             onInput: v => router.replaceQuery({ q: v.trim() ? v : null }) }),
           tabs({ variant: 'segmented', label: 'Filter by stage', value: status, focusKey: 'xq:filter', class: 'xq-filter',
             items: view.tabs.map(t => ({ id: t.id, label: `${t.label} · ${t.count}`, panelId: 'xq-table' })), onChange: id => router.replaceQuery({ status: id === 'all' ? null : id }) }),
