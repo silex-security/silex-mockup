@@ -180,7 +180,7 @@ test('Graph & files · the vision block in the page', { timeout: 240000 }, async
     const origin = await ev('return location.origin');
     await page.send('Page.navigate', { url: 'about:blank' });
     await page.send('Page.navigate', { url: `${origin}/index.html?vzPauseProbe#view=runtime-observation&tab=ontology&sub=graph` });
-    await until(() => ev('return document.readyState === "complete" && location.search === "?vzPauseProbe" && !!window.__sxView'), 'probe page', 30000);
+    await until(() => ev('return document.readyState === "complete" && location.search === "?vzPauseProbe" && !!window.__gymHost'), 'probe page', 30000);
     const paused = await until(() => ev('return window.__vzPause ?? null'), 'pause probe ran', 15000);
     assert.deepEqual(paused, { before: 'trace', away: 'onto', back: 'onto' }, 'leaving mid-way settles the switch on the ontology view');
     assert.deepEqual((await viewLog()).seq.map(e => e.v), ['trace', 'onto'], 'and it switches exactly once');

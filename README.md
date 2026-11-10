@@ -6,7 +6,7 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 |---|---|---|---|
 | SILEX Foundry | Shared knowledge, the common foundation | Enterprise World Model | `#view=security-model` |
 | Agent Studio | Pre-deployment | Blueprint Studio, Workflow Library | `#view=blueprint`, `#view=library` |
-| Agent Gym | Verify and validate | Pre-release, Scenario Expansion, System Validation | `#view=short-term`, `#view=scenario-expansion`, `#view=long-term` |
+| Agent Gym | Verify and validate | Experiment Workbench, Environments, Scenarios, Runs & Results | `#view=gym`, `#view=gym-environments`, `#view=gym-scenarios`, `#view=gym-runs` |
 | SILEX Runtime | Production | Runtime Observation, Incidents & Decisions | `#view=runtime-observation`, `#view=incidents`, `#view=incidents&tab=decisions` |
 | SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
 
@@ -30,7 +30,17 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 ### Agent Gym
 
-- **Pre-release, Scenario Expansion, System Validation:** the three Agent Gym views. They keep their view ids and deep links (`#view=short-term`, `#view=scenario-expansion`, `#view=long-term`).
+- **One app in four views (concept preview, simulated data):** the Agent Gym group in the left nav has four views, Experiment Workbench, Environments, Scenarios and Runs & Results. They are the four parts of one app, [`agent-gym/index.html`](agent-gym/index.html), shown in one frame that the four views share. Switching between them never reloads the app, so a running simulation keeps running. The app also runs on its own page (*Open full page →* in the title row), where it keeps its product header. It follows the Agent Gym v2 design (three reference screens, 2026-11-10).
+  - The loop: build or pick a simulated environment, choose scenarios, change one thing (Variant A), run the baseline against the variant, and keep the runs as evidence for a review decision.
+  - Inside the app a row of tabs (Workbench, Environments, Scenarios, Runs & results) moves between the parts. When a link inside the app opens another part, the console's sidebar, top rail and breadcrumb follow.
+  - Links to a screen: the site URL carries the app's route, `#view=<view>&path=<app route>`, with no path at a part's home screen. For example `#view=gym-runs&path=%2Fexperiments%2Fexp-029%2Fattempts%2Fattempt-001` opens one run. Reload and Back and Forward reopen the same screen. The console wiring is [`js/gym-host.js`](js/gym-host.js); [`agent-gym/js/sections.js`](agent-gym/js/sections.js) says which routes belong to which part, for both the app's tabs and the console.
+  - *Workbench* (`#/workbench/exp-029`): pick an environment, a workflow version (baseline or Variant A) and scenarios, then run. The default is 2 versions × 3 scenarios × 3 repetitions = 18 runs. The queue below shows frozen attempts.
+  - *Create environment* (`#/environments/new`): edit simulated components, tools, relations and permissions, confirm behaviour assumptions, validate, and save an immutable template revision.
+  - *Create scenario* (`#/scenarios/new`): a base scenario plus generated variations, each reviewed before the set is saved. The five-scenario set makes 30 runs.
+  - *Runs and results* (`#/runs`): per-run replay of recorded events, a paired baseline against variant comparison, and a review decision. Nothing is deployed.
+  - Every run is a deterministic scripted simulation over an in-memory state copy. No model, connector or network call is involved, and app names mark simulated components, not connected accounts. State is kept in `localStorage` under `silex.gym.demo.v2`, and *Reset demo data* clears only that key. It is in the workspace menu on the full page and behind the *Concept preview · Simulated data* marker in the console.
+  - Module contract: [`docs/agent-gym-v2-contract.md`](docs/agent-gym-v2-contract.md). Tests: `node --test tests/site/gym-*.test.mjs`. Screenshot tool: `node tools/gym-shot.mjs '#/workbench/exp-029' 1585x992 out.png`.
+- **Removed views:** Pre-release, Scenario Expansion and System Validation were removed on 2026-11-10. Their links still work: `#view=short-term` and `#view=long-term` open Runs & Results, and `#view=scenario-expansion` opens Scenarios. Record: [`logs/2026-11-10_AGENT_GYM_WORKBENCH_IA.md`](logs/2026-11-10_AGENT_GYM_WORKBENCH_IA.md).
 
 ### SILEX Runtime
 
@@ -109,5 +119,6 @@ Every change to this demo, newest first, with the reasoning behind each one: [`l
 | [`2026-10-04_SWM_GRAPH_ZOOM_FIX_PLAN.md`](logs/2026-10-04_SWM_GRAPH_ZOOM_FIX_PLAN.md) | Ontology Graph: Network zoom buttons did nothing; plan and fix |
 | [`2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md`](logs/2026-10-04_WM_COVERAGE_PALETTE_INSIGHTS_PLAN.md) | World Model Coverage: system palette and "why is coverage low" hover insights |
 | [`2026-10-07_RUNTIME_SUBTABS_PLAN.md`](logs/2026-10-07_RUNTIME_SUBTABS_PLAN.md) | Runtime Observation: five sub-tabs, plain-language intros, ⓘ hover text, scenario dropdown |
+| [`2026-11-10_AGENT_GYM_WORKBENCH_IA.md`](logs/2026-11-10_AGENT_GYM_WORKBENCH_IA.md) | Agent Gym becomes one embedded app in four views; Pre-release, Scenario Expansion and System Validation removed |
 
 Each document is dated and kept as written; `logs/` also holds the design frames, review records and probe evidence for the bigger changes.

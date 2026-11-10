@@ -10,9 +10,10 @@ import { readSuite, groupOf, railHtml, mapHtml } from '../../js/suite-nav.js';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const html = await readFile(resolve(ROOT, 'index.html'), 'utf8');
 
+const text = s => s.replace(/&amp;/g, '&');
 const attr = (tag, name) => tag.match(new RegExp(`\\sdata-${name}="([^"]*)"`))?.[1];
 const entries = [...html.matchAll(/<div class="section-label"([^>]*)>([^<]*)<\/div>|<button[^>]*\sdata-view="([^"]+)"[^>]*>(?:<span class="ico">[^<]*<\/span>)?([^<]*)<\/button>/g)]
-  .map(m => m[3] ? { type: 'view', id: m[3], label: m[4].trim() }
+  .map(m => m[3] ? { type: 'view', id: m[3], label: text(m[4]).trim() }
     : { type: 'group', text: m[2].trim(), key: attr(m[1], 'suite'), stage: attr(m[1], 'stage'), status: attr(m[1], 'status'), desc: attr(m[1], 'desc') });
 const sidebarViews = entries.filter(e => e.type === 'view');
 const groups = readSuite(entries);
@@ -44,7 +45,7 @@ test('each product holds the views its stage promises', () => {
   const ids = key => groups.find(g => g.key === key).views.map(v => v.id);
   assert.deepEqual(ids('foundry'), ['security-model']);
   assert.deepEqual(ids('studio'), ['blueprint', 'library']);
-  assert.deepEqual(ids('gym'), ['short-term', 'scenario-expansion', 'long-term']);
+  assert.deepEqual(ids('gym'), ['gym', 'gym-environments', 'gym-scenarios', 'gym-runs']);
   assert.deepEqual(ids('runtime'), ['runtime-observation', 'incidents']);
   assert.deepEqual(ids('speedrun'), ['speedrun']);
 });
@@ -66,7 +67,7 @@ test('the rail and the map are rendered from the groups', () => {
   const rail = railHtml(groups, 'gym');
   assert.equal([...rail.matchAll(/data-suite-chip="/g)].length, 5);
   assert.equal([...rail.matchAll(/aria-current="true"/g)].length, 1);
-  assert.match(rail, /data-suite-chip="gym"[^>]*data-jump="short-term"[^>]*aria-current="true"/);
+  assert.match(rail, /data-suite-chip="gym"[^>]*data-jump="gym"[^>]*aria-current="true"/);
   assert.equal([...railHtml(groups, undefined).matchAll(/aria-current/g)].length, 0, 'the home view highlights no chip');
   const map = mapHtml(groups);
   for (const v of sidebarViews.filter(v => v.id !== 'assurance')) assert.match(map, new RegExp(`data-jump="${v.id}"`), `${v.id} has a button on the map`);
@@ -78,7 +79,7 @@ const sectionHtml = id => html.match(new RegExp(`<section class="view[^"]*" id="
 
 test('the Runtime group offers Runtime Observation and Incidents & Decisions only', () => {
   const runtime = groups.find(g => g.key === 'runtime').views;
-  assert.deepEqual(runtime.map(v => v.label), ['Runtime Observation', 'Incidents & Decisions'].map(l => l.replace('&', '&amp;')));
+  assert.deepEqual(runtime.map(v => v.label), ['Runtime Observation', 'Incidents & Decisions']);
   for (const gone of ['overview', 'policies']) assert.ok(!sidebarViews.some(v => v.id === gone), `no sidebar button opens ${gone}`);
 });
 
@@ -96,4 +97,13 @@ test('the PCP panel lives inside the Incidents & Decisions page with its bridge 
   assert.match(page, /<div id="policies"[^>]*>[\s\S]*id="pcpStudioCards"/);
   assert.match(page, /data-inc-switch="incidents"[\s\S]*data-inc-switch="decisions"/);
   assert.doesNotMatch(viewNames, /policies:/, 'the retired view has no breadcrumb name');
+});
+
+test('Agent Gym is one app in four views: workbench, environments, scenarios, runs and results', () => {
+  const gym = groups.find(g => g.key === 'gym');
+  assert.deepEqual(gym.views.map(v => v.label), ['Experiment Workbench', 'Environments', 'Scenarios', 'Runs & Results']);
+  for (const word of ['environment', 'scenarios', 'baseline', 'variant', 'runs', 'evidence']) assert.match(gym.desc, new RegExp(word, 'i'), `the description names ${word}`);
+  assert.doesNotMatch(html, /class="nav-ext"|nav-ext\b/, 'the link out to the standalone app is gone');
+  for (const id of ['short-term', 'scenario-expansion', 'long-term']) assert.ok(!sections.includes(id), `${id} has no page any more`);
+  assert.equal([...html.matchAll(/<iframe|id="gymFrameWrap"/g)].length, 1, 'one frame container, shared by the four views');
 });

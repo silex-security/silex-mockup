@@ -2,13 +2,21 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-10 — Agent Gym is one app in four console views
+
+- **Why:** the Agent Gym group mixed a link out to the new Experiment Workbench with three older views that did not belong with it. The owner asked to make the workbench the core of Agent Gym.
+- **Views:** Experiment Workbench (`#view=gym`), Environments (`#view=gym-environments`), Scenarios (`#view=gym-scenarios`) and Runs & Results (`#view=gym-runs`) show one embedded Agent Gym app, each at its own route. Switching between them never reloads the app, so a running simulation keeps running. A link inside the app that opens another part moves the sidebar highlight, the rail and the breadcrumb with it. The site URL carries the app's route as `&path=`.
+- **App:** a row of section tabs in both modes, and an embed mode without the product header that matches the console's background and type scale.
+- **Removed:** Pre-release, Scenario Expansion and System Validation, with their CSS, script wiring and the Scenario Expansion modules and tests. Their old links open Runs & Results or Scenarios.
+- **Record:** [`2026-11-10_AGENT_GYM_WORKBENCH_IA.md`](2026-11-10_AGENT_GYM_WORKBENCH_IA.md).
+
 ## 2026-11-09 — Runtime sidebar cut to two items: Observation and Incidents & Decisions
 
 - **Why:** the owner judged Operations Overview and PCP · Policy redundant.
 - **Overview:** no sidebar button. The page stays for the Studio bridge targets (`#ovStudioPending`, `#ovPendingCount`) and for `#view=overview`. A cleared route now falls back to the home view.
 - **Incidents & Decisions:** one page with a switch, Incidents and Pending decisions (with the pending count). The PCP content keeps `id="policies"` as a panel, so the bridge ids and selectors are unchanged. One `h1` per view.
 - **Routes:** `#view=incidents` opens Incidents. `#view=incidents&tab=decisions` opens Pending decisions. The retired `#view=policies` is rewritten to that, and `showView('policies')`, `data-jump` and `data-go` land on the same panel through one alias table.
-- **Tests:** `tests/site/suite-nav.test.mjs` checks the sidebar and the bridge ids. Probe S48 walks the page. The probe `nav()` helper reaches views without a sidebar button through a `data-jump` click, the same path the UI uses.
+- **Tests:** `tests/site/suite-nav.test.mjs` checks the sidebar and the bridge ids. Probe S49 walks the page. The probe `nav()` helper reaches views without a sidebar button through a `data-jump` click, the same path the UI uses.
 
 ## 2026-11-09 — Workflow Library and Speedrun agent teams link both ways
 
@@ -16,7 +24,7 @@ Newest first, with what changed and why. The plans, review records and audits ar
 - **Relation:** stored once per app. `team` on a `workflowData` or `UNREGISTERED` entry in `index.html`, and a required `workflow` field on each team in `speedrun/web/upstream/src/lib/data/fixtures.ts`. `tests/site/library-speedrun-link.test.mjs` checks ids, names, back-pointers and agent counts.
 - **Library:** four new Low-risk rows (WF-017, WF-019, WF-023, WF-029) match the other four Speedrun teams, and WF-014 now has 4 agents like the Refund Team. A Performance column and the cards link to the team page. The detail page has a "Performance in Speedrun" button. Registered rows go from 6 to 10 and known workflows from 9 to 13. Workflows at risk is unchanged.
 - **Speedrun:** the team header has a Governance link back to the workflow or the Library. Links to the host page use one mechanism, `data-host-hash`, and are hidden when the app is not embedded.
-- **Tests:** probe S47 walks Library row, Governance link, detail button and the unregistered row.
+- **Tests:** probe S48 walks Library row, Governance link, detail button and the unregistered row.
 
 ## 2026-11-09 — Speedrun view runs the Speedrun app
 

@@ -42,7 +42,7 @@ jobs:
           mkdir _site
           git archive HEAD | tar -x -C _site
           cd _site
-          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html speedrun/app/index.html; do
+          for f in index.html assurance.html js/rt-ontology.js swm/data/ontology.json blueprint_studio/app/index.html speedrun/app/index.html agent-gym/index.html agent-gym/js/app.js; do
             test -f "$f" || { echo "::error::missing required file $f"; exit 1; }
           done
           big=$(find . -type f -size +25M); test -z "$big" || { echo "::error::over 25 MB: $big"; exit 1; }
@@ -56,6 +56,7 @@ jobs:
         run: |
           node --test tests/site/*.test.mjs
           for f in js/*.js; do node --check "$f"; done
+          find agent-gym/js -name '*.js' -print0 | xargs -0 -n1 node --check
 
       - name: Deploy to Cloudflare Pages
         id: deploy
@@ -77,7 +78,7 @@ jobs:
         working-directory: _site
         # A mismatch is reported, never answered by another upload.
         run: |
-          files="index.html assurance.html blueprint_studio/app/index.html swm/data/ontology.json $(ls js/* css/* speedrun/app/index.html speedrun/app/assets/*.js speedrun/app/assets/*.css)"
+          files="index.html assurance.html blueprint_studio/app/index.html swm/data/ontology.json agent-gym/index.html $(ls js/* css/* speedrun/app/index.html speedrun/app/assets/*.js speedrun/app/assets/*.css) $(find agent-gym/js agent-gym/css -type f)"
           for origin in $ORIGINS; do
             for f in $files; do
               url="$origin/$f"; [ "$f" = index.html ] && url="$origin/"
