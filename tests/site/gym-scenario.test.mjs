@@ -188,6 +188,19 @@ test('saving writes a new immutable set and leaves existing sets, the experiment
   assert.equal(again.scenarioSets[refKey(ref)], s.scenarioSets[refKey(ref)], 'revision 1 is untouched');
 });
 
+test('saving never overwrites an existing set revision or scenario record', () => {
+  const before = confirmAll(fresh());
+  const once = must(saveScenarioSet(before, { draftId: ID }));
+  const r1 = 'set-sales-follow-up-with-approval@1';
+  const gap = { ...once, scenarioSets: { ...once.scenarioSets, 'set-sales-follow-up-with-approval@2': { ...once.scenarioSets[r1], rev: '2' } } };
+  delete gap.scenarioSets[r1];
+  const s = must(saveScenarioSet(gap, { draftId: ID }));
+  assert.deepEqual(draftOf(s).lastSavedSetRef, { id: 'set-sales-follow-up-with-approval', rev: '3' });
+  assert.equal(s.scenarioSets['set-sales-follow-up-with-approval@2'], gap.scenarioSets['set-sales-follow-up-with-approval@2'], 'revision 2 is untouched');
+  const taken = { ...before, scenarios: { ...before.scenarios, 'set-sales-follow-up-with-approval-r1-base@1': before.scenarios['sc-base-case@1'] } };
+  assert.equal(saveScenarioSet(taken, { draftId: ID }).error?.code, 'scenario_set_invalid');
+});
+
 test('Use in experiment: 5 scenarios × 2 versions × 3 repetitions = 30 runs and 15 pairs, with no run-gate error', () => {
   const s = must(saveScenarioSet(confirmAll(fresh()), { draftId: ID }));
   const used = must(setScenarioSet(s, { experimentId: 'exp-029', scenarioSetRef: draftOf(s).lastSavedSetRef }));

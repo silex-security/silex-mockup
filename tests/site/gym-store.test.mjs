@@ -1,8 +1,11 @@
-// Agent Gym v2 store (docs/agent-gym-v2-contract.md, "State and reducers"). Pure Node: a tiny seed and a fake storage.
+// Agent Gym v2 store (docs/agent-gym-v2-contract.md, "State and reducers"). Pure Node: a tiny seed and a fake storage;
+// tests that reload saved data use the real seed, because the load check reads its references.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createStore } from '../../agent-gym/js/store.js';
 import { SCHEMA_VERSION, FIXTURE_VERSION, STORAGE_KEY } from '../../agent-gym/js/model.js';
+import { seedState } from '../../agent-gym/js/fixtures/index.js';
+import { renameExperiment } from '../../agent-gym/js/simulation/attempts.js';
 
 const attempt = (id, status, runner = 'active') => ({ id, status, runner, cursor: 0 });
 const seed = () => ({
@@ -79,15 +82,42 @@ test('state handed to views and reducers is deep-frozen, so a stray write throws
 
 test('a refresh restores saved state and pauses every running attempt, and only those', () => {
   const storage = fakeStorage();
-  createStore({ storage, seed }).dispatch(rename, { title: 'Kept across refresh' });
-  const store = createStore({ storage, seed });
+  createStore({ storage, seed: seedState }).dispatch(renameExperiment, { experimentId: 'exp-029', title: 'Kept across refresh' });
+  const store = createStore({ storage, seed: seedState });
   const { attempts, experiments } = store.getState();
-  assert.equal(experiments['exp-1'].title, 'Kept across refresh');
-  assert.deepEqual([attempts.a1.runner, attempts.a2.runner, attempts.a3.runner], ['paused', 'active', 'active']);
-  assert.equal(attempts.a1.status, 'running');
-  assert.equal(saved(storage).attempts.a1.runner, 'paused');
   assert.equal(store.persistence.mode, 'local');
+  assert.equal(experiments['exp-029'].title, 'Kept across refresh');
+  const order = ['attempt-001', 'attempt-002', 'attempt-003'];
+  assert.deepEqual(order.map(id => [attempts[id].status, attempts[id].runner]), [['completed', 'active'], ['running', 'paused'], ['queued', 'active']]);
+  assert.equal(saved(storage).attempts['attempt-002'].runner, 'paused');
 });
+
+const good = seedState();
+const corrupt = {
+  'attemptOrder names a missing attempt': s => { s.attemptOrder.push('attempt-999'); },
+  'an attempt missing from attemptOrder': s => { s.attemptOrder.pop(); },
+  'an attempt without a snapshot': s => { s.attempts['attempt-001'].inputSnapshot = null; },
+  'an attempt without a plan': s => { delete s.attempts['attempt-001'].plan; },
+  'executions under an unknown attempt': s => { s.executions['attempt-404'] = []; },
+  'an execution without the fields the comparison reads': s => { s.executions['attempt-001'][0].finalState = {}; },
+  'an execution with an unknown terminal state': s => { s.executions['attempt-001'][0].terminalState = 'maybe'; },
+  'an experiment whose environment does not exist': s => { s.environments = {}; },
+  'an experiment whose set does not exist': s => { s.experiments['exp-029'].scenarioSetRef = { id: 'set-gone', rev: '1' }; },
+  'selected scenario ids that are not a list': s => { s.experiments['exp-029'].selectedScenarioIds = 'sc-base-case'; },
+  'a set with a duplicate ref': s => { const set = s.scenarioSets['set-follow-up-resilience@1']; set.scenarioRefs.push(set.scenarioRefs[0]); },
+  'a set with a dangling ref': s => { delete s.scenarios['sc-contact-opted-out@1']; },
+  'seq behind the attempt ids': s => { s.seq = 0; },
+};
+for (const [label, mutate] of Object.entries(corrupt)) {
+  test(`saved data that is broken inside falls back to memory mode: ${label}`, () => {
+    const data = structuredClone(good);
+    mutate(data);
+    const text = JSON.stringify(data);
+    const store = createStore({ storage: fakeStorage({ [STORAGE_KEY]: text }), seed: seedState });
+    assert.deepEqual([store.persistence.mode, store.persistence.error?.code], ['memory', 'storage_inconsistent']);
+    assert.equal(store.getState().attemptOrder.length, 3, 'the session starts from the demo seed');
+  });
+}
 
 const bad = {
   storage_corrupt: '{"schemaVersion":',

@@ -2,10 +2,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { digestOf } from '../../agent-gym/js/model.js';
-import { fixtureState } from '../../agent-gym/js/fixtures/index.js';
+import { fixtureState, seedState } from '../../agent-gym/js/fixtures/index.js';
 import {
   addVariant, advanceAttempt, cancelAttempt, clearScenarioSelection, createOrSelectVariant, enqueueAttempt, pauseAttempt,
-  recordReview, renameExperiment, resumeAttempt, runnableAttemptId, saveExperiment, setRepetitions, setScenarioSet,
+  freezeAttempt, recordReview, renameExperiment, resumeAttempt, runnableAttemptId, saveExperiment, setRepetitions, setScenarioSet,
   setWorkflow, toggleScenario,
 } from '../../agent-gym/js/simulation/attempts.js';
 import { compareAttempt } from '../../agent-gym/js/metrics.js';
@@ -201,4 +201,27 @@ test('an attempt whose runner faults becomes failed, releases the slot and compa
   assert.equal(runnableAttemptId(s), b);
   assert.equal(advanceAttempt(s, { attemptId: a }).error.code, 'attempt_finished');
   assert.equal(compareAttempt(s.attempts[a], s.executions[a]).verdict, 'inconclusive');
+});
+
+test('a new attempt never reuses an existing attempt id, even when seq lags behind', () => {
+  const s = { ...seedState(), seq: 0 };
+  assert.ok(!(freezeAttempt(s, EXP, 'k').id in s.attempts));
+  const next = enqueue(s, EXP, 'k');
+  assert.equal(next.attemptOrder.length, 4);
+  assert.equal(new Set(next.attemptOrder).size, 4);
+  assert.equal(next.attempts['attempt-001'].title, s.attempts['attempt-001'].title, 'the existing attempt is untouched');
+});
+
+test('a dangling or duplicate scenario ref is a typed error, never a throw', () => {
+  const s = fixtureState();
+  const dangling = { ...s, scenarios: { ...s.scenarios } };
+  delete dangling.scenarios['sc-contact-opted-out@1'];
+  const r = enqueueAttempt(dangling, { experimentId: EXP, idempotencyKey: 'd' });
+  assert.equal(r.error?.code, 'experiment_invalid');
+  assert.ok(r.error.errors.some(e => e.code === 'scenario_missing'), r.error.errors.map(e => e.code).join());
+  const key = 'set-meeting-scheduling@1';
+  const set = s.scenarioSets[key];
+  const dup = { ...s, scenarioSets: { ...s.scenarioSets, [key]: { ...set, scenarioRefs: [set.scenarioRefs[0], ...set.scenarioRefs] } } };
+  assert.equal(setScenarioSet(dup, { experimentId: EXP, scenarioSetRef: { id: set.id, rev: set.rev } }).error?.code, 'scenario_set_invalid');
+  assert.equal(setScenarioSet(dangling, { experimentId: 'exp-027', scenarioSetRef: { id: 'set-follow-up-resilience', rev: '1' } }).error?.code, 'scenario_set_invalid');
 });
