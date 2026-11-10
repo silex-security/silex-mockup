@@ -111,8 +111,6 @@ export function mount(root, ctx) {
     else setQuery({ dialog: null });
   }
 
-  // Page header
-
   const header = () => h('header', { class: 'gym-pagehead wb-head' },
     breadcrumb({ items: [{ label: 'Agent Gym' }, { label: 'Workbench' }], class: 'gym-sr' }),
     h('div', { class: 'gym-pagehead__row' },
@@ -122,8 +120,6 @@ export function mount(root, ctx) {
       h('div', { class: 'gym-pagehead__actions' },
         button({ label: 'View all runs', variant: 'outline', href: router.href('run-list', {}, { status: 'all' }), focusKey: 'wb:runs' }))));
 
-  // Left: environments
-
   function envCard(c, state, exp) {
     const env = state.environments[c.key];
     const capKind = cap => env.components.find(x => x.category === cap)?.kind ?? CAP_KIND[cap] ?? 'box';
@@ -132,7 +128,7 @@ export function mount(root, ctx) {
       class: 'wb-env', selected: c.selected, focusKey: `wb:env:${c.key}`,
       ariaLabel: `${c.name} v${c.rev}, ${c.caps.join(', ')}, ${c.statusLabel}${c.selected ? ', in this experiment' : ''}${incompatible ? ', not compatible with this workflow' : ''}`,
       onClick: () => {
-        if (c.selected) return;
+        if (c.selected) { announce(`${c.name} v${c.rev} is already in this experiment.`); return; }
         dispatch(setEnvironment, { environmentRef: c.ref }, next => {
           const dep = dependencyStatus(next, expId());
           local.flash = null;
@@ -171,8 +167,6 @@ export function mount(root, ctx) {
         h('a', { class: 'wb-browse', href: router.href('environment-library', {}, { returnTo: exp.id }), dataset: { focusKey: 'wb:env-browse' } }, icon('layers', { size: 18 }), 'Browse templates')),
     });
   }
-
-  // Centre: the experiment draft
 
   function titleField(exp) {
     const commit = input => {
@@ -363,8 +357,6 @@ export function mount(root, ctx) {
         runArea(state, exp)));
   }
 
-  // Right: scenarios
-
   function scenarioColumn(state, exp) {
     const ids = selectedScenarioIds(state, exp.id);
     const rows = scenarioRows(state, exp.scenarioSetRef, { selectedIds: ids, query: local.scQuery });
@@ -405,8 +397,6 @@ export function mount(root, ctx) {
         h('div', h('dt', 'Expected:'), h('dd', r.expected)),
         r.overrides.length > 0 && h('div', h('dt', 'Injected:'), h('dd', r.overrides.join(', ')))));
   }
-
-  // Bottom: queue
 
   function queue(state) {
     const counts = queueCounts(state);
