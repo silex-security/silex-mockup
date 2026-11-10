@@ -36,7 +36,7 @@ export const ROUTES = Object.freeze([
   { name: 'scenario-builder', path: '/scenarios/new', query: { environment: isRef, workflow: isId, source: oneOf('chat', 'trace', 'blueprint', 'upload'), mode: oneOf('prompt', 'tool_failure', 'permission', 'data_state') } },
   { name: 'scenario-library', path: '/scenarios' },
   { name: 'scenario-set', path: '/scenario-sets/:id/revisions/:rev' },
-  { name: 'run-list', path: '/runs', query: { status: oneOf('all', 'running', 'queued', 'completed', 'cancelled') } },
+  { name: 'run-list', path: '/runs', query: { status: oneOf('all', 'running', 'queued', 'completed', 'cancelled'), trigger: oneOf('all', 'manual', 'change', 'regression') } },
   { name: 'run-detail', path: '/experiments/:experimentId/attempts/:attemptId' },
   { name: 'results', path: '/experiments/:experimentId/attempts/:attemptId/results' },
   { name: 'kit', path: '/kit' },

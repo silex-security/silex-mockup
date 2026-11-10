@@ -50,6 +50,46 @@
   .gym-app .run-list .run-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
+/* Runs page: release gate and regression panels above the queue */
+.gym-app .run-panels { display: grid; gap: 12px; margin-bottom: 12px; }
+.gym-app .run-gate .gym-panel__subtitle, .gym-app .run-reg .gym-panel__subtitle { max-width: 860px; }
+.gym-app .run-gate__wrap, .gym-app .run-reg__wrap { max-width: 100%; overflow-x: auto; }
+.gym-app .run-gate__change, .gym-app .run-gate__rev, .gym-app .run-gate__state, .gym-app .run-reg__batch { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.gym-app .run-gate__change small, .gym-app .run-gate__state small, .gym-app .run-reg__batch small { color: var(--gym-muted); font-size: var(--gym-fs-xs); }
+.gym-app .run-gate__drift { display: inline-flex; align-items: center; gap: 4px; color: var(--gym-amber); font-size: var(--gym-fs-xs); font-weight: 600; white-space: nowrap; }
+.gym-app .run-gate__run { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.gym-app .run-gate__run a { white-space: nowrap; text-decoration: none; font-weight: 500; }
+.gym-app .run-gate__run a:hover { text-decoration: underline; }
+.gym-app .run-gate__tally { justify-content: flex-end; }
+.gym-app .run-reg__cadence .gym-input--select { min-width: 168px; }
+.gym-app .run-reg > .gym-panel__body { display: flex; flex-direction: column; gap: 10px; }
+.gym-app .run-reg__note { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 4px 12px; border-radius: var(--gym-r-pill); background: var(--gym-surface-2); color: var(--gym-ink-2); font-size: var(--gym-fs-sm); }
+.gym-app .run-reg__note .gym-icon { flex: none; color: var(--gym-primary-ink); }
+.gym-app .run-reg__plan { display: grid; gap: 4px; font-size: var(--gym-fs-sm); }
+.gym-app .run-reg__skipped { display: grid; gap: 2px; margin: 0; padding-left: 18px; color: var(--gym-muted); list-style: disc; }
+.gym-app .run-reg__skipped a { font-weight: 600; }
+.gym-app .run-reg__exps { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.gym-app .run-reg__exps a { font-weight: 600; }
+.gym-app .run-reg__progress { min-width: 150px; }
+.gym-app .run-reg__empty { font-size: var(--gym-fs-sm); padding: 8px 0 2px; }
+.gym-app .run-list__trigger .gym-input--select { min-width: 150px; }
+.gym-app .run-trigger { white-space: nowrap; }
+@media (max-width: 1279.98px) {
+  .gym-app .run-gate .run-table thead, .gym-app .run-reg .run-table thead { display: none; }
+  .gym-app .run-gate .run-table, .gym-app .run-gate .run-table tbody, .gym-app .run-reg .run-table, .gym-app .run-reg .run-table tbody { display: block; }
+  .gym-app .run-gate .run-table tr, .gym-app .run-reg .run-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; padding: 10px 4px; border-bottom: 1px solid var(--gym-line); }
+  .gym-app .run-gate .run-table tbody tr:last-child, .gym-app .run-reg .run-table tbody tr:last-child { border-bottom: 0; }
+  .gym-app .run-gate .run-table td, .gym-app .run-reg .run-table td { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 0; border: 0; min-width: 0; }
+  .gym-app .run-gate .run-table td::before, .gym-app .run-reg .run-table td::before { content: attr(data-label); color: var(--gym-muted); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .gym-app .run-gate .run-table td[data-label="Experiment"], .gym-app .run-reg .run-table td[data-label="Batch"] { grid-column: 1 / -1; }
+  .gym-app .run-gate .run-table td[data-label="Experiment"]::before, .gym-app .run-gate .run-table td[data-label="Action"]::before,
+  .gym-app .run-reg .run-table td[data-label="Batch"]::before, .gym-app .run-reg .run-table td[data-label="Action"]::before { content: none; }
+  .gym-app .run-reg__progress { min-width: 0; width: 100%; }
+}
+@media (min-width: 900px) and (max-width: 1279.98px) {
+  .gym-app .run-gate .run-table tr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
 /* Run detail: summary */
 .gym-app .run-summary .gym-panel__head { flex-wrap: wrap; }
 .gym-app .run-summary__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 20px; align-items: start; }

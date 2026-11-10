@@ -52,6 +52,8 @@ test('returnTo accepts an experiment id and drops anything that could be a URL',
 
 test('query values outside an enum or the safe pattern are dropped, and the rest survive', () => {
   assert.deepEqual(parse('#/runs?status=exploded').query, {});
+  assert.deepEqual(parse('#/runs?status=all&trigger=cron').query, { status: 'all' });
+  assert.deepEqual(parse('#/runs?status=completed&trigger=regression').query, { status: 'completed', trigger: 'regression' });
   assert.deepEqual(parse('#/scenarios/new?source=email&mode=prompt&environment=nope').query, { mode: 'prompt' });
   assert.deepEqual(parse('#/workbench/exp-029?tab=replay&node=draft-email&x=%3Cimg%20onerror%3D1%3E&bad key=1&sel=s1,s2').query, { tab: 'replay', node: 'draft-email', sel: 's1,s2' });
   assert.equal(href('workbench', { experimentId: 'exp-029' }, { tab: 'replay', gone: null, empty: '', n: 2 }), '#/workbench/exp-029?tab=replay&n=2');

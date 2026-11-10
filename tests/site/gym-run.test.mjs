@@ -55,18 +55,18 @@ test('the run list shows every attempt with counts from the queue and filters by
   const page = await gym.ev(`return {
     h1: document.querySelector('.gym-main h1').textContent,
     tabs: [...document.querySelectorAll('.run-list [role="tab"]')].map(b => [b.textContent, b.getAttribute('aria-selected')]),
-    head: [...document.querySelectorAll('.run-table thead th')].map(th => th.textContent),
+    head: [...document.querySelectorAll('.run-list .run-table thead th')].map(th => th.textContent),
     rows: [...document.querySelectorAll('.run-list__row')].map(tr => [...tr.cells].map(td => td.innerText.trim().replace(/\\s+/g, ' '))),
     results: [...document.querySelectorAll('.run-list__row a')].filter(a => a.textContent === 'View results').map(a => a.getAttribute('href')) }`);
   assert.equal(page.h1, 'Runs');
   assert.deepEqual(page.tabs, [['All · 3', 'true'], ['Running · 1', 'false'], ['Queued · 1', 'false'], ['Completed · 1', 'false'], ['Cancelled · 0', 'false']]);
-  assert.deepEqual(page.head, ['Experiment', 'Frozen revision', 'Environment', 'Scenarios', 'Status', 'Progress', 'Review decision', 'Action']);
-  assert.deepEqual(page.rows.map(r => r.slice(0, 7)), [
-    ['Sales follow-up · Variant A', 'rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18', 'Not reviewed'],
-    ['Support triage comparison', 'rev 1 · attempt 1', 'Customer support', '8', 'Queued', '0/48', 'Not reviewed'],
-    ['Meeting scheduling', 'rev 2 · attempt 1', 'Sales operations', '6', 'Completed', '12/12', 'Not reviewed'],
+  assert.deepEqual(page.head, ['Experiment', 'Trigger', 'Frozen revision', 'Environment', 'Scenarios', 'Status', 'Progress', 'Review decision', 'Action']);
+  assert.deepEqual(page.rows.map(r => r.slice(0, 8)), [
+    ['Sales follow-up · Variant A', 'Change', 'rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18', 'Not reviewed'],
+    ['Support triage comparison', 'Manual', 'rev 1 · attempt 1', 'Customer support', '8', 'Queued', '0/48', 'Not reviewed'],
+    ['Meeting scheduling', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '6', 'Completed', '12/12', 'Not reviewed'],
   ]);
-  assert.ok(page.rows.every(r => !/pass/i.test(r[4])), 'Completed is a status, never shown as passed');
+  assert.ok(page.rows.every(r => !/pass/i.test(r[5])), 'Completed is a status, never shown as passed');
   assert.deepEqual(page.results, ['#/experiments/exp-027/attempts/attempt-001/results'], 'only the completed row links to results');
 
   await clickText(gym, '.run-list [role="tab"]', 'Completed · 1');

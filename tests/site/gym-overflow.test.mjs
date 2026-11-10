@@ -43,7 +43,7 @@ test('the run list shows every column, Review included, without an inner scroll 
     for (const width of [770, 800, 900, 1024, 1100, 1200, 1280]) {
       await gym.size(width, 900);
       await gym.go('#/runs?status=all');
-      const out = await gym.ev(`const table = document.querySelector('.run-table');
+      const out = await gym.ev(`const table = document.querySelector('.run-list .run-table');
         const cut = [...table.querySelectorAll('th')].filter(th => th.getBoundingClientRect().right > innerWidth || th.getBoundingClientRect().right > table.parentElement.getBoundingClientRect().right + 1).map(th => th.textContent);
         return { cut, inner: table.parentElement.scrollWidth - table.parentElement.clientWidth };`);
       if (out.cut.length || out.inner > 0) hidden.push(`${width}px: cut ${out.cut.join(', ') || 'none'}, inner scroll ${out.inner}px`);
