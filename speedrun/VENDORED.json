@@ -4,9 +4,10 @@
     "commit": "6e1575864edd3e0517b75504db9afbf2124553fd"
   },
   "sources": {
+    "../../css/trace-waterfall.css": "bd97fba241cc4ce010d6705607c2d8dd7381babe88bdafdae1b77cc3f6ba0166",
     "index.html": "d6cb5df0bb1b24e5d875c226d8d4ebf3dc341e40ed30a11d11fa1ef9d709cccb",
     "package-lock.json": "97f77f2ab2ce199c3018bbe7a682d77a4d33d61099430641389aaec3ce19901f",
-    "src/app.css": "3b37ad225313b8fa6d26e17d5c4e64398b13c89f618fe8c1a85ba8c1a4f33b99",
+    "src/app.css": "b737eddff8e007b080a56ddfb28c911b607eb12b2a5a321336b0b9f173785602",
     "src/gym.js": "6b0e645898a082fa9362a482eb2231cb9146fc3d026b56eb5405db62c426629d",
     "src/main.jsx": "46af0793219fd332b2f923b2fd8e45f01f1b58ad36cecb35df2d31360fe83465",
     "src/next/link.jsx": "5af9a7185ec0dac21906dc4b7c70b98d92dca6b7ec4e2c5efd454f141078e449",
@@ -32,7 +33,7 @@
     "upstream/src/app/speedrun/teams/[teamId]/benchmarks/page.tsx": "b8a43953954e8e7f58663ccc2f75acf4f952702be23da76d39215df0b96cd134",
     "upstream/src/app/speedrun/teams/[teamId]/builder/page.tsx": "b53024f7e7d3a617663d276856fe316f454aa5ddea22f92e8f7aa31f4b4acc40",
     "upstream/src/app/speedrun/teams/[teamId]/page.tsx": "574d92261521781def4a80fbdace43ae7bf32014c53d691c5829242c2c89de1d",
-    "upstream/src/app/speedrun/teams/[teamId]/trace/page.tsx": "1ee349e75f7536eb9d6e9a2fb488b730e92cace15da95bfaedc1aba68f07787d",
+    "upstream/src/app/speedrun/teams/[teamId]/trace/page.tsx": "5603b2620e2f68cf28b0fba892eafeba0ab7bd54c02e7238bee2c8900194935a",
     "upstream/src/app/speedrun/teams/[teamId]/variant/page.tsx": "5a2c2089b179d9fc1ef6b2cb95baeb204396fe9ea23896a071d3f5331264a070",
     "upstream/src/app/speedrun/units/[unitId]/page.tsx": "4e839143cba9853d7332e1e0e08ac14c96bbd13a71993b648065fa5d82be79b5",
     "upstream/src/app/speedrun/units/[unitId]/teams/page.tsx": "035f2e3a6d7ebf9b8311f814a9b2c4eb631004fdb65e6ee0ce0126b0f2f6d23e",
@@ -50,6 +51,7 @@
     "upstream/src/components/charts/RunLog.tsx": "b8e86b488577e8ab1158a0fd32a5f8055efe71c1cf137eaa4835027811dad240",
     "upstream/src/components/charts/Sparkline.tsx": "99ac2eb2e63f6a679b2bea3a4ec549509e158462c664c4b4228810cf38f9fcf7",
     "upstream/src/components/charts/TeamStructureMap.tsx": "4a0312d104670301e60c95232f9f0eae0da2303f2ac388278a6c6ef2157f66f4",
+    "upstream/src/components/charts/TraceWaterfall.tsx": "43acca2e097aa01fdfc80f2af2fac01032fd250917417b66f7dc7531171c1208",
     "upstream/src/components/icons.tsx": "ae8748ac11682cbfe49a724482e5d27152bdc92eb4b3ad90212746540aa7439e",
     "upstream/src/components/nav.tsx": "fcd6aff0e9f627a571059d201fec6dd77f105441592cf1a07d007abc6a334ddb",
     "upstream/src/components/ui.tsx": "46f6d8a3c20b477c32c0cb63bb6f3863938d7603ebe3d1cacbf6865e597a1099",
@@ -63,12 +65,13 @@
     "upstream/src/lib/format.ts": "2795acdd18ea6eed73f1484df37fa76c7354af38fe943c16db7657ceb6358359",
     "upstream/src/lib/http.ts": "b0e8bc3f6b8b963246e5bbbeeb1dc6329ef15cb6414cbb9b3001e6c63c2f52ec",
     "upstream/src/lib/replay.ts": "5ee71fce59b39ae37beaeb951951a77ffc33bffb5e759e18e3db1d0553960a04",
+    "upstream/src/lib/trace-waterfall.ts": "7997adca824ebc978b1354e04e045c4c1dd4cf8d874626ba8a9fc58b9d53b350",
     "upstream/src/lib/types.ts": "b9fbfc308985359bbbb29dfe5f4fd3e00b552630bb1d53cf1c9f65f5de1c3435",
     "vite.config.js": "8fdf375c69c6b79ac5c9e888c87fed8338f91b023cd6f0aaccc4d045914c72fb"
   },
   "files": {
-    "app/assets/index-B8EK2nFb.css": "00e98edf1e264c748093a1fc0a13ee97af7d2f679feb6fc06c030b6763783dce",
-    "app/assets/index-bosnuzUc.js": "2aa2dedc92000558d58a6683e9fe4b99fdf1530be2e4eb173c18ca07bdef0742",
+    "app/assets/index-CpgIV6HR.css": "38c0d06bde30a082eb86986a6c1ebb238724d8f1d0111008be248bf4da6ffe8e",
+    "app/assets/index-uwMa2ZYw.js": "0bc74c556d4129db9ebc74c9f72833a1bb06f258a557ac54ddd59477267744bf",
     "app/assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2": "ca157063339ac4ad418f214f3abfed119b0798ab4d377386ce5c9e5a7a435ebd",
     "app/assets/inter-cyrillic-wght-normal-DqGufNeO.woff2": "71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075",
     "app/assets/inter-greek-ext-wght-normal-DlzME5K_.woff2": "6e9e020a25f9b56d418f2c085b1d3c09725a4da23fe693a5b463064606732190",
@@ -94,6 +97,6 @@
     "app/assets/jetbrains-mono-latin-ext-500-normal-ckzbgY84.woff": "8006c29f8ec53d12d281774d669a02a70b599590d110ff1a4b4a40a6fd975676",
     "app/assets/jetbrains-mono-vietnamese-400-normal-CqNFfHCs.woff": "1dfe0f740fa86409034058e49474b01126ae9ea8c1ecda905917b90d57f03b00",
     "app/assets/jetbrains-mono-vietnamese-500-normal-DNRqzVM1.woff": "6b14186bc983291a126aa8d6d9c3044415c968262279eecbb9bb194f1daf7800",
-    "app/index.html": "6e8d3060cfcd395ef4d95c767fdd4c9dcbba06a128605eaaf81a99945f7075b6"
+    "app/index.html": "343ee9a9321afdcc20264e00d1308e9251ca8efbca21c3327e7970be202063c4"
   }
 }

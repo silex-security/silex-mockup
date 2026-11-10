@@ -19,7 +19,7 @@ test('every built file matches its manifest hash, none missing, none added', () 
 });
 test('the app source and the shell are the ones app/ was built from', () => {
   const web = join(DEST, 'web');
-  const now = ['index.html', 'vite.config.js', 'package-lock.json', ...['src', 'upstream'].flatMap(d => walk(join(web, d))).map(f => relative(web, f))].sort();
+  const now = ['index.html', 'vite.config.js', 'package-lock.json', '../../css/trace-waterfall.css', ...['src', 'upstream'].flatMap(d => walk(join(web, d))).map(f => relative(web, f))].sort();
   assert.deepEqual(now, Object.keys(manifest.sources).sort());
   for (const [rel, sha] of Object.entries(manifest.sources))
     assert.equal(createHash('sha256').update(readFileSync(join(web, rel))).digest('hex'), sha, rel);

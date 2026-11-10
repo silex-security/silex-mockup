@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Main } from "@/components/AppHeader";
 import { TeamHeader } from "@/components/TeamHeader";
-import { Gantt } from "@/components/charts/Gantt";
+import { TraceWaterfall } from "@/components/charts/TraceWaterfall";
 import { IconArrowRight } from "@/components/icons";
 import { Avatar, ButtonLink, Card, Tag, cx } from "@/components/ui";
 import { getRole, getTeam, getTeamStructure, getTraceRun } from "@/lib/data/service";
@@ -65,19 +65,9 @@ export default async function TracePage({
       </Card>
 
       <div className="flex flex-wrap items-start gap-4">
-        <Card aria-label="Trace replay" className="min-w-0 flex-[999_1_700px] overflow-hidden">
-          <div className="flex flex-wrap items-center gap-3.5 border-b border-line px-4 py-3">
-            <span className="font-semibold">Run #{run.runId} — who waited on whom</span>
-            <div className="flex-1" />
-            <div className="flex flex-wrap gap-3 text-xs text-mut">
-              <span className="flex items-center gap-1.5"><span className="h-2 w-3.5 rounded-sm bg-amb" />Critical path</span>
-              <span className="flex items-center gap-1.5"><span className="blocked h-1.5 w-4" />Blocked / idle</span>
-              <span className="flex items-center gap-1.5"><span className="h-2 w-3.5 rounded-sm border-[1.5px] border-dashed border-acc2" />Reusable context</span>
-              <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-[3px] bg-acc2" />Message</span>
-            </div>
-          </div>
-          <Gantt lanes={laneViews(team, run)} duration={run.durationSeconds} initialAt={structure?.atSeconds ?? 0} />
-        </Card>
+        <div className="min-w-0 flex-[999_1_700px]">
+          <TraceWaterfall lanes={laneViews(team, run)} duration={run.durationSeconds} title={`Run #${run.runId} — who waited on whom`} />
+        </div>
 
         <aside aria-label="Task details" className="card flex min-w-0 max-w-[450px] flex-[1_1_380px] flex-col gap-3.5 p-5">
           <div className="flex items-center gap-3">
