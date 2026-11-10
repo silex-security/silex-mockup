@@ -149,6 +149,14 @@ test('the assistant\'s expectation and an instruction conflict that drops approv
   assert.equal(checks.error.code, 'invalid_checks', 'state checks are rules over CHECK_PATHS, never code');
 });
 
+test('switching the draft to a workflow without approval does not let an instruction conflict expect a send', () => {
+  const s = must(setDraftWorkflow(fresh(), { draftId: ID, workflowRef: { id: 'wf-meeting-scheduling', rev: '1' } }));
+  const conflict = draftOf(s).items.find(i => i.type === 'instruction_conflict');
+  const r = editItem(s, { draftId: ID, itemId: conflict.id, patch: { expectedBehavior: { summary: 'Send it now', outcome: 'complete' } } });
+  assert.equal(r.error?.code, 'review_blocked');
+  assert.equal(confirmScenario(s, { draftId: ID, key: conflict.id }).error?.code, 'review_blocked', 'an approval rule the workflow lacks cannot be kept');
+});
+
 test('an unreviewed set cannot be saved as runnable; Save draft still works', () => {
   let s = fresh();
   assert.equal(saveGate(s, ID).ok, false);

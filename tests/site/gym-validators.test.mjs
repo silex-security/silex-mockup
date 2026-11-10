@@ -87,3 +87,24 @@ test('an incompatible environment lists everything it is missing and keeps the d
   assert.deepEqual(r.dependencyReport.missing.sort(), ['crm.find_opportunity', 'crm.log_activity', 'crm.update_opportunity', 'db.lookup_contact', 'email.get_send_status', 'email.send_email', 'email.timeout_after_send'].sort());
   assert.deepEqual(state.experiments[EXP].selectedScenarioIds.length, 3, 'the selection is untouched');
 });
+
+test('a scenario set written for another workflow blocks Run with a fix that changes the set', () => {
+  const s = fixtureState();
+  const meeting = s.scenarioSets['set-meeting-scheduling@1'];
+  const state = editExp(s, { scenarioSetRef: { id: meeting.id, rev: meeting.rev }, selectedScenarioIds: meeting.scenarioRefs.map(r => r.id) });
+  const r = validateExperiment(state, EXP);
+  const e = r.errors.find(x => x.code === 'scenario_set_workflow_mismatch');
+  assert.ok(e, `got ${codes(r)}`);
+  assert.equal(e.fix.action, 'change-scenario-set');
+});
+
+test('the gate re-reviews each scenario against the experiment workflow: an instruction conflict may not expect a send', () => {
+  const s = fixtureState();
+  const conflict = { ...structuredClone(s.scenarios['sc-base-case@1']), id: 'sc-conflict-send', variation: { dimension: 'prompt', type: 'instruction_conflict', label: 'Instruction conflict' }, scriptedEvents: [], stateChecks: [], expectedBehavior: { summary: 'Send it now', outcome: 'complete' } };
+  const set = { ...s.scenarioSets['set-follow-up-resilience@1'] };
+  const state = editExp({ ...s, scenarios: { ...s.scenarios, 'sc-conflict-send@1': conflict }, scenarioSets: { ...s.scenarioSets, 'set-follow-up-resilience@1': { ...set, scenarioRefs: [...set.scenarioRefs, { id: 'sc-conflict-send', rev: '1' }] } } },
+    { selectedScenarioIds: ['sc-base-case', 'sc-conflict-send'] });
+  const e = validateExperiment(state, EXP).errors.find(x => x.scenarioId === 'sc-conflict-send');
+  assert.equal(e?.code, 'drops_approval');
+  assert.equal(e.fix.action, 'review-scenario');
+});
