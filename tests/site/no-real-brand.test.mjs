@@ -1,8 +1,6 @@
 // S4 of logs/2026-10-10_CREATOR_DOMAIN_FLEET_PLAN.md (non-negotiable 1): the creator-platform text shipped on
 // the site names no real consumer content platform or its parent company. Case-insensitive, word-boundary, over
-// a fixed list of non-vendored files. jev-runtime/** is excluded because it is byte-identical to the upstream
-// engine checkout (tests/site/jev-runtime-vendored.test.mjs guards that), and its creator text is scanned by the
-// engine-side tests/unit/web/demo-creator-brand.test.ts. `google`, `apple` and `meta` are left out of the list:
+// a fixed list of files, which includes the creator scenarios of the Jev runtime demo now that jev-runtime/ is edited here. `google`, `apple` and `meta` are left out of the list:
 // they collide with strings already in these files and are not tenant brands — the Google Fonts preconnects,
 // the -apple-system font stack and hardware names, and HTML <meta> / metadata. Their parents are still covered
 // as `alphabet` and `meta platforms`, which do not collide. No git and no network, so it runs in the CI archive.
@@ -16,6 +14,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const FILES = [
   'index.html',
   'js/jev-runtime-host.js',
+  'jev-runtime/demo/js/engine/scenarios-creator.js',
+  'jev-runtime/demo/index.html',
   'js/jev-runtime-model.js',
   'js/rt-fleet.js',
   'js/rt-subtabs.js',

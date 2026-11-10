@@ -1,10 +1,10 @@
 /* Jev observability demo. Tokens mirror the main site's index.html :root. */
 :root {
-  --ink: #17191d; --muted: #68707c; --line: #e3e6ea; --soft: #f5f6f8; --panel: #fff; --nav: #26282d;
-  --blue: #718aff; --blue2: #536bdb; --lav: #e9edff;
-  --green: #2b8766; --green-bg: #e5f4ee; --red: #c54545; --red-bg: #fcebea;
-  --amber: #a66a14; --amber-bg: #fff3d8; --violet: #6b4fc2; --violet-bg: #efeafc;
-  --shadow: 0 10px 30px rgba(22, 28, 45, .07); --radius: 16px;
+  --ink: #ececf1; --muted: #9aa1ad; --line: #30333d; --soft: #262932; --panel: #1d1f26; --nav: #1a1b21;
+  --blue: #718aff; --blue2: #8fa2ff; --lav: #262c4d;
+  --green: #3fb98a; --green-bg: #16302a; --red: #ef6b6b; --red-bg: #3a1c1c;
+  --amber: #e0aa3e; --amber-bg: #33290f; --violet: #b79cf5; --violet-bg: #2a2444;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .4); --radius: 16px;
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 * { box-sizing: border-box; }
@@ -26,12 +26,12 @@ a { color: var(--blue2); }
 /* Agent switch + tabs share one row; the switch copies the console's Runs | Engineer pill (web/css/live.css .lv-views). */
 .jv-nav-row { display: flex; align-items: flex-end; gap: 18px; margin-top: 12px; flex-wrap: wrap; }
 .jv-domain { display: inline-flex; background: #33363d; border-radius: 999px; padding: 2px; margin-bottom: 8px; }
-.jv-domain button { background: transparent; color: #c9ccd3; border: 0; border-radius: 999px; padding: 4px 12px; font-size: 12px; white-space: nowrap; }
-.jv-domain button[aria-pressed="true"] { background: #fff; color: var(--ink); font-weight: 600; }
+.jv-domain button { background: transparent; color: #b9bec8; border: 0; border-radius: 999px; padding: 4px 12px; font-size: 12px; white-space: nowrap; }
+.jv-domain button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 600; }
 .jv-domain button:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
 .jv-domain[hidden], .jv-tabs [hidden] { display: none; }
 .jv-onto { margin-left: 8px; align-items: center; }
-.jv-onto-label { color: #c9ccd3; font-size: 11px; padding: 0 8px 0 10px; white-space: nowrap; }
+.jv-onto-label { color: #b9bec8; font-size: 11px; padding: 0 8px 0 10px; white-space: nowrap; }
 .jv-slice { margin: 0; padding-left: 16px; }
 .jv-slice li { font-size: 12px; }
 .jv-tabs { display: flex; gap: 2px; overflow-x: auto; min-width: 0; }
@@ -74,12 +74,12 @@ select.btn { padding-right: 6px; }
 .jv-stream { max-height: 640px; overflow: auto; }
 .jv-row { display: grid; grid-template-columns: 56px 118px minmax(0, 1fr) 118px 58px; gap: 8px; align-items: center;
   padding: 7px 14px; border-bottom: 1px solid var(--soft); cursor: pointer; font-size: 13px; }
-.jv-row:hover { background: #fafbfc; }
+.jv-row:hover { background: #21232b; }
 .jv-row[aria-selected="true"] { background: var(--lav); }
 .jv-row.risk { box-shadow: inset 3px 0 0 var(--red); }
 .jv-row.review { box-shadow: inset 3px 0 0 var(--amber); }
 .jv-row.fresh { animation: fresh 1.2s ease-out; }
-@keyframes fresh { from { background: #fff7d6; } to { background: transparent; } }
+@keyframes fresh { from { background: var(--amber-bg); } to { background: transparent; } }
 .jv-row .t, .jv-row .ms { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 .jv-row .ms { text-align: right; }
 .jv-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -96,7 +96,7 @@ select.btn { padding-right: 6px; }
 .chip.b { background: var(--soft); color: var(--muted); border-color: var(--line); font-weight: 500; }
 .chip.sc { background: var(--lav); color: var(--blue2); }
 .chip.sim { background: var(--amber-bg); color: var(--amber); font-weight: 500; }
-.chip.by { background: #fff; border-color: var(--line); color: var(--ink); font-weight: 500; }
+.chip.by { background: var(--panel); border-color: var(--line); color: var(--ink); font-weight: 500; }
 
 /* Inspector */
 .jv-insp { position: sticky; top: 12px; }
@@ -110,9 +110,9 @@ select.btn { padding-right: 6px; }
 .jv-meta { color: var(--muted); font-size: 12px; }
 .jv-title { font-weight: 700; margin: 0 0 2px; }
 .note { border-radius: 10px; padding: 8px 10px; font-size: 13px; margin: 8px 0; }
-.note.warn { background: var(--amber-bg); color: #6d470d; }
-.note.info { background: var(--lav); color: #2d3a80; }
-.note.bad { background: var(--red-bg); color: #7c2323; }
+.note.warn { background: var(--amber-bg); color: var(--amber); }
+.note.info { background: var(--lav); color: #a3b2ff; }
+.note.bad { background: var(--red-bg); color: var(--red); }
 
 .pipe { list-style: none; margin: 10px 0; padding: 0; border-left: 2px solid var(--line); }
 .pipe > li { position: relative; padding: 0 0 12px 16px; }
@@ -191,7 +191,7 @@ h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: v
 /* ---- r5 visual system (logs/2026-09-30_CONSOLE_UX_PLAN.md, Amendment r5 B): same language as the live console ---- */
 :root { --shadow-sm: 0 1px 2px rgba(22,28,45,.06), 0 1px 1px rgba(22,28,45,.04); --shadow-md: 0 8px 28px rgba(22,28,45,.10);
   --r-lg: 14px; --r-md: 10px; --r-sm: 7px; }
-body { background: #f3f4f7; }
+body { background: #15161b; }
 .jv-top { padding: 12px 24px 0; position: sticky; top: 0; z-index: 20; }
 .jv-brand { font-size: 15px; letter-spacing: .04em; }
 .jv-badge { background: rgba(166,106,20,.25); color: #ffe2b0; border: 1px solid rgba(240,180,90,.35); }
