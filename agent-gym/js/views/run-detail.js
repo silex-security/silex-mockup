@@ -9,6 +9,8 @@ import { defaultExecutionKey, findExecution, matrixView, parseExecutionKey } fro
 import { initialCursor, replayFrame, replayReducer } from '../runs/replay.js';
 import { blueprintDiagram, paintBlueprint } from '../runs/blueprint.js';
 import { assertionList, finalStateView, nodeLabelsOf, paintTrace, traceList } from '../runs/trace.js';
+import { runWaterfall } from '../runs/waterfall.js';
+import { paintWaterfall, waterfallPanel } from '../runs/waterfall-view.js';
 import { stepIndicator } from '../components/steps.js';
 import { experimentSteps } from '../experiments/steps.js';
 import { attemptNotFound, evidenceTag, grid, impactNotice, reviewBadge, runsCrumbs, statusBadges } from '../runs/page.js';
@@ -45,6 +47,7 @@ export function mount(root, ctx) {
     const frame = replayFrame(events, cursor.position);
     paintBlueprint(panelEl, frame);
     paintTrace(panelEl, frame);
+    paintWaterfall(root, cursor.position);
     const scrub = panelEl.querySelector('.run-scrub__range');
     if (scrub) scrub.value = String(cursor.position);
     const where = panelEl.querySelector('.run-scrub__where');
@@ -197,6 +200,16 @@ export function mount(root, ctx) {
     return el;
   }
 
+  function waterfall(attempt, selectedKey, execution) {
+    if (!execution) return null;
+    const snap = attempt.inputSnapshot;
+    const want = parseExecutionKey(selectedKey);
+    const run = `${snap.scenarios.find(s => s.id === want?.scenarioId)?.title} · ${versionLabel(snap, want?.versionId)} · repetition ${want?.repeatIndex}`;
+    const el = waterfallPanel(runWaterfall(events, nodeLabelsOf(snap.workflow), execution.assertionResults), { run });
+    paintWaterfall(el, cursor.position);
+    return el;
+  }
+
   function executionPanels(execution) {
     if (!execution) return panel({ class: 'run-exec', title: 'Execution', children: emptyState({ icon: 'file-text', title: 'No execution selected', text: 'Final state and assertions appear for a finished run.' }) });
     const failed = execution.assertionResults.filter(r => !r.pass).length;
@@ -237,6 +250,7 @@ export function mount(root, ctx) {
       }),
       summary(facts),
       grid('27fr 45fr 28fr', [matrixPanel(attempt, executions, key), replayPanel(attempt, key, execution, facts), executionPanels(execution)], 'run-cols'),
+      waterfall(attempt, key, execution),
     ];
   };
 
