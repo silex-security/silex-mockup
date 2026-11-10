@@ -9,6 +9,8 @@ import {
   setWorkflow, toggleScenario,
 } from '../../agent-gym/js/simulation/attempts.js';
 import { compareAttempt } from '../../agent-gym/js/metrics.js';
+import { verdictReason } from '../../agent-gym/js/runs/compare.js';
+import { queueRows } from '../../agent-gym/js/selectors.js';
 
 const EXP = 'exp-029';
 const ok = result => { assert.ok(result.state, JSON.stringify(result.error)); return result.state; };
@@ -201,6 +203,8 @@ test('an attempt whose runner faults becomes failed, releases the slot and compa
   assert.equal(runnableAttemptId(s), b);
   assert.equal(advanceAttempt(s, { attemptId: a }).error.code, 'attempt_finished');
   assert.equal(compareAttempt(s.attempts[a], s.executions[a]).verdict, 'inconclusive');
+  assert.match(verdictReason(s.attempts[a], compareAttempt(s.attempts[a], s.executions[a]), s.executions[a]), /stopped as failed/);
+  assert.equal(queueRows(s).find(r => r.attemptId === a).canViewResults, true, 'a failed attempt still opens its results');
 });
 
 test('a new attempt never reuses an existing attempt id, even when seq lags behind', () => {

@@ -1,4 +1,5 @@
-// Baseline/variant comparison, computed only from executions that match the attempt's plan.
+// Baseline/variant comparison, computed only from executions that match the attempt's plan, one per plan item.
+// Only a completed attempt can read pass, fail or regression; queued, running, cancelled and failed are inconclusive.
 import { pairId, uniqueIds } from './model.js';
 
 const SCORED = ['passed', 'failed'];
@@ -26,7 +27,9 @@ const tally = list => ({ pass: list.filter(e => e.terminalState === 'passed').le
 
 /** @returns {import('./model.js').Comparison} */
 export function compareAttempt(attempt, executions) {
-  const scored = executions.filter(e => SCORED.includes(e.terminalState));
+  const same = (a, b) => a.versionId === b.versionId && a.scenarioId === b.scenarioId && a.repeatIndex === b.repeatIndex;
+  const counted = attempt.plan.map(item => executions.find(e => same(e, item))).filter(Boolean);
+  const scored = counted.filter(e => SCORED.includes(e.terminalState));
   const find = (item, versionId) => scored.find(e => e.versionId === versionId && pairId(e) === pairId(item));
   const planned = uniqueIds(attempt.plan.map(pairId)).map(id => attempt.plan.find(p => pairId(p) === id));
 
@@ -55,7 +58,7 @@ export function compareAttempt(attempt, executions) {
 
   const improvedPairs = pairs.filter(p => p.kind === 'improved').length;
   const regressedPairs = pairs.filter(p => p.kind === 'regressed').length;
-  const complete = missingPairs.length === 0 && attempt.status !== 'cancelled' && !executions.some(e => e.terminalState === 'error');
+  const complete = missingPairs.length === 0 && attempt.status === 'completed' && !counted.some(e => e.terminalState === 'error');
   const variantTotals = tally(byVersion('variant'));
   return {
     expectedPairs: planned.length,

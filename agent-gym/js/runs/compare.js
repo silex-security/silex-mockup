@@ -48,6 +48,7 @@ export function verdictReason(attempt, comparison, executions) {
   }
   if (comparison.verdict === 'regression') return `${comparison.regressedPairs} of ${all} pairs regressed.`;
   if (attempt.status === 'queued' || attempt.status === 'running') return `This attempt is still ${attempt.status}. ${done} of ${all} pairs are complete.`;
+  if (attempt.status === 'failed') return `The simulation could not run this attempt to the end, so it stopped as failed. ${done} of ${all} pairs are complete.`;
   if (attempt.status === 'cancelled') return `This attempt was cancelled. ${done} of ${all} pairs are complete; the rest never ran.`;
   if (executions.some(e => e.terminalState === 'error')) return 'An execution ended in a simulation error, so the comparison cannot pass.';
   return `${done} of ${all} pairs are complete.`;

@@ -23,7 +23,7 @@ export function queueRows(state) {
       attemptId: id, experimentId: a.experimentId, title: a.title, label: a.label,
       environmentName: environment.name, environmentIcon: environment.icon, scenarioCount: scenarios.length,
       status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
-      progress: attemptProgress(state, id), canViewResults: a.status === 'completed' || a.status === 'cancelled', index,
+      progress: attemptProgress(state, id), canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
     };
   });
   return rows.sort((x, y) => (STATUS_RANK[x.status] ?? 2) - (STATUS_RANK[y.status] ?? 2)
