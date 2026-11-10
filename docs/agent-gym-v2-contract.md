@@ -47,11 +47,12 @@ View-only state that must survive a refresh (the selected tab, node, component, 
 
 ## Routes
 
-`js/router.js` owns parsing and building. Views use `router.go(name, params, query)` and `router.href(...)`. Never build a hash by hand, and never accept an external return URL.
+`js/router.js` owns parsing and building. Views use `router.go(name, params, query)`, `router.replace(name, params, query)` (no history entry) and `router.href(...)`. Never build a hash by hand, and never accept an external return URL.
 
 ```text
 #/experiments?status=all|pending|queued|running|needs_review|done&q=<text>   experiment queue (default route)
 #/workbench/:experimentId                                   workbench
+#/handoff/speedrun/:handoffId                               accept a Speedrun handoff, then open the new experiment's workbench
 #/environments                                              environment library (template list)
 #/environments/new?returnTo=:experimentId&focus=describe    environment builder
 #/environments/:id/revisions/:rev                           environment revision (read-only detail)
@@ -69,7 +70,7 @@ The default route is `#/experiments`. An unknown route renders a not-found panel
 
 ## Sections and embedding
 
-`js/sections.js` splits the routes into four sections: Workbench (the experiment queue, which is the section root, and `workbench`), Environments (the environment library, builder and revision), Scenarios (the scenario library, builder and set) and Runs & results (the run list, run detail and results). Each section has a root route. The UI kit and the not-found page belong to no section. A new route joins exactly one section, and `tests/site/gym-host.test.mjs` fails until it does.
+`js/sections.js` splits the routes into four sections: Workbench (the experiment queue, which is the section root, `workbench` and `handoff`), Environments (the environment library, builder and revision), Scenarios (the scenario library, builder and set) and Runs & results (the run list, run detail and results). Each section has a root route. The UI kit and the not-found page belong to no section. A new route joins exactly one section, and `tests/site/gym-host.test.mjs` fails until it does.
 
 The shell shows the four sections as one row of tabs under the header. The tab whose section owns the current route carries `aria-current="page"`.
 
@@ -178,6 +179,17 @@ Class prefix `xq-`, styles in `css/queue.css`. The table reuses the `run-table` 
 ### Source link back to Speedrun
 
 `experiments/source.js` holds the one pure function that builds a console link, `consoleHref(view, path)`, which returns `../index.html#view=<view>&path=<encoded path>`, and `sourceLink(source)`, which returns the link for a Speedrun source with a `ref` and `null` for any other source. `components/source-link.js` draws it as a real `<a target="_top">`, so it works embedded and standalone. The experiment queue shows it in the Source cell and the workbench shows it in the page header. A view never posts a message to the parent window or takes a URL from the route.
+
+### Handoff from Speedrun
+
+Speedrun's "Send to Agent Gym" and its Agent Gym links leave the Speedrun app and open the console's Gym. `fixtures/handoffs.js` is the registry: one template per handoff id `<team>-<change>` (six Speedrun teams by four kinds of change, `retry-timeout`, `switch-tool`, `switch-model`, `prompt-context`). A template names a workflow, a variant, an environment, a scenario set and a scenario selection that Gym already has, an objective and a `source` of kind `speedrun` with its `ref`. Gym keeps no model of Speedrun teams beyond the name and the trace route that the source carries.
+
+```js
+acceptHandoff(state, { handoffId })     // -> { state } | { error: { code: 'handoff_unknown' } }
+handoffExperimentId(handoffId)          // 'exp-' + handoffId
+```
+
+The reducer adds an unsaved `pending` draft with no attempts. The experiment id comes from the handoff id, so a second accept returns the same state object, and a draft the visitor has since edited or run is never reset. `handoffId` is checked by the router pattern and then by an own-property lookup in the registry. `views/handoff.js` dispatches `acceptHandoff` once and then calls `router.replace('workbench', ...)`, so Back does not return to the handoff route. An unknown id renders the not-found panel and shows nothing from the URL.
 
 ### Configure, Run, Review
 

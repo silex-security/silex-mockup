@@ -6,6 +6,7 @@ import { parse, href, createRouter, ROUTES } from '../../agent-gym/js/router.js'
 const CONTRACT = [
   ['#/experiments?status=needs_review&q=sales%20follow', 'experiment-queue', {}, { status: 'needs_review', q: 'sales follow' }],
   ['#/workbench/exp-029', 'workbench', { experimentId: 'exp-029' }, {}],
+  ['#/handoff/speedrun/refund-retry-timeout', 'handoff', { handoffId: 'refund-retry-timeout' }, {}],
   ['#/environments', 'environment-library', {}, {}],
   ['#/environments/new?returnTo=exp-029&focus=describe', 'environment-builder', {}, { returnTo: 'exp-029', focus: 'describe' }],
   ['#/environments/env-sales/revisions/1.2', 'environment-revision', { id: 'env-sales', rev: '1.2' }, {}],

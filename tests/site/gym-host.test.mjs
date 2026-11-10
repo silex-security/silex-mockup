@@ -22,7 +22,7 @@ test('every app route belongs to exactly one section, except the UI kit', () => 
 
 test('each app route opens the console view that owns it', () => {
   const cases = [
-    ['/experiments', 'gym'], ['/experiments?status=running&q=sales', 'gym'], ['/workbench/exp-029', 'gym'], ['/workbench/exp-031?tab=compare', 'gym'],
+    ['/experiments', 'gym'], ['/experiments?status=running&q=sales', 'gym'], ['/workbench/exp-029', 'gym'], ['/workbench/exp-031?tab=compare', 'gym'], ['/handoff/speedrun/refund-retry-timeout', 'gym'],
     ['/environments', 'gym-environments'], ['/environments/new?returnTo=exp-029&focus=describe', 'gym-environments'], ['/environments/env-sales/revisions/1.2', 'gym-environments'],
     ['/scenarios', 'gym-scenarios'], ['/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up', 'gym-scenarios'], ['/scenario-sets/set-follow-up-resilience/revisions/1', 'gym-scenarios'],
     ['/runs?status=all', 'gym-runs'], ['/runs?status=running', 'gym-runs'], ['/experiments/exp-029/attempts/attempt-001', 'gym-runs'], ['/experiments/exp-029/attempts/attempt-001/results', 'gym-runs'],

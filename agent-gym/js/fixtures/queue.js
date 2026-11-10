@@ -1,18 +1,6 @@
 // Experiment drafts and the seeded queue. The queue is produced by the real reducers and executor, never typed in.
+import { FOLLOW_UP, MEETING, TRIAGE, TRIAGE_V2, experiment } from './experiment.js';
 import { advanceAttempt, changeTrigger, enqueueAttempt, pauseAttempt, recordReview, renameExperiment, resumeAttempt } from '../simulation/attempts.js';
-
-const experiment = (id, number, title, { workflow, variant, environment, set, scenarios, repetitions, revision, objective = 'success', acceptance = { noRegression: true, minImprovedPairs: 1 }, source, saved = true }) => ({
-  id, number, title, draftRevision: revision, savedRevision: saved ? revision : null,
-  workflowRef: { id: workflow.id, rev: workflow.rev ?? '1' }, variantId: variant, environmentRef: environment, scenarioSetRef: { id: set.id, rev: set.rev ?? '1' },
-  selectedScenarioIds: scenarios, repetitions, objective, acceptance, source,
-});
-
-const SALES = { id: 'env-sales', rev: '1.2' };
-const SUPPORT = { id: 'env-support', rev: '1.2' };
-const FOLLOW_UP = { workflow: { id: 'wf-sales-follow-up' }, variant: 'variant-a', environment: SALES, set: { id: 'set-follow-up-resilience' } };
-const TRIAGE = { workflow: { id: 'wf-support-triage' }, variant: 'variant-support-a', environment: SUPPORT, set: { id: 'set-refund-triage' } };
-const TRIAGE_V2 = { workflow: { id: 'wf-support-triage', rev: '2' }, variant: 'variant-support-small', environment: SUPPORT, set: { id: 'set-refund-triage-v2' } };
-const MEETING = { workflow: { id: 'wf-meeting-scheduling' }, variant: 'variant-meeting-a', environment: SALES, set: { id: 'set-meeting-scheduling' } };
 
 const speedrun = (label, ref) => ({ kind: 'speedrun', label, ref });
 const studio = label => ({ kind: 'studio', label, ref: null });
