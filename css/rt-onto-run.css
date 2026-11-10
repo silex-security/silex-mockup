@@ -12,23 +12,23 @@
 
 /* Timeline: the user task bubble, then one card per call, one connector between each adjacent pair of calls */
 .rt-onto-run .rt-onto-timeline{display:flex;flex-wrap:wrap;gap:26px;align-items:stretch;margin:12px 0 2px}
-.rt-onto-run .rt-onto-task{position:relative;flex:0 1 230px;min-width:180px;background:var(--lav);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
-.rt-onto-run .rt-onto-task-k{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue2)}
-.rt-onto-run .rt-onto-task-t{margin:4px 0 0;font-size:12.5px;color:var(--ink)}
+.rt-onto-run .rt-onto-task{position:relative;flex:0 1 230px;min-width:180px;background:var(--lav);border:1px solid var(--line);border-radius:var(--r-md);padding:9px 11px}
+.rt-onto-run .rt-onto-task-k{font-size:var(--text-2xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue2)}
+.rt-onto-run .rt-onto-task-t{margin:4px 0 0;font-size:var(--text-sm);color:var(--ink)}
 .rt-onto-run .rt-onto-calls{display:flex;flex-wrap:nowrap;gap:26px;list-style:none;margin:0;padding:0;flex:1 1 340px;min-width:0}
-.rt-onto-run .rt-onto-call{position:relative;flex:1 1 190px;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:9px 11px}
+.rt-onto-run .rt-onto-call{position:relative;flex:1 1 190px;min-width:0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);padding:9px 11px}
 .rt-onto-run .rt-onto-call.flagged{border-color:var(--red);background:var(--red-bg)}
-.rt-onto-run .rt-onto-call.flagged::after{content:"";position:absolute;inset:-1px;border-radius:12px;pointer-events:none}
+.rt-onto-run .rt-onto-call.flagged::after{content:"";position:absolute;inset:-1px;border-radius:var(--r-md);pointer-events:none}
 /* One connector per adjacent pair, on the later card: in the gap on its left (pointing right at it), no connector
    before the first card and none after the last. */
 .rt-onto-run .rt-onto-connector{position:absolute;top:50%;left:-19px;width:8px;height:8px;border-top:1.5px solid var(--muted);border-right:1.5px solid var(--muted);transform:translateY(-50%) rotate(45deg);pointer-events:none}
 
 .rt-onto-run .rt-onto-call-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.rt-onto-run .rt-onto-call-head>code{font-family:var(--mono);font-size:11.5px;overflow-wrap:anywhere;min-width:0}
+.rt-onto-run .rt-onto-call-head>code{font-family:var(--mono);font-size:var(--text-xs);overflow-wrap:anywhere;min-width:0}
 .rt-onto-run .rt-onto-head-io{display:inline-flex;gap:8px;align-items:center;flex:none}
-.rt-onto-run .rt-onto-io{display:inline-flex;gap:4px;align-items:center;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.rt-onto-run .rt-onto-io{display:inline-flex;gap:4px;align-items:center;font-family:var(--mono);font-size:var(--text-2xs);color:var(--muted)}
 .rt-onto-run .rt-onto-io-ic{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.rt-onto-run .rt-onto-call-body .rt-onto-why{font-size:11.5px;line-height:1.45;overflow-wrap:anywhere}
+.rt-onto-run .rt-onto-call-body .rt-onto-why{font-size:var(--text-xs);line-height:1.45;overflow-wrap:anywhere}
 .rt-onto-run .rt-onto-src{overflow-wrap:anywhere}
 .rt-onto-run .rt-onto-task-t,.rt-onto-run .rt-onto-args{overflow-wrap:anywhere}
 

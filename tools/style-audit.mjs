@@ -5,7 +5,7 @@
 //   node tools/style-audit.mjs --json     the same counts as JSON
 //
 // Covers the style attributes of index.html, css/, swm/css/ and agent-gym/css/. A font size under 12px counts
-// whether it is written in px or through the --text-2xs and --text-xs tokens. Embedded apps that are
+// whether it is written in px or through the --text-2xs token (11px). Embedded apps that are
 // built or vendored (speedrun/app, blueprint_studio/app, jev-runtime) are not the console's styles and are left out.
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
@@ -22,7 +22,7 @@ export function auditCss(css) {
   return {
     colors: distinct(body, /(#[0-9a-f]{3,8})\b/gi).size,
     fontSizes: distinct(body, /font-size:\s*([^;}]+)/gi).size,
-    under12px: [...body.matchAll(/font-size:\s*([0-9.]+)px/gi)].filter(m => Number(m[1]) < 12).length + (body.match(/font-size:\s*var\(--text-(2xs|xs)\)/gi) || []).length,
+    under12px: [...body.matchAll(/font-size:\s*([0-9.]+)px/gi)].filter(m => Number(m[1]) < 12).length + (body.match(/font-size:\s*var\(--text-2xs\)/gi) || []).length,
     radii: distinct(body, /border-radius:\s*([^;}]+)/gi).size,
     shadows: distinct(body, /box-shadow:\s*([^;}]+)/gi).size,
   };
