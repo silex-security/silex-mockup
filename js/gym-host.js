@@ -31,6 +31,9 @@ function mount() {
   const wrap = document.getElementById('gymFrameWrap');
   const sections = Object.values(VIEWS).map(id => document.getElementById(id));
   let frame = null, loaded = false;
+  /* The site hash as of the console's last navigation (hashchange or showView). When location.hash differs, a URL
+     change is waiting for its hashchange, and the frame must not write over it. */
+  let settled = location.hash;
 
   const activeView = () => sections.find(s => s.classList.contains('active'))?.id ?? null;
   const current = () => frame?.contentWindow.location.hash.slice(1) || null;
@@ -47,9 +50,10 @@ function mount() {
      active can only be Back or Forward through a Gym entry, so it brings the Gym view back. */
   function follow() {
     const path = current();
-    if (!path) return;
+    if (!path || location.hash !== settled) return;
     const active = activeView(), owner = viewOf(path) ?? active ?? 'gym';
     history.replaceState(history.state, '', hashFor(owner, path));
+    settled = location.hash;
     for (const a of document.querySelectorAll('[data-gym-full]')) a.href = 'agent-gym/index.html#' + path;
     if (owner !== active) window.__siteShowView(owner);
   }
@@ -76,7 +80,9 @@ function mount() {
   /* index.html's stateHash() asks for the hash that describes the active Gym view. */
   window.__gymHost = { hash: () => { const v = activeView(), p = current(); return p ? hashFor(viewOf(p) ?? v, p) : '#view=' + v; } };
   window.addEventListener('resize', size);
+  window.addEventListener('hashchange', () => { settled = location.hash; });
   document.addEventListener('rt:view', e => {
+    settled = location.hash;
     if (sections.some(s => s.id === e.detail.view)) shown(e.detail.view); else wrap.hidden = true;
   });
   if (activeView()) shown(activeView());
