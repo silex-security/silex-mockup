@@ -1,6 +1,6 @@
 # Site aesthetics plan
 
-Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 and P1 are built.
+Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 and P1 are built. P2 is built and waits for review.
 
 The demo console (`index.html`) grew view by view and has no shared visual system. This plan gives it one, then applies it to the shell, the Platform home and the data views. A visitor sees one product instead of five pages. A maintainer changes a colour or a type size in one file.
 
@@ -49,6 +49,8 @@ One PR per phase, stacked in this order. Each ends in the checks under Verificat
 - One tab component, one KPI card, one badge set, one button set with a primary that passes 4.5:1.
 - SVG icons in the sidebar.
 - Review gate: before and after screenshots of all views, posted for your review.
+- Built, waiting for review. Platform is centred at 1180px, cards use the small shadow, the three tab rows share one style, the hero button passes 4.5:1, and the sidebar icons are SVG masks keyed on `data-view`. After shots are in `logs/site-aesthetics-2026-11-10/p2-1440/`.
+- Not done here. The KPI card and badge variants stay as they are until P5, where each view is touched anyway.
 
 ### P3. Platform home
 
