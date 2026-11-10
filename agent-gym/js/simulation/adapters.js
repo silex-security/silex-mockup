@@ -44,11 +44,10 @@ export function overrideProblem(environment, override) {
   return found.component.failureBehavior === override.value ? null : `${found.component.id} has no ${override.value} hook`;
 }
 
-// The capability a fault override needs from the environment, e.g. 'email.timeout_after_send'.
+// The capability a fault override needs, e.g. 'email.timeout_after_send'; null when the environment lacks the tool.
 export function faultCapabilityOf(environment, override) {
-  const found = toolOf(environment, override.target);
-  const kind = found?.component.kind ?? override.target.split('.')[0];
-  return `${kind}.${override.value}`;
+  const found = environment && toolOf(environment, override.target);
+  return found ? `${found.component.kind}.${override.value}` : null;
 }
 
 const basePermission = (component, spec) =>
