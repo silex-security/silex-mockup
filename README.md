@@ -7,7 +7,7 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 | SILEX Foundry | Shared knowledge, the common foundation | Enterprise World Model | `#view=security-model` |
 | Agent Studio | Pre-deployment | Blueprint Studio, Workflow Library | `#view=blueprint`, `#view=library` |
 | Agent Gym | Verify and validate | Experiment Workbench, Environments, Scenarios, Runs & Results | `#view=gym`, `#view=gym-environments`, `#view=gym-scenarios`, `#view=gym-runs` |
-| SILEX Runtime | Production | Runtime Observation, PCP · Policy, Incident Queue, Operations Overview | `#view=runtime-observation`, `#view=policies`, `#view=incidents`, `#view=overview` |
+| SILEX Runtime | Production | Runtime Observation, Incidents & Decisions | `#view=runtime-observation`, `#view=incidents`, `#view=incidents&tab=decisions` |
 | SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
 
 The home view, **Platform** (`#view=assurance`), shows the product suite as a map, five outcomes the suite enables, and the evidence base. Each product card carries its status today (Designed, Building or Roadmap).
@@ -25,7 +25,7 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 - **Blueprint Studio:** the computed Blueprint Studio from [`blueprint_studio/`](blueprint_studio/README.md), embedded in the Blueprint Studio view.
   - It includes the editor, templates, Ask AI, Validate → Optimize → Decide → Register, and the Decision Trace.
-  - Its pending decisions, PCP cards and registrations appear on Overview, PCP · Policy and the Workflow Library, stored in this browser.
+  - Its pending decisions, PCP cards and registrations appear on the Overview (`#view=overview`, not in the sidebar), the Pending decisions panel of Incidents & Decisions and the Workflow Library, stored in this browser.
   - How it is wired: [`js/STUDIO_BRIDGE_CONTRACT.md`](js/STUDIO_BRIDGE_CONTRACT.md), plan [`logs/2026-09-24_STUDIO_CUTOVER_PLAN.md`](logs/2026-09-24_STUDIO_CUTOVER_PLAN.md).
 
 ### Agent Gym
@@ -61,10 +61,11 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
 
 ### SILEX Speedrun
 
-- **Speedrun:** the SILEX Speedrun app from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) (source vendored in `speedrun/web/upstream/`), embedded in the Speedrun view (`#view=speedrun`). The product stays marked Roadmap and every figure is illustrative.
+- **Speedrun:** the SILEX Speedrun app (source in `speedrun/web/upstream/`, forked from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) and edited here; `node tools/build-speedrun.mjs` rebuilds `speedrun/app/`), embedded in the Speedrun view (`#view=speedrun`). The product stays marked Roadmap and every figure is illustrative.
   - Screens: Organization overview (data coverage, KPIs, insight radar, anomalies, benchmark health), Business Unit (role and team relationships), Agent Team Explorer, and per team the structure with the performance optimizer, trace replay, benchmarks and the Benchmark Builder. *Create variant* sends a change to the app's Agent Gym queue, where the experiment can be configured.
   - The app opens in the dark theme of the product design. Its header toggle switches to light and the choice is remembered per browser. Its *Agent Studio* link opens Blueprint Studio.
   - The site URL follows the screen that is open (`#view=speedrun&path=<app route>`), so a reload or a shared link reopens it. For example `#view=speedrun&path=%2Fgym` opens the app's Agent Gym experiment queue.
+  - Each agent team links to its Workflow Library entry and back (Performance column, workflow detail button, Governance link in the team header). `tests/site/library-speedrun-link.test.mjs` keeps the two lists in agreement.
   - What a visitor creates (experiments, benchmark builds) lives in the page and resets on reload.
   - The title row links to the one figure that is measured today, the runtime judge's latency.
   - How it is built and updated: [`speedrun/`](speedrun/README.md).

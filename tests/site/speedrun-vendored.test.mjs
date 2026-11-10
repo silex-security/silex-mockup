@@ -1,5 +1,5 @@
-// speedrun/web/upstream/ is a byte-identical copy of the upstream Speedrun src/ at the commit in VENDORED.json, and
-// speedrun/app/ is its build output. Every file must match the manifest, with nothing added or removed. To change the app, change it upstream and run tools/sync-speedrun.mjs.
+// speedrun/app/ is the build of the sources in speedrun/web/ (the Vite shell and the app source in upstream/), which this
+// repo owns. Every built file and every source file must match VENDORED.json, with nothing added or removed. After a change, run tools/build-speedrun.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -11,13 +11,13 @@ const DEST = resolve(dirname(fileURLToPath(import.meta.url)), '../../speedrun');
 const manifest = JSON.parse(readFileSync(join(DEST, 'VENDORED.json'), 'utf8'));
 const walk = d => readdirSync(d).flatMap(n => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
 
-test('manifest names a full upstream commit', () => assert.match(manifest.commit, /^[0-9a-f]{40}$/));
+test('manifest names the full commit the source was forked from', () => assert.match(manifest.forked_from.commit, /^[0-9a-f]{40}$/));
 test('every built file matches its manifest hash, none missing, none added', () => {
   assert.deepEqual(walk(join(DEST, 'app')).map(f => relative(DEST, f)).sort(), Object.keys(manifest.files).sort());
   for (const [rel, sha] of Object.entries(manifest.files))
     assert.equal(createHash('sha256').update(readFileSync(join(DEST, rel))).digest('hex'), sha, rel);
 });
-test('the vendored upstream source and the shell are the ones app/ was built from', () => {
+test('the app source and the shell are the ones app/ was built from', () => {
   const web = join(DEST, 'web');
   const now = ['index.html', 'vite.config.js', 'package-lock.json', ...['src', 'upstream'].flatMap(d => walk(join(web, d))).map(f => relative(web, f))].sort();
   assert.deepEqual(now, Object.keys(manifest.sources).sort());

@@ -1,4 +1,4 @@
-/* The Speedrun view: the upstream SILEX Speedrun app (speedrun/app/, built by tools/sync-speedrun.mjs) in an iframe.
+/* The Speedrun view: the SILEX Speedrun app (speedrun/app/, built by tools/build-speedrun.mjs) in an iframe.
    It loads on the first visit and keeps its place afterwards. The app opens in the dark theme of the product
    design; its own header toggle switches it and the choice is remembered.
    The app's route (its own hash, e.g. #/speedrun/teams/refund) is mirrored in the site URL as

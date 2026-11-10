@@ -565,9 +565,7 @@
 <div class="section-label" data-suite="runtime" data-stage="Production" data-status="Building" data-desc="Understand execution and govern consequential actions. Security, safety, observability.">SILEX Runtime</div>
 <nav class="nav">
 <button data-view="runtime-observation"><span class="ico">◉</span>Runtime Observation</button>
-<button data-view="policies"><span class="ico">◈</span>PCP · Policy</button>
-<button data-view="incidents"><span class="ico">▲</span>Incident Queue</button>
-<button data-view="overview"><span class="ico">◫</span>Operations Overview</button>
+<button data-view="incidents"><span class="ico">▲</span>Incidents &amp; Decisions</button>
 </nav>
 <div class="section-label" data-suite="speedrun" data-stage="Performance" data-status="Roadmap" data-desc="Improve selected performance goals within business and safety constraints. Quality and task success, cost and inference efficiency, latency and execution paths.">SILEX Speedrun</div>
 <nav class="nav">
@@ -713,7 +711,7 @@
 <div class="metric-grid">
 <div class="card metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
 <div class="card metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
-<div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 6 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
+<div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 10 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
 <div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="gym">revalidate</button></div></div>
 </div>
 <div class="two-col" style="grid-template-columns:1fr">
@@ -734,7 +732,7 @@
 <div class="body" style="padding:0 20px 18px">
 <div style="display:flex;gap:28px;align-items:end">
 <div><div class="metric-value" id="ovRegistered">24</div><div class="metric-foot">registered</div></div>
-<div><div class="metric-value" style="color:var(--muted)" id="ovKnown">9</div><div class="metric-foot">known in the environment</div></div>
+<div><div class="metric-value" style="color:var(--muted)" id="ovKnown">13</div><div class="metric-foot">known in the environment</div></div>
 <div><div class="metric-value" id="ovDeployed">18</div><div class="metric-foot">deployed</div></div>
 </div>
 <div class="bar"><i id="ovCoverageBar" style="width:77%"></i></div>
@@ -783,11 +781,13 @@
 <section class="view" id="incidents">
 <div class="title-row">
 <div>
-<h1>Incident Queue</h1>
-<p>Post-deployment entry point: production incidents across registered workflows.</p>
+<h1>Incidents &amp; Decisions</h1>
+<p>Production incidents across registered workflows, and the policy changes waiting for a human decision.</p>
 </div>
-<div class="view-switch"><button class="active" data-queue-view="cards">Cards</button><button data-queue-view="list">List</button></div>
+<div class="view-switch" id="incSwitch"><button class="active" data-inc-switch="incidents">Incidents</button><button data-inc-switch="decisions">Pending decisions <b id="incPendingCount">2</b></button></div>
 </div>
+<div id="incView">
+<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><div class="view-switch"><button class="active" data-queue-view="cards">Cards</button><button data-queue-view="list">List</button></div></div>
 <div class="metric-grid chg" data-chg="PRD §28 summary">
 <div class="card metric"><div class="kicker">Open incidents</div><div class="metric-value">12</div><div class="metric-foot">Last 30 days</div></div>
 <div class="card metric"><div class="kicker">Critical incidents</div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcome still reachable</div></div>
@@ -798,7 +798,7 @@
 <input class="search" id="incidentSearch" aria-label="Search incidents" placeholder="Search incident, workflow, agent or control…">
 <select class="search inc-filter" data-f="domain" aria-label="Domain"><option value="">All domains</option><option>Finance</option><option>Customer Service</option><option>Procurement</option><option>IT</option><option>Identity</option><option>Sales</option></select>
 <select class="search inc-filter" data-f="workflow" aria-label="Workflow"><option value="">All workflows</option><option value="WF-021">Vendor Master Update</option><option value="WF-014">Refund Resolution</option><option value="WF-008">PO Approval</option><option value="WF-033">Account Remediation</option><option value="WF-005">Access Provisioning</option><option value="WF-026">Quote-to-Contract</option></select>
-<select class="search inc-filter" data-f="agent" aria-label="Agent"><option value="">All agents</option><option>Finance Agent</option><option>Refund Agent Network</option><option>Procurement Agent</option><option>Remediation Agent</option><option>Provisioning Agent</option><option>Pricing Agent</option></select>
+<select class="search inc-filter" data-f="agent" aria-label="Agent"><option value="">All agents</option><option>Finance Agent</option><option>Refund Team</option><option>Procurement Agent</option><option>Remediation Agent</option><option>Provisioning Agent</option><option>Pricing Agent</option></select>
 <select class="search inc-filter" data-f="severity" aria-label="Severity"><option value="">All severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Closed</option></select>
 <select class="search inc-filter" data-f="status" aria-label="Status"><option value="Open">Open</option><option value="">All statuses</option><option>Closed</option></select>
 <select class="search inc-filter" data-f="type" aria-label="Incident type"><option value="">All types</option><option>Tool mutation</option><option>Aggregate outcome</option><option>Stale approval</option><option>Ordering failure</option><option>Entitlement</option><option>Policy conflict</option></select>
@@ -814,12 +814,60 @@
           <article class="card incident-card" data-incident="I-0994" data-search="sales discount quote contract policy approval"><div class="incident-card-top"><span class="incident-id">I-0994 · 5d ago</span><span class="status" style="background:var(--green-bg);color:var(--green)">Closed</span></div><h3>Discount policy conflict</h3><p>Regional and strategic-account policies produced contradictory approval decisions.</p><div class="incident-card-meta"><span>Sales · Quote-to-Contract</span><span>Re-validated</span></div></article>
         </div>
         <div class="card section-card queue-scroll" id="incidentList" style="display:none"><table class="queue-table"><thead><tr><th>Incident</th><th>Workflow</th><th>Evidence</th><th>Failure hypothesis</th><th>Priority</th><th>Stage</th><th>Owner</th></tr></thead><tbody><tr data-incident="I-1042"><td class="incident-name">I-1042<small>18m ago</small></td><td>Finance · Vendor Master</td><td>Tool mutation blocked</td><td>Intent–approval binding</td><td><span class="status blocked">Critical</span></td><td>Validating</td><td>M. Chen</td></tr><tr data-incident="I-1038"><td class="incident-name">I-1038<small>2h ago</small></td><td>Support · Refund Resolution</td><td>Aggregate outcome observed</td><td>Cross-agent value composition</td><td><span class="status review">High</span></td><td>Investigating</td><td>A. Patel</td></tr><tr data-incident="I-1031"><td class="incident-name">I-1031<small>6h ago</small></td><td>Procurement · PO Approval</td><td>Stale approval reused</td><td>Authority lifecycle mismatch</td><td><span class="status review">High</span></td><td>Queued</td><td>J. Kim</td></tr><tr data-incident="I-1019"><td class="incident-name">I-1019<small>1d ago</small></td><td>IT · Account Remediation</td><td>Dependency check skipped</td><td>Action-ordering failure</td><td><span class="status running">Medium</span></td><td>Inferred</td><td>SRE Security</td></tr><tr data-incident="I-1007"><td class="incident-name">I-1007<small>3d ago</small></td><td>Identity · Access Provisioning</td><td>Entitlement restored</td><td>Historical state leakage</td><td><span class="status running">Medium</span></td><td>Monitoring</td><td>IAM Team</td></tr><tr data-incident="I-0994"><td class="incident-name">I-0994<small>5d ago</small></td><td>Sales · Quote-to-Contract</td><td>Policy conflict observed</td><td>Policy precedence ambiguity</td><td><span class="status" style="background:var(--green-bg);color:var(--green)">Closed</span></td><td>Re-validated</td><td>Revenue Operations</td></tr></tbody></table></div>
-      
+</div>
+<div id="policies" hidden>
+<div class="title-row">
+<p>Policy Change Proposals (PCP), validated and waiting for a human decision.</p>
+<div style="display:flex;gap:10px;align-items:center">
+<div class="view-switch chg" data-chg="PRD §30: two experiences">
+<button class="active" data-pr="workflow">Workflow / incident review</button>
+<button data-pr="exec">Executive queue · V1.5 preview</button>
+</div>
+<span class="status review">Human approval required</span>
+</div>
+</div>
+
+<div id="prWorkflow">
+<div class="landscape-note" style="margin:0 0 14px">Used by security operators. Each recommendation stays connected to its incident or blueprint, workflow, failure path, control and validation result. Decisions are made in that context.</div>
+<div class="workflow-grid chg" data-chg="PRD §30.1 context kept">
+<article class="card workflow-card">
+<div class="workflow-head"><div class="domain-label">Finance</div><span class="status review" data-rec-status="I-1042">Ready for approval</span></div>
+<h3>Bind approval to vendor + intent + mutation</h3>
+<p>Finance · Vendor Master Update · incident I-1042 · closes 3 alternative paths</p>
+<div class="workflow-meta"><div><strong>62→93%</strong><span>DEFENSE</span></div><div><strong>21→2%</strong><span>REACHABILITY</span></div><div><strong>+420ms</strong><span>LATENCY</span></div></div>
+<button class="btn secondary" data-review-inc="I-1042">Review in context →</button>
+</article>
+<div id="pcpStudioCards" class="studio-pcp"></div>
+<article class="card workflow-card">
+<div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status review" data-rec-status="I-1038">Ready for approval</span></div>
+<h3>Bind control to cumulative outcome</h3>
+<p>Customer Support · Refund Resolution · incident I-1038 · aggregate value capped</p>
+<div class="workflow-meta"><div><strong>58→90%</strong><span>DEFENSE</span></div><div><strong>26→4%</strong><span>REACHABILITY</span></div><div><strong>+310ms</strong><span>LATENCY</span></div></div>
+<button class="btn secondary" data-review-inc="I-1038">Review in context →</button>
+</article>
+</div>
+</div>
+
+<div id="prExec" style="display:none">
+<div class="v2-note chg" data-chg="PRD §42: V1.5 / V2" style="margin:0 0 14px">Preview. The aggregated approval queue for high-authority approvers is planned for V1.5 / V2. Clicking a row opens the underlying workflow context.</div>
+<div class="card section-card">
+<table class="queue-table">
+<thead><tr><th>Workflow</th><th>Policy recommendation</th><th>Impact</th><th>Confidence</th><th>Status</th></tr></thead>
+<tbody>
+<tr data-review-inc="I-1031"><td class="incident-name">Procurement</td><td>Vendor restriction</td><td>Medium</td><td>91%</td><td><span class="status review" data-rec-status="I-1031">Review</span></td></tr>
+<tr data-review-inc="I-1007"><td class="incident-name">IT Access</td><td>Reduce agent scope</td><td>High</td><td>96%</td><td><span class="status review" data-rec-status="I-1007">Review</span></td></tr>
+<tr data-review-inc="I-1042"><td class="incident-name">Vendor Master Update</td><td>Bind approval to vendor + intent + mutation</td><td>High</td><td>93%</td><td><span class="status review" data-rec-status="I-1042">Review</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
 </section>
 
 <section class="view" id="incident">
 <div class="workspace-context">
-<button class="back-link" data-jump="incidents">← Incident Queue</button>
+<button class="back-link" data-jump="incidents">← Incidents &amp; Decisions</button>
 <span style="color:var(--line)">/</span>
 <span class="incident-id" id="incId">I-1042</span>
 </div>
@@ -964,8 +1012,8 @@
 </div>
 </div>
 <div class="metric-grid chg" data-chg="PRD §24 Registered vs Deployed">
-<div class="card metric"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">6</div><div class="metric-foot">shown in this demo</div></div>
-<div class="card metric"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">5</div><div class="metric-foot">active in production</div></div>
+<div class="card metric"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">10</div><div class="metric-foot">shown in this demo</div></div>
+<div class="card metric"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">9</div><div class="metric-foot">active in production</div></div>
 <div class="card metric"><div class="kicker">Registered · not deployed</div><div class="metric-value" id="libPre">1</div><div class="metric-foot">pre-production</div></div>
 <div class="card metric"><div class="kicker">Needs revalidation</div><div class="metric-value" id="libReval">2</div><div class="metric-foot">after environment changes</div></div>
 </div>
@@ -978,7 +1026,7 @@
 <div class="lifecycle" style="margin:0 2px 12px">Lifecycle: <span class="lc-step">Draft</span>→<span class="lc-step">Confirmed</span>→<span class="lc-step">Validating</span>→<span class="lc-step">Ready for Approval</span>→<span class="lc-step">Approved</span>→<span class="lc-step">Registered</span>→<span class="lc-step">Deployed</span>→<span class="lc-step">Needs Revalidation</span></div>
 <div class="card section-card lib-table-wrap" id="libTableWrap">
 <table class="queue-table lib-table">
-<thead><tr><th>Workflow</th><th>Domain</th><th>Business owner</th><th>Security owner</th><th>Agents</th><th>Tools</th><th>Resources</th><th>Controls</th><th>Policies</th><th>Lifecycle</th><th>Validation</th><th>Last validation</th><th>Deployment</th><th>Risk</th><th>Coverage conf.</th></tr></thead>
+<thead><tr><th>Workflow</th><th>Domain</th><th>Business owner</th><th>Security owner</th><th>Agents</th><th>Tools</th><th>Resources</th><th>Controls</th><th>Policies</th><th>Lifecycle</th><th>Validation</th><th>Last validation</th><th>Deployment</th><th>Risk</th><th>Coverage conf.</th><th>Agent team</th></tr></thead>
 <tbody id="libRows"></tbody>
 </table>
 </div>
@@ -1000,6 +1048,7 @@
 <div style="display:flex;gap:8px;align-items:center">
 <span class="lc" id="wfLifecycle">Deployed</span>
 <button class="btn secondary" id="wfIncidentBtn">Latest incident →</button>
+<button class="btn secondary" id="wfSpeedrunBtn" style="display:none">Performance in Speedrun →</button>
 <button class="btn secondary" id="wfRevalidateBtn">↻ Revalidate</button>
 <button class="btn blue chg" data-chg="PRD §24: deploy is separate" id="wfDeployBtn">Mark as deployed</button>
 </div>
@@ -1046,56 +1095,7 @@
 </section>
 
 
-<section class="view" id="policies">
-<div class="title-row">
-<div>
-<h1>PCP · Policy Review</h1>
-<p>Runtime stage — Policy Change Proposals (PCP), validated and waiting for a human decision.</p>
-</div>
-<div style="display:flex;gap:10px;align-items:center">
-<div class="view-switch chg" data-chg="PRD §30: two experiences">
-<button class="active" data-pr="workflow">Workflow / incident review</button>
-<button data-pr="exec">Executive queue · V1.5 preview</button>
-</div>
-<span class="status review">Human approval required</span>
-</div>
-</div>
 
-<div id="prWorkflow">
-<div class="landscape-note" style="margin:0 0 14px">Used by security operators. Each recommendation stays connected to its incident or blueprint, workflow, failure path, control and validation result. Decisions are made in that context.</div>
-<div class="workflow-grid chg" data-chg="PRD §30.1 context kept">
-<article class="card workflow-card">
-<div class="workflow-head"><div class="domain-label">Finance</div><span class="status review" data-rec-status="I-1042">Ready for approval</span></div>
-<h3>Bind approval to vendor + intent + mutation</h3>
-<p>Finance · Vendor Master Update · incident I-1042 · closes 3 alternative paths</p>
-<div class="workflow-meta"><div><strong>62→93%</strong><span>DEFENSE</span></div><div><strong>21→2%</strong><span>REACHABILITY</span></div><div><strong>+420ms</strong><span>LATENCY</span></div></div>
-<button class="btn secondary" data-review-inc="I-1042">Review in context →</button>
-</article>
-<div id="pcpStudioCards" class="studio-pcp"></div>
-<article class="card workflow-card">
-<div class="workflow-head"><div class="domain-label">Customer Service</div><span class="status review" data-rec-status="I-1038">Ready for approval</span></div>
-<h3>Bind control to cumulative outcome</h3>
-<p>Customer Support · Refund Resolution · incident I-1038 · aggregate value capped</p>
-<div class="workflow-meta"><div><strong>58→90%</strong><span>DEFENSE</span></div><div><strong>26→4%</strong><span>REACHABILITY</span></div><div><strong>+310ms</strong><span>LATENCY</span></div></div>
-<button class="btn secondary" data-review-inc="I-1038">Review in context →</button>
-</article>
-</div>
-</div>
-
-<div id="prExec" style="display:none">
-<div class="v2-note chg" data-chg="PRD §42: V1.5 / V2" style="margin:0 0 14px">Preview. The aggregated approval queue for high-authority approvers is planned for V1.5 / V2. Clicking a row opens the underlying workflow context.</div>
-<div class="card section-card">
-<table class="queue-table">
-<thead><tr><th>Workflow</th><th>Policy recommendation</th><th>Impact</th><th>Confidence</th><th>Status</th></tr></thead>
-<tbody>
-<tr data-review-inc="I-1031"><td class="incident-name">Procurement</td><td>Vendor restriction</td><td>Medium</td><td>91%</td><td><span class="status review" data-rec-status="I-1031">Review</span></td></tr>
-<tr data-review-inc="I-1007"><td class="incident-name">IT Access</td><td>Reduce agent scope</td><td>High</td><td>96%</td><td><span class="status review" data-rec-status="I-1007">Review</span></td></tr>
-<tr data-review-inc="I-1042"><td class="incident-name">Vendor Master Update</td><td>Bind approval to vendor + intent + mutation</td><td>High</td><td>93%</td><td><span class="status review" data-rec-status="I-1042">Review</span></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
 
 <section class="view gym-view" id="gym">
 <div class="title-row"><div>
@@ -1337,7 +1337,7 @@ document.querySelectorAll('.mode-tab').forEach(tab=>tab.addEventListener('click'
   
 const incidentData={
     'I-1042':{workflow:'Finance · Vendor Master Update',meta:'Workflow WF-021 · Owner: Finance Operations · Production',severity:'Critical evidence',severityClass:'blocked',title:'Vendor bank mutation attempted',summary:'A blocked prompt injection is evidence of a broader workflow-level causal failure.',evidence:'I-1042 · Blocked tool mutation',mechanism:'Intent–approval binding failure',mechanismDesc:'Approval is not causally bound to the original vendor identity, intent, and exact state mutation.',count:'187 executions explored',input:'External email',agent:'Finance Agent',action:'Vendor Update Tool',outcome:'Bank destination changed',control:'PAY-042',authority:'Finance Approver',authorityMeta:'Delegates bank-update authority',resource:'Vendor bank record',resourceMeta:'Critical financial resource',candidate:'Bind approval to vendor + intent + mutation',hypothesis:'The workflow permits high-risk vendor mutations whenever approval is evaluated as reusable state rather than evidence bound to the verified vendor, intent, and exact mutation.',paths:['Finance → Procurement → split mutation → reused approval','Finance → Support → vendor merge → inherited authority','AP Agent → Finance → stale authorization → bank update','Finance → Vendor Tool → direct mutation → PAY-042']},
-    'I-1038':{workflow:'Customer Support · Refund Resolution',meta:'Workflow WF-014 · Owner: CX Automation · Production',severity:'High evidence',severityClass:'review',title:'Aggregate refund limit exceeded',summary:'Individually allowed actions composed across agents into a prohibited $1,200 economic outcome.',evidence:'I-1038 · Aggregate outcome observed',mechanism:'Cross-agent value composition',mechanismDesc:'Per-action controls do not evaluate cumulative economic value across the shared customer state.',count:'243 executions explored',input:'Multi-turn customer requests',agent:'Refund Agent Network',action:'Compensation composition',outcome:'$1,200 aggregate value',control:'FIN-118',authority:'Customer Support Lead',authorityMeta:'Delegates compensation authority',resource:'Customer economic state',resourceMeta:'Refund + credit + loyalty value',candidate:'Bind control to cumulative outcome',hypothesis:'The workflow evaluates refund, travel credit, and loyalty compensation independently, allowing legitimate local actions to compose into an unauthorized aggregate outcome.',paths:['Rebook → compensate → loyalty credit → cancel → refund','Refund → escalation credit → loyalty adjustment','Rebook → voucher → cancellation → unused fare refund','Single-agent refund → FIN-118 aggregate check']},
+    'I-1038':{workflow:'Customer Support · Refund Resolution',meta:'Workflow WF-014 · Owner: CX Automation · Production',severity:'High evidence',severityClass:'review',title:'Aggregate refund limit exceeded',summary:'Individually allowed actions composed across agents into a prohibited $1,200 economic outcome.',evidence:'I-1038 · Aggregate outcome observed',mechanism:'Cross-agent value composition',mechanismDesc:'Per-action controls do not evaluate cumulative economic value across the shared customer state.',count:'243 executions explored',input:'Multi-turn customer requests',agent:'Refund Team',action:'Compensation composition',outcome:'$1,200 aggregate value',control:'FIN-118',authority:'Customer Support Lead',authorityMeta:'Delegates compensation authority',resource:'Customer economic state',resourceMeta:'Refund + credit + loyalty value',candidate:'Bind control to cumulative outcome',hypothesis:'The workflow evaluates refund, travel credit, and loyalty compensation independently, allowing legitimate local actions to compose into an unauthorized aggregate outcome.',paths:['Rebook → compensate → loyalty credit → cancel → refund','Refund → escalation credit → loyalty adjustment','Rebook → voucher → cancellation → unused fare refund','Single-agent refund → FIN-118 aggregate check']},
     'I-1031':{workflow:'Procurement · Purchase Order Approval',meta:'Workflow WF-008 · Owner: Procurement Operations · Production',severity:'High evidence',severityClass:'review',title:'Delegated approval reused',summary:'A stale approval state authorized a purchase-order change after the approver scope changed.',evidence:'I-1031 · Stale approval reused',mechanism:'Authority lifecycle mismatch',mechanismDesc:'Delegated authority persists longer than the business state and approver scope it was issued for.',count:'126 executions explored',input:'PO change request',agent:'Procurement Agent',action:'Purchase order mutation',outcome:'Unauthorized PO approved',control:'PROC-031',authority:'Category Approver',authorityMeta:'Authority scope changed',resource:'Purchase Order 4821',resourceMeta:'Supplier and payment terms',candidate:'Bind authority to state version',hypothesis:'Approval validity is checked as a static attribute instead of being bound to the current purchase-order version, supplier, and approver scope.',paths:['PO edit → stale approval → submit','Supplier swap → inherited approval → release','Split PO → threshold bypass → approval reuse','Version-bound approval → PROC-031']},
     'I-1019':{workflow:'IT · Service Account Remediation',meta:'Workflow WF-033 · Owner: SRE Security · Production',severity:'Medium evidence',severityClass:'running',title:'Rotation bypassed dependency check',summary:'A remediation agent rotated credentials before discovering a downstream production dependency.',evidence:'I-1019 · Dependency check skipped',mechanism:'Action-ordering failure',mechanismDesc:'The workflow permits irreversible remediation before dependency discovery reaches sufficient confidence.',count:'98 executions explored',input:'Credential risk signal',agent:'Remediation Agent',action:'Credential rotation',outcome:'Production dependency broken',control:'IT-204',authority:'SRE On-call',authorityMeta:'Delegates emergency rotation',resource:'Service account secret',resourceMeta:'Used by 4 workloads',candidate:'Require dependency closure before rotate',hypothesis:'The workflow treats discovery and rotation as independently valid actions without enforcing the causal prerequisite that all critical dependencies are known.',paths:['Alert → rotate → discover dependency','Partial inventory → rotate → workload failure','Delegated agent → parallel restart → outage','Dependency gate → rotate → verify']},
     'I-1007':{workflow:'Identity · Access Provisioning',meta:'Workflow WF-005 · Owner: IAM Team · Production',severity:'Medium evidence',severityClass:'running',title:'Dormant entitlement restored',summary:'A mover workflow inherited an obsolete entitlement from historical role state.',evidence:'I-1007 · Entitlement restored',mechanism:'Historical state leakage',mechanismDesc:'Historical entitlements are treated as current role evidence during a mover transition.',count:'84 executions explored',input:'Employee role change',agent:'Provisioning Agent',action:'Entitlement assignment',outcome:'Dormant privilege restored',control:'IAM-077',authority:'Role Owner',authorityMeta:'Approves current role bundle',resource:'Privileged entitlement',resourceMeta:'Dormant for 214 days',candidate:'Exclude historical grants from role inference',hypothesis:'The workflow infers required access from prior state without distinguishing active role requirements from historical exceptions.',paths:['Mover → prior bundle → entitlement restore','Department transfer → inherited group → privilege','Role merge → exception replay → access grant','Current-role baseline → IAM-077']},
@@ -1347,12 +1347,15 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Platform',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incident Queue',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail',policies:'PCP · Policy','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
+  const viewNames={assurance:'Platform',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
   /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
      that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
      destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */
   let routeGen=0,routing=false;window.__wmRouteGen=()=>routeGen;
-  function showView(id){if(!routing)routeGen++;views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();document.dispatchEvent(new CustomEvent('rt:view',{detail:{view:id,nav:navId}}));if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
+  let incPanel='incidents';
+  const VIEW_ALIAS={policies:['incidents','decisions']};
+  function setIncPanel(p){incPanel=p;document.querySelectorAll('[data-inc-switch]').forEach(b=>b.classList.toggle('active',b.dataset.incSwitch===p));$id('incView').hidden=p!=='incidents';$id('policies').hidden=p!=='decisions'}
+  function showView(id){const al=VIEW_ALIAS[id];if(al){setIncPanel(al[1]);id=al[0]}if(!routing)routeGen++;views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();document.dispatchEvent(new CustomEvent('rt:view',{detail:{view:id,nav:navId}}));if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
   const $id=x=>document.getElementById(x);
   const setText=(x,v)=>{const e=$id(x);if(e)e.textContent=v};
@@ -1367,20 +1370,26 @@ const incidentData={
   function setRecStatus(key,text,cls){document.querySelectorAll('[data-rec-status="'+key+'"]').forEach(el=>{el.textContent=text;el.className='status '+(cls||'')})}
   // Pending decisions are counted once per item (fix 5-C).
   const pending=new Set(['I-1042','I-1038']);
-  function refreshPending(){setText('ovPendingCount',(pending.size+(window.studioAwaitingCount||0))+' pending')}
+  function refreshPending(){const n=pending.size+(window.studioAwaitingCount||0);setText('ovPendingCount',n+' pending');setText('incPendingCount',n)}
   function addPending(k){pending.add(k);refreshPending()}
   function resolvePending(k){pending.delete(k);refreshPending()}
 
   const workflowData={
     'WF-021':{name:'Finance · Vendor Master Update',domain:'Finance',desc:'Vendor onboarding and bank-detail maintenance across Finance, Procurement and approval services.',owner:'Finance Operations',sec:'M. Chen',agents:4,tools:7,resources:5,controls:3,policies:4,lifecycle:'Needs Revalidation',validation:'Recommendation ready',last:'12 days ago',deploy:'Deployed',risk:'Critical',coverage:'86%',defense:'62%',reach:'21%',open:3,incident:'I-1042',graph:[['External email','Input'],['Finance Agent','Agent'],['Finance Approver','Human approver'],['Vendor Update Tool','Tool'],['Vendor bank record','Resource'],['Bank change','Outcome']]},
-    'WF-014':{name:'Customer Support · Refund Resolution',domain:'Customer Service',desc:'Multi-agent refund, compensation, loyalty credit and escalation workflow.',owner:'CX Automation',sec:'A. Patel',agents:5,tools:9,resources:4,controls:4,policies:6,lifecycle:'Deployed',validation:'Recommendation ready',last:'2 days ago',deploy:'Deployed',risk:'High',coverage:'79%',defense:'58%',reach:'26%',open:2,incident:'I-1038',graph:[['Customer request','Input'],['Refund Agent','Agent'],['Loyalty Agent','Agent'],['Payment & Credit API','Tool'],['Customer economic record','Data'],['Refund issued','Outcome']]},
+    'WF-014':{name:'Customer Support · Refund Resolution',domain:'Customer Service',desc:'Multi-agent refund, compensation, loyalty credit and escalation workflow.',team:'refund',owner:'CX Automation',sec:'A. Patel',agents:4,tools:9,resources:4,controls:4,policies:6,lifecycle:'Deployed',validation:'Recommendation ready',last:'2 days ago',deploy:'Deployed',risk:'High',coverage:'79%',defense:'58%',reach:'26%',open:2,incident:'I-1038',graph:[['Customer request','Input'],['Refund Lead','Team lead'],['Refund Reviewer','Teammate'],['Payment & Credit API','Tool'],['Customer economic record','Data'],['Refund issued','Outcome']]},
+    'WF-017':{name:'Customer Support · Escalation Handling',domain:'Customer Service',desc:'Triage of complex cases, case-history lookup and hand-off to specialists.',team:'escalation',owner:'CX Automation',sec:'A. Patel',agents:4,tools:6,resources:3,controls:3,policies:4,lifecycle:'Deployed',validation:'Validated',last:'6 days ago',deploy:'Deployed',risk:'Low',coverage:'90%',defense:'80%',reach:'7%',open:0,graph:[['Escalated case','Input'],['Escalation Lead','Team lead'],['Order Specialist','Teammate'],['Escalation Specialist','Teammate'],['Response Writer','Teammate'],['Case resolved','Outcome']]},
+    'WF-019':{name:'Customer Support · Order Support',domain:'Customer Service',desc:'Order status and delivery questions answered against order records and support policy.',team:'order-support',owner:'CX Automation',sec:'A. Patel',agents:4,tools:5,resources:3,controls:3,policies:3,lifecycle:'Deployed',validation:'Validated',last:'4 days ago',deploy:'Deployed',risk:'Low',coverage:'92%',defense:'83%',reach:'5%',open:0,graph:[['Order question','Input'],['Support Lead','Team lead'],['Order Specialist','Teammate'],['Policy Reviewer','Teammate'],['Response Writer','Teammate'],['Reply sent','Outcome']]},
+    'WF-023':{name:'Finance · Invoice Processing',domain:'Finance',desc:'Supplier invoice extraction, vendor and purchase-order matching and payment approval routing.',team:'invoice',owner:'Finance Operations',sec:'M. Chen',agents:5,tools:7,resources:4,controls:4,policies:4,lifecycle:'Deployed',validation:'Validated',last:'8 days ago',deploy:'Deployed',risk:'Low',coverage:'89%',defense:'78%',reach:'8%',open:0,graph:[['Supplier invoice','Input'],['Invoice Lead','Team lead'],['Invoice Extractor','Teammate'],['Vendor Matcher','Teammate'],['Payment Approver','Teammate'],['Payment approved','Outcome']]},
+    'WF-029':{name:'Finance · Ledger Reconciliation',domain:'Finance',desc:'Ledger matching, variance explanation and journal entry drafting for period close.',team:'reconciliation',owner:'Finance Operations',sec:'M. Chen',agents:5,tools:6,resources:4,controls:3,policies:3,lifecycle:'Deployed',validation:'Validated',last:'10 days ago',deploy:'Deployed',risk:'Low',coverage:'87%',defense:'76%',reach:'9%',open:0,graph:[['Ledger entries','Input'],['Reconciliation Lead','Team lead'],['Ledger Matcher','Teammate'],['Variance Analyst','Teammate'],['Journal Entry Writer','Teammate'],['Ledger reconciled','Outcome']]},
     'WF-008':{name:'Procurement · Purchase Order Approval',domain:'Procurement',desc:'Purchase requests, budget checks, supplier selection and delegated approvals.',owner:'Procurement Operations',sec:'J. Kim',agents:3,tools:6,resources:3,controls:3,policies:3,lifecycle:'Needs Revalidation',validation:'Validated',last:'9 days ago',deploy:'Deployed',risk:'High',coverage:'74%',defense:'66%',reach:'17%',open:1,incident:'I-1031',graph:[['PO change request','Input'],['Procurement Agent','Agent'],['Category Approver','Human approver'],['PO System','Tool'],['Purchase order','Resource'],['PO released','Outcome']]},
     'WF-005':{name:'Identity · Access Provisioning',domain:'Identity',desc:'Joiner, mover and leaver orchestration across HRIS, IAM and application owners.',owner:'IAM Team',sec:'IAM Team',agents:4,tools:11,resources:6,controls:5,policies:5,lifecycle:'Deployed',validation:'Validated',last:'3 days ago',deploy:'Deployed',risk:'Medium',coverage:'91%',defense:'72%',reach:'12%',open:1,incident:'I-1007',graph:[['Role change','Input'],['Provisioning Agent','Agent'],['Role Owner','Human approver'],['IAM API','Tool'],['Entitlement','Resource'],['Access granted','Outcome']]},
     'WF-026':{name:'Sales · Quote-to-Contract',domain:'Sales',desc:'Pricing, discount approvals, contract generation and CRM state transitions.',owner:'Revenue Operations',sec:'RevOps Security',agents:3,tools:8,resources:4,controls:4,policies:4,lifecycle:'Revalidated',validation:'Revalidated',last:'5 days ago',deploy:'Deployed',risk:'Low',coverage:'88%',defense:'81%',reach:'6%',open:0,incident:'I-0994',graph:[['Quote request','Input'],['Pricing Agent','Agent'],['Regional Sales VP','Human approver'],['CRM','Tool'],['Enterprise quote','Data'],['Contract issued','Outcome']]},
     'WF-033':{name:'IT · Service Account Remediation',domain:'IT',desc:'Credential rotation, dependency discovery, workload restart and rollback.',owner:'SRE Security',sec:'SRE Security',agents:6,tools:14,resources:7,controls:3,policies:3,lifecycle:'Needs Revalidation',validation:'Validated',last:'21 days ago',deploy:'Deployed',risk:'Medium',coverage:'83%',defense:'70%',reach:'14%',open:1,incident:'I-1019',graph:[['Credential risk signal','Input'],['Remediation Agent','Agent'],['SRE On-call','Human approver'],['Secrets Manager','Tool'],['Service account secret','Resource'],['Credential rotated','Outcome']]}
   };
   // Known in the environment but not registered (fix 5-I, 5-M).
-  const UNREGISTERED=[['HR · Onboarding Assistant','Human Resources','People Operations'],['Finance · Expense Reimbursement','Finance','Finance Operations'],['IT · Software Deployment','IT','Platform Engineering']];
+  const UNREGISTERED=[['HR · Onboarding Assistant','Human Resources','People Operations'],['Finance · Expense Reimbursement','Finance','Finance Operations','expense-review'],['IT · Software Deployment','IT','Platform Engineering']];
+  const TEAM_NAMES={escalation:'Escalation Team',refund:'Refund Team','order-support':'Order Support Team',invoice:'Invoice Team','expense-review':'Expense Review Team',reconciliation:'Reconciliation Team'};
+  const speedrunLink=t=>t?`<button class="def-link" data-speedrun-team="${t}">${TEAM_NAMES[t]} →</button>`:'—';
   const lcClass=v=>({'Needs Revalidation':'warn','Deployed':'ok','Revalidated':'ok','Needs Revision':'bad','Approved':'ok'}[v]||'');
   const riskClass=v=>({Critical:'blocked',High:'review',Medium:'running'}[v]||'');
   const riskChip=v=>v==='Low'?'<span class="status" style="background:var(--green-bg);color:var(--green)">Low</span>':'<span class="status '+riskClass(v)+'">'+v+'</span>';
@@ -1390,12 +1399,12 @@ const incidentData={
     setText('libRegistered',reg);setText('libDeployed',dep);setText('libPre',reg-dep);setText('libReval',reval);
     setText('ovRegistered',reg);setText('ovKnown',known);setText('ovDeployed',dep);$id('ovCoverageBar').style.width=pct+'%';setText('ovCoveragePct',pct+'%');setText('ovCoverageNote',UNREGISTERED.length+' known workflows not yet registered');setText('ovAtRisk',risk);setText('ovAtRiskFoot','of '+reg+' registered');setText('ovRevalidate',reval)}
   function renderLibrary(){const q=$id('workflowSearch').value.toLowerCase().trim(),dom=$id('domainFilter').value,dep=$id('deployFilter').value,risk=$id('riskFilter').value;
-    if(dep==='Not registered'){const rows=UNREGISTERED.filter(u=>(!q||u.join(' ').toLowerCase().includes(q))&&(!dom||u[1]===dom));
-      $id('libRows').innerHTML=rows.map(u=>`<tr data-new-blueprint="1"><td class="incident-name">${u[0]}<small>Discovered</small></td><td>${u[1]}</td><td>${u[2]}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="lc warn">Discovered · not registered</span></td><td>Not validated</td><td>—</td><td><span class="deploy pre">Not registered</span></td><td>—</td><td>—</td></tr>`).join('');
-      $id('libCards').innerHTML=rows.map(u=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${u[1].slice(0,2).toUpperCase()}</div><span class="lc warn">Not registered</span></div><h3>${u[0]}</h3><p>Seen in the environment but not in the inventory. Describe it in Agentic Blueprint Studio to register it.</p><button class="btn secondary" style="margin-top:12px" data-new-blueprint="1">Start Agentic Blueprint →</button></article>`).join('');
+    if(dep==='Not registered'){const rows=UNREGISTERED.filter(u=>(!q||u.slice(0,3).join(' ').toLowerCase().includes(q))&&(!dom||u[1]===dom));
+      $id('libRows').innerHTML=rows.map(u=>`<tr data-new-blueprint="1"><td class="incident-name">${u[0]}<small>Discovered</small></td><td>${u[1]}</td><td>${u[2]}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="lc warn">Discovered · not registered</span></td><td>Not validated</td><td>—</td><td><span class="deploy pre">Not registered</span></td><td>—</td><td>—</td><td>${speedrunLink(u[3])}</td></tr>`).join('');
+      $id('libCards').innerHTML=rows.map(u=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${u[1].slice(0,2).toUpperCase()}</div><span class="lc warn">Not registered</span></div><h3>${u[0]}</h3><p>Seen in the environment but not in the inventory. Describe it in Agentic Blueprint Studio to register it.</p><button class="btn secondary" style="margin-top:12px" data-new-blueprint="1">Start Agentic Blueprint →</button>${u[3]?`<button class="def-link" style="margin:12px 0 0 12px" data-speedrun-team="${u[3]}">${TEAM_NAMES[u[3]]} →</button>`:''}</article>`).join('');
     }else{const rows=Object.entries(workflowData).filter(([id,w])=>(!q||(id+' '+w.name+' '+w.domain+' '+w.owner+' '+w.desc).toLowerCase().includes(q))&&(!dom||w.domain===dom)&&(!dep||w.deploy===dep)&&(!risk||atRisk(w)));
-      $id('libRows').innerHTML=rows.map(([id,w])=>`<tr data-open-workflow="${id}"><td class="incident-name">${w.name}<small>${id}</small></td><td>${w.domain}</td><td>${w.owner}</td><td>${w.sec}</td><td>${w.agents}</td><td>${w.tools}</td><td>${w.resources}</td><td>${w.controls}</td><td>${w.policies}</td><td><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></td><td>${w.validation}</td><td>${w.last}</td><td>${deployChip(w.deploy)}</td><td>${riskChip(w.risk)}</td><td>${w.coverage}</td></tr>`).join('');
-      $id('libCards').innerHTML=rows.map(([id,w])=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${w.domain.slice(0,2).toUpperCase()}</div><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></div><h3>${w.name}</h3><p>${w.desc}</p><div class="workflow-meta"><div><strong>${w.agents}</strong><span>AGENTS</span></div><div><strong>${w.tools}</strong><span>TOOLS</span></div><div><strong>${w.coverage}</strong><span>COVERAGE</span></div></div>${deployChip(w.deploy)}<button class="btn secondary" style="margin-top:12px" data-open-workflow="${id}">Open workflow →</button></article>`).join('')}
+      $id('libRows').innerHTML=rows.map(([id,w])=>`<tr data-open-workflow="${id}"><td class="incident-name">${w.name}<small>${id}</small></td><td>${w.domain}</td><td>${w.owner}</td><td>${w.sec}</td><td>${w.agents}</td><td>${w.tools}</td><td>${w.resources}</td><td>${w.controls}</td><td>${w.policies}</td><td><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></td><td>${w.validation}</td><td>${w.last}</td><td>${deployChip(w.deploy)}</td><td>${riskChip(w.risk)}</td><td>${w.coverage}</td><td>${speedrunLink(w.team)}</td></tr>`).join('');
+      $id('libCards').innerHTML=rows.map(([id,w])=>`<article class="card workflow-card"><div class="workflow-head"><div class="workflow-icon">${w.domain.slice(0,2).toUpperCase()}</div><span class="lc ${lcClass(w.lifecycle)}">${w.lifecycle}</span></div><h3>${w.name}</h3><p>${w.desc}</p><div class="workflow-meta"><div><strong>${w.agents}</strong><span>AGENTS</span></div><div><strong>${w.tools}</strong><span>TOOLS</span></div><div><strong>${w.coverage}</strong><span>COVERAGE</span></div></div>${deployChip(w.deploy)}<button class="btn secondary" style="margin-top:12px" data-open-workflow="${id}">Open workflow →</button>${w.team?`<button class="def-link" style="margin:12px 0 0 12px" data-speedrun-team="${w.team}">${TEAM_NAMES[w.team]} →</button>`:''}</article>`).join('')}
     updateCounts()}
   ['workflowSearch','domainFilter','deployFilter','riskFilter'].forEach(id=>$id(id).addEventListener('input',renderLibrary));
   document.querySelectorAll('[data-lib-view]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-lib-view]').forEach(x=>x.classList.toggle('active',x===b));$id('libTableWrap').style.display=b.dataset.libView==='table'?'block':'none';$id('libCards').style.display=b.dataset.libView==='cards'?'grid':'none'}));
@@ -1404,7 +1413,7 @@ const incidentData={
   function openWorkflow(id){const w=workflowData[id];if(!w)return;if(id!==currentWorkflow)$id('wfRevalRun').style.display='none';currentWorkflow=id;
     setText('wfId',id);setText('wfName',w.name);setText('wfDesc',w.desc);setText('wfDomain',w.domain);setText('wfStatus',w.deploy);setText('wfOwner',w.owner);setText('wfSecOwner',w.sec);setText('wfLastVal',w.last);setText('wfDefense',w.defense);setText('wfOpenRisks',w.open);setText('wfReach',w.reach);setText('wfCoverage',w.coverage);setText('wfPolicies',w.policies);
     const lc=$id('wfLifecycle');lc.textContent=w.lifecycle;lc.className='lc '+lcClass(w.lifecycle);
-    $id('wfDeployBtn').style.display=w.deploy==='Deployed'?'none':'inline-flex';$id('wfIncidentBtn').style.display=w.incident?'inline-flex':'none';
+    $id('wfDeployBtn').style.display=w.deploy==='Deployed'?'none':'inline-flex';$id('wfIncidentBtn').style.display=w.incident?'inline-flex':'none';const sb=$id('wfSpeedrunBtn');sb.dataset.speedrunTeam=w.team||'';sb.textContent=w.team?TEAM_NAMES[w.team]+' in Speedrun →':'';sb.style.display=w.team?'inline-flex':'none';
     $id('wfGraph').innerHTML=w.graph.map((n,i)=>`${i?'<div class="arrow">→</div>':''}<div class="node${n[1]==='Outcome'?' danger':''}"><strong>${n[0]}</strong><span>${n[1]}</span></div>`).join('');
     const inc=w.incident&&incidentData[w.incident];
     const activity=w.activity||[['Latest incident',inc?w.incident+' · '+inc.title:'None','View'],['Latest policy change',inc?inc.candidate+' · recommended':'—',''],['Latest revalidation',w.last+' · '+w.validation,''],['Latest deployment change',w.deploy,'']];
@@ -1428,7 +1437,7 @@ const incidentData={
   /* ---- 9/15: incidents, policy review, environment, security model, modals, init ---- */
   const INC_WF={'I-1042':'WF-021','I-1038':'WF-014','I-1031':'WF-008','I-1019':'WF-033','I-1007':'WF-005','I-0994':'WF-026'};
   const INC_REC={'I-1042':[62,21,3,93,2,0,'97%','+420 ms','2 steps'],'I-1038':[58,26,4,90,4,1,'96%','+310 ms','1 step'],'I-1031':[66,17,3,92,3,0,'98%','+180 ms','1 step'],'I-1019':[70,14,2,91,4,0,'99%','+2 min','1 gate'],'I-1007':[72,12,2,94,2,0,'97%','+90 ms','1 review'],'I-0994':[81,6,1,95,1,0,'99%','+60 ms','1 rule']};
-  const INC_META={'I-1042':{domain:'Finance',workflow:'WF-021',agent:'Finance Agent',sev:'Critical',status:'Open',type:'Tool mutation',hours:0.3},'I-1038':{domain:'Customer Service',workflow:'WF-014',agent:'Refund Agent Network',sev:'High',status:'Open',type:'Aggregate outcome',hours:2},'I-1031':{domain:'Procurement',workflow:'WF-008',agent:'Procurement Agent',sev:'High',status:'Open',type:'Stale approval',hours:6},'I-1019':{domain:'IT',workflow:'WF-033',agent:'Remediation Agent',sev:'Medium',status:'Open',type:'Ordering failure',hours:24},'I-1007':{domain:'Identity',workflow:'WF-005',agent:'Provisioning Agent',sev:'Medium',status:'Open',type:'Entitlement',hours:72},'I-0994':{domain:'Sales',workflow:'WF-026',agent:'Pricing Agent',sev:'Closed',status:'Closed',type:'Policy conflict',hours:120}};
+  const INC_META={'I-1042':{domain:'Finance',workflow:'WF-021',agent:'Finance Agent',sev:'Critical',status:'Open',type:'Tool mutation',hours:0.3},'I-1038':{domain:'Customer Service',workflow:'WF-014',agent:'Refund Team',sev:'High',status:'Open',type:'Aggregate outcome',hours:2},'I-1031':{domain:'Procurement',workflow:'WF-008',agent:'Procurement Agent',sev:'High',status:'Open',type:'Stale approval',hours:6},'I-1019':{domain:'IT',workflow:'WF-033',agent:'Remediation Agent',sev:'Medium',status:'Open',type:'Ordering failure',hours:24},'I-1007':{domain:'Identity',workflow:'WF-005',agent:'Provisioning Agent',sev:'Medium',status:'Open',type:'Entitlement',hours:72},'I-0994':{domain:'Sales',workflow:'WF-026',agent:'Pricing Agent',sev:'Closed',status:'Closed',type:'Policy conflict',hours:120}};
   const incDecision={'I-0994':'closed'};
   let currentIncident='I-1042';
   const GREEN='style="background:var(--green-bg);color:var(--green)"';
@@ -1651,6 +1660,7 @@ const incidentData={
   $id('incidentSearch').addEventListener('input',applyIncFilters);document.querySelectorAll('.inc-filter').forEach(s=>s.addEventListener('change',applyIncFilters));
   document.querySelectorAll('[data-queue-view]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-queue-view]').forEach(b=>b.classList.toggle('active',b===btn));$id('incidentCards').style.display=btn.dataset.queueView==='cards'?'grid':'none';$id('incidentList').style.display=btn.dataset.queueView==='list'?'block':'none'}));
 
+  document.querySelectorAll('[data-inc-switch]').forEach(b=>b.addEventListener('click',()=>{setIncPanel(b.dataset.incSwitch);if(location.hash.startsWith('#view=incidents'))history.replaceState(null,'',stateHash())}));
   document.querySelectorAll('[data-pr]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-pr]').forEach(x=>x.classList.toggle('active',x===b));$id('prWorkflow').style.display=b.dataset.pr==='workflow'?'block':'none';$id('prExec').style.display=b.dataset.pr==='exec'?'block':'none'}));
 
 
@@ -1676,7 +1686,8 @@ const incidentData={
   toggleHighlights.addEventListener('click',()=>setHighlights(!document.body.classList.contains('show-changes')));
   [decisionModal,defsModal,changesModal].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
 
-  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf]');if(!t||t.disabled)return;const ds=t.dataset;
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf],[data-speedrun-team]');if(!t||t.disabled)return;const ds=t.dataset;
+    if(ds.speedrunTeam){openRoute('#view=speedrun&path='+encodeURIComponent('/speedrun/teams/'+ds.speedrunTeam));return}
     if(ds.close){$id(ds.close).classList.remove('open');return}
     if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else showView(ds.go);return}
     if(ds.def){defsModal.classList.add('open');const d=$id('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#e9edff'},{background:'#fff'}],{duration:1600})}return}
@@ -1700,6 +1711,7 @@ const incidentData={
      #view=<nav view>, #view=incident&incident=<id>, #view=workflow&workflow=<id>,
      #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
      #view=runtime-observation[&tab=scenarios|plane|learning|ontology|fleet|latency[&sub=<key>]] (read by js/rt-subtabs.js).
+     #view=incidents[&tab=decisions] opens Incidents or Pending decisions. The retired #view=policies is rewritten to #view=incidents&tab=decisions.
      #view=speedrun[&path=<app route>] (read and kept current by js/speedrun-host.js).
      #view=gym|gym-environments|gym-scenarios|gym-runs[&path=<Agent Gym route>] (read and kept current by js/gym-host.js).
      LEGACY_VIEWS rewrites the removed views' links: #view=long-term&tab=runtime to #view=runtime-observation,
@@ -1711,9 +1723,11 @@ const incidentData={
   function applyViewHash(){const h=location.hash.slice(1);if(!h.startsWith('view='))return;const q=new URLSearchParams(h),v=q.get('view');
     const moved=v==='long-term'&&q.get('tab')==='runtime'?'runtime-observation':LEGACY_VIEWS[v];
     if(moved){history.replaceState(null,'','#view='+moved);showView(moved);return}
-    if(v==='incident'){const id=q.get('incident');if(!incidentData[id]){notify('Unknown incident — showing the Incident Queue.');showView('incidents');return}renderIncident(id);return}
+    if(v==='incident'){const id=q.get('incident');if(!incidentData[id]){notify('Unknown incident — showing Incidents & Decisions.');showView('incidents');return}renderIncident(id);return}
     if(v==='workflow'&&q.get('workflow')){const id=q.get('workflow');if(workflowData[id]){openWorkflow(id);return}notify('Unknown workflow — showing the Workflow Library.');showView('library');return}
     if(v==='security-model'){routeWorldModel(q);return}
+    if(v==='policies'){history.replaceState(null,'','#view=incidents&tab=decisions');showView('policies');return}
+    if(v==='incidents')setIncPanel(q.get('tab')==='decisions'?'decisions':'incidents');
     if(viewNames[v])showView(v)}
   function routeWorldModel(q){let tab=q.get('tab'),node=q.get('node'),warn=null;
     if(tab!==null&&!WM_TABS.includes(tab)){warn='Unknown World Model view — showing Ontology Layers.';tab=null}
@@ -1737,13 +1751,14 @@ const incidentData={
   /* the loader is a later classic script, so this listener (registered first, by document order) receives its ready event */
   window.addEventListener('swm:loader-ready',resumePending);window.addEventListener('load',resumePending);
   /* explicit in-page navigation to a route: keep a meaningful origin, then push the new route */
-  function stateHash(){const v=[...views].find(x=>x.classList.contains('active')),id=v?v.id:'overview';
+  function stateHash(){const v=[...views].find(x=>x.classList.contains('active')),id=v?v.id:'assurance';
     if(id==='incident')return '#view=incident&incident='+encodeURIComponent(currentIncident);
     if(id==='workflow'&&typeof currentWorkflow!=='undefined'&&currentWorkflow)return '#view=workflow&workflow='+encodeURIComponent(currentWorkflow);
     if(id==='security-model'){const t=wmTabs.find(x=>x.classList.contains('active')),tab=t?t.dataset.wmPanel:'wm-architecture',n=window.SWM&&SWM.currentNode();
       return '#view=security-model&tab='+tab+(tab==='wm-ontology'&&n?'&node='+encodeURIComponent(n):'')}
     if(id==='runtime-observation'){const t=window.__rtTabs&&window.__rtTabs.current();if(t&&t!=='scenarios'){const s=window.__rtSubnav&&window.__rtSubnav[t],k=s&&s.current();return '#view=runtime-observation&tab='+t+(k&&k!==s.initial?'&sub='+k:'')}}
     if(id.startsWith('gym')&&window.__gymHost)return window.__gymHost.hash();
+    if(id==='incidents')return '#view=incidents'+(incPanel==='decisions'?'&tab=decisions':'');
     if(id==='speedrun'&&window.__speedrun)return window.__speedrun.hash();
     return '#view='+id}
   function openRoute(hash){const h=location.hash;

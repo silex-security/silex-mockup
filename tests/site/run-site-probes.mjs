@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + embedded Agent Gym S47. Run from any cwd:
+/* Studio cutover S1–S12 + Runtime Observation S13–S19 + floating navigation S20 + Learning loop S21 + runtime pipeline S39–S43 + Runtime Observation sub-tabs S44 + second-level sub-tabs S45 + embedded Speedrun app S46 + embedded Agent Gym S47 + Workflow Library <-> Speedrun agent-team links S48 + Incidents & Decisions page S49. Run from any cwd:
  * node tests/site/run-site-probes.mjs [--only S1,S3] [--shots /tmp/site-shots]
  * --base https://silex-mockup.vercel.app runs only the approved live subset:
  * S1, S3 (recommendation), S4 (registration/persistence), S5, S13 (lazy runtime frame), S14, S17 (routes and nav order), S20 (floating navigation), S21 (learning loop). Isolated Chrome profile;
@@ -96,6 +96,7 @@ async function clickSel(sel, frame = false) {
 }
 async function keyEscape() { for (const type of ['keyDown', 'keyUp']) await page.send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }); await sleep(100); }
 async function nav(view) {
+  if(!await ev(`return !!document.querySelector('.nav [data-view="${view}"]')`)){await ev(`const b=document.createElement('button');b.dataset.jump=${Q(view)};document.body.append(b);b.click();b.remove();true`);await sleep(150);return}
   const floating=await ev('return !!window.__siteNav&&window.__siteNav.state().desktop');
   let temporaryDock=false;
   if(floating){
@@ -353,7 +354,7 @@ try {
     const at=id=>order.findIndex(e=>e.id===id),text=id=>order[at(id)].label;
     assert.ok(at('security-model')>=0);
     assert.ok(text('security-model').includes('Enterprise World Model'),'world model label');assert.ok(text('runtime-observation').includes('Runtime Observation'),'runtime observation label');assert.ok(text('blueprint').includes('Blueprint Studio'),'blueprint label');assert.ok(text('gym').includes('Experiment Workbench'));
-    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','gym','gym-environments','gym-scenarios','gym-runs','runtime-observation','policies','incidents','overview','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
+    assert.deepEqual(order.map(e=>e.id),['assurance','security-model','blueprint','library','gym','gym-environments','gym-scenarios','gym-runs','runtime-observation','incidents','speedrun'],'suite order: Foundry, Studio, Gym, Runtime, Speedrun');
     await load({path:'/index.html#view=long-term&tab=runtime'});await rtReady();await viewIs('runtime-observation');
     assert.equal(await ev('return location.hash'),'#view=runtime-observation','cold legacy redirect');
     await ev("location.hash='view=long-term&tab=periodic'");await viewIs('gym-runs');
@@ -740,16 +741,16 @@ try {
       await move(2,450);await sleep(40);await key('Escape');await sleep(300);await closed();
       await peek();await geometry(0);await aria('auto',true);
       await move(600,450);await sleep(100);await move(150,450);await sleep(450);assert.equal((await st()).open,true,'re-entry cancels hide');
-      await nav('overview');await move(600,450);await closed();assert.equal(await ev('return document.querySelector(".view.active").id'),'overview');
+      await nav('incidents');await move(600,450);await closed();assert.equal(await ev('return document.querySelector(".view.active").id'),'incidents');
       await peek();await tap(700,80);await closed();
       phase='click show/hide';
       for(let i=0;i<2;i++){
         await show();await geometry(244);await aria('pinned',true);
         await move(900,700);await key('Escape');await tap(900,80);assert.equal((await st()).mode,'pinned','dock ignores leave/Esc/outside');
-        await nav('overview');assert.equal((await st()).mode,'pinned','nav helper preserves prior dock');
+        await nav('incidents');assert.equal((await st()).mode,'pinned','nav helper preserves prior dock');
         await hide();await geometry(0);await aria('auto',false);assert.equal(await ev('return document.activeElement.id'),'navToggle');
       }
-      await nav('overview');await closed();assert.equal(await ev('return localStorage.getItem("silex.nav.pinned")'),'false','nav helper restores temporary dock');
+      await nav('incidents');await closed();assert.equal(await ev('return localStorage.getItem("silex.nav.pinned")'),'false','nav helper restores temporary dock');
       phase='keyboard icons';
       await ev('document.querySelector("#navToggle").focus()');await key('Tab');assert.equal(await ev('return document.querySelector("#sidebar").contains(document.activeElement)'),false,'hidden nav omitted from tab order');
       for(const activation of ['Enter',' ']){
@@ -806,7 +807,7 @@ try {
       assert.ok(Number(worldBefore.split(' ')[2])>Number(worldAfter.split(' ')[2]),'World Model remeasures');await hide();await sleep(500);
       phase='short viewport';
       await viewport(1440,600);await show();
-      for(const id of ['assurance','blueprint','gym','policies','incidents','security-model','runtime-observation','gym-runs','gym-scenarios','gym-environments','overview','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
+      for(const id of ['assurance','blueprint','gym','incidents','security-model','runtime-observation','gym-runs','gym-scenarios','gym-environments','library','speedrun']){await nav(id);assert.equal((await st()).mode,'pinned');}
       await hide();await viewport();
       phase='host modal';
       await peek();await ev('document.querySelector("#defsModal").classList.add("open")');await key('Escape');await waitState('auto',true);
@@ -1242,6 +1243,77 @@ try {
       await until(()=>ev(`return document.querySelector(".view.active")?.id===${Q(view)}&&location.hash===${Q('#view='+view)}`),`#view=${old} opens ${view}`,30000);
     }
     return `frame ${fill.h}px; four views, one document; in-app link and tab follow; deeper route in URL; Back/Forward; deep link; three old links`;
+  });
+
+  await probe('S48','Workflow Library and Speedrun link both ways: row link, Governance link, detail button, unregistered row',async()=>{
+    const SR='const w=globalThis.document.querySelector("#speedrunFrame").contentWindow; const document=w.document, location=w.location;';
+    const se=code=>ev(SR+code);
+    const h1=text=>until(()=>se(`return (document.querySelector('h1')?.textContent||'').includes(${Q(text)})`),'frame heading '+text);
+    const activeView=()=>ev('return document.querySelector(".view.active").id');
+    const governance=text=>se(`const a=[...document.querySelectorAll('a[data-host-hash]')].find(a=>a.textContent.includes(${Q(text)})); if(!a) throw Error('no Governance link ${text}'); a.click(); return true`);
+    await load();await nav('library');
+    assert.equal(await ev('return document.querySelectorAll("#libRows [data-speedrun-team]").length'),5,'five registered rows link to a team');
+    assert.equal(await ev('return document.querySelector("#libRows [data-open-workflow=\'WF-021\'] td:last-child").textContent'),'—','an unlinked row shows a dash');
+    assert.equal(await ev('return document.querySelector("#libRows [data-speedrun-team=refund]").textContent'),'Refund Team →','the link names the agent team');
+    await clickSel('#libRows [data-speedrun-team="refund"]');
+    await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
+    await h1('Refund Team');
+    assert.equal(await activeView(),'speedrun','the row link does not also open the workflow');
+    assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'speedrun','the nav highlights Speedrun');
+    await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund"'),'the site URL names the team page');
+    await governance('Runs workflow WF-014');
+    await until(async()=>(await activeView())==='workflow'&&(await ev('return document.getElementById("wfId").textContent'))==='WF-014','the Governance link opens Workflow Detail WF-014');
+    assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'library','the nav highlights the Library');
+    await se(`location.hash='/gym'`);await h1('Agent Gym');
+    await clickSel('#wfSpeedrunBtn');
+    await h1('Refund Team');
+    assert.equal(await activeView(),'speedrun','the detail button opens the team in the already-open frame');
+    await ev(`openWorkflow('WF-021');true`);
+    assert.equal(await ev('return getComputedStyle(document.getElementById("wfSpeedrunBtn")).display'),'none','no button for a workflow without a team');
+    await nav('library');
+    await ev(`const e=document.querySelector('#deployFilter'); e.value='Not registered'; e.dispatchEvent(new Event('input',{bubbles:true}));`);
+    await clickSel('#libRows [data-speedrun-team="expense-review"]');
+    await h1('Expense Review Team');
+    assert.equal(await activeView(),'speedrun','the unregistered row link opens the team, not the Blueprint Studio');
+    await governance('Not in the Workflow Library');
+    await until(async()=>(await activeView())==='library','the Governance link of an unregistered workflow opens the Library');
+    return 'row link -> Refund Team; Governance -> WF-014; detail button -> Refund Team; unregistered row -> Expense Review Team -> Library';
+  });
+
+  await probe('S49','Incidents & Decisions: no Overview or PCP sidebar item, pending count, decisions panel, retired and deep routes, Overview still renders',async()=>{
+    const panel=()=>ev('return {inc:!document.querySelector("#incView").hidden,dec:!document.querySelector("#policies").hidden,active:document.querySelector(".view.active").id}');
+    await load();
+    assert.deepEqual(await ev('return [...document.querySelectorAll(".nav button[data-view]")].map(b=>b.dataset.view).filter(v=>v==="overview"||v==="policies")'),[],'no Overview or PCP sidebar item');
+    await nav('incidents');
+    assert.equal(await ev('return [...document.querySelectorAll("#incidents h1")].map(h=>h.textContent).join("|")'),'Incidents & Decisions','one h1');
+    assert.equal(await ev('return document.getElementById("crumb").textContent'),'Incidents & Decisions','breadcrumb');
+    assert.deepEqual(await panel(),{inc:true,dec:false,active:'incidents'},'Incidents panel first');
+    assert.equal(await ev('return document.getElementById("incPendingCount").textContent'),'2','pending count on a clean load');
+    await clickSel('[data-inc-switch="decisions"]');
+    assert.deepEqual(await panel(),{inc:false,dec:true,active:'incidents'},'Pending decisions panel');
+    assert.deepEqual(await ev('return [...document.querySelectorAll("#policies button[data-review-inc]")].filter(b=>b.offsetParent).map(b=>b.dataset.reviewInc)'),['I-1042','I-1038'],'two incident cards');
+    await clickSel('#policies button[data-review-inc="I-1038"]');
+    await until(()=>ev('return document.querySelector(".view.active").id==="incident"&&document.getElementById("incId").textContent==="I-1038"'),'incident detail opens');
+    assert.equal(await ev('return document.querySelector("#incident .back-link").textContent'),'← Incidents & Decisions','back link names the page');
+    await clickSel('#incident .back-link');
+    assert.equal((await panel()).active,'incidents','back link returns to the page');
+    await load({path:'/index.html#view=policies'});
+    await until(async()=>(await panel()).dec,'#view=policies lands on decisions');
+    assert.equal(await ev('return location.hash'),'#view=incidents&tab=decisions','retired route rewritten');
+    await load({path:'/index.html#view=incidents&tab=decisions'});
+    await until(async()=>(await panel()).dec,'deep link opens decisions');
+    await navigate('/index.html#view=incidents&tab=decisions');await ev('location.reload(); true');
+    await until(()=>ev('return document.readyState==="complete"&&!document.querySelector("#policies").hidden'),'decisions survive a reload');
+    assert.equal(await ev('return location.hash'),'#view=incidents&tab=decisions');
+    await clickSel('[data-inc-switch="incidents"]');
+    assert.equal(await ev('return location.hash'),'#view=incidents','switching back updates the route');
+    await load({path:'/index.html#view=incidents'});
+    assert.deepEqual(await panel(),{inc:true,dec:false,active:'incidents'},'#view=incidents opens Incidents');
+    await load({path:'/index.html#view=overview'});
+    assert.equal(await ev('return document.querySelector(".view.active").id'),'overview','Overview renders');
+    assert.ok(await ev('return !!document.querySelector("#overview #ovStudioPending")&&/pending/.test(document.getElementById("ovPendingCount").textContent)'),'Overview bridge targets');
+    assert.equal(await ev('return document.querySelectorAll(".nav button.active").length'),0,'no sidebar item highlighted on the Overview');
+    return 'sidebar, count 2, decisions cards, Review in context, back link, retired route, deep link + reload, Overview';
   });
 
 } finally {

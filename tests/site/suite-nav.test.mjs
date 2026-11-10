@@ -46,7 +46,7 @@ test('each product holds the views its stage promises', () => {
   assert.deepEqual(ids('foundry'), ['security-model']);
   assert.deepEqual(ids('studio'), ['blueprint', 'library']);
   assert.deepEqual(ids('gym'), ['gym', 'gym-environments', 'gym-scenarios', 'gym-runs']);
-  assert.deepEqual(ids('runtime'), ['runtime-observation', 'policies', 'incidents', 'overview']);
+  assert.deepEqual(ids('runtime'), ['runtime-observation', 'incidents']);
   assert.deepEqual(ids('speedrun'), ['speedrun']);
 });
 
@@ -73,6 +73,30 @@ test('the rail and the map are rendered from the groups', () => {
   for (const v of sidebarViews.filter(v => v.id !== 'assurance')) assert.match(map, new RegExp(`data-jump="${v.id}"`), `${v.id} has a button on the map`);
   assert.equal([...map.matchAll(/class="suite-card"/g)].length, 4);
   assert.match(map, /Execution evidence → Validate → Reusable knowledge/);
+});
+
+const sectionHtml = id => html.match(new RegExp(`<section class="view[^"]*" id="${id}">([\\s\\S]*?)\\n</section>`))[1];
+
+test('the Runtime group offers Runtime Observation and Incidents & Decisions only', () => {
+  const runtime = groups.find(g => g.key === 'runtime').views;
+  assert.deepEqual(runtime.map(v => v.label), ['Runtime Observation', 'Incidents & Decisions']);
+  for (const gone of ['overview', 'policies']) assert.ok(!sidebarViews.some(v => v.id === gone), `no sidebar button opens ${gone}`);
+});
+
+test('Operations Overview stays reachable by #view=overview and keeps the bridge targets', () => {
+  assert.ok(sections.includes('overview'));
+  assert.match(sectionHtml('overview'), /id="ovStudioPending"/);
+  assert.match(sectionHtml('overview'), /id="ovPendingCount"/);
+});
+
+test('the PCP panel lives inside the Incidents & Decisions page with its bridge target', () => {
+  assert.ok(!sections.includes('policies'), 'policies is a panel, not a view');
+  const page = sectionHtml('incidents');
+  assert.match(page, /<h1>Incidents &amp; Decisions<\/h1>/);
+  assert.equal([...page.matchAll(/<h1[ >]/g)].length, 1, 'one h1 per view');
+  assert.match(page, /<div id="policies"[^>]*>[\s\S]*id="pcpStudioCards"/);
+  assert.match(page, /data-inc-switch="incidents"[\s\S]*data-inc-switch="decisions"/);
+  assert.doesNotMatch(viewNames, /policies:/, 'the retired view has no breadcrumb name');
 });
 
 test('Agent Gym is one app in four views: workbench, environments, scenarios, runs and results', () => {

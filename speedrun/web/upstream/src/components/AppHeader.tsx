@@ -4,7 +4,7 @@ import { IllustrativeBadge, Pill, cx } from "./ui";
 import { IconChevronDown } from "./icons";
 
 const PRODUCTS = [
-  { id: "studio", label: "Agent Studio", href: "#" },
+  { id: "studio", label: "Agent Studio", href: "#", hostHash: "view=blueprint" },
   { id: "speedrun", label: "Speedrun", href: "/speedrun" },
   { id: "gym", label: "Agent Gym", href: "/gym" },
 ] as const;
@@ -26,6 +26,7 @@ export function AppHeader({ active }: { active: "speedrun" | "gym" }) {
           <Link
             key={p.id}
             href={p.href}
+            data-host-hash={"hostHash" in p ? p.hostHash : undefined}
             aria-current={p.id === active ? "page" : undefined}
             className={cx(
               "flex h-14 items-center border-b-2 text-sm",
