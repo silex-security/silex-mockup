@@ -252,15 +252,15 @@ export function mount(root, ctx) {
   function reviewCard(row) {
     const s = row.spec;
     const problemText = row.problems.map(p => p.message).join(' ');
-    return h('article', { class: `sc-rcard${row.needsAction ? ' needs-action' : ''}`, dataset: { review: row.key } },
+    return h('article', { class: `sc-rcard${row.needsAction ? ' needs-action' : ''}`, 'aria-label': row.title, dataset: { review: row.key } },
       h('header', { class: 'sc-rcard__head' },
         h('strong', row.title),
         row.dimension && ui.badge({ label: dimensionLabel(row.dimension), tone: 'gray' }),
         ui.badge({ status: row.reviewState === 'reviewed' ? 'reviewed' : row.badge === 'review' ? 'review' : 'needs_review' }),
         h('span', { class: 'gym-spacer' }),
-        row.key !== 'base' && ui.button({ label: 'Edit', icon: 'pencil', size: 'sm', focusKey: `sc-review:edit:${row.key}`, onClick: () => openEditItemDialog(row.key) }),
+        row.key !== 'base' && ui.button({ label: 'Edit', ariaLabel: `Edit ${row.title}`, icon: 'pencil', size: 'sm', focusKey: `sc-review:edit:${row.key}`, onClick: () => openEditItemDialog(row.key) }),
         row.reviewState !== 'reviewed' && ui.button({
-          label: 'Confirm', icon: 'check', size: 'sm', variant: 'primary', focusKey: `sc-review:confirm:${row.key}`,
+          label: 'Confirm', ariaLabel: `Confirm ${row.title}`, icon: 'check', size: 'sm', variant: 'primary', focusKey: `sc-review:confirm:${row.key}`,
           disabled: row.problems.length > 0, reason: problemText,
           onClick: () => dispatch(confirmScenario, { key: row.key }, `${row.title} confirmed.`),
         })),
