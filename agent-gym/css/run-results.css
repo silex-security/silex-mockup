@@ -276,3 +276,17 @@
 .gym-app .run-pairs__legend { margin-top: 8px; font-size: var(--gym-fs-xs); }
 .gym-app .run-rep.gym-btn--ghost { border: 1px solid var(--gym-line); background: var(--gym-surface); }
 .gym-app .run-byscenario .gym-panel__head { flex-wrap: wrap; }
+
+/* Acceptance on Results, and the result line on the Runs list */
+.gym-app .run-accept__objective { margin: 0 0 8px; color: var(--gym-ink-2); font-size: var(--gym-fs-sm); }
+.gym-app .run-accept__checks { display: grid; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.gym-app .run-accept__check { display: flex; align-items: flex-start; gap: 8px; color: var(--gym-green); }
+.gym-app .run-accept__check.is-failed { color: var(--gym-red); }
+.gym-app .run-accept__check svg { flex: none; margin-top: 2px; }
+.gym-app .run-accept__text { display: flex; flex-direction: column; min-width: 0; }
+.gym-app .run-accept__label { color: var(--gym-ink); font-size: var(--gym-fs-md); font-weight: 600; }
+.gym-app .run-accept__detail { color: var(--gym-muted); font-size: var(--gym-fs-sm); }
+.gym-app .run-list__result { display: block; margin-top: 4px; font-size: var(--gym-fs-xs); line-height: 1.35; max-width: 260px; }
+.gym-app .run-list__result--green { color: var(--gym-green); }
+.gym-app .run-list__result--amber { color: var(--gym-amber); }
+.gym-app .run-list__result--red { color: var(--gym-red); }

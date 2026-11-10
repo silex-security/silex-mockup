@@ -3,7 +3,9 @@ import { h, mountView } from '../components/dom.js';
 import { badge, button, emptyState, notice, pageHeader, panel, textarea } from '../components/ui.js';
 import { REVIEW_DECISION, REVIEW_LABEL, pairId } from '../model.js';
 import { recordReview } from '../simulation/attempts.js';
-import { comparisonFor } from '../selectors.js';
+import { acceptanceVerdict, comparisonFor } from '../selectors.js';
+import { OBJECTIVES } from '../metrics.js';
+import { icon } from '../components/icons.js';
 import { attemptFacts, resolveAttempt } from '../runs/facts.js';
 import { VERDICT, defaultPairKey, pairKey, pairSides, unresolvedItems, verdictReason } from '../runs/compare.js';
 import { assertionList, finalStateView, nodeLabelsOf, toolRequests, traceList } from '../runs/trace.js';
@@ -102,6 +104,20 @@ export function mount(root, ctx) {
     });
   }
 
+  function acceptancePanel(attempt, verdict) {
+    const def = OBJECTIVES[attempt.inputSnapshot.experiment.objective];
+    return panel({
+      class: 'run-accept', title: 'Acceptance', subtitle: 'The rules this experiment set before it ran. Nothing is adopted or deployed.',
+      actions: badge({ label: verdict.passed ? 'Meets acceptance' : 'Does not meet acceptance', tone: verdict.passed ? 'green' : 'amber', class: 'run-accept__verdict' }),
+      children: [
+        h('p', { class: 'run-accept__objective' }, h('strong', 'Objective: '), `${def.label}. ${def.hint}`),
+        h('ul', { class: 'run-accept__checks', 'aria-label': 'Acceptance checks' }, verdict.checks.map(c => h('li', { class: `run-accept__check${c.passed ? '' : ' is-failed'}`, dataset: { check: c.id, passed: String(c.passed) } },
+          icon(c.passed ? 'check-circle' : 'alert', { size: 16 }), h('span', { class: 'run-accept__text' }, h('span', { class: 'run-accept__label' }, c.label), h('span', { class: 'run-accept__detail' }, c.detail)),
+          h('span', { class: 'gym-sr' }, c.passed ? ' Passed' : ' Not passed')))),
+      ],
+    });
+  }
+
   function reviewPanel(attempt, comparison, facts) {
     const live = facts.live;
     const reasonFor = d => d === 'pass_for_demo' && comparison.verdict !== 'pass' ? `Pass for demo needs a Pass verdict. This comparison reads ${VERDICT[comparison.verdict].label}.` : null;
@@ -186,7 +202,8 @@ export function mount(root, ctx) {
         actions: button({ label: 'Open run detail', size: 'sm', focusKey: 'res:open-run', href: detail }),
       }),
       verdictPanel(attempt, comparison, executions, facts),
-      grid('62fr 38fr', [h('div', { class: 'gym-stack' }, scenarioPanel(attempt, comparison, facts, chosen), unresolvedPanel(attempt, comparison, executions)), reviewPanel(attempt, comparison, facts)], 'run-cols'),
+      grid('62fr 38fr', [h('div', { class: 'gym-stack' }, scenarioPanel(attempt, comparison, facts, chosen), unresolvedPanel(attempt, comparison, executions)),
+        h('div', { class: 'gym-stack' }, acceptancePanel(attempt, acceptanceVerdict(state, attempt.id)), reviewPanel(attempt, comparison, facts))], 'run-cols'),
       pairPanel(attempt, executions, comparison, chosen),
     ];
   };

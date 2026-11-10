@@ -64,10 +64,10 @@ test('the run list shows every attempt with counts from the queue and filters by
   assert.deepEqual(page.rows.map(r => r.slice(0, 8)), [
     ['Sales follow-up · Variant A', 'Change', 'rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18', 'Not reviewed'],
     ['Support triage comparison', 'Manual', 'rev 1 · attempt 1', 'Customer support', '8', 'Queued', '0/48', 'Not reviewed'],
-    ['Refund timeout steps', 'Manual', 'rev 1 · attempt 1', 'Customer support', '2', 'Completed', '8/8', 'Needs iteration'],
-    ['Smaller model for refund replies', 'Manual', 'rev 1 · attempt 1', 'Customer support', '3', 'Completed', '12/12', 'Reject'],
-    ['Duplicate-send guard', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '3', 'Completed', '6/6', 'Pass for demo'],
-    ['Meeting scheduling', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '6', 'Completed', '12/12', 'Not reviewed'],
+    ['Refund timeout steps', 'Manual', 'rev 1 · attempt 1', 'Customer support', '2', 'Completed', '8/8 Steps per run 8.5 → 9.0 · 2 improved · 0 regressed', 'Needs iteration'],
+    ['Smaller model for refund replies', 'Manual', 'rev 1 · attempt 1', 'Customer support', '3', 'Completed', '12/12 Success rate 100% → 67% · 0 improved · 2 regressed', 'Reject'],
+    ['Duplicate-send guard', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '3', 'Completed', '6/6 Policy violations 1 → 0 · 1 improved · 0 regressed', 'Pass for demo'],
+    ['Meeting scheduling', 'Manual', 'rev 2 · attempt 1', 'Sales operations', '6', 'Completed', '12/12 Success rate 100% → 100% · 0 improved · 0 regressed', 'Not reviewed'],
   ]);
   assert.ok(page.rows.every(r => !/pass/i.test(r[5])), 'Completed is a status, never shown as passed');
   assert.deepEqual(page.results, ['attempt-006', 'attempt-005', 'attempt-004', 'attempt-001'].map(a => `#/experiments/${{ 'attempt-006': 'exp-026', 'attempt-005': 'exp-025', 'attempt-004': 'exp-024', 'attempt-001': 'exp-027' }[a]}/attempts/${a}/results`), 'only the completed rows link to results');

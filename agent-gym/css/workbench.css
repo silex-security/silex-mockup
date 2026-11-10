@@ -292,3 +292,8 @@
 .gym-app .wb-settings__accept { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .gym-app .wb-settings__accept legend { padding: 0; margin-bottom: 6px; color: var(--gym-ink-2); font-size: var(--gym-fs-sm); font-weight: 600; }
 @media (max-width: 899.98px) { .gym-app .wb-settings__grid { grid-template-columns: 1fr; } }
+.gym-app .wb-qconclusion { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.gym-app .wb-qsummary { font-size: var(--gym-fs-xs); line-height: 1.35; }
+.gym-app .wb-qsummary--green { color: var(--gym-green); }
+.gym-app .wb-qsummary--amber { color: var(--gym-amber); }
+.gym-app .wb-qsummary--red { color: var(--gym-red); }

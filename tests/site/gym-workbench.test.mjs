@@ -91,8 +91,9 @@ test('N1 renders from the store: three columns, the draft, the blueprint, scenar
   assert.deepEqual(v.rows, [
     ['Sales follow-up · Variant A, rev 3 · attempt 1', 'Sales operations', '3', 'Running', '12/18'],
     ['Support triage comparison, rev 1 · attempt 1', 'Customer support', '8', 'Queued', '–'],
-    ...[['Refund timeout steps', 'Customer support', '2'], ['Smaller model for refund replies', 'Customer support', '3'], ['Duplicate-send guard', 'Sales operations', '3'], ['Meeting scheduling', 'Sales operations', '6']]
-      .map(([title, env, n]) => [`${title}, rev ${title === 'Duplicate-send guard' || title === 'Meeting scheduling' ? 2 : 1} · attempt 1`, env, n, 'Completed, every run finished; open results to see which checks passed', 'View results']),
+    ...[['Refund timeout steps', 'Customer support', '2', 1, 'Steps per run 8.5 → 9.0 · 2 improved · 0 regressed Needs iteration'], ['Smaller model for refund replies', 'Customer support', '3', 1, 'Success rate 100% → 67% · 0 improved · 2 regressed Reject'],
+      ['Duplicate-send guard', 'Sales operations', '3', 2, 'Policy violations 1 → 0 · 1 improved · 0 regressed Pass for demo'], ['Meeting scheduling', 'Sales operations', '6', 2, 'Success rate 100% → 100% · 0 improved · 0 regressed']]
+      .map(([title, env, n, rev, result]) => [`${title}, rev ${rev} · attempt 1`, env, n, 'Completed, every run finished; open results to see which checks passed', `${result} View results`]),
   ]);
   assert.equal(v.progress, '12/18');
   assert.equal(v.replay, null, 'a recorded execution exists, so Run replay is available');

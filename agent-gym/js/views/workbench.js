@@ -7,6 +7,7 @@ import { MIN_IMPROVED_PAIRS, refKey } from '../model.js';
 import { OBJECTIVES } from '../metrics.js';
 import { experimentSteps } from '../experiments/steps.js';
 import { stepIndicator } from '../components/steps.js';
+import { reviewBadge } from '../runs/page.js';
 import { blueprintView, dependencyStatus, environmentCards, experimentSummary, queueCounts, queueRows, scenarioRows, selectedScenarioIds } from '../selectors.js';
 import {
   addVariant, clearScenarioSelection, createOrSelectVariant, enqueueAttempt, renameExperiment, saveExperiment, setEnvironment, setExperimentSettings, setWorkflow, toggleScenario,
@@ -479,7 +480,9 @@ export function mount(root, ctx) {
     const status = r.paused ? 'paused' : r.status;
     const result = r.status === 'running' || (r.paused && r.progress.done > 0)
       ? progress({ value: r.progress.done, max: r.progress.total, label: `${r.title} progress`, text: r.progress.text })
-      : r.canViewResults ? h('a', { class: 'wb-qresult', href: router.href('results', { experimentId: r.experimentId, attemptId: r.attemptId }), dataset: { focusKey: `wb:qr:${r.attemptId}` } }, 'View results', icon('arrow-right', { size: 16 }))
+      : r.canViewResults ? h('span', { class: 'wb-qconclusion' },
+        r.result && h('span', { class: `wb-qsummary wb-qsummary--${r.result.tone}` }, r.result.text), r.review && reviewBadge(r.review),
+        h('a', { class: 'wb-qresult', href: router.href('results', { experimentId: r.experimentId, attemptId: r.attemptId }), dataset: { focusKey: `wb:qr:${r.attemptId}` } }, 'View results', icon('arrow-right', { size: 16 })))
       : h('span', { class: 'wb-qdash', 'aria-label': 'No result yet' }, '–');
     return h('tr', { class: 'wb-qrow', dataset: { attempt: r.attemptId }, onClick: e => { if (!e.target.closest('a')) router.go('run-detail', { experimentId: r.experimentId, attemptId: r.attemptId }); } },
       h('td', h('a', { class: 'wb-qtitle', href: detail, dataset: { focusKey: `wb:q:${r.attemptId}` }, title: `${r.label}. Open the attempt.` }, icon('workflow', { size: 18 }), h('span', r.title), h('span', { class: 'gym-sr' }, `, ${r.label}`))),

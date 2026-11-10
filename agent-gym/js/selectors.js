@@ -24,7 +24,7 @@ export function queueRows(state) {
       attemptId: id, experimentId: a.experimentId, title: a.title, label: a.label,
       environmentName: environment.name, environmentIcon: environment.icon, scenarioCount: scenarios.length,
       trigger: triggerOf(a), status: a.status, runner: a.runner, paused: a.runner === 'paused' && (a.status === 'queued' || a.status === 'running'),
-      progress: attemptProgress(state, id), canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
+      progress: attemptProgress(state, id), result: attemptResultSummary(state, id), review: a.review, canViewResults: a.status === 'completed' || a.status === 'cancelled' || a.status === 'failed', index,
     };
   });
   return rows.sort((x, y) => (STATUS_RANK[x.status] ?? 2) - (STATUS_RANK[y.status] ?? 2)
@@ -171,15 +171,20 @@ export function acceptanceVerdict(state, attemptId) {
   return { passed: checks.every(c => c.passed), checks };
 }
 
-/** One line on how the stage attempt turned out, or null while it has no finished comparison. */
-export function experimentResultSummary(state, experimentId) {
-  const attempt = stageAttempt(state, experimentId);
-  if (!attempt || attempt.status !== 'completed') return null;
-  const cmp = comparisonFor(state, attempt.id);
-  const objective = objectiveComparison(attempt, state.executions[attempt.id] ?? []);
-  const accepted = acceptanceVerdict(state, attempt.id).passed;
+/** One line on how a completed attempt turned out, or null while it has no finished comparison. */
+export function attemptResultSummary(state, attemptId) {
+  const attempt = state.attempts[attemptId];
+  if (attempt.status !== 'completed') return null;
+  const cmp = comparisonFor(state, attemptId);
+  const objective = objectiveComparison(attempt, state.executions[attemptId] ?? []);
   return {
     text: `${objective.label} ${objective.baselineText} → ${objective.variantText} · ${cmp.improvedPairs} improved · ${cmp.regressedPairs} regressed`,
-    tone: accepted ? 'green' : cmp.regressedPairs > 0 ? 'red' : 'amber',
+    tone: acceptanceVerdict(state, attemptId).passed ? 'green' : cmp.regressedPairs > 0 ? 'red' : 'amber',
   };
+}
+
+/** The result line of the attempt that decides the experiment's stage, or null. */
+export function experimentResultSummary(state, experimentId) {
+  const attempt = stageAttempt(state, experimentId);
+  return attempt && attemptResultSummary(state, attempt.id);
 }

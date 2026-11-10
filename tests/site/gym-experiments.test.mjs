@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { fixtureState, seedState } from '../../agent-gym/js/fixtures/index.js';
 import { OBJECTIVE, SOURCE_KIND } from '../../agent-gym/js/model.js';
 import { OBJECTIVES, compareAttempt } from '../../agent-gym/js/metrics.js';
-import { acceptanceVerdict, experimentOutcome, experimentResultSummary, experimentStage } from '../../agent-gym/js/selectors.js';
+import { acceptanceVerdict, attemptResultSummary, experimentOutcome, experimentResultSummary, experimentStage, queueRows } from '../../agent-gym/js/selectors.js';
 import {
   advanceAttempt, cancelAttempt, enqueueAttempt, failAttempt, pauseAttempt, recordReview, resumeAttempt, setExperimentSettings,
 } from '../../agent-gym/js/simulation/attempts.js';
@@ -133,4 +133,16 @@ test('setExperimentSettings is a draft edit: it bumps the draft revision and rej
   assert.equal(setExperimentSettings(s0, { experimentId: 'exp-029', minImprovedPairs: -1 }).error.code, 'min_improved_out_of_range');
   assert.equal(setExperimentSettings(s0, { experimentId: 'exp-029', minImprovedPairs: 1.5 }).error.code, 'min_improved_out_of_range');
   assert.equal(setExperimentSettings(s0, { experimentId: 'nope', objective: 'steps' }).error.code, 'experiment_missing');
+});
+
+test('every queue row carries the one-line result of its own attempt, and only a completed attempt has one', () => {
+  const s = seedState();
+  const rows = Object.fromEntries(queueRows(s).map(r => [r.attemptId, r]));
+  assert.equal(rows['attempt-002'].result, null, 'running');
+  assert.equal(rows['attempt-003'].result, null, 'queued');
+  assert.deepEqual(rows['attempt-005'].result, attemptResultSummary(s, 'attempt-005'));
+  assert.deepEqual(rows['attempt-005'].result, experimentResultSummary(s, 'exp-025'), 'the experiment summary is the one of its stage attempt');
+  assert.deepEqual(rows['attempt-004'].result, { text: 'Policy violations 1 → 0 · 1 improved · 0 regressed', tone: 'green' });
+  const cancelled = ok(cancelAttempt(s, { attemptId: 'attempt-002' }));
+  assert.equal(attemptResultSummary(cancelled, 'attempt-002'), null, 'a cancelled attempt compares as inconclusive and says nothing');
 });
