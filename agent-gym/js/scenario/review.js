@@ -167,7 +167,7 @@ export function saveScenarioSet(state, { draftId, name }) {
   if (setName.length > LIMITS.title) return fail('invalid_name', `Set name must be up to ${LIMITS.title} characters`);
 
   const id = `set-${slug(setName)}`;
-  const rev = String(Object.values(state.scenarioSets).filter(s => s.id === id).length + 1);
+  const rev = String(Math.max(0, ...Object.values(state.scenarioSets).filter(s => s.id === id).map(s => Number(s.rev) || 0)) + 1);
   const scenarioId = suffix => `${id}-r${rev}-${suffix}`;
   const baseId = scenarioId('base');
   const typeCount = {};
@@ -182,6 +182,8 @@ export function saveScenarioSet(state, { draftId, name }) {
     };
   });
   const scenarios = [base, ...variations];
+  const taken = scenarios.find(s => state.scenarios[refKey(s)]);
+  if (taken) return fail('scenario_set_invalid', `${refKey(taken)} already exists; saved scenarios are never overwritten`);
   const content = { id, rev, name: setName, environmentRef: { ...draft.environmentRef }, workflowRef: { ...draft.workflowRef }, scenarioRefs: scenarios.map(s => ({ id: s.id, rev: s.rev })) };
   const set = { ...content, digest: digestOf({ ...content, scenarios }) };
   const ref = { id, rev };

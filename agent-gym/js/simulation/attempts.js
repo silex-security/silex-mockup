@@ -7,6 +7,7 @@ import { validateExperiment } from '../validators.js';
 import { buildVariant, defaultVariantPatch } from '../fixtures/workflows.js';
 import { planExecutions, runExecution } from './executor.js';
 import { compareAttempt } from '../metrics.js';
+import { setRefsProblem } from '../integrity.js';
 
 const fail = (code, message, fix) => ({ error: fix ? { code, message, fix } : { code, message } });
 
@@ -46,10 +47,12 @@ export function freezeAttempt(state, experimentId, idempotencyKey) {
     scenarios: set.scenarioRefs.filter(r => exp.selectedScenarioIds.includes(r.id)).map(r => state.scenarios[refKey(r)]),
     repetitions: exp.repetitions,
   }));
-  const seq = state.seq + 1;
+  const idOf = n => `attempt-${String(n).padStart(3, '0')}`;
+  let seq = state.seq + 1;
+  while (state.attempts[idOf(seq)]) seq += 1;
   const attemptNo = Object.values(state.attempts).filter(a => a.experimentId === experimentId).length + 1;
   return {
-    id: `attempt-${String(seq).padStart(3, '0')}`, experimentId, title: exp.title,
+    id: idOf(seq), experimentId, title: exp.title,
     label: `rev ${exp.draftRevision} · attempt ${attemptNo}`, idempotencyKey,
     inputSnapshot: snapshot, inputDigest: digestOf(snapshot), seed: DEMO_SEED, fixtureVersion: FIXTURE_VERSION,
     plan: deepFreeze(planExecutions(snapshot)), cursor: 0, status: 'queued', runner: 'active', enqueuedSeq: seq, review: null,
@@ -93,6 +96,8 @@ export const setWorkflow = (state, { experimentId, workflowRef }) => editDraft(s
 export const setScenarioSet = (state, { experimentId, scenarioSetRef }) => editDraft(state, experimentId, exp => {
   const set = state.scenarioSets[refKey(scenarioSetRef)];
   if (!set) return fail('scenario_set_missing', `No scenario set ${refKey(scenarioSetRef)}`);
+  const problem = setRefsProblem(state.scenarios, set.scenarioRefs);
+  if (problem) return fail('scenario_set_invalid', `${set.name}: ${problem}`);
   return sameRef(exp.scenarioSetRef, scenarioSetRef) ? exp : { ...exp, scenarioSetRef: { ...scenarioSetRef }, selectedScenarioIds: set.scenarioRefs.map(r => r.id) };
 });
 

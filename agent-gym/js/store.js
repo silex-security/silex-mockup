@@ -10,6 +10,7 @@
 //     persistence  { mode: 'local' | 'memory', error: GymError | null }, updated in place.
 //                  dismissError() clears the error after the user has read it. The mode stays.
 import { SCHEMA_VERSION, FIXTURE_VERSION, STORAGE_KEY } from './model.js';
+import { stateProblems } from './integrity.js';
 
 const SHAPE = {
   environments: 'object', environmentDrafts: 'object', workflows: 'object', variants: 'object', scenarios: 'object',
@@ -22,6 +23,7 @@ const ERRORS = {
   storage_corrupt: 'Saved demo data could not be read. This session started from the demo defaults and is not being saved.',
   storage_version: 'Saved demo data comes from a different version of Agent Gym. This session started from the demo defaults and is not being saved.',
   storage_invalid: 'Saved demo data is incomplete. This session started from the demo defaults and is not being saved.',
+  storage_inconsistent: 'Saved demo data refers to records that do not exist. This session started from the demo defaults and is not being saved.',
   storage_quota: 'Browser storage is full. Changes from now on last until you refresh this page.',
 };
 const failure = code => ({ code, message: ERRORS[code], fix: { label: 'Reset demo data', action: 'reset' } });
@@ -35,6 +37,7 @@ export function parsePersisted(text) {
   if (kindOf(data) !== 'object') return { error: 'storage_corrupt' };
   if (data.schemaVersion !== SCHEMA_VERSION || data.fixtureVersion !== FIXTURE_VERSION) return { error: 'storage_version' };
   for (const [key, kind] of Object.entries(SHAPE)) if (kindOf(data[key]) !== kind) return { error: 'storage_invalid' };
+  if (stateProblems(data).length) return { error: 'storage_inconsistent' };
   return { state: data };
 }
 

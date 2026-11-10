@@ -42,6 +42,9 @@ export function validateExperiment(state, experimentId) {
   else if (workflow && variant.baseDigest !== workflow.digest) errors.push(err('variant_stale', `${variant.name} was made from another baseline`, 'Create Variant A', 'create-variant'));
   if (!set) errors.push(err('scenario_set_missing', `Scenario set ${refKey(exp.scenarioSetRef)} does not exist`, 'Choose a scenario set', 'change-scenario-set'));
   const strays = selectedIds.filter(id => !setRefs.some(r => r.id === id));
+  const missingRefs = selectedIds.map(id => setRefs.find(r => r.id === id)).filter(r => r && !state.scenarios[refKey(r)]);
+  if (missingRefs.length) errors.push(err('scenario_missing', `Scenario revisions do not exist: ${missingRefs.map(refKey).join(', ')}`, 'Choose a scenario set', 'change-scenario-set'));
+  if (set && uniqueIds(setRefs.map(r => r.id)).length !== setRefs.length) errors.push(err('scenario_set_invalid', `${set.name} lists a scenario twice`, 'Choose a scenario set', 'change-scenario-set'));
   if (set && strays.length) errors.push(err('scenario_not_in_set', `Selected scenarios not in ${set.name}: ${strays.join(', ')}`, 'Fix selection', 'select-scenarios'));
   if (scenarios.length === 0) errors.push(err('no_scenarios_selected', 'Select at least one scenario', 'Select scenarios', 'select-scenarios'));
   if (!Number.isInteger(exp.repetitions) || exp.repetitions < REPETITIONS.min || exp.repetitions > REPETITIONS.max)
