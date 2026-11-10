@@ -30,11 +30,11 @@
 .rt-intro-side{display:grid;gap:8px;justify-items:end}
 .rt-chip[data-kind="sim"]{background:var(--lav);color:var(--blue2)}
 .rt-howto{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:12px 0 0}
-.rt-howto>div{background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-size:var(--text-base);color:#3d434c}
+.rt-howto>div{background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-size:var(--text-base);color:var(--ink-2)}
 .rt-howto b{display:block;color:var(--ink);font-size:var(--text-base);margin-bottom:2px}
 .rt-howto code{font-family:var(--mono);font-size:var(--text-sm)}
 .rt-section-h{font-size:var(--text-sm);font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:22px 0 10px}
-.rt-takeaway{margin:16px 0 0;padding:14px 18px;border-radius:var(--r-md);background:var(--lav);color:#2b3570;font-size:var(--text-md)}
+.rt-takeaway{margin:16px 0 0;padding:14px 18px;border-radius:var(--r-md);background:var(--lav);color:var(--ink);font-size:var(--text-md)}
 .rt-takeaway.warn{background:var(--amber-bg);color:var(--amber)}
 .rt-takeaway:empty{display:none}
 .rt-plain{font-size:var(--text-base);color:var(--muted);margin-top:6px}
@@ -58,7 +58,7 @@
 /* Scenarios */
 .rt-scen-bar{padding:16px 20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:12px 14px;align-items:center;margin-bottom:14px}
 .rt-scen-bar label{font-size:var(--text-base);font-weight:650;color:var(--muted)}
-.rt-scen-bar select{width:100%;font:inherit;font-size:var(--text-md);padding:10px 12px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:#fff;color:var(--ink);cursor:pointer;min-width:0}
+.rt-scen-bar select{width:100%;font:inherit;font-size:var(--text-md);padding:10px 12px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);cursor:pointer;min-width:0}
 .rt-scen-bar select:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .rt-scen-bar #rtStatus{grid-column:auto;justify-self:start}
 .rt-scen-desc{grid-column:1/-1;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;font-size:var(--text-md);color:var(--ink-2);border-top:1px solid var(--line);padding-top:12px}
@@ -74,7 +74,7 @@
 
 /* Learning loop */
 .rt-learning-loop{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0 0 4px;padding:0;list-style:none}
-.rt-learning-loop li{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-size:var(--text-sm);color:var(--muted)}
+.rt-learning-loop li{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-size:var(--text-sm);color:var(--muted)}
 .rt-learning-loop li b{display:block;color:var(--ink);font-size:var(--text-base);margin-bottom:2px}
 .rt-learning-loop li.future{background:var(--soft);border-style:dashed}
 .rt-learning-loop li.future b{color:var(--muted)}
@@ -87,7 +87,7 @@
 /* Ontology */
 .rt-seg{display:inline-flex;flex-wrap:wrap;gap:3px;background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:4px;margin:18px 0 0}
 .rt-seg button{appearance:none;border:0;background:none;border-radius:var(--r-sm);padding:9px 14px;font:inherit;font-size:var(--text-md);color:var(--muted);cursor:pointer;display:inline-flex;gap:8px;align-items:center}
-.rt-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm);font-weight:650}
+.rt-seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow-sm);font-weight:650}
 .rt-seg button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .rt-onto-pane{margin-top:16px}
 .rt-onto-pane[hidden]{display:none}
@@ -109,7 +109,7 @@
 
 /* Latency */
 #rtLatency .rt-lat-bars.card{padding:18px 20px;margin:14px 0}
-#rtLatency .rt-lat-race{background:#fff}
+#rtLatency .rt-lat-race{background:var(--panel)}
 
 @media(max-width:900px){
   #runtime-observation .rt-lead{flex-direction:column}
@@ -158,3 +158,5 @@
 .rt-fleet .matrix th,.rt-fleet .matrix td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
 .rt-fleet .mono{font-family:var(--mono);font-size:var(--text-xs)}
 @media (max-width:760px){.rt-x1-svg{min-width:720px}.rt-x1-cols{grid-template-columns:1fr}.rt-x1-head{flex-direction:column}.rt-fleet .matrix{display:block;overflow-x:auto}}
+/* The gate trace card of Runtime Observation. The trace itself is css/trace-waterfall.css. */
+.rt-trace-card{padding:0;margin-top:14px;overflow:hidden}

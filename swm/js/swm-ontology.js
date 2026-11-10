@@ -166,7 +166,7 @@
     });
     $('swmGroups').innerHTML = data.groups.map(function (g) {
       return '<button class="swm-chip" data-g="' + g.id + '" aria-pressed="true" title="' + SWM.esc(g.blurb || '') + '">' +
-             '<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' + SWM.symbol(g.id, 52) + '" ' + SWM.glyphAttrs(g.id, '#4f5864') + '/></svg>' +
+             '<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' + SWM.symbol(g.id, 52) + '" ' + SWM.glyphAttrs(g.id, '#cfd3dc') + '/></svg>' +
              SWM.esc(g.name) + '</button>';
     }).join('');
 
@@ -786,7 +786,7 @@
       if (n.caseType) h += row('Case type', esc(n.caseType)) + '<p class="note">' + esc(CASE_TEXT[n.caseType] || '') + '</p>';
       if (n.deprecated) h += row('OCSF status', 'Deprecated since ' + esc(n.deprecated.since || '') + (n.deprecated.superseded_by ? ' · use ' + esc(n.deprecated.superseded_by.join(', ')) : ''));
       if (n.alignment) {
-        var m = links.filter((l) => l.s === n.id && l.pred === 'CLOSE_MATCH').map((l) => esc(byId.get(l.t).label) + ' <small style="color:#68707c">' + esc(SWM.srcLabel(((byId.get(l.t).src || [])[0] || {}).sys)) + '</small>');
+        var m = links.filter((l) => l.s === n.id && l.pred === 'CLOSE_MATCH').map((l) => esc(byId.get(l.t).label) + ' <small style="color:var(--muted)">' + esc(SWM.srcLabel(((byId.get(l.t).src || [])[0] || {}).sys)) + '</small>');
         h += row('Aligned to', m.join(', ') || '—') + '<p class="note">closeMatch: similar meaning, no subclass claim. ' + esc(n.alignment) + '</p>';
       }
       if (n.unmatched) h += row('Public match', 'None · Silex-authored') + '<p class="note">' + esc(n.unmatched) + '</p>';
@@ -800,7 +800,7 @@
           return '<details class="swm-cite"><summary>' + (s.url ? '<a class="swm-src ' + esc(s.sys) + '" href="' + esc(s.url) + '" target="_blank" rel="noopener">' : '<span class="swm-src ' + esc(s.sys) + '">') +
             esc(SWM.srcLabel(s.sys)) + ' · ' + esc(s.id) + (s.url ? ' ↗</a>' : '</span>') +
             (s.rel ? '<span class="swm-relg ' + esc(s.rel) + '" title="' + esc(REL_TEXT[s.rel]) + '">' + esc(s.rel) + '</span>' : '') +
-            (s.ver ? '<small style="color:#68707c">definition v' + esc(s.ver) + '</small>' : '') + '</summary>' +
+            (s.ver ? '<small style="color:var(--muted)">definition v' + esc(s.ver) + '</small>' : '') + '</summary>' +
             (s.label ? '<p class="note">' + esc(s.label) + '</p>' : '') +
             (s.quote ? '<blockquote>' + esc(s.quote) + '</blockquote>' : '') + '</details>';
         }).join('') + Object.keys(notes).map((k) => '<p class="note">' + esc(notes[k]) + '</p>').join('') +
@@ -874,7 +874,7 @@
       if (state.example && !n) n = byId.get('rt-refund-agent');
       var edgeHtml = function () {
         var a = byId.get(state.edge.s), b = byId.get(state.edge.t);
-        return '<p class="swm-insp-kicker">Selected relation</p><p class="big" style="color:#50339c;font-family:var(--swm-mono);font-size:13px">' + SWM.esc(state.edge.pred) + '</p>' +
+        return '<p class="swm-insp-kicker">Selected relation</p><p class="big" style="color:var(--violet);font-family:var(--swm-mono);font-size:13px">' + SWM.esc(state.edge.pred) + '</p>' +
           row(SWM.esc(SWM.fixtureText(a.label)) + ' → ' + SWM.esc(SWM.fixtureText(b.label))) +
           row('Provenance', SWM.esc(srcProv(state.edge.src))) +
           row('Review grade', reviewHtml(state.edge.review || linkReview(state.edge))) +
@@ -896,12 +896,12 @@
         html = '<p class="swm-insp-kicker">Selected node</p><h3>' + SWM.esc(SWM.fixtureText(n.label)) + '</h3>' +
           '<div class="swm-srcs">' + (n.src || []).map(function (s) {
             return s.url ? '<a class="swm-src ' + SWM.esc(s.sys) + '" href="' + SWM.esc(s.url) + '" target="_blank" rel="noopener">' + SWM.esc(SWM.srcLabel(s.sys)) + (s.id ? ' · ' + SWM.esc(s.id) : '') + ' ↗</a>' : SWM.srcChip(s);
-          }).join('') + '<span class="swm-src" style="background:#f2edfd;color:#3f2787;border-color:rgba(111,80,201,.3)">L' + n.layer + ' ' + SWM.esc((layerName[n.layer] || '').split(' ')[0]) + '</span></div>' +
+          }).join('') + '<span class="swm-src" style="background:var(--violet-bg);color:var(--violet);border-color:rgba(111,80,201,.3)">L' + n.layer + ' ' + SWM.esc((layerName[n.layer] || '').split(' ')[0]) + '</span></div>' +
           '<p class="def">' + SWM.esc(SWM.fixtureText(n.def || 'No published definition.')) + '</p>' +
           (/WF-021/.test(n.def || '') ? '<p class="note" style="margin-top:-6px">SWM fixture · no linked workflow page in this demo.</p>' : '') +
           '<h4>Record</h4>' + row('ID', '<span style="font:600 11px var(--swm-mono)">' + SWM.esc(n.id) + '</span>') +
           row('Group', SWM.esc(groupName[n.group] || n.group)) +
-          (p ? row('Parent', SWM.esc(SWM.fixtureText(p.label)) + (n.parentPred ? ' <small style="font:600 10px var(--swm-mono);color:#68707c">' + SWM.esc(n.parentPred) + '</small>' : '')) : '') +
+          (p ? row('Parent', SWM.esc(SWM.fixtureText(p.label)) + (n.parentPred ? ' <small style="font:600 10px var(--swm-mono);color:var(--muted)">' + SWM.esc(n.parentPred) + '</small>' : '')) : '') +
           row('Review grade', reviewHtml(n.review)) +
           (n.candidate ? row('Status', 'Candidate domain pack · ontology only, outside the coverage figures') : '') +
           (n.prohibited ? row('Prohibited outcome', SWM.esc(n.kind === 'state' ? 'A state that must not be reached' : 'An effect that must not occur')) : '') +
@@ -918,7 +918,7 @@
         if (rels.length && !state.example) {
           html += '<div class="swm-rel" style="margin-top:12px"><h6>Typed relations · ' + rels.length + '</h6>' + rels.slice(0, 12).map(function (r, i) {
             var o = byId.get(r.other);
-            return '<button data-rel="' + i + '"><span><span class="pred">' + (r.dir === 'out' ? '→ ' : '← ') + SWM.esc(r.pred) + '</span>' + SWM.esc(SWM.fixtureText(o.label)) + ' <small style="color:#68707c">L' + o.layer + '</small></span>' +
+            return '<button data-rel="' + i + '"><span><span class="pred">' + (r.dir === 'out' ? '→ ' : '← ') + SWM.esc(r.pred) + '</span>' + SWM.esc(SWM.fixtureText(o.label)) + ' <small style="color:var(--muted)">L' + o.layer + '</small></span>' +
               '<svg width="11" height="11" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' + SWM.symbol(o.group, 46) + '" ' + SWM.glyphAttrs(o.group, paperColorOf(o)) + '/></svg></button>';
           }).join('') + (rels.length > 12 ? '<p class="swm-note">+' + (rels.length - 12) + ' more</p>' : '') + '</div>';
         }

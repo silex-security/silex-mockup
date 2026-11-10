@@ -212,7 +212,7 @@
         '<div class="swm-fact"><small>' + (down ? 'Relations with L' + down.to : 'Tier below') + '</small><b>' + (down ? down.count + ' links' : '— runtime') + '</b></div>';
 
       document.getElementById('swmLayerList').innerHTML = chain.layers.map(function (l) {
-        return '<button data-layer="' + l.id + '"' + (l.id === focus ? ' style="background:#f2edfd;font-weight:650"' : '') + '>' +
+        return '<button data-layer="' + l.id + '"' + (l.id === focus ? ' style="background:var(--violet-bg);font-weight:650"' : '') + '>' +
           '<span>L' + l.id + ' · ' + SWM.esc(l.name) + '</span><small>' + countText(l) + ' nodes</small></button>';
       }).join('');
       document.querySelectorAll('#swmLayerList [data-layer]').forEach(function (b) {
@@ -223,7 +223,7 @@
         '<h4 style="margin:12px 0 7px">Groups at this tier</h4><div class="swm-chips">' +
         Object.keys(layer.groups).sort(function (a, b) { return layer.groups[b] - layer.groups[a]; }).map(function (key) {
           return '<span class="swm-chip"><svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' +
-            SWM.symbol(key, 52) + '" ' + SWM.glyphAttrs(key, '#68707c') + '/></svg>' + SWM.esc(groupName[key] || key) + ' · ' + layer.groups[key] + '</span>';
+            SWM.symbol(key, 52) + '" ' + SWM.glyphAttrs(key, '#9aa1ad') + '/></svg>' + SWM.esc(groupName[key] || key) + ' · ' + layer.groups[key] + '</span>';
         }).join('') + '</div>';
 
       document.getElementById('swmChainHops').innerHTML = chain.hops.map(function (hop) {

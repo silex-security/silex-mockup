@@ -1,6 +1,6 @@
 /* SILEX Enterprise World Model — shared runtime: colour scales, glyphs, tooltip,
    provenance chips, motion/visibility helpers and the lazy panel registry.
-   Charts draw on a dark STAGE (#10162b→#26305a); inspectors stay on white PAPER.
+   Charts draw on a dark STAGE (#10162b→#26305a); inspectors sit on PAPER, the console's dark panel.
    Contrast is measured against #26305a or #ffffff (notes per ramp). CSS copies
    of these tokens live in swm/css/swm.css — keep the two in step. */
 (function (global) {
@@ -10,14 +10,13 @@
 
   /* layers on stage, L1 brightest: 10.4 / 7.4 / 5.1 / 4.1 vs #26305a */
   var LAYER_RAMP = ['#ece5ff', '#cdbcff', '#ae96f6', '#9b82ef'];
-  /* layers on paper: 9.2 / 5.7 / 4.4 / 3.8 vs #fff */
-  var LAYER_RAMP_PAPER = ['#50339c', '#6f50c9', '#8565d6', '#8e70d9'];
+  /* paper is the dark console panel, so it takes the stage ramps */
+  var LAYER_RAMP_PAPER = LAYER_RAMP;
 
   /* coverage on stage, 40/55/70/85/100 %, clamped; site indigo, low end most saturated,
      top stop = --lav: 3.1 / 4.5 / 6.2 / 8.4 / 10.9 vs #26305a */
   var COVERAGE_RAMP = ['#5f74e6', '#7f93f5', '#a2b2fb', '#c6d0ff', '#e9edff'];
-  /* coverage on paper, #536bdb = --blue2: 3.6 / 4.4 / 4.7 / 6.6 / 9.9 vs #fff */
-  var COVERAGE_RAMP_PAPER = ['#6a7fe8', '#5a70e0', '#536bdb', '#3f54b8', '#2c3c8c'];
+  var COVERAGE_RAMP_PAPER = COVERAGE_RAMP;
   /* unmodelled share on stage, none → 45 %+ missing: 3.1 / 5.9 / 9.4 vs #26305a */
   var GAP_RAMP = ['#7079b3', '#b7a3ff', '#e2d8ff'];
   var COVERAGE_DOMAIN = [0.4, 1];
@@ -37,12 +36,12 @@
     grid:'rgba(203,210,255,.08)', edge:'rgba(183,163,255,.34)', edgeStrong:'#b7a3ff',
     wash:'rgba(203,210,255,.06)', accent:'#b7a3ff', accentSoft:'rgba(183,163,255,.18)'
   };
-  /* paper tokens for white cards */
+  /* paper tokens for the console's panel cards */
   var PAPER = {
-    ink:'#17191d', ink2:'#4f5864', ink3:'#68707c', faint:'#7b8494',
-    surface:'#ffffff', soft:'#f5f6f8', line:'#e3e6ea',
-    grid:'rgba(23,25,29,.10)', edge:'rgba(23,25,29,.20)',
-    wash:'rgba(23,25,29,.05)', accent:'#50339c', accentSoft:'rgba(111,80,201,.13)'
+    ink:'#ececf1', ink2:'#cfd3dc', ink3:'#9aa1ad', faint:'#646a77',
+    surface:'#1d1f26', soft:'#262932', line:'#30333d',
+    grid:'rgba(236,236,241,.10)', edge:'rgba(236,236,241,.22)',
+    wash:'rgba(236,236,241,.05)', accent:'#c6b3f7', accentSoft:'rgba(164,124,240,.18)'
   };
   /* dark candidate for textOn — not INK.ink, which is now light */
   var DARK_TEXT = '#17191d';

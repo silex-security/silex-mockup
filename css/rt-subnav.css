@@ -4,7 +4,7 @@
 .rt-subnav button{appearance:none;border:1px solid transparent;background:none;border-radius:var(--r-md);padding:8px 14px 8px 10px;font:inherit;color:var(--muted);cursor:pointer;display:flex;gap:9px;align-items:center;text-align:left;flex:1 1 0;min-width:150px}
 .rt-subnav button:hover{color:var(--ink);background:rgba(255,255,255,.6)}
 .rt-subnav button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
-.rt-subnav button[aria-selected="true"]{background:#fff;color:var(--ink);border-color:var(--line);box-shadow:var(--shadow-sm)}
+.rt-subnav button[aria-selected="true"]{background:var(--panel);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow-sm)}
 .rt-subnav-n{flex:none;font-size:var(--text-2xl);line-height:1;color:var(--muted)}
 .rt-subnav button[aria-selected="true"] .rt-subnav-n{color:var(--blue2)}
 .rt-subnav-t{display:grid;gap:1px;min-width:0;overflow:hidden}
