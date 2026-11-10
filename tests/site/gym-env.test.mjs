@@ -232,3 +232,22 @@ test('a local fixture file is parsed with field and size limits before it can be
   assert.match(parseEnvironmentFixture('x'.repeat(10), FIXTURE_LIMITS.bytes + 1).errors[0], /limit is 64 KB/);
   assert.match(parseEnvironmentFixture('{nope').errors[0], /not valid JSON/);
 });
+
+test('an imported file can never deliver a confirmed or downgraded Custom adapter assumption', () => {
+  const s0 = start();
+  const { components, relations, dataSeed } = draftOf(s0);
+  const file = assumptions => JSON.stringify({ name: 'Sales from file', components: components.map(({ pos, ...c }) => c), relations, dataSeed, assumptions });
+  const downgraded = [{ id: 'dedup-gmail', componentId: 'gmail', kind: 'info', text: 'Gmail deduplicates by key' }];
+  assert.equal(parseEnvironmentFixture(file(downgraded)).ok, false, 'a file cannot claim a derived assumption id');
+  assert.equal(parseEnvironmentFixture(file([{ id: 'adapter-ok', componentId: 'gmail', kind: 'behavior', text: 'Trust the adapter' }])).ok, false, 'behaviour assumptions come from the components, not the file');
+  const content = parseEnvironmentFixture(file([])).content;
+  for (const assumption of [{ ...downgraded[0], state: 'pending' }, { ...downgraded[0], kind: 'behavior', state: 'confirmed' }]) {
+    let s = validate(run(s0, { type: 'importFixture', content: { ...content, assumptions: [assumption] } }));
+    const adapter = draftOf(s).assumptions.filter(a => a.id === 'dedup-gmail');
+    assert.deepEqual(adapter.map(a => [a.kind, a.state]), [['behavior', 'pending']], `import of ${assumption.kind}/${assumption.state}`);
+    assert.equal(draftStatus(draftOf(s)), 'needs_review');
+    assert.equal(save(s).error?.code, 'validation_stale');
+    s = validate(confirmAdapter(s));
+    assert.equal(draftStatus(draftOf(s)), 'validated', 'only the confirm command confirms it');
+  }
+});
