@@ -9,7 +9,7 @@ import { ANOMALY, Card, Kicker, PageTitle, Pill, Tag, cx } from "@/components/ui
 import { getOrg } from "@/lib/data/service";
 import { fmtInt, fmtPct, fmtUsd } from "@/lib/format";
 
-export const metadata = { title: "Organization overview · SILEX Speedrun" };
+export const metadata = { title: "Organization · SILEX Speedrun" };
 
 const TREND = { improving: { tone: "mint", label: "Improving" }, flat: { tone: "mut", label: "Flat" }, regressing: { tone: "rose", label: "Regressing" } } as const;
 
@@ -27,7 +27,7 @@ export default function OrganizationPage() {
 
   return (
     <Main>
-      <PageTitle kicker="Speedrun · Organization" title="Organization overview">
+      <PageTitle kicker="Speedrun · Organization" title="Organization">
         <ScopeNav active="org" />
         <Pill className="!h-11 px-3.5">Last 7 days</Pill>
       </PageTitle>

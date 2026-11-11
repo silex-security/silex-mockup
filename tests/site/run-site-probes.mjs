@@ -1163,7 +1163,7 @@ try {
     const h1=text=>until(()=>se(`return (document.querySelector('h1')?.textContent||'').includes(${Q(text)})`),'frame heading '+text);
     await load();await nav('speedrun');
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'frame rendered',30000);
-    await h1('Organization overview');
+    await h1('Organization');
     assert.equal(await se('return document.documentElement.classList.contains("dark")'),true,'opens in the dark theme, like the console');
     const fill=await ev('const r=document.querySelector("#speedrunFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
     assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
@@ -1180,7 +1180,7 @@ try {
     await until(()=>ev('return !!document.querySelector("#speedrunFrame")?.contentDocument?.querySelector("h1")'),'deep link frame rendered',30000);
     await h1('Agent Team Explorer');
     assert.equal(await se(`return document.querySelectorAll('a[href^="#/speedrun/teams/"]').length`),1,'a deep link opens the named screen with its query');
-    await se(`location.hash='/speedrun'`);await h1('Organization overview');
+    await se(`location.hash='/speedrun'`);await h1('Organization');
     await until(()=>ev('return location.hash==="#view=speedrun"'),'the overview is the plain view link');
     await ev(`location.hash='view=speedrun&path='+encodeURIComponent('/speedrun/teams/invoice/trace')`);
     await until(()=>se(`return location.hash==='#/speedrun/teams/invoice/trace'`),'a path link drives the open frame');
@@ -1257,7 +1257,7 @@ try {
     await governance('Runs workflow WF-014');
     await until(async()=>(await activeView())==='workflow'&&(await ev('return document.getElementById("wfId").textContent'))==='WF-014','the Governance link opens Workflow Detail WF-014');
     assert.equal(await ev('return document.querySelector(".nav .active")?.dataset.view'),'library','the nav highlights the Library');
-    await se(`location.hash='/speedrun'`);await h1('Organization overview');
+    await se(`location.hash='/speedrun'`);await h1('Organization');
     await clickSel('#wfSpeedrunBtn');
     await h1('Refund Team');
     assert.equal(await activeView(),'speedrun','the detail button opens the team in the already-open frame');
