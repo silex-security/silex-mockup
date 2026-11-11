@@ -9,7 +9,7 @@ import { Card, Kicker, PageTitle, Pill, Tag } from "@/components/ui";
 import { getUnit, listUnits, unitRoles } from "@/lib/data/service";
 import { fmtInt, fmtPct, fmtUsd } from "@/lib/format";
 
-export const metadata = { title: "Business Unit overview · SILEX Speedrun" };
+export const metadata = { title: "Business Unit · SILEX Speedrun" };
 
 export default async function UnitPage({
   params,
@@ -38,7 +38,7 @@ export default async function UnitPage({
         kicker="Speedrun · Business Unit"
         title={
           <span className="flex flex-wrap items-center gap-3.5">
-            Business Unit overview
+            Business Unit
             <span className="flex gap-1.5 text-sm font-semibold">
               {listUnits().map((u) => (
                 <Link
