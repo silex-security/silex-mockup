@@ -8,11 +8,11 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 | Agent Studio | Pre-deployment | Blueprint Studio, Workflow Library | `#view=blueprint`, `#view=library` |
 | Agent Gym | Verify and validate | Experiment Workbench, Environments, Scenarios, Runs & Results | `#view=gym`, `#view=gym-environments`, `#view=gym-scenarios`, `#view=gym-runs` |
 | SILEX Runtime | Production | Runtime Observation, Incidents & Decisions | `#view=runtime-observation`, `#view=incidents`, `#view=incidents&tab=decisions` |
-| SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
+| SILEX Speedrun | Performance enhancement | Speedrun | `#view=speedrun` |
 
 The home view, **Platform** (`#view=assurance`), follows the "Product Suite for Agent Lifecycle" diagram and the investor memo. It shows four figures that are measured today, the product suite as a map, and five outcomes the suite enables.
 
-- Each product card carries its lifecycle stage, its status today (Designed, Building or Roadmap), three capabilities and its demo views. The stage, description and capabilities come from the sidebar markup (`data-stage`, `data-desc`, `data-caps`).
+- Each product card carries its lifecycle stage, three capabilities and its demo views. The cards carry no maturity label; the top bar and each view say what is simulated or illustrative. The stage, description and capabilities come from the sidebar markup (`data-stage`, `data-desc`, `data-caps`).
 - The map draws the diagram's three loops: *Test optimizations* between Agent Gym and SILEX Speedrun, *Performance improvement spans design, testing, and production*, and *Execution evidence → Validate → Reusable knowledge* into SILEX Foundry.
 - The hero figures are read against `data/judge-latency.json`, `jev-runtime/demo/data/learning-evidence.json` and `data/onto-s1.json` by `tests/site/hero-kpis.test.mjs`. Each one links to its page.
 - **Assurance case** (`#view=assurance-case`, not in the sidebar) holds the earlier second half of the home page: the World Model evidence base, Agent Verification & Validation, the Correspondence Problem and the autonomy flywheel. The home page links to it.
@@ -71,7 +71,7 @@ The home view, **Platform** (`#view=assurance`), follows the "Product Suite for 
 
 ### SILEX Speedrun
 
-- **Speedrun:** the SILEX Speedrun app (source in `speedrun/web/upstream/`, forked from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) and edited here; `node tools/build-speedrun.mjs` rebuilds `speedrun/app/`), embedded in the Speedrun view (`#view=speedrun`). The product stays marked Roadmap and every figure is illustrative.
+- **Speedrun:** the SILEX Speedrun app (source in `speedrun/web/upstream/`, forked from [wangfe/silex-speedrun](https://github.com/wangfe/silex-speedrun) and edited here; `node tools/build-speedrun.mjs` rebuilds `speedrun/app/`), embedded in the Speedrun view (`#view=speedrun`). Every figure is illustrative.
   - Screens: Organization (data coverage, KPIs, insight radar, anomalies, benchmark health), Business Unit (role and team relationships), Agent Team Explorer, and per team the structure with the performance optimizer, trace replay, benchmarks and the Benchmark Builder. *Create variant* sends a change to the console's Agent Gym (see the next two lines).
   - The app opens in the dark theme of the product design. Its header toggle switches to light and the choice is remembered per browser. Its *Agent Studio* link opens Blueprint Studio.
   - The site URL follows the screen that is open (`#view=speedrun&path=<app route>`), so a reload or a shared link reopens it. For example `#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund%2Ftrace` opens the Refund Team trace replay.

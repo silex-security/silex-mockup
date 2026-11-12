@@ -23,7 +23,7 @@ Date: 2026-11-11. Owner request: compare the demo site with the "Product Suite f
 | 9 | Agent Gym does not use the memo's wording: "flight simulator for agents", red and blue teams, findings that become regression tests. | Done on 2026-11-12, in the title notes of the four Gym views. The embedded app is unchanged. |
 | 10 | SILEX Runtime does not say that it advises existing controls such as an MCP gateway. The page reads as if SILEX blocks the action itself. | Done on 2026-11-12, in the lead paragraph and title note of Runtime Observation. |
 | 11 | Naming. The diagram says SILEX Foundry, the memo body says "shared Knowledge Library", and Foundry's only view is called Enterprise World Model. | Decided by the owner on 2026-11-12: the foundation is SILEX Foundry and its view stays Enterprise World Model. The site already says so. The memo body still says "shared Knowledge Library" and is the owner's to edit. |
-| 12 | Status chips (Designed, Building, Roadmap) are not on the diagram. Speedrun is marked Roadmap and is one of the most complete parts of the demo. | Open. Needs an owner decision. |
+| 12 | Status chips (Designed, Building, Roadmap) are not on the diagram. Speedrun is marked Roadmap and is one of the most complete parts of the demo. | Decided by the owner on 2026-11-12: remove the chips. Done the same day, on the product map and beside the four Agent Gym view titles. The `data-status` attribute, the `status` field and the chip styles are gone. |
 
 ## Decisions made in this change
 

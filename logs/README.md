@@ -2,6 +2,12 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-12 — Product cards drop the Designed, Building and Roadmap chips
+
+- **Why:** finding 12 of [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md). The diagram has no maturity labels, the three words were never defined on the site, and they read against what the demo shows (Agent Studio, the one computed app, said Designed; Speedrun, a complete app, said Roadmap). The owner chose to remove them.
+- **Removed:** the chip on each product card and beside the four Agent Gym view titles, `data-status` on the sidebar groups, `Group.status` in `js/suite-nav.js`, and the `.rx-stt` styles.
+- **Kept:** the "Simulated agents · illustrative data" pill in the top bar and each view's own simulated or illustrative note. Speedrun's view note still says all figures are illustrative.
+
 ## 2026-11-12 — Memo V3 wording on the layers, the hero, Agent Gym and SILEX Runtime
 
 - **Why:** findings 6 to 10 of [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md). The owner also decided finding 11: the foundation is SILEX Foundry and its view stays Enterprise World Model.
