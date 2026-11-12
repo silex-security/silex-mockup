@@ -4,7 +4,7 @@
 //   node tools/site-shot.mjs out-dir [1280,1440,1920] [--full] [--only=<name prefix>]
 //
 // --full captures each view at its whole document height (up to 8000px) instead of a 900px viewport.
-// The view list is read from the sidebar markup of index.html, plus `overview`, which has no sidebar entry.
+// The view list is read from the sidebar markup of index.html, plus `overview` and `assurance-case`, which have no sidebar entry.
 // Sub-tabs of Runtime Observation, the World Model and Incidents are shot too, as <view>--<tab>.png, and so are
 // the screens inside the Speedrun app, as speedrun--<route>.png. --only=speedrun shoots just the names that start so.
 // Writes out-dir/<width>/<view>.png. Exits 1 when a page threw, logged a console error, or scrolls sideways.
@@ -22,7 +22,7 @@ const HEIGHT = 900;
 export async function siteViews() {
   const html = await readFile(join(ROOT, 'index.html'), 'utf8');
   const sidebar = html.slice(html.indexOf('<aside'), html.indexOf('</aside>'));
-  return [...new Set([...sidebar.matchAll(/data-view="([^"]+)"/g)].map(m => m[1])), 'overview'];
+  return [...new Set([...sidebar.matchAll(/data-view="([^"]+)"/g)].map(m => m[1])), 'overview', 'assurance-case'];
 }
 
 const SPEEDRUN_ROUTES = ['units/customer-service', 'units/customer-service/teams', 'teams/refund', 'teams/refund/trace', 'teams/refund/benchmarks', 'teams/refund/builder', 'teams/refund/variant'];

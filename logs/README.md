@@ -2,6 +2,15 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-11 — Home page follows the product-suite diagram and Memo V3
+
+- **Why:** the owner asked what the demo should change after the "Product Suite for Agent Lifecycle" diagram and the Memo V3 tab of the investor memo. Twelve findings are in [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md). This change does five of them.
+- **Product map:** each card lists its three capabilities, read from a new `data-caps` attribute on the sidebar group. Stage labels match the diagram. The map draws all three loops.
+- **Home page:** the World Model evidence, V&V, Correspondence Problem and autonomy flywheel sections moved to a new view, Assurance case (`#view=assurance-case`), outside the sidebar. `tools/codemods/assurance-case-scope.mjs` rescoped the `#assurance` styles to cover both views.
+- **Hero:** the four illustrative world-model KPIs gave way to four measured figures, each linked to its page.
+- **Changed text:** the README said S1 precision 0.41 → 0.54. The data file has 0.535, which is 0.53 at two decimals, so the README and the hero say 0.53.
+- **Tests:** `suite-nav` covers the capabilities, stages and loops. `hero-kpis` holds the hero to the data files. Probe S38 follows the moved World Model link.
+
 ## 2026-11-10 — Dark theme with fog, and one trace waterfall for three products
 
 - **Why:** the owner asked for the whole site in a dark style with the foggy look of the Platform hero, and for agent runs to read as a live trace waterfall instead of a step list.

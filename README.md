@@ -10,7 +10,13 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 | SILEX Runtime | Production | Runtime Observation, Incidents & Decisions | `#view=runtime-observation`, `#view=incidents`, `#view=incidents&tab=decisions` |
 | SILEX Speedrun | Performance (roadmap) | Speedrun | `#view=speedrun` |
 
-The home view, **Platform** (`#view=assurance`), shows the product suite as a map, five outcomes the suite enables, and the evidence base. Each product card carries its status today (Designed, Building or Roadmap).
+The home view, **Platform** (`#view=assurance`), follows the "Product Suite for Agent Lifecycle" diagram and the investor memo. It shows four figures that are measured today, the product suite as a map, and five outcomes the suite enables.
+
+- Each product card carries its lifecycle stage, its status today (Designed, Building or Roadmap), three capabilities and its demo views. The stage, description and capabilities come from the sidebar markup (`data-stage`, `data-desc`, `data-caps`).
+- The map draws the diagram's three loops: *Test optimizations* between Agent Gym and SILEX Speedrun, *Performance improvement spans design, testing, and production*, and *Execution evidence → Validate → Reusable knowledge* into SILEX Foundry.
+- The hero figures are read against `data/judge-latency.json`, `jev-runtime/demo/data/learning-evidence.json` and `data/onto-s1.json` by `tests/site/hero-kpis.test.mjs`. Each one links to its page.
+- **Assurance case** (`#view=assurance-case`, not in the sidebar) holds the earlier second half of the home page: the World Model evidence base, Agent Verification & Validation, the Correspondence Problem and the autonomy flywheel. The home page links to it.
+- Review record and open items: [`logs/2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](logs/2026-11-11_HOME_MEMO_V3_ALIGNMENT.md).
 
 ### SILEX Foundry
 
@@ -51,7 +57,7 @@ The home view, **Platform** (`#view=assurance`), shows the product suite as a ma
   - *Scenarios*: pick one of the 12 scripted scenarios from a dropdown (it runs at once; **Run** repeats it) and watch it go through the pipeline animation. Clicking one of the six pipeline stages pauses the animation there, and clicking it again resumes. *See this run in the decision plane* opens the Decision plane tab.
   - *Gate trace*: under the pipeline picture, a waterfall of the same run. Each action and its checks (hard rules, building the judge input, the judge, policy) sit on one axis of time spent in the gate, taken from the simulated engine's own latency figures. It plays when it scrolls into view, with pause, replay and speed. Code: [`js/rt-trace.js`](js/rt-trace.js).
   - **Ontology** (*What the ontology adds*): the same runtime provenance graph with and without ontology types, on real benchmark runs of held-out agent models. It shows the pre-registered AgentDojo test and the example runs:
-    - **Stage-1 (S1)**, confirmed on AgentDojo: 12 195 never-opened runs, precision 0.41 → 0.54, recall 0.84 → 0.87. The page scopes it to AgentDojo's tasks and these models only; recall is an observation, not a guarantee.
+    - **Stage-1 (S1)**, confirmed on AgentDojo: 12 195 never-opened runs, precision 0.41 → 0.53, recall 0.84 → 0.87. The page scopes it to AgentDojo's tasks and these models only; recall is an observation, not a guarantee.
     - **Check Report** opens the report.
     - The S2 replication on AgentDyn (not confirmed: precision 0.36 → 0.31, recall 0.85 → 0.99) was removed from the page on 2026-10-07; its plan, freeze record and report stay in `logs/`.
     - Plans and records: [`logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md`](logs/2026-10-04_ONTOLOGY_STAGE1_PLAN.md), [`logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md`](logs/2026-10-06_ONTOLOGY_S2_AGENTDYN_PLAN.md), [`logs/2026-10-06_ONTOLOGY_S2_REPORT.md`](logs/2026-10-06_ONTOLOGY_S2_REPORT.md).

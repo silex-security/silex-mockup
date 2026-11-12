@@ -254,12 +254,25 @@
     .suite-chip[aria-current="true"]{background:var(--panel);color:var(--blue2);box-shadow:var(--shadow-sm)}
     .suite-chip:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
     .suite-sep{color:var(--faint);font-size:var(--text-sm)}
-    .suite-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .suite-card,.suite-band{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+    #suiteMap{--suite-gap:12px}
+    .suite-row,.suite-top{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--suite-gap)}
+    .suite-test{grid-column:2/5;position:relative;display:flex;justify-content:center;height:34px}
+    .suite-test::before{content:"";position:absolute;left:calc((100% - 2 * var(--suite-gap)) / 6);right:calc((100% - 2 * var(--suite-gap)) / 6);top:50%;bottom:0;border:2px solid var(--blue-line);border-bottom:0;border-radius:var(--r-md) var(--r-md) 0 0}
+    .suite-pill{position:relative;align-self:center;background:var(--lav);border:1px solid var(--blue-line);border-radius:var(--r-pill);padding:4px 14px;font:700 11.5px var(--mono);color:var(--blue2)}
+    .suite-pill-ext{display:none}
+    .suite-next{position:absolute;top:50%;right:calc(-1 * var(--suite-gap) / 2 - 10px);width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--blue2);font-size:var(--text-xs);z-index:1}
+    .suite-span{margin-top:var(--suite-gap);padding:8px 16px;text-align:center;border:1px dashed var(--blue-line-soft);border-radius:var(--r-md);background:var(--lav-2);font:700 11.5px var(--mono);color:var(--blue2)}
+    .suite-card,.suite-band{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative}
     .suite-card h3,.suite-band h3{margin:0;font-size:var(--text-md)}
-    .suite-card p,.suite-band p{margin:0;font-size:var(--text-sm);color:var(--muted);flex:1}
+    .suite-card p,.suite-band p{margin:0;font-size:var(--text-sm);color:var(--muted)}
+    .suite-card p{min-height:calc(2 * 1.45em)}
     .suite-kick{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .suite-card .suite-kick{align-items:flex-start;min-height:2.6em}
     .suite-stage{font:700 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue2)}
+    .suite-caps{list-style:none;margin:0;padding:0;display:grid;gap:5px;align-content:start;flex:1}
+    .suite-caps li{position:relative;background:var(--soft);border-radius:var(--r-sm);padding:6px 8px 6px 20px;font-size:var(--text-xs);color:var(--muted)}
+    .suite-caps li::before{content:"";position:absolute;left:8px;top:.85em;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+    .suite-caps b{color:var(--ink);font-weight:650}
     .suite-views{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
     .suite-views .btn{padding:6px 10px;font-size:var(--text-sm)}
     .suite-band{margin-top:12px;flex-direction:row;align-items:center;gap:20px;background:var(--lav);border-color:var(--blue-line-soft)}
@@ -268,65 +281,68 @@
     .suite-band-side{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
     .suite-loop{font:700 11.5px var(--mono);color:var(--blue2)}
     .rx-stt.roadmap{border:1px dotted var(--muted);color:var(--muted);background:transparent}
-    #assurance .en-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-    #assurance .en-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
-    #assurance .en-card h3{margin:0;font-size:var(--text-base)}
-    #assurance .en-card p{margin:0;font-size:var(--text-sm);color:var(--muted);flex:1}
-    #assurance .en-card .as-open{margin:0;font-size:var(--text-sm);width:100%;justify-content:center;text-align:center}
+    :is(#assurance,#assurance-case) .en-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    :is(#assurance,#assurance-case) .en-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+    :is(#assurance,#assurance-case) .en-card h3{margin:0;font-size:var(--text-base)}
+    :is(#assurance,#assurance-case) .en-card p{margin:0;font-size:var(--text-sm);color:var(--muted);flex:1}
+    :is(#assurance,#assurance-case) .en-card .as-open{margin:0;font-size:var(--text-sm);width:100%;justify-content:center;text-align:center}
     .sr-head{display:flex;align-items:center;gap:10px}
     .studio-frame-wrap.gym-frame-wrap,#speedrunFrameWrap{border:0;border-radius:0;background:none}
     .gym-view .title-row{margin-bottom:6px}.gym-view .title-row .btn{text-decoration:none;white-space:nowrap}
     @media(max-width:760px){.gym-view .title-row{flex-wrap:wrap}}
     @media(max-width:1400px){.app[data-nav-mode="pinned"] .suite-rail{display:none}}
-    @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}#assurance .en-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:760px){.suite-row,#assurance .en-grid{grid-template-columns:1fr}.suite-band{flex-direction:column;align-items:stretch}}
+    @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}.suite-top{display:block;margin-bottom:var(--suite-gap)}.suite-test{height:auto}.suite-test::before,.suite-next{display:none}.suite-pill-ext{display:inline}:is(#assurance,#assurance-case) .en-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){.suite-row,:is(#assurance,#assurance-case) .en-grid{grid-template-columns:1fr}.suite-band{flex-direction:column;align-items:stretch}}
     /* ── Assurance view (investor / technical register) ── */
-    #assurance{max-width:1180px;margin-inline:auto}
-    #assurance .as-eyebrow{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue2)}
-    #assurance h1{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.02em;margin:.3em 0 .2em;max-width:20ch}
+    :is(#assurance,#assurance-case){max-width:1180px;margin-inline:auto}
+    :is(#assurance,#assurance-case) .as-eyebrow{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue2)}
+    :is(#assurance,#assurance-case) h1{font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.02em;margin:.3em 0 .2em;max-width:20ch}
+    #assurance-case h1{font-size:var(--text-3xl);line-height:1.15;letter-spacing:-.025em;margin:0 0 5px;max-width:none}
+    :is(#assurance) .as-case-link{margin-top:34px;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    :is(#assurance) .as-case-link p{font-size:var(--text-base);color:var(--ink)}
 
-    #assurance .as-sec{margin-top:34px}
-    #assurance .as-sechead{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
-    #assurance .as-sn{font-family:var(--mono);font-size:var(--text-sm);color:var(--muted);font-weight:700}
+    :is(#assurance,#assurance-case) .as-sec{margin-top:34px}
+    :is(#assurance,#assurance-case) .as-sechead{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+    :is(#assurance,#assurance-case) .as-sn{font-family:var(--mono);font-size:var(--text-sm);color:var(--muted);font-weight:700}
 
-    #assurance .as-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}
-    #assurance .as-kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;box-shadow:var(--shadow-sm)}
-    #assurance .as-kpi .v{font-weight:760;font-size:var(--text-3xl);letter-spacing:-.02em}
-    #assurance .as-kpi .l{font-size:var(--text-sm);color:var(--muted);margin-top:2px}
-    #assurance .as-kpi .d{font-size:var(--text-xs);margin-top:6px;font-weight:600}
-    #assurance .as-kpi .d.up{color:var(--green)}#assurance .as-kpi .d.down{color:var(--amber)}#assurance .as-kpi .d.flat{color:var(--muted)}
-    #assurance .as-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
-    #assurance .as-corr{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px}
-    #assurance .as-corr .n{background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;text-align:center}
-    #assurance .as-corr .n b{display:block;font-size:var(--text-md)}#assurance .as-corr .n span{font-size:var(--text-xs);color:var(--muted)}
-    #assurance .as-corr .lk{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--amber);min-width:88px}
-    #assurance .as-corr .lk .ar{font-size:var(--text-lg)}#assurance .as-corr .lk small{font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:.04em;text-align:center;color:var(--amber)}
-    #assurance .as-quote{border-left:3px solid var(--blue);padding-left:13px;color:var(--muted);font-size:var(--text-base);font-style:italic;margin:14px 0 0}
-    #assurance .as-vv{display:grid;grid-template-columns:112px 1fr 1fr;gap:11px}
-    #assurance .as-vv .h{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;letter-spacing:.03em}
-    #assurance .as-vv .rl{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;color:var(--muted);display:flex;align-items:center}
-    #assurance .as-vvc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 15px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
-    #assurance .as-vvc.val{border-top-color:var(--green)}#assurance .as-vvc.clo{border-top-color:var(--amber);cursor:pointer}
-    #assurance .as-vvc.clo:hover{border-color:var(--amber)}
-    #assurance .as-vvc h4{margin:0 0 3px;font-size:var(--text-base)}#assurance .as-vvc p{margin:0;font-size:var(--text-sm);color:var(--muted)}
-    #assurance .as-vvc .r{font-family:var(--mono);font-size:var(--text-sm);font-weight:600;margin-top:8px}#assurance .as-vvc .r.w{color:var(--amber)}
-    #assurance .as-wm{display:grid;grid-template-columns:1.25fr 1fr;gap:15px}
-    #assurance .as-layer{display:grid;grid-template-columns:148px 1fr 78px;gap:11px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-    #assurance .as-layer:last-of-type{border-bottom:0}
-    #assurance .as-layer .ln{font-size:var(--text-sm)}#assurance .as-layer .ln b{font-family:var(--mono)}#assurance .as-layer .ln small{display:block;color:var(--muted);font-size:var(--text-2xs)}
-    #assurance .as-b{height:8px;border-radius:var(--r-xs);background:var(--soft);overflow:hidden}#assurance .as-b i{display:block;height:100%;background:var(--blue);border-radius:var(--r-xs)}
-    #assurance .as-layer .pc{font-family:var(--mono);font-size:var(--text-sm);text-align:right;color:var(--muted)}#assurance .as-layer .pc b{color:var(--ink)}
-    #assurance .as-srcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}#assurance .as-src{font-family:var(--mono);font-size:var(--text-2xs);background:var(--soft);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 8px;color:var(--muted)}#assurance .as-src b{color:var(--ink)}
-    #assurance .as-gaps{display:flex;flex-direction:column;gap:7px}
-    #assurance .as-gap{display:flex;gap:9px;align-items:flex-start;font-size:var(--text-sm)}#assurance .as-gap b{color:var(--ink)}#assurance .as-gap span{color:var(--muted)}
-    #assurance .as-sev{font-family:var(--mono);font-size:var(--text-2xs);font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-xs);white-space:nowrap;margin-top:1px}
-    #assurance .as-sev.critical{background:var(--red-bg);color:var(--red)}#assurance .as-sev.serious{background:var(--amber-bg);color:var(--amber)}#assurance .as-sev.warning{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
-    #assurance .as-flow{display:flex;flex-wrap:wrap;align-items:center;gap:7px}#assurance .as-fstep{font-family:var(--mono);font-size:var(--text-xs);background:var(--lav);color:var(--blue2);border-radius:var(--r-sm);padding:6px 11px;font-weight:600}#assurance .as-flow .a{color:var(--muted)}
-    #assurance .as-unlock{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:14px}#assurance .as-unlock .u{background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:13px}#assurance .as-unlock .u small{font-family:var(--mono);font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}#assurance .as-unlock .u div{font-size:var(--text-base);margin-top:3px}#assurance .as-unlock .mid{font-size:var(--text-2xl);color:var(--green);text-align:center}
-    #assurance .as-open{appearance:none;border:1px solid var(--blue);background:var(--lav);color:var(--blue2);font:inherit;font-weight:600;font-size:var(--text-sm);padding:8px 14px;border-radius:var(--r-sm);cursor:pointer;margin-top:14px;display:inline-flex;align-items:center;gap:7px}
-    #assurance .as-glegend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px;font-size:var(--text-xs);color:var(--muted);align-items:center}
-    @media(max-width:820px){#assurance .as-wm{grid-template-columns:1fr}}
-    @media(max-width:680px){#assurance .as-kpis{grid-template-columns:repeat(2,1fr)}#assurance .as-corr{grid-template-columns:1fr}#assurance .as-corr .lk{flex-direction:row}#assurance .as-vv{grid-template-columns:1fr}#assurance .as-vv .h,#assurance .as-vv .rl{display:none}#assurance .as-unlock{grid-template-columns:1fr}}
+    :is(#assurance,#assurance-case) .as-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:20px}
+    :is(#assurance,#assurance-case) .as-kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;box-shadow:var(--shadow-sm)}
+    :is(#assurance,#assurance-case) .as-kpi .v{font-weight:760;font-size:var(--text-3xl);letter-spacing:-.02em}
+    :is(#assurance,#assurance-case) .as-kpi .l{font-size:var(--text-sm);color:var(--muted);margin-top:2px}
+    :is(#assurance,#assurance-case) .as-kpi .d{font-size:var(--text-xs);margin-top:6px;font-weight:600}
+    :is(#assurance,#assurance-case) .as-kpi .d.up{color:var(--green)}:is(#assurance,#assurance-case) .as-kpi .d.down{color:var(--amber)}:is(#assurance,#assurance-case) .as-kpi .d.flat{color:var(--muted)}
+    :is(#assurance,#assurance-case) .as-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+    :is(#assurance,#assurance-case) .as-corr{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px}
+    :is(#assurance,#assurance-case) .as-corr .n{background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;text-align:center}
+    :is(#assurance,#assurance-case) .as-corr .n b{display:block;font-size:var(--text-md)}:is(#assurance,#assurance-case) .as-corr .n span{font-size:var(--text-xs);color:var(--muted)}
+    :is(#assurance,#assurance-case) .as-corr .lk{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--amber);min-width:88px}
+    :is(#assurance,#assurance-case) .as-corr .lk .ar{font-size:var(--text-lg)}:is(#assurance,#assurance-case) .as-corr .lk small{font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:.04em;text-align:center;color:var(--amber)}
+    :is(#assurance,#assurance-case) .as-quote{border-left:3px solid var(--blue);padding-left:13px;color:var(--muted);font-size:var(--text-base);font-style:italic;margin:14px 0 0}
+    :is(#assurance,#assurance-case) .as-vv{display:grid;grid-template-columns:112px 1fr 1fr;gap:11px}
+    :is(#assurance,#assurance-case) .as-vv .h{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;letter-spacing:.03em}
+    :is(#assurance,#assurance-case) .as-vv .rl{font-family:var(--mono);font-size:var(--text-xs);font-weight:700;color:var(--muted);display:flex;align-items:center}
+    :is(#assurance,#assurance-case) .as-vvc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 15px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
+    :is(#assurance,#assurance-case) .as-vvc.val{border-top-color:var(--green)}:is(#assurance,#assurance-case) .as-vvc.clo{border-top-color:var(--amber);cursor:pointer}
+    :is(#assurance,#assurance-case) .as-vvc.clo:hover{border-color:var(--amber)}
+    :is(#assurance,#assurance-case) .as-vvc h4{margin:0 0 3px;font-size:var(--text-base)}:is(#assurance,#assurance-case) .as-vvc p{margin:0;font-size:var(--text-sm);color:var(--muted)}
+    :is(#assurance,#assurance-case) .as-vvc .r{font-family:var(--mono);font-size:var(--text-sm);font-weight:600;margin-top:8px}:is(#assurance,#assurance-case) .as-vvc .r.w{color:var(--amber)}
+    :is(#assurance,#assurance-case) .as-wm{display:grid;grid-template-columns:1.25fr 1fr;gap:15px}
+    :is(#assurance,#assurance-case) .as-layer{display:grid;grid-template-columns:148px 1fr 78px;gap:11px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+    :is(#assurance,#assurance-case) .as-layer:last-of-type{border-bottom:0}
+    :is(#assurance,#assurance-case) .as-layer .ln{font-size:var(--text-sm)}:is(#assurance,#assurance-case) .as-layer .ln b{font-family:var(--mono)}:is(#assurance,#assurance-case) .as-layer .ln small{display:block;color:var(--muted);font-size:var(--text-2xs)}
+    :is(#assurance,#assurance-case) .as-b{height:8px;border-radius:var(--r-xs);background:var(--soft);overflow:hidden}:is(#assurance,#assurance-case) .as-b i{display:block;height:100%;background:var(--blue);border-radius:var(--r-xs)}
+    :is(#assurance,#assurance-case) .as-layer .pc{font-family:var(--mono);font-size:var(--text-sm);text-align:right;color:var(--muted)}:is(#assurance,#assurance-case) .as-layer .pc b{color:var(--ink)}
+    :is(#assurance,#assurance-case) .as-srcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}:is(#assurance,#assurance-case) .as-src{font-family:var(--mono);font-size:var(--text-2xs);background:var(--soft);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 8px;color:var(--muted)}:is(#assurance,#assurance-case) .as-src b{color:var(--ink)}
+    :is(#assurance,#assurance-case) .as-gaps{display:flex;flex-direction:column;gap:7px}
+    :is(#assurance,#assurance-case) .as-gap{display:flex;gap:9px;align-items:flex-start;font-size:var(--text-sm)}:is(#assurance,#assurance-case) .as-gap b{color:var(--ink)}:is(#assurance,#assurance-case) .as-gap span{color:var(--muted)}
+    :is(#assurance,#assurance-case) .as-sev{font-family:var(--mono);font-size:var(--text-2xs);font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-xs);white-space:nowrap;margin-top:1px}
+    :is(#assurance,#assurance-case) .as-sev.critical{background:var(--red-bg);color:var(--red)}:is(#assurance,#assurance-case) .as-sev.serious{background:var(--amber-bg);color:var(--amber)}:is(#assurance,#assurance-case) .as-sev.warning{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+    :is(#assurance,#assurance-case) .as-flow{display:flex;flex-wrap:wrap;align-items:center;gap:7px}:is(#assurance,#assurance-case) .as-fstep{font-family:var(--mono);font-size:var(--text-xs);background:var(--lav);color:var(--blue2);border-radius:var(--r-sm);padding:6px 11px;font-weight:600}:is(#assurance,#assurance-case) .as-flow .a{color:var(--muted)}
+    :is(#assurance,#assurance-case) .as-unlock{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:14px}:is(#assurance,#assurance-case) .as-unlock .u{background:var(--soft);border:1px solid var(--line);border-radius:var(--r-md);padding:13px}:is(#assurance,#assurance-case) .as-unlock .u small{font-family:var(--mono);font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}:is(#assurance,#assurance-case) .as-unlock .u div{font-size:var(--text-base);margin-top:3px}:is(#assurance,#assurance-case) .as-unlock .mid{font-size:var(--text-2xl);color:var(--green);text-align:center}
+    :is(#assurance,#assurance-case) .as-open{appearance:none;border:1px solid var(--blue);background:var(--lav);color:var(--blue2);font:inherit;font-weight:600;font-size:var(--text-sm);padding:8px 14px;border-radius:var(--r-sm);cursor:pointer;margin-top:14px;display:inline-flex;align-items:center;gap:7px}
+    :is(#assurance,#assurance-case) .as-glegend{display:flex;flex-wrap:wrap;gap:11px;margin-top:12px;font-size:var(--text-xs);color:var(--muted);align-items:center}
+    @media(max-width:820px){:is(#assurance,#assurance-case) .as-wm{grid-template-columns:1fr}}
+    @media(max-width:680px){:is(#assurance,#assurance-case) .as-kpis{grid-template-columns:repeat(2,1fr)}:is(#assurance,#assurance-case) .as-corr{grid-template-columns:1fr}:is(#assurance,#assurance-case) .as-corr .lk{flex-direction:row}:is(#assurance,#assurance-case) .as-vv{grid-template-columns:1fr}:is(#assurance,#assurance-case) .as-vv .h,:is(#assurance,#assurance-case) .as-vv .rl{display:none}:is(#assurance,#assurance-case) .as-unlock{grid-template-columns:1fr}}
   /* Runtime Observation view (logs/2026-09-30_RUNTIME_OBSERVE_VIEW_PLAN.md; content from the Runtime Validation plan). */
   .rt-chip{font-size:var(--text-xs);font-weight:650;border-radius:var(--r-pill);padding:3px 8px;white-space:nowrap;background:var(--soft);color:var(--muted)}
   .rt-chip[data-kind="ran"]{background:var(--green-bg);color:var(--green)}
@@ -522,46 +538,50 @@
 .nav button[data-view="speedrun"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7z'/%3E%3C/svg%3E")}
 
 /* Platform home. A dark hero that carries the headline, a drawing of the four ontology tiers and the four figures. */
-#assurance .as-hero{position:relative;overflow:hidden;border-radius:var(--radius);padding:44px 44px 0;color:#fff;background:radial-gradient(760px 380px at 88% 8%,rgba(113,138,255,.34),transparent 62%),radial-gradient(520px 300px at 0% 100%,rgba(154,114,212,.16),transparent 70%),linear-gradient(135deg,var(--nav-deep),var(--nav))}
-#assurance .as-hero .title-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:36px;align-items:center;margin-bottom:34px}
-#assurance .as-hero h1{font-size:clamp(30px,3.6vw,44px);line-height:1.06;letter-spacing:-.03em;margin:.35em 0 .35em;max-width:17ch}
-#assurance .as-hero .as-eyebrow{color:var(--blue-line)}
+:is(#assurance,#assurance-case) .as-hero{position:relative;overflow:hidden;border-radius:var(--radius);padding:44px 44px 0;color:#fff;background:radial-gradient(760px 380px at 88% 8%,rgba(113,138,255,.34),transparent 62%),radial-gradient(520px 300px at 0% 100%,rgba(154,114,212,.16),transparent 70%),linear-gradient(135deg,var(--nav-deep),var(--nav))}
+:is(#assurance,#assurance-case) .as-hero .title-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:36px;align-items:center;margin-bottom:34px}
+:is(#assurance,#assurance-case) .as-hero h1{font-size:clamp(30px,3.6vw,44px);line-height:1.06;letter-spacing:-.03em;margin:.35em 0 .35em;max-width:17ch}
+:is(#assurance,#assurance-case) .as-hero .as-eyebrow{color:var(--blue-line)}
 
-#assurance .as-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-#assurance .as-actions{align-items:center}
-#assurance .as-actions .btn{padding:12px 18px;font-size:var(--text-md);border:1px solid transparent;margin:0}
-#assurance .as-actions .btn.ghost{border-color:rgba(255,255,255,.22)}
+:is(#assurance,#assurance-case) .as-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+:is(#assurance,#assurance-case) .as-actions{align-items:center}
+:is(#assurance,#assurance-case) .as-actions .btn{padding:12px 18px;font-size:var(--text-md);border:1px solid transparent;margin:0}
+:is(#assurance,#assurance-case) .as-actions .btn.ghost{border-color:rgba(255,255,255,.22)}
 .btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.22)}
 .btn.ghost:hover{background:rgba(255,255,255,.14)}
-#assurance .as-graph{width:100%;height:auto;display:block}
+:is(#assurance,#assurance-case) .as-graph{width:100%;height:auto;display:block}
 .as-graph .hg-tier{stroke:rgba(255,255,255,.07);stroke-width:1;stroke-dasharray:2 5}
 .as-graph .hg-label{fill:var(--nav-muted);font-family:var(--mono);font-size:var(--text-sm);font-weight:600}
 .as-graph .hg-edge{stroke:rgba(255,255,255,.16);stroke-width:1}
 .as-graph .hg-path{stroke:var(--blue);stroke-width:2}
 .as-graph .hg-node{fill:var(--nav-muted)}
 .as-graph .hg-node.hot{fill:var(--blue);stroke:rgba(113,138,255,.3);stroke-width:8}
-#assurance .as-hero .as-kpis{margin:0 -44px;padding:0 28px;gap:0;border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
-#assurance .as-hero .as-kpi{background:none;border:0;border-radius:0;box-shadow:none;padding:20px 16px;border-left:1px solid rgba(255,255,255,.1)}
-#assurance .as-hero .as-kpi:first-child{border-left:0}
-#assurance .as-hero .as-kpi .v{font-size:var(--text-4xl);line-height:1.1}
-#assurance .as-hero .as-kpi .l{color:var(--nav-text)}
-#assurance .as-hero .as-kpi .d.up{color:var(--nav-green)}
-#assurance .as-hero .as-kpi .d.down{color:var(--nav-amber)}
-#assurance .as-hero .as-kpi .d.flat{color:var(--nav-muted)}
-#assurance .as-sec{margin-top:48px}
-#assurance .as-sechead{align-items:flex-start;gap:14px;margin-bottom:16px}
-#assurance .as-sechead h2{font-size:var(--text-2xl);letter-spacing:-.02em}
-#assurance .as-sn{background:var(--lav);color:var(--blue2);border-radius:var(--r-sm);padding:5px 8px;line-height:1}
-#assurance .as-card,.suite-card,.suite-band{box-shadow:var(--shadow-sm)}
-#assurance .en-card{padding:18px;border-top:3px solid var(--blue-line-soft)}
-#assurance .en-card .as-open{border:0;background:none;padding:0;width:auto;justify-content:flex-start;text-align:left;margin-top:6px}
-#assurance .en-card .as-open::after{content:"→"}
-#assurance .en-card .as-open:hover{color:var(--blue3)}
-#assurance .as-wm{grid-template-columns:1.15fr 1fr;align-items:start}
-#assurance .recon-assurance-link{margin:12px 0 0;font-size:var(--text-sm)}
-#assurance .recon-assurance-link a{color:var(--blue2);font-weight:600}
-@media(max-width:1100px){#assurance .as-hero .title-row{grid-template-columns:1fr}#assurance .as-graph{display:none}#assurance .as-wm{grid-template-columns:1fr}}
-@media(max-width:760px){#assurance .as-hero{padding:28px 20px 0}#assurance .as-hero .as-kpis{margin:0 -20px;padding:0 8px}#assurance .as-hero .as-kpi:nth-child(3){border-left:0}}
+:is(#assurance,#assurance-case) .as-hero .as-kpis{margin:0 -44px;padding:0 28px;gap:0;border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+:is(#assurance,#assurance-case) .as-hero .as-kpi{background:none;border:0;border-radius:0;box-shadow:none;padding:20px 16px;border-left:1px solid rgba(255,255,255,.1)}
+:is(#assurance,#assurance-case) .as-hero .as-kpi:first-child{border-left:0}
+:is(#assurance,#assurance-case) .as-hero .as-kpis-tag{margin:22px 0 8px;font:700 var(--text-2xs) var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--nav-muted)}
+:is(#assurance,#assurance-case) .as-hero a.as-kpi{display:block;color:inherit;text-decoration:none}
+:is(#assurance,#assurance-case) .as-hero a.as-kpi:hover{background:rgba(255,255,255,.05)}
+:is(#assurance,#assurance-case) .as-hero a.as-kpi:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+:is(#assurance,#assurance-case) .as-hero .as-kpi .v{font-size:var(--text-4xl);line-height:1.1}
+:is(#assurance,#assurance-case) .as-hero .as-kpi .l{color:var(--nav-text)}
+:is(#assurance,#assurance-case) .as-hero .as-kpi .d.up{color:var(--nav-green)}
+:is(#assurance,#assurance-case) .as-hero .as-kpi .d.down{color:var(--nav-amber)}
+:is(#assurance,#assurance-case) .as-hero .as-kpi .d.flat{color:var(--nav-muted)}
+:is(#assurance,#assurance-case) .as-sec{margin-top:48px}
+:is(#assurance,#assurance-case) .as-sechead{align-items:flex-start;gap:14px;margin-bottom:16px}
+:is(#assurance,#assurance-case) .as-sechead h2{font-size:var(--text-2xl);letter-spacing:-.02em}
+:is(#assurance,#assurance-case) .as-sn{background:var(--lav);color:var(--blue2);border-radius:var(--r-sm);padding:5px 8px;line-height:1}
+:is(#assurance,#assurance-case) .as-card,.suite-card,.suite-band{box-shadow:var(--shadow-sm)}
+:is(#assurance,#assurance-case) .en-card{padding:18px;border-top:3px solid var(--blue-line-soft)}
+:is(#assurance,#assurance-case) .en-card .as-open{border:0;background:none;padding:0;width:auto;justify-content:flex-start;text-align:left;margin-top:6px}
+:is(#assurance,#assurance-case) .en-card .as-open::after{content:"→"}
+:is(#assurance,#assurance-case) .en-card .as-open:hover{color:var(--blue3)}
+:is(#assurance,#assurance-case) .as-wm{grid-template-columns:1.15fr 1fr;align-items:start}
+:is(#assurance,#assurance-case) .recon-assurance-link{margin:12px 0 0;font-size:var(--text-sm)}
+:is(#assurance,#assurance-case) .recon-assurance-link a{color:var(--blue2);font-weight:600}
+@media(max-width:1100px){:is(#assurance,#assurance-case) .as-hero .title-row{grid-template-columns:1fr}:is(#assurance,#assurance-case) .as-graph{display:none}:is(#assurance,#assurance-case) .as-wm{grid-template-columns:1fr}}
+@media(max-width:760px){:is(#assurance,#assurance-case) .as-hero{padding:28px 20px 0}:is(#assurance,#assurance-case) .as-hero .as-kpis{margin:0 -20px;padding:0 8px}:is(#assurance,#assurance-case) .as-hero .as-kpi:nth-child(3){border-left:0}}
 
 /* Agent Gym is an embedded app with its own page header, so the console's title row shrinks to one line of context:
    product, status, one action. Speedrun has no title row: its description (data-note) hangs off the top-bar crumb. */
@@ -585,6 +605,6 @@
 p.hover-note{position:absolute;z-index:40;width:max-content;max-width:min(440px,calc(100vw - 48px));margin:6px 0 0;padding:9px 11px;border-radius:var(--r-sm);background:var(--nav-deep);color:#fff;font-size:var(--text-xs);font-weight:400;line-height:1.45;letter-spacing:0;text-align:left;box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transition:opacity 120ms}
 :has(+.hover-note):hover+.hover-note,.title-row>div:hover>.hover-note{opacity:1}
 .gym-view .title-row .hover-note,.top-left .hover-note{left:0;top:100%}
-#assurance .as-hero p.hover-note{background:var(--panel);color:var(--ink)}
+:is(#assurance,#assurance-case) .as-hero p.hover-note{background:var(--panel);color:var(--ink)}
 .brand-mark{flex:none;width:28px;height:28px}
 .app[data-nav-mode="pinned"] .top-left .brand-mark{display:none}
