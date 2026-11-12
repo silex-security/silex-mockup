@@ -29,6 +29,15 @@ test('the old layer names are gone from the page and the World Model scripts', a
       assert.ok(!text.includes(old), `${file} still has "${old}"`);
 });
 
+test('the Ontology Layers panel opens with the two ontologies, outside the container the script renders into', () => {
+  const panel = view('security-model').split('id="wm-architecture"')[1].split('id="swmLayers"')[0];
+  for (const text of ['SILEX pairs a Business Ontology with an Agent Execution Ontology.', 'Business Ontology', 'Agent Execution Ontology',
+    'What the enterprise wants to achieve, and the definitions, relationships, rules and permissions that govern the work.',
+    'How agents carry out that intent in practice: how they decompose tasks, coordinate across workflows, sequence tool calls, and decide when to delegate or escalate.',
+    'Four layers evolve at different speeds, shaped by top-down business requirements and bottom-up execution evidence.'])
+    assert.ok(panel.includes(text), text);
+});
+
 test('the World Model bundle carries the memo layer names', async () => {
   const bundle = JSON.parse(await read('swm/data/ontology.json'));
   const memo = ['General concepts and rules', 'Domain and enterprise knowledge', 'Agent execution knowledge', 'Runtime knowledge graph'];
