@@ -22,7 +22,7 @@ Date: 2026-11-11. Owner request: compare the demo site with the "Product Suite f
 | 8 | The forward-deployed-engineer argument is not on the home page. | Open. |
 | 9 | Agent Gym does not use the memo's wording: "flight simulator for agents", red and blue teams, findings that become regression tests. | Open. |
 | 10 | SILEX Runtime does not say that it advises existing controls such as an MCP gateway. The page reads as if SILEX blocks the action itself. | Open. |
-| 11 | Naming. The diagram says SILEX Foundry, the memo body says "shared Knowledge Library", and Foundry's only view is called Enterprise World Model. | Open. Needs an owner decision. |
+| 11 | Naming. The diagram says SILEX Foundry, the memo body says "shared Knowledge Library", and Foundry's only view is called Enterprise World Model. | Decided by the owner on 2026-11-12: the foundation is SILEX Foundry and its view stays Enterprise World Model. The site already says so. The memo body still says "shared Knowledge Library" and is the owner's to edit. |
 | 12 | Status chips (Designed, Building, Roadmap) are not on the diagram. Speedrun is marked Roadmap and is one of the most complete parts of the demo. | Open. Needs an owner decision. |
 
 ## Decisions made in this change
