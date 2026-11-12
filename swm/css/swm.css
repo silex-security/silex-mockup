@@ -26,7 +26,7 @@
 
 /* section shell (index.html markup, SWM only) */
 #security-model .swm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
-#security-model .swm-eyebrow{font:700 11px/1 var(--swm-mono,monospace);letter-spacing:.16em;text-transform:uppercase;color:var(--violet);margin:0 0 8px}
+#security-model .swm-eyebrow{font:700 11px/1 var(--swm-mono,monospace);letter-spacing:.16em;text-transform:uppercase;color:var(--violet);margin:0 0 12px}
 #security-model .swm-head h1{font-size:var(--text-4xl);line-height:1.1;margin:0 0 6px;letter-spacing:-.025em}
 #security-model .swm-head p{margin:0;color:var(--muted);font-size:var(--text-base);max-width:720px}
 #security-model .swm-head .pill{white-space:nowrap}

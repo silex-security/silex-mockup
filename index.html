@@ -211,11 +211,11 @@
 <button class="btn primary" data-new-blueprint="1">＋ New Agentic Blueprint</button>
 </div>
 <div class="section-title chg" data-chg="PRD §36: enterprise security posture"><strong>Enterprise Security Posture</strong><span>Illustrative values</span></div>
-<div class="metric-grid">
-<div class="card metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
-<div class="card metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
-<div class="card metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 10 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
-<div class="card metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="gym">revalidate</button></div></div>
+<div class="card kpi-strip">
+<div class="metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
+<div class="metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
+<div class="metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 10 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
+<div class="metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="gym">revalidate</button></div></div>
 </div>
 <div class="two-col" style="grid-template-columns:1fr">
 <div class="card chg" data-chg="9/15 review: World Model Coverage moved to Enterprise World Model">
@@ -287,15 +287,17 @@
 <h1>Incidents &amp; Decisions</h1>
 <p class="hover-note">Production incidents across registered workflows, and the policy changes waiting for a human decision.</p>
 </div>
+<div class="title-actions">
+<div class="view-switch" id="incQueueView"><button class="active" data-queue-view="cards">Cards</button><button data-queue-view="list">List</button></div>
 <div class="view-switch" id="incSwitch"><button class="active" data-inc-switch="incidents">Incidents</button><button data-inc-switch="decisions">Pending decisions <b id="incPendingCount">2</b></button></div>
 </div>
+</div>
 <div id="incView">
-<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><div class="view-switch"><button class="active" data-queue-view="cards">Cards</button><button data-queue-view="list">List</button></div></div>
-<div class="metric-grid chg" data-chg="PRD §28 summary">
-<div class="card metric"><div class="kicker">Open incidents</div><div class="metric-value">12</div><div class="metric-foot">Last 30 days</div></div>
-<div class="card metric"><div class="kicker">Critical incidents</div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcome still reachable</div></div>
-<div class="card metric"><div class="kicker">Affected workflows</div><div class="metric-value">7</div><div class="metric-foot">of 18 deployed</div></div>
-<div class="card metric"><div class="kicker">Residual failures</div><div class="metric-value">5</div><div class="metric-foot">Blocked once, alternative paths open</div></div>
+<div class="card kpi-strip chg" data-chg="PRD §28 summary">
+<div class="metric"><div class="kicker">Open incidents</div><div class="metric-value">12</div><div class="metric-foot">Last 30 days</div></div>
+<div class="metric"><div class="kicker">Critical incidents</div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcome still reachable</div></div>
+<div class="metric"><div class="kicker">Affected workflows</div><div class="metric-value">7</div><div class="metric-foot">of 18 deployed</div></div>
+<div class="metric"><div class="kicker">Residual failures</div><div class="metric-value">5</div><div class="metric-foot">Blocked once, alternative paths open</div></div>
 </div>
 <div class="filter-row chg" data-chg="PRD §28 filters">
 <input class="search" id="incidentSearch" aria-label="Search incidents" placeholder="Search incident, workflow, agent or control…">
@@ -509,16 +511,16 @@
 <h1>Workflow Library</h1>
 <p class="hover-note">The enterprise inventory and system of record for registered agentic workflows.</p>
 </div>
-<div style="display:flex;gap:10px;align-items:center">
+<div class="title-actions">
 <div class="view-switch chg" data-chg="PRD §25.2 inventory table"><button class="active" data-lib-view="table">Table</button><button data-lib-view="cards">Cards</button></div>
 <button class="btn primary" data-new-blueprint="1">＋ New Blueprint</button>
 </div>
 </div>
-<div class="metric-grid chg" data-chg="PRD §24 Registered vs Deployed">
-<div class="card metric"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">10</div><div class="metric-foot">shown in this demo</div></div>
-<div class="card metric"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">9</div><div class="metric-foot">active in production</div></div>
-<div class="card metric"><div class="kicker">Registered · not deployed</div><div class="metric-value" id="libPre">1</div><div class="metric-foot">pre-production</div></div>
-<div class="card metric"><div class="kicker">Needs revalidation</div><div class="metric-value" id="libReval">2</div><div class="metric-foot">after environment changes</div></div>
+<div class="card kpi-strip chg" data-chg="PRD §24 Registered vs Deployed">
+<div class="metric"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">10</div><div class="metric-foot">shown in this demo</div></div>
+<div class="metric"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">9</div><div class="metric-foot">active in production</div></div>
+<div class="metric"><div class="kicker">Registered · not deployed</div><div class="metric-value" id="libPre">1</div><div class="metric-foot">pre-production</div></div>
+<div class="metric"><div class="kicker">Needs revalidation</div><div class="metric-value" id="libReval">2</div><div class="metric-foot">after environment changes</div></div>
 </div>
 <div class="filter-row">
 <input class="search" id="workflowSearch" aria-label="Search workflows" placeholder="Search workflow, agent, tool, owner or domain…">
@@ -614,7 +616,7 @@
 </div>
 </div>
 <div class="rt-lead"><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
-<div class="card rt-kpis" id="rtMetrics">
+<div class="card kpi-strip" id="rtMetrics">
 <div class="metric" data-rt-metric="scenarios"><div class="kicker">Reference scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
 <div class="metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
 <div class="metric" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
@@ -838,7 +840,7 @@ const incidentData={
   let routeGen=0,routing=false;window.__wmRouteGen=()=>routeGen;
   let incPanel='incidents';
   const VIEW_ALIAS={policies:['incidents','decisions']};
-  function setIncPanel(p){incPanel=p;document.querySelectorAll('[data-inc-switch]').forEach(b=>b.classList.toggle('active',b.dataset.incSwitch===p));$id('incView').hidden=p!=='incidents';$id('policies').hidden=p!=='decisions'}
+  function setIncPanel(p){incPanel=p;document.querySelectorAll('[data-inc-switch]').forEach(b=>b.classList.toggle('active',b.dataset.incSwitch===p));$id('incView').hidden=$id('incQueueView').hidden=p!=='incidents';$id('policies').hidden=p!=='decisions'}
   function showView(id){const al=VIEW_ALIAS[id];if(al){setIncPanel(al[1]);id=al[0]}if(!routing)routeGen++;views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const cn=document.getElementById('crumbNote');cn.textContent=document.getElementById(id)?.dataset.note||'';cn.hidden=!cn.textContent;if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();document.dispatchEvent(new CustomEvent('rt:view',{detail:{view:id,nav:navId}}));if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
   const $id=x=>document.getElementById(x);
@@ -893,6 +895,7 @@ const incidentData={
   ['workflowSearch','domainFilter','deployFilter','riskFilter'].forEach(id=>$id(id).addEventListener('input',renderLibrary));
   document.querySelectorAll('[data-lib-view]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-lib-view]').forEach(x=>x.classList.toggle('active',x===b));$id('libTableWrap').style.display=b.dataset.libView==='table'?'block':'none';$id('libCards').style.display=b.dataset.libView==='cards'?'grid':'none'}));
 
+  {const wrap=$id('libTableWrap'),mark=()=>wrap.classList.toggle('at-end',wrap.scrollLeft+wrap.clientWidth>=wrap.scrollWidth-2);wrap.addEventListener('scroll',mark,{passive:true});new ResizeObserver(mark).observe(wrap)}
   let currentWorkflow='WF-021';
   function openWorkflow(id){const w=workflowData[id];if(!w)return;if(id!==currentWorkflow)$id('wfRevalRun').style.display='none';currentWorkflow=id;
     setText('wfId',id);setText('wfName',w.name);setText('wfDesc',w.desc);setText('wfDomain',w.domain);setText('wfStatus',w.deploy);setText('wfOwner',w.owner);setText('wfSecOwner',w.sec);setText('wfLastVal',w.last);setText('wfDefense',w.defense);setText('wfOpenRisks',w.open);setText('wfReach',w.reach);setText('wfCoverage',w.coverage);setText('wfPolicies',w.policies);
