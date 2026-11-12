@@ -33,9 +33,10 @@ Date: 2026-11-11. Owner request: compare the demo site with the "Product Suite f
 
 ## Left for later, noticed on the way
 
-- `SECURITY_WORLD_MODEL.md` and `swm/README.md` still use the earlier tier names (for example "L3 agentic-system"). They describe how the model was built and were left as written.
-- The Enterprise World Model view ends with "Planned for V2 and hidden in this demo: Runtime Knowledge Graph, …". L4 now carries the name "Runtime knowledge graph", so the line reads as a contradiction.
-- Runtime Observation says "12 scripted scenarios" in its KPI row and "34 scripted situations" under the scenario picker.
-- The Agent fleet tab of Runtime Observation says the ontology "stops the problem at its source". It reads as SILEX acting on its own, and needs more than a two-word edit.
-- The diagram draws an icon per capability and arrowheads on the loops. The site has neither.
-- The hero button "Follow one blocked attack" is now the secondary button.
+All cleared on 2026-11-12, see the change log entry "Leftovers from the Memo V3 review, and repeated titles in the embedded apps".
+
+- The model documents keep the earlier tier names and now say so in a note.
+- "Planned for V2" no longer lists the Runtime Knowledge Graph or rich ontology exploration.
+- Runtime Observation counts 12 reference scenarios in the KPI row and 34 situations in the picker, and names them apart.
+- The Agent fleet intro lets the control in the path do the stopping.
+- The product map has an icon per capability and arrowheads on the Test optimizations loop. The arrows up from the Foundry band were left out on purpose.
