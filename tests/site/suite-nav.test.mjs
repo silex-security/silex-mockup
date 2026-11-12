@@ -74,7 +74,7 @@ test('the rail and the map are rendered from the groups', () => {
   assert.match(map, /Execution evidence → Validate → Reusable knowledge/);
 });
 
-const sectionHtml = id => html.match(new RegExp(`<section class="view[^"]*" id="${id}">([\\s\\S]*?)\\n</section>`))[1];
+const sectionHtml = id => html.match(new RegExp(`<section class="view[^"]*" id="${id}"[^>]*>(\\n[\\s\\S]*?\\n|)</section>`))[1];
 
 test('the Runtime group offers Runtime Observation and Incidents & Decisions only', () => {
   const runtime = groups.find(g => g.key === 'runtime').views;
