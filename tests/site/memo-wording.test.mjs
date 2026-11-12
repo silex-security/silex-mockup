@@ -76,3 +76,11 @@ test('the World Model bundle carries the memo layer names', async () => {
   assert.deepEqual(bundle.chain.layers.map(l => l.name), memo);
   assert.match(await read('swm/data/ontology.js'), /Runtime knowledge graph/);
 });
+
+test('the Enterprise World Model view does not call a shown feature planned for V2', () => {
+  const note = view('security-model').match(/<div class="v2-note">(Planned for V2[^<]*)<\/div>\s*<\/section>/)?.[1] ?? '';
+  for (const shown of ['Runtime Knowledge Graph', 'rich ontology exploration'])
+    assert.ok(!note.includes(shown), `${shown} is on the page`);
+  for (const absent of ['Cross-Domain Risk', 'Business Harness', 'Model Health'])
+    assert.ok(note.includes(absent), `${absent} is still planned`);
+});
