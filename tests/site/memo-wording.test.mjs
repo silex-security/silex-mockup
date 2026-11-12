@@ -38,6 +38,19 @@ test('the Ontology Layers panel opens with the two ontologies, outside the conta
     assert.ok(panel.includes(text), text);
 });
 
+test('the hero states the thesis and leads with the world model button', () => {
+  const hero = view('assurance');
+  assert.ok(hero.includes('forward-deployed engineers translate business intent into agent workflows, one deployment at a time. SILEX makes that execution knowledge transferable, so a new deployment starts from practices that earlier ones validated.'));
+  assert.ok(hero.indexOf('class="as-lede"') > hero.indexOf('</h1>') && hero.indexOf('class="as-lede"') < hero.indexOf('class="as-actions"'));
+  const [primary, secondary] = [...hero.match(/<div class="as-actions">(.*?)<\/div>/s)[1].matchAll(/<button class="([^"]*)"([^>]*)>([^<]*)<\/button>/g)];
+  assert.match(primary[1], /\bbtn blue\b/);
+  assert.match(primary[2], /data-jump="security-model"/);
+  assert.equal(primary[3], 'Explore the world model →');
+  assert.match(secondary[1], /\bbtn ghost\b.*\brx-entry\b|\brx-entry\b.*\bbtn ghost\b/);
+  assert.match(secondary[2], /data-open-incident="I-1042"/);
+  assert.equal(secondary[3], 'Follow one blocked attack →');
+});
+
 test('the World Model bundle carries the memo layer names', async () => {
   const bundle = JSON.parse(await read('swm/data/ontology.json'));
   const memo = ['General concepts and rules', 'Domain and enterprise knowledge', 'Agent execution knowledge', 'Runtime knowledge graph'];

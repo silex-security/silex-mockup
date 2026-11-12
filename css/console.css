@@ -608,6 +608,9 @@ p.hover-note{position:absolute;z-index:40;width:max-content;max-width:min(440px,
 :is(#assurance,#assurance-case) .as-hero p.hover-note{background:var(--panel);color:var(--ink)}
 .brand-mark{flex:none;width:28px;height:28px}
 .app[data-nav-mode="pinned"] .top-left .brand-mark{display:none}
+    :is(#assurance,#assurance-case) .as-hero .as-lede{margin:0;max-width:56ch;font-size:var(--text-lg);line-height:1.55;color:var(--nav-text)}
+    :is(#assurance,#assurance-case) .as-hero .as-lede + .as-actions{margin-top:20px}
+    @media(max-width:760px){:is(#assurance,#assurance-case) .as-hero .as-lede{font-size:var(--text-md)}}
     #security-model .wm-onto{margin:0 0 14px}
     #security-model .wm-onto-lead{margin:0 0 10px;font-size:var(--text-md);color:var(--ink)}
     #security-model .wm-onto-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
