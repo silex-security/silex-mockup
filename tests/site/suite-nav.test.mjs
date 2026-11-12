@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readSuite, groupOf, railHtml, mapHtml } from '../../js/suite-nav.js';
+import { readSuite, readCaps, groupOf, railHtml, mapHtml, CAP_ICONS } from '../../js/suite-nav.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const html = await readFile(resolve(ROOT, 'index.html'), 'utf8');
@@ -128,12 +128,38 @@ test('each product states its lifecycle stage and three capabilities', () => {
   assert.equal(runtime[2].detail, 'trajectories, state changes & evidence');
 });
 
+test('readCaps reads an optional icon prefix before the title and detail', () => {
+  assert.deepEqual(readCaps('lock~Security: attacks, misuse|Plain|eye~Observability'), [
+    { icon: 'lock', title: 'Security', detail: 'attacks, misuse' },
+    { title: 'Plain' },
+    { icon: 'eye', title: 'Observability' },
+  ]);
+});
+
+test('every capability in the sidebar names an icon the registry draws', () => {
+  for (const g of groups) for (const c of g.caps) {
+    assert.ok(c.icon, `${g.key} / ${c.title} names an icon`);
+    assert.ok(CAP_ICONS[c.icon], `${c.icon} is in the registry`);
+  }
+  for (const [name, svg] of Object.entries(CAP_ICONS)) {
+    assert.match(svg, /^<svg [^>]*viewBox="0 0 24 24"[^>]*fill="none"[^>]*stroke="currentColor"[^>]*stroke-width="1.8"[^>]*aria-hidden="true"/, name);
+    assert.ok(groups.some(g => g.caps.some(c => c.icon === name)), `${name} is used`);
+  }
+});
+
+test('the map draws one icon per capability and keeps the dot for one without', () => {
+  const map = mapHtml(groups);
+  assert.equal([...map.matchAll(/<svg /g)].length, 12);
+  const list = mapHtml([{ key: 'x', label: 'X', short: 'X', stage: '', desc: '', views: [], caps: [{ title: 'A' }, { icon: 'nope', title: 'B' }, { icon: 'lock', title: 'C' }] }, { key: 'y', label: 'Y', short: 'Y', stage: '', desc: '', views: [], caps: [] }]);
+  assert.equal([...list.matchAll(/<svg /g)].length, 1, 'only the known icon draws');
+});
+
 test('the map lists every capability in a suite-caps list on its card', () => {
   const map = mapHtml(groups);
   for (const [key, titles] of Object.entries(CAPS)) {
     const card = map.match(new RegExp(`<article class="suite-card" data-suite-card="${key}">[\\s\\S]*?</article>`))[0];
     const list = card.match(/<ul class="suite-caps">[\s\S]*?<\/ul>/)[0];
-    assert.equal([...list.matchAll(/<li>/g)].length, 3);
+    assert.equal([...list.matchAll(/<li[ >]/g)].length, 3);
     for (const t of titles) assert.ok(list.includes(`<b>${t.replace(/&/g, '&amp;')}</b>`), `${key} lists ${t}`);
   }
 });

@@ -273,6 +273,9 @@
     .suite-caps{list-style:none;margin:0;padding:0;display:grid;gap:5px;align-content:start;flex:1}
     .suite-caps li{position:relative;background:var(--soft);border-radius:var(--r-sm);padding:6px 8px 6px 20px;font-size:var(--text-xs);color:var(--muted)}
     .suite-caps li::before{content:"";position:absolute;left:8px;top:.85em;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+    .suite-caps li.has-ico{padding-left:32px}
+    .suite-caps li.has-ico::before{display:none}
+    .suite-cap-ico{position:absolute;left:9px;top:6px;width:16px;height:16px;color:var(--blue2)}
     .suite-caps b{color:var(--ink);font-weight:650}
     .suite-views{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
     .suite-views .btn{padding:6px 10px;font-size:var(--text-sm)}
