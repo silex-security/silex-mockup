@@ -258,6 +258,7 @@
     .suite-row,.suite-top{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--suite-gap)}
     .suite-test{grid-column:2/5;position:relative;display:flex;justify-content:center;height:34px}
     .suite-test::before{content:"";position:absolute;left:calc((100% - 2 * var(--suite-gap)) / 6);right:calc((100% - 2 * var(--suite-gap)) / 6);top:50%;bottom:0;border:2px solid var(--blue-line);border-bottom:0;border-radius:var(--r-md) var(--r-md) 0 0}
+    .suite-test::after{content:"";position:absolute;left:calc((100% - 2 * var(--suite-gap)) / 6 - 5px);right:calc((100% - 2 * var(--suite-gap)) / 6 - 5px);bottom:0;height:7px;background:linear-gradient(to bottom left,var(--blue-line) 50%,transparent 50%) 0 0/6px 7px,linear-gradient(to bottom right,var(--blue-line) 50%,transparent 50%) 6px 0/6px 7px,linear-gradient(to bottom left,var(--blue-line) 50%,transparent 50%) calc(100% - 12px) 0/6px 7px,linear-gradient(to bottom right,var(--blue-line) 50%,transparent 50%) calc(100% - 6px) 0/6px 7px;background-repeat:no-repeat}
     .suite-pill{position:relative;align-self:center;background:var(--lav);border:1px solid var(--blue-line);border-radius:var(--r-pill);padding:4px 14px;font:700 11.5px var(--mono);color:var(--blue2)}
     .suite-pill-ext{display:none}
     .suite-next{position:absolute;top:50%;right:calc(-1 * var(--suite-gap) / 2 - 10px);width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--blue2);font-size:var(--text-xs);z-index:1}
@@ -290,7 +291,7 @@
     .gym-view .title-row{margin-bottom:6px}.gym-view .title-row .btn{text-decoration:none;white-space:nowrap}
     @media(max-width:760px){.gym-view .title-row{flex-wrap:wrap}}
     @media(max-width:1400px){.app[data-nav-mode="pinned"] .suite-rail{display:none}}
-    @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}.suite-top{display:block;margin-bottom:var(--suite-gap)}.suite-test{height:auto}.suite-test::before,.suite-next{display:none}.suite-pill-ext{display:inline}:is(#assurance,#assurance-case) .en-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1100px){.suite-rail{display:none}.suite-row{grid-template-columns:repeat(2,1fr)}.suite-top{display:block;margin-bottom:var(--suite-gap)}.suite-test{height:auto}.suite-test::before,.suite-test::after,.suite-next{display:none}.suite-pill-ext{display:inline}:is(#assurance,#assurance-case) .en-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:760px){.suite-row,:is(#assurance,#assurance-case) .en-grid{grid-template-columns:1fr}.suite-band{flex-direction:column;align-items:stretch}}
     /* ── Assurance view (investor / technical register) ── */
     :is(#assurance,#assurance-case){max-width:1180px;margin-inline:auto}

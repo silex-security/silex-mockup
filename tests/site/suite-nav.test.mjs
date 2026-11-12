@@ -147,6 +147,13 @@ test('the map draws the three loops of the suite diagram', () => {
   assert.deepEqual(order, ['top', 'row', 'span', 'band'], 'the optimization loop sits above the cards, the span band below them, the foundation last');
 });
 
+test('the optimization bracket ends in arrowheads on the two cards and hides with the bracket', async () => {
+  const css = await readFile(resolve(ROOT, 'css/console.css'), 'utf8');
+  assert.match(css, /\.suite-test::after\{[^}]*bottom:/, 'an arrowhead layer sits at the bracket feet');
+  const narrow = css.match(/@media\(max-width:1100px\)\{[^\n]*\.suite-test::before[^\n]*/)?.[0] ?? '';
+  assert.match(narrow, /\.suite-test::after/, 'hidden below 1100px with the bracket');
+});
+
 test('the assurance case has its own view, and the home page only links to it', () => {
   const home = sectionHtml('assurance'), kase = sectionHtml('assurance-case');
   for (const s of ['The Correspondence Problem', 'The autonomy flywheel', 'KNOWN BLIND SPOTS']) {
