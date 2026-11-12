@@ -51,6 +51,16 @@ test('the hero states the thesis and leads with the world model button', () => {
   assert.equal(secondary[3], 'Follow one blocked attack →');
 });
 
+test('each Agent Gym view note carries one point of the memo', () => {
+  const note = id => view(id).match(/<p class="hover-note">(.*?)<\/p>/s)[1];
+  assert.match(note('gym'), /^A flight simulator for agents\./);
+  assert.match(note('gym'), /baseline against the variant in a private simulation/);
+  assert.match(note('gym-environments'), /private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions/);
+  assert.ok(note('gym-scenarios').includes('Normal, edge-case and attack scenarios. The ontology connects business rules with agents, tools and permissions, which helps generate paths not seen in past logs. Red teams use that map to explore risky paths. Blue teams use it to trace alerts back to rules and intervention points.'));
+  assert.match(note('gym-runs'), /evaluated against business intent, not task completion alone/);
+  assert.match(note('gym-runs'), /regression tests for future changes/);
+});
+
 test('the World Model bundle carries the memo layer names', async () => {
   const bundle = JSON.parse(await read('swm/data/ontology.json'));
   const memo = ['General concepts and rules', 'Domain and enterprise knowledge', 'Agent execution knowledge', 'Runtime knowledge graph'];
