@@ -84,3 +84,9 @@ test('the Enterprise World Model view does not call a shown feature planned for 
   for (const absent of ['Cross-Domain Risk', 'Business Harness', 'Model Health'])
     assert.ok(note.includes(absent), `${absent} is still planned`);
 });
+
+test('the Agent fleet intro leaves the stopping to the control in the path', () => {
+  const intro = view('runtime-observation').match(/<p>Each agent's own step looks fine\.([^<]*)<\/p>/)?.[1] ?? '';
+  assert.ok(intro.includes('The control already in the path does the stopping, while the ontology adds the facts between the agents and routes the problem to the team that owns it.'), intro);
+  assert.ok(!intro.includes('stops the problem'));
+});
