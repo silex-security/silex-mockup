@@ -1,23 +1,23 @@
 /* SILEX Enterprise World Model — shared runtime: colour scales, glyphs, tooltip,
    provenance chips, motion/visibility helpers and the lazy panel registry.
-   Charts draw on a dark STAGE (#10162b→#26305a); inspectors sit on PAPER, the console's dark panel.
-   Contrast is measured against #26305a or #ffffff (notes per ramp). CSS copies
+   Charts draw on a dark STAGE (#0e1013→#1a1d22); inspectors sit on PAPER, the console's dark panel.
+   Contrast is measured against #1a1d22 (notes per ramp). CSS copies
    of these tokens live in swm/css/swm.css — keep the two in step. */
 (function (global) {
   'use strict';
 
-  var STAGE_BG = ['#10162b', '#26305a'];          /* darkest, lightest stop */
+  var STAGE_BG = ['#0e1013', '#1a1d22'];          /* darkest, lightest stop */
 
-  /* layers on stage, L1 brightest: 10.4 / 7.4 / 5.1 / 4.1 vs #26305a */
+  /* layers on stage, L1 brightest: 13.9 / 9.8 / 6.8 / 5.5 vs #1a1d22 */
   var LAYER_RAMP = ['#ece5ff', '#cdbcff', '#ae96f6', '#9b82ef'];
   /* paper is the dark console panel, so it takes the stage ramps */
   var LAYER_RAMP_PAPER = LAYER_RAMP;
 
   /* coverage on stage, 40/55/70/85/100 %, clamped; site indigo, low end most saturated,
-     top stop = --lav: 3.1 / 4.5 / 6.2 / 8.4 / 10.9 vs #26305a */
+     top stop = --stage-ink: 4.1 / 5.9 / 8.3 / 11.2 / 14.5 vs #1a1d22 */
   var COVERAGE_RAMP = ['#5f74e6', '#7f93f5', '#a2b2fb', '#c6d0ff', '#e9edff'];
   var COVERAGE_RAMP_PAPER = COVERAGE_RAMP;
-  /* unmodelled share on stage, none → 45 %+ missing: 3.1 / 5.9 / 9.4 vs #26305a */
+  /* unmodelled share on stage, none → 45 %+ missing: 4.1 / 7.8 / 12.5 vs #1a1d22 */
   var GAP_RAMP = ['#7079b3', '#b7a3ff', '#e2d8ff'];
   var COVERAGE_DOMAIN = [0.4, 1];
 
@@ -29,17 +29,17 @@
     good:     { color:'#0ca30c', label:'Healthy',  icon:'✓' }
   };
 
-  /* stage tokens (SVG attributes cannot read CSS vars): ink 11.2, ink2 7.7, ink3 6.0, faint 4.8 (decorative) */
+  /* stage tokens (SVG attributes cannot read CSS vars): ink 14.9, ink2 10.3, ink3 8.0, faint 6.3 (decorative) */
   var INK = {
     ink:'#eef0fb', ink2:'#c3c8e8', ink3:'#a9b0db', faint:'#949cca',
-    surface:STAGE_BG[0], soft:'#1b2344', line:'rgba(203,210,255,.18)',
+    surface:STAGE_BG[0], soft:'#1d2024', line:'rgba(203,210,255,.18)',
     grid:'rgba(203,210,255,.08)', edge:'rgba(183,163,255,.34)', edgeStrong:'#b7a3ff',
     wash:'rgba(203,210,255,.06)', accent:'#b7a3ff', accentSoft:'rgba(183,163,255,.18)'
   };
   /* paper tokens for the console's panel cards */
   var PAPER = {
-    ink:'#ececf1', ink2:'#cfd3dc', ink3:'#9aa1ad', faint:'#646a77',
-    surface:'#1d1f26', soft:'#262932', line:'#30333d',
+    ink:'#e7e9ea', ink2:'#c6cacd', ink3:'#959ba1', faint:'#5d636a',
+    surface:'#15171a', soft:'#1d2024', line:'#262a2f',
     grid:'rgba(236,236,241,.10)', edge:'rgba(236,236,241,.22)',
     wash:'rgba(236,236,241,.05)', accent:'#c6b3f7', accentSoft:'rgba(164,124,240,.18)'
   };

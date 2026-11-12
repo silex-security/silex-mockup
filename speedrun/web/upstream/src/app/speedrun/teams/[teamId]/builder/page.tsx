@@ -128,7 +128,7 @@ export default async function BuilderPage({
               const current = showConstruction && !st.done && (i === 0 || c.steps[i - 1].done);
               return (
                 <li key={st.name} className={cx("flex items-center gap-2 text-base", current ? "font-semibold text-fg" : "text-mut")}>
-                  <span className={cx("flex h-6 w-6 items-center justify-center rounded-full border-[1.5px] font-mono text-2xs font-bold", done ? "border-acc bg-acc text-white" : current ? "border-acc2 text-acc-text" : "border-line2")}>
+                  <span className={cx("flex h-6 w-6 items-center justify-center rounded-full border-[1.5px] font-mono text-2xs font-bold", done ? "border-acc bg-acc text-on-acc" : current ? "border-acc2 text-acc-text" : "border-line2")}>
                     {done ? "✓" : i + 1}
                   </span>
                   {st.name}

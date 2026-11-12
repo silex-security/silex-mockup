@@ -1,6 +1,8 @@
-/* Dark fog. The page carries the fog and cards are glass over it, the look of the Platform hero.
+/* Signal surfaces. The page carries a faint terminal grid over a green glow, and cards are glass over it.
+   Measured figures are set in the mono face, as on a monitoring screen.
    Loaded after console.css. It is its own file so that additions to console.css do not collide with it. */
 html{background:var(--bg)}
-body{background:var(--fog) fixed}
+body{background:var(--grid),var(--fog);background-attachment:fixed}
 .card{background:var(--glass)}
 .sidebar{border-right:1px solid var(--line)}
+.as-kpi .v,.metric-value{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.04em}

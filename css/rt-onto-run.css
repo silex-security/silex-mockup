@@ -12,8 +12,8 @@
 
 /* Timeline: the user task bubble, then one card per call, one connector between each adjacent pair of calls */
 .rt-onto-run .rt-onto-timeline{display:flex;flex-wrap:wrap;gap:26px;align-items:stretch;margin:12px 0 2px}
-.rt-onto-run .rt-onto-task{position:relative;flex:0 1 230px;min-width:180px;background:var(--lav);border:1px solid var(--line);border-radius:var(--r-md);padding:9px 11px}
-.rt-onto-run .rt-onto-task-k{font-size:var(--text-2xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue2)}
+.rt-onto-run .rt-onto-task{position:relative;flex:0 1 230px;min-width:180px;background:var(--accent-bg);border:1px solid var(--line);border-radius:var(--r-md);padding:9px 11px}
+.rt-onto-run .rt-onto-task-k{font-size:var(--text-2xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-2)}
 .rt-onto-run .rt-onto-task-t{margin:4px 0 0;font-size:var(--text-sm);color:var(--ink)}
 .rt-onto-run .rt-onto-calls{display:flex;flex-wrap:nowrap;gap:26px;list-style:none;margin:0;padding:0;flex:1 1 340px;min-width:0}
 .rt-onto-run .rt-onto-call{position:relative;flex:1 1 190px;min-width:0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel);padding:9px 11px}

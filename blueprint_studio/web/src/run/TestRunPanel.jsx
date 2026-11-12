@@ -36,7 +36,7 @@ export default function TestRunPanel() {
   const busy = cur && !cur.engine.done;
   return (
     <aside className="config run-panel" aria-label={t('run.title', 'Test run')}>
-      <header className="cp-head"><span className="si-tile" style={{ '--tc': 'var(--blue)' }}><svg viewBox="0 0 24 24" className="icon"><path d={I.play} /></svg></span>
+      <header className="cp-head"><span className="si-tile" style={{ '--tc': 'var(--accent)' }}><svg viewBox="0 0 24 24" className="icon"><path d={I.play} /></svg></span>
         <div className="cp-title"><b>{t('run.title', 'Test run')}</b><small>{t('run.sub', 'Runs this graph on one request, step by step.')}</small></div>
         <button className="btn ghost sm" aria-label={t('cp.close', 'Close')} onClick={() => ctl.setPanel(null)}><Icon d={I.x} /></button></header>
       <section className="cp-section run-form">

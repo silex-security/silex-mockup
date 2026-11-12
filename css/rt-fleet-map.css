@@ -9,7 +9,7 @@
 .rt-fmap-agent{flex:1 1 260px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
 .rt-fmap-agent h4{margin:0 0 10px;font:13px var(--mono);overflow-wrap:anywhere}
 .rt-fmap-tools{display:flex;flex-wrap:wrap;gap:6px}
-.rt-fmap-tool{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:5px 7px;font:11px var(--mono);color:var(--blue);background:var(--soft)}
+.rt-fmap-tool{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:5px 7px;font:11px var(--mono);color:var(--accent);background:var(--soft)}
 .rt-fmap-tool>span:first-child{overflow-wrap:anywhere;min-width:0}
 .rt-fmap-tool b{font-size:var(--text-2xs)}
 .rt-fmap-tool[data-impact="write"]{color:var(--amber);background:var(--amber-bg)}
@@ -22,12 +22,12 @@
 .rt-froute-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
 .rt-froute-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--soft)}
 .rt-froute-panel h4{font-size:var(--text-base);margin:0 0 12px}
-.rt-froute-panel h4 strong{font:18px var(--mono);color:var(--blue);margin-left:6px}
+.rt-froute-panel h4 strong{font:18px var(--mono);color:var(--accent);margin-left:6px}
 .rt-froute-bucket{border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;margin-top:8px;background:var(--panel)}
 .rt-froute-bucket h5{display:flex;justify-content:space-between;gap:8px;margin:0 0 8px;font:12px var(--mono);overflow-wrap:anywhere}
 .rt-froute-dots{display:flex;flex-wrap:wrap;gap:8px}
-.rt-froute-dot.rt-tip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:0 0 28px;padding:0;border:1px solid var(--blue);border-radius:50%;background:var(--panel);color:var(--blue);cursor:pointer;font-size:var(--text-lg);will-change:transform}
-.rt-froute-dot:focus-visible,.rt-froute-controls button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.rt-froute-dot.rt-tip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:0 0 28px;padding:0;border:1px solid var(--accent);border-radius:50%;background:var(--panel);color:var(--accent);cursor:pointer;font-size:var(--text-lg);will-change:transform}
+.rt-froute-dot:focus-visible,.rt-froute-controls button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .rt-froute-empty{color:var(--muted);font-size:var(--text-base);border:1px dashed var(--line);border-radius:var(--r-sm);padding:20px 12px}
 .rt-froute-claim{font-size:var(--text-sm);color:var(--muted);line-height:1.6;margin:14px 0 0;overflow-wrap:anywhere}
 .rt-froute-status{font:11px var(--mono);color:var(--muted);margin:8px 0 0}

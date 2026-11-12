@@ -25,9 +25,9 @@
   --tw-line-strong:var(--line-strong);
   --tw-hover:var(--soft-2);
   --tw-control-hover:var(--soft);
-  --tw-focus:var(--blue);
-  --tw-glow:var(--blue);       /* glow of the bar being drawn and of the playhead */
-  --tw-blue:var(--blue);       --tw-blue-text:var(--blue2);
+  --tw-focus:var(--accent);
+  --tw-glow:var(--accent);       /* glow of the bar being drawn and of the playhead */
+  --tw-blue:var(--accent);       --tw-blue-text:var(--accent-2);
   --tw-violet:var(--violet-dot); --tw-violet-text:var(--violet);
   --tw-amber:var(--amber-dot); --tw-amber-text:var(--amber);
   --tw-green:var(--green-dot); --tw-green-text:var(--green);
