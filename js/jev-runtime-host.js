@@ -66,7 +66,6 @@ function describeScenario() {
 }
 
 function renderReference() {
-  // The reference metrics stay AP + SOC; the creator-platform scenarios are added to the picker only.
   try { summary = summarizeAll(); } catch (e) {
     $('rtScenWhat').textContent = `The simulated engine did not load: ${e.message}`; return;
   }
