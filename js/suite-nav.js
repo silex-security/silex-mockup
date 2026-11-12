@@ -13,12 +13,12 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
  * @typedef {{ key: string, label: string, short: string, stage: string, status: string, desc: string, caps: Cap[], views: { id: string, label: string }[] }} Group
  */
 
-/** @param {Entry[]} entries @returns {Group[]} the groups that carry a data-suite key, in sidebar order */
 const readCaps = raw => (raw ?? '').split('|').filter(Boolean).map(c => {
   const i = c.indexOf(': ');
   return i < 0 ? { title: c.trim() } : { title: c.slice(0, i).trim(), detail: c.slice(i + 2).trim() };
 });
 
+/** @param {Entry[]} entries @returns {Group[]} the groups that carry a data-suite key, in sidebar order */
 export function readSuite(entries) {
   const groups = [];
   let open = null;
