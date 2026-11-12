@@ -107,11 +107,11 @@ export function IllustrativeBadge() {
   return <Pill className="border-amb text-amb-text">Illustrative data</Pill>;
 }
 
-export function PageTitle({ kicker, title, children }: { kicker: string; title: ReactNode; children?: ReactNode }) {
+export function PageTitle({ kicker, title, children }: { kicker?: string; title: ReactNode; children?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-end gap-4">
       <div className="flex flex-col gap-2">
-        <Kicker>{kicker}</Kicker>
+        {kicker && <Kicker>{kicker}</Kicker>}
         <h1 className="m-0 text-3xl font-bold leading-[1.15] tracking-tight">{title}</h1>
       </div>
       <div className="flex-1" />

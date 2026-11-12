@@ -50,14 +50,13 @@ test('a path is read only for the view the hash names, and only as an app route'
   assert.equal(requested('#view=gym-runs&path=runs', 'gym-runs'), null);
 });
 
-test('the sidebar lists the four views in section order, and each has a title row but no frame of its own', async () => {
+test('the sidebar lists the four views in section order, and each is a bare section whose note hangs off the top-bar crumb', async () => {
   const html = await readFile(resolve(ROOT, 'index.html'), 'utf8');
   const gymButtons = [...html.matchAll(/data-view="(gym[^"]*)"/g)].map(m => m[1]);
   assert.deepEqual(gymButtons, SECTIONS.map(s => VIEWS[s.id]));
   for (const id of Object.values(VIEWS)) {
-    const section = html.match(new RegExp(`<section class="view gym-view" id="${id}">([\\s\\S]*?)</section>`))?.[1];
-    assert.ok(section, `${id} has a section`);
-    assert.match(section, /class="title-row"/);
-    assert.doesNotMatch(section, /<iframe|frame-wrap/, `${id} holds only its title row`);
+    const section = html.match(new RegExp(`<section class="view gym-view" id="${id}" data-note="[^"]+">([\\s\\S]*?)</section>`))?.[1];
+    assert.ok(section !== undefined, `${id} has a section with a data-note`);
+    assert.doesNotMatch(section, /<h1|title-row|Open full page|data-gym-full|<iframe|frame-wrap/, `${id} holds no title row and no frame of its own`);
   }
 });

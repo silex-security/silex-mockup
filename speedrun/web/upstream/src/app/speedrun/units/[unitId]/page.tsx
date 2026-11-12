@@ -35,7 +35,6 @@ export default async function UnitPage({
   return (
     <Main>
       <PageTitle
-        kicker="Speedrun · Business Unit"
         title={
           <span className="flex flex-wrap items-center gap-3.5">
             Business Unit

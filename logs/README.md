@@ -2,6 +2,15 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-12 — Leftovers from the Memo V3 review, and repeated titles in the embedded apps
+
+- **Why:** the owner asked to clear the "Left for later" list of [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md), and reported that the Agent Gym views repeat "Agent Gym" and the page name at the top left.
+- **Agent Gym:** the console title row is gone from the four views. Each view's note sits behind the ⓘ beside the top-bar breadcrumb, as Speedrun already did. *Open full page* moved into the app's *Concept preview · Simulated data* menu. Embedded, the app's breadcrumb drops its *Agent Gym* root and shows nothing when one crumb would only repeat the title (`trail` in `agent-gym/js/components/ui.js`). The standalone page is unchanged.
+- **Speedrun:** the root crumb is *Organization*, not *Speedrun*, and the Organization and Business Unit screens lost the eyebrow that repeated their title.
+- **Blueprint Studio:** the top bar says *Blueprint Studio*, as the sidebar does.
+- **Scan:** 32 console screens were checked for a name shown twice in the top 200px of the content. One case was left: Speedrun team subpages show the team in the trail and as the title, because the trail entry is the only link back to the team.
+- **Leftovers:** icons and arrowheads on the product map, the "Planned for V2" line, the 12 and 34 scenario counts on Runtime Observation (two different sets, now named apart and both computed), the Agent fleet intro, and a naming note in `SECURITY_WORLD_MODEL.md` and `swm/README.md`.
+
 ## 2026-11-12 — Product cards drop the Designed, Building and Roadmap chips
 
 - **Why:** finding 12 of [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md). The diagram has no maturity labels, the three words were never defined on the site, and they read against what the demo shows (Agent Studio, the one computed app, said Designed; Speedrun, a complete app, said Roadmap). The owner chose to remove them.

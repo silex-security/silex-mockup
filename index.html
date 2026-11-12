@@ -44,24 +44,24 @@
 <nav class="nav">
 <button data-view="security-model"><span class="ico"></span>Enterprise World Model</button>
 </nav>
-<div class="section-label" data-suite="studio" data-stage="Pre-deployment" data-desc="Understand and improve agent designs before deployment." data-caps="Blueprint check|Context &amp; knowledge configuration|Reusable workflows">Agent Studio</div>
+<div class="section-label" data-suite="studio" data-stage="Pre-deployment" data-desc="Understand and improve agent designs before deployment." data-caps="check-circle~Blueprint check|layers~Context &amp; knowledge configuration|tree~Reusable workflows">Agent Studio</div>
 <nav class="nav">
 <button data-view="blueprint"><span class="ico"></span>Blueprint Studio</button>
 <button data-view="library"><span class="ico"></span>Workflow Library</button>
 </nav>
-<div class="section-label" data-suite="gym" data-stage="Verification · Validation · Assurance" data-desc="Run agents in a private simulation of task-relevant enterprise conditions." data-caps="Private simulation environment|Normal, boundary &amp; adversarial testing|Outcome validation &amp; regression replay">Agent Gym</div>
+<div class="section-label" data-suite="gym" data-stage="Verification · Validation · Assurance" data-desc="Run agents in a private simulation of task-relevant enterprise conditions." data-caps="screen-play~Private simulation environment|flask~Normal, boundary &amp; adversarial testing|replay~Outcome validation &amp; regression replay">Agent Gym</div>
 <nav class="nav">
 <button data-view="gym"><span class="ico"></span>Experiment Workbench</button>
 <button data-view="gym-environments"><span class="ico"></span>Environments</button>
 <button data-view="gym-scenarios"><span class="ico"></span>Scenarios</button>
 <button data-view="gym-runs"><span class="ico"></span>Runs &amp; Results</button>
 </nav>
-<div class="section-label" data-suite="runtime" data-stage="Production" data-desc="Understand execution and govern consequential actions." data-caps="Security: attacks, misuse &amp; unauthorized actions|Safety: harmful or unintended business outcomes|Observability: trajectories, state changes &amp; evidence">SILEX Runtime</div>
+<div class="section-label" data-suite="runtime" data-stage="Production" data-desc="Understand execution and govern consequential actions." data-caps="lock~Security: attacks, misuse &amp; unauthorized actions|warning~Safety: harmful or unintended business outcomes|eye~Observability: trajectories, state changes &amp; evidence">SILEX Runtime</div>
 <nav class="nav">
 <button data-view="runtime-observation"><span class="ico"></span>Runtime Observation</button>
 <button data-view="incidents"><span class="ico"></span>Incidents &amp; Decisions</button>
 </nav>
-<div class="section-label" data-suite="speedrun" data-stage="Performance enhancement" data-desc="Improve selected performance goals within business and safety constraints." data-caps="Quality &amp; task success|Cost &amp; inference efficiency|Latency &amp; execution paths">SILEX Speedrun</div>
+<div class="section-label" data-suite="speedrun" data-stage="Performance enhancement" data-desc="Improve selected performance goals within business and safety constraints." data-caps="target~Quality &amp; task success|coins~Cost &amp; inference efficiency|path~Latency &amp; execution paths">SILEX Speedrun</div>
 <nav class="nav">
 <button data-view="speedrun"><span class="ico"></span>Speedrun</button>
 </nav>
@@ -600,30 +600,10 @@
 
 
 
-<section class="view gym-view" id="gym">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">A flight simulator for agents. Experiment Workbench. Change one thing and run the baseline against the variant in a private simulation.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
-<section class="view gym-view" id="gym-environments">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">Environments. A private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions. Each is saved as a revision an experiment can pin.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
-<section class="view gym-view" id="gym-scenarios">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">Scenarios. The conditions an agent is tested under. Normal, edge-case and attack scenarios. The ontology connects business rules with agents, tools and permissions, which helps generate paths not seen in past logs. Red teams use that map to explore risky paths. Blue teams use it to trace alerts back to rules and intervention points.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
-<section class="view gym-view" id="gym-runs">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">Runs &amp; Results. Every simulated run of baseline and variant, with its trace, checks and evidence. Outcomes are evaluated against business intent, not task completion alone, and findings can become regression tests for future changes.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
+<section class="view gym-view" id="gym" data-note="A flight simulator for agents. Experiment Workbench. Change one thing and run the baseline against the variant in a private simulation."></section>
+<section class="view gym-view" id="gym-environments" data-note="Environments. A private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions. Each is saved as a revision an experiment can pin."></section>
+<section class="view gym-view" id="gym-scenarios" data-note="Scenarios. The conditions an agent is tested under. Normal, edge-case and attack scenarios. The ontology connects business rules with agents, tools and permissions, which helps generate paths not seen in past logs. Red teams use that map to explore risky paths. Blue teams use it to trace alerts back to rules and intervention points."></section>
+<section class="view gym-view" id="gym-runs" data-note="Runs &amp; Results. Every simulated run of baseline and variant, with its trace, checks and evidence. Outcomes are evaluated against business intent, not task completion alone, and findings can become regression tests for future changes."></section>
 <div class="studio-frame-wrap gym-frame-wrap" id="gymFrameWrap" hidden><div class="studio-frame-loading">Opening Agent Gym…</div></div>
 
 <section class="view" id="runtime-observation">
@@ -635,7 +615,7 @@
 </div>
 <div class="rt-lead"><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
 <div class="card rt-kpis" id="rtMetrics">
-<div class="metric" data-rt-metric="scenarios"><div class="kicker">Scripted scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
+<div class="metric" data-rt-metric="scenarios"><div class="kicker">Reference scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
 <div class="metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
 <div class="metric" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
 <div class="metric" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
@@ -656,7 +636,7 @@
 <select id="rtScenarioSelect" aria-describedby="rtScenWhat"><option value="">Loading the simulated engine…</option></select>
 <button type="button" class="btn primary" id="rtRunBtn">▶ Run</button>
 <span class="status running" id="rtStatus">Ready</span>
-<div class="rt-scen-desc"><div id="rtScenWhat">Choose one of the 12 scripted situations; the chip shows its expected outcome under the default policy.</div><span id="rtScenChip"></span></div>
+<div class="rt-scen-desc"><div id="rtScenWhat">Choose one of the scripted situations; the chip shows its expected outcome under the default policy.</div><span id="rtScenChip"></span></div>
 </div>
 <div class="card rt-pipe-card" id="rtScenarios">
 <div class="rt-pipeline" id="rtPipeline" data-mode="idle" aria-label="How runtime validation decides each agent action"></div>
@@ -703,7 +683,7 @@
 </section>
 
 <section class="rt-panel" id="rtFleetPanel" data-rt-panel="fleet" role="tabpanel" aria-labelledby="rtTab-fleet" hidden>
-<div class="card rt-intro rt-fleet-intro"><div><h2>Many agents, many teams: what one trace cannot see <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>A content platform runs agents for trends, customer help, creator support, short-drama production and ads, each owned by a different team. Each agent's trace shows its own tool calls. The <b>ontology slice</b> adds the facts that sit between them: who manages whom, what a video may be used for, where a pool syncs to, and which team reviews which kind of action. Every scenario below runs twice in the vendored simulated engine, with the slice and without it, when this tab opens.</span></span></h2><p>Each agent's own step looks fine. The ontology adds the facts between them, stops the problem at its source and sends it to the team that owns it.</p></div><span class="rt-chip" data-kind="sim">Simulated · fictional tenant</span></div>
+<div class="card rt-intro rt-fleet-intro"><div><h2>Many agents, many teams: what one trace cannot see <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>A content platform runs agents for trends, customer help, creator support, short-drama production and ads, each owned by a different team. Each agent's trace shows its own tool calls. The <b>ontology slice</b> adds the facts that sit between them: who manages whom, what a video may be used for, where a pool syncs to, and which team reviews which kind of action. Every scenario below runs twice in the vendored simulated engine, with the slice and without it, when this tab opens.</span></span></h2><p>Each agent's own step looks fine. The control already in the path does the stopping, while the ontology adds the facts between the agents and routes the problem to the team that owns it.</p></div><span class="rt-chip" data-kind="sim">Simulated · fictional tenant</span></div>
 <p class="rt-fleet-onto-link"><button type="button" class="btn secondary" data-wm-route="#view=runtime-observation&amp;tab=ontology&amp;sub=fleet">How the ontology works here, as a graph →</button></p>
 <div id="rtFleet" class="rt-fleet"><p class="rt-ref">Loading the simulated engine…</p></div>
 </section>
@@ -766,7 +746,7 @@
           
 <div class="wm-panel active chg" data-chg="10/2: default view · tiers are presentation groups; only SUBCLASS_OF asserts subsumption" id="wm-architecture" role="tabpanel" aria-labelledby="wmtab-architecture"><div class="wm-onto"><p class="wm-onto-lead">SILEX pairs a Business Ontology with an Agent Execution Ontology.</p><div class="wm-onto-pair"><div class="card"><h4>Business Ontology</h4><p>What the enterprise wants to achieve, and the definitions, relationships, rules and permissions that govern the work.</p></div><div class="card"><h4>Agent Execution Ontology</h4><p>How agents carry out that intent in practice: how they decompose tasks, coordinate across workflows, sequence tool calls, and decide when to delegate or escalate.</p></div></div><p class="wm-onto-note">Four layers evolve at different speeds, shaped by top-down business requirements and bottom-up execution evidence.</p></div><div id="swmLayers"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the ontology chain…</div></div></div><details class="swm-more"><summary>About Ontology Layers <small>· the tiers, the principle and caveats</small></summary><div class="swm-more-body"><div class="v2-note">Final naming is still pending technical alignment. The four tiers, L1 → L2 → L3 → L4, are <b>presentation groups, not taxonomic ranks</b>: only <code>SUBCLASS_OF</code> asserts that one concept is a kind of another. L1–L3 supply the world model's Schema; L4 supplies World State instances. This view does not depict the Laws, Objectives or Calibration layers. The build refuses to publish a bundle where a relation breaks its predicate signature, where the display tree or the subclass graph has a cycle, or where a node hangs under a lower tier.</div><div class="ontology-principle" style="margin-top:12px"><b>Architecture principle:</b> one federated ontology carries every domain pack; a domain pack is a root of its own whose entities and actions are kinds of general L1 concepts; an agentic component is a kind of a general L1 concept, deployed in the domains where it runs; and the runtime graph is the one place where those semantics meet observed behaviour. Membership, deployment and grouping are navigation, not subsumption. Organisational ownership stays a navigational attribute.</div><p class="swm-note">Layer selection is shared with the <b>Ontology Graph</b> tab: pick a layer here and the explorer opens there.</p></div></details>
 </div>
-<div class="v2-note">Planned for V2 and hidden in this demo: Runtime Knowledge Graph, Cross-Domain Risk, Business Harness, Model Health, rich ontology exploration.</div>
+<div class="v2-note">Planned for V2 and hidden in this demo: Cross-Domain Risk, Business Harness, Model Health.</div>
 </section>
 
 
@@ -851,7 +831,7 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Platform','assurance-case':'Assurance case',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
+  const viewNames={assurance:'Platform','assurance-case':'Assurance case',overview:'Operations Overview',blueprint:'Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
   /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
      that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
      destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */

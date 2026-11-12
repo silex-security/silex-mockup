@@ -14,7 +14,7 @@ export function TeamHeader({ team, tab, crumb }: { team: AgentTeam; tab: TeamTab
       </span>
       <div className="flex flex-col gap-1">
         <nav aria-label="Breadcrumb" className="lbl !text-base">
-          <Link href="/speedrun" className="text-mut hover:text-fg">Speedrun</Link> ›{" "}
+          <Link href="/speedrun" className="text-mut hover:text-fg">Organization</Link> ›{" "}
           <Link href={`/speedrun/units/${unit.id}/teams`} className="text-mut hover:text-fg">{unit.name}</Link> ›{" "}
           {crumb ? (
             <>

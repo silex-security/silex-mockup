@@ -52,7 +52,7 @@ test('the hero states the thesis and leads with the world model button', () => {
 });
 
 test('each Agent Gym view note carries one point of the memo', () => {
-  const note = id => view(id).match(/<p class="hover-note">(.*?)<\/p>/s)[1];
+  const note = id => view(id).match(/data-note="([^"]*)"/)[1];
   assert.match(note('gym'), /^A flight simulator for agents\./);
   assert.match(note('gym'), /baseline against the variant in a private simulation/);
   assert.match(note('gym-environments'), /private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions/);
@@ -75,4 +75,18 @@ test('the World Model bundle carries the memo layer names', async () => {
   assert.deepEqual(bundle.layers.map(l => l.name), memo);
   assert.deepEqual(bundle.chain.layers.map(l => l.name), memo);
   assert.match(await read('swm/data/ontology.js'), /Runtime knowledge graph/);
+});
+
+test('the Enterprise World Model view does not call a shown feature planned for V2', () => {
+  const note = view('security-model').match(/<div class="v2-note">(Planned for V2[^<]*)<\/div>\s*<\/section>/)?.[1] ?? '';
+  for (const shown of ['Runtime Knowledge Graph', 'rich ontology exploration'])
+    assert.ok(!note.includes(shown), `${shown} is on the page`);
+  for (const absent of ['Cross-Domain Risk', 'Business Harness', 'Model Health'])
+    assert.ok(note.includes(absent), `${absent} is still planned`);
+});
+
+test('the Agent fleet intro leaves the stopping to the control in the path', () => {
+  const intro = view('runtime-observation').match(/<p>Each agent's own step looks fine\.([^<]*)<\/p>/)?.[1] ?? '';
+  assert.ok(intro.includes('The control already in the path does the stopping, while the ontology adds the facts between the agents and routes the problem to the team that owns it.'), intro);
+  assert.ok(!intro.includes('stops the problem'));
 });

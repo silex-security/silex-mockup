@@ -54,7 +54,6 @@ function mount() {
     const active = activeView(), owner = viewOf(path) ?? active ?? 'gym';
     history.replaceState(history.state, '', hashFor(owner, path));
     settled = location.hash;
-    for (const a of document.querySelectorAll('[data-gym-full]')) a.href = 'agent-gym/index.html#' + path;
     if (owner !== active) window.__siteShowView(owner);
   }
 

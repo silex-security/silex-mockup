@@ -12,6 +12,13 @@ draws three of them:
 | Domain Suites | `wm-landscape` | static markup and inline script in `index.html`, not this module |
 | Coverage Gaps | `wm-gaps` | static markup in `index.html`, not this module |
 
+> **Tier names.** Since 2026-11-12 the site shows the tiers as L1 General concepts and rules, L2 Domain and
+> enterprise knowledge, L3 Agent execution knowledge and L4 Runtime knowledge graph. The names live in `LAYERS`
+> in `tools/silex-seed.mjs`. This document keeps the earlier names (for example "L3 agentic-system" below).
+>
+> **层级命名。** 自 2026-11-12 起，站点把四个层级显示为 L1 通用概念与规则、L2 领域与企业知识、L3 智能体执行知识、
+> L4 运行时知识图谱。名称定义在 `tools/silex-seed.mjs` 的 `LAYERS` 中。本文沿用早期的名称（例如下文的 "L3 agentic-system"）。
+
 The view shell (header, sub-tab bar, panel containers), sub-tab switching, the
 `#view=security-model&tab=…&node=…` deep links and the tab-bar styles also live in `index.html`.
 The three D3 panels share one abstraction level (`SWM.level`, `SWM.setLevel`, `SWM.onLevel`):

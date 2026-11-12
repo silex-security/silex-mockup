@@ -208,8 +208,15 @@ export function footerBar({ lead, actions, ...rest }) {
   return h('div', { ...common(rest), class: cx('gym-footerbar', rest.class) }, h('div', { class: 'gym-footerbar__lead' }, lead), h('div', { class: 'gym-footerbar__actions' }, actions));
 }
 
+/** The trail to draw. Embedded, the console names the product, so the root crumb goes, and a lone crumb only repeats the page title. */
+export const trail = (items, embedded) => {
+  const rest = embedded && items[0]?.label === 'Agent Gym' ? items.slice(1) : items;
+  return embedded && rest.length < 2 ? [] : rest;
+};
+
 export function breadcrumb({ items, ...rest }) {
-  return h('nav', { ...common(rest), class: cx('gym-breadcrumb', rest.class), 'aria-label': 'Breadcrumb' },
+  items = trail(items, document.body.classList.contains('gym-embed'));
+  return items.length > 0 && h('nav', { ...common(rest), class: cx('gym-breadcrumb', rest.class), 'aria-label': 'Breadcrumb' },
     h('ol', items.map((item, i) => h('li', i === items.length - 1
       ? h('span', { 'aria-current': 'page' }, item.label)
       : item.href ? h('a', { href: item.href }, item.label) : h('span', item.label)))));

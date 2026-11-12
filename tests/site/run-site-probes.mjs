@@ -348,7 +348,7 @@ try {
     assert.ok((await rt('return document.querySelector(".run-card[data-selected][data-scenario=S3]").textContent')).includes('Blocked · did not run'));return 'SOC→AP switch, selected S3, hard-rule non-execution';
   });
   await probe('S17','Runtime deep link and full-page/back round trip',async()=>{
-    async function viewIs(id){await until(()=>ev(`return document.querySelector('.view.active')?.id===${Q(id)}`),'active '+id);assert.equal(await ev('return document.querySelector(".nav button.active")?.dataset.view'),id);assert.equal(await ev('return document.querySelector("#crumb").textContent'),id==='runtime-observation'?'Runtime Observation':id==='gym-runs'?'Runs & Results':'Agentic Blueprint Studio');}
+    async function viewIs(id){await until(()=>ev(`return document.querySelector('.view.active')?.id===${Q(id)}`),'active '+id);assert.equal(await ev('return document.querySelector(".nav button.active")?.dataset.view'),id);assert.equal(await ev('return document.querySelector("#crumb").textContent'),id==='runtime-observation'?'Runtime Observation':id==='gym-runs'?'Runs & Results':'Blueprint Studio');}
     await load({path:'/index.html#view=runtime-observation'});await rtReady();await viewIs('runtime-observation');
     const order=await ev(`return [...document.querySelectorAll('.nav button[data-view]')].map(e=>({id:e.dataset.view,label:e.textContent.trim()}))`);
     const at=id=>order.findIndex(e=>e.id===id),text=id=>order[at(id)].label;
@@ -1168,6 +1168,7 @@ try {
     const fill=await ev('const r=document.querySelector("#speedrunFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
     assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
     await se(`document.querySelector('a[href="#/speedrun/teams/refund"]').click()`);await h1('Refund Team');
+    assert.equal(await se(`return document.querySelector('nav[aria-label="Breadcrumb"] a').textContent`),'Organization','the app trail starts at its landing screen, not at the product the top bar names');
     await until(()=>ev('return location.hash==="#view=speedrun&path=%2Fspeedrun%2Fteams%2Frefund"'),'the site URL follows the app route');
     await se(`location.hash='/speedrun/units/customer-service/teams'`);await h1('Agent Team Explorer');
     await se(`const f=document.querySelector('form');f.querySelector('[name=q]').value='escalation';f.requestSubmit()`);
@@ -1199,7 +1200,8 @@ try {
     assert.equal(await ev('return document.querySelector("#gymFrame").getAttribute("src")'),'agent-gym/index.html?embed=1#/experiments');
     assert.deepEqual(await ge('return [!!w.document.querySelector(".gym-header"),w.document.querySelector(".gym-sections__link[aria-current]").textContent]'),[false,'Workbench'],'embedded: no product header, the Workbench tab marked');
     const fill=await ev('const r=document.querySelector("#gymFrameWrap").getBoundingClientRect();return {bottom:Math.round(innerHeight-r.bottom),h:Math.round(r.height)}');
-    assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the title: '+Q(fill));
+    assert.ok(fill.h>=520&&fill.bottom>=0&&fill.bottom<=24,'frame fills the viewport below the top bar: '+Q(fill));
+    assert.deepEqual(await ev('const w=document.querySelector("#gym");return [w.querySelectorAll("h1").length,w.textContent.trim(),document.querySelector("#crumbNote").hidden,document.querySelector("#crumbNote").textContent.startsWith("A flight simulator for agents.")]'),[0,'',false,true],'no console title row; the note hangs off the top-bar crumb');
     await ge('window.__probeDoc=w.document;return true');
     const roots={gym:'#/experiments','gym-environments':'#/environments','gym-scenarios':'#/scenarios','gym-runs':'#/runs?status=all'};
     const crumbs={gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results'};

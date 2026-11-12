@@ -27,7 +27,7 @@ export default function OrganizationPage() {
 
   return (
     <Main>
-      <PageTitle kicker="Speedrun · Organization" title="Organization">
+      <PageTitle title="Organization">
         <ScopeNav active="org" />
         <Pill className="!h-10 px-3.5">Last 7 days</Pill>
       </PageTitle>

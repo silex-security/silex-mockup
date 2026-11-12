@@ -7,6 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openGym } from '../../tools/gym-shot.mjs';
 import { STORAGE_KEY } from '../../agent-gym/js/model.js';
+import { trail } from '../../agent-gym/js/components/ui.js';
 
 const GYM = resolve(dirname(fileURLToPath(import.meta.url)), '../../agent-gym');
 const KEY = JSON.stringify(STORAGE_KEY);
@@ -310,7 +311,38 @@ test('embed mode drops the product header, keeps the section tabs, and offers Re
     const items = [...document.querySelectorAll('.gym-sections [role="menuitem"]')].map(b => b.textContent);
     [...document.querySelectorAll('.gym-sections [role="menuitem"]')].find(b => b.textContent.includes('Reset demo data')).click(); ${frame}
     return { items, dialog: document.querySelector('dialog.gym-dialog h2')?.textContent };`);
-  assert.deepEqual(opened, { items: ['Reset demo dataRestores the Agent Gym examples.'], dialog: 'Reset demo data?' });
+  assert.deepEqual(opened, { items: ['Open full pageAgent Gym on its own page, in a new tab.', 'Reset demo dataRestores the Agent Gym examples.'], dialog: 'Reset demo data?' });
   await gym.ev(`[...document.querySelectorAll('dialog.gym-dialog button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}`);
   assert.deepEqual(await gym.ev(`return [window.__gym.store.persistence.mode, JSON.parse(localStorage.getItem(${KEY})).schemaVersion, document.querySelector('body > .gym-sr').textContent]`), ['local', 2, 'Demo data reset.']);
+}));
+
+test('the trail drops the root crumb when embedded, and a lone crumb that repeats the page title', () => {
+  const root = { label: 'Agent Gym', href: '#/experiments' }, queue = { label: 'Experiment queue', href: '#/experiments' }, exp = { label: 'Experiment 029' };
+  assert.deepEqual(trail([root, queue], true), [], 'one crumb left');
+  assert.deepEqual(trail([root, queue, exp], true), [queue, exp], 'a deeper page keeps its trail without the root');
+  assert.deepEqual(trail([root, queue, exp], false), [root, queue, exp], 'standalone is unchanged');
+  assert.deepEqual(trail([root, queue], false), [root, queue]);
+});
+
+test('embedded landing pages show no breadcrumb and no Agent Gym, a deeper page keeps its trail; Open full page opens the same route standalone', async t => withGym(t, async gym => {
+  const crumbs = () => gym.ev(`return [...document.querySelectorAll('.gym-main .gym-breadcrumb:not(.gym-sr) li')].map(li => li.textContent)`);
+  const search = '?clock=frozen&embed=1';
+  for (const hash of ['#/experiments', '#/environments', '#/scenarios', '#/runs?status=all']) {
+    await gym.go(hash, { search });
+    assert.deepEqual(await crumbs(), [], hash);
+    assert.ok(!(await gym.ev(`return document.querySelector('.gym-main').textContent.includes('Agent Gym')`)), `${hash} has no Agent Gym in the page`);
+  }
+  await gym.go('#/experiments/exp-029/attempts/attempt-001', { search });
+  const deep = await crumbs();
+  assert.equal(deep.length, 2, 'Runs and the attempt');
+  assert.equal(deep[0], 'Runs');
+  await gym.go('#/runs?status=all', { search });
+  const opened = await gym.ev(`const calls = []; window.open = (...a) => calls.push(a);
+    document.querySelector('.gym-sections__mark').click();
+    [...document.querySelectorAll('.gym-sections [role="menuitem"]')].find(b => b.textContent.startsWith('Open full page')).click();
+    return calls;`);
+  assert.deepEqual(opened, [[(await gym.ev('return location.pathname')) + '#/runs?status=all', '_blank', 'noopener']]);
+  assert.doesNotMatch(opened[0][0], /embed/);
+  await gym.go('#/runs?status=all');
+  assert.deepEqual(await gym.ev(`return [...document.querySelectorAll('.gym-main .gym-breadcrumb li')].map(li => li.textContent)`), ['Agent Gym', 'Runs'], 'standalone keeps the full trail');
 }));
