@@ -49,7 +49,7 @@ test('derive: Customer Refund funnel equals the engine numbers', () => {
   assert.equal(f.tested, 16);
   assert.equal(f.eligible, 2);
   assert.equal(f.ineligible, 14);
-  assert.equal(trace.stamp.ontologyVersion, 'swm-1.0');
+  assert.equal(trace.stamp.ontologyVersion, 'swm-2.0');
   assert.equal(trace.binding.kind, 'evaluated');
 });
 

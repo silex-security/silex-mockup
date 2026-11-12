@@ -20,7 +20,7 @@ English strings for the exported record. The UI translates labels by key.
 - `classes[]`: `{ id, label, def, layer: 3, src }` for the 13 `ag:*` nodes.
 - `threats[]`: `{ id, label, def, group: "threat", src }`. Covers every threat that has a `THREATENS` link to any `ag:*`, plus the ids named in `FAMILIES` (so an id related through a family is present even if it has no link).
 - `links[]`: `{ s, t, pred, src }` for `THREATENS` links into `ag:*`, with `src` kept as-is (`"silex"`).
-- `version`: the ontology's `version` (e.g. `swm-1.0`). `generated`: copied from the source, never `Date.now()`, so a rebuild is byte-identical.
+- `version`: the ontology's `version` (e.g. `swm-2.0`). `generated`: copied from the source, never `Date.now()`, so a rebuild is byte-identical.
 
 ## mapping.js
 

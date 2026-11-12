@@ -64,7 +64,7 @@ export const FAMILIES = [
     related: [
       { threatId: 'owaspa:T3', limit: 'Only reuse of an earlier approval for a different request.' },
     ],
-    sampling: 'Amount in [hi, 2·hi); a second request (eligible = 0) presents the first request\'s approval. The only mechanism is approval reuse. In swm-1.0, T3 is associated with Credential Broker, which Blueprint does not instantiate.',
+    sampling: 'Amount in [hi, 2·hi); a second request (eligible = 0) presents the first request\'s approval. The only mechanism is approval reuse. In swm-2.0, T3 is associated with Credential Broker, which Blueprint does not instantiate.',
   },
   {
     id: 'duplicate_submit', law: 'idempotency',

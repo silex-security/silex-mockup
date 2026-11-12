@@ -17,8 +17,8 @@ test('slice: --check passes and a fresh build is byte-identical', () => {
   assert.deepEqual(buildSlice(ontology), slice);
 });
 
-test('slice: 13 classes, all links Silex-authored, version swm-1.0', () => {
-  assert.equal(slice.version, 'swm-1.0');
+test('slice: 13 classes, all links Silex-authored, version swm-2.0', () => {
+  assert.equal(slice.version, 'swm-2.0');
   assert.equal(slice.classes.length, 13);
   assert.ok(slice.classes.every(c => c.layer === 3));
   assert.ok(slice.links.length > 0);

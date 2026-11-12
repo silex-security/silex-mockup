@@ -806,7 +806,7 @@ export default {
   'trace.law.taint': '污点传播',
   'trace.sampling.below_threshold': '一个不合格请求（eligible = 0），金额在 [lo, hi) 内均匀抽取。它常低于工作流的路由阈值（决策节点的条件），因而绕过审批。只有当作用域内的写入总额超过监控的策略阈值 t 且没有合规审批时才算违规。生成的请求不一定违反任何一个阈值。',
   'trace.sampling.split': '金额在 [hi, 2·hi) 内。仅当请求到达具备 canSplit 的智能体时才会拆分，拆成 k = clamp(⌈amount / (0.96·t′)⌉, 2, 10) 份；若 t > 0 则 t′ = t，否则 t′ = hi（t 为第一个未授权写入监控的阈值，hi 为其探测范围上限）。由于 k 最多为 10，当 amount > 9.6·t′ 时单份仍可能超过 t′。拆分既不保证绕过审批，也不保证违规。唯一的机制是一个请求被同一能力的工具拆成多次写入。',
-  'trace.sampling.replay': '金额在 [hi, 2·hi) 内；第二个请求（eligible = 0）出示第一个请求的审批。唯一的机制是审批复用。在 swm-1.0 中，T3 关联的是凭据代理（Credential Broker），而蓝图并未实例化它。',
+  'trace.sampling.replay': '金额在 [hi, 2·hi) 内；第二个请求（eligible = 0）出示第一个请求的审批。唯一的机制是审批复用。在 swm-2.0 中，T3 关联的是凭据代理（Credential Broker），而蓝图并未实例化它。',
   'trace.sampling.duplicate_submit': '金额在 [0, t′) 内；同一客户与订单以两个请求提交。属于业务结果类失败（重复补偿），没有公开威胁编号。',
   'trace.sampling.injection_exfil': '金额在 [0, t′) 内；不可信输入带有脚本化的注入标记，而非构造的内容。泄露仅建模为带机密标签的读取到达外部输出。（AML.T0086，经工具调用外泄，与此无关：机制不同。）',
   'trace.sampling.benign': '正常请求，金额在 [20, 3000) 内对数均匀抽取；作为目标的基线。',
