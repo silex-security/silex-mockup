@@ -138,3 +138,12 @@ test('the map lists every capability in a suite-caps list on its card', () => {
     for (const t of titles) assert.ok(list.includes(`<b>${t.replace(/&/g, '&amp;')}</b>`), `${key} lists ${t}`);
   }
 });
+
+test('the map draws the three loops of the suite diagram', () => {
+  const map = mapHtml(groups);
+  for (const s of ['Test optimizations', 'Performance improvement spans design, testing, and production', 'Execution evidence → Validate → Reusable knowledge']) assert.ok(map.includes(s), s);
+  assert.match(map, /Agent Gym ⇄ SILEX Speedrun/);
+  assert.equal([...map.matchAll(/class="suite-next"/g)].length, 3, 'an arrow between each adjacent pair of cards');
+  const order = [...map.matchAll(/class="suite-(top|row|span|band)"/g)].map(m => m[1]);
+  assert.deepEqual(order, ['top', 'row', 'span', 'band'], 'the optimization loop sits above the cards, the span band below them, the foundation last');
+});

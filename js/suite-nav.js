@@ -54,10 +54,13 @@ export function railHtml(groups, activeKey) {
 }
 
 export function mapHtml(groups) {
-  const card = g => `<article class="suite-card" data-suite-card="${esc(g.key)}"><div class="suite-kick"><span class="suite-stage">${esc(g.stage)}</span>${chip(g)}</div><h3>${esc(g.label)}</h3><p>${esc(g.desc)}</p>${capsHtml(g)}<div class="suite-views">${jumpButtons(g)}</div></article>`;
   const base = groups.find(g => g.key === 'foundry');
+  const cards = groups.filter(g => g !== base);
+  const card = g => `<article class="suite-card" data-suite-card="${esc(g.key)}"><div class="suite-kick"><span class="suite-stage">${esc(g.stage)}</span>${chip(g)}</div><h3>${esc(g.label)}</h3><p>${esc(g.desc)}</p>${capsHtml(g)}<div class="suite-views">${jumpButtons(g)}</div>${g === cards.at(-1) ? '' : '<span class="suite-next" aria-hidden="true">→</span>'}</article>`;
   const band = base ? `<article class="suite-band" data-suite-card="foundry"><div class="suite-band-main"><div class="suite-kick"><span class="suite-stage">Common foundation · ${esc(base.stage)}</span>${chip(base)}</div><h3>${esc(base.label)}</h3><p>${esc(base.desc)}</p></div><div class="suite-band-side"><div class="suite-loop">Execution evidence → Validate → Reusable knowledge</div><div class="suite-views">${jumpButtons(base)}</div></div></article>` : '';
-  return `<div class="suite-row">${groups.filter(g => g !== base).map(card).join('')}</div>${band}`;
+  const top = '<div class="suite-top"><div class="suite-test"><span class="suite-pill">Test optimizations<span class="suite-pill-ext"> · Agent Gym ⇄ SILEX Speedrun</span></span></div></div>';
+  const span = '<div class="suite-span">Performance improvement spans design, testing, and production</div>';
+  return `${top}<div class="suite-row">${cards.map(card).join('')}</div>${span}${band}`;
 }
 
 function mount() {
