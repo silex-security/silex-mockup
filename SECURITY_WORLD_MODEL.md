@@ -12,6 +12,10 @@ Coverage*, *Ontology Graph* and *Ontology Layers* tabs. Everything below is live
 > charts draw on a dark stage with white inspectors (§5), and the Ontology Graph opens on a
 > WebVOWL-style **Network** view. How those were built: [`swm/BUILD_HISTORY.md`](swm/BUILD_HISTORY.md).
 
+> **Tier names.** Since 2026-11-12 the site shows the tiers as L1 General concepts and rules, L2 Domain
+> and enterprise knowledge, L3 Agent execution knowledge and L4 Runtime knowledge graph. The names live
+> in `LAYERS` in `swm/tools/silex-seed.mjs`. This document keeps the earlier names.
+
 Planning and audit documents are archived in [`logs/`](logs/) — the step plan for this work is
 [`logs/2026-09-17_SWM_OBSERVATORY_PLAN.md`](logs/2026-09-17_SWM_OBSERVATORY_PLAN.md).
 
