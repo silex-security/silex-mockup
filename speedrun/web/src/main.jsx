@@ -1,8 +1,9 @@
 import { createElement, Fragment, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/inter';
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
 import './app.css';
 import { compile, layoutsFor, match, parseHash } from './routes.js';
 import { router, subscribe } from './next/router.js';

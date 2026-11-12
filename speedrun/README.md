@@ -33,7 +33,7 @@ The app is a Next.js App Router app. Its pages are async server components and i
 
 Plain GET forms (the search boxes) navigate through the same router. A new page, layout or API route is picked up by the next build with no change in the shell, as long as it uses only those Next features. An import the shell has no stand-in for fails the build. File conventions the shell does not know (route groups, catch-all segments, `not-found.tsx`, `error.tsx`, `loading.tsx`) build but do not behave as in Next, so walk the new screens after adding one.
 
-The upstream root layout is not used. `web/index.html` carries its theme script, and `web/src/main.jsx` imports its fonts, and `web/src/app.css` imports its `globals.css`.
+The upstream root layout is not used. `web/src/main.jsx` imports its fonts, and `web/src/app.css` imports its `globals.css` and the theme.
 
 ## Links to a screen
 
@@ -60,4 +60,14 @@ Each team has a required `workflow` field (`registered` with the Library id and 
 
 ## Theme
 
-The app uses `?theme=dark|light` when the URL carries it, then the theme saved by its own header toggle, then the system setting. The demo passes `?theme=light` to match the console, and hides the app header, so the toggle exists only when the app runs alone.
+The app has one theme, the console's. `web/src/theme.css` imports `../css/tokens.css` and maps each of the app's role names (`--card`, `--fg`, `--acc`, `--mint`, …) to a console token. It also puts the console's type scale, radii and fonts under Tailwind's utility names, so `text-base` is the console's 13px and `rounded-xl` its 12px.
+
+| To change | Edit |
+|---|---|
+| A colour, type size, radius or font across the whole suite | `css/tokens.css` |
+| Which console token a Speedrun role uses | `web/src/theme.css` |
+| The Tailwind class a role is reached by | the `@theme` block of `web/upstream/src/app/globals.css` |
+
+Rebuild after any of the three. Components use the role classes (`bg-card`, `text-mut`) and the scale steps (`text-2xs` to `text-4xl`, `rounded-sm` to `rounded-2xl`). `tests/site/speedrun-theme.test.mjs` fails on a raw colour, a px font size or a px radius in the source, and on a role that reads a token `css/tokens.css` does not define.
+
+Inside the console the page is see-through and has no side padding, so the console's fog and content column are the ones a visitor sees. Opened alone, the app paints the same fog itself. There is no light theme. The console has none, and a second palette would be a second place to edit.

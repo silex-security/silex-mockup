@@ -39,13 +39,13 @@ export default async function UnitPage({
         title={
           <span className="flex flex-wrap items-center gap-3.5">
             Business Unit
-            <span className="flex gap-1.5 text-sm font-semibold">
+            <span className="flex gap-1.5 text-md font-semibold">
               {listUnits().map((u) => (
                 <Link
                   key={u.unit.id}
                   href={`/speedrun/units/${u.unit.id}`}
                   aria-current={u.unit.id === unitId ? "page" : undefined}
-                  className={`rounded-[10px] border px-3.5 py-2 ${u.unit.id === unitId ? "border-acc2 bg-acc-wash text-acc-text" : "border-line2 bg-card text-fg2"}`}
+                  className={`rounded-lg border px-3.5 py-2 ${u.unit.id === unitId ? "border-acc2 bg-acc-wash text-acc-text" : "border-line2 bg-card text-fg2"}`}
                 >
                   {u.unit.name}
                 </Link>
@@ -55,7 +55,7 @@ export default async function UnitPage({
         }
       >
         <ScopeNav active="unit" unitId={unitId} />
-        <Pill className="!h-11 px-3.5">Last 7 days</Pill>
+        <Pill className="!h-10 px-3.5">Last 7 days</Pill>
       </PageTitle>
 
       <CoverageStrip {...unit.coverage} />
@@ -81,7 +81,7 @@ export default async function UnitPage({
           </span>
           <span className="lbl">Who is on which agent team — and which agents are shared. Select a teammate to inspect it.</span>
           <div className="flex-1" />
-          <span className="text-[13px] text-mut">
+          <span className="text-base text-mut">
             {t.teams} agent teams · {teammates.length} teammates · each team&apos;s lead shown on its card
           </span>
         </div>
@@ -95,25 +95,25 @@ export default async function UnitPage({
                 <IconPerson size={20} />
               </span>
               <div>
-                <div className="text-[22px] font-bold">{selected.role.name}</div>
+                <div className="text-2xl font-bold">{selected.role.name}</div>
                 {selected.teamIds.length > 1 ? <Tag tone="solid">Shared agent</Tag> : <Tag tone="mut">Single team</Tag>}
               </div>
             </div>
-            <p className="m-0 text-sm leading-relaxed text-fg2">{selected.role.description}</p>
+            <p className="m-0 text-md leading-relaxed text-fg2">{selected.role.description}</p>
             <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-[10px] border border-line bg-inset p-2.5">
+              <div className="rounded-lg border border-line bg-inset p-2.5">
                 <div className="lbl">Runs it took part in</div>
-                <div className="text-[17px] font-bold">{fmtInt(selectedRuns)}</div>
+                <div className="text-lg font-bold">{fmtInt(selectedRuns)}</div>
               </div>
-              <div className="rounded-[10px] border border-line bg-inset p-2.5">
+              <div className="rounded-lg border border-line bg-inset p-2.5">
                 <div className="lbl">Teams</div>
-                <div className="text-[17px] font-bold">{selected.teamIds.length}</div>
+                <div className="text-lg font-bold">{selected.teamIds.length}</div>
               </div>
             </div>
             <div className="flex flex-col gap-2 border-t border-line pt-3">
               <Kicker>Member of agent teams · {selectedTeams.length}</Kicker>
               {selectedTeams.map((x) => (
-                <Link key={x.id} href={`/speedrun/teams/${x.id}`} className="flex h-11 items-center gap-2.5 rounded-[10px] border border-line bg-inset px-3 text-sm text-fg hover:border-acc2">
+                <Link key={x.id} href={`/speedrun/teams/${x.id}`} className="flex h-11 items-center gap-2.5 rounded-lg border border-line bg-inset px-3 text-md text-fg hover:border-acc2">
                   <IconTeam size={16} />
                   {x.name}
                   <span className="flex-1" />
@@ -122,7 +122,7 @@ export default async function UnitPage({
               ))}
             </div>
             {selected.teamIds.length > 1 ? (
-              <div className="flex gap-2.5 rounded-xl bg-amb-wash p-3 text-[13px] leading-snug text-amb-text">
+              <div className="flex gap-2.5 rounded-xl bg-amb-wash p-3 text-base leading-snug text-amb-text">
                 <IconWarn size={16} className="mt-0.5 flex-none" />
                 <span>
                   {selected.teamIds.length} leads, {selected.teamIds.length} permission contexts: this agent inherits a different lead&apos;s permissions in each team. A change reaches all of them, so Agent Gym tests it against each team&apos;s cases.

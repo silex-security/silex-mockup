@@ -2,6 +2,11 @@ import Link from "next/link";
 import { cx } from "./ui";
 import { IconBars, IconBuild, IconPlay, IconTeam } from "./icons";
 
+/* One tab row for the app, drawn like the console's .tabs: a soft track, the current tab raised on it. */
+const TABS = "flex gap-1 rounded-xl bg-inset p-1";
+const tab = (on: boolean) =>
+  cx("flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm", on ? "bg-card text-fg shadow-[var(--card-shadow)]" : "text-mut hover:text-fg");
+
 /** Organization / Business Unit / Agent Team scope switch. */
 export function ScopeNav({ active, unitId = "customer-service" }: { active: "org" | "unit" | "team"; unitId?: string }) {
   const items = [
@@ -10,17 +15,9 @@ export function ScopeNav({ active, unitId = "customer-service" }: { active: "org
     { id: "team", label: "Agent Team", href: `/speedrun/units/${unitId}/teams` },
   ];
   return (
-    <nav aria-label="Scope" className="flex rounded-xl border border-line bg-card p-1">
+    <nav aria-label="Scope" className={TABS}>
       {items.map((it) => (
-        <Link
-          key={it.id}
-          href={it.href}
-          aria-current={it.id === active ? "page" : undefined}
-          className={cx(
-            "flex h-9 items-center rounded-[9px] px-4 text-[13px]",
-            it.id === active ? "bg-acc font-semibold text-white" : "text-mut hover:text-fg",
-          )}
-        >
+        <Link key={it.id} href={it.href} aria-current={it.id === active ? "page" : undefined} className={tab(it.id === active)}>
           {it.label}
         </Link>
       ))}
@@ -39,17 +36,9 @@ export function TeamTabs({ teamId, active }: { teamId: string; active: TeamTab }
     { id: "builder", label: "Benchmark Builder", href: `/speedrun/teams/${teamId}/builder`, icon: <IconBuild size={15} /> },
   ];
   return (
-    <nav aria-label="Team views" className="flex flex-wrap rounded-[10px] border border-line bg-inset p-[3px]">
+    <nav aria-label="Team views" className={cx(TABS, "flex-wrap")}>
       {tabs.map((t) => (
-        <Link
-          key={t.id}
-          href={t.href}
-          aria-current={t.id === active ? "page" : undefined}
-          className={cx(
-            "flex h-9 items-center gap-2 rounded-lg border px-3.5 text-[13px]",
-            t.id === active ? "border-acc2 bg-card font-semibold text-acc-text" : "border-transparent text-mut hover:text-fg",
-          )}
-        >
+        <Link key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined} className={tab(t.id === active)}>
           {t.icon}
           {t.label}
         </Link>

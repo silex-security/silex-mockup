@@ -29,7 +29,7 @@ export default function OrganizationPage() {
     <Main>
       <PageTitle kicker="Speedrun · Organization" title="Organization">
         <ScopeNav active="org" />
-        <Pill className="!h-11 px-3.5">Last 7 days</Pill>
+        <Pill className="!h-10 px-3.5">Last 7 days</Pill>
       </PageTitle>
 
       <CoverageStrip {...org.coverage} />
@@ -52,7 +52,7 @@ export default function OrganizationPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col gap-1">
               <Kicker>Insight radar</Kicker>
-              <span className="text-lg font-semibold">Seven days of runs, one revolution</span>
+              <span className="text-xl font-semibold">Seven days of runs, one revolution</span>
             </div>
             <div className="flex-1" />
             <div className="flex gap-4 text-xs text-mut">
@@ -75,7 +75,7 @@ export default function OrganizationPage() {
           <div className="flex items-start gap-3">
             <div className="flex flex-col gap-1">
               <Kicker>Performance anomalies</Kicker>
-              <span className="text-lg font-semibold">Agent teams that drifted in the last 7 days</span>
+              <span className="text-xl font-semibold">Agent teams that drifted in the last 7 days</span>
             </div>
             <div className="flex-1" />
             <Tag tone="solid" className="!h-[26px]">{t.anomalies} open</Tag>
@@ -84,7 +84,7 @@ export default function OrganizationPage() {
             <div key={u.unit.id} className="flex flex-col gap-1">
               <Link href={`/speedrun/units/${u.unit.id}`} className="flex items-center gap-2.5 border-t border-line pt-3 text-fg hover:text-acc-text">
                 {u.unit.icon === "people" ? <IconTeam size={18} /> : <IconLedger size={18} />}
-                <span className="text-[15px] font-semibold">{u.unit.name}</span>
+                <span className="text-md font-semibold">{u.unit.name}</span>
                 <span className="lbl">
                   {u.totals.teams} agent teams · {u.totals.anomalies} open
                 </span>
@@ -95,14 +95,14 @@ export default function OrganizationPage() {
                   <Link
                     key={x.id}
                     href={`/speedrun/teams/${x.id}`}
-                    className="grid min-h-11 grid-cols-[104px_minmax(0,1fr)_auto_20px] items-center gap-3 rounded-[10px] px-2 py-2 text-fg hover:bg-wash"
+                    className="grid min-h-11 grid-cols-[104px_minmax(0,1fr)_auto_20px] items-center gap-3 rounded-lg px-2 py-2 text-fg hover:bg-wash"
                   >
                     <Tag tone={ANOMALY[x.anomaly!.kind].tone} className="justify-self-start">{ANOMALY[x.anomaly!.kind].label}</Tag>
                     <span className="flex flex-col">
                       <span className="font-semibold">{x.name}</span>
                       <span className="lbl">{x.members.length} agents</span>
                     </span>
-                    <span className="font-mono text-[13px]">{x.anomaly!.metric}</span>
+                    <span className="font-mono text-base">{x.anomaly!.metric}</span>
                     <span aria-hidden className="text-mut">↗</span>
                   </Link>
                 ))}
@@ -115,7 +115,7 @@ export default function OrganizationPage() {
         <div className="flex flex-wrap items-center gap-3 px-5 py-4">
           <div className="flex flex-col gap-1">
             <Kicker>Benchmark health</Kicker>
-            <span className="text-lg font-semibold">Each agent team&apos;s own suite, run weekly in the sandbox</span>
+            <span className="text-xl font-semibold">Each agent team&apos;s own suite, run weekly in the sandbox</span>
           </div>
           <div className="flex-1" />
           <Tag tone="mint" className="!h-7 !text-xs">{counts.improving} improving</Tag>
@@ -124,9 +124,9 @@ export default function OrganizationPage() {
           {counts.overdue ? <Tag tone="amb" className="!h-7 !text-xs">{counts.overdue} suite overdue for refresh</Tag> : null}
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1000px] border-collapse text-sm">
+          <table className="w-full min-w-[1000px] border-collapse text-md">
             <thead>
-              <tr className="h-10 bg-inset text-left text-[11px] font-semibold tracking-[0.1em] text-mut">
+              <tr className="h-10 bg-inset text-left text-2xs font-semibold tracking-[0.1em] text-mut">
                 <th className="px-5">AGENT TEAM</th>
                 <th>SUITE</th>
                 <th>TREND · 8 WEEKS</th>
@@ -170,7 +170,7 @@ export default function OrganizationPage() {
             </tbody>
           </table>
         </div>
-        <div className="border-t border-line px-5 py-3 text-[13px] text-mut">
+        <div className="border-t border-line px-5 py-3 text-base text-mut">
           Benchmark scores are graded simulated. Fit compares each change&apos;s benchmark prediction with what production later measured.
         </div>
       </Card>

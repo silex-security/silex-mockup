@@ -1,0 +1,67 @@
+/* The Speedrun theme. Every colour, type size, radius and font the app draws with is one of the console's tokens
+   in css/tokens.css, reached through the app's own role names below. To restyle the whole suite, edit
+   css/tokens.css. To change which token a Speedrun role uses, edit this file. Nothing else in speedrun/web/
+   writes a raw colour or a px font size (tests/site/speedrun-theme.test.mjs).
+   --bg and --line are the console's tokens under the same name, so they have no alias. */
+@import "../../../css/tokens.css";
+
+:root {
+  --card: var(--panel);
+  --card-glass: var(--glass);        /* the .card surface: the page fog shows through */
+  --inset: var(--soft);
+  --wash: var(--soft-2);             /* hover and highlighted rows */
+  --fg: var(--ink);
+  --fg2: var(--ink-2);
+  --mut: var(--muted);
+  --line2: var(--line-strong);
+  --dot: var(--line);
+  --track: var(--soft);
+  --hdr: var(--glass-bar);
+  --page: var(--fog);
+
+  --acc: var(--blue-fill);           /* fills that carry white text */
+  --acc2: var(--blue);               /* strokes, marks and focus */
+  --acc-text: var(--blue2);
+  --acc-wash: var(--lav);
+  --bar: var(--blue);
+  --info: var(--blue2);
+  --info-wash: var(--lav);
+
+  --amb: var(--amber-dot);
+  --amb-text: var(--amber);
+  --amb-wash: var(--amber-bg);
+  --rose: var(--red-dot);
+  --rose-text: var(--red);
+  --rose-wash: var(--red-bg);
+  --mint: var(--green-dot);
+  --mint-text: var(--green);
+  --mint-wash: var(--green-bg);
+
+  --card-shadow: var(--shadow-sm);
+  --pop-shadow: var(--shadow-md);
+  --focus: var(--blue);
+}
+
+/* The console's type scale, radii and fonts under Tailwind's utility names: text-base is 13px, rounded-xl is 12px. */
+@theme inline {
+  --text-*: initial;
+  --text-2xs: var(--text-2xs);
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-md: var(--text-md);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+
+  --radius-*: initial;
+  --radius-sm: var(--r-xs);
+  --radius-lg: var(--r-sm);
+  --radius-xl: var(--r-md);
+  --radius-2xl: var(--radius);
+
+  --font-sans: "Inter Variable", var(--sans);
+  --font-mono: var(--mono);
+}

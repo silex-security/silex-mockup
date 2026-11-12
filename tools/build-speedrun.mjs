@@ -21,6 +21,6 @@ const sha = f => createHash('sha256').update(readFileSync(f)).digest('hex');
 const walk = d => readdirSync(d).flatMap(n => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const files = Object.fromEntries(walk(join(DEST, 'app')).map(f => [relative(DEST, f), sha(f)]).sort());
 /* Everything the build reads. The test compares these with the tree, so a source edit without a rebuild fails. */
-const sources = Object.fromEntries(['index.html', 'vite.config.js', 'package-lock.json', '../../css/trace-waterfall.css', ...['src', 'upstream'].flatMap(d => walk(join(WEB, d))).map(f => relative(WEB, f))].sort().map(r => [r, sha(join(WEB, r))]));
+const sources = Object.fromEntries(['index.html', 'vite.config.js', 'package-lock.json', '../../css/tokens.css', '../../css/trace-waterfall.css', ...['src', 'upstream'].flatMap(d => walk(join(WEB, d))).map(f => relative(WEB, f))].sort().map(r => [r, sha(join(WEB, r))]));
 writeFileSync(join(DEST, 'VENDORED.json'), JSON.stringify({ forked_from: FORK, sources, files }, null, 2) + '\n');
 console.log(`built ${Object.keys(files).length} files`);

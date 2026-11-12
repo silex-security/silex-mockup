@@ -49,13 +49,13 @@ export function RelationshipGraph({
             />
           ))}
       </svg>
-      <span className="lbl absolute left-10 top-0 text-[11px] font-semibold tracking-[0.14em]">AGENT TEAMS</span>
-      <span className="lbl absolute top-0 text-[11px] font-semibold tracking-[0.14em]" style={{ left: AX }}>TEAMMATES</span>
+      <span className="lbl absolute left-10 top-0 text-2xs font-semibold tracking-[0.14em]">AGENT TEAMS</span>
+      <span className="lbl absolute top-0 text-2xs font-semibold tracking-[0.14em]" style={{ left: AX }}>TEAMMATES</span>
       {teams.map((t, i) => (
         <Link
           key={t.id}
           href={`/speedrun/teams/${t.id}`}
-          className="absolute flex h-[52px] w-[240px] items-center gap-2.5 rounded-xl border border-line2 bg-card px-3.5 text-sm font-medium text-fg hover:border-acc2"
+          className="absolute flex h-[52px] w-[240px] items-center gap-2.5 rounded-xl border border-line2 bg-card px-3.5 text-md font-medium text-fg hover:border-acc2"
           style={{ left: 40, top: teamY(i) - 26 }}
         >
           <IconTeam size={18} />
@@ -73,7 +73,7 @@ export function RelationshipGraph({
             scroll={false}
             aria-current={on ? "true" : undefined}
             className={cx(
-              "absolute flex h-[50px] w-[290px] items-center gap-2.5 rounded-xl bg-card px-3.5 text-sm text-fg",
+              "absolute flex h-[50px] w-[290px] items-center gap-2.5 rounded-xl bg-card px-3.5 text-md text-fg",
               on ? "border-2 border-acc2 font-semibold ring-4 ring-acc-wash" : "border border-line2 hover:border-acc2",
             )}
             style={{ left: AX, top: roleY(i) - 25 }}

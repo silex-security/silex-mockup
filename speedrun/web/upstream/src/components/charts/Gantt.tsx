@@ -96,7 +96,7 @@ export function Gantt({
       <div className="overflow-x-auto">
         <div className="relative" style={{ minWidth: compact ? 620 : 780 }}>
           <div className="grid min-h-[38px] items-center border-b border-line" style={{ gridTemplateColumns: `${labelCol}px minmax(0,1fr)` }}>
-            <span className="px-3.5 text-[13px] font-semibold">Member · task</span>
+            <span className="px-3.5 text-base font-semibold">Member · task</span>
             <span onClick={seekOnTrack} className="flex cursor-pointer justify-between pr-1 font-mono text-xs text-mut">
               {ticks.map((t) => <span key={t}>{t}s</span>)}
             </span>
@@ -106,7 +106,7 @@ export function Gantt({
             return (
             <div key={lane.roleId} className={cx("border-b border-line last:border-0", lane.highlighted && "bg-wash shadow-[inset_3px_0_0_var(--acc2)]")}>
               <div className="grid min-h-9 items-center" style={{ gridTemplateColumns: `${labelCol}px minmax(0,1fr)` }}>
-                <span className="flex items-center gap-2 px-3.5 text-[13px] font-semibold">
+                <span className="flex items-center gap-2 px-3.5 text-base font-semibold">
                   <Avatar initials={lane.initials} size={22} variant={lane.isLead ? "lead" : lane.shared ? "solid" : "wash"} />
                   {lane.name}
                   {lane.isLead ? <span className="lbl font-normal">lead</span> : null}
@@ -121,7 +121,7 @@ export function Gantt({
                   {lane.segments.map((sg, i) => {
                     const done = Math.min(1, Math.max(0, (at - sg.start) / (sg.end - sg.start)));
                     const box = { left: pct(sg.start), width: pct(sg.end - sg.start) };
-                    const cls = cx("absolute top-[11px] box-border h-3.5 rounded-[5px]", SEG[sg.kind]);
+                    const cls = cx("absolute top-[11px] box-border h-3.5 rounded-sm", SEG[sg.kind]);
                     return (
                       <span key={i} title={`${sg.label} · ${sg.start}–${sg.end}s`}>
                         <span className={cx(cls, "opacity-30")} style={box} />
@@ -134,7 +134,7 @@ export function Gantt({
                       <span
                         key={mk.candidateId + mk.at}
                         title={`Opportunity ${mk.candidateId}`}
-                        className={cx("absolute top-1 -ml-3.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-acc2 bg-card font-mono text-[11px] font-bold text-acc-text", dim(mk.at))}
+                        className={cx("absolute top-1 -ml-3.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-acc2 bg-card font-mono text-2xs font-bold text-acc-text", dim(mk.at))}
                         style={{ left: pct(mk.at) }}
                       >
                         {mk.candidateId}
@@ -144,7 +144,7 @@ export function Gantt({
                     <span
                       key={ms.at}
                       title={`Message → ${ms.label}`}
-                      className={cx("absolute top-2 -ml-2.5 flex h-5 w-5 items-center justify-center rounded-[5px] bg-acc2 text-white", dim(ms.at))}
+                      className={cx("absolute top-2 -ml-2.5 flex h-5 w-5 items-center justify-center rounded-sm bg-acc2 text-white", dim(ms.at))}
                       style={{ left: pct(ms.at) }}
                     >
                       <IconMail size={11} />
@@ -189,7 +189,7 @@ export function Gantt({
           aria-label="Playhead position"
           className="flex-1 accent-[var(--acc2)]"
         />
-        <span data-replay-time className="w-24 text-right font-mono text-[13px] text-mut">{at.toFixed(1)}s / {duration}s</span>
+        <span data-replay-time className="w-24 text-right font-mono text-base text-mut">{at.toFixed(1)}s / {duration}s</span>
         <div role="group" aria-label="Replay speed" className="flex gap-1">
           {SPEEDS.map((v) => (
             <button
@@ -197,7 +197,7 @@ export function Gantt({
               type="button"
               aria-pressed={speed === v}
               onClick={() => setSpeed(v)}
-              className={cx("h-7 rounded-md px-2 font-mono text-xs font-semibold", speed === v ? "bg-acc text-white" : "bg-inset text-mut")}
+              className={cx("h-7 rounded-sm px-2 font-mono text-xs font-semibold", speed === v ? "bg-acc text-white" : "bg-inset text-mut")}
             >
               {v}×
             </button>
