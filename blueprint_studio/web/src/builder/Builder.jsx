@@ -19,6 +19,7 @@ import { CATALOG, GROUPS, typeLabel, typeDesc, groupLabel, rankType } from './ca
 import { insertOnEdge, addAfter, addStandalone, EDGE_INSERTABLE, PORT_ADDABLE } from './insert.js';
 import { layoutOps, directionOps, dirOf, sizeOf } from './layout.js';
 
+const READABLE_ZOOM = 0.6;
 const nodeTypes = { flow: FlowNode };
 
 function Library({ onAdd, locked }) {
@@ -146,11 +147,20 @@ function Canvas() {
     });
   }, [route.focus?.at]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* A wide flow fitted whole is too small to read, so it opens on its start at a readable zoom and the rest is a pan away. */
+  const openView = () => {
+    const b = rf.getNodesBounds(rfNodes), pane = wrap.current.getBoundingClientRect();
+    const fit = Math.min(pane.width / (b.width * 1.3), pane.height / (b.height * 1.3), 1);
+    if (fit >= READABLE_ZOOM) { rf.fitView({ padding: 0.15, maxZoom: 1 }); return; }
+    const zoom = Math.min(READABLE_ZOOM, pane.height / (b.height * 1.3));
+    rf.setViewport({ x: 48 - b.x * zoom, y: pane.height / 2 - (b.y + b.height / 2) * zoom, zoom });
+  };
+
   /* Fit once per document/revision. */
   const fitted = useRef('');
   useEffect(() => {
     const key = store.doc.id + ':' + rev.rev;
-    if (fitted.current !== key && rfNodes.length && rfNodes.every(n => n.measured?.width)) { fitted.current = key; rf.fitView({ padding: 0.15, maxZoom: 1 }); }
+    if (fitted.current !== key && rfNodes.length && rfNodes.every(n => n.measured?.width)) { fitted.current = key; openView(); }
   }, [rfNodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const patch = (ops, label, merge) => store.dispatch({ type: 'patch', ops, label, merge });
