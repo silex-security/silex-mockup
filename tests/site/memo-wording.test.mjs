@@ -61,6 +61,14 @@ test('each Agent Gym view note carries one point of the memo', () => {
   assert.match(note('gym-runs'), /regression tests for future changes/);
 });
 
+test('Runtime Observation says SILEX Runtime advises the control in the path', () => {
+  const rt = view('runtime-observation');
+  assert.ok(rt.includes('MCP gateway'));
+  assert.ok(rt.includes('advises'));
+  assert.ok(rt.includes('<p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p>'));
+  assert.ok(!rt.includes('Silex checks it'));
+});
+
 test('the World Model bundle carries the memo layer names', async () => {
   const bundle = JSON.parse(await read('swm/data/ontology.json'));
   const memo = ['General concepts and rules', 'Domain and enterprise knowledge', 'Agent execution knowledge', 'Runtime knowledge graph'];

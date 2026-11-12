@@ -630,10 +630,10 @@
 <div class="title-row">
 <div>
 <h1>Runtime Observation</h1>
-<p class="hover-note">Action-wise. Is each agent action safe to run, decided before it runs? Watch each agent action as it happens and see what runtime validation decides. Simulated engine.</p>
+<p class="hover-note">Action-wise. Watch each agent action as it happens and see how SILEX Runtime advises the control in the path before it runs. Simulated engine.</p>
 </div>
 </div>
-<div class="rt-lead"><p>Before an AI agent's action runs, Silex checks it in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. The gateway then <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
+<div class="rt-lead"><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
 <div class="card rt-kpis" id="rtMetrics">
 <div class="metric" data-rt-metric="scenarios"><div class="kicker">Scripted scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
 <div class="metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
