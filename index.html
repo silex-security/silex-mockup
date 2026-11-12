@@ -635,7 +635,7 @@
 </div>
 <div class="rt-lead"><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
 <div class="card rt-kpis" id="rtMetrics">
-<div class="metric" data-rt-metric="scenarios"><div class="kicker">Scripted scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
+<div class="metric" data-rt-metric="scenarios"><div class="kicker">Reference scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
 <div class="metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
 <div class="metric" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
 <div class="metric" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
@@ -656,7 +656,7 @@
 <select id="rtScenarioSelect" aria-describedby="rtScenWhat"><option value="">Loading the simulated engine…</option></select>
 <button type="button" class="btn primary" id="rtRunBtn">▶ Run</button>
 <span class="status running" id="rtStatus">Ready</span>
-<div class="rt-scen-desc"><div id="rtScenWhat">Choose one of the 12 scripted situations; the chip shows its expected outcome under the default policy.</div><span id="rtScenChip"></span></div>
+<div class="rt-scen-desc"><div id="rtScenWhat">Choose one of the scripted situations; the chip shows its expected outcome under the default policy.</div><span id="rtScenChip"></span></div>
 </div>
 <div class="card rt-pipe-card" id="rtScenarios">
 <div class="rt-pipeline" id="rtPipeline" data-mode="idle" aria-label="How runtime validation decides each agent action"></div>

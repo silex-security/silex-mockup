@@ -91,3 +91,17 @@ test('summarize({ domains: [creator] }) is opt-in: 22 creator traces, rule outco
   }
   assert.equal(summarize().scenarios.length, 12);
 });
+
+test('the picker count and the reference count come from one summary and are named apart', async () => {
+  const { summarizeAll, pickerPrompt } = await import('../../js/jev-runtime-model.js');
+  const all = summarizeAll();
+  const traces = ['ap', 'soc', 'creator'].reduce((n, d) => n + scenariosFor(d).length, 0);
+  assert.equal(all.scenarios.length, traces, 'the picker lists every trace');
+  assert.equal(all.metrics.scenarios, scenariosFor('ap').length + scenariosFor('soc').length, 'the KPI counts the reference set');
+  const prompt = pickerPrompt(all);
+  assert.ok(prompt.includes(`${all.scenarios.length} scripted situations`), prompt);
+  assert.ok(prompt.includes(`${all.metrics.scenarios} in the reference set`), prompt);
+  assert.ok(prompt.includes(`${all.scenarios.length - all.metrics.scenarios} on the creator platform`), prompt);
+  const html = await (await import('node:fs/promises')).readFile(new URL('../../index.html', import.meta.url), 'utf8');
+  assert.match(html, /data-rt-metric="scenarios"><div class="kicker">Reference scenarios</);
+});

@@ -5,7 +5,7 @@
    - Run: injects the scenario into the frame, replays the envelopes the frame returned through the pipeline picture
      (js/rt-pipeline.js; logs/2026-10-02_RUNTIME_PIPELINE_VISUAL_PLAN.md), then describes that run from the same
      envelopes. Latest request wins: every asynchronous step checks its request token. */
-import { summarize, describeRun, referenceExamples } from './jev-runtime-model.js';
+import { summarizeAll, pickerPrompt, describeRun, referenceExamples } from './jev-runtime-model.js';
 import { mountPipeline } from './rt-pipeline.js';
 import { mountTrace } from './rt-trace.js';
 import { tip } from './rt-tip.js';
@@ -61,13 +61,13 @@ function describeScenario() {
   const x = summary?.scenarios.find(s => s.id === $('rtScenarioSelect').value);
   $('rtScenWhat').innerHTML = x
     ? `<b>${esc(x.id)} · ${esc(x.title)}</b><br>${WATCH[x.id] ?? ''}`
-    : `Choose one of the ${summary?.scenarios.length ?? ''} scripted situations; the chip shows its expected outcome under the default policy.`;
+    : summary ? pickerPrompt(summary) : '';
   $('rtScenChip').innerHTML = x ? outcomeChip(x) : '';
 }
 
 function renderReference() {
   // The reference metrics stay AP + SOC; the creator-platform scenarios are added to the picker only.
-  try { const base = summarize(); summary = { ...base, scenarios: [...base.scenarios, ...summarize({ domains: ['creator'] }).scenarios] }; } catch (e) {
+  try { summary = summarizeAll(); } catch (e) {
     $('rtScenWhat').textContent = `The simulated engine did not load: ${e.message}`; return;
   }
   for (const [k, v] of Object.entries(summary.metrics)) {

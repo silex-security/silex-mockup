@@ -93,6 +93,15 @@ export function summarize({ seed = 7, domains = ['ap', 'soc'] } = {}) {
   return { reference: `simulated · seed ${seed} · policy-v1 reference set`, metrics, scenarios };
 }
 
+/** The reference set plus the creator-platform traces: the picker lists all of them, the metrics count only the reference set. */
+export function summarizeAll() {
+  const base = summarize();
+  return { ...base, scenarios: [...base.scenarios, ...summarize({ domains: ['creator'] }).scenarios] };
+}
+
+export const pickerPrompt = ({ scenarios, metrics }) =>
+  `Choose one of the ${scenarios.length} scripted situations (${metrics.scenarios} in the reference set, ${scenarios.length - metrics.scenarios} on the creator platform); the chip shows its expected outcome under the default policy.`;
+
 /** The three idle-loop reference envelopes: each scenario's `payments.execute` pre_tool envelope. */
 export function referenceExamples({ seed = 7 } = {}) {
   return ['S1', 'S2', 'S3'].map(id => {
