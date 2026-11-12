@@ -1,7 +1,7 @@
 // Agent Gym v2 shell: header, section tabs, page frame, routing and the view lifecycle (docs/agent-gym-v2-contract.md).
 // Tests and tools/gym-shot.mjs wait for window.__gym.ready.
 // ?embed=1 is the SILEX console's frame (js/gym-host.js): the console has the product header, so the app leaves its own
-// out and offers Reset demo data from the preview marker at the end of the section tabs.
+// out and offers Open full page and Reset demo data from the preview marker at the end of the section tabs.
 // A view's mount ctx also carries setLeaveGuard({ pending, apply, discard }): while pending() names something, a route
 // change to another view is held and the shell asks Keep editing, Discard and leave or Apply and leave.
 import { seedState } from './fixtures/index.js';
@@ -74,6 +74,10 @@ async function resetDemo() {
   announce(store.persistence.mode === 'local' ? 'Demo data reset.' : 'Demo data reset for this session only.');
 }
 
+function openFullPage() {
+  window.open(`${location.pathname}${location.hash}`, '_blank', 'noopener');
+}
+
 const navLink = (label, name, href, current) => h('a', { class: 'gym-nav__link', href, 'aria-label': label, 'aria-current': current && 'page' }, icon(name, { size: 19 }), h('span', label));
 
 const header = h('header', { class: 'gym-header' },
@@ -102,6 +106,8 @@ const sectionBar = h('div', { class: 'gym-sections' },
     align: 'end', label: 'Demo data', class: 'gym-sections__menu',
     trigger: { label: PREVIEW_MARK, iconRight: 'chevron-down', size: 'sm', variant: 'ghost', class: 'gym-preview-mark gym-sections__mark', focusKey: 'shell:preview' },
     items: [
+      { label: 'Open full page', icon: 'arrow-up-right', description: 'Agent Gym on its own page, in a new tab.', onSelect: openFullPage },
+      { separator: true },
       { heading: 'Simulated data' },
       { label: 'Reset demo data', icon: 'refresh', danger: true, description: 'Restores the Agent Gym examples.', onSelect: resetDemo },
     ],

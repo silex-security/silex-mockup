@@ -600,30 +600,10 @@
 
 
 
-<section class="view gym-view" id="gym">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">A flight simulator for agents. Experiment Workbench. Change one thing and run the baseline against the variant in a private simulation.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
-<section class="view gym-view" id="gym-environments">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">Environments. A private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions. Each is saved as a revision an experiment can pin.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
-<section class="view gym-view" id="gym-scenarios">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">Scenarios. The conditions an agent is tested under. Normal, edge-case and attack scenarios. The ontology connects business rules with agents, tools and permissions, which helps generate paths not seen in past logs. Red teams use that map to explore risky paths. Blue teams use it to trace alerts back to rules and intervention points.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
-<section class="view gym-view" id="gym-runs">
-<div class="title-row"><div>
-<div class="sr-head"><h1>Agent Gym</h1></div>
-<p class="hover-note">Runs &amp; Results. Every simulated run of baseline and variant, with its trace, checks and evidence. Outcomes are evaluated against business intent, not task completion alone, and findings can become regression tests for future changes.</p>
-</div><a class="btn secondary" data-gym-full href="agent-gym/index.html" target="_blank" rel="noopener">Open full page →</a></div>
-</section>
+<section class="view gym-view" id="gym" data-note="A flight simulator for agents. Experiment Workbench. Change one thing and run the baseline against the variant in a private simulation."></section>
+<section class="view gym-view" id="gym-environments" data-note="Environments. A private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions. Each is saved as a revision an experiment can pin."></section>
+<section class="view gym-view" id="gym-scenarios" data-note="Scenarios. The conditions an agent is tested under. Normal, edge-case and attack scenarios. The ontology connects business rules with agents, tools and permissions, which helps generate paths not seen in past logs. Red teams use that map to explore risky paths. Blue teams use it to trace alerts back to rules and intervention points."></section>
+<section class="view gym-view" id="gym-runs" data-note="Runs &amp; Results. Every simulated run of baseline and variant, with its trace, checks and evidence. Outcomes are evaluated against business intent, not task completion alone, and findings can become regression tests for future changes."></section>
 <div class="studio-frame-wrap gym-frame-wrap" id="gymFrameWrap" hidden><div class="studio-frame-loading">Opening Agent Gym…</div></div>
 
 <section class="view" id="runtime-observation">
@@ -851,7 +831,7 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Platform','assurance-case':'Assurance case',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
+  const viewNames={assurance:'Platform','assurance-case':'Assurance case',overview:'Operations Overview',blueprint:'Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
   /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
      that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
      destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */

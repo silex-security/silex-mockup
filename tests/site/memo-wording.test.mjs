@@ -52,7 +52,7 @@ test('the hero states the thesis and leads with the world model button', () => {
 });
 
 test('each Agent Gym view note carries one point of the memo', () => {
-  const note = id => view(id).match(/<p class="hover-note">(.*?)<\/p>/s)[1];
+  const note = id => view(id).match(/data-note="([^"]*)"/)[1];
   assert.match(note('gym'), /^A flight simulator for agents\./);
   assert.match(note('gym'), /baseline against the variant in a private simulation/);
   assert.match(note('gym-environments'), /private simulation of task-relevant enterprise conditions, built from simulated components, tools, relations and permissions/);

@@ -57,8 +57,8 @@
 .gym-app .gym-sections__link:hover { color: var(--gym-primary-ink); }
 .gym-app .gym-sections__link:focus-visible { box-shadow: none; outline: 2px solid var(--gym-primary); outline-offset: -2px; border-radius: 4px; }
 .gym-app .gym-sections__link[aria-current="page"] { border-bottom-color: var(--gym-primary); color: var(--gym-primary-ink); font-weight: 600; }
-/* Embedded, the console's title row is the page heading, so the app's own page titles step down to the console's
-   card-heading scale and its subtitles to the console's 13px lead. */
+/* Embedded, the app's page titles step down to the console's card-heading scale and its subtitles to the console's
+   13px lead. */
 .gym-app.gym-embed { --gym-gutter: 0px; --gym-fs-2xl: 22px; }
 .gym-app.gym-embed .gym-pagehead { padding-top: 12px; }
 .gym-app.gym-embed h1.gym-pagehead__title { font-size: var(--gym-fs-2xl); }
