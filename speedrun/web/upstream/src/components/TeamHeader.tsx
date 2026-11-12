@@ -13,7 +13,7 @@ export function TeamHeader({ team, tab, crumb }: { team: AgentTeam; tab: TeamTab
         <IconTeam size={22} />
       </span>
       <div className="flex flex-col gap-1">
-        <nav aria-label="Breadcrumb" className="lbl !text-[13px]">
+        <nav aria-label="Breadcrumb" className="lbl !text-base">
           <Link href="/speedrun" className="text-mut hover:text-fg">Speedrun</Link> ›{" "}
           <Link href={`/speedrun/units/${unit.id}/teams`} className="text-mut hover:text-fg">{unit.name}</Link> ›{" "}
           {crumb ? (
@@ -24,7 +24,7 @@ export function TeamHeader({ team, tab, crumb }: { team: AgentTeam; tab: TeamTab
             "Agent team"
           )}
         </nav>
-        <h1 className="m-0 text-[30px] font-bold leading-[1.05] tracking-tight">{team.name}</h1>
+        <h1 className="m-0 text-3xl font-bold leading-[1.15] tracking-tight">{team.name}</h1>
       </div>
       <span className="flex pl-3.5">
         {team.members.map((mb) => {

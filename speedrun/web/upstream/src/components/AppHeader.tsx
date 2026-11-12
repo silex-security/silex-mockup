@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ThemeToggle } from "./ThemeToggle";
 import { IllustrativeBadge, Pill, cx } from "./ui";
 import { IconChevronDown } from "./icons";
 
@@ -15,8 +14,8 @@ export function AppHeader({ active }: { active: "speedrun" | "gym" }) {
       <Link href="/speedrun" className="flex h-14 items-center gap-2.5 text-fg no-underline">
         <span
           aria-hidden
-          className="h-7 w-7 bg-[#e4dcff]"
-          style={{ borderRadius: "46% 54% 50% 50% / 52% 44% 56% 48%", boxShadow: "5px 3px 0 -2px #7c5cff" }}
+          className="h-7 w-7 bg-fg"
+          style={{ borderRadius: "46% 54% 50% 50% / 52% 44% 56% 48%", boxShadow: "5px 3px 0 -2px var(--acc2)" }}
         />
         <span className="font-bold tracking-[0.06em]">SILEX</span>
       </Link>
@@ -29,7 +28,7 @@ export function AppHeader({ active }: { active: "speedrun" | "gym" }) {
             data-host-hash={"hostHash" in p ? p.hostHash : undefined}
             aria-current={p.id === active ? "page" : undefined}
             className={cx(
-              "flex h-14 items-center border-b-2 text-sm",
+              "flex h-14 items-center border-b-2 text-md",
               p.id === active ? "border-acc2 font-semibold text-fg" : "border-transparent text-mut hover:text-fg",
             )}
           >
@@ -42,7 +41,6 @@ export function AppHeader({ active }: { active: "speedrun" | "gym" }) {
       <Pill className="hidden sm:inline-flex">
         Acme workspace <IconChevronDown size={12} />
       </Pill>
-      <ThemeToggle />
       <span aria-label="Signed in as JD" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-acc-wash text-xs font-bold text-acc-text">
         JD
       </span>

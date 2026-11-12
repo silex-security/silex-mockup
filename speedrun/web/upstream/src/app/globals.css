@@ -1,75 +1,7 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* Design tokens — match opensilex.ai (light + dark). Components use the
-   Tailwind names below (bg-card, text-mut, border-line, …), never raw hex. */
-:root {
-  --bg: #f7f6fc;
-  --card: #ffffff;
-  --inset: #f7f6fc;
-  --wash: #f2f0fb;
-  --fg: #0d0b14;
-  --fg2: #2c2840;
-  --mut: #55516a;
-  --line: rgba(13, 11, 20, 0.1);
-  --line2: rgba(13, 11, 20, 0.16);
-  --acc: #5b34e8;
-  --acc2: #7c5cff;
-  --acc-text: #4a27c9;
-  --acc-wash: rgba(91, 52, 232, 0.09);
-  --grid: rgba(13, 11, 20, 0.045);
-  --amb: #e08a12;
-  --amb-text: #8a5200;
-  --amb-wash: #fff1d9;
-  --rose: #d6445f;
-  --rose-text: #a61e3a;
-  --rose-wash: #fde8ec;
-  --mint: #22a06b;
-  --mint-text: #0f6b47;
-  --mint-wash: #e3f6ec;
-  --blue: #2563c9;
-  --blue-wash: #e6effc;
-  --track: #e6e2f3;
-  --bar: #8c70ff;
-  --hdr: rgba(255, 255, 255, 0.92);
-  --dot: rgba(13, 11, 20, 0.12);
-  --shadow: 0 2px 10px -2px rgba(30, 15, 80, 0.08);
-  color-scheme: light;
-}
-
-.dark {
-  --bg: #08060f;
-  --card: #110d1f;
-  --inset: #17122b;
-  --wash: rgba(124, 92, 255, 0.1);
-  --fg: #f6f4ff;
-  --fg2: #d9d4ef;
-  --mut: #a49dbe;
-  --line: rgba(255, 255, 255, 0.09);
-  --line2: rgba(255, 255, 255, 0.16);
-  --acc-text: #b9a6ff;
-  --acc-wash: rgba(124, 92, 255, 0.14);
-  --grid: rgba(255, 255, 255, 0.035);
-  --amb: #f2b45a;
-  --amb-text: #f2c98a;
-  --amb-wash: rgba(242, 180, 90, 0.14);
-  --rose: #ff8095;
-  --rose-text: #ffadbb;
-  --rose-wash: rgba(255, 128, 149, 0.14);
-  --mint: #5fd4a0;
-  --mint-text: #8fe6bf;
-  --mint-wash: rgba(95, 212, 160, 0.14);
-  --blue: #8db4ff;
-  --blue-wash: rgba(141, 180, 255, 0.14);
-  --track: rgba(255, 255, 255, 0.1);
-  --bar: #7c5cff;
-  --hdr: rgba(8, 6, 15, 0.88);
-  --dot: rgba(255, 255, 255, 0.09);
-  --shadow: none;
-  color-scheme: dark;
-}
-
+/* The role names below (bg-card, text-mut, border-line, …) are what components use, never a raw value. Their
+   values are the theme: speedrun/web/src/theme.css maps each role to a token of the suite's css/tokens.css. */
 @theme inline {
   --color-bg: var(--bg);
   --color-card: var(--card);
@@ -93,41 +25,37 @@
   --color-mint: var(--mint);
   --color-mint-text: var(--mint-text);
   --color-mint-wash: var(--mint-wash);
-  --color-blue: var(--blue);
-  --color-blue-wash: var(--blue-wash);
+  --color-blue: var(--info);
+  --color-blue-wash: var(--info-wash);
   --color-track: var(--track);
   --color-bar: var(--bar);
   --color-hdr: var(--hdr);
-  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html,
-body {
+html {
   background-color: var(--bg);
   color: var(--fg);
 }
 
 body {
   font-family: var(--font-sans);
+  font-size: var(--text-base);
   -webkit-font-smoothing: antialiased;
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 56px 56px;
+  background: var(--page) fixed;
   min-height: 100vh;
 }
 
 @layer components {
   .kick {
-    @apply text-[11px] font-semibold tracking-[0.16em] uppercase text-acc-text;
+    @apply text-2xs font-semibold tracking-[0.16em] uppercase text-acc-text;
   }
   .lbl {
     @apply text-xs text-mut;
   }
   .card {
-    @apply bg-card border border-line rounded-2xl;
-    box-shadow: var(--shadow);
+    @apply border border-line rounded-2xl;
+    background: var(--card-glass);
+    box-shadow: var(--card-shadow);
   }
   .dot-grid {
     background-image: radial-gradient(var(--dot) 1px, transparent 1px);
@@ -142,7 +70,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--acc2);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 

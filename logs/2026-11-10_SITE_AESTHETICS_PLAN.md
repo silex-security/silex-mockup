@@ -1,6 +1,6 @@
 # Site aesthetics plan
 
-Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 to P4 are merged. P5 is built.
+Status: approved on 2026-11-10 with the default scope, direction and delivery. P0 to P4 are merged. P5 is built. P6 (Speedrun on the console tokens) was added and built on 2026-11-11.
 
 The demo console (`index.html`) grew view by view and has no shared visual system. This plan gives it one, then applies it to the shell, the Platform home and the data views. A visitor sees one product instead of five pages. A maintainer changes a colour or a type size in one file.
 
@@ -73,6 +73,20 @@ One PR per phase, stacked in this order. Each ends in the checks under Verificat
 
 - Built. The codemod now covers `css/rt-*.css` and `swm/css`. The two smallest type steps rose by 1px (`--text-2xs` 10 to 11, `--text-xs` 11 to 12), which cut text under 12px in `css/console.css` from 202 declarations to 121. `tools/site-shot.mjs` also shoots every sub-tab of Runtime Observation, the World Model and Incidents, 22 screens in all. After shots are in `logs/site-aesthetics-2026-11-10/p5-1440/`.
 - Left open. `swm/css/swm.css` keeps 36 raw colours, the palette of the dark ontology canvas. The 121 remaining 11px labels sit mostly in diagrams. KPI cards and badges were already close enough after P1 and P2 that a rewrite did not earn its place. The World Model's left column ends above its right column and leaves a blank area. The Workflow Library table scrolls sideways inside its card at 1280px.
+
+### P6. Speedrun on the console tokens
+
+Added on 2026-11-11. The scope above left the inside of Speedrun alone. Beside the other views it read as a different product, so this phase reverses that.
+
+What differed, from the 1440px shots: a violet accent on a purple-black page with a grid, opaque cards in a boxed frame, JetBrains Mono, 30px and 34px titles, 44px violet buttons, and two tab styles of its own.
+
+- One theme file. `speedrun/web/src/theme.css` imports `css/tokens.css` and maps the app's role names to console tokens. The app's two palettes (light and dark) are deleted, with the theme toggle.
+- One scale. Tailwind's `text-*` and `rounded-*` steps resolve to the console's type scale and radii. A one-pass codemod moved 141 font-size classes and 27 radius classes onto the steps.
+- Console components. Buttons, tabs, badges and pills take the console's shapes: the light primary button, the soft tab track, pill badges.
+- Console page. Embedded, the app is see-through and flush with the content column, as Agent Gym is. Mono is IBM Plex Mono.
+- The trace replay drops its colour overrides and uses `css/trace-waterfall.css` as the Runtime and Gym traces do.
+- `tests/site/speedrun-theme.test.mjs` keeps raw colours and px sizes out. `tools/site-shot.mjs` now also shoots seven screens inside Speedrun.
+- Left open. Chart internals keep their SVG font sizes. Blueprint Studio still carries a copy of the token values in `blueprint_studio/web/src/styles/tokens.css`.
 
 ## Verification, every phase
 

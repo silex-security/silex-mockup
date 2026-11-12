@@ -57,23 +57,23 @@ export function TeamStructureMap({ team, structure }: { team: AgentTeam; structu
       </svg>
 
       <div className="absolute flex w-[200px] flex-col gap-1.5 rounded-xl border-2 border-fg bg-card px-3 py-2.5" style={{ left: 20, top: 40 }}>
-        <div className="flex items-center gap-2 text-sm font-semibold">
+        <div className="flex items-center gap-2 text-md font-semibold">
           <Avatar initials={getRole(lead.roleId).initials} variant="lead" />
           {getRole(lead.roleId).name}
         </div>
         <Tag tone="mut" className="self-start">Team lead</Tag>
-        <span className="lbl !text-[11px] leading-snug">Creates and assigns tasks. Teammates inherit its permissions.</span>
+        <span className="lbl !text-2xs leading-snug">Creates and assigns tasks. Teammates inherit its permissions.</span>
       </div>
       {team.humanReviewers && structure.humanReview ? (
         <div className="absolute flex w-[200px] flex-col gap-1 rounded-xl border border-dashed border-line2 bg-card px-3 py-2.5" style={{ left: 20, top: 300 }}>
-          <div className="flex items-center gap-2 text-sm font-semibold"><IconPerson size={18} />Manual review</div>
-          <span className="lbl !text-[11px]">{structure.humanReview}</span>
+          <div className="flex items-center gap-2 text-md font-semibold"><IconPerson size={18} />Manual review</div>
+          <span className="lbl !text-2xs">{structure.humanReview}</span>
         </div>
       ) : null}
 
       <div className="absolute flex flex-col gap-2 rounded-xl border border-line2 bg-card p-3" style={{ left: TX, top: 20, width: TW, height: H - 40 }}>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">Shared task list</span>
+          <span className="text-md font-semibold">Shared task list</span>
           <span className="flex-1" />
           <span className="lbl">run #{structure.runId} · at {structure.atSeconds}s</span>
         </div>
@@ -84,7 +84,7 @@ export function TeamStructureMap({ team, structure }: { team: AgentTeam; structu
             <div
               key={t.id}
               className={cx(
-                "grid h-12 grid-cols-[30px_minmax(0,1fr)_24px_auto] items-center gap-2 rounded-[10px] border bg-inset px-2.5 text-[13px]",
+                "grid h-12 grid-cols-[30px_minmax(0,1fr)_24px_auto] items-center gap-2 rounded-lg border bg-inset px-2.5 text-base",
                 t.state === "in-progress" ? "border-amb bg-amb-wash" : t.reusable ? "border-[1.5px] border-dashed border-acc2" : "border-line",
               )}
             >
@@ -97,7 +97,7 @@ export function TeamStructureMap({ team, structure }: { team: AgentTeam; structu
             </div>
           );
         })}
-        <span className="lbl !text-[11px] leading-normal">Teammates self-claim unblocked tasks. A dependency unblocks when its task is marked complete.</span>
+        <span className="lbl !text-2xs leading-normal">Teammates self-claim unblocked tasks. A dependency unblocks when its task is marked complete.</span>
       </div>
 
       {mates.map((mb, i) => {
@@ -111,7 +111,7 @@ export function TeamStructureMap({ team, structure }: { team: AgentTeam; structu
             className={cx("absolute flex flex-col gap-1.5 rounded-xl bg-card px-3 py-2.5", isFocus ? "border-2 border-acc2 ring-4 ring-acc-wash" : "border border-line2")}
             style={{ left: MX, top: mateTop(i), width: MW }}
           >
-            <div className="flex items-center gap-2 text-sm font-semibold">
+            <div className="flex items-center gap-2 text-md font-semibold">
               <Avatar initials={r.initials} variant={shared > 1 ? "solid" : "wash"} />
               {r.name}
               <span className="flex-1" />
@@ -119,7 +119,7 @@ export function TeamStructureMap({ team, structure }: { team: AgentTeam; structu
             </div>
             <div className="flex flex-wrap gap-1.5">
               {shared > 1 ? <Tag tone="solid">Shared · {shared} teams</Tag> : null}
-              <span className="lbl !text-[11px]">{mb.duty}{r.primaryTool ? ` · ${r.primaryTool}` : ""}</span>
+              <span className="lbl !text-2xs">{mb.duty}{r.primaryTool ? ` · ${r.primaryTool}` : ""}</span>
             </div>
           </div>
         );

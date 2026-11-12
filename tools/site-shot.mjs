@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Screenshot every console view of index.html at several widths, and fail on page errors or sideways scroll.
 //
-//   node tools/site-shot.mjs out-dir [1280,1440,1920] [--full]
+//   node tools/site-shot.mjs out-dir [1280,1440,1920] [--full] [--only=<name prefix>]
 //
 // --full captures each view at its whole document height (up to 8000px) instead of a 900px viewport.
 // The view list is read from the sidebar markup of index.html, plus `overview`, which has no sidebar entry.
-// Sub-tabs of Runtime Observation, the World Model and Incidents are shot too, as <view>--<tab>.png.
+// Sub-tabs of Runtime Observation, the World Model and Incidents are shot too, as <view>--<tab>.png, and so are
+// the screens inside the Speedrun app, as speedrun--<route>.png. --only=speedrun shoots just the names that start so.
 // Writes out-dir/<width>/<view>.png. Exits 1 when a page threw, logged a console error, or scrolls sideways.
 // Exits 2 when Chrome is missing.
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -24,7 +25,10 @@ export async function siteViews() {
   return [...new Set([...sidebar.matchAll(/data-view="([^"]+)"/g)].map(m => m[1])), 'overview'];
 }
 
-/** Every screen to shoot: each view, plus each sub-tab of Runtime Observation, the World Model and Incidents. */
+const SPEEDRUN_ROUTES = ['units/customer-service', 'units/customer-service/teams', 'teams/refund', 'teams/refund/trace', 'teams/refund/benchmarks', 'teams/refund/builder', 'teams/refund/variant'];
+
+/** Every screen to shoot: each view, plus each sub-tab of Runtime Observation, the World Model and Incidents,
+    plus the screens inside the Speedrun app. */
 export async function siteScreens() {
   const html = await readFile(join(ROOT, 'index.html'), 'utf8');
   const tabs = (re, view) => [...new Set([...html.matchAll(re)].map(m => m[1]))].slice(1).map(tab => ({ name: `${view}--${tab}`, hash: `#view=${view}&tab=${tab}` }));
@@ -33,6 +37,7 @@ export async function siteScreens() {
     ...tabs(/data-rt-tab="([^"]+)"/g, 'runtime-observation'),
     ...tabs(/data-wm-panel="([^"]+)"/g, 'security-model'),
     { name: 'incidents--decisions', hash: '#view=incidents&tab=decisions' },
+    ...SPEEDRUN_ROUTES.map(r => ({ name: `speedrun--${r.replaceAll('/', '-')}`, hash: '#view=speedrun&path=' + encodeURIComponent('/speedrun/' + r) })),
   ];
 }
 
@@ -42,8 +47,8 @@ const SETTLED = `
   return frames.every(f => { try { return f.contentDocument?.readyState === 'complete' && f.contentDocument.body?.childElementCount > 0; } catch { return true; } });`;
 
 /** Shoot every view at every width. Returns the problems found, one line each. */
-export async function shootSite(outDir, widths, { full = false } = {}) {
-  const screens = await siteScreens();
+export async function shootSite(outDir, widths, { full = false, only = '' } = {}) {
+  const screens = (await siteScreens()).filter(s => s.name.startsWith(only));
   const session = await browser();
   const server = await serveRepo().catch(e => { session.close(); throw e; });
   const p = session.page, problems = [];
@@ -76,11 +81,12 @@ export async function shootSite(outDir, widths, { full = false } = {}) {
 
 async function main(args) {
   const full = args.includes('--full');
-  const [outDir, widthArg = '1280,1440,1920'] = args.filter(a => a !== '--full');
+  const only = args.find(a => a.startsWith('--only='))?.slice(7) || '';
+  const [outDir, widthArg = '1280,1440,1920'] = args.filter(a => !a.startsWith('--'));
   const widths = widthArg.split(',').map(Number);
-  if (!outDir || widths.some(w => !(w > 0))) { console.error('usage: node tools/site-shot.mjs out-dir [1280,1440,1920] [--full]'); return 64; }
+  if (!outDir || widths.some(w => !(w > 0))) { console.error('usage: node tools/site-shot.mjs out-dir [1280,1440,1920] [--full] [--only=<name prefix>]'); return 64; }
   let result;
-  try { result = await shootSite(resolve(outDir), widths, { full }); } catch (e) { console.error(e.message); return /Chrome not found/.test(e.message) ? 2 : 1; }
+  try { result = await shootSite(resolve(outDir), widths, { full, only }); } catch (e) { console.error(e.message); return /Chrome not found/.test(e.message) ? 2 : 1; }
   console.log(`${result.screens.length} screens x ${widths.length} widths -> ${outDir}`);
   for (const line of result.problems) console.error(`problem: ${line}`);
   return result.problems.length ? 1 : 0;

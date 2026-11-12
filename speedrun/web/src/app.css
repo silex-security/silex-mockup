@@ -1,43 +1,11 @@
 @import "../upstream/src/app/globals.css";
+@import "./theme.css";
 @import "../../../css/trace-waterfall.css";
 
 html:not([data-embedded]) [data-host-hash] { display: none; }
 
-/* css/trace-waterfall.css is the shared trace look. Only its variables are set here, from this app's theme tokens, which
-   already change with the light/dark toggle. */
-.tw {
-  --r-xs: 5px;
-  --r-sm: 8px;
-  --r-pill: 999px;
-  --tw-names: 340px;
-  --tw-ink: var(--fg);
-  --tw-ink-2: var(--fg2);
-  --tw-muted: var(--mut);
-  --tw-line: var(--line);
-  --tw-line-strong: var(--line2);
-  --tw-hover: var(--wash);
-  --tw-control-hover: var(--acc-wash);
-  --tw-focus: var(--acc2);
-  --tw-glow: var(--acc2);
-  --tw-blue: var(--blue);
-  --tw-blue-text: var(--blue);
-  --tw-violet: var(--acc2);
-  --tw-violet-text: var(--acc-text);
-  --tw-amber: var(--amb);
-  --tw-amber-text: var(--amb-text);
-  --tw-green: var(--mint);
-  --tw-green-text: var(--mint-text);
-  --tw-red: var(--rose);
-  --tw-red-text: var(--rose-text);
-  --tw-grey: var(--mut);
-  --tw-grey-text: var(--mut);
-  --tw-mono: var(--font-mono);
-  --tw-text: 14px;
-  --tw-text-sm: 13px;
-  --tw-text-xs: 12px;
-  --tw-text-kpi: 20px;
-  --tw-bar-radius: var(--r-xs);
-}
+/* css/trace-waterfall.css is the shared trace look. It reads the console tokens that theme.css brings in. */
+.tw { --tw-names: 340px; }
 
 /* The shared contract has no handoff connector yet: a vertical line at the message time between two task rows. */
 .sr-handoff { position: absolute; width: 0; border-left: 1px dashed var(--tw-muted); pointer-events: none; }
@@ -48,3 +16,8 @@ html:not([data-embedded]) [data-host-hash] { display: none; }
 
 /* The demo site's top bar already names the product and links the others, so the app's own header row is left out there. */
 html[data-embedded] header:has(nav[aria-label="Products"]) { display: none; }
+
+/* Inside the console the frame is see-through and flush with the host's content column, like Agent Gym:
+   the console's fog and its page padding are the ones the visitor sees. */
+html[data-embedded], html[data-embedded] body { background: none; }
+html[data-embedded] main { max-width: none; padding: 0 0 48px; }

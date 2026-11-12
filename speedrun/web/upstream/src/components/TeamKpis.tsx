@@ -9,7 +9,7 @@ export function TeamKpis({ team }: { team: AgentTeam }) {
   const tile = (label: string, value: string, delta: string, good: boolean | null, warn = false) => (
     <div className={cx("card flex flex-col gap-1 px-4 py-3.5", warn && "!border-amb")}>
       <span className="lbl">{label}</span>
-      <span className="text-2xl font-bold tracking-tight">{value}</span>
+      <span className="text-3xl font-bold tracking-tight">{value}</span>
       <span className={cx("text-xs", good === null ? "text-mut" : good ? "text-mint-text" : "text-amb-text")}>{delta}</span>
     </div>
   );

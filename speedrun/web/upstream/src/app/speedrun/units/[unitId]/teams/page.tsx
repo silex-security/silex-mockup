@@ -51,7 +51,7 @@ export default async function TeamExplorerPage({
     <Main>
       <PageTitle kicker={`${unit.name} / Performance`} title="Agent Team Explorer">
         <ScopeNav active="team" unitId={unitId} />
-        <Pill className="!h-11 px-3.5">Last 7 days</Pill>
+        <Pill className="!h-10 px-3.5">Last 7 days</Pill>
       </PageTitle>
 
       <CoverageStrip {...unit.coverage} />
@@ -70,13 +70,13 @@ export default async function TeamExplorerPage({
       />
 
       <form className="flex flex-wrap gap-3" action={`/speedrun/units/${unitId}/teams`}>
-        <label className="flex h-11 flex-[1_1_360px] items-center gap-2.5 rounded-[10px] border border-line2 bg-card px-3.5">
+        <label className="flex h-10 flex-[1_1_360px] items-center gap-2.5 rounded-lg border border-line2 bg-card px-3.5">
           <IconSearch size={18} className="text-mut" />
-          <input name="q" defaultValue={q} aria-label="Search agent teams" placeholder="Search agent teams or agents…" className="flex-1 bg-transparent text-sm text-fg outline-none" />
+          <input name="q" defaultValue={q} aria-label="Search agent teams" placeholder="Search agent teams or agents…" className="flex-1 bg-transparent text-md text-fg outline-none" />
         </label>
-        <label className="flex items-center gap-2 text-sm text-mut">
+        <label className="flex items-center gap-2 text-md text-mut">
           Sort by
-          <select name="sort" defaultValue={sortKey} className="h-11 rounded-[10px] border border-line2 bg-card px-3 text-sm text-fg">
+          <select name="sort" defaultValue={sortKey} className="h-10 rounded-lg border border-line2 bg-card px-3 text-md text-fg">
             {Object.entries(SORTS).map(([k, v]) => (
               <option key={k} value={k}>{v.label}</option>
             ))}
@@ -87,18 +87,18 @@ export default async function TeamExplorerPage({
 
       <Card aria-label="Agent teams" className="overflow-hidden">
         <div className="flex flex-wrap items-center gap-4 border-b border-line px-5 py-3.5">
-          <span className="text-[22px] font-bold">{unit.name}</span>
+          <span className="text-2xl font-bold">{unit.name}</span>
           <span className="h-5 w-px bg-line2" />
-          <span className="text-sm text-mut">
+          <span className="text-md text-mut">
             {t.teams} agent teams · {t.agentRoles} agent roles, {sharedRoles.size} shared across teams
           </span>
           <div className="flex-1" />
-          <Link href={`/speedrun/units/${unitId}`} className="text-sm text-acc-text">Relationships →</Link>
+          <Link href={`/speedrun/units/${unitId}`} className="text-md text-acc-text">Relationships →</Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1120px] border-collapse">
             <thead>
-              <tr className="h-12 border-b border-line text-left text-[13px] text-mut">
+              <tr className="h-12 border-b border-line text-left text-base text-mut">
                 <th className="px-5 font-normal">Agent team</th>
                 <th className="font-normal">Members</th>
                 <th className="font-normal">Runs</th>
@@ -112,13 +112,13 @@ export default async function TeamExplorerPage({
               {rows.map((x) => {
                 const lowSuccess = x.anomaly?.kind === "low-success";
                 return (
-                  <tr key={x.id} className="h-20 border-b border-line text-[15px] last:border-0 hover:bg-wash">
+                  <tr key={x.id} className="h-20 border-b border-line text-md last:border-0 hover:bg-wash">
                     <td className="px-5">
                       <Link href={`/speedrun/teams/${x.id}`} className="flex items-center gap-3.5 text-fg">
                         <span className="flex h-11 w-11 flex-none items-center justify-center rounded-xl border border-line bg-inset"><IconTeam size={20} /></span>
                         <span className="flex flex-col gap-0.5">
-                          <span className="text-base font-semibold">{x.name}</span>
-                          <span className="lbl !text-[13px]">{x.description}</span>
+                          <span className="text-lg font-semibold">{x.name}</span>
+                          <span className="lbl !text-base">{x.description}</span>
                         </span>
                       </Link>
                     </td>
@@ -166,7 +166,7 @@ export default async function TeamExplorerPage({
             </tbody>
           </table>
         </div>
-        <div className="flex flex-wrap justify-between gap-3 border-t border-line px-5 py-3.5 text-sm text-mut">
+        <div className="flex flex-wrap justify-between gap-3 border-t border-line px-5 py-3.5 text-md text-mut">
           <span className="flex items-center gap-2">
             Showing {rows.length} of {t.teams} agent teams · <Avatar initials="L" variant="lead" size={16} /> lead · <Avatar initials="S" variant="solid" size={16} /> shared across teams
           </span>

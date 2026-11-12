@@ -68,7 +68,7 @@ function StructureBody({
           ].map((x, i) => (
             <div key={x.label} className={cx("flex flex-col gap-0.5 px-4 py-3", i > 0 && "border-l border-line")}>
               <span className="lbl">{x.label}</span>
-              <span className={cx("text-xl font-bold", x.warn && "text-amb-text")}>{x.value}</span>
+              <span className={cx("text-2xl font-bold", x.warn && "text-amb-text")}>{x.value}</span>
               <span className="lbl">{x.note}</span>
             </div>
           ))}
@@ -90,11 +90,11 @@ function StructureBody({
           </div>
 
           <aside aria-label="Performance optimizer" className="flex min-w-0 max-w-[460px] flex-[1_1_380px] flex-col gap-3 border-l border-line p-5">
-            <span className="text-xl font-bold">Performance optimizer</span>
-            <span className="lbl !text-[13px]">Ranked across quality, latency and cost · estimates until tested</span>
+            <span className="text-2xl font-bold">Performance optimizer</span>
+            <span className="lbl !text-base">Ranked across quality, latency and cost · estimates until tested</span>
             {s.candidates.map((x) =>
               x.status === "rejected" ? (
-                <div key={x.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[10px] border border-line p-2.5 text-[13px] opacity-80">
+                <div key={x.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-lg border border-line p-2.5 text-base opacity-80">
                   <span className="font-mono text-mut">✕</span>
                   <span>
                     <span className="block font-semibold line-through">{x.title}</span>
@@ -109,7 +109,7 @@ function StructureBody({
                   scroll={false}
                   aria-current={x.id === selected.id ? "true" : undefined}
                   className={cx(
-                    "grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[10px] p-2.5 text-[13px] text-fg",
+                    "grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-lg p-2.5 text-base text-fg",
                     x.id === selected.id ? "border-2 border-acc2 bg-acc-wash" : "border border-line hover:bg-wash",
                   )}
                 >
@@ -125,13 +125,13 @@ function StructureBody({
 
             <div className="flex flex-col gap-2.5 border-t border-line pt-3">
               <Kicker className="!text-mut">{selected.id} · {selected.diagnosis ? "Diagnosis" : "Proposal"}</Kicker>
-              <p className="m-0 text-[13px] leading-relaxed text-fg2">{selected.diagnosis ?? selected.note}</p>
+              <p className="m-0 text-base leading-relaxed text-fg2">{selected.diagnosis ?? selected.note}</p>
               {selected.params ? (
                 <div className={cx("grid gap-2", selected.params.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
                   {selected.params.map((p) => (
-                    <div key={p.name} className="rounded-[10px] border border-line2 bg-inset p-2.5">
+                    <div key={p.name} className="rounded-lg border border-line2 bg-inset p-2.5">
                       <div className="lbl">{p.name}</div>
-                      <div className="text-lg font-bold">
+                      <div className="text-xl font-bold">
                         {p.current} <span className="text-mut">→</span> <span className="text-acc-text">{p.candidate}</span>
                       </div>
                     </div>
@@ -140,8 +140,8 @@ function StructureBody({
               ) : null}
               {selected.estimate ? (
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="text-2xl font-bold text-acc-text">{selected.estimate}</span>
-                  <span className="lbl !text-[13px]">{selected.estimateNote}</span>
+                  <span className="text-3xl font-bold text-acc-text">{selected.estimate}</span>
+                  <span className="lbl !text-base">{selected.estimateNote}</span>
                   <Tag tone="mut">Not yet tested</Tag>
                 </div>
               ) : null}

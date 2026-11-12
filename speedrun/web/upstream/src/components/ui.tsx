@@ -30,7 +30,7 @@ const TAG: Record<TagTone, string> = {
 
 export function Tag({ tone = "acc", children, className }: { tone?: TagTone; children: ReactNode; className?: string }) {
   return (
-    <span className={cx("inline-flex h-[22px] items-center gap-1 whitespace-nowrap rounded-md px-2 text-[11px] font-semibold", TAG[tone], className)}>
+    <span className={cx("inline-flex h-[22px] items-center gap-1 whitespace-nowrap rounded-full px-2 text-2xs font-bold", TAG[tone], className)}>
       {children}
     </span>
   );
@@ -44,23 +44,23 @@ export const ANOMALY: Record<AnomalyKind, { label: string; tone: TagTone }> = {
 
 export function GradeTag({ grade }: { grade: ConceptGrade }) {
   return grade === "observed" ? (
-    <span className="inline-flex h-[22px] items-center rounded-md bg-fg px-2 text-[11px] font-semibold text-card">Observed</span>
+    <span className="inline-flex h-[22px] items-center rounded-full bg-fg px-2 text-2xs font-bold text-bg">Observed</span>
   ) : (
-    <span className="inline-flex h-[22px] items-center rounded-md px-2 text-[11px] font-semibold text-acc-text ring-[1.5px] ring-inset ring-acc2">Latent</span>
+    <span className="inline-flex h-[22px] items-center rounded-full px-2 text-2xs font-bold text-acc-text ring-[1.5px] ring-inset ring-acc2">Latent</span>
   );
 }
 
 export function Pill({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span className={cx("inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full border border-line2 bg-card px-3 text-xs text-fg2", className)}>
+    <span className={cx("inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-card px-3 text-xs text-mut", className)}>
       {children}
     </span>
   );
 }
 
-const BTN = "inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-4 text-sm font-semibold";
+const BTN = "inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-lg border px-3.5 text-base font-semibold transition-colors";
 export const btnClass = (primary?: boolean) =>
-  cx(BTN, primary ? "border-acc bg-acc text-white hover:brightness-110" : "border-line2 bg-card text-fg hover:bg-wash");
+  cx(BTN, primary ? "border-fg bg-fg text-bg hover:border-fg2 hover:bg-fg2" : "border-line bg-card text-fg hover:border-line2 hover:bg-wash");
 
 export function ButtonLink({ href, primary, children, className }: { href: string; primary?: boolean; children: ReactNode; className?: string }) {
   return (
@@ -71,7 +71,7 @@ export function ButtonLink({ href, primary, children, className }: { href: strin
 }
 
 export function Avatar({ initials, variant = "wash", size = 24, title }: { initials: string; variant?: "wash" | "solid" | "lead"; size?: number; title?: string }) {
-  const tone = variant === "solid" ? "bg-acc text-white" : variant === "lead" ? "bg-fg text-card" : "bg-acc-wash text-acc-text";
+  const tone = variant === "solid" ? "bg-acc text-white" : variant === "lead" ? "bg-fg text-bg" : "bg-acc-wash text-acc-text";
   return (
     <span
       title={title}
@@ -87,7 +87,7 @@ export function Stat({ label, value, sub, valueClass }: { label: string; value: 
   return (
     <div className="flex flex-col gap-1">
       <span className="lbl">{label}</span>
-      <span className={cx("text-[26px] font-bold tracking-tight", valueClass)}>{value}</span>
+      <span className={cx("text-3xl font-bold tracking-tight", valueClass)}>{value}</span>
       {sub ? <span className="text-xs">{sub}</span> : null}
     </div>
   );
@@ -112,7 +112,7 @@ export function PageTitle({ kicker, title, children }: { kicker: string; title: 
     <div className="flex flex-wrap items-end gap-4">
       <div className="flex flex-col gap-2">
         <Kicker>{kicker}</Kicker>
-        <h1 className="m-0 text-[34px] font-bold leading-[1.05] tracking-tight">{title}</h1>
+        <h1 className="m-0 text-3xl font-bold leading-[1.15] tracking-tight">{title}</h1>
       </div>
       <div className="flex-1" />
       {children}

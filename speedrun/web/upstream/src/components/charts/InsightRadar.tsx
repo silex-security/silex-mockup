@@ -84,7 +84,7 @@ export function InsightRadar({
         })}
       </svg>
       <div
-        className="absolute whitespace-nowrap rounded-[10px] border border-amb bg-card px-3 py-2 text-xs shadow-lg"
+        className="absolute whitespace-nowrap rounded-lg border border-amb bg-card px-3 py-2 text-xs shadow-[var(--pop-shadow)]"
         style={{ left: `${((calloutX + 70) / 660) * 100}%`, top: `${(calloutY / 520) * 100}%` }}
       >
         <div className="font-semibold">{calloutTitle}</div>

@@ -42,7 +42,7 @@ export function RunLog({ events, lanes, onSeek }: { events: ReplayEvent[]; lanes
         const to = e.toRoleId ? who(e.toRoleId)?.name : undefined;
         return (
           <li key={i} data-replay-event={e.kind}>
-            <button type="button" onClick={() => onSeek(e.at)} className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left text-[13px] hover:bg-wash">
+            <button type="button" onClick={() => onSeek(e.at)} className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left text-base hover:bg-wash">
               <span className="w-14 flex-none font-mono text-xs text-mut">{clock(e.at)}</span>
               <Avatar initials={lane?.initials ?? "?"} size={20} variant={lane?.isLead ? "lead" : "wash"} title={lane?.name} />
               <span className={cx("min-w-0 flex-1 truncate", TONE[e.kind])}>

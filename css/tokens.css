@@ -86,5 +86,6 @@
   --shadow-pop: 0 24px 80px rgba(0, 0, 0, .6);
   --ring: 0 0 0 3px rgba(113, 138, 255, .28);
 
+  --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }

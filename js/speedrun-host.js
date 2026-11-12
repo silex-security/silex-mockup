@@ -1,9 +1,9 @@
 /* The Speedrun view: the SILEX Speedrun app (speedrun/app/, built by tools/build-speedrun.mjs) in an iframe.
-   It loads on the first visit and keeps its place afterwards. The app opens in its dark theme, to match
-   the console around it.
+   It loads on the first visit and keeps its place afterwards. The app draws with the console's tokens
+   (speedrun/web/src/theme.css) on a see-through page, so the console's fog shows behind it.
    The app's route (its own hash, e.g. #/speedrun/teams/refund) is mirrored in the site URL as
    #view=speedrun&path=<route>, so a reload or a shared link reopens the same screen. */
-const APP = 'speedrun/app/index.html?theme=dark', HOME = '/speedrun';
+const APP = 'speedrun/app/index.html', HOME = '/speedrun';
 const wrap = document.getElementById('speedrunFrameWrap');
 const view = document.getElementById('speedrun');
 let frame = null;

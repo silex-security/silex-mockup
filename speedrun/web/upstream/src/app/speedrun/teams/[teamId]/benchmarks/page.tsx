@@ -55,10 +55,10 @@ export default async function BenchmarksPage({ params }: { params: Promise<{ tea
         </div>
         <div className="flex flex-col gap-1">
           <span className="lbl">Case sets</span>
-          <span className="text-sm"><strong>Anchor</strong> {suite.anchorCases}, frozen · <strong>Rolling</strong> {suite.rollingCases}, refreshed {suite.rollingRefreshedDaysAgo}d ago</span>
+          <span className="text-md"><strong>Anchor</strong> {suite.anchorCases}, frozen · <strong>Rolling</strong> {suite.rollingCases}, refreshed {suite.rollingRefreshedDaysAgo}d ago</span>
         </div>
-        <div className="flex flex-col gap-1"><span className="lbl">Repeats</span><span className="font-mono text-sm">k = {suite.repeats}</span></div>
-        <div className="flex flex-col gap-1"><span className="lbl">Pinned to</span><span className="font-mono text-[13px]">{suite.pinned}</span></div>
+        <div className="flex flex-col gap-1"><span className="lbl">Repeats</span><span className="font-mono text-md">k = {suite.repeats}</span></div>
+        <div className="flex flex-col gap-1"><span className="lbl">Pinned to</span><span className="font-mono text-base">{suite.pinned}</span></div>
         <div className="flex-1" />
         <div className="flex flex-col gap-1 text-right"><span className="lbl">Last run {suite.lastRun} · next {suite.nextRun}</span><span className="lbl">Also on model, prompt, tool or team change</span></div>
         <button type="button" className={btnClass(true)}><IconPlay size={12} />Run now</button>
@@ -67,7 +67,7 @@ export default async function BenchmarksPage({ params }: { params: Promise<{ tea
       <section aria-label="Scorecard" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-baseline gap-2.5">
           <Kicker>Scorecard · run {suite.lastRun}</Kicker>
-          <span className="lbl !text-[13px]">Checked in order — efficiency only counts once quality and safety pass. All scores graded <strong className="text-fg2">simulated</strong>.</span>
+          <span className="lbl !text-base">Checked in order — efficiency only counts once quality and safety pass. All scores graded <strong className="text-fg2">simulated</strong>.</span>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <ScoreCard n={1} title="Quality" status={gate(sc.quality.gate)}>
@@ -130,14 +130,14 @@ export default async function BenchmarksPage({ params }: { params: Promise<{ tea
         <Card aria-label="Benchmark fit" className="min-w-0 flex-[999_1_600px] overflow-hidden">
           <div className="flex flex-wrap items-center gap-3 px-4 py-3.5">
             <div>
-              <div className="text-base font-semibold">Benchmark fit</div>
-              <div className="lbl !text-[13px]">Did the benchmark predict what production later measured?</div>
+              <div className="text-lg font-semibold">Benchmark fit</div>
+              <div className="lbl !text-base">Did the benchmark predict what production later measured?</div>
             </div>
             <div className="flex-1" />
-            <span className="text-[22px] font-bold">{fitHits} of {b.fit.length}</span>
+            <span className="text-2xl font-bold">{fitHits} of {b.fit.length}</span>
             <span className="lbl">changes within interval</span>
           </div>
-          <table className="w-full border-collapse text-[13px]">
+          <table className="w-full border-collapse text-base">
             <thead>
               <tr className="bg-inset text-left text-xs font-semibold text-mut">
                 <th className="px-3.5 py-2.5">Change</th><th>Benchmark predicted</th><th>Production measured</th><th>Fit</th>
@@ -154,7 +154,7 @@ export default async function BenchmarksPage({ params }: { params: Promise<{ tea
               ))}
             </tbody>
           </table>
-          <div className="flex flex-wrap items-center gap-3 border-t border-line px-4 py-3 text-[13px]">
+          <div className="flex flex-wrap items-center gap-3 border-t border-line px-4 py-3 text-base">
             <span className="flex-[1_1_320px] leading-snug text-fg2"><strong>{b.fitNote.title}:</strong> {b.fitNote.text}</span>
             {b.fitNote.action ? <ButtonLink href={`/speedrun/teams/${teamId}/builder`}>{b.fitNote.action}</ButtonLink> : null}
           </div>
@@ -165,7 +165,7 @@ export default async function BenchmarksPage({ params }: { params: Promise<{ tea
             {b.caseTypes.map((ct) => {
               const weak = ct.passK < 0.85;
               return (
-                <div key={ct.name} className="grid grid-cols-[150px_minmax(0,1fr)_60px] items-center gap-3 text-[13px]">
+                <div key={ct.name} className="grid grid-cols-[150px_minmax(0,1fr)_60px] items-center gap-3 text-base">
                   <span>{ct.name} <span className="lbl">{ct.cases}</span></span>
                   <Bar value={ct.passK} tone={weak ? "amb" : "acc2"} height={8} />
                   <span className={cx("text-right font-mono", weak && "font-semibold text-amb-text")}>{fmtPct(ct.passK)}</span>
@@ -176,7 +176,7 @@ export default async function BenchmarksPage({ params }: { params: Promise<{ tea
           </Card>
           <Card aria-label="Benchmark cost" className="flex items-center gap-3 px-4 py-3.5">
             <div className="flex-1">
-              <div className="text-sm font-semibold">≈ {fmtUsd(weeklyExec * suite.costPerExecution, 0)} / week to run</div>
+              <div className="text-md font-semibold">≈ {fmtUsd(weeklyExec * suite.costPerExecution, 0)} / week to run</div>
               <div className="lbl">{weeklyExec} executions · counted in net cost / success</div>
             </div>
           </Card>
@@ -190,7 +190,7 @@ function ScoreCard({ n, title, status, children }: { n: number; title: string; s
   return (
     <div className="card flex flex-col gap-2.5 p-4">
       <div className="flex items-center gap-2">
-        <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-fg font-mono text-[11px] font-bold text-card">{n}</span>
+        <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-fg font-mono text-2xs font-bold text-card">{n}</span>
         <span className="font-semibold">{title}</span>
         <div className="flex-1" />
         {status}
@@ -204,7 +204,7 @@ function Metric({ label, value, sub, valueClass }: { label: string; value: strin
   return (
     <div>
       <div className="lbl">{label}</div>
-      <div className={cx("text-[26px] font-bold tracking-tight", valueClass)}>{value}</div>
+      <div className={cx("text-3xl font-bold tracking-tight", valueClass)}>{value}</div>
       <div className="lbl">{sub}</div>
     </div>
   );
