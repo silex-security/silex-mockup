@@ -23,7 +23,6 @@ const viewNames = html.match(/const viewNames=\{([^}]*)\}/)[1];
 test('the sidebar lists the suite in lifecycle order', () => {
   assert.deepEqual(groups.map(g => g.key), ['foundry', 'studio', 'gym', 'runtime', 'speedrun']);
   assert.deepEqual(groups.map(g => g.label), ['SILEX Foundry', 'Agent Studio', 'Agent Gym', 'SILEX Runtime', 'SILEX Speedrun']);
-  assert.deepEqual(groups.map(g => g.status), ['Building', 'Designed', 'Building', 'Building', 'Roadmap']);
   for (const g of groups) assert.ok(g.stage && g.desc && g.views.length, `${g.key} has a stage, a description and views`);
 });
 
@@ -159,4 +158,10 @@ test('the assurance case has its own view, and the home page only links to it', 
   assert.match(viewNames, /'assurance-case':'Assurance case'/);
   assert.match(home, /data-wm-route="#view=assurance-case"/);
   assert.ok(!sidebarViews.some(v => v.id === 'assurance-case'), 'no sidebar button');
+});
+
+test('no product carries a maturity chip, on the map or in a view title', () => {
+  assert.doesNotMatch(html.slice(html.indexOf('<aside'), html.indexOf('</aside>')), /data-status=/);
+  assert.doesNotMatch(mapHtml(groups), /rx-stt|Building|Designed|Roadmap/);
+  for (const id of ['gym', 'gym-environments', 'gym-scenarios', 'gym-runs']) assert.doesNotMatch(sectionHtml(id), /rx-stt/, id);
 });
