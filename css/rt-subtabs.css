@@ -6,12 +6,6 @@
 #runtime-observation .rt-lead .pill{white-space:nowrap}
 
 /* KPI strip: one card, four cells */
-#runtime-observation .rt-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:4px}
-.rt-kpis .metric{padding:12px 18px;border-right:1px solid var(--line)}
-.rt-kpis .metric:last-child{border-right:0}
-.rt-kpis .kicker{margin-bottom:2px}
-.rt-kpis .metric-value{font-size:var(--text-3xl)}
-.rt-kpis .metric-foot{margin-top:2px}
 
 /* Sub-tabs */
 .rt-tabs{display:flex;gap:4px;margin:22px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
@@ -118,8 +112,6 @@
   .rt-scen-bar select{grid-column:1/-1}
 }
 @media(max-width:760px){
-  #runtime-observation .rt-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .rt-kpis .metric{border-right:0;border-bottom:1px solid var(--line)}
   .rt-intro{grid-template-columns:1fr}
   .rt-intro-side{justify-items:start;grid-auto-flow:column;justify-content:start;align-items:center}
   .rt-learning-loop{grid-template-columns:repeat(3,minmax(0,1fr))}

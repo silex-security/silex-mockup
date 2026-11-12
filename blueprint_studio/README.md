@@ -82,7 +82,7 @@ The **Trace** view shows how a decision was reached. It lays the Blueprint's own
 - **The decision record** (Copy or Download JSON) is shaped like a Policy Change Proposal. It carries a statement generated from the result the decision cites.
 - **Honesty rules:**
   - Paths are *declared* and outcomes *simulated*; nothing is shown as latent or observed.
-  - Ontology links carry provenance, not a grade. The threat ids are public (ATLAS/OWASP); their links to components come from the Silex bundle `swm-1.0`, are Silex-authored, and are illustrative.
+  - Ontology links carry provenance, not a grade. The threat ids are public (ATLAS/OWASP); their links to components come from the Silex bundle `swm-2.0`, are Silex-authored, and are illustrative.
   - Data, trigger and decision steps are left unmapped, because the declaration does not establish their class.
   - "Related" never means "tested".
 - **Data:** `ontology/slice.json` is generated from `../swm/data/ontology.json` by `tools/ontology-slice.mjs`; `--check` fails if the slice is stale. The derivation is in `web/src/trace/derive.js` and `mapping.js`, and the rendering in `web/src/trace/*.jsx`.

@@ -1,6 +1,6 @@
 {
-  "version": "swm-1.0",
-  "generated": "2026-09-17T23:20:50.477Z",
+  "version": "swm-2.0",
+  "generated": "2026-11-12T08:03:24.901Z",
   "source": "swm/data/ontology.json",
   "classes": [
     {
