@@ -186,10 +186,10 @@ edges (curated) are Silex-authored mappings over public data, and their review g
 
 ## Encoding decisions
 
-Since the 2026-09-21 visual upgrade, charts draw on a **dark stage** (`#10162b → #26305a`) and
-inspectors stay on white **paper**. Each ordinal ramp therefore has two variants, defined in
+Since the 2026-09-21 visual upgrade, charts draw on a **dark stage** (charcoal `#0e1013 → #1a1d22`
+since the 2026-11-12 Signal theme) and inspectors stay on **paper**. Each ordinal ramp therefore has two variants, defined in
 `js/swm-core.js` and copied as CSS tokens in `css/swm.css` (keep the two in step); the contrast
-figures in the `swm-core.js` comments are measured against `#26305a` or `#ffffff`.
+figures in the `swm-core.js` comments are measured against `#1a1d22`.
 
 | Encoding | On the stage | On paper |
 |---|---|---|
