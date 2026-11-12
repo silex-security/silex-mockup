@@ -109,8 +109,17 @@
 <div class="en-card"><h3>Security and safety</h3><p>Business rules, permissions and runtime evidence identify unsafe paths and block at the right step.</p><button class="as-open" data-open-incident="I-1042">Follow one blocked attack</button></div>
 <div class="en-card"><h3>Team intelligence</h3><p>Individual experience becomes lasting team capability through a shared ontology.</p><button class="as-open" data-jump="library">See reusable workflows</button></div>
 </div></div>
+<div class="en-card as-case-link"><p>The assurance case: evidence base, verification and validation, the autonomy flywheel</p><button class="as-open" data-wm-route="#view=assurance-case">Open the assurance case</button></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">03</span><div><h2 style="margin:0">Enterprise World Model — the evidence base</h2><p class="hover-note">A self-evolving L1–L4 ontology over a runtime knowledge graph. 1506 types · 5244 relations · grounded in open standards.</p></div></div>
+</section>
+
+<section class="view" id="assurance-case">
+<div class="title-row"><div>
+<h1>Assurance case</h1>
+<p class="hover-note">The evidence base, verification and validation, and what assurance lets an agent do. Illustrative data.</p>
+</div></div>
+
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">Enterprise World Model — the evidence base</h2><p class="hover-note">A self-evolving L1–L4 ontology over a runtime knowledge graph. 1506 types · 5244 relations · grounded in open standards.</p></div></div>
 <div class="as-wm">
 <div class="as-card">
 <div class="as-layer"><div class="ln"><b>L1 · General</b><small>Reusable agent-security semantics</small></div><div class="as-b"><i style="width:74%"></i></div><div class="pc"><b>547</b> · 74%</div></div>
@@ -153,7 +162,7 @@
 <p class="as-quote" style="margin-top:12px">Pruned ≠ sampled: every excluded branch names the law that excludes it, so each exclusion can be checked. Coverage is only as complete as the model's vocabulary and assumptions.</p>
 </div></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">Agent Verification &amp; Validation</h2><p class="hover-note">Verification asks whether execution conforms to spec. Validation asks whether the spec is still correct under reality.</p></div></div>
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">02</span><div><h2 style="margin:0">Agent Verification &amp; Validation</h2><p class="hover-note">Verification asks whether execution conforms to spec. Validation asks whether the spec is still correct under reality.</p></div></div>
 <div class="as-vv">
 <div></div><div class="h">Verification — conforms to spec?</div><div class="h">Validation — spec still correct?</div>
 <div class="rl">Outcome side</div>
@@ -165,7 +174,7 @@
 </div>
 <p class="as-quote">Blocking one path does not prove that the underlying failure has been closed.</p></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">05</span><div><h2 style="margin:0">The Correspondence Problem</h2><p class="hover-note">Three objects that used to travel together come apart once an agent holds real authority.</p></div></div>
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">03</span><div><h2 style="margin:0">The Correspondence Problem</h2><p class="hover-note">Three objects that used to travel together come apart once an agent holds real authority.</p></div></div>
 <div class="as-card"><div class="as-corr">
 <div class="n"><b>Designed Intent</b><span>prompts · blueprints · policy · permissions</span></div>
 <div class="lk"><span class="ar">↔</span><small>execution drifts<br>from design</small></div>
@@ -174,7 +183,7 @@
 <div class="n"><b>Enterprise Reality</b><span>permissions · other agents · business state</span></div>
 </div><p class="as-quote">Correspondence cannot be verified without a model of reality; a useful model of reality must carry both semantics and causal structure.</p></div></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">06</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="hover-note">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="hover-note">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
 <div class="as-card">
 <div class="as-flow"><span class="as-fstep">Assurance</span><span class="a">→</span><span class="as-fstep">Authority</span><span class="a">→</span><span class="as-fstep">Production actions</span><span class="a">→</span><span class="as-fstep">Runtime evidence</span><span class="a">→</span><span class="as-fstep">Better world model</span><span class="a">→</span><span class="as-fstep">Stronger validation</span><span class="a">↺</span></div>
 <div class="as-unlock">
@@ -840,7 +849,7 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Platform',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
+  const viewNames={assurance:'Platform','assurance-case':'Assurance case',overview:'Operations Overview',blueprint:'Agentic Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
   /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
      that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
      destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */

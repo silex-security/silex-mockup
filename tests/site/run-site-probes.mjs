@@ -1141,20 +1141,20 @@ try {
     return 'assurance.html wm-ontology and wm-architecture render after a hidden late load; no not-booted warning';
   });
 
-  await probe('S38','the Assurance explorer button opens the Ontology Graph and Back returns',async()=>{
+  await probe('S38','the Assurance case explorer button opens the Ontology Graph and Back returns',async()=>{
     await load({ path: '/index.html' });
-    await nav('assurance');
-    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="assurance"'),'Assurance view',10000);
-    await clickSel('#assurance .as-wm [data-wm-route]');
+    await ev('location.hash="#view=assurance-case"; true');
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="assurance-case"'),'Assurance case view',10000);
+    await clickSel('#assurance-case .as-wm [data-wm-route]');
     await until(wmActive,'World Model active',12000);
     assert.equal(await wmTab(),'wmtab-ontology','the button opens the Ontology Graph');
     assert.equal(await wmPanel(),'wm-ontology','wm-ontology panel active');
     await ev('history.back(); true');
-    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="assurance"'),'Back to Assurance',10000);
+    await until(()=>ev('return (document.querySelector(".view.active")||{}).id==="assurance-case"'),'Back to the Assurance case',10000);
     await ev('history.forward(); true');
     await until(wmActive,'Forward to the World Model',10000);
     assert.equal(await wmPanel(),'wm-ontology','Forward restores the Ontology Graph');
-    return 'Assurance button -> Ontology Graph; Back -> Assurance; Forward -> Ontology Graph';
+    return 'Assurance case button -> Ontology Graph; Back -> Assurance case; Forward -> Ontology Graph';
   });
 
   await probe('S46','Speedrun view runs the embedded app: overview, team, search, variant form, deep link, Studio link',async()=>{

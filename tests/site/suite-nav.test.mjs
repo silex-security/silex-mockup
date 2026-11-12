@@ -147,3 +147,16 @@ test('the map draws the three loops of the suite diagram', () => {
   const order = [...map.matchAll(/class="suite-(top|row|span|band)"/g)].map(m => m[1]);
   assert.deepEqual(order, ['top', 'row', 'span', 'band'], 'the optimization loop sits above the cards, the span band below them, the foundation last');
 });
+
+test('the assurance case has its own view, and the home page only links to it', () => {
+  const home = sectionHtml('assurance'), kase = sectionHtml('assurance-case');
+  for (const s of ['The Correspondence Problem', 'The autonomy flywheel', 'KNOWN BLIND SPOTS']) {
+    assert.doesNotMatch(home, new RegExp(s), `home no longer holds ${s}`);
+    assert.match(kase, new RegExp(s), `the assurance case holds ${s}`);
+  }
+  assert.equal([...kase.matchAll(/<h1[ >]/g)].length, 1, 'one h1 per view');
+  assert.match(kase, /<h1>Assurance case<\/h1>/);
+  assert.match(viewNames, /'assurance-case':'Assurance case'/);
+  assert.match(home, /data-wm-route="#view=assurance-case"/);
+  assert.ok(!sidebarViews.some(v => v.id === 'assurance-case'), 'no sidebar button');
+});
