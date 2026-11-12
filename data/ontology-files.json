@@ -1377,7 +1377,7 @@
     {
       "path": "swm/data/ontology.json",
       "group": "site",
-      "bytes": 2531547,
+      "bytes": 2532017,
       "holds": "The site’s ontology bundle: layers, groups, sources, the node and link lists and their statistics. The pack’s L1 superclasses are nodes here.",
       "usedBy": "Enterprise World Model, which loads its .js form (swm/data/ontology.js); the source of the Blueprint Studio slice."
     },

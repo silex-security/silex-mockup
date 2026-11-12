@@ -2,6 +2,16 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-12 — Memo V3 wording on the layers, the hero, Agent Gym and SILEX Runtime
+
+- **Why:** findings 6 to 10 of [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md). The owner also decided finding 11: the foundation is SILEX Foundry and its view stays Enterprise World Model.
+- **Layers:** L1 General concepts and rules, L2 Domain and enterprise knowledge, L3 Agent execution knowledge, L4 Runtime knowledge graph. The names live in `LAYERS` in `swm/tools/silex-seed.mjs`; `swm/data/ontology.*` and `data/ontology-files.json` were regenerated, and the bundle hash in `creator-pack.test.mjs` moved with them. Ids, keys and node counts are unchanged.
+- **Ontology Layers tab:** opens with the Business Ontology and the Agent Execution Ontology.
+- **Hero:** the forward-deployed-engineer argument is a visible paragraph, and the primary button opens the world model.
+- **Agent Gym:** the four view notes carry "a flight simulator for agents", the private simulation, red and blue teams, and findings that become regression tests.
+- **SILEX Runtime:** the lead says Runtime assesses an action in business context and advises the control already in the path, such as an MCP gateway.
+- **Tests:** `tests/site/memo-wording.test.mjs`.
+
 ## 2026-11-11 — Home page follows the product-suite diagram and Memo V3
 
 - **Why:** the owner asked what the demo should change after the "Product Suite for Agent Lifecycle" diagram and the Memo V3 tab of the investor memo. Twelve findings are in [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md). This change does five of them.

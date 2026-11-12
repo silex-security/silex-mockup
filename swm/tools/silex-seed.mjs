@@ -16,10 +16,10 @@ export const GROUPS = [
 ];
 
 export const LAYERS = [
-  { id:1, key:'general',  name:'General Agent Ontology Graph', blurb:'Reusable semantics shared by every domain and every agentic system' },
-  { id:2, key:'domain',   name:'Domain Ontology Packs',           blurb:'Business meaning per enterprise domain' },
-  { id:3, key:'agentic',  name:'Agentic-System Ontology',         blurb:'Planner, memory, tools, MCP and the threats that target them' },
-  { id:4, key:'runtime',  name:'Runtime Knowledge Graph',         blurb:'What is actually deployed, observed and decided right now' }
+  { id:1, key:'general',  name:'General concepts and rules',      short:'General concepts',  blurb:'Shared definitions for agents, identities, tools, resources, actions, permissions and outcomes' },
+  { id:2, key:'domain',   name:'Domain and enterprise knowledge', short:'Domain knowledge',  blurb:'Industry concepts and constraints, specialized to each enterprise' },
+  { id:3, key:'agentic',  name:'Agent execution knowledge',       short:'Agent execution',   blurb:'Validated practices for how agents carry out work: tool and MCP dependencies, coordination patterns, delegated authority' },
+  { id:4, key:'runtime',  name:'Runtime knowledge graph',         short:'Runtime knowledge', blurb:'Evidence of what happened in each run' }
 ];
 
 export const DIMENSIONS = [

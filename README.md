@@ -21,6 +21,7 @@ The home view, **Platform** (`#view=assurance`), follows the "Product Suite for 
 ### SILEX Foundry
 
 - **Enterprise World Model:** the sub-tabs are *Ontology Layers* (default), *Ontology Graph*, *World Model Coverage*, *Domain Suites* and *Coverage Gaps*.
+  - The four layers carry the investor memo's names: L1 General concepts and rules, L2 Domain and enterprise knowledge, L3 Agent execution knowledge, L4 Runtime knowledge graph. *Ontology Layers* opens with the Business Ontology and the Agent Execution Ontology. The names live in `LAYERS` in [`swm/tools/silex-seed.mjs`](swm/tools/silex-seed.mjs).
   - The first three are D3 panels over one L1 → L2 → L3 → L4 chain, built from MITRE D3FEND, ATT&CK, ATLAS, UCO and the OWASP GenAI lists; *Domain Suites* and *Coverage Gaps* are static, illustrative markup.
   - The Ontology Graph opens on the animated **Network** view (WebVOWL-style).
   - Domain packs are grounded in public standards and benchmarks; L4 adds a labelled partition of public benchmark runs (AgentDojo, τ²-bench), shown by default through a *Public benchmark runs* toggle. The bundle carries a 1-in-3 business-stratified sample: 346 of 946 runs, with all 135 incidents and every typical example kept; agent inspectors report the full counts.

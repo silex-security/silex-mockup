@@ -17,12 +17,12 @@ Date: 2026-11-11. Owner request: compare the demo site with the "Product Suite f
 | 3 | The product cards fold the diagram's three capabilities into one sentence. The Agent Gym card uses the workbench wording, not the diagram's. | Done in this change. |
 | 4 | Only one of the diagram's three loops is drawn. "Test optimizations" (Gym and Speedrun) and "Performance improvement spans design, testing, and production" are missing. | Done in this change. |
 | 5 | Stage labels differ from the diagram: "Verify · Validate" and "Performance" against "Verification · Validation · Assurance" and "Performance Enhancement". | Done in this change. |
-| 6 | The four layer names differ from the memo. The site has L1 General ("Reusable agent-security semantics"), L2 Domain packs, L3 Agentic-system, L4 Runtime graph. The memo has General concepts and rules, Domain and enterprise knowledge, Agent execution knowledge, Runtime knowledge graph. | Open. |
-| 7 | "Business Ontology" and "Agent Execution Ontology" do not appear on the console pages. The Ontology Layers tab is the natural place. | Open. |
-| 8 | The forward-deployed-engineer argument is not on the home page. | Open. |
-| 9 | Agent Gym does not use the memo's wording: "flight simulator for agents", red and blue teams, findings that become regression tests. | Open. |
-| 10 | SILEX Runtime does not say that it advises existing controls such as an MCP gateway. The page reads as if SILEX blocks the action itself. | Open. |
-| 11 | Naming. The diagram says SILEX Foundry, the memo body says "shared Knowledge Library", and Foundry's only view is called Enterprise World Model. | Open. Needs an owner decision. |
+| 6 | The four layer names differ from the memo. The site has L1 General ("Reusable agent-security semantics"), L2 Domain packs, L3 Agentic-system, L4 Runtime graph. The memo has General concepts and rules, Domain and enterprise knowledge, Agent execution knowledge, Runtime knowledge graph. | Done on 2026-11-12. The names come from `LAYERS` in `swm/tools/silex-seed.mjs`, and the bundle was regenerated. The Ontology Graph tier buttons use a short form ("General concepts", "Domain knowledge", "Agent execution", "Runtime knowledge"). |
+| 7 | "Business Ontology" and "Agent Execution Ontology" do not appear on the console pages. The Ontology Layers tab is the natural place. | Done on 2026-11-12. The Ontology Layers tab opens with the two ontologies. It does not say which layer belongs to which. |
+| 8 | The forward-deployed-engineer argument is not on the home page. | Done on 2026-11-12. The hero carries the argument as a visible paragraph. The primary button is now "Explore the world model". |
+| 9 | Agent Gym does not use the memo's wording: "flight simulator for agents", red and blue teams, findings that become regression tests. | Done on 2026-11-12, in the title notes of the four Gym views. The embedded app is unchanged. |
+| 10 | SILEX Runtime does not say that it advises existing controls such as an MCP gateway. The page reads as if SILEX blocks the action itself. | Done on 2026-11-12, in the lead paragraph and title note of Runtime Observation. |
+| 11 | Naming. The diagram says SILEX Foundry, the memo body says "shared Knowledge Library", and Foundry's only view is called Enterprise World Model. | Decided by the owner on 2026-11-12: the foundation is SILEX Foundry and its view stays Enterprise World Model. The site already says so. The memo body still says "shared Knowledge Library" and is the owner's to edit. |
 | 12 | Status chips (Designed, Building, Roadmap) are not on the diagram. Speedrun is marked Roadmap and is one of the most complete parts of the demo. | Open. Needs an owner decision. |
 
 ## Decisions made in this change
@@ -33,4 +33,9 @@ Date: 2026-11-11. Owner request: compare the demo site with the "Product Suite f
 
 ## Left for later, noticed on the way
 
-- The hero's primary button is still "Follow one blocked attack". It belongs to the security outcome, not to the thesis.
+- `SECURITY_WORLD_MODEL.md` and `swm/README.md` still use the earlier tier names (for example "L3 agentic-system"). They describe how the model was built and were left as written.
+- The Enterprise World Model view ends with "Planned for V2 and hidden in this demo: Runtime Knowledge Graph, …". L4 now carries the name "Runtime knowledge graph", so the line reads as a contradiction.
+- Runtime Observation says "12 scripted scenarios" in its KPI row and "34 scripted situations" under the scenario picker.
+- The Agent fleet tab of Runtime Observation says the ontology "stops the problem at its source". It reads as SILEX acting on its own, and needs more than a two-word edit.
+- The diagram draws an icon per capability and arrowheads on the loops. The site has neither.
+- The hero button "Follow one blocked attack" is now the secondary button.
