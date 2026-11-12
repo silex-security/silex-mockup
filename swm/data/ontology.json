@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T13:58:30.874Z",
+ "generated": "2026-11-12T08:03:24.901Z",
  "version": "swm-2.0",
  "groups": [
   {
@@ -56,26 +56,30 @@
   {
    "id": 1,
    "key": "general",
-   "name": "General Agent Ontology Graph",
-   "blurb": "Reusable semantics shared by every domain and every agentic system"
+   "name": "General concepts and rules",
+   "short": "General concepts",
+   "blurb": "Shared definitions for agents, identities, tools, resources, actions, permissions and outcomes"
   },
   {
    "id": 2,
    "key": "domain",
-   "name": "Domain Ontology Packs",
-   "blurb": "Business meaning per enterprise domain"
+   "name": "Domain and enterprise knowledge",
+   "short": "Domain knowledge",
+   "blurb": "Industry concepts and constraints, specialized to each enterprise"
   },
   {
    "id": 3,
    "key": "agentic",
-   "name": "Agentic-System Ontology",
-   "blurb": "Planner, memory, tools, MCP and the threats that target them"
+   "name": "Agent execution knowledge",
+   "short": "Agent execution",
+   "blurb": "Validated practices for how agents carry out work: tool and MCP dependencies, coordination patterns, delegated authority"
   },
   {
    "id": 4,
    "key": "runtime",
-   "name": "Runtime Knowledge Graph",
-   "blurb": "What is actually deployed, observed and decided right now"
+   "name": "Runtime knowledge graph",
+   "short": "Runtime knowledge",
+   "blurb": "Evidence of what happened in each run"
   }
  ],
  "sources": {
@@ -192,8 +196,9 @@
    {
     "id": 1,
     "key": "general",
-    "name": "General Agent Ontology Graph",
-    "blurb": "Reusable semantics shared by every domain and every agentic system",
+    "name": "General concepts and rules",
+    "short": "General concepts",
+    "blurb": "Shared definitions for agents, identities, tools, resources, actions, permissions and outcomes",
     "count": 547,
     "groups": {
      "identity": 62,
@@ -210,8 +215,9 @@
    {
     "id": 2,
     "key": "domain",
-    "name": "Domain Ontology Packs",
-    "blurb": "Business meaning per enterprise domain",
+    "name": "Domain and enterprise knowledge",
+    "short": "Domain knowledge",
+    "blurb": "Industry concepts and constraints, specialized to each enterprise",
     "count": 204,
     "groups": {
      "workflow": 60,
@@ -227,8 +233,9 @@
    {
     "id": 3,
     "key": "agentic",
-    "name": "Agentic-System Ontology",
-    "blurb": "Planner, memory, tools, MCP and the threats that target them",
+    "name": "Agent execution knowledge",
+    "short": "Agent execution",
+    "blurb": "Validated practices for how agents carry out work: tool and MCP dependencies, coordination patterns, delegated authority",
     "count": 187,
     "groups": {
      "agent": 5,
@@ -245,8 +252,9 @@
    {
     "id": 4,
     "key": "runtime",
-    "name": "Runtime Knowledge Graph",
-    "blurb": "What is actually deployed, observed and decided right now",
+    "name": "Runtime knowledge graph",
+    "short": "Runtime knowledge",
+    "blurb": "Evidence of what happened in each run",
     "count": 568,
     "benchmark": 544,
     "groups": {

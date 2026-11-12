@@ -100,5 +100,5 @@ test('the pack names no real consumer platform or parent company', () => {
 
 test('swm/data/ontology.json is byte-identical to the pinned base', () => {
   const sha = createHash('sha256').update(readFileSync(join(ROOT, 'swm/data/ontology.json'))).digest('hex');
-  assert.equal(sha, '13d1e4280be87dc62cef0b9591e916891d555795976970f46e02902a602d5494');
+  assert.equal(sha, '32865e2538ea72af1178f0e0e66a8b82e387863f40eda2fca6619d00c1fe55f1');
 });

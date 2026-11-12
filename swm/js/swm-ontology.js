@@ -156,7 +156,7 @@
 
     $('swmLevels').innerHTML = data.layers.map(function (l) {
       return '<button data-level="' + l.id + '" aria-pressed="false" title="' + SWM.esc(l.name) + ' · ' + tierCount[l.id] + ' nodes">L' + l.id + ' ' +
-             SWM.esc(l.name.split(' ')[0]) + '</button>';
+             SWM.esc(l.short) + '</button>';
     }).join('');
     if ($('swmBenchToggle')) $('swmBenchToggle').addEventListener('change', function (ev) {
       state.bench = ev.target.checked;

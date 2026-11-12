@@ -39,7 +39,7 @@
         '<div class="swm-shell coverage">' +
           '<div class="swm-stage" id="swmLayersStage">' +
             '<div class="swm-stage-bar">' +
-              '<div class="swm-crumbs"><button data-reset="1">Four presentation tiers</button><i>›</i><b id="swmChainFocus">L1 General</b></div>' +
+              '<div class="swm-crumbs"><button data-reset="1">Four presentation tiers</button><i>›</i><b id="swmChainFocus">L1 General concepts</b></div>' +
               '<div class="swm-views" id="swmChainAction"><button data-open="1">Open this layer in the Explorer ↗</button></div>' +
             '</div>' +
             '<svg id="swmChainSvg"></svg>' +
@@ -52,7 +52,7 @@
             '<div class="swm-hint">Click a plane to set the abstraction level · inspect a hop for its true predicate direction</div>' +
           '</div>' +
           '<div class="swm-side">' +
-            '<div class="swm-card"><h4 id="swmChainTitle">L1 · General Agent Ontology Graph</h4>' +
+            '<div class="swm-card"><h4 id="swmChainTitle">L1 · General concepts and rules</h4>' +
               '<p class="sub" id="swmChainBlurb"></p>' +
               '<div class="swm-facts" id="swmChainFacts"></div>' +
               '<h4 style="margin-top:12px">Select a tier</h4>' +
@@ -198,7 +198,7 @@
 
     function renderSide() {
       var layer = chain.layers[focus - 1];
-      document.getElementById('swmChainFocus').textContent = 'L' + layer.id + ' ' + layer.name.split(' ')[0];
+      document.getElementById('swmChainFocus').textContent = 'L' + layer.id + ' ' + layer.short;
       document.getElementById('swmChainTitle').textContent = 'L' + layer.id + ' · ' + layer.name;
       document.getElementById('swmChainBlurb').textContent = layerBlurb(layer);
 
