@@ -559,6 +559,10 @@
 :is(#assurance,#assurance-case) .as-hero .as-kpis{margin:0 -44px;padding:0 28px;gap:0;border-top:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
 :is(#assurance,#assurance-case) .as-hero .as-kpi{background:none;border:0;border-radius:0;box-shadow:none;padding:20px 16px;border-left:1px solid rgba(255,255,255,.1)}
 :is(#assurance,#assurance-case) .as-hero .as-kpi:first-child{border-left:0}
+:is(#assurance,#assurance-case) .as-hero .as-kpis-tag{margin:22px 0 8px;font:700 var(--text-2xs) var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--nav-muted)}
+:is(#assurance,#assurance-case) .as-hero a.as-kpi{display:block;color:inherit;text-decoration:none}
+:is(#assurance,#assurance-case) .as-hero a.as-kpi:hover{background:rgba(255,255,255,.05)}
+:is(#assurance,#assurance-case) .as-hero a.as-kpi:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 :is(#assurance,#assurance-case) .as-hero .as-kpi .v{font-size:var(--text-4xl);line-height:1.1}
 :is(#assurance,#assurance-case) .as-hero .as-kpi .l{color:var(--nav-text)}
 :is(#assurance,#assurance-case) .as-hero .as-kpi .d.up{color:var(--nav-green)}
