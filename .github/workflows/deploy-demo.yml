@@ -53,6 +53,7 @@ jobs:
         working-directory: _site
         env:
           CHROME: /usr/bin/google-chrome
+          REAPER_TRACE: /tmp/reaper-trace.log
         run: |
           node --test tests/site/*.test.mjs
           for f in js/*.js; do node --check "$f"; done
@@ -63,6 +64,8 @@ jobs:
         run: |
           left=$(find "$(node -p 'require("os").tmpdir()')" -maxdepth 1 -type d \( -name 'ontology-card-chrome-*' -o -name 'studio-site-probes-*' \))
           for d in $left; do echo "$d: $(find "$d" -type f | wc -l) files, modified $(date -r "$d" +%T), now $(date +%T)"; find "$d" -maxdepth 2 | head -12; done
+          for d in $left; do echo "--- trace for $d"; grep -F "$d" /tmp/reaper-trace.log | grep -v ' own ' | head -30; done
+          echo "--- trace totals"; awk '{print $4}' /tmp/reaper-trace.log | sort | uniq -c
           echo "chrome processes still running: $(pgrep -fc 'user-data-dir=' || true)"; pgrep -fa 'user-data-dir=' | cut -c1-220 | head -5 || true
           test -z "$left" || { echo "::error::The browser tests left $(echo "$left" | wc -l | tr -d ' ') Chrome profile(s) in the temp directory. Spawn Chrome through own() in tests/site/chrome-reaper.mjs and call the release() it returns."; exit 1; }
 
