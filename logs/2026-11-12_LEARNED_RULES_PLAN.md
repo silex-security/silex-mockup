@@ -267,4 +267,7 @@ Seats: reviewer-claude and reviewer-codex left running in their panes; the coder
 2026-11-13T08:17:49Z	lr-codex-impl-r1	codex	REV c5f2b2b9	delivered
 2026-11-13T08:21:53Z	lr-claude-impl-r1	claude	REV c5f2b2b9	verdict IMPL-APPROVED
 2026-11-13T08:21:53Z	lr-codex-impl-r1	codex	REV c5f2b2b9	verdict IMPL-APPROVED
+2026-11-13T08:22:05Z	seat:claude	claude	-	disposition left
+2026-11-13T08:22:05Z	seat:codex	codex	-	disposition left
+2026-11-13T08:22:05Z	seat:deepseek	deepseek	-	disposition reset
 ```
