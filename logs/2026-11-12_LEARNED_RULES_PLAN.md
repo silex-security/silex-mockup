@@ -194,3 +194,77 @@ Reply files: `$SCRATCH/lr-codex-plan-r2.md`, `$SCRATCH/lr-claude-plan-r2.md`. re
 - PLANNER (claude): PLAN-APPROVED against v0.3.
 
 Non-blocking notes from round 3, left for the build so the approved text stays as read: name `sessions.with_candidate` more exactly or drop it (claude); move the same-author sentence into the details block if the limits line wraps badly at 390 px (claude); tie "fail the same way" to the failed criterion numbers as well as the counts (codex).
+
+## 9. Outcome
+
+Code gate, round 1, on revision `c5f2b2b986425e9ef5000a3cdf5ea45055b07507` (`review-diff.sh` hash of the 16 implementation paths against BASE `44e6aca`; HEAD `e93b21b`):
+
+- reviewer-claude (Opus 5.5): `IMPL-APPROVED` (`$SCRATCH/lr-claude-impl-r1.md`). It reran the four new and changed tests and the full suite, and joined all 56 rules against the fixtures with 0 mismatches.
+- reviewer-codex: `IMPL-APPROVED` (`$SCRATCH/lr-codex-impl-r1.md`). It matched all 56 rules against the fixtures and ran the two browser tests.
+- PLANNER (claude): IMPL-APPROVED against the same revision and base.
+
+Measured by the planner (`$SCRATCH/probes-r1.txt`):
+
+- Full suite: 571 tests, 570 pass, 0 fail, 1 skipped (the byte-for-byte generator case, which needs `JEV_UPSTREAM`). BASE had 557, all passing. One run each.
+- With `JEV_UPSTREAM` set, the generator case passes, and a generator rerun leaves the data file unchanged.
+- `node tests/site/run-site-probes.mjs`: 50 of 51 at HEAD and 50 of 51 at BASE. The same probe (S20, sidebar width) fails on both.
+- Mutation M1 failed the unit evidence assertion and the page test. Mutation M2 failed the unit `summary` assertion (8 against 56) and the page headline assertion. The module was restored after each.
+
+Deviations from plan v0.3, all listed in the review prompt and accepted by both reviewers:
+
+1. The failing card shows the full evidence sentence, not the shorter one in section 2.
+2. "Fail the same way" groups by counts and failed criteria.
+3. `source.files` records the sessions directory as `{ path, files, manifest_sha256 }`.
+4. M1 also failed the page test, which the plan did not predict.
+5. The DeepSeek coder wrote `js/rt-learned-rules.js` and its unit test; the planner trimmed defensive code from the module before review.
+6. The two cards carry a green or red left border beside their words.
+7. The coder seat needed `$SCRATCH` for its prompt. The planner moved `upstream/` and `probe/` out of `$SCRATCH` before allowing that read and restored them after the seat exited.
+
+Reviewer notes left unapplied, to keep the approved diff as reviewed:
+
+- The failing card's reason sentence is fixed text beside a computed example; key it to the condition if the data is ever regenerated with a different largest group (claude).
+- Drop the `mountLearnedRules` input guard and its assertions (claude).
+- At 390 px the sub-tab bar does not scroll the selected tab into view on a deep link; existing `rt-subnav` behaviour (claude).
+- Criterion 5 wording against criterion 3; README sentence wording; `sessions.with_candidate` duplicates `first_gate.passed` (claude).
+- `tests/site/gym-fixtures.test.mjs:168` has a 100 ms timing assertion that failed once for reviewer-codex under load and passes alone; unchanged by this work (codex).
+
+Open, the user's decisions:
+
+- D1 and D2 (section 6). Nothing is pushed. The branch `jwang3417/learned-rules` holds local commits only.
+- Opening and merging the PR, which deploys to demo.opensilex.ai.
+- The `jev-simplified` sync, as its own plan after the merge.
+
+Seats: reviewer-claude and reviewer-codex left running in their panes; the coder pane exited after its task. The user switched reviewer-claude to auto mode during plan round 1; `git status` was clean of reviewer edits at each gate.
+
+### Dispatch ledger
+
+```
+2026-11-13T07:41:47Z	lr-claude-plan-r1	claude	plan v0.1	sent
+2026-11-13T07:41:49Z	lr-codex-plan-r1	codex	plan v0.1	sent
+2026-11-13T07:42:08Z	lr-claude-plan-r1	claude	plan v0.1	delivered
+2026-11-13T07:42:08Z	lr-codex-plan-r1	codex	plan v0.1	delivered
+2026-11-13T07:43:15Z	lr-codex-plan-r1	codex	plan v0.1	verdict PLAN-REJECTED
+2026-11-13T07:45:17Z	lr-claude-plan-r1	claude	plan v0.1	verdict PLAN-REJECTED
+2026-11-13T07:46:39Z	lr-claude-plan-r2	claude	plan v0.2	sent
+2026-11-13T07:46:40Z	lr-codex-plan-r2	codex	plan v0.2	sent
+2026-11-13T07:46:54Z	lr-claude-plan-r2	claude	plan v0.2	delivered
+2026-11-13T07:46:54Z	lr-codex-plan-r2	codex	plan v0.2	delivered
+2026-11-13T07:48:32Z	lr-codex-plan-r2	codex	plan v0.2	verdict PLAN-REJECTED
+2026-11-13T07:48:32Z	lr-claude-plan-r2	claude	plan v0.2	verdict PLAN-REJECTED
+2026-11-13T07:48:34Z	lr-claude-plan-r3	claude	plan v0.3	sent
+2026-11-13T07:48:36Z	lr-codex-plan-r3	codex	plan v0.3	sent
+2026-11-13T07:48:45Z	lr-claude-plan-r3	claude	plan v0.3	delivered
+2026-11-13T07:48:45Z	lr-codex-plan-r3	codex	plan v0.3	delivered
+2026-11-13T07:49:15Z	lr-codex-plan-r3	codex	plan v0.3	verdict PLAN-APPROVED
+2026-11-13T07:49:15Z	lr-claude-plan-r3	claude	plan v0.3	verdict PLAN-APPROVED
+2026-11-13T07:51:47Z	lr-deepseek-task2-a1	deepseek	BASE 44e6aca + 756726a	sent
+2026-11-13T07:52:30Z	lr-deepseek-task2-a1	deepseek	dialog: access external directory /var/folders/x3/8mdzc51d11j_z0l1mt77lpmr0000gn/T//fleet-ec9AdD/*	question
+2026-11-13T07:52:51Z	lr-deepseek-task2-a1	deepseek	allowed once, read confirmed on screen	answered
+2026-11-13T08:00:46Z	lr-deepseek-task2-a1	deepseek	two files, 7 unit tests reported	done succeeded
+2026-11-13T08:17:39Z	lr-claude-impl-r1	claude	plan v0.3, BASE 44e6aca, REV c5f2b2b9	sent
+2026-11-13T08:17:41Z	lr-codex-impl-r1	codex	plan v0.3, BASE 44e6aca, REV c5f2b2b9	sent
+2026-11-13T08:17:49Z	lr-claude-impl-r1	claude	REV c5f2b2b9	delivered
+2026-11-13T08:17:49Z	lr-codex-impl-r1	codex	REV c5f2b2b9	delivered
+2026-11-13T08:21:53Z	lr-claude-impl-r1	claude	REV c5f2b2b9	verdict IMPL-APPROVED
+2026-11-13T08:21:53Z	lr-codex-impl-r1	codex	REV c5f2b2b9	verdict IMPL-APPROVED
+```
