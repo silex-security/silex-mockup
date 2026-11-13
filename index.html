@@ -861,7 +861,7 @@ const incidentData={
   document.querySelectorAll('[data-case-tab]').forEach(b=>b.addEventListener('click',()=>setCasePanel(b.dataset.caseTab)));
   function setIncPanel(p){incPanel=p;document.querySelectorAll('[data-inc-switch]').forEach(b=>b.classList.toggle('active',b.dataset.incSwitch===p));$id('incView').hidden=$id('incQueueView').hidden=p!=='incidents';$id('policies').hidden=p!=='decisions'}
   function showView(id){const al=VIEW_ALIAS[id];if(al){setIncPanel(al[1]);id=al[0]}if(!routing)routeGen++;views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const cn=document.getElementById('crumbNote');cn.textContent=document.getElementById(id)?.dataset.note||'';cn.hidden=!cn.textContent;if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();document.dispatchEvent(new CustomEvent('rt:view',{detail:{view:id,nav:navId}}));if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
-  nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+  nav.forEach(b=>b.addEventListener('click',()=>navTo(b.dataset.view)));
   const $id=x=>document.getElementById(x);
   const setText=(x,v)=>{const e=$id(x);if(e)e.textContent=v};
   const toast=$id('toast');let toastTimer=null;
@@ -1200,7 +1200,7 @@ const incidentData={
   document.addEventListener('click',e=>{const t=e.target.closest('[data-jump],[data-open-incident],[data-open-workflow],[data-incident],[data-review-inc],[data-def],[data-close],[data-go],[data-suite-jump],[data-gap],[data-new-blueprint],[data-lib-risk],[data-lib-unregistered],[data-revalidate-wf],[data-speedrun-team]');if(!t||t.disabled)return;const ds=t.dataset;
     if(ds.speedrunTeam){openRoute('#view=speedrun&path='+encodeURIComponent('/speedrun/teams/'+ds.speedrunTeam));return}
     if(ds.close){$id(ds.close).classList.remove('open');return}
-    if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else showView(ds.go);return}
+    if(ds.go){changesModal.classList.remove('open');setHighlights(true);if(ds.go==='incident')renderIncident('I-1042');else if(ds.go==='workflow')openWorkflow('WF-021');else navTo(ds.go);return}
     if(ds.def){defsModal.classList.add('open');const d=$id('def-'+ds.def);if(d){d.scrollIntoView({block:'center'});d.animate([{background:'#0f2a1a'},{background:'transparent'}],{duration:1600})}return}
     if(ds.newBlueprint){if(window.openStudio)window.openStudio('new');else showView('blueprint');return}
     if(ds.revalidateWf){revalidateWorkflow(ds.revalidateWf);return}
@@ -1211,7 +1211,7 @@ const incidentData={
     if(ds.incident){renderIncident(ds.incident);return}
     if(ds.suiteJump){showView('security-model');document.querySelector('[data-wm-panel="wm-landscape"]').click();const c=document.querySelector('[data-suite="'+ds.suiteJump+'"]');if(c)c.click();return}
     if(ds.gap){notify('Queued: '+ds.gap+' · coverage will update after the next system validation');return}
-    if(ds.jump){showView(ds.jump)}});
+    if(ds.jump){navTo(ds.jump)}});
 
   refreshPending();renderLibrary();applyIncFilters();renderIncident('I-1042',false);showView('assurance');
   /* Hooks for js/studio-host.js (cutover plan 2026-09-24 §2.4). */
@@ -1275,11 +1275,16 @@ const incidentData={
     if(id==='assurance-case')return '#view=assurance-case'+(casePanel==='evidence'?'':'&tab='+casePanel);
     if(id==='speedrun'&&window.__speedrun)return window.__speedrun.hash();
     return '#view='+id}
-  function openRoute(hash){const h=location.hash;
-    /* a blank origin, or a view= hash that no longer describes the visible state, is rewritten to the full current state;
-       any other hash (#studio, #studio=new) is kept as the return destination */
-    if(!h||(h.startsWith('#view=')&&h!==stateHash()))history.replaceState(null,'',stateHash());
+  /* a blank origin, or a view= hash that no longer describes the visible state, is rewritten to the full current state;
+     any other hash (#studio, #studio=new) is kept as the return destination */
+  function keepOrigin(){const h=location.hash;if(!h||(h.startsWith('#view=')&&h!==stateHash()))history.replaceState(null,'',stateHash())}
+  function openRoute(hash){keepOrigin();
     if(location.hash===hash){routeGen++;applyViewHash()}else location.hash=hash}
+  /* a sidebar or jump click: the view opens where the visitor left it, so the URL is written here and no hashchange re-routes it.
+     The bare entry goes in before showView, because the Gym and Speedrun hosts read the URL on rt:view; the view's own state is added after. */
+  function navTo(id){keepOrigin();
+    if(new URLSearchParams(location.hash.slice(1)).get('view')!==id)history.pushState(null,'','#view='+id);
+    showView(id);const h=stateHash();if(h!==location.hash)history.replaceState(null,'',h)}
   document.addEventListener('click',e=>{const b=e.target.closest('[data-wm-route]');if(!b)return;e.preventDefault();openRoute(b.getAttribute('data-wm-route'))});
   window.addEventListener('hashchange',applyViewHash);applyViewHash();
   if(window.studioHostReady)window.studioHostReady();
