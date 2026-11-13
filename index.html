@@ -101,7 +101,21 @@
 </div>
 
 <div class="as-sec"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">Product suite for the agent lifecycle</h2><p class="hover-note">Four products on one shared foundation. Each card opens the matching demo views.</p></div></div>
-<div id="suiteMap"></div></div>
+<div class="suite-compact" data-suite-map></div></div>
+<div class="as-deeper">
+<div class="en-card as-case-link"><p>What each product does, and the five outcomes it enables</p><button class="as-open" data-wm-route="#view=product-suite">Open the product suite</button></div>
+<div class="en-card as-case-link"><p>The assurance case: evidence base, verification and validation, the autonomy flywheel</p><button class="as-open" data-wm-route="#view=assurance-case">Open the assurance case</button></div>
+</div>
+
+</section>
+
+<section class="view" id="product-suite">
+<div class="title-row"><div>
+<h1>Product suite</h1>
+<p class="hover-note">What each product does across the agent lifecycle, and the outcomes the suite enables. Illustrative data.</p>
+</div><button class="btn ghost" data-jump="assurance">← Platform</button></div>
+<div class="as-sec"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">What each product does</h2><p class="hover-note">Four products on one shared foundation. Each card opens the matching demo views.</p></div></div>
+<div data-suite-map></div></div>
 
 <div class="as-sec"><div class="as-sechead"><span class="as-sn">02</span><div><h2 style="margin:0">What this enables</h2><p class="hover-note">Five outcomes, each with the place in this demo where it is shown.</p></div></div>
 <div class="en-grid">
@@ -110,8 +124,7 @@
 <div class="en-card"><h3>Small models on premises</h3><p>Smaller open models paired with structured business knowledge and validated patterns.</p><button class="as-open" data-wm-route="#view=runtime-observation&amp;tab=learning">See the learning loop</button></div>
 <div class="en-card"><h3>Security and safety</h3><p>Business rules, permissions and runtime evidence identify unsafe paths and block at the right step.</p><button class="as-open" data-open-incident="I-1042">Follow one blocked attack</button></div>
 <div class="en-card"><h3>Team intelligence</h3><p>Individual experience becomes lasting team capability through a shared ontology.</p><button class="as-open" data-jump="library">See reusable workflows</button></div>
-</div></div>
-<div class="en-card as-case-link"><p>The assurance case: evidence base, verification and validation, the autonomy flywheel</p><button class="as-open" data-wm-route="#view=assurance-case">Open the assurance case</button></div>
+</div>
 
 </section>
 
@@ -120,8 +133,9 @@
 <h1>Assurance case</h1>
 <p class="hover-note">The evidence base, verification and validation, and what assurance lets an agent do. Illustrative data.</p>
 </div></div>
+<div class="view-switch" id="caseSwitch"><button class="active" data-case-tab="evidence">Evidence base</button><button data-case-tab="vv">Verification &amp; validation</button><button data-case-tab="correspondence">Correspondence</button><button data-case-tab="flywheel">Autonomy flywheel</button></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">Enterprise World Model — the evidence base</h2><p class="hover-note">A self-evolving L1–L4 ontology over a runtime knowledge graph. 1506 types · 5244 relations · grounded in open standards.</p></div></div>
+<div class="as-sec" data-case-panel="evidence"><div class="as-sechead"><span class="as-sn">01</span><div><h2 style="margin:0">Enterprise World Model — the evidence base</h2><p class="hover-note">A self-evolving L1–L4 ontology over a runtime knowledge graph. 1506 types · 5244 relations · grounded in open standards.</p></div></div>
 <div class="as-wm">
 <div class="as-card">
 <div class="as-layer"><div class="ln"><b>L1 · General concepts and rules</b><small>Shared definitions for agents, identities, tools, resources, actions, permissions and outcomes</small></div><div class="as-b"><i style="width:74%"></i></div><div class="pc"><b>547</b> · 74%</div></div>
@@ -164,7 +178,7 @@
 <p class="as-quote" style="margin-top:12px">Pruned ≠ sampled: every excluded branch names the law that excludes it, so each exclusion can be checked. Coverage is only as complete as the model's vocabulary and assumptions.</p>
 </div></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">02</span><div><h2 style="margin:0">Agent Verification &amp; Validation</h2><p class="hover-note">Verification asks whether execution conforms to spec. Validation asks whether the spec is still correct under reality.</p></div></div>
+<div class="as-sec" data-case-panel="vv" hidden><div class="as-sechead"><span class="as-sn">02</span><div><h2 style="margin:0">Agent Verification &amp; Validation</h2><p class="hover-note">Verification asks whether execution conforms to spec. Validation asks whether the spec is still correct under reality.</p></div></div>
 <div class="as-vv">
 <div></div><div class="h">Verification — conforms to spec?</div><div class="h">Validation — spec still correct?</div>
 <div class="rl">Outcome side</div>
@@ -176,7 +190,7 @@
 </div>
 <p class="as-quote">Blocking one path does not prove that the underlying failure has been closed.</p></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">03</span><div><h2 style="margin:0">The Correspondence Problem</h2><p class="hover-note">Three objects that used to travel together come apart once an agent holds real authority.</p></div></div>
+<div class="as-sec" data-case-panel="correspondence" hidden><div class="as-sechead"><span class="as-sn">03</span><div><h2 style="margin:0">The Correspondence Problem</h2><p class="hover-note">Three objects that used to travel together come apart once an agent holds real authority.</p></div></div>
 <div class="as-card"><div class="as-corr">
 <div class="n"><b>Designed Intent</b><span>prompts · blueprints · policy · permissions</span></div>
 <div class="lk"><span class="ar">↔</span><small>execution drifts<br>from design</small></div>
@@ -185,7 +199,7 @@
 <div class="n"><b>Enterprise Reality</b><span>permissions · other agents · business state</span></div>
 </div><p class="as-quote">Correspondence cannot be verified without a model of reality; a useful model of reality must carry both semantics and causal structure.</p></div></div>
 
-<div class="as-sec"><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="hover-note">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
+<div class="as-sec" data-case-panel="flywheel" hidden><div class="as-sechead"><span class="as-sn">04</span><div><h2 style="margin:0">The autonomy flywheel — the effect of assurance</h2><p class="hover-note">Assurance is not an insurance premium; it is what lets consequential authority move from human approval to the agent.</p></div></div>
 <div class="as-card">
 <div class="as-flow"><span class="as-fstep">Assurance</span><span class="a">→</span><span class="as-fstep">Authority</span><span class="a">→</span><span class="as-fstep">Production actions</span><span class="a">→</span><span class="as-fstep">Runtime evidence</span><span class="a">→</span><span class="as-fstep">Better world model</span><span class="a">→</span><span class="as-fstep">Stronger validation</span><span class="a">↺</span></div>
 <div class="as-unlock">
@@ -615,7 +629,7 @@
 <p class="hover-note">Action-wise. Watch each agent action as it happens and see how SILEX Runtime advises the control in the path before it runs. Simulated engine.</p>
 </div>
 </div>
-<div class="rt-lead"><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
+<div class="rt-lead"><div><p>Each agent action is assessed before it runs. Fixed rules decide first, then a judge model, then a policy.</p><details class="rt-more"><summary>How the check works</summary><div><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p></div></details></div><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
 <div class="card kpi-strip" id="rtMetrics">
 <div class="metric" data-tone="accent" data-trend="flat" data-rt-metric="scenarios"><div class="kicker">Reference scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
 <div class="metric" data-tone="green" data-trend="up" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
@@ -632,7 +646,7 @@
 </nav>
 
 <section class="rt-panel active" id="rtScenarioCard" data-rt-panel="scenarios" role="tabpanel" aria-labelledby="rtTab-scenarios">
-<div class="card rt-intro"><div><h2>Watch one agent action get checked</h2><p>Pick a situation an agent might face. Each action the agent wants to take travels left to right through the checks; where it stops tells you who decided and why. Until you pick one, the picture loops through three example payments.</p></div><span class="rt-chip" data-kind="sim">Simulated engine</span></div>
+<div class="card rt-intro"><div><h2>Watch one agent action get checked</h2><p>Pick a situation. Each action travels left to right through the checks, and where it stops tells you who decided and why.</p></div><span class="rt-chip" data-kind="sim">Simulated engine</span></div>
 <div class="card rt-scen-bar">
 <label for="rtScenarioSelect">Scenario</label>
 <select id="rtScenarioSelect" aria-describedby="rtScenWhat"><option value="">Loading the simulated engine…</option></select>
@@ -645,7 +659,7 @@
 <div class="rt-run-result"><div class="decision-state approved" id="rtResult"></div><a href="#rtFrameWrap" class="btn rt-see-run" id="rtSeeRun" hidden>See this run in the decision plane →</a></div>
 </div>
 <div class="card rt-trace-card"><div id="rtTrace" aria-label="Gate trace of this run"></div></div>
-<h3 class="rt-section-h">How to read the picture</h3>
+<details class="rt-more"><summary>How to read the picture</summary><div>
 <div class="rt-howto">
 <div><b>Agent action</b>The tool call the agent wants to make, such as <code>payments.execute</code>.</div>
 <div><b>Hard rules</b>Fixed checks, such as an amount limit or a domain allowlist. Any one can stop the action, and no model can override it.</div>
@@ -654,6 +668,7 @@
 <div><b>Evidence</b>A record of every decision, kept for audit. In this preview nothing leaves the browser.</div>
 </div>
 <p class="rt-ref rt-tipline">Tip: click a stage to pause the animation there; click it again to resume. The outcome chips are the default-policy reference outcome.</p>
+</div></details>
 </section>
 
 <section class="rt-panel" id="rtDecisionPlane" data-rt-panel="plane" role="tabpanel" aria-labelledby="rtTab-plane" hidden>
@@ -746,7 +761,7 @@
 </div>
 <div class="wm-panel chg" data-chg="9/21: L1 overview and an illustrative runtime example" id="wm-ontology" role="tabpanel" aria-labelledby="wmtab-ontology"><div id="swmOntology"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the ontology graph…</div></div></div><details class="swm-more"><summary>About the Ontology Graph <small>· sources, typed relationships and caveats</small></summary><div class="swm-more-body"><div class="v2-note">The <b>published</b> L1 classes are distilled from public ontologies — MITRE D3FEND, ATT&amp;CK, ATLAS, UCO and the OWASP GenAI lists — and keep their real identifiers. L1 also holds Silex-authored core concepts, and those, like everything else Silex adds, carry a review grade in the inspector: <b>curated</b> (core concepts, domain packs, components, hazards and mappings), <b>heuristic</b> (keyword-mapped threat placements) or <b>illustrative</b> (registered workflows, the L4 runtime graph and all coverage figures). CRM and Legal are candidate packs, outside the coverage figures. Final naming is still pending technical alignment.</div><table class="matrix" style="margin-top:12px"><thead><tr><th>Typed relationship</th><th>From</th><th>To</th><th>Meaning</th></tr></thead><tbody><tr><td class="bold">DELEGATES_AUTHORITY</td><td>Identity</td><td>Agent</td><td>Who empowered the agent and under what scope</td></tr><tr><td class="bold">CALLS / MUTATES</td><td>Agent / Tool</td><td>Tool / Resource</td><td>Which behavior caused an enterprise state transition</td></tr><tr><td class="bold">GOVERNS / GATES</td><td>Policy / Control</td><td>Action</td><td>Where enforcement changes the execution</td></tr><tr><td class="bold">THREATENS / COUNTERS</td><td>Threat / Countermeasure</td><td>Agentic component</td><td>Which published attack lands on which part of the system, and what answers it</td></tr><tr><td class="bold">REACHES</td><td>Failure / Path</td><td>Outcome</td><td>Why a prohibited business outcome remains possible</td></tr><tr><td class="bold">SUBCLASS_OF</td><td>Concept</td><td>More general concept</td><td>The only subsumption relation; tiers and groups are not</td></tr><tr><td class="bold">PART_OF_DOMAIN / DEPLOYED_IN</td><td>Entity, action, hazard / Component</td><td>Domain pack</td><td>Membership and deployment, never written as specialisation</td></tr><tr><td class="bold">HAZARD_FOR / MAY_LEAD_TO</td><td>Hazard</td><td>Entity or action / Prohibited outcome</td><td>The condition that makes a business action dangerous, and where it ends</td></tr><tr><td class="bold">CHARACTERIZES / MITIGATED_BY</td><td>Hazard</td><td>Published threat / Control</td><td>Which attack the hazard is an instance of, and what answers it</td></tr><tr><td class="bold">REQUIRES_EVIDENCE / RECORDED_BY</td><td>Hazard / Evidence type</td><td>Evidence type / Record schema</td><td>What must be observed to check the hazard, and which telemetry records it</td></tr></tbody></table><p class="swm-note">Public sources: <a href="https://d3fend.mitre.org/" target="_blank" rel="noopener">MITRE D3FEND</a>, <a href="https://attack.mitre.org/" target="_blank" rel="noopener">MITRE ATT&amp;CK</a>, <a href="https://atlas.mitre.org/" target="_blank" rel="noopener">MITRE ATLAS</a>, <a href="https://unifiedcyberontology.org/" target="_blank" rel="noopener">UCO</a>, <a href="https://genai.owasp.org/" target="_blank" rel="noopener">OWASP GenAI Security Project</a>. Distillation and licences: <code>swm/data/SOURCES.md</code>.</p><p class="swm-note">The Network view's notation is adapted from VOWL (Lohmann et al.) and its interaction model is inspired by WebVOWL (MIT); it is a separate implementation, not WebVOWL. Circles are ontology classes (L1–L3) or illustrative runtime instances (L4). The bundle has no datatype properties or set operators, so VOWL's datatype boxes and set-operator nodes are not drawn; export and force-distance options are omitted.</p></div></details></div>
           
-<div class="wm-panel active chg" data-chg="10/2: default view · tiers are presentation groups; only SUBCLASS_OF asserts subsumption" id="wm-architecture" role="tabpanel" aria-labelledby="wmtab-architecture"><div class="wm-onto"><p class="wm-onto-lead">SILEX pairs a Business Ontology with an Agent Execution Ontology.</p><div class="wm-onto-pair"><div class="card"><h4>Business Ontology</h4><p>What the enterprise wants to achieve, and the definitions, relationships, rules and permissions that govern the work.</p></div><div class="card"><h4>Agent Execution Ontology</h4><p>How agents carry out that intent in practice: how they decompose tasks, coordinate across workflows, sequence tool calls, and decide when to delegate or escalate.</p></div></div><p class="wm-onto-note">Four layers evolve at different speeds, shaped by top-down business requirements and bottom-up execution evidence.</p></div><div id="swmLayers"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the ontology chain…</div></div></div><details class="swm-more"><summary>About Ontology Layers <small>· the tiers, the principle and caveats</small></summary><div class="swm-more-body"><div class="v2-note">Final naming is still pending technical alignment. The four tiers, L1 → L2 → L3 → L4, are <b>presentation groups, not taxonomic ranks</b>: only <code>SUBCLASS_OF</code> asserts that one concept is a kind of another. L1–L3 supply the world model's Schema; L4 supplies World State instances. This view does not depict the Laws, Objectives or Calibration layers. The build refuses to publish a bundle where a relation breaks its predicate signature, where the display tree or the subclass graph has a cycle, or where a node hangs under a lower tier.</div><div class="ontology-principle" style="margin-top:12px"><b>Architecture principle:</b> one federated ontology carries every domain pack; a domain pack is a root of its own whose entities and actions are kinds of general L1 concepts; an agentic component is a kind of a general L1 concept, deployed in the domains where it runs; and the runtime graph is the one place where those semantics meet observed behaviour. Membership, deployment and grouping are navigation, not subsumption. Organisational ownership stays a navigational attribute.</div><p class="swm-note">Layer selection is shared with the <b>Ontology Graph</b> tab: pick a layer here and the explorer opens there.</p></div></details>
+<div class="wm-panel active chg" data-chg="10/2: default view · tiers are presentation groups; only SUBCLASS_OF asserts subsumption" id="wm-architecture" role="tabpanel" aria-labelledby="wmtab-architecture"><div class="wm-onto"><p class="wm-onto-lead">SILEX pairs a Business Ontology with an Agent Execution Ontology.</p><div class="wm-onto-pair"><div class="card"><h4>Business Ontology</h4><p>What the enterprise wants to achieve, and the definitions, relationships, rules and permissions that govern the work.</p></div><div class="card"><h4>Agent Execution Ontology</h4><p>How agents carry out that intent in practice: how they decompose tasks, coordinate across workflows, sequence tool calls, and decide when to delegate or escalate.</p></div></div><p class="wm-onto-note">Four layers evolve at different speeds, shaped by top-down business requirements and bottom-up execution evidence.</p></div><div id="swmLayers"><div class="swm"><div class="swm-loading"><div class="swm-spinner"></div>Loading the ontology chain…</div></div></div><details class="swm-more"><summary>About Ontology Layers <small>· the tiers, the principle and caveats</small></summary><div class="swm-more-body"><div class="v2-note">Final naming is still pending technical alignment. The four tiers, L1 → L2 → L3 → L4, are <b>presentation groups, not taxonomic ranks</b>: only <code>SUBCLASS_OF</code> asserts that one concept is a kind of another. L1–L3 supply the world model's Schema; L4 supplies illustrative World State instances. Plane size is layout only. Counts are verifiable bundle counts, and component mappings are Silex-authored. This view does not depict the Laws, Objectives or Calibration layers. The build refuses to publish a bundle where a relation breaks its predicate signature, where the display tree or the subclass graph has a cycle, or where a node hangs under a lower tier.</div><div class="ontology-principle" style="margin-top:12px"><b>Architecture principle:</b> one federated ontology carries every domain pack; a domain pack is a root of its own whose entities and actions are kinds of general L1 concepts; an agentic component is a kind of a general L1 concept, deployed in the domains where it runs; and the runtime graph is the one place where those semantics meet observed behaviour. Membership, deployment and grouping are navigation, not subsumption. Organisational ownership stays a navigational attribute.</div><p class="swm-note">Layer selection is shared with the <b>Ontology Graph</b> tab: pick a layer here and the explorer opens there.</p></div></details>
 </div>
 <div class="v2-note">Planned for V2 and hidden in this demo: Cross-Domain Risk, Business Harness, Model Health.</div>
 </section>
@@ -833,13 +848,16 @@ const incidentData={
 
   /* ---- 9/15: navigation, shared state, library, workflow detail, blueprint lifecycle ---- */
   const views=document.querySelectorAll('.view'),nav=document.querySelectorAll('.nav button[data-view]'),crumb=document.getElementById('crumb');
-  const viewNames={assurance:'Platform','assurance-case':'Assurance case',overview:'Operations Overview',blueprint:'Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
+  const viewNames={assurance:'Platform','assurance-case':'Assurance case','product-suite':'Product suite',overview:'Operations Overview',blueprint:'Blueprint Studio',incidents:'Incidents & Decisions',incident:'Incident Detail',library:'Workflow Library',workflow:'Workflow Detail','runtime-observation':'Runtime Observation','security-model':'Enterprise World Model',gym:'Experiment Workbench','gym-environments':'Environments','gym-scenarios':'Scenarios','gym-runs':'Runs & Results',speedrun:'Speedrun'};
   /* Deep-link routing state (plan logs/2026-10-02_JEV_LEARNINGS_PLAN.md §A). routeGen increments on every navigation
      that abandons a destination (any showView, any World Model sub-tab change, a newer route); the router's own
      destination navigation runs with routing=true and does not count. A pending focus whose gen is stale is discarded. */
   let routeGen=0,routing=false;window.__wmRouteGen=()=>routeGen;
   let incPanel='incidents';
   const VIEW_ALIAS={policies:['incidents','decisions']};
+  const CASE_TABS=['evidence','vv','correspondence','flywheel'];let casePanel='evidence';
+  function setCasePanel(p){casePanel=CASE_TABS.includes(p)?p:'evidence';document.querySelectorAll('[data-case-tab]').forEach(b=>b.classList.toggle('active',b.dataset.caseTab===casePanel));document.querySelectorAll('[data-case-panel]').forEach(e=>e.hidden=e.dataset.casePanel!==casePanel)}
+  document.querySelectorAll('[data-case-tab]').forEach(b=>b.addEventListener('click',()=>setCasePanel(b.dataset.caseTab)));
   function setIncPanel(p){incPanel=p;document.querySelectorAll('[data-inc-switch]').forEach(b=>b.classList.toggle('active',b.dataset.incSwitch===p));$id('incView').hidden=$id('incQueueView').hidden=p!=='incidents';$id('policies').hidden=p!=='decisions'}
   function showView(id){const al=VIEW_ALIAS[id];if(al){setIncPanel(al[1]);id=al[0]}if(!routing)routeGen++;views.forEach(v=>v.classList.toggle('active',v.id===id));const navId={incident:'incidents',workflow:'library'}[id]||id;nav.forEach(b=>b.classList.toggle('active',b.dataset.view===navId));crumb.textContent=viewNames[id]||id;const cn=document.getElementById('crumbNote');cn.textContent=document.getElementById(id)?.dataset.note||'';cn.hidden=!cn.textContent;if(id==='blueprint'&&window.studioShown)window.studioShown();if(id==='runtime-observation'&&window.__jevRuntimeShown)window.__jevRuntimeShown();document.dispatchEvent(new CustomEvent('rt:view',{detail:{view:id,nav:navId}}));if(id==='security-model'&&window.SWMLoad){const ap=document.querySelector('.wm-panel.active');if(ap)SWMLoad(ap.id)}window.scrollTo({top:0,behavior:'smooth'})}
   nav.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
@@ -1198,6 +1216,7 @@ const incidentData={
      #view=<nav view>, #view=incident&incident=<id>, #view=workflow&workflow=<id>,
      #view=security-model[&tab=<panel>][&node=<id>]; a node opens in the Ontology Graph.
      #view=runtime-observation[&tab=scenarios|plane|learning|ontology|fleet|latency[&sub=<key>]] (read by js/rt-subtabs.js).
+     #view=assurance-case[&tab=vv|correspondence|flywheel] opens one section of the assurance case.
      #view=incidents[&tab=decisions] opens Incidents or Pending decisions. The retired #view=policies is rewritten to #view=incidents&tab=decisions.
      #view=speedrun[&path=<app route>] (read and kept current by js/speedrun-host.js).
      #view=gym|gym-environments|gym-scenarios|gym-runs[&path=<Agent Gym route>] (read and kept current by js/gym-host.js).
@@ -1215,6 +1234,7 @@ const incidentData={
     if(v==='security-model'){routeWorldModel(q);return}
     if(v==='policies'){history.replaceState(null,'','#view=incidents&tab=decisions');showView('policies');return}
     if(v==='incidents')setIncPanel(q.get('tab')==='decisions'?'decisions':'incidents');
+    if(v==='assurance-case')setCasePanel(q.get('tab'));
     if(viewNames[v])showView(v)}
   function routeWorldModel(q){let tab=q.get('tab'),node=q.get('node'),warn=null;
     if(tab!==null&&!WM_TABS.includes(tab)){warn='Unknown World Model view — showing Ontology Layers.';tab=null}
@@ -1246,6 +1266,7 @@ const incidentData={
     if(id==='runtime-observation'){const t=window.__rtTabs&&window.__rtTabs.current();if(t&&t!=='scenarios'){const s=window.__rtSubnav&&window.__rtSubnav[t],k=s&&s.current();return '#view=runtime-observation&tab='+t+(k&&k!==s.initial?'&sub='+k:'')}}
     if(id.startsWith('gym')&&window.__gymHost)return window.__gymHost.hash();
     if(id==='incidents')return '#view=incidents'+(incPanel==='decisions'?'&tab=decisions':'');
+    if(id==='assurance-case')return '#view=assurance-case'+(casePanel==='evidence'?'':'&tab='+casePanel);
     if(id==='speedrun'&&window.__speedrun)return window.__speedrun.hash();
     return '#view='+id}
   function openRoute(hash){const h=location.hash;

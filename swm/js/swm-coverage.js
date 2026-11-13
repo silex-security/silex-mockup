@@ -58,11 +58,12 @@
               '<div class="swm-radar-wrap" id="swmRadarWrap" hidden><svg class="swm-radar" id="swmRadar" viewBox="0 0 300 260"></svg></div>' +
               '<div id="swmCovBars"></div>' +
               '<div class="swm-facts" id="swmCovFacts" style="margin-top:11px"></div>' +
-              '<div class="swm-ins-wrap swm-ins-card" id="swmCovWhy"></div></div>' +
-            '<div class="swm-card"><h4>Coverage gaps in scope</h4>' +
+              '<details class="swm-more"><summary>Why this coverage, and what to do next</summary>' +
+                '<div class="swm-more-body"><div class="swm-ins-wrap swm-ins-card" id="swmCovWhy"></div></div></details></div>' +
+            '<details class="swm-more" id="swmGapFold"><summary>Coverage gaps in scope</summary><div class="swm-more-body">' +
               '<p class="sub" id="swmGapSub">Gaps inside the selected part of the world model</p>' +
               '<div class="swm-gaps" id="swmGaps"></div>' +
-              '<div id="swmGapMore"></div></div>' +
+              '<div id="swmGapMore"></div></div></details>' +
           '</div>' +
         '</div>' +
         '<details class="swm-more"><summary>Illustrative scope metadata <small>authored fixture figures</small></summary>' +
@@ -471,6 +472,7 @@
       }
       var gp = req.gap ? data.gaps.filter(function (g) { return g.id === req.gap; })[0] : null;
       zoomTo(leaf);                       /* resets gap state */
+      document.getElementById('swmGapFold').open = !!req.gap;
       if (req.gap && !gp) {
         document.getElementById('swmGapSub').textContent =
           'Gap "' + SWM.esc(String(req.gap)) + '" is not in this bundle — showing the leaf without it.';

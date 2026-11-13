@@ -10,12 +10,14 @@ Clickable demo of SILEX, enterprise infrastructure for AI agents. SILEX is a sha
 | SILEX Runtime | Production | Runtime Observation, Incidents & Decisions | `#view=runtime-observation`, `#view=incidents`, `#view=incidents&tab=decisions` |
 | SILEX Speedrun | Performance enhancement | Speedrun | `#view=speedrun` |
 
-The home view, **Platform** (`#view=assurance`), follows the "Product Suite for Agent Lifecycle" diagram and the investor memo. It shows four figures that are measured today, the product suite as a map, and five outcomes the suite enables.
+The home view, **Platform** (`#view=assurance`), follows the "Product Suite for Agent Lifecycle" diagram and the investor memo. It shows four figures that are measured today and the product suite as a compact map. Detail sits one click away, on two sub-pages.
 
-- Each product card carries its lifecycle stage, three capabilities and its demo views. The cards carry no maturity label; the top bar and each view say what is simulated or illustrative. The stage, description and capabilities come from the sidebar markup (`data-stage`, `data-desc`, `data-caps`).
+- On the home page each product card carries its lifecycle stage, one line and its demo views. **Product suite** (`#view=product-suite`, not in the sidebar) shows the same map with three capabilities per product, and the five outcomes the suite enables.
+- Pages keep one main message per screen, and longer explanations sit in closed disclosures or sub-pages. `node tools/density-audit.mjs` prints the words a visitor meets on each screen, heaviest first.
+- The cards carry no maturity label; the top bar and each view say what is simulated or illustrative. The stage, description and capabilities come from the sidebar markup (`data-stage`, `data-desc`, `data-caps`).
 - The map draws the diagram's three loops: *Test optimizations* between Agent Gym and SILEX Speedrun, *Performance improvement spans design, testing, and production*, and *Execution evidence → Validate → Reusable knowledge* into SILEX Foundry.
 - The hero figures are read against `data/judge-latency.json`, `jev-runtime/demo/data/learning-evidence.json` and `data/onto-s1.json` by `tests/site/hero-kpis.test.mjs`. Each one links to its page.
-- **Assurance case** (`#view=assurance-case`, not in the sidebar) holds the earlier second half of the home page: the World Model evidence base, Agent Verification & Validation, the Correspondence Problem and the autonomy flywheel. The home page links to it.
+- **Assurance case** (`#view=assurance-case`, not in the sidebar) holds the earlier second half of the home page: the World Model evidence base, Agent Verification & Validation, the Correspondence Problem and the autonomy flywheel. The home page links to it. It shows one section at a time, and `#view=assurance-case&tab=vv|correspondence|flywheel` opens a section directly.
 - Review record and open items: [`logs/2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](logs/2026-11-11_HOME_MEMO_V3_ALIGNMENT.md).
 
 ### SILEX Foundry

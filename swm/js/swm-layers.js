@@ -47,8 +47,7 @@
               '<div class="swm-legend-items">' +
                 '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:linear-gradient(90deg,#ece5ff,#9b82ef);display:inline-block"></span>plane = abstraction tier</span>' +
                 '<span class="swm-legend-item"><span style="width:22px;height:8px;border-radius:3px;background:#b7a3ff;display:inline-block"></span>ribbon width = relations crossing the hop</span>' +
-              '</div>' +
-              '<div class="swm-caption" style="margin-top:7px">Plane size is layout only · ribbon width is proportional to the cross-tier relation count · counts are bundle counts, Silex-authored mappings labelled. Only SUBCLASS_OF asserts subsumption; tiers group the model for reading. L1–L3 supply Schema; L4 shows illustrative World State instances. This view does not implement Laws, Objectives or Calibration.</div></div>' +
+              '</div></div>' +
             '<div class="swm-hint">Click a plane to set the abstraction level · inspect a hop for its true predicate direction</div>' +
           '</div>' +
           '<div class="swm-side">' +
@@ -57,11 +56,10 @@
               '<div class="swm-facts" id="swmChainFacts"></div>' +
               '<h4 style="margin-top:12px">Select a tier</h4>' +
               '<div class="swm-list" id="swmLayerList"></div>' +
-              '<div id="swmChainGroups"></div>' +
-              '<p class="swm-note">L1–L3 are the shipped Schema; L4 shows illustrative World State instances. Counts are verifiable bundle counts; component mappings are Silex-authored.</p></div>' +
-            '<div class="swm-card"><h4>How the tiers relate</h4>' +
+              '<div id="swmChainGroups"></div></div>' +
+            '<details class="swm-more"><summary>How the tiers relate</summary><div class="swm-more-body">' +
               '<p class="sub">Adjacency only — each hop is a boundary, not a direction. Predicate direction and source are read from the underlying links.</p>' +
-              '<div class="swm-gaps" id="swmChainHops"></div></div>' +
+              '<div class="swm-gaps" id="swmChainHops"></div></div></details>' +
           '</div>' +
         '</div>' +
       '</div>';
