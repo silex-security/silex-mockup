@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Card, Tag, cx } from "./ui";
 import { fmtInt } from "@/lib/format";
+import { TrendMark, type Tone, type Trend } from "./charts/Sparkline";
 
 export function CoverageStrip({
   staleInstances,
@@ -32,15 +33,26 @@ export function CoverageStrip({
   );
 }
 
-export function KpiRow({ items }: { items: { label: string; value: ReactNode; tone?: "amb" | "rose" }[] }) {
+const TONE_TEXT: Record<Tone, string | undefined> = {
+  amb: "text-amb-text",
+  rose: "text-rose-text",
+  mint: "text-mint-text",
+  acc2: "text-acc-text",
+  mut: undefined,
+};
+
+export function KpiRow({ items }: { items: { label: string; value: ReactNode; tone?: Tone; trend?: Trend }[] }) {
   return (
     <Card aria-label="Key measures" className="grid grid-cols-2 overflow-hidden sm:grid-cols-4 xl:grid-cols-8">
       {items.map((k, i) => (
         <div key={k.label} className={cx("flex flex-col gap-1.5 px-4 py-3.5", i > 0 && "border-l border-line")}>
           <span className="lbl">{k.label}</span>
-          <span className={cx("text-3xl font-bold tracking-tight", k.tone === "amb" && "text-amb-text", k.tone === "rose" && "text-rose-text")}>
-            {k.value}
-          </span>
+          <span className={cx("text-3xl font-bold tracking-tight", k.tone && TONE_TEXT[k.tone])}>{k.value}</span>
+          {k.trend ? (
+            <span className="flex opacity-80">
+              <TrendMark trend={k.trend} tone={k.tone ?? "acc2"} />
+            </span>
+          ) : null}
         </div>
       ))}
     </Card>
