@@ -60,11 +60,13 @@ jobs:
           find agent-gym/js -name '*.js' -print0 | xargs -0 -n1 node --check
 
       - name: No Chrome profile left behind
+        if: always()
         # A browser test that skips tests/site/chrome-reaper.mjs leaves a profile of several MB in the temp directory on every run.
         run: |
           left=$(find "$(node -p 'require("os").tmpdir()')" -maxdepth 1 -type d \( -name 'ontology-card-chrome-*' -o -name 'studio-site-probes-*' \))
           for d in $left; do echo "$d: $(find "$d" -type f | wc -l) files, modified $(date -r "$d" +%T), now $(date +%T)"; find "$d" -maxdepth 2 | head -12; done
           for d in $left; do echo "--- trace for $d"; grep -F "$d" /tmp/reaper-trace.log | grep -v ' own ' | head -30; done
+          echo "--- anomalies"; grep -E ' (rm-fail|reap-fail|reap-end) | reapAll [1-9]' /tmp/reaper-trace.log | cut -c1-260 | head -60
           echo "--- trace totals"; awk '{print $4}' /tmp/reaper-trace.log | sort | uniq -c
           echo "chrome processes still running: $(pgrep -fc 'user-data-dir=' || true)"; pgrep -fa 'user-data-dir=' | cut -c1-220 | head -5 || true
           test -z "$left" || { echo "::error::The browser tests left $(echo "$left" | wc -l | tr -d ' ') Chrome profile(s) in the temp directory. Spawn Chrome through own() in tests/site/chrome-reaper.mjs and call the release() it returns."; exit 1; }
