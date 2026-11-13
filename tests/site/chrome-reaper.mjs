@@ -23,11 +23,13 @@ function hook() {
 export function own(chrome, profile) {
   hook(); live.set(chrome, profile);
   const exited = new Promise(r => chrome.exitCode !== null || chrome.signalCode !== null ? r() : chrome.once('exit', r));
-  return async function release() {
-    if (!live.delete(chrome)) return;
+  // The entry stays in `live` until the profile is gone, so a release() the caller did not await is finished by the exit hook.
+  let released;
+  return () => released ??= (async () => {
     chrome.kill();
     await Promise.race([exited, new Promise(r => setTimeout(r, 3000).unref())]);
     if (chrome.exitCode === null && chrome.signalCode === null) { chrome.kill('SIGKILL'); await exited; }
     removeProfile(profile);
-  };
+    live.delete(chrome);
+  })();
 }
