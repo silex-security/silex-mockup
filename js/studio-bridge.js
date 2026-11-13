@@ -222,15 +222,6 @@ const frac = m => (m && Number.isFinite(m.num) && Number.isFinite(m.den) ? `${m.
 
 function clear(container) { while (container && container.firstChild) container.removeChild(container.firstChild); }
 
-export function renderUnavailable(container, reason) {
-  if (!container) return;
-  const d = docOf(container); if (!d) return;
-  clear(container);
-  const p = el(d, 'div', 'muted'); p.setAttribute('data-studio-summary', 'unavailable');
-  p.appendChild(txt(d, 'Blueprint Studio summary unavailable — open the Studio to refresh'));
-  container.appendChild(p);
-}
-
 const staleNote = (d, parent) => { parent.appendChild(setText(el(d, 'span', 'muted'), 'changed since the Studio last summarised it — open the Studio to refresh')); };
 
 const emptyNote = (d, container, text) => { const p = el(d, 'div', 'muted studio-empty'); p.textContent = text; container.appendChild(p); };

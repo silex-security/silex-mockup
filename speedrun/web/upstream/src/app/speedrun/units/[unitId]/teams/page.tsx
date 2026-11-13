@@ -58,14 +58,14 @@ export default async function TeamExplorerPage({
 
       <KpiRow
         items={[
-          { label: "Agent teams", value: t.teams },
-          { label: "Agent roles / instances", value: <RolesValue roles={t.agentRoles} instances={t.instances} /> },
-          { label: "Completed runs", value: fmtInt(t.runs) },
-          { label: "Total cost", value: fmtUsd(t.totalCost) },
-          { label: "Cost / success", value: fmtUsd(t.costPerSuccess) },
-          { label: "Success rate", value: fmtPct(t.successRate) },
-          { label: "P95 latency", value: `${unit.p95Seconds}s` },
-          { label: "Anomalies", value: t.anomalies, tone: "amb" },
+          { label: "Agent teams", value: t.teams, tone: "acc2", trend: "flat" },
+          { label: "Agent roles / instances", value: <RolesValue roles={t.agentRoles} instances={t.instances} />, tone: "acc2", trend: "flat" },
+          { label: "Completed runs", value: fmtInt(t.runs), tone: "acc2", trend: "up" },
+          { label: "Total cost", value: fmtUsd(t.totalCost), tone: "amb", trend: "wave" },
+          { label: "Cost / success", value: fmtUsd(t.costPerSuccess), tone: "amb", trend: "down" },
+          { label: "Success rate", value: fmtPct(t.successRate), tone: "mint", trend: "up" },
+          { label: "P95 latency", value: `${unit.p95Seconds}s`, tone: "acc2", trend: "wave" },
+          { label: "Anomalies", value: t.anomalies, tone: "amb", trend: "step" },
         ]}
       />
 

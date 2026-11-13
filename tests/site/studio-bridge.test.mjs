@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   fnv1a, readSummary, docStatus, projectPending, projectPcp, projectLibrary,
-  renderPending, renderPcp, renderLibrary, renderUnavailable,
+  renderPending, renderPcp, renderLibrary,
 } from '../../js/studio-bridge.js';
 
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/storage.sample.json', import.meta.url), 'utf8'));
@@ -198,14 +198,6 @@ test('renderers carry the simulated + scenario-set label and the data hooks', ()
   assert.equal(lEls.length, 1);
   assert.ok(lDoc.created.some(e => e.attrs && e.attrs['data-studio-open'] !== undefined));
   assert.ok(lDoc.created.some(e => e.attrs && e.attrs['data-studio-trace'] !== undefined));
-});
-
-test('renderUnavailable marks the container and makes no claims', () => {
-  const doc = fakeDocument(), container = fakeContainer(doc);
-  renderUnavailable(container, 'no summary');
-  const el = doc.created.find(e => e.attrs && e.attrs['data-studio-summary'] === 'unavailable');
-  assert.ok(el);
-  assert.ok(collectText(container).join(' ').includes('unavailable'));
 });
 
 /* ---- implementation review round 1 (Codex) ---- */

@@ -212,10 +212,10 @@
 </div>
 <div class="section-title chg" data-chg="PRD §36: enterprise security posture"><strong>Enterprise Security Posture</strong><span>Illustrative values</span></div>
 <div class="card kpi-strip">
-<div class="metric"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
-<div class="metric"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
-<div class="metric"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 10 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
-<div class="metric"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="gym">revalidate</button></div></div>
+<div class="metric" data-tone="red" data-trend="step"><div class="kicker">Critical open risks <span class="status blocked">Critical</span></div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcomes still reachable · <button class="def-link" data-def="residual">residual reachability</button></div></div>
+<div class="metric" data-tone="green" data-trend="up"><div class="kicker">Defense confidence <span class="tbd">Formula TBD</span></div><div class="metric-value" id="ovDefense">78%</div><div class="metric-foot">Across validated workflows · <button class="def-link" data-def="defense">definition</button></div></div>
+<div class="metric" data-tone="amber" data-trend="wave"><div class="kicker">Workflows at risk</div><div class="metric-value" id="ovAtRisk">5</div><div class="metric-foot"><span id="ovAtRiskFoot">of 10 registered</span> · <button class="def-link" data-lib-risk="1">view at-risk workflows</button></div></div>
+<div class="metric" data-tone="violet" data-trend="flat"><div class="kicker">Needing revalidation <span class="status review">Changed</span></div><div class="metric-value" id="ovRevalidate">3</div><div class="metric-foot">After environment changes · <button class="def-link" data-jump="gym">revalidate</button></div></div>
 </div>
 <div class="two-col" style="grid-template-columns:1fr">
 <div class="card chg" data-chg="9/15 review: World Model Coverage moved to Enterprise World Model">
@@ -294,10 +294,10 @@
 </div>
 <div id="incView">
 <div class="card kpi-strip chg" data-chg="PRD §28 summary">
-<div class="metric"><div class="kicker">Open incidents</div><div class="metric-value">12</div><div class="metric-foot">Last 30 days</div></div>
-<div class="metric"><div class="kicker">Critical incidents</div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcome still reachable</div></div>
-<div class="metric"><div class="kicker">Affected workflows</div><div class="metric-value">7</div><div class="metric-foot">of 18 deployed</div></div>
-<div class="metric"><div class="kicker">Residual failures</div><div class="metric-value">5</div><div class="metric-foot">Blocked once, alternative paths open</div></div>
+<div class="metric" data-tone="amber" data-trend="wave"><div class="kicker">Open incidents</div><div class="metric-value">12</div><div class="metric-foot">Last 30 days</div></div>
+<div class="metric" data-tone="red" data-trend="step"><div class="kicker">Critical incidents</div><div class="metric-value">3</div><div class="metric-foot">Unsafe outcome still reachable</div></div>
+<div class="metric" data-tone="violet" data-trend="flat"><div class="kicker">Affected workflows</div><div class="metric-value">7</div><div class="metric-foot">of 18 deployed</div></div>
+<div class="metric" data-tone="amber" data-trend="down"><div class="kicker">Residual failures</div><div class="metric-value">5</div><div class="metric-foot">Blocked once, alternative paths open</div></div>
 </div>
 <div class="filter-row chg" data-chg="PRD §28 filters">
 <input class="search" id="incidentSearch" aria-label="Search incidents" placeholder="Search incident, workflow, agent or control…">
@@ -517,10 +517,10 @@
 </div>
 </div>
 <div class="card kpi-strip chg" data-chg="PRD §24 Registered vs Deployed">
-<div class="metric"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">10</div><div class="metric-foot">shown in this demo</div></div>
-<div class="metric"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">9</div><div class="metric-foot">active in production</div></div>
-<div class="metric"><div class="kicker">Registered · not deployed</div><div class="metric-value" id="libPre">1</div><div class="metric-foot">pre-production</div></div>
-<div class="metric"><div class="kicker">Needs revalidation</div><div class="metric-value" id="libReval">2</div><div class="metric-foot">after environment changes</div></div>
+<div class="metric" data-tone="accent" data-trend="up"><div class="kicker">Registered</div><div class="metric-value" id="libRegistered">10</div><div class="metric-foot">shown in this demo</div></div>
+<div class="metric" data-tone="green" data-trend="up"><div class="kicker">Deployed</div><div class="metric-value" id="libDeployed">9</div><div class="metric-foot">active in production</div></div>
+<div class="metric" data-tone="violet" data-trend="flat"><div class="kicker">Registered · not deployed</div><div class="metric-value" id="libPre">1</div><div class="metric-foot">pre-production</div></div>
+<div class="metric" data-tone="amber" data-trend="wave"><div class="kicker">Needs revalidation</div><div class="metric-value" id="libReval">2</div><div class="metric-foot">after environment changes</div></div>
 </div>
 <div class="filter-row">
 <input class="search" id="workflowSearch" aria-label="Search workflows" placeholder="Search workflow, agent, tool, owner or domain…">
@@ -617,10 +617,10 @@
 </div>
 <div class="rt-lead"><p>Before a consequential action runs, SILEX Runtime assesses it in business context: permissions, business rules, prior steps and expected state changes. It checks in three steps: <b>fixed rules</b>, then a <b>judge model (Jev)</b>, then a <b>policy</b>. It then advises the control already in the path, such as an MCP gateway, which <b>lets it run</b>, <b>holds it for a person</b>, or <b>blocks it</b>.</p><span class="pill">Simulated judge · fictional tenant <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>The judge, latencies and tenant are simulated. <span id="rtReference"></span></span></span></span></div>
 <div class="card kpi-strip" id="rtMetrics">
-<div class="metric" data-rt-metric="scenarios"><div class="kicker">Reference scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
-<div class="metric" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
-<div class="metric" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
-<div class="metric" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
+<div class="metric" data-tone="accent" data-trend="flat" data-rt-metric="scenarios"><div class="kicker">Reference scenarios</div><div class="metric-value">—</div><div class="metric-foot">AP payments + SOC triage</div></div>
+<div class="metric" data-tone="green" data-trend="up" data-rt-metric="checked"><div class="kicker">Actions checked</div><div class="metric-value">—</div><div class="metric-foot">Tool calls, before they run</div></div>
+<div class="metric" data-tone="amber" data-trend="wave" data-rt-metric="stopped"><div class="kicker">Stopped before running</div><div class="metric-value">—</div><div class="metric-foot">Held or blocked at the gateway</div></div>
+<div class="metric" data-tone="violet" data-trend="step" data-rt-metric="rule"><div class="kicker">Decided by a hard rule</div><div class="metric-value">—</div><div class="metric-foot">No model can override these</div></div>
 </div>
 <nav class="rt-tabs" role="tablist" aria-label="Runtime Observation sections">
 <button type="button" role="tab" id="rtTab-scenarios" data-rt-tab="scenarios" aria-controls="rtScenarioCard" aria-selected="true" tabindex="0">Scenarios</button>

@@ -144,7 +144,7 @@ export function mount(root, ctx) {
   function saveDraft() {
     savedAt = draftNow().revision;
     view.refresh();
-    announce(store.persistence.mode === 'local' ? 'Draft saved in this browser.' : 'Draft kept for this session only. Browser storage is unavailable.');
+    announce('Draft saved.');
   }
 
   function commitName(value) {
@@ -308,7 +308,7 @@ export function mount(root, ctx) {
       meta: [
         ui.textInput({ value: draft.name, icon: 'pencil', ariaLabel: 'Environment name', class: 'env-name', focusKey: 'env:name', onChange: commitName }),
         ui.badge({ status: summary.status, class: 'env-status' }),
-        savedAt === draft.revision && h('span', { class: 'env-saved' }, icon('check', { size: 14 }), store.persistence.mode === 'local' ? 'Draft saved in this browser' : 'Kept for this session only'),
+        savedAt === draft.revision && h('span', { class: 'env-saved' }, icon('check', { size: 14 }), 'Draft saved'),
       ],
     });
   }

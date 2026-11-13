@@ -2,7 +2,7 @@
 // tests that reload saved data use the real seed, because the load check reads its references.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createStore } from '../../agent-gym/js/store.js';
+import { createStore, parsePersisted } from '../../agent-gym/js/store.js';
 import { SCHEMA_VERSION, FIXTURE_VERSION, STORAGE_KEY } from '../../agent-gym/js/model.js';
 import { seedState } from '../../agent-gym/js/fixtures/index.js';
 import { renameExperiment } from '../../agent-gym/js/simulation/attempts.js';
@@ -33,7 +33,7 @@ test('a first visit seeds the state, saves it under the Gym key and reports loca
   const storage = fakeStorage({ 'bs.other': 'keep' });
   const store = createStore({ storage, seed });
   assert.equal(store.getState().experiments['exp-1'].title, 'Seeded');
-  assert.deepEqual({ mode: store.persistence.mode, error: store.persistence.error }, { mode: 'local', error: null });
+  assert.deepEqual(store.persistence, { mode: 'local' });
   assert.equal(saved(storage).seq, 3);
   assert.deepEqual([...new Set(storage.writes)], [STORAGE_KEY]);
   assert.equal(store.getState().attempts.a1.runner, 'active', 'a fresh seed is not a refresh, so nothing is paused');
@@ -108,43 +108,50 @@ const corrupt = {
   'a set with a dangling ref': s => { delete s.scenarios['sc-contact-opted-out@1']; },
   'seq behind the attempt ids': s => { s.seq = 0; },
 };
+const expectReplaced = (text, build) => {
+  const storage = fakeStorage({ [STORAGE_KEY]: text, 'bs.other': 'keep' });
+  const store = createStore({ storage, seed: build });
+  assert.deepEqual(store.persistence, { mode: 'local' });
+  assert.deepEqual(store.getState(), build(), 'the session starts from the seed');
+  assert.ok(parsePersisted(storage.data.get(STORAGE_KEY)).state, 'the stale blob was overwritten with one the loader accepts');
+  assert.equal(storage.data.get('bs.other'), 'keep');
+  const again = createStore({ storage, seed: build });
+  assert.deepEqual(again.persistence, { mode: 'local' });
+  assert.deepEqual(again.getState().experiments, build().experiments, 'a second load reads the repaired blob');
+  assert.deepEqual(again.getState().attemptOrder, build().attemptOrder);
+  assert.deepEqual([...new Set(storage.writes)], [STORAGE_KEY]);
+};
+
 for (const [label, mutate] of Object.entries(corrupt)) {
-  test(`saved data that is broken inside falls back to memory mode: ${label}`, () => {
+  test(`saved data that is broken inside is replaced by the seed: ${label}`, () => {
     const data = structuredClone(good);
     mutate(data);
-    const text = JSON.stringify(data);
-    const store = createStore({ storage: fakeStorage({ [STORAGE_KEY]: text }), seed: seedState });
-    assert.deepEqual([store.persistence.mode, store.persistence.error?.code], ['memory', 'storage_inconsistent']);
-    assert.equal(store.getState().attemptOrder.length, seedState().attemptOrder.length, 'the session starts from the demo seed');
+    expectReplaced(JSON.stringify(data), seedState);
   });
 }
 
 const bad = {
   storage_corrupt: '{"schemaVersion":',
   'storage_corrupt (not an object)': '[1,2]',
-  'storage_version (schema)': JSON.stringify({ ...seed(), schemaVersion: SCHEMA_VERSION + 1 }),
-  'storage_version (fixture)': JSON.stringify({ ...seed(), fixtureVersion: 'gym-fx-0' }),
-  'storage_invalid (missing key)': JSON.stringify({ ...seed(), attempts: undefined }),
-  'storage_invalid (wrong type)': JSON.stringify({ ...seed(), attemptOrder: {} }),
+  'storage_version (schema)': JSON.stringify({ ...good, schemaVersion: SCHEMA_VERSION + 1 }),
+  'storage_version (fixture)': JSON.stringify({ ...good, fixtureVersion: 'gym-fx-0' }),
+  'storage_invalid (missing key)': JSON.stringify({ ...good, attempts: undefined }),
+  'storage_invalid (wrong type)': JSON.stringify({ ...good, attemptOrder: {} }),
 };
 for (const [label, text] of Object.entries(bad)) {
-  test(`saved data that fails the load check falls back to memory mode: ${label}`, () => {
+  test(`saved data that fails the load check is replaced by the seed: ${label}`, () => {
+    expectReplaced(text, seedState);
     const storage = fakeStorage({ [STORAGE_KEY]: text });
-    const store = createStore({ storage, seed });
-    assert.equal(store.persistence.mode, 'memory');
-    assert.equal(store.persistence.error.code, label.split(' ')[0]);
-    assert.ok(store.persistence.error.message.length > 20);
-    assert.equal(store.getState().experiments['exp-1'].title, 'Seeded');
-    assert.equal(store.dispatch(rename, { title: 'In memory' }).ok, true);
-    assert.equal(storage.data.get(STORAGE_KEY), text, 'memory mode leaves the unreadable data alone');
+    const store = createStore({ storage, seed: seedState });
+    assert.equal(store.dispatch(renameExperiment, { experimentId: 'exp-029', title: 'Saved' }).ok, true);
+    assert.equal(saved(storage).experiments['exp-029'].title, 'Saved', 'changes after the repair are saved');
   });
 }
 
 test('storage that is missing or throws on read falls back to memory mode', () => {
   for (const storage of [null, undefined, { getItem() { throw new DOMException('denied', 'SecurityError'); }, setItem() {} }]) {
     const store = createStore({ storage, seed });
-    assert.equal(store.persistence.mode, 'memory');
-    assert.equal(store.persistence.error.code, 'storage_unavailable');
+    assert.deepEqual(store.persistence, { mode: 'memory' });
     assert.equal(store.dispatch(rename, { title: 'Still works' }).ok, true);
     assert.equal(store.getState().experiments['exp-1'].title, 'Still works');
   }
@@ -159,20 +166,9 @@ test('a quota error on write keeps the new state in memory, switches mode and te
   const result = store.dispatch(rename, { title: 'Too big' });
   assert.equal(result.ok, true);
   assert.equal(store.getState().experiments['exp-1'].title, 'Too big');
-  assert.equal(store.persistence.mode, 'memory');
-  assert.equal(store.persistence.error.code, 'storage_quota');
+  assert.deepEqual(store.persistence, { mode: 'memory' });
   assert.equal(seenMode, 'memory');
   assert.equal(saved(storage).experiments['exp-1'].title, 'Seeded', 'the last good save is untouched');
-});
-
-test('dismissError clears the message but stays in memory mode', () => {
-  const store = createStore({ storage: null, seed });
-  let calls = 0;
-  store.subscribe(() => calls++);
-  store.persistence.dismissError();
-  assert.equal(store.persistence.error, null);
-  assert.equal(store.persistence.mode, 'memory');
-  assert.equal(calls, 1);
 });
 
 test('reset re-seeds, rewrites only the Gym key and recovers from unreadable saved data', () => {
@@ -183,7 +179,7 @@ test('reset re-seeds, rewrites only the Gym key and recovers from unreadable sav
   store.subscribe(() => calls++);
   store.reset();
   assert.equal(store.getState().experiments['exp-1'].title, 'Seeded');
-  assert.deepEqual({ mode: store.persistence.mode, error: store.persistence.error }, { mode: 'local', error: null });
+  assert.deepEqual(store.persistence, { mode: 'local' });
   assert.equal(saved(storage).experiments['exp-1'].title, 'Seeded');
   assert.equal(storage.data.get('bs.blueprints'), 'old site data');
   assert.deepEqual([...new Set(storage.writes)], [STORAGE_KEY]);
@@ -192,12 +188,10 @@ test('reset re-seeds, rewrites only the Gym key and recovers from unreadable sav
   assert.equal(saved(storage).experiments['exp-1'].title, 'Saved again');
 });
 
-test('reset without storage stays in memory mode and says so', () => {
+test('reset without storage stays in memory mode', () => {
   const store = createStore({ storage: null, seed });
-  store.persistence.dismissError();
   store.reset();
-  assert.equal(store.persistence.mode, 'memory');
-  assert.equal(store.persistence.error.code, 'storage_unavailable');
+  assert.deepEqual(store.persistence, { mode: 'memory' });
 });
 
 test('a reducer that returns neither state nor error is a programming error', () => {

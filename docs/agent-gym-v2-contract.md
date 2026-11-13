@@ -37,11 +37,11 @@ createStore({ storage, seed }) -> {
   getState(), subscribe(fn) -> unsubscribe,
   dispatch(reducer, command),
   reset(),                       // re-seeds Gym v2 only, never localStorage.clear()
-  persistence                    // { mode: 'local' | 'memory', error: GymError | null }
+  persistence                    // { mode: 'local' | 'memory' }
 }
 ```
 
-Persistence uses the key `silex.gym.demo.v2` with `schemaVersion` and `fixtureVersion`. An unknown version, corrupt JSON, a quota error or unavailable storage falls back to memory mode and surfaces `persistence.error` in the shell. On load, every attempt with status `running` gets `runner: 'paused'`.
+Persistence uses the key `silex.gym.demo.v2` with `schemaVersion` and `fixtureVersion`. Saved data that is corrupt, from another version or inconsistent is demo data with nothing to keep. The store replaces it with the seed and stays in local mode, and the first save overwrites the stale blob, so a reload converges to the same state and the shell shows no warning. Unavailable storage or a quota error switches to memory mode silently. On load, every attempt with status `running` gets `runner: 'paused'`.
 
 View-only state that must survive a refresh (the selected tab, node, component, scenario row, version being viewed) lives in the route query. Everything else that is ephemeral stays in the view.
 

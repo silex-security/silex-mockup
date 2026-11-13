@@ -1,4 +1,4 @@
-// Agent Gym v2 shell in headless Chrome: header, routing, persistence banner, reset dialog, UI kit, responsive frame.
+// Agent Gym v2 shell in headless Chrome: header, routing, no storage warnings, reset dialog, UI kit, responsive frame.
 // Drives the page through tools/gym-shot.mjs. Skips with a clear message when no Chrome binary exists (set CHROME).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -53,7 +53,7 @@ test('the header, the preview marker and the default route', async t => withGym(
     const links = [...document.querySelectorAll('.gym-nav__link')].map(a => [a.textContent, a.getAttribute('href'), a.getAttribute('aria-current')]);
     return { hash: location.hash, links, logo: document.querySelector('.gym-logo').textContent,
       workspace: document.querySelector('.gym-workspace').textContent, mark: document.querySelector('.gym-preview-mark').textContent,
-      live: document.querySelector('[aria-live="polite"]') !== null, banner: document.querySelector('.gym-persistence') !== null,
+      live: document.querySelector('[aria-live="polite"]') !== null,
       h1: document.querySelectorAll('h1').length, title: document.title, mode: window.__gym.store.persistence.mode,
       api: [typeof window.__gym.router.go, typeof window.__gym.store.dispatch], bodyClass: document.body.className,
       font: getComputedStyle(document.body).fontFamily.split(',')[0] };`);
@@ -62,7 +62,7 @@ test('the header, the preview marker and the default route', async t => withGym(
   assert.equal(page.logo, 'SILEX');
   assert.equal(page.workspace, 'Acme workspace');
   assert.equal(page.mark, 'Concept preview · Simulated data');
-  assert.deepEqual([page.live, page.banner, page.h1, page.mode], [true, false, 1, 'local']);
+  assert.deepEqual([page.live, page.h1, page.mode], [true, 1, 'local']);
   assert.match(page.title, /Agent Gym/);
   assert.deepEqual(page.api, ['function', 'function']);
   assert.equal(page.bodyClass, 'gym-app');
@@ -99,14 +99,28 @@ test('every route mounts a view with the marker, and refresh, Back and Forward r
   assert.equal(lost.imgs, 0);
 }));
 
-test('unreadable saved data shows a dismissible memory-mode banner, and Reset demo data repairs only the Gym key', async t => withGym(t, async gym => {
-  await gym.ev(`localStorage.setItem(${KEY}, '{broken'); localStorage.setItem('bs.other', 'keep me');`);
+const WARNING = /not being saved|Not saving|different version/i;
+const STALE = { corrupt: '{broken', 'an old fixture version': '{"schemaVersion":1,"fixtureVersion":"gym-fx-0"}' };
+for (const [label, blob] of Object.entries(STALE)) {
+  test(`saved data that is ${label} is replaced without a warning`, async t => withGym(t, async gym => {
+    await gym.ev(`localStorage.setItem(${KEY}, ${JSON.stringify(blob)}); localStorage.setItem('bs.other', 'keep me');`);
+    await gym.go('#/workbench/exp-029');
+    const page = await gym.ev(`const saved = JSON.parse(localStorage.getItem(${KEY}));
+      return { banner: document.querySelector('.gym-persistence') !== null, warning: ${WARNING}.test(document.body.textContent), mode: window.__gym.store.persistence.mode,
+        schema: saved.schemaVersion, fixture: saved.fixtureVersion, other: localStorage.getItem('bs.other') }`);
+    assert.deepEqual(page, { banner: false, warning: false, mode: 'local', schema: 2, fixture: await gym.ev('return window.__gym.store.getState().fixtureVersion'), other: 'keep me' });
+    await gym.go('#/workbench/exp-029');
+    assert.equal(await gym.ev(`return ${WARNING}.test(document.body.textContent) || document.querySelector('.gym-persistence') !== null`), false, 'a second load is clean too');
+  }));
+}
+
+test('Reset demo data repairs only the Gym key', async t => withGym(t, async gym => {
+  await gym.ev(`localStorage.setItem('bs.other', 'keep me');`);
   await gym.go('#/kit');
-  const banner = await gym.ev(`const el = document.querySelector('.gym-persistence'); return { text: el?.textContent, role: el?.getAttribute('role'), mode: window.__gym.store.persistence.mode, code: window.__gym.store.persistence.error?.code }`);
-  assert.match(banner.text, /Not saving\..*not being saved/);
-  assert.deepEqual([banner.role, banner.mode, banner.code], ['alert', 'memory', 'storage_corrupt']);
-  await gym.ev(`document.querySelector('.gym-persistence [aria-label="Dismiss"]').click()`);
-  assert.equal(await gym.ev('return document.querySelector(".gym-persistence") === null && window.__gym.store.persistence.mode'), 'memory');
+  const rename = `window.__gym.store.dispatch(s => ({ state: { ...s, experiments: { ...s.experiments, 'exp-029': { ...s.experiments['exp-029'], title: 'Scratch' } } } }), {});`;
+  await gym.ev(rename);
+  const title = `JSON.parse(localStorage.getItem(${KEY})).experiments['exp-029'].title`;
+  assert.equal(await gym.ev(`return ${title}`), 'Scratch');
 
   const openReset = `document.querySelector('.gym-workspace').focus(); document.querySelector('.gym-workspace').click();
     const item = [...document.querySelectorAll('.gym-header [role="menuitem"]')].find(b => b.textContent.includes('Reset demo data'));
@@ -124,16 +138,16 @@ test('unreadable saved data shows a dismissible memory-mode banner, and Reset de
 
   await gym.key('Escape');
   await gym.ev(frame);
-  const closed = await gym.ev(`return { dialogs: document.querySelectorAll('dialog').length, focus: document.activeElement.className, raw: localStorage.getItem(${KEY}), mode: window.__gym.store.persistence.mode }`);
+  const closed = await gym.ev(`return { dialogs: document.querySelectorAll('dialog').length, focus: document.activeElement.className, title: ${title}, mode: window.__gym.store.persistence.mode }`);
   assert.equal(closed.dialogs, 0);
   assert.match(closed.focus, /gym-workspace/, 'focus returns to the control that opened the menu');
-  assert.deepEqual([closed.raw, closed.mode], ['{broken', 'memory'], 'Escape resets nothing');
+  assert.deepEqual([closed.title, closed.mode], ['Scratch', 'local'], 'Escape resets nothing');
 
   const done = await gym.ev(`${openReset} [...document.querySelectorAll('dialog.gym-dialog button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}
     const saved = JSON.parse(localStorage.getItem(${KEY}));
-    return { dialogs: document.querySelectorAll('dialog').length, schema: saved.schemaVersion, other: localStorage.getItem('bs.other'), keys: localStorage.length,
-      mode: window.__gym.store.persistence.mode, error: window.__gym.store.persistence.error, banner: document.querySelector('.gym-persistence') !== null, live: document.querySelector('[aria-live="polite"]').textContent }`);
-  assert.deepEqual(done, { dialogs: 0, schema: 2, other: 'keep me', keys: 2, mode: 'local', error: null, banner: false, live: 'Demo data reset.' });
+    return { dialogs: document.querySelectorAll('dialog').length, title: ${title}, other: localStorage.getItem('bs.other'), keys: localStorage.length,
+      mode: window.__gym.store.persistence.mode, banner: document.querySelector('.gym-persistence') !== null, live: document.querySelector('[aria-live="polite"]').textContent }`);
+  assert.deepEqual(done, { dialogs: 0, title: 'Experiment 029', other: 'keep me', keys: 2, mode: 'local', banner: false, live: 'Demo data reset.' });
 }));
 
 test('the kit page renders every shared widget, and tabs, menus and disabled controls work from the keyboard', async t => withGym(t, async gym => {
@@ -260,24 +274,6 @@ test('prefers-reduced-motion turns shell transitions off', async t => withGym(t,
   assert.equal(await gym.ev(duration), '0s');
 }));
 
-test('the memory-mode banner offers Reset demo data, and after Dismiss a quiet marker beside the preview marker says nothing is saved', async t => withGym(t, async gym => {
-  await gym.ev(`localStorage.setItem(${KEY}, '{broken');`);
-  await gym.go('#/workbench/exp-029');
-  const marks = `[...document.querySelectorAll('.gym-foot > *')].filter(el => el.checkVisibility()).map(el => el.textContent)`;
-  const banner = await gym.ev(`const el = document.querySelector('.gym-persistence'); return { buttons: [...el.querySelectorAll('button')].map(b => b.textContent || b.getAttribute('aria-label')), marks: ${marks} }`);
-  assert.deepEqual(banner, { buttons: ['Reset demo data', 'Dismiss'], marks: ['Concept preview · Simulated data'] });
-
-  await gym.ev(`document.querySelector('.gym-persistence [aria-label="Dismiss"]').click()`);
-  const dismissed = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode }`);
-  assert.deepEqual(dismissed, { banner: false, marks: ['Concept preview · Simulated data', 'Not saving · memory only'], mode: 'memory' });
-
-  await gym.go('#/workbench/exp-029');
-  await gym.ev(`[...document.querySelectorAll('.gym-persistence button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}
-    [...document.querySelectorAll('dialog.gym-dialog button')].find(b => b.textContent === 'Reset demo data').click(); ${frame}`);
-  const reset = await gym.ev(`return { banner: !!document.querySelector('.gym-persistence'), marks: ${marks}, mode: window.__gym.store.persistence.mode, saved: JSON.parse(localStorage.getItem(${KEY})).schemaVersion }`);
-  assert.deepEqual(reset, { banner: false, marks: ['Concept preview · Simulated data'], mode: 'local', saved: 2 });
-}));
-
 test('the section tabs link the four parts of Agent Gym and mark the one that owns the route', async t => withGym(t, async gym => {
   const owners = [['#/experiments', 'Workbench'], ['#/workbench/exp-029', 'Workbench'], ['#/environments', 'Environments'], ['#/environments/new?returnTo=exp-029', 'Environments'],
     ['#/environments/env-sales/revisions/1.2', 'Environments'], ['#/scenarios', 'Scenarios'], ['#/scenarios/new?environment=env-sales@1.2&workflow=wf-sales-follow-up', 'Scenarios'],
@@ -306,7 +302,7 @@ test('embed mode drops the product header, keeps the section tabs, and offers Re
   assert.deepEqual(page, { header: false, top: 0, current: 'Runs & results', marks: ['Concept preview · Simulated data'], h1: 'Runs' });
   await gym.ev(`localStorage.setItem(${KEY}, '{broken');`);
   await gym.go('#/workbench/exp-029', { search: '?clock=frozen&embed=1' });
-  assert.equal(await gym.ev('return window.__gym.store.persistence.mode'), 'memory');
+  assert.equal(await gym.ev('return window.__gym.store.persistence.mode'), 'local');
   const opened = await gym.ev(`const trigger = document.querySelector('.gym-sections__mark'); trigger.focus(); trigger.click();
     const items = [...document.querySelectorAll('.gym-sections [role="menuitem"]')].map(b => b.textContent);
     [...document.querySelectorAll('.gym-sections [role="menuitem"]')].find(b => b.textContent.includes('Reset demo data')).click(); ${frame}
