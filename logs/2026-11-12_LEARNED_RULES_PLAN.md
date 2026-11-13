@@ -186,3 +186,11 @@ Reply files: `$SCRATCH/lr-codex-plan-r2.md`, `$SCRATCH/lr-claude-plan-r2.md`. re
 | The visible limits line says only "the gate was then tightened"; it must say the harder cases came after the weak rules were found (codex 2, claude 1) | Limits line now reads "After probes found some of them wrong, harder test cases were added; those cases fail the 11." The browser test and the `TEXT` pattern assert the clause. |
 | The shared heading "both learn" claims a product capability; upstream says there is no learner in the product (codex 1, claude 2) | Heading is now "How the judge and the rules can improve, and how each was tested". The browser test asserts it. |
 | Non-blocking, folded in: headline says the 56 passed a first gate (claude); the one message in past tense (claude); `source.files` specified as one file and one directory manifest, D1 corrected (claude); `run-site-probes.mjs` named in task 3 and in the checks (claude); the generator takes split sizes from the reports and no longer reads the corpus (codex) | Sections 1, 2, 3, 5, 6. |
+
+### Round 3 (plan v0.3): plan gate passed
+
+- reviewer-codex: `PLAN-APPROVED` (`$SCRATCH/lr-codex-plan-r3.md`).
+- reviewer-claude (Opus 5.5): `PLAN-APPROVED` (`$SCRATCH/lr-claude-plan-r3.md`).
+- PLANNER (claude): PLAN-APPROVED against v0.3.
+
+Non-blocking notes from round 3, left for the build so the approved text stays as read: name `sessions.with_candidate` more exactly or drop it (claude); move the same-author sentence into the details block if the limits line wraps badly at 390 px (claude); tie "fail the same way" to the failed criterion numbers as well as the counts (codex).
