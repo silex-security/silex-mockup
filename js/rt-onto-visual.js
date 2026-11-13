@@ -62,7 +62,7 @@ function parts(attr, r, suites, tip) {
     </ul>`;
 }
 const row = (name, x) => `<tr><th scope="row">${esc(name)}</th><td>${x.s1.Pos}</td><td>${x.prov.F} → ${x.s1.F}</td><td>${pct(x.prov.precision)} → ${pct(x.s1.precision)}</td><td>${pct(x.prov.recall)} → ${pct(x.s1.recall)}</td></tr>`;
-const table = r => `<div class="rt-onto-table"><table><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
+const table = r => `<div class="rt-onto-table"><table class="dt dt--compact"><thead><tr><th scope="col">Base model</th><th scope="col">Successful attacks</th><th scope="col">Alerts</th><th scope="col">Precision</th><th scope="col">Recall</th></tr></thead><tbody>
       ${Object.entries(r.per_base).map(([k, v]) => row(k, v)).join('')}
     </tbody></table></div>`;
 function s1Block(r, tip) {

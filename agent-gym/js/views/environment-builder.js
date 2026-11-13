@@ -471,7 +471,7 @@ export function mount(root, ctx) {
   }
 
   function permissionsTab(draft) {
-    return h('div', { class: 'env-tab-list' }, h('table', { class: 'env-table' },
+    return h('div', { class: 'env-tab-list' }, h('table', { class: 'dt env-table' },
       h('thead', h('tr', ['Component', 'Permission', 'Enabled write tools', 'Approval'].map(label => h('th', { scope: 'col' }, label)))),
       h('tbody', draft.components.map(c => {
         const writes = c.tools.filter(t => t.effect === 'write' && c.enabledTools.includes(t.name)).map(t => t.name);

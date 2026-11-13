@@ -8,18 +8,11 @@
 
 /* Tables (run list, by-scenario) */
 .gym-app .run-list__wrap, .gym-app .run-byscenario__wrap, .gym-app .run-matrix__wrap { position: relative; max-width: 100%; overflow-x: auto; }
-.gym-app .run-table { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-md); }
-.gym-app .run-table th { text-align: left; padding: 8px 12px; background: var(--gym-surface-2); color: var(--gym-ink-2); font-size: var(--gym-fs-xs); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
-.gym-app .run-table thead th:first-child { border-radius: var(--gym-r-sm) 0 0 var(--gym-r-sm); }
-.gym-app .run-table thead th:last-child { border-radius: 0 var(--gym-r-sm) var(--gym-r-sm) 0; }
-.gym-app .run-table td, .gym-app .run-table tbody th { padding: 9px 12px; border-bottom: 1px solid var(--gym-line); vertical-align: middle; }
-.gym-app .run-table tbody th { text-transform: none; letter-spacing: 0; font-size: var(--gym-fs-md); font-weight: 600; color: var(--gym-ink); background: none; white-space: normal; }
-.gym-app .run-table tbody tr:last-child td, .gym-app .run-table tbody tr:last-child th { border-bottom: 0; }
-.gym-app .run-table--compact td, .gym-app .run-table--compact tbody th { padding: 7px 10px; }
+.gym-app .run-table { font-size: var(--gym-fs-md); }
+.gym-app .run-table tbody th { font-weight: 600; color: var(--gym-ink); }
 
 .gym-app .run-list__filter { flex-wrap: wrap; }
-.gym-app .run-list__row { cursor: pointer; transition: background var(--gym-ease); }
-.gym-app .run-list__row:hover { background: var(--gym-primary-softer); }
+.gym-app .run-list__row { cursor: pointer; }
 .gym-app .run-list__exp, .gym-app .run-list__env { display: inline-flex; align-items: center; gap: 10px; }
 .gym-app .run-list__exp { color: var(--gym-primary-ink); }
 .gym-app .run-list__title { color: var(--gym-ink); font-weight: 600; text-decoration: none; border-radius: 4px; }
@@ -116,7 +109,7 @@
 
 /* Run detail: matrix */
 .gym-app .run-matrix { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
-.gym-app .run-matrix thead th { text-align: left; padding: 0 6px 2px; color: var(--gym-muted); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.gym-app .run-matrix thead th { text-align: left; padding: 0 6px 2px; color: var(--gym-muted); font-size: var(--gym-fs-sm); font-weight: 400; }
 .gym-app .run-matrix__scenario { text-align: left; padding: 8px 6px; font-weight: 600; font-size: var(--gym-fs-sm); vertical-align: top; width: 34%; }
 .gym-app .run-matrix__cell { padding: 0 3px; vertical-align: top; }
 .gym-app .run-cell {

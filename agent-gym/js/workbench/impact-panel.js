@@ -55,7 +55,7 @@ export function impactPanel({ state, exp, router, onCheck, flash }) {
     h('p', { class: 'wb-impact__lead' }, 'A change to an agent reaches every workflow it works in. The check runs each of those workflows with the same field changes, over its own scenarios, and compares it with itself.'),
     h('ul', { class: 'wb-impact__agents', 'aria-label': 'Changed agents' }, agents.map(a => h('li', { dataset: { agent: a.agentId } },
       h('strong', a.name), ' changes ', a.changedFields.map((f, i) => [i > 0 && ', ', h('code', f)])))),
-    h('div', { class: 'wb-impact__wrap' }, h('table', { class: 'wb-impact__table' },
+    h('div', { class: 'wb-impact__wrap' }, h('table', { class: 'dt wb-impact__table' },
       h('thead', h('tr', ['Workflow', 'Agent and steps', 'Check', 'Result'].map(c => h('th', { scope: 'col' }, c)))),
       h('tbody', rows.map(row => h('tr', { dataset: { workflow: row.workflowId, state: row.state } },
         h('th', { scope: 'row' }, row.name),

@@ -148,8 +148,7 @@
 .rt-x1-cols ol{margin:0;padding-left:18px;display:grid;gap:10px}
 .rt-x1-cols li{font-size:var(--text-base)}
 .rt-fleet-why{font-size:var(--text-sm);color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
-.rt-fleet .matrix{width:100%;border-collapse:collapse;font-size:var(--text-sm)}
-.rt-fleet .matrix th,.rt-fleet .matrix td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+.rt-fleet .matrix td{vertical-align:top}
 .rt-fleet .mono{font-family:var(--mono);font-size:var(--text-xs)}
 @media (max-width:760px){.rt-x1-svg{min-width:720px}.rt-x1-cols{grid-template-columns:1fr}.rt-x1-head{flex-direction:column}.rt-fleet .matrix{display:block;overflow-x:auto}}
 /* The gate trace card of Runtime Observation. The trace itself is css/trace-waterfall.css. */

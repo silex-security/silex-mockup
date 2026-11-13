@@ -55,9 +55,7 @@
 .rt-og details { margin: 12px 0; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px; min-width: 0; }
 .rt-og summary { cursor: pointer; font-size: var(--text-sm); color: var(--accent-2); overflow-wrap: anywhere; }
 .rt-og-table-wrap { overflow-x: auto; max-width: 100%; margin-top: 10px; }
-.rt-og table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--text-xs); text-align: left; }
-.rt-og th, .rt-og td { vertical-align: top; border-bottom: 1px solid var(--line); padding: 9px; overflow-wrap: anywhere; }
-.rt-og th { color: var(--muted); }
+.rt-og table { font-size: var(--text-xs); }
 .rt-og caption { text-align: left; color: var(--muted); padding: 8px; }
 .rt-og [data-graph-files] { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 14px; }
 .rt-og [data-graph-files] h3 { font-size: var(--text-lg); }

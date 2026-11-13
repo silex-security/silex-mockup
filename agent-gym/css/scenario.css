@@ -210,13 +210,9 @@
 .gym-app .sc-lib__evhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .gym-app .sc-lib__results { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; font-size: var(--gym-fs-sm); font-weight: 600; text-decoration: none; }
 .gym-app .sc-lib__results:hover { text-decoration: underline; }
-.gym-app .sc-ev { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-sm); }
-.gym-app .sc-ev th, .gym-app .sc-ev td { padding: 4px 8px; border-bottom: 1px solid var(--gym-line); text-align: left; vertical-align: middle; }
-.gym-app .sc-ev thead th { background: var(--gym-surface-2); color: var(--gym-ink-2); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-bottom: 0; }
-.gym-app .sc-ev thead th:first-child { border-radius: var(--gym-r-sm) 0 0 var(--gym-r-sm); }
-.gym-app .sc-ev thead th:last-child { border-radius: 0 var(--gym-r-sm) var(--gym-r-sm) 0; }
+.gym-app .sc-ev { font-size: var(--gym-fs-sm); }
+.gym-app .sc-ev th, .gym-app .sc-ev td { padding: 4px 8px; }
 .gym-app .sc-ev tbody th { font-weight: 500; }
-.gym-app .sc-ev tbody tr:last-child > * { border-bottom: 0; }
 .gym-app .sc-ev thead th:not(:first-child), .gym-app .sc-ev td { width: 84px; }
 .gym-app .sc-ev__flag { margin-left: 6px; }
 .gym-app .sc-ev__n { display: inline-block; min-width: 38px; padding: 1px 8px; border-radius: var(--gym-r-pill); font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }

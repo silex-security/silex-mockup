@@ -115,9 +115,8 @@
 .gym-app .env-data h4 { font-size: var(--gym-fs-md); }
 .gym-app .env-data li { padding: 2px 0; font-size: var(--gym-fs-sm); }
 .gym-app .env-data__sample { display: block; color: var(--gym-muted); font-family: var(--gym-mono); font-size: 11.5px; overflow-wrap: anywhere; }
-.gym-app .env-table { width: 100%; border-collapse: collapse; font-size: var(--gym-fs-sm); }
-.gym-app .env-table th, .gym-app .env-table td { padding: 6px 8px; border-bottom: 1px solid var(--gym-line); text-align: left; vertical-align: top; }
-.gym-app .env-table thead th { color: var(--gym-muted); font-weight: 600; }
+.gym-app .env-table { font-size: var(--gym-fs-sm); }
+.gym-app .env-table th, .gym-app .env-table td { padding: 6px 8px; vertical-align: top; }
 
 /* Settings side panel */
 .gym-app .env-side .gym-panel__icon { width: auto; height: auto; background: none; }

@@ -46,7 +46,7 @@ export function mount(root, ctx) {
         h('h3', { class: 'sc-lib__label' }, 'Where behaviour holds'),
         ui.badge({ label: `Verdict ${VERDICT_LABEL[completed.verdict]}`, tone: VERDICT_TONE[completed.verdict] }),
         h('a', { class: 'sc-lib__results', href: results, dataset: { focusKey: `lib:results:${card.key}` } }, `${completed.title} · ${completed.label}`, icon('arrow-right', { size: 14 }))),
-      h('table', { class: 'sc-ev' },
+      h('table', { class: 'dt sc-ev' },
         h('caption', { class: 'gym-sr' }, `Latest baseline and variant passes per scenario, from ${completed.label}`),
         h('thead', h('tr', h('th', { scope: 'col' }, 'Scenario'), h('th', { scope: 'col' }, 'Baseline'), h('th', { scope: 'col' }, 'Variant'))),
         h('tbody', completed.rows.map(r => h('tr', { dataset: { scenario: r.scenarioId } },

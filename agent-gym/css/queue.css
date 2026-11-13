@@ -15,7 +15,6 @@
 .gym-app .xq-wrap { position: relative; max-width: 100%; overflow-x: auto; }
 .gym-app .xq-table th, .gym-app .xq-table td { padding-left: 10px; padding-right: 10px; }
 .gym-app .xq-row { cursor: pointer; }
-.gym-app .xq-row:hover td { background: var(--gym-surface-2); }
 .gym-app .xq-exp { display: flex; flex-direction: column; gap: 3px; min-width: 190px; }
 .gym-app .xq-exp__top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .gym-app .xq-exp__id { color: var(--gym-muted); font-size: var(--gym-fs-xs); }

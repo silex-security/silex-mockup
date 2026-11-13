@@ -327,7 +327,7 @@ export function mount(root, ctx) {
       h('header', { class: 'wb-changes__head' },
         h('h2', { class: 'wb-changes__title', id: 'wb-changes-title' }, 'What changes: ', h('span', { class: 'wb-changes__versions' }, `${set.baselineLabel} → ${set.variantLabel}`)),
         badge({ label: `${set.changeCount} change${set.changeCount === 1 ? '' : 's'}`, tone: set.changeCount ? 'violet' : 'gray', class: 'wb-changes__count' })),
-      h('div', { class: 'wb-changes__wrap' }, h('table', { class: 'wb-changes__table' },
+      h('div', { class: 'wb-changes__wrap' }, h('table', { class: 'dt wb-changes__table' },
         h('thead', h('tr', ['Step', 'Field', 'Baseline', set.variantLabel].map(c => h('th', { scope: 'col' }, c)))),
         h('tbody', set.rows.map((r, i) => h('tr', { class: r.changed ? 'is-changed' : null, dataset: { field: `${r.nodeId}.${r.field}` } },
           h('th', { scope: 'row' }, r.node, set.rows.findIndex(x => x.nodeId === r.nodeId) === i && sharedChip(state, exp.id, r.agentId)), h('td', h('code', r.field)),
@@ -486,7 +486,7 @@ export function mount(root, ctx) {
         h('h2', { id: 'wb-queue-title' }, 'Run queue'),
         h('span', { class: 'wb-queue__counts' }, ['running', 'queued', 'completed', ...extra].map(s => badge({ label: `${counts[s]} ${s}`, tone: QUEUE_TONE[s], dot: true, class: 'wb-qcount' })))),
       h('div', { class: 'wb-queue__scroll', dataset: { scrollKey: 'wb:queue' } },
-        rows.length ? h('table', { class: 'wb-qtable' },
+        rows.length ? h('table', { class: 'dt dt--click wb-qtable' },
           h('thead', h('tr', ['Experiment', 'Environment', 'Scenarios', 'Status', 'Result'].map(t => h('th', { scope: 'col' }, t)))),
           h('tbody', rows.map(r => queueRow(r)))) : emptyState({ icon: 'list', title: 'The queue is empty', text: 'Run a simulation to add an attempt.' })));
   }
