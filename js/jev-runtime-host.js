@@ -10,6 +10,7 @@ import { mountPipeline } from './rt-pipeline.js';
 import { mountTrace } from './rt-trace.js';
 import { tip } from './rt-tip.js';
 import { mountSubnav } from './rt-subnav.js';
+import { mountLearnedRules } from './rt-learned-rules.js';
 import { mountLoop, mountLearningResults } from './rt-learning-visual.js';
 
 const DEMO = 'jev-runtime/demo/index.html';
@@ -207,8 +208,8 @@ function refreshOpenFull() {
 }
 for (const ev of ['click', 'pointerenter', 'focus', 'contextmenu']) $('rtOpenFull').addEventListener(ev, refreshOpenFull);
 
-// Learning loop tab (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md): two sub-tabs, the loop and the measured results. The
-// pictures live in js/rt-learning-visual.js; this host loads the evidence (and the judge's real-run baseline for the reality
+// Learning loop tab (logs/2026-10-11_RT_SUBTABS_VISUAL_PLAN.md): the loop, the measured results, and the recorded rule
+// tests (logs/2026-11-12_LEARNED_RULES_PLAN.md). The pictures live in js/rt-learning-visual.js; this host loads the evidence (and the judge's real-run baseline for the reality
 // check) and mounts them; the sub-tab bar plays each one the first time it is on screen (js/rt-subnav.js bind).
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 async function renderLearningEvidence() {
@@ -219,9 +220,11 @@ async function renderLearningEvidence() {
     items: [
       { key: 'loop', label: 'How it learns', hint: 'Reviewer answers become training data' },
       { key: 'results', label: 'Measured results', hint: 'Before → after, and the reality check' },
+      { key: 'rules', label: 'Rules, tested', hint: 'Model-proposed rules against a test gate' },
     ],
   });
   sub.bind('loop', loop);
+  renderLearnedRules();
   try {
     const response = await fetch('jev-runtime/demo/data/learning-evidence.json');
     if (!response.ok) throw new Error('Evidence unavailable');
@@ -234,6 +237,17 @@ async function renderLearningEvidence() {
     sub.bind('results', mountLearningResults(root, { evidence, judge, runs }, { tip, reducedMotion }));
   } catch {
     root.innerHTML = '<p class="rt-ref">Measured benchmark evidence could not be loaded. Open the demo full page to try again.</p>';
+  }
+}
+
+async function renderLearnedRules() {
+  const root = $('rtLearnedRules');
+  try {
+    const response = await fetch('jev-runtime/demo/data/learned-rules.json');
+    if (!response.ok) throw new Error('Rule tests unavailable');
+    mountLearnedRules(root, await response.json());
+  } catch {
+    root.innerHTML = '<p class="rt-ref">The recorded rule tests could not be loaded.</p>';
   }
 }
 

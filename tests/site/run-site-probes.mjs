@@ -439,7 +439,7 @@ try {
     assert.ok(values.length>=17,'thresholds, sample sizes and confidence intervals included');
     for(const v of values)assert.equal(v.text,Number(v.path.split('/').reduce((o,k)=>o[k],evidence)).toFixed(v.digits),v.path);
     const text=await ev('return document.querySelector("#rtLearning").textContent');
-    assert.match(text,/The judge learns from your reviewers/);
+    assert.match(text,/How the judge and the rules can improve, and how each was tested/);
     assert.deepEqual(await ev(`return [...document.querySelectorAll('#runtime-observation [data-rt-tab]')].map(e=>e.getAttribute('aria-controls'))`),['rtScenarioCard','rtDecisionPlane','rtLearning','rtOntology','rtFleetPanel','rtLatency'],'tab order: scenarios, decision plane, learning, ontology, agent fleet, latency');
     assert.match(text,/each model's own calibrated threshold/);assert.match(text,/question-level/);assert.match(text,/no fitted threshold/);assert.match(text,/similar local judge HTTP p50 in this run/);
     assert.match(text,/Training on reviewer labels and production promotion are future work/);assert.match(text,/Calibrations not activated/);

@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="css/rt-fleet-grid.css" />
   <link rel="stylesheet" href="css/rt-subnav.css" />
   <link rel="stylesheet" href="css/rt-learning-visual.css" />
+  <link rel="stylesheet" href="css/rt-learned-rules.css" />
   <link rel="stylesheet" href="css/rt-onto-visual.css" />
   <link rel="stylesheet" href="css/rt-onto-run.css" />
   <link rel="stylesheet" href="css/rt-onto-fleet.css" />
@@ -685,12 +686,13 @@
 </section>
 
 <section class="rt-panel" id="rtLearning" data-rt-panel="learning" role="tabpanel" aria-labelledby="rtTab-learning" hidden>
-<div class="card rt-intro"><div><h2>The judge learns from your reviewers <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>When the judge is unsure, it holds the action for a person. Every reviewer answer can become a training label, so the judge improves over time. We tested the idea by fine-tuning our small judge, <b>Kev</b>, on a public benchmark (AgentDojo held-out). The labels come from the benchmark, <b>not yet from customer reviewers</b>.</span></span></h2><p>Unsure actions go to a person; each answer can become a training label. Tested with benchmark labels, not yet from customer reviewers.</p></div>
+<div class="card rt-intro"><div><h2>How the judge and the rules can improve, and how each was tested <span class="rt-tip" tabindex="0" role="button" aria-label="More information" aria-expanded="false">i<span class="rt-tip-body" hidden>When the judge is unsure, it holds the action for a person. Every reviewer answer can become a training label, so the judge improves over time. We tested the idea by fine-tuning our small judge, <b>Kev</b>, on a public benchmark (AgentDojo held-out). The labels come from the benchmark, <b>not yet from customer reviewers</b>.</span></span></h2><p>Unsure actions go to a person; each answer can become a training label. Tested with benchmark labels, not yet from customer reviewers. Rules that a model proposes go through a test gate before anyone can publish them.</p></div>
 <div class="rt-intro-side"><button type="button" class="btn primary" id="rtTryLoop">Try the loop</button></div></div>
 <nav data-rt-learning-subnav></nav>
 <div class="rt-learning-subpanels" data-rt-learning-subpanels>
 <div data-rt-subpanel="loop"><div id="rtLearningLoop"></div></div>
 <div data-rt-subpanel="results" hidden><div id="rtLearningEvidence"><p class="rt-ref">Loading measured benchmark evidence…</p></div></div>
+<div data-rt-subpanel="rules" hidden><div id="rtLearnedRules"><p class="rt-ref">Loading the recorded rule tests…</p></div></div>
 </div>
 </section>
 
