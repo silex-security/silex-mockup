@@ -35,7 +35,6 @@ export function projectLibrary(storage, summary)   // -> [{ key, docId, name, do
 export function renderPending(container, rows, { onOpen })   // builds rows with createElement/textContent only
 export function renderPcp(container, cards, { onOpen, onTrace })
 export function renderLibrary(container, rows, { onOpen, onTrace })
-export function renderUnavailable(container, reason)
 ```
 
 **Command objects** passed to `onOpen`/`onTrace`: `{ cmd: 'open', doc, rev, hash, view: 'assurance'|'trace', stage?: 'decide' }`.
@@ -49,7 +48,6 @@ export function renderUnavailable(container, reason)
 | `#ovPendingCount` (existing) | Overview | incident pending + Studio awaiting |
 | `#pcpStudioCards` | Incidents & Decisions · Pending decisions panel | cards `[data-studio-pcp="<key>"][data-state="awaiting\|approved\|accepted"]`, with `[data-studio-open]` and `[data-studio-trace]` |
 | `#libStudioGroup` | Workflow Library | rows `[data-studio-reg="<key>"]`, with `[data-studio-open]` (disabled when `[data-source-replaced]`) and `[data-studio-trace]` |
-| `[data-studio-summary="unavailable"]` | any of the three containers | shown when `readSummary` fails; no numbers are rendered |
 | `window.openStudio(cmd, params)` | global, from `studio-host.js` | `cmd` ∈ `resume` \| `new` \| `open` |
 
 Keys are the registration key `docId|rev|hash`. A pending or PCP row for an unregistered revision uses the same form.

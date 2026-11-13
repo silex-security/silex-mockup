@@ -57,12 +57,11 @@ const openCmd = c => openStudio(c.cmd || 'open', c);
 function render() {
   if (!store) return;
   const res = B.readSummary(store);
-  const summary = res.ok ? res.summary : (res.reason === 'no summary' ? { v: 1, at: null, docs: [] } : null);
+  // A summary that cannot be read is a stale cache the Studio rewrites on its next open, so it reads as empty.
+  const summary = res.ok ? res.summary : { v: 1, at: null, docs: [] };
   const ov = document.getElementById('ovStudioPending'), pcp = document.getElementById('pcpStudioCards'), lib = document.getElementById('libStudioGroup');
   let awaiting = 0;
-  if (!summary) {
-    for (const c of [ov, pcp, lib]) if (c) B.renderUnavailable(c, res.reason);
-  } else try {
+  try {
     const pend = B.projectPending(summary, store);
     awaiting = pend.filter(r => !r.stale).length;
     if (ov) B.renderPending(ov, pend, { onOpen: openCmd });
@@ -70,7 +69,9 @@ function render() {
     if (lib) B.renderLibrary(lib, B.projectLibrary(store, summary), { onOpen: openCmd, onTrace: openCmd });
   } catch (e) {                                   // defence in depth: never let stored data break the site
     awaiting = 0;
-    for (const c of [ov, pcp, lib]) if (c) B.renderUnavailable(c, 'summary could not be projected');
+    if (ov) B.renderPending(ov, [], { onOpen: openCmd });
+    if (pcp) B.renderPcp(pcp, [], { onOpen: openCmd, onTrace: openCmd });
+    if (lib) B.renderLibrary(lib, [], { onOpen: openCmd, onTrace: openCmd });
   }
   window.studioAwaitingCount = awaiting;
   if (window.__siteRefreshPending) window.__siteRefreshPending();
