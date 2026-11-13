@@ -11,12 +11,12 @@ export function TeamKpis({ team }: { team: AgentTeam }) {
     const trend: Trend = change > 0 ? "up" : change < 0 ? "down" : "flat";
     const tone: Tone = good === null ? "acc2" : good ? "mint" : "amb";
     return (
-      <div className={cx("card relative flex flex-col gap-1 px-4 py-3.5", warn && "!border-amb")}>
+      <div className={cx("card flex flex-col gap-1 px-4 py-3.5", warn && "!border-amb")}>
         <span className="lbl">{label}</span>
         <span className="text-3xl font-bold tracking-tight">{value}</span>
         <span className={cx("text-xs", good === null ? "text-mut" : good ? "text-mint-text" : "text-amb-text")}>{delta}</span>
-        <span className="pointer-events-none absolute bottom-3 right-3 opacity-80">
-          <TrendMark trend={trend} tone={tone} />
+        <span className="mt-1 flex opacity-80">
+          <TrendMark trend={trend} tone={tone} seed={`${team.id}-${label}`} width={128} />
         </span>
       </div>
     );

@@ -40,14 +40,44 @@ export function Sparkline({
 export type Trend = "up" | "down" | "flat" | "wave" | "step";
 export type Tone = "acc2" | "amb" | "mint" | "rose" | "mut";
 
-export const TREND_SHAPES: Record<Trend, number[]> = {
-  up: [3, 4, 3.6, 5, 5.8, 5.4, 7, 7.6, 8.8, 9.6],
-  down: [9.6, 8.6, 9, 7.4, 6.6, 6.9, 5, 4.4, 3.2, 2.6],
-  flat: [5, 5.6, 4.7, 5.3, 5.9, 4.8, 5.4, 5.1, 5.7, 5.2],
-  wave: [4, 6.2, 8, 6.4, 3.8, 3.2, 5.4, 7.6, 7, 5],
-  step: [3, 3.4, 3, 3.3, 7, 7.3, 6.8, 7.2, 9, 8.8],
-};
+function prng(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const hash = (text: string) => [...text].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
 
-export function TrendMark({ trend, tone }: { trend: Trend; tone: Tone }) {
-  return <Sparkline values={TREND_SHAPES[trend]} tone={tone} dot={false} area width={72} height={20} />;
+const TREND_BASE: Record<Trend, (rnd: () => number) => (t: number) => number> = {
+  up: () => (t) => 0.15 + 0.7 * t,
+  down: () => (t) => 0.85 - 0.7 * t,
+  flat: () => () => 0.5,
+  wave: (rnd) => {
+    const f = 1.1 + 1.4 * rnd(), p = rnd(), amp = 0.2 + 0.12 * rnd();
+    return (t) => 0.5 + amp * Math.sin(2 * Math.PI * (f * t + p));
+  },
+  step: (rnd) => {
+    const cuts = [0.15 + 0.2 * rnd(), 0.45 + 0.15 * rnd(), 0.7 + 0.2 * rnd()];
+    return (t) => 0.18 + 0.22 * cuts.filter((c) => t >= c).length;
+  },
+};
+const TREND_NOISE: Record<Trend, number> = { up: 0.3, down: 0.3, flat: 0.34, wave: 0.2, step: 0.1 };
+const TREND_POINTS = 26;
+
+/** A decorative line: the trend's base curve plus a random walk seeded by `seed`. It carries no data. */
+export function trendValues(trend: Trend, seed: string): number[] {
+  const rnd = prng(hash(`${trend}-${seed}`)), base = TREND_BASE[trend](rnd);
+  let drift = 0;
+  return Array.from({ length: TREND_POINTS }, (_, i) => {
+    drift = drift * 0.55 + (rnd() - 0.5) * TREND_NOISE[trend];
+    return Math.min(1, Math.max(0, base(i / (TREND_POINTS - 1)) + drift));
+  });
+}
+
+export function TrendMark({ trend, tone, seed, width = 112 }: { trend: Trend; tone: Tone; seed: string; width?: number }) {
+  return <Sparkline values={trendValues(trend, seed)} tone={tone} dot={false} area width={width} height={22} />;
 }

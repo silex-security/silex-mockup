@@ -50,7 +50,7 @@ export function KpiRow({ items }: { items: { label: string; value: ReactNode; to
           <span className={cx("text-3xl font-bold tracking-tight", k.tone && TONE_TEXT[k.tone])}>{k.value}</span>
           {k.trend ? (
             <span className="flex opacity-80">
-              <TrendMark trend={k.trend} tone={k.tone ?? "acc2"} />
+              <TrendMark trend={k.trend} tone={k.tone ?? "acc2"} seed={k.label} />
             </span>
           ) : null}
         </div>
