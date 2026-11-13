@@ -3,3 +3,4 @@ __pycache__/
 .click_test_*.html
 .shot_*.html
 swm/.cache/
+.claude/

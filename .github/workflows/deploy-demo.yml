@@ -58,6 +58,13 @@ jobs:
           for f in js/*.js; do node --check "$f"; done
           find agent-gym/js -name '*.js' -print0 | xargs -0 -n1 node --check
 
+      - name: No Chrome profile left behind
+        # A browser test that skips tests/site/chrome-reaper.mjs leaves a profile of several MB in the temp directory on every run.
+        run: |
+          left=$(find "$(node -p 'require("os").tmpdir()')" -maxdepth 1 -type d \( -name 'ontology-card-chrome-*' -o -name 'studio-site-probes-*' \))
+          for d in $left; do echo "$d: $(find "$d" -type f | wc -l) files, modified $(date -r "$d" +%T), now $(date +%T)"; done
+          test -z "$left" || { echo "::error::The browser tests left $(echo "$left" | wc -l | tr -d ' ') Chrome profile(s) in the temp directory. Spawn Chrome through own() in tests/site/chrome-reaper.mjs and call the release() it returns."; exit 1; }
+
       - name: Deploy to Cloudflare Pages
         id: deploy
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
