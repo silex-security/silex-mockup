@@ -1,6 +1,6 @@
 # Learned rules behind an evidence gate: plan
 
-Plan version: v0.2 (2026-11-12). Status: draft, plan gate round 2.
+Plan version: v0.3 (2026-11-12). Status: draft, plan gate round 3.
 
 ## 0. Run settings
 
@@ -17,7 +17,7 @@ Plan version: v0.2 (2026-11-12). Status: draft, plan gate round 2.
 
 The user asked to bring the upstream learned-rule loop into this demo, then sync `jev-simplified` with it. The audience is investors and prospective customers (confirmed by the user 2026-11-12).
 
-One message for the viewer: **a rule that a model proposes is tested against known cases before anyone can publish it, the test is tightened when it turns out too loose, and every rule carries its evidence count.**
+One message for the viewer: **a rule that a model proposes is tested against known cases before anyone can publish it, the test was tightened once it proved too loose, and every rule carries its evidence count.**
 
 What the page may claim, and no more. Every number comes from `fixture-numbers.out`.
 
@@ -33,13 +33,13 @@ What the page may claim, and no more. Every number comes from `fixture-numbers.o
 
 The Runtime view's "Learning loop" tab has two sub-tabs today ("How it learns", "Measured results"). This plan adds a third, **"Rules, tested"**, key `rules`, reachable at `#view=runtime-observation&tab=learning&sub=rules`.
 
-**The tab's shared header changes.** It reads "The judge learns from your reviewers" today, which would misdescribe the new sub-tab. New heading: "The judge and the rules both learn, and both are tested first". The existing paragraph about the judge stays and gains one sentence: "Rules that a model proposes go through a test gate before anyone can publish them." The existing info tip keeps its judge text. Side effect of a third sub-tab: `mountSubnav` adds a "Next: Rules, tested →" button at the end of the "Measured results" panel.
+**The tab's shared header changes.** It reads "The judge learns from your reviewers" today, which would misdescribe the new sub-tab. New heading: "How the judge and the rules can improve, and how each was tested". It names two experiments and does not say the product learns today. The existing paragraph about the judge stays and gains one sentence: "Rules that a model proposes go through a test gate before anyone can publish them." The existing info tip keeps its judge text. Side effect of a third sub-tab: `mountSubnav` adds a "Next: Rules, tested →" button at the end of the "Measured results" panel.
 
 The sub-tab, one screen and one message:
 
-1. A headline computed from the data: "60 model sessions produced 56 candidate rules. After harder test cases were added, the gate passes 45 and fails 11."
+1. A headline computed from the data: "60 model sessions; 56 ended with a rule that passed a first gate. After harder test cases were added, the gate passes 45 and fails 11."
 2. A chip `Measured · offline run` (`.rt-chip data-kind="ran"`).
-3. A **visible limits line**, outside any `<details>`, with the attribute `data-rt-rules-note`: "Offline experiment on a synthetic 29-item test set. An earlier gate passed all 56; the gate was then tightened. No proposed rule was put into a live policy. The test set was written by the same author as the reference rule." Its numbers (29, 56) are rendered from the data.
+3. A **visible limits line**, outside any `<details>`, with the attribute `data-rt-rules-note`: "Offline experiment on a synthetic 29-item test set. An earlier gate passed all 56. After probes found some of them wrong, harder test cases were added; those cases fail the 11. No proposed rule was put into a live policy. The test set was written by the same author as the reference rule." Its numbers (29, 56, 11) are rendered from the data.
 4. Two cards side by side.
    - **Passes the gate.** The rule in plain words ("money already paid on the invoice + this payment > invoice amount → block"). Evidence: "Caught 4 of 4 known violations, flagged 0 of 11 normal payments. On the held-back set: 6 of 6, 0 of 8."
    - **Fails the gate.** Lead line: "9 of the 11 failing rules fail the same way." Example, the most common condition among those 9: "money already paid ≥ invoice amount → block". Evidence: "Caught 1 of 4 known violations. On the held-back set: 4 of 6." One plain sentence: it stops a payment only after the invoice is already paid in full, so it misses a payment that goes over the amount.
@@ -82,9 +82,9 @@ Left out on purpose: prompts, model responses, model names, model-written descri
 Generator `tools/build-learned-rules.mjs <upstream checkout>`:
 
 - refuses to run unless the checkout's `HEAD` equals the pinned commit;
-- reads `runs/rule-regate-2026-11/gate-reports.json` (key `P4`), `runs/rule-proposer-2026-10/sessions/*.json` (outcome, the last attempt's `candidate` and `gate`, joined by `ordinal`) and `server/rules/gate-corpus.json` (split sizes only);
+- reads `runs/rule-regate-2026-11/gate-reports.json` (key `P4`), `runs/rule-proposer-2026-10/sessions/*.json` (outcome, the last attempt's `candidate` and `gate`, joined by `ordinal`). It does not read the corpus: the split sizes are `violations + benign` from the reports, which must agree across all 56;
 - **refuses mixed inputs**: every `P4` report must carry the same `criteria_version` and `corpus_sha256`; every session with outcome `passed` must carry a first-gate `PASS` under one `criteria_version` and `corpus_sha256`; every `P4` ordinal must be a `passed` session. This is where v0.1's I1 now lives;
-- records the sha256 of each input file;
+- records two `source.files` entries: `gate-reports.json` with its sha256, and the sessions directory with a manifest hash (the sha256 of the sorted lines `<file name> <file sha256>` over its 60 files);
 - writes canonical JSON (sorted keys, two-space indent, trailing newline), so a rerun is byte-identical.
 
 ## 4. Code shape
@@ -118,7 +118,7 @@ File ownership:
 
 - Task 1 (planner): `tools/build-learned-rules.mjs`, `jev-runtime/demo/data/learned-rules.json`, `tests/site/learned-rules-data.test.mjs`.
 - Task 2 (deepseek): `js/rt-learned-rules.js`, `tests/site/rt-learned-rules.test.mjs`. The coder reads the data file and `js/rt-learning-visual.js` as a pattern. It gets no access to the upstream checkout or to `$SCRATCH/upstream/`.
-- Task 3 (planner): `index.html`, `js/jev-runtime-host.js`, `css/rt-learned-rules.css`, `tests/site/rt-learned-rules-page.test.mjs`, `tests/site/rt-subnav.test.mjs` (add `NOTES.learning.rules` and its `TEXT` pattern), and any existing test that asserts the old tab heading.
+- Task 3 (planner): `index.html`, `js/jev-runtime-host.js`, `css/rt-learned-rules.css`, `tests/site/rt-learned-rules-page.test.mjs`, `tests/site/rt-subnav.test.mjs` (add `NOTES.learning.rules` and its `TEXT` pattern), `tests/site/run-site-probes.mjs` (line 442 asserts the old heading; it is a runner, not a `*.test.mjs`), and any other test that asserts the old tab heading.
 - Task 4 (planner): `README.md`, `logs/README.md`, `logs/learned-rules-2026-11-12/` (screenshots).
 - Record paths: `logs/2026-11-12_LEARNED_RULES_PLAN.md`.
 
@@ -129,21 +129,21 @@ Test design:
 - **Browser test.** Uses the existing harness. Opened by the deep link, at 1280 px and at 390 px:
   - the tab heading and the sub-tab headline are both visible, and the heading is the new text;
   - the headline's four numbers equal counts the test computes itself from the JSON file (its own filter, not `summary()`);
-  - the limits line is visible, is not inside a `<details>`, and contains "No proposed rule was put into a live policy";
+  - the limits line is visible, is not inside a `<details>`, and contains both "After probes found some of them wrong, harder test cases were added" and "No proposed rule was put into a live policy";
   - two cards exist with the evidence sentences;
   - the details table has one row per distinct condition and does not overflow the page at 390 px;
   - the two existing sub-tabs still open.
-- **Visible-notes rule.** `tests/site/rt-subnav.test.mjs` gets the new sub-tab's note selector, so the repo's existing check holds the limits line to visible text.
+- **Visible-notes rule.** `tests/site/rt-subnav.test.mjs` gets the new sub-tab's note selector and a `TEXT` pattern for the "After probes found" clause, so the repo's existing check holds the limits line to visible text.
 - **Mutations (task 4).** M1: swap `caught` and `false_flags` in `evidenceText`; predicted failure: the unit test's passing-rule evidence assertion ("Caught 0 of 4 … flagged 4 of 11" against the expected sentence). M2: make `summary` count forms instead of rules; predicted failures: the unit test's `summary` assertion and the browser test's headline assertion (8 against 56).
 
-Checks before the code gate: the full suite (`node --test tests/site/*.test.mjs`), `node --check js/*.js`.
+Checks before the code gate: the full suite (`node --test tests/site/*.test.mjs`), `node --check js/*.js`, and `node tests/site/run-site-probes.mjs` (compared with its result at BASE, since it is not part of the suite).
 
 ## 6. Publication and what stays the user's decision
 
 This repo is public and its `main` deploys to demo.opensilex.ai. Upstream is private. So:
 
 - Work stays in local commits on `jwang3417/learned-rules` until the user answers D1.
-- **D1.** May the following go into this public repo? Everything the data file publishes: the 56 rule conditions (fact names from the upstream catalog, operators, constants) and their `BLOCK` verdict; the pass and fail counts per split; the failed criterion numbers; the two gate version names and the two corpus hashes; the split sizes; the session counts; the failure class name; the upstream repo name, the pinned commit, and three internal file paths with their hashes. Plus, in page text and the plan: the five gate criteria in plain words. All of it is synthetic and none of it is customer data, but it comes from a private repo. (The repo name is already public in `jev-runtime/VENDORED.json`.)
+- **D1.** May the following go into this public repo? Everything the data file publishes: the 56 rule conditions (fact names from the upstream catalog, operators, constants) and their `BLOCK` verdict; the pass and fail counts per split; the failed criterion numbers; the two gate version names and the two corpus hashes; the split sizes; the session counts; the failure class name; the upstream repo name, the pinned commit, and two internal paths (one file, one directory) with their hashes. Plus, in page text and the plan: the five gate criteria in plain words. All of it is synthetic and none of it is customer data, but it comes from a private repo. (The repo name is already public in `jev-runtime/VENDORED.json`.)
 - **D2.** Model vendor names. The plan's default is that no model or vendor name appears in the data file or on the page. The user may ask for them.
 - Opening the PR, merging it, and so deploying, are the user's.
 - No paid model call happens in this build. The generator only reads files.
@@ -176,3 +176,13 @@ Reply files: `$SCRATCH/lr-codex-plan-r1.md`, `$SCRATCH/lr-claude-plan-r1.md`.
 | Non-blocking, folded in: drop `proposer` (claude); browser test counts with its own filter, M2 predicts both failures (both); say the "Next" button appears (claude); lead the failing card with "9 of 11 fail the same way" (claude); name which probe reviewers rerun (claude); I2 is a property of these 56 reports (codex); 390 px overflow check (codex) | Sections 0, 2, 4, 5, 7. |
 | Non-blocking, not taken: show the two passing forms as one row "2 orderings" (claude) | The module does not reason about equivalence. The table says "as written" and keeps 8 rows, so the data test and the screen count the same thing. |
 | Non-blocking, not taken: an eight-form aggregate file instead of 56 entries (codex) | 56 entries keep the join to upstream ordinals auditable; the file stays small. |
+
+### Round 2 (plan v0.2): both reviewers PLAN-REJECTED, two text points each, the same two
+
+Reply files: `$SCRATCH/lr-codex-plan-r2.md`, `$SCRATCH/lr-claude-plan-r2.md`. reviewer-claude: "Both are text changes. Everything else in v0.2 I accept."
+
+| Objection (who) | Change in v0.3 |
+|---|---|
+| The visible limits line says only "the gate was then tightened"; it must say the harder cases came after the weak rules were found (codex 2, claude 1) | Limits line now reads "After probes found some of them wrong, harder test cases were added; those cases fail the 11." The browser test and the `TEXT` pattern assert the clause. |
+| The shared heading "both learn" claims a product capability; upstream says there is no learner in the product (codex 1, claude 2) | Heading is now "How the judge and the rules can improve, and how each was tested". The browser test asserts it. |
+| Non-blocking, folded in: headline says the 56 passed a first gate (claude); the one message in past tense (claude); `source.files` specified as one file and one directory manifest, D1 corrected (claude); `run-site-probes.mjs` named in task 3 and in the checks (claude); the generator takes split sizes from the reports and no longer reads the corpus (codex) | Sections 1, 2, 3, 5, 6. |
