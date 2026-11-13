@@ -1,14 +1,14 @@
 // The Agent Gym v2 store: the only writer of GymState and of localStorage (docs/agent-gym-v2-contract.md).
 //
 //   createStore({ storage, seed }) -> { getState, subscribe, dispatch, reset, persistence }
-//     storage      a localStorage-like object, or null when the browser refuses access
+//     storage      a localStorage-like object, or null when the browser refuses access. Saved data that fails
+//                  parsePersisted is demo data from another version: it is replaced by the seed, never reported.
 //     seed         () => GymState, a fresh fixture state on every call
 //     getState()   the current state, deep-frozen. A view or reducer that writes to it throws a TypeError.
 //     subscribe(fn) -> unsubscribe. fn(state) runs after every state or persistence change.
 //     dispatch(reducer, command) -> { ok: true, state } | { ok: false, error }
 //     reset()      re-seeds and rewrites only STORAGE_KEY. Returns the new state.
-//     persistence  { mode: 'local' | 'memory', error: GymError | null }, updated in place.
-//                  dismissError() clears the error after the user has read it. The mode stays.
+//     persistence  { mode: 'local' | 'memory' }, updated in place. 'memory' means storage cannot be used at all.
 import { SCHEMA_VERSION, FIXTURE_VERSION, STORAGE_KEY } from './model.js';
 import { stateProblems } from './integrity.js';
 
@@ -17,16 +17,6 @@ const SHAPE = {
   scenarioDrafts: 'object', scenarioSets: 'object', experiments: 'object', attempts: 'object', executions: 'object',
   attemptOrder: 'array', seq: 'number',
 };
-
-const ERRORS = {
-  storage_unavailable: 'Browser storage is not available. Changes last until you refresh this page.',
-  storage_corrupt: 'Saved demo data could not be read. This session started from the demo defaults and is not being saved.',
-  storage_version: 'Saved demo data comes from a different version of Agent Gym. This session started from the demo defaults and is not being saved.',
-  storage_invalid: 'Saved demo data is incomplete. This session started from the demo defaults and is not being saved.',
-  storage_inconsistent: 'Saved demo data refers to records that do not exist. This session started from the demo defaults and is not being saved.',
-  storage_quota: 'Browser storage is full. Changes from now on last until you refresh this page.',
-};
-const failure = code => ({ code, message: ERRORS[code], fix: { label: 'Reset demo data', action: 'reset' } });
 
 const kindOf = v => Array.isArray(v) ? 'array' : v === null ? 'null' : typeof v;
 
@@ -55,26 +45,22 @@ function deepFreeze(value) {
 }
 
 export function createStore({ storage, seed }) {
-  const persistence = { mode: 'local', error: null, dismissError() { if (persistence.error) { persistence.error = null; notify(); } } };
+  const persistence = { mode: 'local' };
   const subscribers = new Set();
   let state;
 
   function notify() { for (const fn of [...subscribers]) fn(state); }
-  function toMemory(code) { persistence.mode = 'memory'; persistence.error = failure(code); }
   function write() {
-    try { storage.setItem(STORAGE_KEY, JSON.stringify(state)); return true; } catch (e) {
-      toMemory(/quota/i.test(`${e?.name} ${e?.message}`) || e?.code === 22 ? 'storage_quota' : 'storage_unavailable');
-      return false;
-    }
+    try { storage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { persistence.mode = 'memory'; }
   }
   function save() { if (persistence.mode === 'local') write(); }
 
   function load() {
     let text;
-    try { if (!storage) throw Error('no storage'); text = storage.getItem(STORAGE_KEY); } catch { toMemory('storage_unavailable'); return seed(); }
+    try { if (!storage) throw Error('no storage'); text = storage.getItem(STORAGE_KEY); } catch { persistence.mode = 'memory'; return seed(); }
     if (text === null) return seed();
     const parsed = parsePersisted(text);
-    if (parsed.error) { toMemory(parsed.error); return seed(); }
+    if (parsed.error) return seed();
     return pauseRunning(parsed.state);
   }
 
@@ -95,7 +81,6 @@ export function createStore({ storage, seed }) {
     reset() {
       state = deepFreeze(seed());
       persistence.mode = 'local';
-      persistence.error = null;
       write();
       notify();
       return state;

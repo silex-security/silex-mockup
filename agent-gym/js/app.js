@@ -11,7 +11,7 @@ import { DEFAULT_ROUTE, createRouter } from './router.js';
 import { SECTIONS, sectionOf } from './sections.js';
 import { h } from './components/dom.js';
 import { icon, logoMark } from './components/icons.js';
-import { button, notice, popoverMenu, confirmDialog, openDialog } from './components/ui.js';
+import { button, popoverMenu, confirmDialog, openDialog } from './components/ui.js';
 import * as experimentQueue from './views/experiment-queue.js';
 import * as workbench from './views/workbench.js';
 import * as handoff from './views/handoff.js';
@@ -71,7 +71,7 @@ async function resetDemo() {
   });
   if (!yes) return;
   store.reset();
-  announce(store.persistence.mode === 'local' ? 'Demo data reset.' : 'Demo data reset for this session only.');
+  announce('Demo data reset.');
 }
 
 function openFullPage() {
@@ -118,24 +118,8 @@ function markSection(route) {
   for (const a of sectionLinks) if (a.dataset.section === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
 }
 
-const banners = h('div', { class: 'gym-banners' });
 const main = h('main', { class: 'gym-main', id: 'gym-main', tabIndex: -1 });
-const notSaving = h('span', { class: 'gym-preview-mark gym-saving-mark', title: 'Changes last until this page reloads. Reset demo data starts saving again.', hidden: true }, 'Not saving · memory only');
-const foot = h('footer', { class: 'gym-foot' }, !EMBED && h('span', { class: 'gym-preview-mark' }, PREVIEW_MARK), notSaving);
-const FIXES = { reset: resetDemo };
-
-function renderBanners() {
-  const { mode, error } = store.persistence;
-  notSaving.hidden = mode !== 'memory' || !!error;
-  banners.replaceChildren();
-  if (mode !== 'memory' || !error) return;
-  const fix = error.fix && FIXES[error.fix.action];
-  banners.append(notice({
-    tone: 'warning', role: 'alert', class: 'gym-persistence', title: 'Not saving.', text: error.message,
-    actions: fix && button({ label: error.fix.label, size: 'sm', onClick: fix }),
-    onDismiss: () => store.persistence.dismissError(),
-  }));
-}
+const foot = h('footer', { class: 'gym-foot' }, !EMBED && h('span', { class: 'gym-preview-mark' }, PREVIEW_MARK));
 
 let mounted = null;
 // The mounted view's { pending() -> name | null, apply() -> boolean, discard() }, consulted before the route leaves it.
@@ -183,10 +167,8 @@ function show(route) {
 
 document.body.append(...[
   h('a', { class: 'gym-skip', href: '#gym-main', onClick: e => { e.preventDefault(); main.focus(); } }, 'Skip to content'),
-  !EMBED && header, sectionBar, banners, main, foot, live].filter(Boolean));
+  !EMBED && header, sectionBar, main, foot, live].filter(Boolean));
 
-store.subscribe(renderBanners);
-renderBanners();
 router.subscribe(show);
 router.start();
 show(router.current());

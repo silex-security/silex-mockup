@@ -46,19 +46,19 @@ test('saved data from before triggers and regression loads in local mode and rea
   assert.equal('regression' in old, false);
   assert.ok(Object.values(old.attempts).every(a => !('trigger' in a)));
   const store = createStore({ storage: storageWith(old), seed: seedState });
-  assert.deepEqual({ mode: store.persistence.mode, error: store.persistence.error }, { mode: 'local', error: null });
+  assert.deepEqual(store.persistence, { mode: 'local' });
   const state = store.getState();
   assert.equal(state.experiments['exp-029'].title, 'Experiment 029', 'the saved state was loaded, not re-seeded');
   assert.deepEqual(Object.values(state.attempts).map(triggerOf), Array(10).fill({ kind: 'manual', label: 'Manual run' }));
   assert.equal(attemptsByStatus(state, 'all', 'manual').length, 10);
 });
 
-test('a saved trigger of an unknown kind, or naming a missing regression batch, is refused at load', () => {
+test('a saved trigger of an unknown kind, or naming a missing regression batch, is replaced by the seed at load', () => {
   for (const trigger of [{ kind: 'cron', label: 'x' }, { kind: 'regression', label: 'Regression batch 9', batchId: 'regression-9' }]) {
     const bad = seedState();
     bad.attempts['attempt-001'] = { ...bad.attempts['attempt-001'], trigger };
     const store = createStore({ storage: storageWith(bad), seed: seedState });
-    assert.equal(store.persistence.mode, 'memory', JSON.stringify(trigger));
-    assert.equal(store.persistence.error.code, 'storage_inconsistent');
+    assert.deepEqual(store.persistence, { mode: 'local' }, JSON.stringify(trigger));
+    assert.deepEqual(store.getState().attempts['attempt-001'], seedState().attempts['attempt-001'], JSON.stringify(trigger));
   }
 });
