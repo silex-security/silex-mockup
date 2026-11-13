@@ -30,7 +30,7 @@ async function until(fn, label, timeout = 15000) { const end = Date.now() + time
 
 export async function browser() {
   const profile = await mkdtemp(join(tmpdir(), 'ontology-card-chrome-'));
-  const chrome = spawn(await findChrome(), ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+  const chrome = spawn(await findChrome(), ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore', detached: true });
   const release = own(chrome, profile);
   let browserConnection, page;
   try {

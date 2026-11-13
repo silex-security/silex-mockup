@@ -7,12 +7,15 @@ const T = (...a) => { if (process.env.REAPER_TRACE) try { appendFileSync(process
 const live = new Map();
 const removeProfile = profile => rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 const sleepSync = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+// Chrome must be spawned with detached: true, so that it leads a process group this can kill. On Linux its child
+// processes outlive the browser process for a moment and write the profile back after it was deleted.
+const killGroup = chrome => { try { process.kill(-chrome.pid, 'SIGKILL'); } catch {} };
 // Synchronous on purpose: it runs from the exit hook, where no event loop is left to await Chrome's exit.
-// A dying Chrome can still write into the profile for a moment, so retry until the directory is gone.
+// A dying Chrome can still write into the profile for a moment, so delete, wait and look again until it stays gone.
 function reapAll() {
   T('reapAll', live.size, [...live.values()].join(','));
-  for (const chrome of live.keys()) try { chrome.kill('SIGKILL'); } catch {}
-  for (const profile of live.values()) for (let i = 0; i < 20 && existsSync(profile); i++) { try { removeProfile(profile); } catch (e) { T('reap-fail', i, profile, e.code, e.message.slice(0, 120)); } if (existsSync(profile)) sleepSync(100); }
+  for (const chrome of live.keys()) { try { chrome.kill('SIGKILL'); } catch {} killGroup(chrome); }
+  for (const profile of live.values()) for (let i = 0; i < 30 && existsSync(profile); i++) { try { removeProfile(profile); } catch (e) { T('reap-fail', i, profile, e.code, e.message.slice(0, 120)); } sleepSync(100); }
   for (const profile of live.values()) T('reap-end', profile, existsSync(profile));
   live.clear();
 }
@@ -33,7 +36,13 @@ export function own(chrome, profile) {
     await Promise.race([exited, new Promise(r => setTimeout(r, 3000).unref())]);
     if (chrome.exitCode === null && chrome.signalCode === null) { chrome.kill('SIGKILL'); await exited; }
     T('exited', profile, chrome.exitCode, chrome.signalCode);
-    try { removeProfile(profile); } catch (e) { T('rm-fail', profile, e.code, e.message.slice(0, 120)); throw e; }
+    killGroup(chrome);
+    for (let i = 0; existsSync(profile); i++) {
+      try { removeProfile(profile); } catch (e) { T('rm-fail', i, profile, e.code, e.message.slice(0, 120)); if (i >= 30) throw e; }
+      await new Promise(r => setTimeout(r, 100));
+      if (existsSync(profile)) T('came-back', i, profile);
+      if (i >= 30 && existsSync(profile)) throw Error('Chrome profile keeps coming back: ' + profile);
+    }
     T('removed', profile, existsSync(profile));
     live.delete(chrome);
   })();
