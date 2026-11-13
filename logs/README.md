@@ -2,6 +2,16 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-12 — Rules, tested: recorded gate results for model-proposed rules
+
+- **Why:** the owner asked to bring the upstream learned-rule loop into this demo, for investors and prospective customers. The message is that a rule a model proposes is tested against known cases before anyone can publish it, and every rule carries its evidence count.
+- **Page:** the Learning loop tab has a third sub-tab, "Rules, tested". A headline with the counts (60 sessions, 56 candidates, 45 pass, 11 fail), a visible limits line, one passing rule and one failing rule in plain words with their counts, and a closed block with all 8 conditions and the five criteria.
+- **Heading:** the tab heading changed from "The judge learns from your reviewers" to "How the judge and the rules can improve, and how each was tested", because the old one did not cover the new sub-tab and neither says the product learns today.
+- **Data:** `jev-runtime/demo/data/learned-rules.json` is written by `tools/build-learned-rules.mjs` from the pinned upstream commit. It carries counts and rule conditions. The test cases, item ids, model names and model text stay upstream, so the held-back cases stay private and the browser shows recorded results only.
+- **Limits, as the page states them:** the test set is synthetic and written by the same author as the reference rule; the first gate passed all 56 and the harder cases were added after probes found some of them wrong; no proposed rule entered a live policy.
+- **Checks:** `tests/site/learned-rules-data.test.mjs` (what the public file may hold), `rt-learned-rules.test.mjs`, `rt-learned-rules-page.test.mjs` (1280 and 390 px), and the visible-notes rule in `rt-subnav.test.mjs`.
+- Plan and review record: [`2026-11-12_LEARNED_RULES_PLAN.md`](2026-11-12_LEARNED_RULES_PLAN.md). Screenshots: [`learned-rules-2026-11-12/`](learned-rules-2026-11-12/).
+
 ## 2026-11-12 — Signal theme: charcoal and one green accent
 
 - **Why:** the owner asked to restyle the whole site after one of the templates in AdminLTE's [dark dashboard list](https://adminlte.io/blog/dark-dashboard-templates/) and left the choice open. Signal (charcoal base, green accent, terminal look for monitoring rooms) was picked because the demo's core story is runtime observation and assurance.
