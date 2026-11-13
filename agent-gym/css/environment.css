@@ -84,7 +84,7 @@
   background: var(--gym-primary-softer); color: var(--gym-ink); font-size: var(--gym-fs-md); font-weight: 500; cursor: pointer;
 }
 .gym-app .env-edge:hover { border-color: var(--gym-primary-line); }
-.gym-app .env-edge.is-selected { border-color: var(--gym-primary); background: var(--gym-primary); color: #fff; }
+.gym-app .env-edge.is-selected { border-color: var(--gym-primary); background: var(--gym-primary); color: var(--bg); }
 .gym-app .env-counts { color: var(--gym-muted); font-size: var(--gym-fs-sm); }
 .gym-app .env-gen__title { margin-bottom: 4px; font-size: 15px; font-weight: 700; }
 .gym-app .env-gen__rows { margin: 0; padding: 0; list-style: none; border: 1px solid var(--gym-line); border-radius: var(--gym-r); }

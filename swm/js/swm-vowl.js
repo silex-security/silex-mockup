@@ -30,7 +30,7 @@ window.SWM_VOWL = function (SWM, d3) {
       if (!d.select('#' + m[0]).empty()) return;
       d.append('marker').attr('id', m[0]).attr('viewBox', '0 -5 10 10').attr('refX', 10).attr('markerWidth', m[1] ? 7 : 9)
         .attr('markerHeight', m[1] ? 7 : 9).attr('orient', 'auto').append('path').attr('d', 'M0,-4.5L10,0L0,4.5Z')
-        .attr('fill', m[1] ? m[2] : '#1b2247').attr('stroke', m[1] ? 'none' : m[2]).attr('stroke-width', 1.2);
+        .attr('fill', m[1] ? m[2] : '#16191d').attr('stroke', m[1] ? 'none' : m[2]).attr('stroke-width', 1.2);
     });
   }
   function lines(t, r) {

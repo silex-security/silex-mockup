@@ -19,13 +19,14 @@
   --hdr: var(--glass-bar);
   --page: var(--fog);
 
-  --acc: var(--blue-fill);           /* fills that carry white text */
-  --acc2: var(--blue);               /* strokes, marks and focus */
-  --acc-text: var(--blue2);
-  --acc-wash: var(--lav);
-  --bar: var(--blue);
-  --info: var(--blue2);
-  --info-wash: var(--lav);
+  --acc: var(--accent-fill);           /* fills that carry --on-acc text */
+  --on-acc: var(--bg);
+  --acc2: var(--accent);               /* strokes, marks and focus */
+  --acc-text: var(--accent-2);
+  --acc-wash: var(--accent-bg);
+  --bar: var(--accent);
+  --info: var(--accent-2);
+  --info-wash: var(--accent-bg);
 
   --amb: var(--amber-dot);
   --amb-text: var(--amber);
@@ -39,7 +40,7 @@
 
   --card-shadow: var(--shadow-sm);
   --pop-shadow: var(--shadow-md);
-  --focus: var(--blue);
+  --focus: var(--accent);
 }
 
 /* The console's type scale, radii and fonts under Tailwind's utility names: text-base is 13px, rounded-xl is 12px. */

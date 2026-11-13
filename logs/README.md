@@ -2,6 +2,15 @@
 
 Newest first, with what changed and why. The plans, review records and audits are the date-prefixed files in this folder; the index is on the [project README](../README.md#plans-reviews-and-audits).
 
+## 2026-11-12 — Signal theme: charcoal and one green accent
+
+- **Why:** the owner asked to restyle the whole site after one of the templates in AdminLTE's [dark dashboard list](https://adminlte.io/blog/dark-dashboard-templates/) and left the choice open. Signal (charcoal base, green accent, terminal look for monitoring rooms) was picked because the demo's core story is runtime observation and assurance.
+- **Tokens:** `tools/codemods/signal-theme.mjs` renamed `--blue*` and `--lav*` to `--accent*` in every source that reads them, since the accent is no longer blue, and rewrote the values in `css/tokens.css`. Surfaces are neutral charcoal. The accent is `#22c55e` for marks and fills, `#4ade80` for text. Status green moved to teal (`#5fd8c8`) so a passing check does not read as the accent. Radii went from 16/12px to 12/10px.
+- **Fills:** text on an accent fill is now dark (`--bg`), not white. White on `#22c55e` is 2.3:1; `#0c0d0f` on it is 8.5:1. Blueprint Studio and the Jev runtime demo gained a `--bg` token for this, and Speedrun a `--on-acc` role (`text-on-acc`).
+- **Page:** `css/fog.css` lays a 28px grid at 2% white over a faint green glow, and sets the hero and metric figures in IBM Plex Mono with tabular digits.
+- **Charts:** the World Model stage moved from navy to charcoal (`#0e1013` → `#1a1d22`). Its lavender layer ramp and indigo coverage ramp keep their colours; every stop gains contrast (coverage low stop 3.1 → 4.1:1). The ratio comments in `swm/js/swm-core.js` were recomputed.
+- **Embedded apps:** Blueprint Studio and Speedrun were rebuilt. `assurance.html` and `jev-observability/` are standalone light pages that the console does not load, and were left alone.
+
 ## 2026-11-12 — Leftovers from the Memo V3 review, and repeated titles in the embedded apps
 
 - **Why:** the owner asked to clear the "Left for later" list of [`2026-11-11_HOME_MEMO_V3_ALIGNMENT.md`](2026-11-11_HOME_MEMO_V3_ALIGNMENT.md), and reported that the Agent Gym views repeat "Agent Gym" and the page name at the top left.

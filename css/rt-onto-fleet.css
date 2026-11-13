@@ -6,14 +6,14 @@
 .rt-of-job{padding:14px 16px;min-width:0}
 .rt-of-job header{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
 .rt-of-job h3{font-size:var(--text-md);margin:2px 0 0;line-height:1.3}
-.rt-of-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:var(--text-sm);font-weight:720;background:var(--lav);color:var(--blue2)}
+.rt-of-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:var(--text-sm);font-weight:720;background:var(--accent-bg);color:var(--accent-2)}
 .rt-of-fig{margin:0 0 10px;font-size:var(--text-base);color:var(--muted)}
 .rt-of-fig b{font-size:var(--text-2xl);color:var(--ink);letter-spacing:-.02em}
 .rt-of-sub{margin:0 0 6px;font-size:var(--text-sm);color:var(--muted)}
 .rt-of code{font-family:var(--mono);font-size:var(--text-xs);overflow-wrap:anywhere}
 .rt-of-facts,.rt-of-rules,.rt-of-teams{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.rt-of-facts li{display:grid;gap:2px;padding:7px 9px;border:1px solid var(--blue-line);background:var(--lav-2);border-radius:var(--r-sm)}
-.rt-of-t b{color:var(--blue2)}
+.rt-of-facts li{display:grid;gap:2px;padding:7px 9px;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--r-sm)}
+.rt-of-t b{color:var(--accent-2)}
 .rt-of-facts small{font-size:var(--text-xs);color:var(--muted)}
 .rt-of-limits{margin-top:10px;padding:8px 10px;border-left:3px solid var(--amber);background:var(--amber-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:var(--text-sm);color:var(--amber)}
 .rt-of-limits p{margin:0 0 4px}.rt-of-limits p:last-child{margin:0}
@@ -28,11 +28,11 @@
 .rt-of-team-head{display:flex;align-items:center;gap:6px}
 .rt-of-bars{display:grid;gap:3px}
 .rt-of-bars i{display:block;height:6px;border-radius:var(--r-pill);width:calc(var(--v) * 100%)}
-.rt-of-bars i.on{background:var(--blue)}
+.rt-of-bars i.on{background:var(--accent)}
 .rt-of-bars i.off{background:var(--line-strong)}
 .rt-of-team-n{color:var(--muted);font-size:var(--text-xs)}
 .rt-of-go{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.rt-of .btn:focus-visible,.rt-fleet-onto-link .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.rt-of .btn:focus-visible,.rt-fleet-onto-link .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .rt-fleet-onto-link{margin:0 0 14px}
 #rtOntology .rt-onto-today{font-size:var(--text-md);margin:18px 0 10px}
 #rtOntology [data-onto-vision-mount]:empty+.rt-onto-today{margin-top:0}

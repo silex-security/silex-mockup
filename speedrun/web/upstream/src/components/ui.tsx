@@ -24,7 +24,7 @@ const TAG: Record<TagTone, string> = {
   rose: "bg-rose-wash text-rose-text",
   mint: "bg-mint-wash text-mint-text",
   mut: "bg-inset text-mut ring-1 ring-inset ring-line2",
-  solid: "bg-acc text-white",
+  solid: "bg-acc text-on-acc",
   blue: "bg-blue-wash text-blue",
 };
 
@@ -71,7 +71,7 @@ export function ButtonLink({ href, primary, children, className }: { href: strin
 }
 
 export function Avatar({ initials, variant = "wash", size = 24, title }: { initials: string; variant?: "wash" | "solid" | "lead"; size?: number; title?: string }) {
-  const tone = variant === "solid" ? "bg-acc text-white" : variant === "lead" ? "bg-fg text-bg" : "bg-acc-wash text-acc-text";
+  const tone = variant === "solid" ? "bg-acc text-on-acc" : variant === "lead" ? "bg-fg text-bg" : "bg-acc-wash text-acc-text";
   return (
     <span
       title={title}

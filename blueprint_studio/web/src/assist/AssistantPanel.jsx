@@ -142,7 +142,7 @@ export default function AssistantPanel() {
   return (
     <aside className="config assist" aria-label={t('assist.title', 'Ask AI')}>
       <header className="cp-head">
-        <span className="si-tile" style={{ '--tc': 'var(--blue)' }}><svg viewBox="0 0 24 24" className="icon"><path d={I.spark} /></svg></span>
+        <span className="si-tile" style={{ '--tc': 'var(--accent)' }}><svg viewBox="0 0 24 24" className="icon"><path d={I.spark} /></svg></span>
         <div className="cp-title"><b>{t('assist.title', 'Ask AI')}</b><small>{mode === 'claude' ? t('assist.byClaude', 'Claude proposes; you review and apply.') : t('assist.byRules', 'Rule-based — no AI.')}</small></div>
         <button className="btn ghost sm" aria-label={t('cp.close', 'Close')} onClick={() => ctl.setPanel(null)}><Icon d={I.x} /></button>
       </header>

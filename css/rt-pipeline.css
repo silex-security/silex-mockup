@@ -121,7 +121,7 @@
   font-family: var(--mono);
   font-size: var(--text-2xs);
   font-weight: 700;
-  color: var(--blue2);
+  color: var(--accent-2);
   margin-top: 3px;
 }
 
@@ -148,7 +148,7 @@
 }
 
 /* Stage state colouring. */
-#rtPipeline .rt-stage[data-state="active"] { border-color: var(--blue); background: var(--soft); }
+#rtPipeline .rt-stage[data-state="active"] { border-color: var(--accent); background: var(--soft); }
 #rtPipeline .rt-stage[data-state="pass"] { border-color: var(--green); background: var(--green-bg); }
 #rtPipeline .rt-stage[data-state="pass"] .rt-stage-name { color: var(--green); }
 #rtPipeline .rt-stage[data-state="pass"] svg { color: var(--green); }
@@ -209,7 +209,7 @@
   border-radius: var(--r-sm);
   cursor: pointer;
 }
-#rtPipeline #rtPipeSkip:hover { border-color: var(--blue); color: var(--blue2); }
+#rtPipeline #rtPipeSkip:hover { border-color: var(--accent); color: var(--accent-2); }
 
 /* Per-action dots. */
 #rtPipeline #rtPipeDots { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
@@ -217,7 +217,7 @@
 #rtPipeline .rt-dot[data-exit="allow"] { background: var(--green); border-color: var(--green); }
 #rtPipeline .rt-dot[data-exit="hold"] { background: var(--amber); border-color: var(--amber); }
 #rtPipeline .rt-dot[data-exit="block"] { background: var(--red); border-color: var(--red); }
-#rtPipeline .rt-dot:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+#rtPipeline .rt-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* Vertical layout on narrow screens: the token travels down. */
 @media (max-width: 639px) {
@@ -256,10 +256,10 @@
 /* Click a stage to pause the animation there; click it again to resume (js/rt-pipeline.js togglePause). */
 #rtPipeline [data-pause-key] { cursor: pointer; outline-offset: 2px; }
 #rtPipeline .rt-exits[data-pause-key] { border-radius: var(--r-md); }
-#rtPipeline .rt-stage[data-pause-key]:hover { border-color: var(--blue); }
-#rtPipeline [data-pause-key]:focus-visible { outline: 2px solid var(--blue); }
-#rtPipeline [data-pause-key][data-pause-pending] { outline: 2px dashed var(--blue); }
-#rtPipeline [data-pause-key][data-paused] { outline: 2px solid var(--blue); position: relative; }
+#rtPipeline .rt-stage[data-pause-key]:hover { border-color: var(--accent); }
+#rtPipeline [data-pause-key]:focus-visible { outline: 2px solid var(--accent); }
+#rtPipeline [data-pause-key][data-pause-pending] { outline: 2px dashed var(--accent); }
+#rtPipeline [data-pause-key][data-paused] { outline: 2px solid var(--accent); position: relative; }
 #rtPipeline [data-pause-key][data-paused]::after {
   content: '⏸ paused · click to resume';
   position: absolute;
@@ -270,8 +270,8 @@
   white-space: nowrap;
   font-size: var(--text-2xs);
   font-weight: 700;
-  color: #fff;
-  background: var(--blue);
+  color: var(--bg);
+  background: var(--accent);
   border-radius: var(--r-pill);
   padding: 1px 7px;
   pointer-events: none;

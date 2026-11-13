@@ -166,7 +166,7 @@
     });
     $('swmGroups').innerHTML = data.groups.map(function (g) {
       return '<button class="swm-chip" data-g="' + g.id + '" aria-pressed="true" title="' + SWM.esc(g.blurb || '') + '">' +
-             '<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' + SWM.symbol(g.id, 52) + '" ' + SWM.glyphAttrs(g.id, '#cfd3dc') + '/></svg>' +
+             '<svg width="12" height="12" viewBox="-7 -7 14 14" aria-hidden="true"><path d="' + SWM.symbol(g.id, 52) + '" ' + SWM.glyphAttrs(g.id, '#c6cacd') + '/></svg>' +
              SWM.esc(g.name) + '</button>';
     }).join('');
 

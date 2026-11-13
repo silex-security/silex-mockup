@@ -49,8 +49,8 @@ test('text under 12px in console.css does not grow in number', async () => {
 
 test('text tokens reach 4.5:1 on the surfaces they sit on', () => {
   const pairs = [
-    ...['--ink', '--ink-2', '--muted', '--blue2', '--blue3', '--green', '--amber', '--red', '--violet'].flatMap(t => [[t, '--panel'], [t, '--bg']]),
-    ['--green', '--green-bg'], ['--amber', '--amber-bg'], ['--red', '--red-bg'], ['--violet', '--violet-bg'], ['--blue2', '--lav'],
+    ...['--ink', '--ink-2', '--muted', '--accent-2', '--accent-3', '--green', '--amber', '--red', '--violet'].flatMap(t => [[t, '--panel'], [t, '--bg']]),
+    ['--green', '--green-bg'], ['--amber', '--amber-bg'], ['--red', '--red-bg'], ['--violet', '--violet-bg'], ['--accent-2', '--accent-bg'],
     ['--nav-text', '--nav'], ['--nav-muted', '--nav'],
   ];
   const low = pairs.map(([text, surface]) => [text, surface, Number(contrast(text, surface).toFixed(2))]).filter(([, , ratio]) => ratio < 4.5);

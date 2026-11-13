@@ -6,11 +6,11 @@
 .rt-og-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
 .rt-og-controls label { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; font-size: var(--text-sm); }
 .rt-og-controls select { max-width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--panel); color: var(--ink); font: inherit; }
-.rt-og-controls [aria-pressed="true"] { background: var(--lav); color: var(--blue2); border-color: var(--blue); }
+.rt-og-controls [aria-pressed="true"] { background: var(--accent-bg); color: var(--accent-2); border-color: var(--accent); }
 .rt-og-predicates { display: flex; flex-wrap: wrap; gap: 6px; }
 .rt-og-predicates > span { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 5px 7px; font-family: var(--mono); font-size: var(--text-2xs); background: var(--soft); }
 .rt-og-predicates small { color: var(--muted); font-family: inherit; font-size: var(--text-2xs); }
-.rt-og [data-graph-pred][data-hi="true"] { border-color: var(--blue); background: var(--lav); color: var(--blue2); }
+.rt-og [data-graph-pred][data-hi="true"] { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-2); }
 .rt-og [data-graph-pred][data-complete="true"] { box-shadow: inset 0 -3px var(--amber); }
 .rt-og-caption { font-size: var(--text-sm); line-height: 1.6; overflow-wrap: anywhere; margin: 16px 0 10px; }
 .rt-og-columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
@@ -30,15 +30,15 @@
 .rt-og [data-graph-link]:focus-visible { outline: none; }
 .rt-og [data-graph-link]:focus-visible line { stroke: var(--amber); stroke-width: 4; opacity: 1; }
 .rt-og [data-graph-link][data-complete="true"] line { stroke: var(--amber); stroke-width: 3; opacity: 1; }
-.rt-og [data-graph-link][data-hi="true"] line, .rt-og [data-graph-link][data-used="true"] line { stroke: var(--blue); stroke-width: 3; opacity: 1; }
-.rt-og [data-graph-link][data-hi="true"][data-complete="true"] line { stroke: var(--blue); stroke-dasharray: 8 3; }
+.rt-og [data-graph-link][data-hi="true"] line, .rt-og [data-graph-link][data-used="true"] line { stroke: var(--accent); stroke-width: 3; opacity: 1; }
+.rt-og [data-graph-link][data-hi="true"][data-complete="true"] line { stroke: var(--accent); stroke-dasharray: 8 3; }
 .rt-og [data-graph-node] { cursor: pointer; outline: none; }
-.rt-og [data-graph-node] circle, .rt-og [data-graph-node] rect { fill: var(--panel); stroke: var(--blue); stroke-width: 1.6; }
-.rt-og [data-graph-node][data-role="action"] circle { fill: var(--lav); }
+.rt-og [data-graph-node] circle, .rt-og [data-graph-node] rect { fill: var(--panel); stroke: var(--accent); stroke-width: 1.6; }
+.rt-og [data-graph-node][data-role="action"] circle { fill: var(--accent-bg); }
 .rt-og [data-graph-node][data-role="team"] circle { fill: var(--green-bg); stroke: var(--green); }
 .rt-og [data-graph-node][data-role="anchor"] circle { stroke: var(--muted); stroke-dasharray: 4 3; }
 .rt-og [data-graph-node][data-role="attribute"] rect, .rt-og [data-graph-node][data-role="literal"] rect { fill: var(--panel); stroke: var(--muted); }
-.rt-og [data-graph-node][data-hi="true"] rect { fill: var(--lav); stroke: var(--blue); stroke-width: 3; }
+.rt-og [data-graph-node][data-hi="true"] rect { fill: var(--accent-bg); stroke: var(--accent); stroke-width: 3; }
 .rt-og [data-graph-node] text { fill: var(--ink); font-size: var(--text-2xl); pointer-events: none; paint-order: stroke; stroke: var(--soft); stroke-width: 4px; stroke-linejoin: round; }
 .rt-og [data-graph-node] .rt-og-class { fill: var(--muted); }
 .rt-og [data-graph-node]:focus-visible circle, .rt-og [data-graph-node]:focus-visible rect,
@@ -53,7 +53,7 @@
 .rt-og-legend { display: flex; flex-wrap: wrap; gap: 7px 16px; margin: 14px 0; font-size: var(--text-xs); color: var(--muted); }
 .rt-og-limits { color: var(--muted); font-size: var(--text-sm); line-height: 1.7; }
 .rt-og details { margin: 12px 0; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px; min-width: 0; }
-.rt-og summary { cursor: pointer; font-size: var(--text-sm); color: var(--blue2); overflow-wrap: anywhere; }
+.rt-og summary { cursor: pointer; font-size: var(--text-sm); color: var(--accent-2); overflow-wrap: anywhere; }
 .rt-og-table-wrap { overflow-x: auto; max-width: 100%; margin-top: 10px; }
 .rt-og table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--text-xs); text-align: left; }
 .rt-og th, .rt-og td { vertical-align: top; border-bottom: 1px solid var(--line); padding: 9px; overflow-wrap: anywhere; }
@@ -63,9 +63,9 @@
 .rt-og [data-graph-files] h3 { font-size: var(--text-lg); }
 .rt-og [data-graph-files] h4 { font-size: var(--text-base); margin: 20px 0 7px; }
 .rt-og [data-graph-files] p { color: var(--muted); font-size: var(--text-sm); line-height: 1.6; overflow-wrap: anywhere; }
-.rt-og a { color: var(--blue2); }
-.rt-og [data-graph-select] { border: 0; background: none; padding: 0; color: var(--blue2); font: inherit; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
-.rt-og :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.rt-og a { color: var(--accent-2); }
+.rt-og [data-graph-select] { border: 0; background: none; padding: 0; color: var(--accent-2); font: inherit; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.rt-og :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media (max-width: 800px) {
   .rt-og-columns { grid-template-columns: minmax(0, 1fr); }
   .rt-og [data-graph-inspector] { max-height: 380px; }

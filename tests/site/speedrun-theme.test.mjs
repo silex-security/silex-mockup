@@ -37,6 +37,6 @@ test('every custom property a Speedrun source reads is a theme role or a console
 test('the built stylesheet carries the console tokens', () => {
   const css = walk(join(ROOT, 'speedrun/app/assets')).filter(f => f.endsWith('.css')).map(f => readFileSync(f, 'utf8')).join('\n');
   const flat = s => s.replace(/\s+/g, '').toLowerCase();
-  for (const [, name, value] of readFileSync(join(ROOT, 'css/tokens.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(--(?:bg|panel|ink|blue|blue2|text-base|radius)):\s*([^;]+);/g))
+  for (const [, name, value] of readFileSync(join(ROOT, 'css/tokens.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(--(?:bg|panel|ink|accent|accent-2|text-base|radius)):\s*([^;]+);/g))
     assert.ok(flat(css).includes(flat(`${name}:${value}`)), `${name} in speedrun/app`);
 });

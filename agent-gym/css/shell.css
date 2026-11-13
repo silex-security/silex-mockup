@@ -19,7 +19,7 @@
 .gym-app :focus-visible { outline: none; box-shadow: var(--gym-ring); }
 .gym-app .gym-icon { flex: none; display: block; }
 .gym-app .gym-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.gym-app .gym-skip { position: absolute; left: 8px; top: -60px; z-index: 50; padding: 8px 12px; border-radius: var(--gym-r); background: var(--gym-primary); color: #fff; font-weight: 600; }
+.gym-app .gym-skip { position: absolute; left: 8px; top: -60px; z-index: 50; padding: 8px 12px; border-radius: var(--gym-r); background: var(--gym-primary); color: var(--bg); font-weight: 600; }
 .gym-app .gym-skip:focus { top: 8px; }
 
 /* Header */
@@ -191,10 +191,10 @@
 .gym-app .gym-tabs--solid { gap: 8px; flex-wrap: wrap; }
 .gym-app .gym-tabs--solid .gym-tab { min-height: 32px; padding: 0 18px; border: 1px solid var(--gym-line-strong); border-radius: var(--gym-r); background: var(--gym-surface); flex: 1 1 auto; }
 .gym-app .gym-tabs--solid .gym-tab:hover { border-color: var(--gym-primary-line); background: var(--gym-primary-softer); }
-.gym-app .gym-tabs--solid .gym-tab[aria-selected="true"] { background: var(--gym-primary); border-color: var(--gym-primary); color: #fff; font-weight: 600; }
+.gym-app .gym-tabs--solid .gym-tab[aria-selected="true"] { background: var(--gym-primary); border-color: var(--gym-primary); color: var(--bg); font-weight: 600; }
 .gym-app .gym-tabs--pill { padding: 2px; border: 1px solid var(--gym-line); border-radius: var(--gym-r-pill); background: var(--gym-surface-2); overflow-x: auto; }
 .gym-app .gym-tabs--pill .gym-tab { min-height: 22px; padding: 0 18px; border-radius: var(--gym-r-pill); font-size: var(--gym-fs-xs); color: var(--gym-muted); }
-.gym-app .gym-tabs--pill .gym-tab[aria-selected="true"] { background: var(--gym-primary); color: #fff; font-weight: 600; }
+.gym-app .gym-tabs--pill .gym-tab[aria-selected="true"] { background: var(--gym-primary); color: var(--bg); font-weight: 600; }
 .gym-app .gym-tab:focus-visible { box-shadow: var(--gym-ring); position: relative; z-index: 1; }
 
 /* Checkbox */
@@ -347,7 +347,7 @@
 .gym-app .gym-steps__detail { color: var(--gym-muted); font-size: 11px; font-weight: 500; }
 .gym-app .gym-steps__item.is-done .gym-steps__marker { background: var(--gym-green-soft); color: var(--gym-green); }
 .gym-app .gym-steps__item.is-current .gym-steps__link { border-color: var(--gym-primary); background: var(--gym-primary-soft); color: var(--gym-primary-ink); box-shadow: inset 0 0 0 1px var(--gym-primary-line); }
-.gym-app .gym-steps__item.is-current .gym-steps__marker { background: var(--gym-primary); color: #fff; }
+.gym-app .gym-steps__item.is-current .gym-steps__marker { background: var(--gym-primary); color: var(--bg); }
 .gym-app span.gym-steps__link[aria-disabled="true"] { color: var(--gym-faint); background: var(--gym-surface-2); cursor: not-allowed; }
 @media (max-width: 479.98px) {
   .gym-app .gym-steps__item + .gym-steps__item::before { width: 12px; margin: 0 2px; }

@@ -144,7 +144,7 @@ export function Gantt({
                     <span
                       key={ms.at}
                       title={`Message → ${ms.label}`}
-                      className={cx("absolute top-2 -ml-2.5 flex h-5 w-5 items-center justify-center rounded-sm bg-acc2 text-white", dim(ms.at))}
+                      className={cx("absolute top-2 -ml-2.5 flex h-5 w-5 items-center justify-center rounded-sm bg-acc2 text-on-acc", dim(ms.at))}
                       style={{ left: pct(ms.at) }}
                     >
                       <IconMail size={11} />
@@ -172,7 +172,7 @@ export function Gantt({
             if (at >= duration) setAt(0);
             setPlaying((p) => !p);
           }}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-acc text-white"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-acc text-on-acc"
         >
           {playing ? <span className="flex gap-1"><span className="h-3.5 w-1 bg-white" /><span className="h-3.5 w-1 bg-white" /></span> : <IconPlay size={14} />}
         </button>
@@ -197,7 +197,7 @@ export function Gantt({
               type="button"
               aria-pressed={speed === v}
               onClick={() => setSpeed(v)}
-              className={cx("h-7 rounded-sm px-2 font-mono text-xs font-semibold", speed === v ? "bg-acc text-white" : "bg-inset text-mut")}
+              className={cx("h-7 rounded-sm px-2 font-mono text-xs font-semibold", speed === v ? "bg-acc text-on-acc" : "bg-inset text-mut")}
             >
               {v}×
             </button>

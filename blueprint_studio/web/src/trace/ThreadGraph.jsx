@@ -105,7 +105,7 @@ function Graph({ trace, focus, hot, onFocus }) {
       <ReactFlow colorMode="dark" nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.08 }} minZoom={0.2} maxZoom={1.5}
         nodesDraggable={false} nodesConnectable={false} elementsSelectable={false} proOptions={{ hideAttribution: true }}
         onNodeClick={(_, n) => { const x = n.data.node; if (x.kind !== 'header') onFocus({ kind: x.kind, ref: x.ref }); }}>
-        <Background gap={18} size={1.2} color="#2a2d36" />
+        <Background gap={18} size={1.2} color="#1f2226" />
         <Controls showInteractive={false} position="bottom-left" />
       </ReactFlow>
       {trace.thread.nodes.length === 0 ? <p className="thread-empty muted">{t('trace.thread.empty', 'Validate this revision to see its findings and their threads.')}</p> : null}
