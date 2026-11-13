@@ -85,9 +85,9 @@ function mount() {
   const sidebar = document.getElementById('sidebar');
   if (!sidebar) return;
   const groups = readSuite(sidebarEntries(sidebar));
-  const rail = document.getElementById('suiteRail'), map = document.getElementById('suiteMap');
+  const rail = document.getElementById('suiteRail');
   const paint = navId => { if (rail) rail.innerHTML = railHtml(groups, groupOf(groups, navId)?.key); };
-  if (map) map.innerHTML = mapHtml(groups);
+  for (const map of document.querySelectorAll('[data-suite-map]')) map.innerHTML = mapHtml(groups);
   paint(sidebar.querySelector('.nav button.active')?.dataset.view);
   document.addEventListener('rt:view', e => paint(e.detail.nav));
 }

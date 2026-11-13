@@ -2,6 +2,8 @@
    Each tab reads: intro → how to read it → numbers with plain captions → takeaway; technical detail sits behind ⓘ. */
 
 #runtime-observation .rt-lead{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;margin:2px 0 16px}
+#runtime-observation .rt-lead>div{min-width:0}
+#runtime-observation .rt-lead details.rt-more{margin-top:6px}
 #runtime-observation .rt-lead p{margin:0;font-size:var(--text-md);color:var(--ink-2);max-width:880px}
 #runtime-observation .rt-lead .pill{white-space:nowrap}
 
@@ -93,9 +95,9 @@
 .rt-onto-parts.card li:last-child{border-bottom:0}
 .rt-onto-parts.card li .rt-chip{justify-self:start}
 .rt-onto-parts small{display:block;color:var(--muted);font-size:var(--text-sm)}
-#rtOntology details.rt-more{margin-top:14px}
-#rtOntology details.rt-more>summary{cursor:pointer;font-size:var(--text-md);color:var(--accent-2);font-weight:600}
-#rtOntology details.rt-more>div{margin-top:10px}
+#runtime-observation details.rt-more{margin-top:14px}
+#runtime-observation details.rt-more>summary{cursor:pointer;font-size:var(--text-md);color:var(--accent-2);font-weight:600}
+#runtime-observation details.rt-more>div{margin-top:10px}
 .rt-onto-ex-intro{font-size:var(--text-md);margin:0 0 10px;color:var(--ink-2)}
 .rt-up{color:var(--green)}.rt-down{color:var(--red)}
 .rt-arrow{color:var(--muted);font-weight:400}

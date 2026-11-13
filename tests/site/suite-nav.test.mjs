@@ -180,6 +180,44 @@ test('the optimization bracket ends in arrowheads on the two cards and hides wit
   assert.match(narrow, /\.suite-test::after/, 'hidden below 1100px with the bracket');
 });
 
+test('the home page shows the compact map, and the product suite view holds the capabilities and outcomes', async () => {
+  const home = sectionHtml('assurance'), suite = sectionHtml('product-suite');
+  assert.match(home, /<div class="suite-compact" data-suite-map><\/div>/);
+  assert.match(suite, /<div data-suite-map><\/div>/);
+  assert.match(await readFile(resolve(ROOT, 'css/console.css'), 'utf8'), /\.suite-compact \.suite-caps\{display:none\}/);
+  for (const s of ['What this enables', 'Cost and inference', 'Lower latency', 'Small models on premises', 'Security and safety', 'Team intelligence']) {
+    assert.doesNotMatch(home, new RegExp(s), `home no longer holds ${s}`);
+    assert.match(suite, new RegExp(s), `the product suite holds ${s}`);
+  }
+  assert.match(suite, /<h1>Product suite<\/h1>/);
+  assert.match(viewNames, /'product-suite':'Product suite'/);
+  assert.match(home, /data-wm-route="#view=product-suite"/);
+  assert.match(suite, /data-jump="assurance"/);
+  assert.ok(!sidebarViews.some(v => v.id === 'product-suite'), 'no sidebar button');
+});
+
+test('long explanations on Runtime Observation and Ontology Layers sit in closed disclosures', async () => {
+  const rt = sectionHtml('runtime-observation');
+  const closed = [...rt.matchAll(/<details class="rt-more"><summary>([^<]*)<\/summary>/g)].map(m => m[1]);
+  assert.deepEqual(closed.filter(t => /How the check works|How to read the picture/.test(t)), ['How the check works', 'How to read the picture']);
+  assert.match(rt, /<details class="rt-more"><summary>How the check works<\/summary><div><p>Before a consequential action runs/);
+  assert.match(rt, /<details class="rt-more"><summary>How to read the picture<\/summary><div>\s*<div class="rt-howto">/);
+  const layers = await readFile(resolve(ROOT, 'swm/js/swm-layers.js'), 'utf8');
+  assert.match(layers, /<details class="swm-more"><summary>How the tiers relate<\/summary>/);
+});
+
+test('the assurance case shows one section at a time, and the coverage side rail folds its detail', async () => {
+  const kase = sectionHtml('assurance-case');
+  const tabs = [...kase.matchAll(/data-case-tab="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(tabs, ['evidence', 'vv', 'correspondence', 'flywheel']);
+  const panels = [...kase.matchAll(/<div class="as-sec" data-case-panel="([^"]+)"( hidden)?>/g)].map(m => [m[1], !!m[2]]);
+  assert.deepEqual(panels, [['evidence', false], ['vv', true], ['correspondence', true], ['flywheel', true]]);
+  assert.match(html, /if\(v==='assurance-case'\)setCasePanel\(q\.get\('tab'\)\)/);
+  const coverage = await readFile(resolve(ROOT, 'swm/js/swm-coverage.js'), 'utf8');
+  assert.match(coverage, /<details class="swm-more"><summary>Why this coverage, and what to do next<\/summary>/);
+  assert.match(coverage, /<details class="swm-more" id="swmGapFold"><summary>Coverage gaps in scope<\/summary>/);
+});
+
 test('the assurance case has its own view, and the home page only links to it', () => {
   const home = sectionHtml('assurance'), kase = sectionHtml('assurance-case');
   for (const s of ['The Correspondence Problem', 'The autonomy flywheel', 'KNOWN BLIND SPOTS']) {
