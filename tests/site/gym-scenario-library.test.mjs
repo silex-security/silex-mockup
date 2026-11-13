@@ -56,7 +56,7 @@ test('the library lists the seeded sets with condition coverage, named gaps and 
   assert.match(followUp.evidence, /Verdict Pass Duplicate-send guard · rev 2 · attempt 1 .*Timeout after send 0\/1 1\/1.*Sales follow-up · Variant A is running \(12\/18\)\. Open run/, 'the finished Duplicate-send guard run and the live Sales follow-up run');
   assert.deepEqual(followUp.use, ['true', 'Experiment 029 already uses this set.']);
   assert.deepEqual(meeting.coverage, { prompt: '3 scenarios', tool_failure: 'No tool failure scenario', permission: '1 scenario', data_state: '1 scenario' });
-  assert.match(meeting.evidence, /Verdict Pass Meeting scheduling · rev 2 · attempt 1 .*SCENARIO BASELINE VARIANT Book intro call 1\/1 1\/1 No free slot 1\/1 1\/1/);
+  assert.match(meeting.evidence, /Verdict Pass Meeting scheduling · rev 2 · attempt 1 .*Scenario Baseline Variant Book intro call 1\/1 1\/1 No free slot 1\/1 1\/1/);
   assert.equal(await gym.ev('return document.querySelector(\'[data-set="set-meeting-scheduling@1"] .sc-lib__results\').getAttribute("href")'), '#/experiments/exp-027/attempts/attempt-001/results');
   assert.deepEqual(refund.coverage, { prompt: '4 scenarios', tool_failure: '1 scenario', permission: '1 scenario', data_state: '1 scenario' });
   assert.deepEqual(refund.gaps, []);

@@ -71,7 +71,7 @@ export function mount(root, ctx) {
             items: view.tabs.map(t => ({ id: t.id, label: `${t.label} · ${t.count}`, panelId: 'xq-table' })), onChange: id => router.replaceQuery({ status: id === 'all' ? null : id }) }),
         ],
         children: view.rows.length
-          ? h('div', { class: 'xq-wrap', id: 'xq-table', role: 'tabpanel' }, h('table', { class: 'run-table xq-table' },
+          ? h('div', { class: 'xq-wrap', id: 'xq-table', role: 'tabpanel' }, h('table', { class: 'dt dt--click run-table xq-table' },
             h('caption', { class: 'gym-sr' }, `${tab.label} experiments: ${view.rows.length}`),
             h('thead', h('tr', COLUMNS.map(c => h('th', { scope: 'col' }, c || h('span', { class: 'gym-sr' }, 'Action'))))),
             h('tbody', view.rows.map(row))))

@@ -175,7 +175,7 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
   <section class="card" data-rt-fleet-table>
     <h3>The fleet <span class="rt-chip" data-kind="sim">Authored configuration</span></h3>
     <p class="rt-plain">Six agents of ${esc(m.tenant)}. Tools are the ones each agent calls in the simulated stream; the reviewing team is the <span class="mono">OWNED_BY_TEAM</span> owner of that kind of action in the candidate <a href="swm/data/packs/creator-platform.json" target="_blank" rel="noopener">Creator Platform Pack</a> (outside the site's coverage figures).</p>
-    <table class="matrix"><thead><tr><th>Team</th><th>Agent</th><th>Tools (impact)</th><th>Held or blocked calls go to</th></tr></thead><tbody>
+    <table class="dt dt--compact matrix"><thead><tr><th>Team</th><th>Agent</th><th>Tools (impact)</th><th>Held or blocked calls go to</th></tr></thead><tbody>
     ${m.fleet.map(r => `<tr data-rt-fleet-agent="${esc(r.agent)}"><td>${esc(r.team)}</td><td class="mono">${esc(r.agent)}</td>
       <td>${r.tools.map(t => `<span class="mono">${esc(t.name)}</span> <small>(${esc(t.impact)})</small>`).join('<br>')}</td>
       <td>${[...new Set(r.tools.map(t => t.reviewer).filter(Boolean))].map(esc).join(', ') || '—'}</td></tr>`).join('')}
@@ -185,9 +185,9 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
   <section class="card" data-rt-fleet-queues>
     <h3>Who reviews what <span class="rt-chip" data-kind="sim">Scenario counts, computed by the engine</span></h3>
     <p class="rt-plain">Held or blocked calls across the ${m.scenarios.length} scripted traces, routed to the team that owns that kind of action. With the slice: ${m.queues.on.total} stopped; trace only: ${m.queues.off.total}.</p>
-    <table class="matrix"><thead><tr><th>Reviewing team</th><th>With the slice</th><th>Trace only</th></tr></thead><tbody>
-    ${teams.map(t => `<tr data-rt-queue="${esc(t)}"><td>${esc(t)}</td><td data-rt-queue-on>${m.queues.on.byTeam[t] ?? 0}</td><td data-rt-queue-off>${m.queues.off.byTeam[t] ?? 0}</td></tr>`).join('')}
-    <tr class="bold"><td>All stopped calls</td><td data-rt-queue-total-on>${m.queues.on.total}</td><td data-rt-queue-total-off>${m.queues.off.total}</td></tr>
+    <table class="dt dt--compact matrix"><thead><tr><th>Reviewing team</th><th class="num">With the slice</th><th class="num">Trace only</th></tr></thead><tbody>
+    ${teams.map(t => `<tr data-rt-queue="${esc(t)}"><td>${esc(t)}</td><td class="num" data-rt-queue-on>${m.queues.on.byTeam[t] ?? 0}</td><td class="num" data-rt-queue-off>${m.queues.off.byTeam[t] ?? 0}</td></tr>`).join('')}
+    <tr class="bold"><td>All stopped calls</td><td class="num" data-rt-queue-total-on>${m.queues.on.total}</td><td class="num" data-rt-queue-total-off>${m.queues.off.total}</td></tr>
     </tbody></table>
     <p class="rt-ref">Scenario counts from scripted traces, not measurements of any real platform.</p>
   </section>
@@ -195,7 +195,7 @@ export function renderFleet(root = document.getElementById('rtFleet')) {
   <section class="card" data-rt-fleet-decisions>
     <h3>Every scenario, with and without the slice <span class="rt-chip" data-kind="sim">Computed by the engine</span></h3>
     <p class="rt-plain">Each row is one scripted trace; "a" is the normal context and "b" the risky one. The same tool is called in both; the "b" context differs in the facts the slice describes.</p>
-    <table class="matrix"><thead><tr><th>Scenario</th><th>Agent</th><th>With the slice</th><th>Trace only</th></tr></thead><tbody>
+    <table class="dt dt--compact matrix"><thead><tr><th>Scenario</th><th>Agent</th><th>With the slice</th><th>Trace only</th></tr></thead><tbody>
     ${m.scenarios.map(s => `<tr data-rt-fleet-scenario="${esc(s.id)}"><td><b>${esc(s.id)}</b> <small>${esc(s.title)}</small></td><td class="mono">${esc(s.agent)}</td>
       <td>${seq(s.on)}</td><td>${seq(s.off)}</td></tr>`).join('')}
     </tbody></table>

@@ -70,7 +70,7 @@ export function mount(root, ctx) {
     return panel({
       class: 'run-byscenario', title: 'By scenario', subtitle: 'Each repetition pairs one baseline run with one variant run on the same scenario and seed.',
       actions: evidenceTag(),
-      children: [h('div', { class: 'run-byscenario__wrap' }, h('table', { class: 'run-table run-table--compact' },
+      children: [h('div', { class: 'run-byscenario__wrap' }, h('table', { class: 'dt dt--compact run-table run-table--compact' },
         h('thead', h('tr', ['Scenario', facts.baselineName, facts.variantName ?? 'Variant', 'Improved', 'Regressed', 'Pairs'].map(c => h('th', { scope: 'col' }, c)))),
         h('tbody', comparison.byScenario.map(row => h('tr', { dataset: { scenario: row.scenarioId } },
           h('th', { scope: 'row', dataset: { label: 'Scenario' } }, row.title),

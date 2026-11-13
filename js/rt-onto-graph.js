@@ -33,7 +33,7 @@ export function mountOntoGraph(el, model, opts = {}) {
   let selected = null, d3 = null, pending = null;
   const option = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
   const fileRow = f => `<tr data-graph-file="${esc(f.path)}"><td data-label="File"><a href="${esc(f.path)}">${esc(f.path)}</a></td><td data-label="Size">${f.bytes == null ? '—' : esc(f.bytes + ' bytes')}</td><td data-label="What it holds">${esc(f.holds)}</td><td data-label="Where used">${esc(f.usedBy)}</td></tr>`;
-  const fileTable = files => `<div class="rt-og-table-wrap"><table><thead><tr><th>File</th><th>Size</th><th>What it holds</th><th>Where used</th></tr></thead><tbody>${files.map(fileRow).join('')}</tbody></table></div>`;
+  const fileTable = files => `<div class="rt-og-table-wrap"><table class="dt dt--compact dt--fixed"><thead><tr><th>File</th><th>Size</th><th>What it holds</th><th>Where used</th></tr></thead><tbody>${files.map(fileRow).join('')}</tbody></table></div>`;
   const filesMarkup = model.files.groups.map(group => {
     const files = model.files.files.filter(f => f.group === group.id);
     let content;
@@ -105,7 +105,7 @@ export function mountOntoGraph(el, model, opts = {}) {
       ${node.role === 'anchor' && node.wm ? `<button type="button" class="btn secondary" data-graph-wm data-wm-route="${esc(node.wm)}">Open in the Enterprise World Model →</button>` : ''}`;
   }
   function table(graph) {
-    root.querySelector('[data-graph-table-body]').innerHTML = `<table><caption>${graph.nodes.length} nodes · ${graph.links.length} links</caption><thead><tr><th>Type</th><th>Id / source</th><th>Label / predicate</th><th>Kind / target</th><th>Grade / use</th></tr></thead><tbody>
+    root.querySelector('[data-graph-table-body]').innerHTML = `<table class="dt dt--compact dt--fixed"><caption>${graph.nodes.length} nodes · ${graph.links.length} links</caption><thead><tr><th>Type</th><th>Id / source</th><th>Label / predicate</th><th>Kind / target</th><th>Grade / use</th></tr></thead><tbody>
       ${graph.nodes.map(n => `<tr data-graph-row="node"><td>${esc(n.role)}</td><td><button type="button" data-graph-select="${esc(n.id)}">${esc(n.id)}</button></td><td>${esc(n.label)}</td><td>${esc(n.kind ?? n.cls)}</td><td></td></tr>`).join('')}
       ${graph.links.map(l => `<tr data-graph-row="link"><td>${esc(l.role)}</td><td>${esc(l.s)}</td><td>${esc(l.p)}</td><td>${esc(l.o)}</td><td>${esc(l.grade ?? '—')}${l.used ? ' · used' : ''}</td></tr>`).join('')}</tbody></table>`;
   }

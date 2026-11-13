@@ -12,7 +12,7 @@ function live(store, render, props) {
   return openDialog({ ...props, children: body, onClose: result => { view.destroy(); props.onClose?.(result); } });
 }
 
-const diffTable = (rows, versionName) => h('table', { class: 'wb-diff' },
+const diffTable = (rows, versionName) => h('table', { class: 'dt wb-diff' },
   h('thead', h('tr', h('th', { scope: 'col' }, 'Setting'), h('th', { scope: 'col' }, 'Baseline'), h('th', { scope: 'col' }, versionName))),
   h('tbody', rows.map(r => h('tr', { class: r.changed ? 'is-changed' : null },
     h('th', { scope: 'row' }, r.key), h('td', r.baseline), h('td', r.variant, r.changed && h('span', { class: 'gym-sr' }, ' (changed)'))))));

@@ -63,7 +63,7 @@ export function mount(root, ctx) {
       h('div', { class: 'env-rev' },
         h('div', { class: 'env-rev__stack' },
           ui.panel({
-            title: 'Components', level: 2, children: h('div', { class: 'env-scroll-x' }, h('table', { class: 'env-table' },
+            title: 'Components', level: 2, children: h('div', { class: 'env-scroll-x' }, h('table', { class: 'dt env-table' },
               h('thead', h('tr', ['Component', 'Mode', 'Permission', 'Failure behavior', 'Deduplication', 'Tools'].map(th))),
               h('tbody', env.components.map(c => h('tr',
                 h('th', { scope: 'row' }, h('span', { class: 'gym-row' }, appIcon(c.app, { size: 20 }), c.name, h('span', { class: 'gym-muted' }, c.category))),
@@ -80,7 +80,7 @@ export function mount(root, ctx) {
           }),
           ui.panel({
             title: 'Relationships', subtitle: 'Field links between components. Not an execution order and not a data sync.',
-            children: env.relations.length ? h('div', { class: 'env-scroll-x' }, h('table', { class: 'env-table' },
+            children: env.relations.length ? h('div', { class: 'env-scroll-x' }, h('table', { class: 'dt env-table' },
               h('thead', h('tr', ['From', 'To', 'Match rule'].map(th))),
               h('tbody', env.relations.map(r => {
                 const [a, b] = [byId.get(r.from), byId.get(r.to)];

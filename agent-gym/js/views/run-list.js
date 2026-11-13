@@ -87,7 +87,7 @@ export function mount(root, ctx) {
       class: 'run-gate', icon: 'shield', title: 'Release gate',
       subtitle: 'Each variant is a change. Its latest saved revision needs a completed run, a Pass verdict and a Pass for demo review. Cleared for demo is as far as a simulated run goes.',
       actions: h('div', { class: 'gym-row run-gate__tally' }, tally.map(([k, n]) => badge({ label: `${n} ${GATE[k].label.toLowerCase()}`, tone: GATE[k].tone }))),
-      children: h('div', { class: 'run-gate__wrap' }, h('table', { class: 'run-table run-table--compact' },
+      children: h('div', { class: 'run-gate__wrap' }, h('table', { class: 'dt dt--compact run-table run-table--compact' },
         h('caption', { class: 'gym-sr' }, 'Release gate per experiment'),
         h('thead', h('tr', GATE_COLUMNS.map(c => h('th', { scope: 'col' }, c || h('span', { class: 'gym-sr' }, 'Action'))))),
         h('tbody', rows.map(gateRow)))),
@@ -126,7 +126,7 @@ export function mount(root, ctx) {
           plan.skipped.length > 0 && h('ul', { class: 'run-reg__skipped', 'aria-label': 'Skipped experiments' }, plan.skipped.map(s => h('li', { dataset: { skipped: s.experimentId } },
             h('a', { href: router.href('workbench', { experimentId: s.experimentId }), dataset: { focusKey: `reg:skip:${s.experimentId}` } }, s.title), `: ${s.reason}`)))),
         history.length
-          ? h('div', { class: 'run-reg__wrap' }, h('table', { class: 'run-table run-table--compact run-reg__history' },
+          ? h('div', { class: 'run-reg__wrap' }, h('table', { class: 'dt dt--compact run-table run-table--compact run-reg__history' },
             h('caption', { class: 'gym-sr' }, 'Regression history, newest batch first'),
             h('thead', h('tr', HISTORY_COLUMNS.map(c => h('th', { scope: 'col' }, c || h('span', { class: 'gym-sr' }, 'Action'))))),
             h('tbody', history.map(b => h('tr', { dataset: { batch: b.id } },
@@ -170,7 +170,7 @@ export function mount(root, ctx) {
           }),
         ],
         children: rows.length
-          ? h('div', { class: 'run-list__wrap', id: 'run-list-table', role: 'tabpanel' }, h('table', { class: 'run-table' },
+          ? h('div', { class: 'run-list__wrap', id: 'run-list-table', role: 'tabpanel' }, h('table', { class: 'dt dt--click run-table' },
             h('caption', { class: 'gym-sr' }, `${filter.label} ${triggerName}runs: ${rows.length}`),
             h('thead', h('tr', COLUMNS.map(c => h('th', { scope: 'col' }, c || h('span', { class: 'gym-sr' }, 'Action'))))),
             h('tbody', rows.map(r => row(r, state)))))

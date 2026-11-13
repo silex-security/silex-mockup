@@ -1,0 +1,31 @@
+/* The one data table of the console and its embedded apps, after the Speedrun tables. Put class="dt" on a <table>.
+   It reads the console tokens; the fallbacks serve the apps that do not load css/tokens.css.
+   Modifiers: dt--compact (dense), dt--click (rows open something), dt--fixed (equal columns that wrap).
+   Cells: .num (right-aligned figure), .dt-lead (icon tile, name and a muted second line), .dt-av (initials),
+   .dt-meter with style="--v:<0..1>" and data-tone="good|warn|bad" (a share drawn under the figure).
+   .dt-foot is the line under a table: what is shown, how it is sorted. */
+.dt{--dt-y:14px;--dt-x:14px;--dt-hover:color-mix(in srgb,var(--soft) 80%,transparent);
+  width:100%;border-collapse:separate;border-spacing:0;font-size:var(--text-sm,13px);color:var(--ink-2,var(--ink));font-variant-numeric:tabular-nums}
+.dt :is(th,td){padding:var(--dt-y) var(--dt-x);text-align:left;vertical-align:middle;border-bottom:1px solid var(--line);transition:background-color .12s}
+.dt thead th{color:var(--muted);font-weight:400;white-space:nowrap}
+.dt tbody tr:last-child>*{border-bottom-color:transparent}
+.dt tbody>tr>:first-child{color:var(--ink);font-weight:600}
+.dt tbody tr:hover>*{background-color:var(--dt-hover)}
+.dt small{display:block;margin-top:2px;color:var(--muted);font-weight:400}
+.dt :is(th,td).num{text-align:right;white-space:nowrap}
+.dt td.num{font-family:var(--mono,ui-monospace,monospace)}
+.dt--compact{--dt-y:7px;--dt-x:9px}
+.dt--click tbody tr{cursor:pointer}
+.dt--fixed{table-layout:fixed}
+.dt--fixed :is(th,td){vertical-align:top;overflow-wrap:anywhere}
+.dt--fixed thead th{white-space:normal}
+.dt-lead{display:flex;align-items:center;gap:12px;min-width:0}
+.dt-lead>svg,.dt-ico{flex:none;display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--line);border-radius:var(--r-md,10px);background:var(--soft);color:var(--ink-2,var(--ink))}
+.dt-ico svg{width:17px;height:17px}
+.dt-av{display:inline-grid;place-items:center;width:24px;height:24px;margin-right:8px;border-radius:50%;background:var(--accent-bg,var(--soft));color:var(--accent-2,var(--accent));font:700 var(--text-2xs,11px)/1 var(--sans,inherit);letter-spacing:.02em;vertical-align:middle}
+.dt-meter{--tone:var(--green-dot,var(--accent));display:inline-grid;gap:6px;min-width:84px;text-align:left;font-family:var(--sans,inherit);font-weight:600;color:var(--ink)}
+.dt-meter::after{content:"";height:4px;border-radius:var(--r-pill,99px);background:linear-gradient(var(--tone),var(--tone)) 0/calc(100%*var(--v,0)) 100% no-repeat,var(--line)}
+.dt-meter[data-tone="warn"]{--tone:var(--amber-dot,var(--amber))}
+.dt-meter[data-tone="bad"]{--tone:var(--red-dot,var(--red))}
+.dt-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px var(--dt-x,14px);border-top:1px solid var(--line);color:var(--muted);font-size:var(--text-sm,13px)}
+@media (prefers-reduced-motion:reduce){.dt :is(th,td){transition:none}}
