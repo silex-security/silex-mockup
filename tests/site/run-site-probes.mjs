@@ -152,7 +152,8 @@ async function probe(id, name, fn) {
 try {
   chrome = spawn(await findChrome(), ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore', detached: true });
   releaseChrome = own(chrome, profile);
-  let port; await until(async () => { try { port = Number((await readFile(join(profile,'DevToolsActivePort'),'utf8')).split('\n')[0]); return port; } catch {} }, 'Chrome startup');
+  // The first launches on a cold CI runner, three at once, have taken more than 15 s.
+  let port; await until(async () => { try { port = Number((await readFile(join(profile,'DevToolsActivePort'),'utf8')).split('\n')[0]); return port; } catch {} }, 'Chrome startup', 60000);
   const endpoint = `http://127.0.0.1:${port}`;
   browser = await connect((await (await fetch(endpoint+'/json/version')).json()).webSocketDebuggerUrl);
   const target = (await (await fetch(endpoint+'/json/list')).json()).find(x=>x.type==='page');
