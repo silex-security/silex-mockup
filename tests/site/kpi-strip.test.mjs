@@ -7,8 +7,10 @@ const read = file => readFile(new URL('../../' + file, import.meta.url), 'utf8')
 const html = await read('index.html');
 const css = await read('css/console.css');
 
+import { TRENDS, VARIANTS, applySparks } from '../../tools/kpi-sparks.mjs';
+
 const TONES = ['accent', 'green', 'amber', 'red', 'violet'];
-const TRENDS = ['up', 'down', 'flat', 'wave', 'step'];
+const sparkOf = attrs => `${attrs.match(/data-trend="([^"]+)"/)?.[1]}-${attrs.match(/data-spark="([^"]+)"/)?.[1]}`;
 
 const strips = [...html.matchAll(/<div class="card kpi-strip[^>]*>\n([\s\S]*?)\n<\/div>\n/g)].map(m => m[1]);
 const tiles = strips.flatMap(body => [...body.matchAll(/<div class="metric"([^>]*)>/g)].map(m => m[1]));
@@ -25,9 +27,18 @@ test('every KPI tile has a data-tone and a data-trend from the allowed sets', ()
   }
 });
 
-test('console.css defines a rule for every tone and every trend', () => {
+test('console.css defines a rule for every tone and a line for every trend variant', () => {
   for (const t of TONES) assert.match(css, new RegExp(`\\.kpi-strip \\.metric\\[data-tone="${t}"\\]\\{--tone:var\\(--[\\w-]+\\)\\}`), t);
-  for (const t of TRENDS) assert.match(css, new RegExp(`\\.kpi-strip \\.metric\\[data-trend="${t}"\\]\\{--spark:url\\("data:image/svg\\+xml,`), t);
+  for (const t of TRENDS) for (const v of VARIANTS) assert.ok(css.includes(`.kpi-strip .metric[data-trend="${t}"][data-spark="${v}"]{--spark:url("data:image/svg+xml,`), `${t}-${v}`);
+  assert.equal(applySparks(css), css, 'run: node tools/kpi-sparks.mjs');
+});
+
+test('no two KPI tiles share a trend line', () => {
+  const lines = tiles.map(sparkOf);
+  for (const line of lines) assert.match(line, new RegExp(`^(${TRENDS.join('|')})-(${VARIANTS.join('|')})$`));
+  assert.equal(new Set(lines).size, lines.length, lines.join(' '));
+  const drawn = lines.map(line => css.match(new RegExp(`data-trend="${line.split('-')[0]}"\\]\\[data-spark="${line.split('-')[1]}"\\]\\{--spark:([^}]+)`))[1]);
+  assert.equal(new Set(drawn).size, drawn.length);
 });
 
 test('the trend line is drawn by ::after, so no markup, number or svg sits in a KPI strip', () => {
