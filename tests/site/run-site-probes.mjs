@@ -13,6 +13,7 @@ import { dirname, resolve, join, extname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
 import { recommend } from '../../blueprint_studio/js/optimize.js';
+import { own } from './chrome-reaper.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
@@ -25,7 +26,7 @@ const fixtureDocs = Object.entries(fixture).filter(([k]) => k.startsWith('bs.doc
 const acceptFixture = fixtureDocs.find(d => d.revisions.some(r => r.status === 'confirmed' && !r.decision && r.origin !== 'approve' && r.validation?.result.findings.length === 0));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const Q = JSON.stringify;
-let server, chrome, browser;
+let server, chrome, browser, releaseChrome;
 const results = [], clients = new Set();
 const profile = await mkdtemp(join(tmpdir(), 'studio-site-probes-'));
 const downloadDir = join(profile, 'downloads'); await mkdir(downloadDir);
@@ -150,6 +151,7 @@ async function probe(id, name, fn) {
 
 try {
   chrome = spawn(await findChrome(), ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+  releaseChrome = own(chrome, profile);
   let port; await until(async () => { try { port = Number((await readFile(join(profile,'DevToolsActivePort'),'utf8')).split('\n')[0]); return port; } catch {} }, 'Chrome startup');
   const endpoint = `http://127.0.0.1:${port}`;
   browser = await connect((await (await fetch(endpoint+'/json/version')).json()).webSocketDebuggerUrl);
@@ -1410,7 +1412,7 @@ try {
   });
 
 } finally {
-  for(const c of clients) c.ws.close(); chrome?.kill(); if(server) await new Promise(r=>server.close(r));
+  for(const c of clients) c.ws.close(); await releaseChrome?.(); if(server) await new Promise(r=>server.close(r));
 }
 console.log(`\n${results.filter(r=>r.pass).length}/${results.length} PASS${BASE?' (live read-back subset)':''}`);
 process.exitCode=results.some(r=>!r.pass)||!results.length?1:0;

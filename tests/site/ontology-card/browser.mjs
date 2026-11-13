@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { readFile, access, mkdtemp } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { own } from '../chrome-reaper.mjs';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function findChrome() {
   for (const p of [process.env.CHROME, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Chromium.app/Contents/MacOS/Chromium', '/usr/bin/google-chrome', '/usr/bin/chromium'].filter(Boolean)) {
@@ -30,6 +31,7 @@ async function until(fn, label, timeout = 15000) { const end = Date.now() + time
 export async function browser() {
   const profile = await mkdtemp(join(tmpdir(), 'ontology-card-chrome-'));
   const chrome = spawn(await findChrome(), ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+  const release = own(chrome, profile);
   let browserConnection, page;
   try {
     let port;
@@ -40,7 +42,7 @@ export async function browser() {
     page = await connect(target.webSocketDebuggerUrl);
     for (const method of ['Page.enable', 'Runtime.enable', 'Network.enable']) await page.send(method);
     await page.send('Network.setCacheDisabled', { cacheDisabled: true });
-    return { page, close() { page.ws.close(); browserConnection.ws.close(); chrome.kill(); } };
-  } catch (e) { page?.ws.close(); browserConnection?.ws.close(); chrome.kill(); throw e; }
+    return { page, close() { page.ws.close(); browserConnection.ws.close(); return release(); } };
+  } catch (e) { page?.ws.close(); browserConnection?.ws.close(); await release(); throw e; }
 }
 export { until, sleep };
