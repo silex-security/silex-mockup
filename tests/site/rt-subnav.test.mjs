@@ -23,6 +23,7 @@ const NOTES = {
     top: ['#rtLearning .rt-intro p'],
     loop: ['[data-rt-learn-illus]', '[data-rt-learn-loop-claim]', '[data-rt-learn-future]'],
     results: ['[data-rt-learn-measured]', '[data-rt-learn-claim]', '#rtJudgeRealNote'],
+    rules: ['[data-rt-rules-note]'],
   },
   ontology: {
     top: ['#rtOntology .rt-intro .rt-chip[data-kind="ran"]', '[data-rt-onto-nojudge]'],
@@ -38,6 +39,7 @@ const TEXT = {
   '[data-rt-learn-loop-claim]': /reviewer answers \(steps 1–2\) and Promote are not yet tested/,
   '[data-rt-learn-future]': /Future work/,
   '[data-rt-learn-claim]': /benchmark labels, not yet customer reviewers/,
+  '[data-rt-rules-note]': /After probes found some of them wrong, harder test cases were added[\s\S]*No proposed rule was put into a live policy/,
   '[data-rt-onto-nojudge]': /No judge model/,
   '[data-onto-how-claim]': /No judge model/,
   '[data-onto-s1-scope]': /held-out AgentDojo tasks and these models only/,

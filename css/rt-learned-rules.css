@@ -1,0 +1,17 @@
+/* rt-learned-rules (logs/2026-11-12_LEARNED_RULES_PLAN.md): the "Rules, tested" sub-tab of the Learning loop tab.
+   Site variables only. Pass and fail are words in every card and table row, never colour alone. */
+
+.rt-rules-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 8px}
+.rt-rules-headline{margin:0;font-size:var(--text-lg);line-height:1.45;max-width:62ch}
+.rt-rules-headline b{font-family:var(--mono);font-weight:650}
+.rt-rules-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0 16px}
+.rt-rules-card{margin:0;padding:14px 16px;border-left:3px solid var(--line);font-size:var(--text-md);line-height:1.5}
+.rt-rules-card[data-rt-rules-card="pass"]{border-left-color:var(--green)}
+.rt-rules-card[data-rt-rules-card="fail"]{border-left-color:var(--red)}
+.rt-rules-card h3{margin:0 0 8px;font-size:var(--text-md)}
+.rt-rules-card p{margin:0 0 8px}
+.rt-rules-card p:last-child{margin-bottom:0}
+.rt-rules-condition{font-family:var(--mono);font-size:var(--text-sm);background:var(--soft);border-radius:var(--r-md);padding:8px 10px;overflow-wrap:anywhere}
+[data-rt-rules-all] .dt{margin:10px 0 14px}
+[data-rt-rules-all] > div{overflow-x:auto}
+[data-rt-rules-criteria]{margin:0 0 12px;padding-left:20px;font-size:var(--text-md);line-height:1.6}

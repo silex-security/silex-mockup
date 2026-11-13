@@ -1,0 +1,2064 @@
+{
+  "failure_class": "invoice_overpayment",
+  "first_gate": {
+    "corpus_sha256": "sha256:958aceffa72cc162e8b8e7abd0751e7e926ffe6e8b07eb3af4b27e59ae2a313e",
+    "criteria_version": "rule-gate-v1",
+    "passed": 56
+  },
+  "gate": {
+    "corpus": {
+      "dev": 15,
+      "holdout": 14
+    },
+    "corpus_sha256": "sha256:199c8127605476aec28211d46a68b37356da98c7579bfc29a3158c07cca6bb1e",
+    "criteria_version": "rule-gate-v2"
+  },
+  "generated_by": "tools/build-learned-rules.mjs",
+  "rules": [
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "ge",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 1,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "ge",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 2,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 3,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 4,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 5,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 6,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "ge",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 7,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "all": [
+          {
+            "left": {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            "op": "ge",
+            "right": {
+              "fact": "invoice_amount_usd"
+            }
+          },
+          {
+            "left": {
+              "fact": "invoice_amount_usd"
+            },
+            "op": "gt",
+            "right": {
+              "const": 0
+            }
+          }
+        ]
+      },
+      "ordinal": 8,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "amount_usd"
+            },
+            {
+              "fact": "invoice_paid_to_date_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 9,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 10,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 11,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 12,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "all": [
+          {
+            "left": {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            "op": "ge",
+            "right": {
+              "fact": "invoice_amount_usd"
+            }
+          },
+          {
+            "left": {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            "op": "ge",
+            "right": {
+              "fact": "amount_usd"
+            }
+          }
+        ]
+      },
+      "ordinal": 13,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 14,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "amount_usd"
+            },
+            {
+              "fact": "invoice_paid_to_date_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 16,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 17,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 18,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "gt",
+        "right": {
+          "const": 0
+        }
+      },
+      "ordinal": 19,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 3,
+          "false_flags": 2,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          4,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 5,
+          "false_flags": 2,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "all": [
+          {
+            "left": {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            "op": "ge",
+            "right": {
+              "fact": "invoice_amount_usd"
+            }
+          },
+          {
+            "left": {
+              "fact": "invoice_amount_usd"
+            },
+            "op": "gt",
+            "right": {
+              "const": 0
+            }
+          }
+        ]
+      },
+      "ordinal": 20,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 22,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 23,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 24,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 25,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "all": [
+          {
+            "left": {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            "op": "ge",
+            "right": {
+              "fact": "invoice_amount_usd"
+            }
+          },
+          {
+            "left": {
+              "fact": "amount_usd"
+            },
+            "op": "gt",
+            "right": {
+              "const": 0
+            }
+          }
+        ]
+      },
+      "ordinal": 26,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "amount_usd"
+            },
+            {
+              "fact": "invoice_paid_to_date_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 27,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "amount_usd"
+            },
+            {
+              "fact": "invoice_paid_to_date_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 28,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 29,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 30,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 31,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "ge",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 32,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 35,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 36,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 37,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 38,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 39,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 40,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 41,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 42,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 43,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "ge",
+        "right": {
+          "fact": "amount_usd"
+        }
+      },
+      "ordinal": 44,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 1,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          4,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 1,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 45,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 46,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 47,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 48,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 49,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "fact": "invoice_paid_to_date_usd"
+        },
+        "op": "ge",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 50,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 1,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [
+          3,
+          5
+        ],
+        "holdout": {
+          "benign": 8,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "FAIL"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 51,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 52,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 53,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 54,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 55,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 56,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 57,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 58,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 59,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    },
+    {
+      "condition": {
+        "left": {
+          "add": [
+            {
+              "fact": "invoice_paid_to_date_usd"
+            },
+            {
+              "fact": "amount_usd"
+            }
+          ]
+        },
+        "op": "gt",
+        "right": {
+          "fact": "invoice_amount_usd"
+        }
+      },
+      "ordinal": 60,
+      "report": {
+        "dev": {
+          "benign": 11,
+          "caught": 4,
+          "false_flags": 0,
+          "violations": 4
+        },
+        "failed_criteria": [],
+        "holdout": {
+          "benign": 8,
+          "caught": 6,
+          "false_flags": 0,
+          "violations": 6
+        },
+        "verdict": "PASS"
+      },
+      "verdict_on_match": "BLOCK"
+    }
+  ],
+  "sessions": {
+    "total": 60,
+    "with_candidate": 56
+  },
+  "source": {
+    "commit": "de4ad51e84fc84c1304f2522f1d1f052f4af7b4c",
+    "files": [
+      {
+        "path": "runs/rule-regate-2026-11/gate-reports.json",
+        "sha256": "1172e0b2e885d1fcfe4f6eb914a74590b7cb61531658a4960af6fac6b324378d"
+      },
+      {
+        "files": 60,
+        "manifest_sha256": "44bd7d11020fadbc125ae635ef6201ed4e027aea193e2ddb3e3ec36a6fd7e3ec",
+        "path": "runs/rule-proposer-2026-10/sessions/"
+      }
+    ],
+    "repo": "silex-ai-lab/jev-runtime-observability"
+  }
+}
